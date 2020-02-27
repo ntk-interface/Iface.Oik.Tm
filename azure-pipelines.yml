@@ -8,7 +8,6 @@ variables:
 
   binaryPath: src/Iface.Oik.Tm/bin/$(buildConfiguration)/netstandard2.0
   appName: Iface.Oik.Tm
-  archiveName: $(appName).$(Build.BuildNumber)
 
 trigger:
 - master
@@ -32,16 +31,17 @@ steps:
     
 - task: CopyFiles@2 # потом убрать этот дебилизм, сделать NuGet
   inputs:
-    contents: $(binaryPath)?(*.dll|*.so)
+    contents: $(binaryPath)/?(*.dll|*.so)
     targetFolder: $(Build.ArtifactStagingDirectory)
     flattenFolders: true
 
-- task: ArchiveFiles@2
+- task: GithubRelease@0
   inputs:
-    rootFolderOrFile: $(Build.ArtifactStagingDirectory)
-    includeRootFolder: false
-    archiveType: zip
-    archiveFile: $(Build.ArtifactStagingDirectory)/$(archiveName).zip
-    
+    gitHubConnection: GitHub
+    repositoryName: $(Build.Repository.Name)
+    tagSource: manual
+    tag: $(Build.BuildNumber)
+    assets: $(Build.ArtifactStagingDirectory)/**.*
+
 - publish: $(Build.ArtifactStagingDirectory)
   artifact: $(appName)
