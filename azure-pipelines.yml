@@ -1,0 +1,47 @@
+name: $(majorVersion).$(minorVersion).$(patchVersion)
+
+variables:
+  majorVersion: 1
+  minorVersion: 0
+  patchVersion: $[counter(format('{0}.{1}', variables['majorVersion'], variables['minorVersion']), 0)]
+  buildConfiguration: Release
+
+  binaryPath: src/Iface.Oik.Tm/bin/$(buildConfiguration)/netstandard2.0
+  appName: Iface.Oik.Tm
+
+trigger:
+- master
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    command: build
+    projects: '**/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+#- task: DotNetCoreCLI@2
+#  inputs:
+#    command: test
+#    projects: '**/*.Test/*.csproj'
+#    arguments: '--configuration $(buildConfiguration)'
+    
+- task: CopyFiles@2 # потом убрать этот дебилизм, сделать NuGet
+  inputs:
+    contents: $(binaryPath)?(*.dll|*.so)
+    targetFolder: $(Build.ArtifactStagingDirectory)
+    flattenFolders: true
+
+- task: GithubRelease@0
+  inputs:
+    gitHubConnection: GitHub
+    repositoryName: $(Build.Repository.Name)
+    tagSource: manual
+    tag: $(Build.BuildNumber)
+    assets: $(Build.ArtifactStagingDirectory)/**.*
+
+- publish: $(Build.ArtifactStagingDirectory)
+  artifact: $(appName)
