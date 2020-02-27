@@ -8,6 +8,7 @@ variables:
 
   binaryPath: src/Iface.Oik.Tm/bin/$(buildConfiguration)/netstandard2.0
   appName: Iface.Oik.Tm
+  archiveName: $(appName).$(Build.BuildNumber)
 
 trigger:
 - master
@@ -35,13 +36,12 @@ steps:
     targetFolder: $(Build.ArtifactStagingDirectory)
     flattenFolders: true
 
-- task: GithubRelease@0
+- task: ArchiveFiles@2
   inputs:
-    gitHubConnection: GitHub
-    repositoryName: $(Build.Repository.Name)
-    tagSource: manual
-    tag: $(Build.BuildNumber)
-    assets: $(Build.ArtifactStagingDirectory)/**.*
-
+    rootFolderOrFile: $(Build.ArtifactStagingDirectory)
+    includeRootFolder: false
+    archiveType: zip
+    archiveFile: $(Build.ArtifactStagingDirectory)/$(archiveName).zip
+    
 - publish: $(Build.ArtifactStagingDirectory)
   artifact: $(appName)
