@@ -378,11 +378,23 @@ namespace Iface.Oik.Tm.Api
     {
       await UpdateStatuses(new List<TmStatus> {status});
     }
+    
+    
+    public async Task UpdateStatusExplicitly(TmStatus status, bool getRealTelemetry)
+    {
+      await UpdateStatusesExplicitly(new List<TmStatus> {status}, getRealTelemetry);
+    }
 
 
     public async Task UpdateAnalog(TmAnalog analog)
     {
       await UpdateAnalogs(new List<TmAnalog> {analog});
+    }
+    
+    
+    public async Task UpdateAnalogExplicitly(TmAnalog analog, bool getRealTelemetry)
+    {
+      await UpdateAnalogsExplicitly(new List<TmAnalog> {analog}, getRealTelemetry);
     }
 
 
@@ -416,6 +428,32 @@ namespace Iface.Oik.Tm.Api
       }
 
       _native.TmcFreeMemory(tmcCommonPointsPtr);
+    }
+    
+    
+    public async Task UpdateStatusesExplicitly(IList<TmStatus> statuses, bool getRealTelemetry)
+    {
+      if (statuses.IsNullOrEmpty()) return;
+
+      var count            = statuses.Count;
+      var tmcAddrList      = new TmNativeDefs.TAdrTm[count];
+      var statusPointsList = new TmNativeDefs.TStatusPoint[count];
+
+      for (var i = 0; i < count; i++)
+      {
+        tmcAddrList[i] = statuses[i].TmAddr.ToAdrTm();
+        if (getRealTelemetry)
+        {
+          tmcAddrList[i].Ch += TmNativeDefs.RealTelemetryFlag;
+        }
+      }
+
+      await Task.Run(() => _native.TmcStatusByList(_cid, (ushort) count, tmcAddrList, statusPointsList));
+
+      for (var i = 0; i < count; i++)
+      {
+        statuses[i].FromTStatusPoint(statusPointsList[i]);
+      }
     }
 
 
@@ -451,6 +489,32 @@ namespace Iface.Oik.Tm.Api
       _native.TmcFreeMemory(tmcCommonPointsPtr);
     }
 
+    
+    public async Task UpdateAnalogsExplicitly(IList<TmAnalog> analogs, bool getRealTelemetry)
+    {
+      if (analogs.IsNullOrEmpty()) return;
+
+      var count            = analogs.Count;
+      var tmcAddrList      = new TmNativeDefs.TAdrTm[count];
+      var analogPointsList = new TmNativeDefs.TAnalogPoint[count];
+
+      for (var i = 0; i < count; i++)
+      {
+        tmcAddrList[i] = analogs[i].TmAddr.ToAdrTm();
+        if (getRealTelemetry)
+        {
+          tmcAddrList[i].Ch += TmNativeDefs.RealTelemetryFlag;
+        }
+      }
+
+      await Task.Run(() => _native.TmcAnalogByList(_cid, (ushort) count, tmcAddrList, analogPointsList));
+
+      for (var i = 0; i < count; i++)
+      {
+        analogs[i].FromTAnalogPoint(analogPointsList[i]);
+      }
+    }
+    
 
     public async Task UpdateTagsPropertiesAndClassData(IEnumerable<TmTag> tags)
     {

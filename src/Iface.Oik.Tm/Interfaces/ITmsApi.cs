@@ -32,12 +32,24 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task UpdateStatus(TmStatus status);
+    
+    Task UpdateStatusExplicitly(TmStatus status, 
+                                bool     getRealTelemetry = false);
 
     Task UpdateAnalog(TmAnalog analog);
+    
+    Task UpdateAnalogExplicitly(TmAnalog analog, 
+                                bool     getRealTelemetry = false);
 
     Task UpdateStatuses(IList<TmStatus> statuses);
+    
+    Task UpdateStatusesExplicitly(IList<TmStatus> statuses, 
+                                  bool            getRealTelemetry = false);
 
     Task UpdateAnalogs(IList<TmAnalog> analogs);
+    
+    Task UpdateAnalogsExplicitly(IList<TmAnalog> analogs, 
+                                 bool            getRealTelemetry = false);
 
     Task UpdateTagsPropertiesAndClassData(IEnumerable<TmTag> tags);
 
