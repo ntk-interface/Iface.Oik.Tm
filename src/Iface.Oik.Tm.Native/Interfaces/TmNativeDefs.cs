@@ -12,7 +12,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
     public const Int16 Failure = 0;
 
 
-    public enum TmDataTypes 
+    public enum TmDataTypes
     {
       Status      = 0x8000,
       Analog      = 0x8001,
@@ -29,24 +29,24 @@ namespace Iface.Oik.Tm.Native.Interfaces
     [Flags]
     public enum Flags
     {
-      UnreliableHdw       = 0x0001,
-      UnreliableManu      = 0x0002,
-      Requested           = 0x0004,
-      ManuallySet         = 0x0008,
-      LevelA              = 0x0010,
-      LevelB              = 0x0020,
-      LevelC              = 0x0040,
-      LevelD              = 0x0080,
-      Inverted            = 0x0100,
-      ResChannel          = 0x0200,
-      TmCtrlPresent       = 0x0400,
-      HasAlarm            = 0x0400,
-      StatusClassAps      = 0x0800,
-      AnalogCtrlPresent   = 0x0800,
-      TmStreaming         = 0x1000,
-      Abnormal            = 0x2000,
-      Unacked             = 0x4000,
-      IV                  = 0x8000,
+      UnreliableHdw     = 0x0001,
+      UnreliableManu    = 0x0002,
+      Requested         = 0x0004,
+      ManuallySet       = 0x0008,
+      LevelA            = 0x0010,
+      LevelB            = 0x0020,
+      LevelC            = 0x0040,
+      LevelD            = 0x0080,
+      Inverted          = 0x0100,
+      ResChannel        = 0x0200,
+      TmCtrlPresent     = 0x0400,
+      HasAlarm          = 0x0400,
+      StatusClassAps    = 0x0800,
+      AnalogCtrlPresent = 0x0800,
+      TmStreaming       = 0x1000,
+      Abnormal          = 0x2000,
+      Unacked           = 0x4000,
+      IV                = 0x8000,
     }
 
 
@@ -74,8 +74,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
       ExtFileLink     = 0x4000, // Служебное значение - не использовать!
       Extended        = 0x8000, // Расширенный формат
     }
-    
-    
+
+
     [Flags]
     public enum ExtendedEventTypes
     {
@@ -352,7 +352,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public IntPtr Props;
     }
 
-    
+
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct StatusData
     {
@@ -368,7 +368,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt16 FixMS;
     }
 
-    
+
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct AlarmData
     {
@@ -376,7 +376,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt16 AlarmID;
       public byte   State;
     }
-    
+
 
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct ControlData // параметры выданного телеуправления
@@ -391,7 +391,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public byte[] UserName; // пользователь, выдавший ТУ
     }
 
-    
+
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct AcknowledgeData
     {
@@ -402,7 +402,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
       public byte[] UserName;
     }
-    
+
 
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct AnalogSetData
@@ -416,8 +416,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1)]
       public byte[] DummyBytes;
     }
-    
-    
+
+
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct StrBinData
     {
@@ -614,10 +614,11 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public IntPtr hMap;
       public IntPtr pData;
     }
-    
-    
-    public const Int16 RealTelemetryFlag = unchecked((short) 0x8000); 
-    
+
+
+    public const Int16  RealTelemetryFlag     = unchecked((short) 0x8000);
+    public const UInt32 ExtendedDataSignature = 0xEEAAEE00;
+
     #region Cfs
 
     public const UInt32 FailIfNoConnect            = 0x80000000;
