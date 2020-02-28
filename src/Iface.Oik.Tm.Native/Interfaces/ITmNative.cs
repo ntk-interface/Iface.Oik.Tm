@@ -34,6 +34,13 @@ namespace Iface.Oik.Tm.Native.Interfaces
                                   IntPtr buf,
                                   UInt32 bufSize);
 
+    
+    UInt32 CfsGetExtendedUserData(IntPtr cfCid,
+                                  string serverType,
+                                  string serverName,
+                                  IntPtr buf,
+                                  UInt32 bufSize);
+    
 
     bool CfsPmonLocalRegisterProcess(Int32      argc,
                                      string[]   argv,

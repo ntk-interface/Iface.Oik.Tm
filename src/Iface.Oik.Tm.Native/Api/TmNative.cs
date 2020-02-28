@@ -69,6 +69,15 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public UInt32 CfsGetExtendedUserData(IntPtr cfCid,
+                                         string serverType,
+                                         string serverName,
+                                         IntPtr buf,
+                                         UInt32 bufSize)
+    {
+      return cfsGetExtendedUserData(cfCid, serverType, serverName, buf, bufSize);
+    }
+
     public bool CfsPmonLocalRegisterProcess(Int32      argc,
                                             string[]   argv,
                                             ref UInt32 phStartEvt,

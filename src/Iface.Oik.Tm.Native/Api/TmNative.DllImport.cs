@@ -49,6 +49,13 @@ namespace Iface.Oik.Tm.Native.Api
                                                        [MarshalAs(UnmanagedType.LPStr)] string serverName,
                                                        IntPtr                                  buf,
                                                        UInt32                                  bufSize);
+    
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern UInt32 cfsGetExtendedUserData(IntPtr                                  cfCid,
+                                                       [MarshalAs(UnmanagedType.LPStr)] string serverType,
+                                                       [MarshalAs(UnmanagedType.LPStr)] string serverName,
+                                                       IntPtr                                  buf,
+                                                       UInt32                                  bufSize);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
