@@ -28,6 +28,7 @@ namespace Iface.Oik.Tm.Interfaces
     public bool IsRequested       => Flags.HasFlag(TmFlags.Requested);
     public bool IsResChannel      => Flags.HasFlag(TmFlags.ResChannel);
     public bool HasTeleregulation => Flags.HasFlag(TmFlags.HasTeleregulation);
+    public bool HasAlarm          => Flags.HasFlag(TmFlags.HasAlarm);
     public bool IsAlarmLevel1     => Flags.HasFlag(TmFlags.LevelA);
     public bool IsAlarmLevel2     => Flags.HasFlag(TmFlags.LevelB);
     public bool IsAlarmLevel3     => Flags.HasFlag(TmFlags.LevelC);
