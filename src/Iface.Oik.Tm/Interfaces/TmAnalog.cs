@@ -12,6 +12,7 @@ namespace Iface.Oik.Tm.Interfaces
     public static readonly string InvalidValueString = "???";
 
 
+    public short   Code      { get; set; }
     public float   Value     { get; set; }
     public TmFlags Flags     { get; set; } = TmFlags.Invalid;
     public byte    Width     { get; set; } // todo сейчас вообще не используется, а надо ли?
@@ -37,13 +38,13 @@ namespace Iface.Oik.Tm.Interfaces
     public bool HasTeleregulationByValue => Teleregulation == TmTeleregulation.Value;
 
     public string ValueString => (IsInit)
-      ? Value.ToString("0." + new string('0', Precision))
-      : InvalidValueString;
+                                   ? Value.ToString("0." + new string('0', Precision))
+                                   : InvalidValueString;
 
 
     public string ValueWithUnitString => (IsInit)
-      ? ValueString + " " + Unit
-      : InvalidValueString;
+                                           ? ValueString + " " + Unit
+                                           : InvalidValueString;
 
 
     public byte TmcRegulationType
@@ -92,6 +93,7 @@ namespace Iface.Oik.Tm.Interfaces
       {
         return false;
       }
+
       if (ReferenceEquals(this, comparison))
       {
         return true;
@@ -109,6 +111,7 @@ namespace Iface.Oik.Tm.Interfaces
       {
         return ReferenceEquals(right, null);
       }
+
       return left.Equals(right);
     }
 
@@ -134,32 +137,32 @@ namespace Iface.Oik.Tm.Interfaces
     public string ValueStringWithPrecision(int precision)
     {
       return (IsInit)
-        ? Value.ToString("0." + new string('0', precision))
-        : InvalidValueString;
+               ? Value.ToString("0." + new string('0', precision))
+               : InvalidValueString;
     }
 
 
     public string ValueStringWithFormat(string format)
     {
       return (IsInit)
-        ? Value.ToString(format)
-        : InvalidValueString;
+               ? Value.ToString(format)
+               : InvalidValueString;
     }
 
 
     public string ValueWithUnitStringWithPrecision(int precision)
     {
       return (IsInit)
-        ? ValueStringWithPrecision(precision) + " " + Unit
-        : InvalidValueString;
+               ? ValueStringWithPrecision(precision) + " " + Unit
+               : InvalidValueString;
     }
 
 
     public string ValueWithUnitStringWithFormat(string format)
     {
       return (IsInit)
-        ? Value.ToString(format) + " " + Unit
-        : InvalidValueString;
+               ? Value.ToString(format) + " " + Unit
+               : InvalidValueString;
     }
 
 
@@ -169,6 +172,7 @@ namespace Iface.Oik.Tm.Interfaces
       {
         precision = Precision;
       }
+
       return fakeValue.ToString("0." + new string('0', precision));
     }
 
@@ -191,6 +195,7 @@ namespace Iface.Oik.Tm.Interfaces
       {
         return TmTeleregulation.None;
       }
+
       switch ((TmNativeDefs.AnalogRegulationFlag) flag)
       {
         case TmNativeDefs.AnalogRegulationFlag.Step:
@@ -280,23 +285,25 @@ namespace Iface.Oik.Tm.Interfaces
       {
         provider.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries)
                 .ForEach(property =>
-                {
-                  var kvp = property.Split('=');
-                  if (kvp.Length != 2)
-                  {
-                    return;
-                  }
-                  if (kvp[0] == "FBFlagsC")
-                  {
-                    Teleregulation = GetRegulationFromNativeFlag(kvp[1]);
-                  }
-                });
+                         {
+                           var kvp = property.Split('=');
+                           if (kvp.Length != 2)
+                           {
+                             return;
+                           }
+
+                           if (kvp[0] == "FBFlagsC")
+                           {
+                             Teleregulation = GetRegulationFromNativeFlag(kvp[1]);
+                           }
+                         });
       }
 
       if (classId < 0)
       {
         return;
       }
+
       ClassId = (byte) classId;
     }
 
