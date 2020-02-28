@@ -98,7 +98,7 @@ namespace Iface.Oik.Tm.Native.Api
                                          out                              UInt32        errCode,
                                          [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
                                          UInt32                                         maxErrs);
-
+    
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.Cdecl)]
     public static extern Int64 uxgmtime2uxtime(Int64 time);
@@ -473,6 +473,57 @@ namespace Iface.Oik.Tm.Native.Api
     [DllImport(Tmconn, CallingConvention = CallingConvention.Cdecl)]
     public static extern bool rbcIpgStopRedirector(Int32  cid,
                                                    UInt16 portIdx);
+
+    #endregion
+    
+    #region Cftree
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
+    public static extern void cftNodeFreeTree(IntPtr id);
+    
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
+    public static extern IntPtr cftNodeEnum(IntPtr id, Int32 idx);
+    
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern IntPtr cftNodeGetName(IntPtr                                         id,
+                                               [MarshalAs(UnmanagedType.LPStr)] StringBuilder buf,
+                                               UInt32                                         count);
+    
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern IntPtr cftNPropEnum(IntPtr                                         id,
+                                             Int32                                          idx,
+                                             [MarshalAs(UnmanagedType.LPStr)] StringBuilder buf,
+                                             UInt32                                         count);
+    
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern IntPtr cftNPropGetText(IntPtr                                         id,
+                                                [MarshalAs(UnmanagedType.LPStr)] string        name,
+                                                [MarshalAs(UnmanagedType.LPStr)] StringBuilder buf,
+                                                UInt32                                         count);
+    
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
+    public static extern IntPtr cftNodeNewTree();
+    
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern IntPtr cftNodeInsertAfter(IntPtr                                  id,
+                                                   [MarshalAs(UnmanagedType.LPStr)] string nodeTag);
+    
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern IntPtr cftNodeInsertDown(IntPtr                                  id,
+                                                  [MarshalAs(UnmanagedType.LPStr)] string nodeTag);
+    
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern bool cftNPropSet(IntPtr                                  id,
+                                          [MarshalAs(UnmanagedType.LPStr)] string propName,
+                                          [MarshalAs(UnmanagedType.LPStr)] string propText);
 
     #endregion
   }
