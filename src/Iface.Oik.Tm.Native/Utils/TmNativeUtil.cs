@@ -128,6 +128,61 @@ namespace Iface.Oik.Tm.Native.Utils
       return result;
     }
 
+    
+    public static TmNativeDefs.StatusData GetStatusDataFromTEvent(TmNativeDefs.TEvent tEvent)
+    {
+      if (tEvent.Data == null)
+      {
+        throw new ArgumentException("Отсутствует Data в TEvent");
+      }
+      return FromBytes<TmNativeDefs.StatusData>(tEvent.Data);
+    }
+
+    public static TmNativeDefs.AlarmData GetAlarmDataFromTEvent(TmNativeDefs.TEvent tEvent)
+    {
+      if (tEvent.Data == null)
+      {
+        throw new ArgumentException("Отсутствует Data в TEvent");
+      }
+      return FromBytes<TmNativeDefs.AlarmData>(tEvent.Data);
+    }
+    
+    public static TmNativeDefs.AnalogSetData GetAnalogSetDataFromTEvent(TmNativeDefs.TEvent tEvent)
+    {
+      if (tEvent.Data == null)
+      {
+        throw new ArgumentException("Отсутствует Data в TEvent");
+      }
+      return FromBytes<TmNativeDefs.AnalogSetData>(tEvent.Data);
+    }
+    
+    public static TmNativeDefs.ControlData GetControlDataFromTEvent(TmNativeDefs.TEvent tEvent)
+    {
+      if (tEvent.Data == null)
+      {
+        throw new ArgumentException("Отсутствует Data в TEvent");
+      }
+      return FromBytes<TmNativeDefs.ControlData>(tEvent.Data);
+    }
+
+    public static TmNativeDefs.AcknowledgeData GetAcknowledgeDataFromTEvent(TmNativeDefs.TEvent tEvent)
+    {
+      if (tEvent.Data == null)
+      {
+        throw new ArgumentException("Отсутствует Data в TEvent");
+      }
+      return FromBytes<TmNativeDefs.AcknowledgeData>(tEvent.Data);
+    }
+    
+    public static TmNativeDefs.StrBinData GetStrBinData(TmNativeDefs.TEvent tEvent)
+    {
+      if (tEvent.Data == null)
+      {
+        throw new ArgumentException("Отсутствует Data в TEvent");
+      }
+      return FromBytes<TmNativeDefs.StrBinData>(tEvent.Data);
+    }
+    
 
     public static byte[] GetBytes<T>(T structure) where T : struct
     {

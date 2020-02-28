@@ -352,6 +352,31 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public IntPtr Props;
     }
 
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
+    public struct StatusData
+    {
+      public byte   State;
+      public byte   Class;
+      public UInt32 ExtSig;
+      public byte   ResCh;
+      public byte   ResRtu;
+      public UInt16 ResPoint;
+      public UInt32 FixUT;
+      public UInt16 S2;
+      public UInt32 Flags;
+      public UInt16 FixMS;
+    }
+
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
+    public struct AlarmData
+    {
+      public float  Val;
+      public UInt16 AlarmID;
+      public byte   State;
+    }
+    
 
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct ControlData // параметры выданного телеуправления
@@ -366,6 +391,18 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public byte[] UserName; // пользователь, выдавший ТУ
     }
 
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
+    public struct AcknowledgeData
+    {
+      public UInt16 TmType;
+      public UInt16 Res1;
+      public UInt16 Res2;
+
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
+      public byte[] UserName;
+    }
+    
 
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct AnalogSetData
@@ -378,6 +415,16 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1)]
       public byte[] DummyBytes;
+    }
+    
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
+    public struct StrBinData
+    {
+      public UInt32 Source;
+
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 97)]
+      public byte[] StrBin;
     }
 
 
