@@ -506,7 +506,7 @@ namespace Iface.Oik.Tm.Native.Api
                                              [In, Out] UInt16[] buf,
                                              Int16              ch,
                                              Int16              rtu,
-                                             Int16              toint);
+                                             Int16              point);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -514,7 +514,7 @@ namespace Iface.Oik.Tm.Native.Api
                                                UInt16                                         objectType,
                                                Int16                                          ch,
                                                Int16                                          rtu,
-                                               Int16                                          toint,
+                                               Int16                                          point,
                                                [MarshalAs(UnmanagedType.LPStr)] StringBuilder buf,
                                                Int32                                          bufSize);
 
