@@ -1517,5 +1517,68 @@ namespace Iface.Oik.Tm.Api
                                ref buf, 1024);
       rtu.Name = buf.ToString();
     }
+    
+    public async Task<IEnumerable<TmTag>> GetTmsPoints(TmType tmType, int channelId, int rtuId)
+    {
+      if (channelId < 0 || channelId > 254)
+      {
+        throw new Exception("Недопустимый номер канала");
+      }
+
+      if (rtuId < 1 || rtuId > 255)
+      {
+        throw new Exception("Недопустимый номер КП");
+      }
+
+      var    result = new List<TmTag>();
+      ushort itemType;
+
+      switch (tmType)
+      {
+        case TmType.Status:
+          itemType = (ushort) TmNativeDefs.TmDataTypes.Status;
+          break;
+        case TmType.Analog:
+          itemType = (ushort) TmNativeDefs.TmDataTypes.Analog;
+          break;
+        default:
+          throw new Exception("Недопустимый тип параметра");
+      }
+
+
+      var itemsIndexes = new ushort[255];
+
+      short startIndex = 0;
+
+      while (true)
+      {
+        var count = await Task.Run(() => 
+                                     _native.TmcEnumObjects(_cid, itemType, 255, ref itemsIndexes, 
+                                                            (short) channelId, (short) rtuId, startIndex));
+
+        if (count == 0) break;
+        startIndex += (short) (count + 1);
+
+        for (var i = 0; i < count; i++)
+        {
+          TmTag tag;
+          switch (tmType)
+          {
+            case TmType.Status:
+              tag = new TmStatus(channelId, rtuId, itemsIndexes[i]);
+              break;
+            case TmType.Analog:
+              tag = new TmAnalog(channelId, rtuId, itemsIndexes[i]);
+              break;
+            default:
+              throw new Exception("Недопустимый тип параметр");
+          }
+
+          result.Add(tag);
+        }
+      }
+
+      return result;
+    }
   }
 }

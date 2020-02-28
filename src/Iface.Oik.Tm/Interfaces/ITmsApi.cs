@@ -50,6 +50,8 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IEnumerable<TmChannel>> GetTmTreeChannels();
 
     Task<IEnumerable<TmRtu>> GetTmTreeRtus(int channelId);
+    
+    Task<IEnumerable<TmTag>> GetTmsPoints(TmType tmType, int channelId, int rtuId);
 
     Task<IEnumerable<TmClassStatus>> GetStatusesClasses();
 
