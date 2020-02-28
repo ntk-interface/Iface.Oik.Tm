@@ -1518,6 +1518,7 @@ namespace Iface.Oik.Tm.Api
       rtu.Name = buf.ToString();
     }
     
+    
     public async Task<IEnumerable<TmTag>> GetTmsPoints(TmType tmType, int channelId, int rtuId)
     {
       if (channelId < 0 || channelId > 254)
@@ -1580,5 +1581,72 @@ namespace Iface.Oik.Tm.Api
 
       return result;
     }
+    
+    
+    public async Task SetMultipleTagsFlags(IEnumerable<TmTag> tmTags,
+                                           TmFlags            flags)
+    {
+      await ToggleMultipleTagsFlags(tmTags, flags, true);
+    }
+
+    
+    public async Task ClearMultipleTagsFlags(IEnumerable<TmTag> tmTags,
+                                             TmFlags            flags)
+    {
+      await ToggleMultipleTagsFlags(tmTags, flags, false);
+    }
+
+
+    public async Task ToggleMultipleTagsFlags(IEnumerable<TmTag> tmTags,
+                                               TmFlags            flags,
+                                               bool               isSet)
+    {
+      var timedValuesAndFlags = new List<TmNativeDefs.TTimedValueAndFlags>();
+
+      foreach (var tmTag in tmTags)
+      {
+        byte timedValueType;
+        switch (tmTag)
+        {
+          case TmStatus _:
+            timedValueType = (byte) TmNativeDefs.VfType.Status;
+            break;
+          case TmAnalog _:
+            timedValueType = (byte) TmNativeDefs.VfType.AnalogFloat;
+            break;
+          default:
+            continue;
+        }
+
+        if (isSet)
+        {
+          timedValueType += (byte) TmNativeDefs.VfType.FlagSet;
+        }
+        else
+        {
+          timedValueType += (byte) TmNativeDefs.VfType.FlagClear;
+        }
+
+        timedValuesAndFlags.Add(new TmNativeDefs.TTimedValueAndFlags
+        {
+          Vf =
+          {
+            Adr   = tmTag.TmAddr.ToAdrTm(),
+            Type  = timedValueType,
+            Flags = (byte) flags,
+            Bits  = 0,
+          },
+          Xt =
+          {
+            Flags = (ushort) TmNativeDefs.TMXTimeFlags.User,
+          }
+        });
+      }
+
+      await Task.Run(() => _native.TmcSetTimedValues(_cid, (uint) timedValuesAndFlags.Count,
+                                                     timedValuesAndFlags.ToArray()));
+    }
+    
+    
   }
 }

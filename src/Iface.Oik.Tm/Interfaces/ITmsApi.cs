@@ -200,5 +200,13 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<bool> DownloadFile(string remotePath,
                             string localPath);
+    
+    
+    Task SetMultipleTagsFlags(IEnumerable<TmTag> tmTags,
+                              TmFlags            flags);
+
+    
+    Task ClearMultipleTagsFlags(IEnumerable<TmTag> tmTags,
+                                TmFlags            flags);
   }
 }
