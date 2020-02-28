@@ -232,6 +232,17 @@ namespace Iface.Oik.Tm.Interfaces
       Width     = (byte) (tmcAnalogPoint.Format & 0x0F);
       Precision = (byte) (tmcAnalogPoint.Format >> 4);
     }
+    
+    
+    public void FromTAnalogPoint(TmNativeDefs.TAnalogPoint tmcAnalogPoint)
+    {
+      IsInit    = true;
+      Code      = tmcAnalogPoint.AsCode;
+      Value     = tmcAnalogPoint.AsFloat;
+      Flags     = (TmFlags) tmcAnalogPoint.Flags;
+      Width     = (byte) (tmcAnalogPoint.Format & 0x0F);
+      Precision = (byte) (tmcAnalogPoint.Format >> 4);
+    }
 
 
     public void UpdateWithDto(TmAnalogDto dto)

@@ -277,6 +277,14 @@ namespace Iface.Oik.Tm.Interfaces
       ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(tmcCommonPoint.tm_local_ut,
                                                                    tmcCommonPoint.tm_local_ms);
     }
+    
+    
+    public void FromTStatusPoint(TmNativeDefs.TStatusPoint tmcStatusPoint)
+    {
+      IsInit = true;
+      Status = tmcStatusPoint.Status;
+      Flags  = (TmFlags) tmcStatusPoint.Flags;
+    }
 
 
     public void UpdateWithDto(TmStatusDto dto)
