@@ -559,5 +559,13 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public IntPtr hMap;
       public IntPtr pData;
     }
+    
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct FileTime
+    {
+      public Int32 dwLowDateTime;
+      public Int32 dwHighDateTime;
+    }
   }
 }

@@ -129,7 +129,61 @@ namespace Iface.Oik.Tm.Native.Api
       return cfsFileGet(cfCid, remotePath, localPath, timeout, fileTime, out errCode, errString, maxErrs);
     }
 
+    
+    public IntPtr CfsConnect(string            serverName,
+                             out UInt32        errCode,
+                             ref StringBuilder errString,
+                             UInt32            maxErrs)
+    {
+      return cfsConnect(serverName, out errCode, errString, maxErrs);
+    }
 
+    
+    public IntPtr CfsConfFileOpenCid(IntPtr                    connId,
+                                     string                    serverName,
+                                     string                    fileName,
+                                     UInt32                    timeout,
+                                     ref TmNativeDefs.FileTime fileTime,
+                                     out UInt32                errCode,
+                                     ref StringBuilder         errString,
+                                     UInt32                    maxErrs)
+    {
+      return cfsConfFileOpenCid(connId, serverName, fileName, timeout, ref fileTime, out errCode, errString, maxErrs);
+    }
+
+    
+    public bool CfsConfFileSaveAs(IntPtr                    treeHandle,
+                                  string                    serverName,
+                                  string                    remoteFileName,
+                                  UInt32                    timeout,
+                                  ref TmNativeDefs.FileTime fileTime,
+                                  out UInt32                errCode,
+                                  ref StringBuilder         errString,
+                                  UInt32                    maxErrs)
+    {
+      return cfsConfFileSaveAs(treeHandle, serverName, remoteFileName, timeout, ref fileTime, out errCode, errString,
+                               maxErrs);
+    }
+
+    
+    public UInt32 CfsGetSoftwareType(IntPtr connId)
+    {
+      return cfsGetSoftwareType(connId);
+    }
+
+    
+    public UInt32 CfsIfpcMaster(IntPtr connId, Byte command)
+    {
+      return cfsIfpcMaster(connId, command);
+    }
+
+    
+    public bool CfsIsConnected(IntPtr connId)
+    {
+      return cfsIsConnected(connId);
+    }
+
+    
     public Int64 UxGmTime2UxTime(Int64 time)
     {
       return uxgmtime2uxtime(time);

@@ -80,13 +80,14 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern bool cfsDirEnum(UInt32                                              cfCid,
-                                         [MarshalAs(UnmanagedType.LPStr)]             string path,
-                                         [MarshalAs(UnmanagedType.LPArray)] [In, Out] char[] buf,
-                                         UInt32                                              bufLength,
-                                         out                              UInt32             errCode,
-                                         [MarshalAs(UnmanagedType.LPStr)] StringBuilder      errString,
-                                         UInt32                                              maxErrs);
+    public static extern bool cfsDirEnum(UInt32                                  cfCid,
+                                         [MarshalAs(UnmanagedType.LPStr)] string path,
+                                         [MarshalAs(UnmanagedType.LPArray)] [In, Out]
+                                         char[] buf,
+                                         UInt32                                         bufLength,
+                                         out                              UInt32        errCode,
+                                         [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
+                                         UInt32                                         maxErrs);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
@@ -98,7 +99,44 @@ namespace Iface.Oik.Tm.Native.Api
                                          out                              UInt32        errCode,
                                          [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
                                          UInt32                                         maxErrs);
-    
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern IntPtr cfsConnect([MarshalAs(UnmanagedType.LPStr)] string        serverName,
+                                           out                              UInt32        errCode,
+                                           [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
+                                           UInt32                                         maxErrs);
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern IntPtr cfsConfFileOpenCid(IntPtr                                                 connId,
+                                                   [MarshalAs(UnmanagedType.LPStr)] string                serverName,
+                                                   [MarshalAs(UnmanagedType.LPStr)] string                fileName,
+                                                   UInt32                                                 timeout,
+                                                   [In, Out] ref                    TmNativeDefs.FileTime fileTime,
+                                                   out                              UInt32                errCode,
+                                                   [MarshalAs(UnmanagedType.LPStr)] StringBuilder         errString,
+                                                   UInt32                                                 maxErrs);
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern bool cfsConfFileSaveAs(IntPtr                                                 treeHandle,
+                                                [MarshalAs(UnmanagedType.LPStr)] string                serverName,
+                                                [MarshalAs(UnmanagedType.LPStr)] string                remoteFileName,
+                                                UInt32                                                 timeout,
+                                                [In, Out] ref                    TmNativeDefs.FileTime fileTime,
+                                                out                              UInt32                errCode,
+                                                [MarshalAs(UnmanagedType.LPStr)] StringBuilder         errString,
+                                                UInt32                                                 maxErrs);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern UInt32 cfsGetSoftwareType(IntPtr connId);
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern UInt32 cfsIfpcMaster(IntPtr connId, Byte command);
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
+    public static extern bool cfsIsConnected(IntPtr connId);
+
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.Cdecl)]
     public static extern Int64 uxgmtime2uxtime(Int64 time);
@@ -237,14 +275,15 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern bool tmcEvlogPutStrBin(Int32                                          cid,
-                                                UInt32                                         unixTime,
-                                                Byte                                           unixHund,
-                                                Byte                                           importance,
-                                                UInt32                                         sourceTag,
-                                                [In] [MarshalAs(UnmanagedType.LPStr)]   string str,
-                                                [In] [MarshalAs(UnmanagedType.LPArray)] Byte[] bin,
-                                                UInt32                                         cbBin);
+    public static extern bool tmcEvlogPutStrBin(Int32                                        cid,
+                                                UInt32                                       unixTime,
+                                                Byte                                         unixHund,
+                                                Byte                                         importance,
+                                                UInt32                                       sourceTag,
+                                                [In] [MarshalAs(UnmanagedType.LPStr)] string str,
+                                                [In] [MarshalAs(UnmanagedType.LPArray)]
+                                                Byte[] bin,
+                                                UInt32 cbBin);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -475,50 +514,50 @@ namespace Iface.Oik.Tm.Native.Api
                                                    UInt16 portIdx);
 
     #endregion
-    
+
     #region Cftree
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
     public static extern void cftNodeFreeTree(IntPtr id);
-    
+
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
     public static extern IntPtr cftNodeEnum(IntPtr id, Int32 idx);
-    
+
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern IntPtr cftNodeGetName(IntPtr                                         id,
                                                [MarshalAs(UnmanagedType.LPStr)] StringBuilder buf,
                                                UInt32                                         count);
-    
+
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern IntPtr cftNPropEnum(IntPtr                                         id,
                                              Int32                                          idx,
                                              [MarshalAs(UnmanagedType.LPStr)] StringBuilder buf,
                                              UInt32                                         count);
-    
+
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern IntPtr cftNPropGetText(IntPtr                                         id,
                                                 [MarshalAs(UnmanagedType.LPStr)] string        name,
                                                 [MarshalAs(UnmanagedType.LPStr)] StringBuilder buf,
                                                 UInt32                                         count);
-    
+
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
     public static extern IntPtr cftNodeNewTree();
-    
+
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern IntPtr cftNodeInsertAfter(IntPtr                                  id,
                                                    [MarshalAs(UnmanagedType.LPStr)] string nodeTag);
-    
+
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern IntPtr cftNodeInsertDown(IntPtr                                  id,
                                                   [MarshalAs(UnmanagedType.LPStr)] string nodeTag);
-    
+
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern bool cftNPropSet(IntPtr                                  id,

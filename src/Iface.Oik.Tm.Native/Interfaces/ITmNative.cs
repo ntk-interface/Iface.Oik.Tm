@@ -80,6 +80,40 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     Int64 UxGmTime2UxTime(Int64 time);
 
+    
+    IntPtr CfsConnect(string            serverName,
+                      out UInt32        errCode,
+                      ref StringBuilder errString,
+                      UInt32            maxErrs);
+    
+
+    IntPtr CfsConfFileOpenCid(IntPtr                    connId,
+                              string                    serverName,
+                              string                    fileName,
+                              UInt32                    timeout,
+                              ref TmNativeDefs.FileTime fileTime,
+                              out UInt32                errCode,
+                              ref StringBuilder         errString,
+                              UInt32                    maxErrs);
+    
+
+    bool CfsConfFileSaveAs(IntPtr                    treeHandle,
+                           string                    serverName,
+                           string                    remoteFileName,
+                           UInt32                    timeout,
+                           ref TmNativeDefs.FileTime fileTime,
+                           out UInt32                errCode,
+                           ref StringBuilder         errString,
+                           UInt32                    maxErrs);
+
+    UInt32 CfsGetSoftwareType(IntPtr connId);
+    
+
+    UInt32 CfsIfpcMaster(IntPtr connId, Byte command);
+    
+
+    bool CfsIsConnected(IntPtr connId);
+    
 
     void DPrintF(string message);
     void MPrintF(string message);
