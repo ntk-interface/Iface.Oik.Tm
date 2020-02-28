@@ -561,6 +561,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
     }
     
     
+    public const Int16 RealTelemetryFlag = unchecked((short) 0x8000); 
+    
     #region Cfs
 
     public const UInt32 FailIfNoConnect            = 0x80000000;
