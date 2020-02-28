@@ -74,6 +74,14 @@ namespace Iface.Oik.Tm.Native.Interfaces
       ExtFileLink     = 0x4000, // Служебное значение - не использовать!
       Extended        = 0x8000, // Расширенный формат
     }
+    
+    
+    [Flags]
+    public enum ExtendedEventTypes
+    {
+      Message = 0x0100,
+      Model   = 0x0200
+    }
 
 
     public enum VfType
