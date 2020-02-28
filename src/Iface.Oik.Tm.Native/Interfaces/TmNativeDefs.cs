@@ -561,11 +561,21 @@ namespace Iface.Oik.Tm.Native.Interfaces
     }
     
     
+    #region Cfs
+
+    public const UInt32 FailIfNoConnect            = 0x80000000;
+    public const string DefaultMasterConfFile      = "_master_";
+    public const byte   MasterServiceStatusCommand = 0;
+    public const byte   StartMasterServiceCommand  = 1;
+    public const byte   StopMasterServiceCommand   = 2;
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct FileTime
     {
       public Int32 dwLowDateTime;
       public Int32 dwHighDateTime;
     }
+
+    #endregion
   }
 }
