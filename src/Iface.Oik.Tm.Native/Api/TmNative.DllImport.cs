@@ -253,6 +253,13 @@ namespace Iface.Oik.Tm.Native.Api
                                               UInt16                                count,
                                               [In]      TmNativeDefs.TAdrTm[]       addr,
                                               [In, Out] TmNativeDefs.TStatusPoint[] status);
+    
+    
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern void tmcAnalogByList(Int32                                 cid,
+                                              UInt16                                count,
+                                              [In]      TmNativeDefs.TAdrTm[]       addr,
+                                              [In, Out] TmNativeDefs.TAnalogPoint[] analog);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]

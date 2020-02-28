@@ -489,6 +489,15 @@ namespace Iface.Oik.Tm.Native.Api
     {
       tmcStatusByList(cid, count, addr, statuses);
     }
+    
+    
+    public void TmcAnalogByList(Int32                       cid,
+                                UInt16                      count,
+                                TmNativeDefs.TAdrTm[]       addr,
+                                TmNativeDefs.TAnalogPoint[] analogs)
+    {
+      tmcAnalogByList(cid, count, addr, analogs);
+    }
 
 
     public Int16 TmcGetObjectProperties(Int32             cid,

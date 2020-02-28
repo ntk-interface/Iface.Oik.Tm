@@ -303,6 +303,12 @@ namespace Iface.Oik.Tm.Native.Interfaces
                          UInt16                      count,
                          TmNativeDefs.TAdrTm[]       addr,
                          TmNativeDefs.TStatusPoint[] statuses);
+    
+    
+    void TmcAnalogByList(Int32                       cid,
+                         UInt16                      count,
+                         TmNativeDefs.TAdrTm[]       addr,
+                         TmNativeDefs.TAnalogPoint[] analogs);
 
 
     Int16 TmcGetObjectProperties(Int32             cid,
