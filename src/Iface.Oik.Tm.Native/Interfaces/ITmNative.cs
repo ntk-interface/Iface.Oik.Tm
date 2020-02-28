@@ -342,6 +342,20 @@ namespace Iface.Oik.Tm.Native.Interfaces
                        Byte   value,
                        string dateTime,
                        Int16  hund);
+    
+    
+    Int16 TmcSetStatusFlags(Int32 cid,
+                            Int16 ch,
+                            Int16 rtu,
+                            Int16 point,
+                            Int16 flags);
+
+    
+    Int16 TmcClrStatusFlags(Int32 cid,
+                            Int16 ch,
+                            Int16 rtu,
+                            Int16 point,
+                            Int16 flags);
 
 
     Int16 TmcSetAnalog(Int32  cid,
@@ -353,6 +367,13 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
     Int16 TmcSetAnalogFlags(Int32 cid,
+                            Int16 ch,
+                            Int16 rtu,
+                            Int16 point,
+                            Int16 flags);
+    
+    
+    Int16 TmcClrAnalogFlags(Int32 cid,
                             Int16 ch,
                             Int16 rtu,
                             Int16 point,

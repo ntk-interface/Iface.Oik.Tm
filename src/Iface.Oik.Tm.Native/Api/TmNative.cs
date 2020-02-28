@@ -543,6 +543,26 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcSetStatus(cid, ch, rtu, point, value, dateTime, hund);
     }
+    
+    
+    public Int16 TmcSetStatusFlags(Int32 cid,
+                                   Int16 ch,
+                                   Int16 rtu,
+                                   Int16 point,
+                                   Int16 flags)
+    {
+      return tmcSetStatusFlags(cid, ch, rtu, point, flags);
+    }
+
+    
+    public Int16 TmcClrStatusFlags(Int32 cid,
+                                   Int16 ch,
+                                   Int16 rtu,
+                                   Int16 point,
+                                   Int16 flags)
+    {
+      return tmcClrStatusFlags(cid, ch, rtu, point, flags);
+    }
 
 
     public Int16 TmcSetAnalog(Int32  cid,
@@ -561,6 +581,16 @@ namespace Iface.Oik.Tm.Native.Api
                                    Int16 flags)
     {
       return tmcSetAnalogFlags(cid, ch, rtu, point, flags);
+    }
+    
+    
+    public Int16 TmcClrAnalogFlags(Int32 cid,
+                                   Int16 ch,
+                                   Int16 rtu,
+                                   Int16 point,
+                                   Int16 flags)
+    {
+      return tmcClrAnalogFlags(cid, ch, rtu, point, flags);
     }
 
 

@@ -414,6 +414,22 @@ namespace Iface.Oik.Tm.Native.Api
                                             Byte                                    value,
                                             [MarshalAs(UnmanagedType.LPStr)] string dateTime,
                                             Int16                                   hund);
+    
+    
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int16 tmcSetStatusFlags(Int32 cid,
+                                                 Int16 ch,
+                                                 Int16 rtu,
+                                                 Int16 point,
+                                                 Int16 flags);
+
+    
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int16 tmcClrStatusFlags(Int32 cid,
+                                                 Int16 ch,
+                                                 Int16 rtu,
+                                                 Int16 point,
+                                                 Int16 flags);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -427,6 +443,14 @@ namespace Iface.Oik.Tm.Native.Api
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcSetAnalogFlags(Int32 cid,
+                                                 Int16 ch,
+                                                 Int16 rtu,
+                                                 Int16 point,
+                                                 Int16 flags);
+    
+    
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int16 tmcClrAnalogFlags(Int32 cid,
                                                  Int16 ch,
                                                  Int16 rtu,
                                                  Int16 point,
