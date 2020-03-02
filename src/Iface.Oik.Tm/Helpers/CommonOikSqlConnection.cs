@@ -2,7 +2,6 @@ using System;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
-using Fody;
 using Iface.Oik.Tm.Interfaces;
 using Npgsql;
 
