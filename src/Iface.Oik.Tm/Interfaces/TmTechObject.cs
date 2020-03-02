@@ -8,16 +8,7 @@ using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public enum TmTopologyState
-  {
-    Unknown       = 0,
-    IsNotVoltaged = 1,
-    IsVoltaged    = 2,
-    IsGrounded    = 4,
-  }
-
-
-  public class TmTechObject : INotifyPropertyChanged
+  public class TmTechObject : TmNotifyPropertyChanged
   {
     public static readonly string          DefaultName          = "Элемент";
     public static readonly TmTopologyState DefaultTopologyState = TmTopologyState.Unknown;
@@ -32,12 +23,50 @@ namespace Iface.Oik.Tm.Interfaces
     public ushort Type   { get; }
     public uint   Object { get; }
 
-    public bool IsInit { get; private set; }
+    private bool                       _isInit;
+    private Dictionary<string, string> _properties;
+    private string                     _name;
+    private TmTopologyState            _topologyState;
 
-    public Dictionary<string, string> Properties { get; set; }
+    public bool IsInit
+    {
+      get => _isInit;
+      private set
+      {
+        _isInit = value;
+        Refresh();
+      }
+    }
 
-    public string          Name          { get; private set; }
-    public TmTopologyState TopologyState { get; private set; }
+    public Dictionary<string, string> Properties
+    {
+      get => _properties;
+      private set
+      {
+        _properties = value;
+        Refresh();
+      }
+    }
+
+    public string Name
+    {
+      get => _name;
+      private set
+      {
+        _name = value;
+        Refresh();
+      }
+    }
+
+    public TmTopologyState TopologyState
+    {
+      get => _topologyState;
+      private set
+      {
+        _topologyState = value;
+        Refresh();
+      }
+    }
 
     public object Reference { get; set; } // ссылка на связанный объект, например для схемы - выключатель, прибор и т.п.
 
@@ -122,8 +151,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     public TmAddr GetTmStatusAddr()
     {
-      return TmAddr.TryParse(GetPropertyOrDefault(PropertyTmStatus), out var tmAddr) 
-        ? tmAddr 
+      return TmAddr.TryParse(GetPropertyOrDefault(PropertyTmStatus), out var tmAddr)
+        ? tmAddr
         : null;
     }
 
@@ -238,8 +267,5 @@ namespace Iface.Oik.Tm.Interfaces
     {
       return $"{Scheme}:{Type}:{Object} {string.Join(" | ", Properties.Select(p => $"{p.Key}={p.Value}"))}";
     }
-
-
-    public event PropertyChangedEventHandler PropertyChanged;
   }
 }

@@ -6,26 +6,57 @@ using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public class TmEvent : INotifyPropertyChanged
+  public class TmEvent : TmNotifyPropertyChanged
   {
     private readonly int _hashCode;
 
+    public TmEventElix  Elix                 { get; private set; } // may be null?
+    public DateTime?    Time                 { get; private set; } // sql: update_time
+    public string       Text                 { get; private set; } // sql: { name | rec_text }
+    public string       StateString          { get; private set; } // sql: rec_state_text
+    public TmEventTypes Type                 { get; private set; } // sql: rec_type
+    public string       TypeString           { get; private set; } // sql: { rec_type_name | tm_type_name }
+    public string       Username             { get; private set; }
+    public int          Importance           { get; private set; }
+    public int          TmClassId            { get; private set; }
+    public TmType       TmAddrType           { get; private set; }
+    public uint         TmAddrComplexInteger { get; private set; } // sql: tma // one-based, 0=none
+    public string       TmAddrString         { get; private set; }
 
-    public int          Num                  { get; set; }
-    public TmEventElix  Elix                 { get; set; } // may be null?
-    public DateTime?    Time                 { get; set; } // sql: update_time
-    public string       Text                 { get; set; } // sql: { name | rec_text }
-    public string       StateString          { get; set; } // sql: rec_state_text
-    public TmEventTypes Type                 { get; set; } // sql: rec_type
-    public string       TypeString           { get; set; } // sql: { rec_type_name | tm_type_name }
-    public string       Username             { get; set; }
-    public int          Importance           { get; set; }
-    public int          TmClassId            { get; set; }
-    public TmType       TmAddrType           { get; set; }
-    public uint         TmAddrComplexInteger { get; set; } // sql: tma // one-based, 0=none
-    public string       TmAddrString         { get; set; }
-    public DateTime?    AckTime              { get; set; }
-    public string       AckUser              { get; set; }
+    private int       _num;
+    private DateTime? _ackTime;
+    private string    _ackUser;
+
+    public int Num
+    {
+      get => _num;
+      set
+      {
+        _num = value;
+        NotifyOfPropertyChange();
+      }
+    }
+
+    public DateTime? AckTime
+    {
+      get => _ackTime;
+      set
+      {
+        _ackTime = value;
+        NotifyOfPropertyChange();
+        NotifyOfPropertyChange(nameof(IsAcked));
+      }
+    }
+
+    public string AckUser
+    {
+      get => _ackUser;
+      set
+      {
+        _ackUser = value;
+        NotifyOfPropertyChange();
+      }
+    }
 
     public string             ImportanceAlias => ImportanceToAlias(Importance);
     public string             ImportanceName  => ImportanceToName(Importance);
@@ -180,8 +211,5 @@ namespace Iface.Oik.Tm.Interfaces
           return string.Empty;
       }
     }
-
-
-    public event PropertyChangedEventHandler PropertyChanged;
   }
 }

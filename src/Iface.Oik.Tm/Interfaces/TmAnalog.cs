@@ -11,15 +11,84 @@ namespace Iface.Oik.Tm.Interfaces
   {
     public static readonly string InvalidValueString = "???";
 
+    private short            _code;
+    private float            _value;
+    private TmFlags          _flags = TmFlags.Invalid;
+    private byte             _width; // todo сейчас вообще не используется, а надо ли?
+    private byte             _precision = 3;
+    private string           _unit      = "";
+    private TmTeleregulation _teleregulation;
 
-    public short   Code      { get; set; }
-    public float   Value     { get; set; }
-    public TmFlags Flags     { get; set; } = TmFlags.Invalid;
-    public byte    Width     { get; set; } // todo сейчас вообще не используется, а надо ли?
-    public byte    Precision { get; set; } = 3;
-    public string  Unit      { get; set; } = "";
 
-    public TmTeleregulation Teleregulation { get; set; }
+    public short Code
+    {
+      get => _code;
+      set
+      {
+        _code = value;
+        Refresh();
+      }
+    }
+
+    public float Value
+    {
+      get => _value;
+      set
+      {
+        _value = value;
+        Refresh();
+      }
+    }
+
+    public TmFlags Flags
+    {
+      get => _flags;
+      set
+      {
+        _flags = value;
+        Refresh();
+      }
+    }
+
+    public byte Width
+    {
+      get => _width;
+      set
+      {
+        _width = value;
+        Refresh();
+      }
+    }
+
+    public byte Precision
+    {
+      get => _precision;
+      set
+      {
+        _precision = value;
+        Refresh();
+      }
+    }
+
+    public string Unit
+    {
+      get => _unit;
+      set
+      {
+        _unit = value;
+        Refresh();
+      }
+    }
+
+    public TmTeleregulation Teleregulation
+    {
+      get => _teleregulation;
+      set
+      {
+        _teleregulation = value;
+        Refresh();
+      }
+    }
 
     public bool IsUnreliable      => Flags.HasFlag(TmFlags.Unreliable);
     public bool IsInvalid         => Flags.HasFlag(TmFlags.Invalid);
@@ -40,13 +109,13 @@ namespace Iface.Oik.Tm.Interfaces
     public bool HasTeleregulationByValue => Teleregulation == TmTeleregulation.Value;
 
     public string ValueString => (IsInit)
-                                   ? Value.ToString("0." + new string('0', Precision))
-                                   : InvalidValueString;
+      ? Value.ToString("0." + new string('0', Precision))
+      : InvalidValueString;
 
 
     public string ValueWithUnitString => (IsInit)
-                                           ? ValueString + " " + Unit
-                                           : InvalidValueString;
+      ? ValueString + " " + Unit
+      : InvalidValueString;
 
 
     public byte TmcRegulationType
@@ -80,6 +149,12 @@ namespace Iface.Oik.Tm.Interfaces
     public TmAnalog(TmAddr addr)
       : base(addr)
     {
+    }
+
+
+    public override int GetHashCode()
+    {
+      return base.GetHashCode();
     }
 
 
@@ -139,32 +214,32 @@ namespace Iface.Oik.Tm.Interfaces
     public string ValueStringWithPrecision(int precision)
     {
       return (IsInit)
-               ? Value.ToString("0." + new string('0', precision))
-               : InvalidValueString;
+        ? Value.ToString("0." + new string('0', precision))
+        : InvalidValueString;
     }
 
 
     public string ValueStringWithFormat(string format)
     {
       return (IsInit)
-               ? Value.ToString(format)
-               : InvalidValueString;
+        ? Value.ToString(format)
+        : InvalidValueString;
     }
 
 
     public string ValueWithUnitStringWithPrecision(int precision)
     {
       return (IsInit)
-               ? ValueStringWithPrecision(precision) + " " + Unit
-               : InvalidValueString;
+        ? ValueStringWithPrecision(precision) + " " + Unit
+        : InvalidValueString;
     }
 
 
     public string ValueWithUnitStringWithFormat(string format)
     {
       return (IsInit)
-               ? Value.ToString(format) + " " + Unit
-               : InvalidValueString;
+        ? Value.ToString(format) + " " + Unit
+        : InvalidValueString;
     }
 
 
@@ -232,8 +307,8 @@ namespace Iface.Oik.Tm.Interfaces
       Width     = (byte) (tmcAnalogPoint.Format & 0x0F);
       Precision = (byte) (tmcAnalogPoint.Format >> 4);
     }
-    
-    
+
+
     public void FromTAnalogPoint(TmNativeDefs.TAnalogPoint tmcAnalogPoint)
     {
       IsInit    = true;
@@ -298,18 +373,18 @@ namespace Iface.Oik.Tm.Interfaces
       {
         provider.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries)
                 .ForEach(property =>
-                         {
-                           var kvp = property.Split('=');
-                           if (kvp.Length != 2)
-                           {
-                             return;
-                           }
+                {
+                  var kvp = property.Split('=');
+                  if (kvp.Length != 2)
+                  {
+                    return;
+                  }
 
-                           if (kvp[0] == "FBFlagsC")
-                           {
-                             Teleregulation = GetRegulationFromNativeFlag(kvp[1]);
-                           }
-                         });
+                  if (kvp[0] == "FBFlagsC")
+                  {
+                    Teleregulation = GetRegulationFromNativeFlag(kvp[1]);
+                  }
+                });
       }
 
       if (classId < 0)

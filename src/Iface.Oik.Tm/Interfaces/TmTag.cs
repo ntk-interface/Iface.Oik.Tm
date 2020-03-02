@@ -3,24 +3,92 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public abstract class TmTag : INotifyPropertyChanged
+  public abstract class TmTag : TmNotifyPropertyChanged
   {
-    public bool IsInit { get; set; }
+    public TmType Type   { get; }
+    public TmAddr TmAddr { get; }
 
-    public TmType Type      { get; }
-    public TmAddr TmAddr    { get; }
+    private bool                       _isInit;
+    private string                     _name;
+    private DateTime?                  _changeTime;
+    private byte?                      _classId;
+    private Dictionary<string, string> _classData;
+    private Dictionary<string, string> _properties;
 
-    public string    Name       { get; protected set; }
-    public DateTime? ChangeTime { get; set; }
+    public bool IsInit
+    {
+      get => _isInit;
+      set
+      {
+        _isInit = value;
+        Refresh();
+      }
+    }
 
-    public byte?                      ClassId    { get; set; }
-    public Dictionary<string, string> ClassData  { get; protected set; }
-    public Dictionary<string, string> Properties { get; protected set; }
 
-    public object Reference { get; set; } // ссылка на связанный объект, например для схемы - выключатель, прибор и т.п.
+    public string Name
+    {
+      get => _name;
+      protected set
+      {
+        _name = value;
+        Refresh();
+      }
+    }
+
+    public DateTime? ChangeTime
+    {
+      get => _changeTime;
+      protected set
+      {
+        _changeTime = value;
+        Refresh();
+      }
+    }
+
+    public byte? ClassId
+    {
+      get => _classId;
+      protected set
+      {
+        _classId = value;
+        Refresh();
+      }
+    }
+
+    public Dictionary<string, string> ClassData
+    {
+      get => _classData;
+      protected set
+      {
+        _classData = value;
+        Refresh();
+      }
+    }
+
+    public Dictionary<string, string> Properties
+    {
+      get => _properties;
+      protected set
+      {
+        _properties = value;
+        Refresh();
+      }
+    }
+
+
+    public abstract string ValueToDisplay { get; }
+
+
+    public bool IsStatus => this is TmStatus;
+    public bool IsAnalog => this is TmAnalog;
+
+    public bool IsClassDataLoaded => ClassId.HasValue ||
+                                     ClassData != null;
 
     public ushort TmcType
     {
@@ -58,13 +126,8 @@ namespace Iface.Oik.Tm.Interfaces
         }
       }
     }
-    
-    
-    public abstract string ValueToDisplay { get; }
 
-
-    public bool IsStatus => this is TmStatus;
-    public bool IsAnalog => this is TmAnalog;
+    public object Reference { get; set; } // ссылка на связанный объект, например для схемы - выключатель, прибор и т.п.
 
 
     protected TmTag(TmType type, uint addr)
@@ -92,15 +155,16 @@ namespace Iface.Oik.Tm.Interfaces
       return TmAddr.GetHashCode();
     }
 
+
     public static TmTag Create(TmAddr addr)
     {
       if (addr == null) return null;
 
       switch (addr.Type)
       {
-        case TmType.Analog: 
+        case TmType.Analog:
           return new TmAnalog(addr);
-        case TmType.Status: 
+        case TmType.Status:
           return new TmStatus(addr);
         default:
           return null;
@@ -185,30 +249,5 @@ namespace Iface.Oik.Tm.Interfaces
         }
       }
     }
-
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
-
-    #region john added
-
-    public void RefreshView()
-    {
-      OnPropertyChangedPrivate(new PropertyChangedEventArgs(string.Empty));
-    }
-
-    private void OnPropertyChangedPrivate(PropertyChangedEventArgs e)
-    {
-      var handler = PropertyChanged;
-      handler?.Invoke(this, e);
-    }
-
-    public bool IsClassDataLoaded()
-    {
-      return ClassId.HasValue || ClassData != null;
-    }
-
-    #endregion
-
   }
 }
