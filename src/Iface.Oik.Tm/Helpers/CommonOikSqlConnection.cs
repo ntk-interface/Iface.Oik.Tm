@@ -2,7 +2,7 @@ using System;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
-убралusing Iface.Oik.Tm.Interfaces;
+using Iface.Oik.Tm.Interfaces;
 using Npgsql;
 
 namespace Iface.Oik.Tm.Helpers
