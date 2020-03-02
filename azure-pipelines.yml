@@ -43,7 +43,7 @@ steps:
     rootFolderOrFile: $(Build.ArtifactStagingDirectory)/x64
     includeRootFolder: false
     archiveType: zip
-    archiveFile: $(Build.ArtifactStagingDirectory)/x64/$(x64Zip).zip
+    archiveFile: $(Build.ArtifactStagingDirectory)/$(x64Zip).zip
 
 - task: DotNetCoreCLI@2
   displayName: Build x86
@@ -63,7 +63,7 @@ steps:
     rootFolderOrFile: $(Build.ArtifactStagingDirectory)/x86
     includeRootFolder: false
     archiveType: zip
-    archiveFile: $(Build.ArtifactStagingDirectory)/x86/$(x86Zip).zip
+    archiveFile: $(Build.ArtifactStagingDirectory)/$(x86Zip).zip
 
 - task: GithubRelease@0
   inputs:
@@ -71,7 +71,7 @@ steps:
     repositoryName: $(Build.Repository.Name)
     tagSource: manual
     tag: $(Build.BuildNumber)
-    assets: $(Build.ArtifactStagingDirectory)/**.*
+    assets: $(Build.ArtifactStagingDirectory)/*.zip
 
-- publish: $(Build.ArtifactStagingDirectory)
+- publish: $(Build.ArtifactStagingDirectory)/*.zip
   artifact: $(appName)
