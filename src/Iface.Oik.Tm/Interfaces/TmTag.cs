@@ -13,8 +13,8 @@ namespace Iface.Oik.Tm.Interfaces
     public TmAddr TmAddr { get; }
 
     private bool                       _isInit;
-    private string                     _name;
     private DateTime?                  _changeTime;
+    private string                     _name;
     private byte?                      _classId;
     private Dictionary<string, string> _classData;
     private Dictionary<string, string> _properties;
@@ -29,6 +29,16 @@ namespace Iface.Oik.Tm.Interfaces
       }
     }
 
+    public DateTime? ChangeTime
+    {
+      get => _changeTime;
+      set
+      {
+        _changeTime = value;
+        Refresh();
+      }
+    }
+
 
     public string Name
     {
@@ -36,16 +46,6 @@ namespace Iface.Oik.Tm.Interfaces
       protected set
       {
         _name = value;
-        Refresh();
-      }
-    }
-
-    public DateTime? ChangeTime
-    {
-      get => _changeTime;
-      protected set
-      {
-        _changeTime = value;
         Refresh();
       }
     }

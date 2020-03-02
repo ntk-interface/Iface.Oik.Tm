@@ -73,5 +73,8 @@ steps:
     tag: $(Build.BuildNumber)
     assets: $(Build.ArtifactStagingDirectory)/*.zip
 
-- publish: $(Build.ArtifactStagingDirectory)/*.zip
+- publish: $(Build.ArtifactStagingDirectory)/$(x64Zip).zip
+  artifact: $(appName)
+
+- publish: $(Build.ArtifactStagingDirectory)/$(x86Zip).zip
   artifact: $(appName)
