@@ -6,8 +6,11 @@ variables:
   patchVersion: $[counter(format('{0}.{1}', variables['majorVersion'], variables['minorVersion']), 0)]
   buildConfiguration: Release
 
-  binaryPath: src/Iface.Oik.Tm/bin/$(buildConfiguration)/netstandard2.0
   appName: Iface.Oik.Tm
+  x64Path: src/Iface.Oik.Tm/bin/$(buildConfiguration)/netstandard2.0
+  x86Path: src/Iface.Oik.Tm/bin/x86/$(buildConfiguration)/netstandard2.0
+  x64Zip: $(appName).$(Build.BuildNumber)
+  x86Zip: $(appName).x86.$(Build.BuildNumber)
 
 trigger:
 - master
@@ -29,11 +32,38 @@ steps:
 #    projects: '**/*.Test/*.csproj'
 #    arguments: '--configuration $(buildConfiguration)'
     
-- task: CopyFiles@2 # потом убрать этот дебилизм, сделать NuGet
+- task: CopyFiles@2 # подумать над NuGet
   inputs:
-    contents: $(binaryPath)/?(*.dll|*.so)
-    targetFolder: $(Build.ArtifactStagingDirectory)
+    contents: $(x64Path)/?(*.dll|*.so)
+    targetFolder: $(Build.ArtifactStagingDirectory)/x64
     flattenFolders: true
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: $(Build.ArtifactStagingDirectory)/x64
+    includeRootFolder: false
+    archiveType: zip
+    archiveFile: $(Build.ArtifactStagingDirectory)/x64/$(x64Zip).zip
+
+- task: DotNetCoreCLI@2
+  displayName: Build x86
+  inputs:
+    command: build
+    projects: '**/Iface.Oik.Tm.csproj'
+    arguments: '--configuration $(buildConfiguration) -p:Platform=x86'
+
+- task: CopyFiles@2
+  inputs:
+    contents: $(x86Path)/?(*.dll|*.so)
+    targetFolder: $(Build.ArtifactStagingDirectory)/x86
+    flattenFolders: true
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: $(Build.ArtifactStagingDirectory)/x86
+    includeRootFolder: false
+    archiveType: zip
+    archiveFile: $(Build.ArtifactStagingDirectory)/x86/$(x86Zip).zip
 
 - task: GithubRelease@0
   inputs:
