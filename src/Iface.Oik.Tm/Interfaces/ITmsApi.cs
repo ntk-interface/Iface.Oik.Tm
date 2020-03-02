@@ -220,5 +220,11 @@ namespace Iface.Oik.Tm.Interfaces
     
     Task ClearMultipleTagsFlags(IEnumerable<TmTag> tmTags,
                                 TmFlags            flags);
+
+
+    Task<bool> SetTagFlagsExplicitly(TmTag tag, TmFlags flags);
+    
+    
+    Task<bool> ClearTagFlagsExplicitly(TmTag tag, TmFlags flags);
   }
 }

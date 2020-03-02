@@ -1711,6 +1711,40 @@ namespace Iface.Oik.Tm.Api
                                                      timedValuesAndFlags.ToArray()));
     }
     
-    
+    public async Task<bool> SetTagFlagsExplicitly(TmTag tag, TmFlags flags)
+    {
+      var (ch, rtu, point) = tag.TmAddr.GetTupleShort();
+
+      short result = 0;
+      switch (tag)
+      {
+        case TmStatus _:
+          result = await Task.Run(() => _native.TmcSetStatusFlags(_cid, ch, rtu, point, (short) flags));
+          break;
+        case TmAnalog _:
+          result = await Task.Run(() => _native.TmcSetAnalogFlags(_cid, ch, rtu, point, (short) flags));
+          break;
+      }
+
+      return result == TmNativeDefs.Success;
+    }
+
+    public async Task<bool> ClearTagFlagsExplicitly(TmTag tag, TmFlags flags)
+    {
+      var (ch, rtu, point) = tag.TmAddr.GetTupleShort();
+
+      short result = 0;
+      switch (tag)
+      {
+        case TmStatus _:
+          result = await Task.Run(() => _native.TmcClrStatusFlags(_cid, ch, rtu, point, (short) flags));
+          break;
+        case TmAnalog _:
+          result = await Task.Run(() => _native.TmcClrAnalogFlags(_cid, ch, rtu, point, (short) flags));
+          break;
+      }
+
+      return result == TmNativeDefs.Success;
+    }
   }
 }
