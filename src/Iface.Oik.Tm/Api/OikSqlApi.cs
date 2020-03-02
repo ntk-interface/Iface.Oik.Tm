@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
-using Fody;
 using Iface.Oik.Tm.Dto;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Interfaces;
@@ -14,7 +13,6 @@ using Npgsql;
 
 namespace Iface.Oik.Tm.Api
 {
-  [ConfigureAwait(false)]
   public class OikSqlApi : IOikSqlApi
   {
     private Func<ICommonOikSqlConnection> _createOikSqlConnection;
@@ -38,8 +36,10 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
-          return await sql.DbConnection.QuerySingleOrDefaultAsync<DateTime>("SELECT oik_systemtime()");
+          await sql.OpenAsync().ConfigureAwait(false);
+          return await sql.DbConnection
+                          .QuerySingleOrDefaultAsync<DateTime>("SELECT oik_systemtime()")
+                          .ConfigureAwait(false);
         }
       }
       catch (NpgsqlException ex)
@@ -57,7 +57,7 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<string> GetSystemTimeString()
     {
-      var systemTime = await GetSystemTime();
+      var systemTime = await GetSystemTime().ConfigureAwait(false);
       return systemTime?.ToTmString();
     }
 
@@ -68,13 +68,15 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT v_code
                               FROM oik_cur_ts
                               WHERE ch = @Ch AND rtu = @Rtu AND point = @Point";
           var parameters = new {Ch = ch, Rtu = rtu, Point = point};
 
-          return await sql.DbConnection.QueryFirstOrDefaultAsync<int>(commandText, parameters);
+          return await sql.DbConnection
+                          .QueryFirstOrDefaultAsync<int>(commandText, parameters)
+                          .ConfigureAwait(false);
         }
       }
       catch (NpgsqlException ex)
@@ -96,13 +98,15 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT v_val
                               FROM oik_cur_tt
                               WHERE ch = @Ch AND rtu = @Rtu AND point = @Point";
           var parameters = new {Ch = ch, Rtu = rtu, Point = point};
 
-          return await sql.DbConnection.QueryFirstOrDefaultAsync<int>(commandText, parameters);
+          return await sql.DbConnection
+                          .QueryFirstOrDefaultAsync<int>(commandText, parameters)
+                          .ConfigureAwait(false);
         }
       }
       catch (NpgsqlException ex)
@@ -126,12 +130,14 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT v_code, flags, v_s2, change_time
                               FROM oik_cur_ts
                               WHERE tma = @Tma";
           var parameters = new {Tma = status.TmAddr.ToSqlTma()};
-          var dto        = await sql.DbConnection.QueryFirstOrDefaultAsync<TmStatusDto>(commandText, parameters);
+          var dto        = await sql.DbConnection
+                                    .QueryFirstOrDefaultAsync<TmStatusDto>(commandText, parameters)
+                                    .ConfigureAwait(false);
 
           status.UpdateWithDto(dto);
         }
@@ -155,12 +161,14 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT v_val, flags, change_time
                               FROM oik_cur_tt
                               WHERE tma = @Tma";
           var parameters = new {Tma = analog.TmAddr.ToSqlTma()};
-          var dto        = await sql.DbConnection.QueryFirstOrDefaultAsync<TmAnalogDto>(commandText, parameters);
+          var dto        = await sql.DbConnection
+                                    .QueryFirstOrDefaultAsync<TmAnalogDto>(commandText, parameters)
+                                    .ConfigureAwait(false);
 
           analog.UpdateWithDto(dto);
         }
@@ -184,14 +192,16 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT v_code, flags, v_s2, change_time
               FROM oik_cur_ts
                 RIGHT JOIN UNNEST(@TmaArray) WITH ORDINALITY t (a,i)
                 ON tma = t.a
               ORDER BY t.i";
           var parameters = new {TmaArray = statuses.Select(tag => tag.TmAddr.ToSqlTma()).ToArray()};
-          var dtos       = await sql.DbConnection.QueryAsync<TmStatusDto>(commandText, parameters);
+          var dtos       = await sql.DbConnection
+                                    .QueryAsync<TmStatusDto>(commandText, parameters)
+                                    .ConfigureAwait(false);
 
           dtos.ForEach((dto, idx) => statuses[idx].UpdateWithDto(dto));
         }
@@ -215,14 +225,16 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT v_val, flags, change_time
             FROM oik_cur_tt
               RIGHT JOIN UNNEST(@TmaArray) WITH ORDINALITY t (a,i)
               ON tma = t.a
             ORDER BY t.i";
           var parameters = new {TmaArray = analogs.Select(tag => tag.TmAddr.ToSqlTma()).ToArray()};
-          var dtos       = await sql.DbConnection.QueryAsync<TmAnalogDto>(commandText, parameters);
+          var dtos       = await sql.DbConnection
+                                    .QueryAsync<TmAnalogDto>(commandText, parameters)
+                                    .ConfigureAwait(false);
 
           dtos.ForEach((dto, idx) => analogs[idx].UpdateWithDto(dto));
         }
@@ -245,11 +257,11 @@ namespace Iface.Oik.Tm.Api
       switch (tags)
       {
         case IEnumerable<TmStatus> statuses:
-          await UpdateStatusesPropertiesAndClassData(statuses.ToList());
+          await UpdateStatusesPropertiesAndClassData(statuses.ToList()).ConfigureAwait(false);
           return;
 
         case IEnumerable<TmAnalog> analogs:
-          await UpdateAnalogsPropertiesAndClassData(analogs.ToList());
+          await UpdateAnalogsPropertiesAndClassData(analogs.ToList()).ConfigureAwait(false);
           return;
       }
     }
@@ -263,7 +275,7 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT name, v_importance, v_normalstate, class_id, 
                                cl_text0, cl_text1, cl_break_text, cl_malfun_text, 
                                cl_fla_name, cl_flb_name, cl_flc_name, cl_fld_name,
@@ -274,7 +286,9 @@ namespace Iface.Oik.Tm.Api
                 ON tma = t.a
               ORDER BY t.i";
           var parameters = new {TmaArray = statuses.Select(tag => tag.TmAddr.ToSqlTma()).ToArray()};
-          var dtos       = await sql.DbConnection.QueryAsync<TmStatusPropertiesDto>(commandText, parameters);
+          var dtos       = await sql.DbConnection
+                                    .QueryAsync<TmStatusPropertiesDto>(commandText, parameters)
+                                    .ConfigureAwait(false);
 
           dtos.ForEach((dto, idx) => statuses[idx].UpdatePropertiesWithDto(dto));
         }
@@ -298,14 +312,16 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT name, v_unit, v_format, class_id, provider
             FROM oik_cur_tt
               RIGHT JOIN UNNEST(@TmaArray) WITH ORDINALITY t (a,i)
               ON tma = t.a
             ORDER BY t.i";
           var parameters = new {TmaArray = analogs.Select(tag => tag.TmAddr.ToSqlTma()).ToArray()};
-          var dtos       = await sql.DbConnection.QueryAsync<TmAnalogPropertiesDto>(commandText, parameters);
+          var dtos       = await sql.DbConnection
+                                    .QueryAsync<TmAnalogPropertiesDto>(commandText, parameters)
+                                    .ConfigureAwait(false);
 
           dtos.ForEach((dto, idx) => analogs[idx].UpdatePropertiesWithDto(dto));
         }
@@ -328,11 +344,11 @@ namespace Iface.Oik.Tm.Api
       switch (tag)
       {
         case TmStatus status:
-          await UpdateStatusPropertiesAndClassData(status);
+          await UpdateStatusPropertiesAndClassData(status).ConfigureAwait(false);
           return;
 
         case TmAnalog analog:
-          await UpdateAnalogPropertiesAndClassData(analog);
+          await UpdateAnalogPropertiesAndClassData(analog).ConfigureAwait(false);
           return;
       }
     }
@@ -346,7 +362,7 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT name, v_importance, v_normalstate, class_id, 
                                cl_text0, cl_text1, cl_break_text, cl_malfun_text, 
                                cl_fla_name, cl_flb_name, cl_flc_name, cl_fld_name,
@@ -355,7 +371,9 @@ namespace Iface.Oik.Tm.Api
               FROM oik_cur_ts
               WHERE tma = @Tma";
           var parameters = new {Tma = status.TmAddr.ToSqlTma()};
-          var dto        = await sql.DbConnection.QueryFirstAsync<TmStatusPropertiesDto>(commandText, parameters);
+          var dto        = await sql.DbConnection
+                                    .QueryFirstAsync<TmStatusPropertiesDto>(commandText, parameters)
+                                    .ConfigureAwait(false);
 
           status.UpdatePropertiesWithDto(dto);
         }
@@ -381,12 +399,14 @@ namespace Iface.Oik.Tm.Api
         {
           sql.Label = "UpdateAnalogPropertiesAndClassData";
 
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT name, v_unit, v_format, class_id, provider
                               FROM oik_cur_tt
                               WHERE tma = @Tma";
           var parameters = new {Tma = analog.TmAddr.ToSqlTma()};
-          var dto        = await sql.DbConnection.QueryFirstAsync<TmAnalogPropertiesDto>(commandText, parameters);
+          var dto        = await sql.DbConnection
+                                    .QueryFirstAsync<TmAnalogPropertiesDto>(commandText, parameters)
+                                    .ConfigureAwait(false);
 
           analog.UpdatePropertiesWithDto(dto);
         }
@@ -408,9 +428,11 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = "SELECT ch AS ChannelId, name AS Name FROM oik_chn ORDER BY ch";
-          return await sql.DbConnection.QueryAsync<TmChannel>(commandText);
+          return await sql.DbConnection
+                          .QueryAsync<TmChannel>(commandText)
+                          .ConfigureAwait(false);
         }
       }
       catch (NpgsqlException ex)
@@ -434,10 +456,12 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = "SELECT @Ch AS ChannelId, rtu AS RtuId, name AS Name FROM oik_rtu WHERE ch = @Ch";
           var parameters  = new {Ch = channelId};
-          return await sql.DbConnection.QueryAsync<TmRtu>(commandText, parameters);
+          return await sql.DbConnection
+                          .QueryAsync<TmRtu>(commandText, parameters)
+                          .ConfigureAwait(false);
         }
       }
       catch (NpgsqlException ex)
@@ -465,7 +489,7 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT @Ch AS ch, @Rtu AS rtu, point, 
                                 name, v_importance, v_normalstate, class_id, 
                                 cl_text0, cl_text1, cl_break_text, cl_malfun_text, 
@@ -476,7 +500,9 @@ namespace Iface.Oik.Tm.Api
                               FROM oik_cur_ts
                               WHERE ch = @Ch AND rtu = @Rtu";
           var parameters = new {Ch = channelId, Rtu = rtuId};
-          var dtos       = await sql.DbConnection.QueryAsync<TmStatusTmTreeDto>(commandText, parameters);
+          var dtos       = await sql.DbConnection
+                                    .QueryAsync<TmStatusTmTreeDto>(commandText, parameters)
+                                    .ConfigureAwait(false);
 
           return dtos.Select(TmStatus.CreateFromTmTreeDto);
         }
@@ -506,14 +532,16 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT @Ch AS ch, @RTU AS rtu, point, 
                                 name, v_unit, v_format, class_id, provider, 
                                 v_val, flags, change_time
                               FROM oik_cur_tt
                               WHERE ch = @Ch AND rtu = @Rtu";
           var parameters = new {Ch = channelId, Rtu = rtuId};
-          var dtos       = await sql.DbConnection.QueryAsync<TmAnalogTmTreeDto>(commandText, parameters);
+          var dtos       = await sql.DbConnection
+                                    .QueryAsync<TmAnalogTmTreeDto>(commandText, parameters)
+                                    .ConfigureAwait(false);
 
           return dtos.Select(TmAnalog.CreateFromTmTreeDto);
         }
@@ -537,7 +565,7 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT ch, rtu, point, 
                                 name, v_importance, v_normalstate, class_id, cl_text0, cl_text1, cl_break_text, cl_malfun_text, 
                                 v_code, flags, v_s2, change_time
@@ -550,7 +578,9 @@ namespace Iface.Oik.Tm.Api
             FlagUnrel = (int) TmFlags.Unreliable,
             FlagRes   = (int) TmFlags.ResChannel,
           };
-          var dtos = await sql.DbConnection.QueryAsync<TmStatusTmTreeDto>(commandText, parameters);
+          var dtos = await sql.DbConnection
+                              .QueryAsync<TmStatusTmTreeDto>(commandText, parameters)
+                              .ConfigureAwait(false);
 
           return dtos.Select(TmStatus.CreateFromTmTreeDto);
         }
@@ -574,7 +604,7 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT ch, rtu, point, 
                                 name, v_importance, v_normalstate, class_id, cl_text0, cl_text1, cl_break_text, cl_malfun_text, 
                                 v_code, flags, v_s2, change_time
@@ -588,7 +618,9 @@ namespace Iface.Oik.Tm.Api
             FlagUnrel   = (int) TmFlags.Unreliable,
             FlagRes     = (int) TmFlags.ResChannel,
           };
-          var dtos = await sql.DbConnection.QueryAsync<TmStatusTmTreeDto>(commandText, parameters);
+          var dtos = await sql.DbConnection
+                              .QueryAsync<TmStatusTmTreeDto>(commandText, parameters)
+                              .ConfigureAwait(false);
 
           return dtos.Select(TmStatus.CreateFromTmTreeDto);
         }
@@ -612,14 +644,16 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT ch, rtu, point, 
                                 name, v_importance, v_normalstate, class_id, cl_text0, cl_text1, cl_break_text, cl_malfun_text, 
                                 v_code, flags, v_s2, change_time
                               FROM oik_cur_ts
                               WHERE (flags & @FlagAbnormal > 0)";
           var parameters = new {FlagAbnormal = (int) TmFlags.Abnormal};
-          var dtos       = await sql.DbConnection.QueryAsync<TmStatusTmTreeDto>(commandText, parameters);
+          var dtos       = await sql.DbConnection
+                                    .QueryAsync<TmStatusTmTreeDto>(commandText, parameters)
+                                    .ConfigureAwait(false);
 
           return dtos.Select(TmStatus.CreateFromTmTreeDto);
         }
@@ -653,7 +687,7 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = $@"SELECT @Ch AS ch, @Rtu AS rtu, point, 
                                 name, v_importance, v_normalstate, class_id, 
                                 cl_text0, cl_text1, cl_break_text, cl_malfun_text, 
@@ -689,7 +723,9 @@ namespace Iface.Oik.Tm.Api
           {
             parameters.Add("@S2Flags", filter.S2Flags, DbType.Int32);
           }
-          var dtos = await sql.DbConnection.QueryAsync<TmStatusTmTreeDto>(commandText, parameters);
+          var dtos = await sql.DbConnection
+                              .QueryAsync<TmStatusTmTreeDto>(commandText, parameters)
+                              .ConfigureAwait(false);
 
           return dtos.Select(TmStatus.CreateFromTmTreeDto);
         }
@@ -791,7 +827,7 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = $@"SELECT @Ch AS ch, @RTU AS rtu, point, 
                                 name, v_unit, v_format, class_id, provider, 
                                 v_val, flags, change_time
@@ -815,7 +851,9 @@ namespace Iface.Oik.Tm.Api
           {
             parameters.Add("@update_time_minutes", filter.UpdateTimeMinutes, DbType.Int32);
           }
-          var dtos = await sql.DbConnection.QueryAsync<TmAnalogTmTreeDto>(commandText, parameters);
+          var dtos = await sql.DbConnection
+                              .QueryAsync<TmAnalogTmTreeDto>(commandText, parameters)
+                              .ConfigureAwait(false);
 
           return dtos.Select(TmAnalog.CreateFromTmTreeDto);
         }
@@ -884,12 +922,14 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           // сначала запрос списка уставок
           var alarmsCommandText = @"SELECT alarm_id, alarm_name, cmp_val, cmp_sign, importance, in_use, active, tma
                                     FROM oik_alarms
                                     WHERE active = TRUE";
-          var alarmsDtos = await sql.DbConnection.QueryAsync<TmAlarmDto>(alarmsCommandText);
+          var alarmsDtos = await sql.DbConnection
+                                    .QueryAsync<TmAlarmDto>(alarmsCommandText)
+                                    .ConfigureAwait(false);
           var alarms = alarmsDtos.Select(TmAlarm.CreateFromDto)
                                  .ToList();
 
@@ -904,8 +944,9 @@ namespace Iface.Oik.Tm.Api
                                      ON tma = a
                                      ORDER BY t.i";
           var analogsParameters = new {TmaArray = alarms.Select(alarm => alarm.TmAnalog.TmAddr.ToSqlTma()).ToArray()};
-          var analogsDtos = await sql.DbConnection.QueryAsync<TmAnalogTmTreeDto>(analogsCommandText,
-                                                                                 analogsParameters);
+          var analogsDtos = await sql.DbConnection
+                                     .QueryAsync<TmAnalogTmTreeDto>(analogsCommandText, analogsParameters)
+                                     .ConfigureAwait(false);
 
           analogsDtos.ForEach((dto, idx) => alarms[idx].TmAnalog.UpdateWithTmTreeDto(dto));
 
@@ -933,12 +974,14 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT alarm_id, alarm_name, cmp_val, cmp_sign, importance, in_use, active
                               FROM oik_alarms
                               WHERE tma = @Tma";
           var parameters = new {Tma = analog.TmAddr.ToSqlTma()};
-          var dtos       = await sql.DbConnection.QueryAsync<TmAlarmDto>(commandText, parameters);
+          var dtos       = await sql.DbConnection
+                                    .QueryAsync<TmAlarmDto>(commandText, parameters)
+                                    .ConfigureAwait(false);
 
           return dtos.Select(dto => TmAlarm.CreateFromDto(dto, analog));
         }
@@ -962,7 +1005,7 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT EXISTS(SELECT FROM oik_cur_ts 
                                             WHERE (flags & @FlagAps > 0) AND (v_code = 1)
                                               AND (flags & @FlagUnrel = 0) AND (flags & @FlagRes = 0))";
@@ -972,7 +1015,9 @@ namespace Iface.Oik.Tm.Api
             FlagUnrel = (int) TmFlags.Unreliable,
             FlagRes   = (int) TmFlags.ResChannel,
           };
-          return await sql.DbConnection.QueryFirstOrDefaultAsync<bool>(commandText, parameters);
+          return await sql.DbConnection
+                          .QueryFirstOrDefaultAsync<bool>(commandText, parameters)
+                          .ConfigureAwait(false);
         }
       }
       catch (NpgsqlException ex)
@@ -994,10 +1039,12 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = "SELECT EXISTS(SELECT FROM oik_alarms WHERE active = true)";
 
-          return await sql.DbConnection.QueryFirstOrDefaultAsync<bool>(commandText);
+          return await sql.DbConnection
+                          .QueryFirstOrDefaultAsync<bool>(commandText)
+                          .ConfigureAwait(false);
         }
       }
       catch (NpgsqlException ex)
@@ -1031,7 +1078,7 @@ namespace Iface.Oik.Tm.Api
         using (var sql = _createOikSqlConnection())
         {
           sql.Label = "ArchEvents";
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = $@"SELECT elix, update_time, 
                                 rec_text, name, rec_state_text, rec_type, rec_type_name, user_name, importance, 
                                 tma, tma_str, tm_type_name, tm_type, class_id,
@@ -1058,7 +1105,9 @@ namespace Iface.Oik.Tm.Api
             parameters.Add("@Importances", filter.Importances, DbType.Int16);
           }
 
-          var dtos = await sql.DbConnection.QueryAsync<TmEventDto>(commandText, parameters);
+          var dtos = await sql.DbConnection
+                              .QueryAsync<TmEventDto>(commandText, parameters)
+                              .ConfigureAwait(false);
 
           dtos.ForEach((dto, idx) =>
           {
@@ -1224,7 +1273,7 @@ namespace Iface.Oik.Tm.Api
         using (var sql = _createOikSqlConnection())
         {
           sql.Label = "CurrEvents";
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT elix, update_time, 
                                 rec_text, name, rec_state_text, rec_type, rec_type_name, user_name, importance, 
                                 tma, tma_str, tm_type_name, tm_type, class_id,  
@@ -1233,7 +1282,9 @@ namespace Iface.Oik.Tm.Api
                               WHERE elix > @Elix
                               ORDER BY update_time";
           var parameters = new {Elix = elix.ToByteArray()};
-          var dtos       = await sql.DbConnection.QueryAsync<TmEventDto>(commandText, parameters);
+          var dtos       = await sql.DbConnection
+                                    .QueryAsync<TmEventDto>(commandText, parameters)
+                                    .ConfigureAwait(false);
 
           dtos.ForEach(dto =>
           {
@@ -1272,14 +1323,16 @@ namespace Iface.Oik.Tm.Api
 
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync();
+          await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT ack_time, ack_user
             FROM oik_event_log_elix
               RIGHT JOIN UNNEST(@ElixArray) WITH ORDINALITY t (e,i)
               ON elix = t.e
             ORDER BY t.i";
           var parameters = new {ElixArray = tmEvents.Select(e => e.Elix.ToByteArray()).ToArray()};
-          var dtos       = await sql.DbConnection.QueryAsync<TmEventDto>(commandText, parameters);
+          var dtos       = await sql.DbConnection
+                                    .QueryAsync<TmEventDto>(commandText, parameters)
+                                    .ConfigureAwait(false);
 
           dtos.ForEach((dto, idx) =>
           {

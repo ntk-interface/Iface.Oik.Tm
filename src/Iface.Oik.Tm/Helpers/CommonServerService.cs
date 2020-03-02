@@ -1,14 +1,12 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Fody;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Services;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Helpers
 {
-  [ConfigureAwait(false)]
   public class CommonServerService : BackgroundRestartableService, ICommonServerService
   {
     private Func<ICommonOikSqlConnection> _createOikSqlConnection;
@@ -53,8 +51,8 @@ namespace Iface.Oik.Tm.Helpers
       while (!stoppingToken.IsCancellationRequested)
       {
         DoWork();
-        await Task.Delay(IsConnected ? DelayWhenConnected : DelayWhenNotConnected,
-                         stoppingToken);
+        await Task.Delay(IsConnected ? DelayWhenConnected : DelayWhenNotConnected, stoppingToken)
+                  .ConfigureAwait(false);
       }
     }
 

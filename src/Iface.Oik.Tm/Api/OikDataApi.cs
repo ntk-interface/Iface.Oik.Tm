@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Fody;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Interfaces;
 
 namespace Iface.Oik.Tm.Api
 {
-  [ConfigureAwait(false)]
   public class OikDataApi : IOikDataApi
   {
     private readonly ITmsApi              _tms;
@@ -105,7 +103,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetLastTmcError();
+        return await _tms.GetLastTmcError().ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -123,7 +121,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetServerInfo();
+        return await _tms.GetServerInfo().ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -141,7 +139,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetLastTmcErrorText();
+        return await _tms.GetLastTmcErrorText().ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -159,11 +157,11 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: true);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetSystemTime();
+        return await _tms.GetSystemTime().ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
-        return await _sql.GetSystemTime();
+        return await _sql.GetSystemTime().ConfigureAwait(false);
       }
       else
       {
@@ -177,11 +175,11 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: true);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetSystemTimeString();
+        return await _tms.GetSystemTimeString().ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
-        return await _sql.GetSystemTimeString();
+        return await _sql.GetSystemTimeString().ConfigureAwait(false);
       }
       else
       {
@@ -198,11 +196,11 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: true);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetStatus(ch, rtu, point);
+        return await _tms.GetStatus(ch, rtu, point).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
-        return await _sql.GetStatus(ch, rtu, point);
+        return await _sql.GetStatus(ch, rtu, point).ConfigureAwait(false);
       }
       else
       {
@@ -220,7 +218,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        await _tms.SetStatus(ch, rtu, point, status);
+        await _tms.SetStatus(ch, rtu, point, status).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -240,11 +238,11 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: true);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetAnalog(ch, rtu, point);
+        return await _tms.GetAnalog(ch, rtu, point).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
-        return await _sql.GetAnalog(ch, rtu, point);
+        return await _sql.GetAnalog(ch, rtu, point).ConfigureAwait(false);
       }
       else
       {
@@ -262,7 +260,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        await _tms.SetAnalog(ch, rtu, point, value);
+        await _tms.SetAnalog(ch, rtu, point, value).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -280,11 +278,11 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: true);
       if (api == DataApiChoice.Tms)
       {
-        await _tms.UpdateStatus(status);
+        await _tms.UpdateStatus(status).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
-        await _sql.UpdateStatus(status);
+        await _sql.UpdateStatus(status).ConfigureAwait(false);
       }
       else
       {
@@ -299,11 +297,11 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: true);
       if (api == DataApiChoice.Tms)
       {
-        await _tms.UpdateAnalog(analog);
+        await _tms.UpdateAnalog(analog).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
-        await _sql.UpdateAnalog(analog);
+        await _sql.UpdateAnalog(analog).ConfigureAwait(false);
       }
       else
       {
@@ -318,11 +316,11 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: true);
       if (api == DataApiChoice.Tms)
       {
-        await _tms.UpdateStatuses(statuses);
+        await _tms.UpdateStatuses(statuses).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
-        await _sql.UpdateStatuses(statuses);
+        await _sql.UpdateStatuses(statuses).ConfigureAwait(false);
       }
       else
       {
@@ -337,11 +335,11 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: true);
       if (api == DataApiChoice.Tms)
       {
-        await _tms.UpdateAnalogs(analogs);
+        await _tms.UpdateAnalogs(analogs).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
-        await _sql.UpdateAnalogs(analogs);
+        await _sql.UpdateAnalogs(analogs).ConfigureAwait(false);
       }
       else
       {
@@ -356,11 +354,11 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Sql, isTmsImplemented: true, isSqlImplemented: true);
       if (api == DataApiChoice.Tms)
       {
-        await _tms.UpdateTagsPropertiesAndClassData(tags);
+        await _tms.UpdateTagsPropertiesAndClassData(tags).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
-        await _sql.UpdateTagsPropertiesAndClassData(tags);
+        await _sql.UpdateTagsPropertiesAndClassData(tags).ConfigureAwait(false);
       }
       else
       {
@@ -374,11 +372,11 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Sql, isTmsImplemented: true, isSqlImplemented: true);
       if (api == DataApiChoice.Tms)
       {
-        await _tms.UpdateTagPropertiesAndClassData(tag);
+        await _tms.UpdateTagPropertiesAndClassData(tag).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
-        await _sql.UpdateTagPropertiesAndClassData(tag);
+        await _sql.UpdateTagPropertiesAndClassData(tag).ConfigureAwait(false);
       }
       else
       {
@@ -392,7 +390,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        await _tms.UpdateTechObjectsProperties(techObjects);
+        await _tms.UpdateTechObjectsProperties(techObjects).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -415,7 +413,7 @@ namespace Iface.Oik.Tm.Api
       }
       else if (api == DataApiChoice.Sql)
       {
-        return await _sql.GetArchEvents(filter);
+        return await _sql.GetArchEvents(filter).ConfigureAwait(false);
       }
       else
       {
@@ -429,7 +427,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetCurrentEventsElix();
+        return await _tms.GetCurrentEventsElix().ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -453,7 +451,7 @@ namespace Iface.Oik.Tm.Api
       }
       else if (api == DataApiChoice.Sql)
       {
-        return await _sql.GetCurrentEvents(elix);
+        return await _sql.GetCurrentEvents(elix).ConfigureAwait(false);
       }
       else
       {
@@ -472,7 +470,7 @@ namespace Iface.Oik.Tm.Api
       }
       else if (api == DataApiChoice.Sql)
       {
-        return await _sql.UpdateAckedEventsIfAny(tmEvents);
+        return await _sql.UpdateAckedEventsIfAny(tmEvents).ConfigureAwait(false);
       }
       else
       {
@@ -486,11 +484,11 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Sql, isTmsImplemented: true, isSqlImplemented: true);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetTmTreeChannels();
+        return await _tms.GetTmTreeChannels().ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
-        return await _sql.GetTmTreeChannels();
+        return await _sql.GetTmTreeChannels().ConfigureAwait(false);
       }
       else
       {
@@ -505,11 +503,11 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Sql, isTmsImplemented: true, isSqlImplemented: true);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetTmTreeRtus(channelId);
+        return await _tms.GetTmTreeRtus(channelId).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
-        return await _sql.GetTmTreeRtus(channelId);
+        return await _sql.GetTmTreeRtus(channelId).ConfigureAwait(false);
       }
       else
       {
@@ -529,7 +527,7 @@ namespace Iface.Oik.Tm.Api
       }
       else if (api == DataApiChoice.Sql)
       {
-        return await _sql.GetTmTreeStatuses(channelId, rtuId);
+        return await _sql.GetTmTreeStatuses(channelId, rtuId).ConfigureAwait(false);
       }
       else
       {
@@ -549,7 +547,7 @@ namespace Iface.Oik.Tm.Api
       }
       else if (api == DataApiChoice.Sql)
       {
-        return await _sql.GetTmTreeAnalogs(channelId, rtuId);
+        return await _sql.GetTmTreeAnalogs(channelId, rtuId).ConfigureAwait(false);
       }
       else
       {
@@ -564,7 +562,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetStatusesClasses();
+        return await _tms.GetStatusesClasses().ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -583,7 +581,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetAnalogsClasses();
+        return await _tms.GetAnalogsClasses().ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -606,7 +604,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetAnalogRetro(addr, utcStartTime, count, step, retroNum);
+        return await _tms.GetAnalogRetro(addr, utcStartTime, count, step, retroNum).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -629,7 +627,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetAnalogRetro(addr, startTime, endTime, step, retroNum);
+        return await _tms.GetAnalogRetro(addr, startTime, endTime, step, retroNum).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -652,7 +650,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetAnalogRetro(addr, startTime, endTime, step, retroNum);
+        return await _tms.GetAnalogRetro(addr, startTime, endTime, step, retroNum).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -674,7 +672,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetImpulseArchiveInstant(addr, utcStartTime, utcEndTime);
+        return await _tms.GetImpulseArchiveInstant(addr, utcStartTime, utcEndTime).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -696,7 +694,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetImpulseArchiveInstant(addr, startTime, endTime);
+        return await _tms.GetImpulseArchiveInstant(addr, startTime, endTime).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -718,7 +716,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetImpulseArchiveInstant(addr, startTime, endTime);
+        return await _tms.GetImpulseArchiveInstant(addr, startTime, endTime).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -741,7 +739,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetImpulseArchiveAverage(addr, utcStartTime, utcEndTime, step);
+        return await _tms.GetImpulseArchiveAverage(addr, utcStartTime, utcEndTime, step).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -764,7 +762,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetImpulseArchiveAverage(addr, startTime, endTime, step);
+        return await _tms.GetImpulseArchiveAverage(addr, startTime, endTime, step).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -787,7 +785,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetImpulseArchiveAverage(addr, startTime, endTime, step);
+        return await _tms.GetImpulseArchiveAverage(addr, startTime, endTime, step).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -809,7 +807,7 @@ namespace Iface.Oik.Tm.Api
       }
       else if (api == DataApiChoice.Sql)
       {
-        return await _sql.GetPresentAps();
+        return await _sql.GetPresentAps().ConfigureAwait(false);
       }
       else
       {
@@ -827,7 +825,7 @@ namespace Iface.Oik.Tm.Api
       }
       else if (api == DataApiChoice.Sql)
       {
-        return await _sql.GetUnackedAps();
+        return await _sql.GetUnackedAps().ConfigureAwait(false);
       }
       else
       {
@@ -845,7 +843,7 @@ namespace Iface.Oik.Tm.Api
       }
       else if (api == DataApiChoice.Sql)
       {
-        return await _sql.GetAbnormalStatuses();
+        return await _sql.GetAbnormalStatuses().ConfigureAwait(false);
       }
       else
       {
@@ -864,7 +862,7 @@ namespace Iface.Oik.Tm.Api
       }
       else if (api == DataApiChoice.Sql)
       {
-        return await _sql.LookupStatuses(filter);
+        return await _sql.LookupStatuses(filter).ConfigureAwait(false);
       }
       else
       {
@@ -883,7 +881,7 @@ namespace Iface.Oik.Tm.Api
       }
       else if (api == DataApiChoice.Sql)
       {
-        return await _sql.LookupAnalogs(filter);
+        return await _sql.LookupAnalogs(filter).ConfigureAwait(false);
       }
       else
       {
@@ -901,7 +899,7 @@ namespace Iface.Oik.Tm.Api
       }
       else if (api == DataApiChoice.Sql)
       {
-        return await _sql.GetPresentAlarms();
+        return await _sql.GetPresentAlarms().ConfigureAwait(false);
       }
       else
       {
@@ -920,7 +918,7 @@ namespace Iface.Oik.Tm.Api
       }
       else if (api == DataApiChoice.Sql)
       {
-        return await _sql.GetAnalogAlarms(analog);
+        return await _sql.GetAnalogAlarms(analog).ConfigureAwait(false);
       }
       else
       {
@@ -938,7 +936,7 @@ namespace Iface.Oik.Tm.Api
       }
       else if (api == DataApiChoice.Sql)
       {
-        return await _sql.HasPresentAps();
+        return await _sql.HasPresentAps().ConfigureAwait(false);
       }
       else
       {
@@ -956,7 +954,7 @@ namespace Iface.Oik.Tm.Api
       }
       else if (api == DataApiChoice.Sql)
       {
-        return await _sql.HasPresentAlarms();
+        return await _sql.HasPresentAlarms().ConfigureAwait(false);
       }
       else
       {
@@ -970,7 +968,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.AckTag(addr);
+        return await _tms.AckTag(addr).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -988,7 +986,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        await _tms.AckAllStatuses();
+        await _tms.AckAllStatuses().ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1005,7 +1003,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        await _tms.AckAllAnalogs();
+        await _tms.AckAllAnalogs().ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1023,7 +1021,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.AckStatus(status);
+        return await _tms.AckStatus(status).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1042,7 +1040,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.AckAnalog(analog);
+        return await _tms.AckAnalog(analog).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1060,7 +1058,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.AckEvent(tmEvent);
+        return await _tms.AckEvent(tmEvent).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1080,7 +1078,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        await _tms.AddStringToEventLog(str, tmAddr);
+        await _tms.AddStringToEventLog(str, tmAddr).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1101,7 +1099,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        await _tms.SetTechObjectProperties(scheme, type, obj, properties);
+        await _tms.SetTechObjectProperties(scheme, type, obj, properties).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1122,7 +1120,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        await _tms.ClearTechObjectProperties(scheme, type, obj, properties);
+        await _tms.ClearTechObjectProperties(scheme, type, obj, properties).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1141,7 +1139,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.CheckTelecontrolScript(status);
+        return await _tms.CheckTelecontrolScript(status).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1162,7 +1160,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.CheckTelecontrolScriptExplicitly(status, explicitNewStatus);
+        return await _tms.CheckTelecontrolScriptExplicitly(status, explicitNewStatus).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1180,7 +1178,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        await _tms.OverrideTelecontrolScript();
+        await _tms.OverrideTelecontrolScript().ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1198,7 +1196,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.Telecontrol(status);
+        return await _tms.Telecontrol(status).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1218,7 +1216,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.TelecontrolExplicitly(status, explicitNewStatus);
+        return await _tms.TelecontrolExplicitly(status, explicitNewStatus).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1237,7 +1235,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.TeleregulateByStepUp(analog);
+        return await _tms.TeleregulateByStepUp(analog).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1256,7 +1254,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.TeleregulateByStepDown(analog);
+        return await _tms.TeleregulateByStepDown(analog).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1276,7 +1274,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.TeleregulateByCode(analog, code);
+        return await _tms.TeleregulateByCode(analog, code).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1296,7 +1294,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.TeleregulateByValue(analog, value);
+        return await _tms.TeleregulateByValue(analog, value).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1316,7 +1314,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.SwitchStatusManually(status, alsoBlockManually);
+        return await _tms.SwitchStatusManually(status, alsoBlockManually).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1335,7 +1333,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        await _tms.SetStatusNormalOn(status);
+        await _tms.SetStatusNormalOn(status).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1353,7 +1351,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        await _tms.SetStatusNormalOff(status);
+        await _tms.SetStatusNormalOff(status).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1371,7 +1369,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        await _tms.ClearStatusNormal(status);
+        await _tms.ClearStatusNormal(status).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1389,7 +1387,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetStatusNormal(status);
+        return await _tms.GetStatusNormal(status).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1409,7 +1407,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.SetAnalogManually(analog, value);
+        return await _tms.SetAnalogManually(analog, value).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1429,7 +1427,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.SetAlarmValue(alarm, value);
+        return await _tms.SetAlarmValue(alarm, value).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1449,7 +1447,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        await _tms.SetTagFlags(tag, flags);
+        await _tms.SetTagFlags(tag, flags).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1468,7 +1466,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        await _tms.ClearTagFlags(tag, flags);
+        await _tms.ClearTagFlags(tag, flags).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1486,7 +1484,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.GetFilesInDirectory(path);
+        return await _tms.GetFilesInDirectory(path).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
@@ -1506,7 +1504,7 @@ namespace Iface.Oik.Tm.Api
       var api = GetApiChoice(preference, DataApiPreference.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == DataApiChoice.Tms)
       {
-        return await _tms.DownloadFile(remotePath, localPath);
+        return await _tms.DownloadFile(remotePath, localPath).ConfigureAwait(false);
       }
       else if (api == DataApiChoice.Sql)
       {
