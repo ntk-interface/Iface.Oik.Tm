@@ -1790,10 +1790,12 @@ namespace Iface.Oik.Tm.Api
       switch (tag)
       {
         case TmStatus _:
-          result = await Task.Run(() => _native.TmcSetStatusFlags(_cid, ch, rtu, point, (short) flags));
+          result = await Task.Run(() => _native.TmcSetStatusFlags(_cid, ch, rtu, point, (short) flags))
+                             .ConfigureAwait(false);
           break;
         case TmAnalog _:
-          result = await Task.Run(() => _native.TmcSetAnalogFlags(_cid, ch, rtu, point, (short) flags));
+          result = await Task.Run(() => _native.TmcSetAnalogFlags(_cid, ch, rtu, point, (short) flags))
+                             .ConfigureAwait(false);
           break;
       }
 
@@ -1808,10 +1810,12 @@ namespace Iface.Oik.Tm.Api
       switch (tag)
       {
         case TmStatus _:
-          result = await Task.Run(() => _native.TmcClrStatusFlags(_cid, ch, rtu, point, (short) flags));
+          result = await Task.Run(() => _native.TmcClrStatusFlags(_cid, ch, rtu, point, (short) flags))
+                             .ConfigureAwait(false);
           break;
         case TmAnalog _:
-          result = await Task.Run(() => _native.TmcClrAnalogFlags(_cid, ch, rtu, point, (short) flags));
+          result = await Task.Run(() => _native.TmcClrAnalogFlags(_cid, ch, rtu, point, (short) flags))
+                             .ConfigureAwait(false);
           break;
       }
 
