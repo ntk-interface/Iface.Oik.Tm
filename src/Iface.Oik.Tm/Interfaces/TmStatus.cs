@@ -34,12 +34,61 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public short     Status  { get; set; }
-    public TmFlags   Flags   { get; set; } = TmFlags.Invalid;
-    public TmS2Flags S2Flags { get; set; }
+    private short     _status;
+    private TmFlags   _flags = TmFlags.Invalid;
+    private TmS2Flags _s2Flags;
+    private short     _normalStatus = -1;
+    private short     _importance;
 
-    public short NormalStatus { get; set; } = -1;
-    public short Importance   { get; set; }
+    public short Status
+    {
+      get => _status;
+      set
+      {
+        _status = value;
+        Refresh();
+      }
+    }
+
+    public TmFlags Flags
+    {
+      get => _flags;
+      set
+      {
+        _flags = value;
+        Refresh();
+      }
+    }
+
+    public TmS2Flags S2Flags
+    {
+      get => _s2Flags;
+      set
+      {
+        _s2Flags = value;
+        Refresh();
+      }
+    }
+
+    public short NormalStatus
+    {
+      get => _normalStatus;
+      set
+      {
+        _normalStatus = value;
+        Refresh();
+      }
+    }
+
+    public short Importance
+    {
+      get => _importance;
+      set
+      {
+        _importance = value;
+        Refresh();
+      }
+    }
 
     public bool IsNormalStatusOn      => NormalStatus == 1;
     public bool IsNormalStatusOff     => NormalStatus == 0;
@@ -132,6 +181,12 @@ namespace Iface.Oik.Tm.Interfaces
     public TmStatus(TmAddr addr)
       : base(addr)
     {
+    }
+
+
+    public override int GetHashCode()
+    {
+      return base.GetHashCode();
     }
 
 
@@ -277,8 +332,8 @@ namespace Iface.Oik.Tm.Interfaces
       ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(tmcCommonPoint.tm_local_ut,
                                                                    tmcCommonPoint.tm_local_ms);
     }
-    
-    
+
+
     public void FromTStatusPoint(TmNativeDefs.TStatusPoint tmcStatusPoint)
     {
       IsInit = true;

@@ -4,9 +4,7 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Dapper" Version="1.60.6" />
-        <PackageReference Include="Fody" Version="3.3.2" />
         <PackageReference Include="Npgsql" Version="3.2.6" />
-        <PackageReference Include="PropertyChanged.Fody" Version="2.6.0" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Iface.Oik.Tm.Native\Iface.Oik.Tm.Native.csproj" />

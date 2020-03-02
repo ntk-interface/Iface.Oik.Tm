@@ -64,6 +64,15 @@ namespace Iface.Oik.Tm.Interfaces
     Malfunction  = TmNativeDefs.S2Flags.Malfunction,
     Intermediate = TmNativeDefs.S2Flags.Interim,
   }
+  
+  
+  public enum TmTopologyState
+  {
+    Unknown       = 0,
+    IsNotVoltaged = 1,
+    IsVoltaged    = 2,
+    IsGrounded    = 4,
+  }
 
 
   public enum TmTeleregulation
