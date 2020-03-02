@@ -77,4 +77,4 @@ steps:
   artifact: $(appName)
 
 - publish: $(Build.ArtifactStagingDirectory)/$(x86Zip).zip
-  artifact: $(appName)
+  artifact: $(appName).x86
