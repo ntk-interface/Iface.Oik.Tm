@@ -1,4 +1,5 @@
 ﻿using System;
+using FluentAssertions;
 using Iface.Oik.Tm.Utils;
 using Xunit;
 
@@ -9,10 +10,9 @@ namespace Iface.Oik.Tm.Test.Utils
     public class EpochProperty
     {
       [Fact]
-      [UseCulture("ru-RU")]
       public void IsEpoch()
       {
-        Assert.Equal(new DateTime(1970, 1, 1), DateUtil.Epoch);
+        DateUtil.Epoch.Should().Be(new DateTime(1970, 1, 1));
       }
     }
 
@@ -20,10 +20,9 @@ namespace Iface.Oik.Tm.Test.Utils
     public class MinuteProperty
     {
       [Fact]
-      [UseCulture("ru-RU")]
       public void IsCorrectValueInSeconds()
       {
-        Assert.Equal(60, DateUtil.Minute);
+        DateUtil.Minute.Should().Be(60);
       }
     }
 
@@ -31,10 +30,9 @@ namespace Iface.Oik.Tm.Test.Utils
     public class HourProperty
     {
       [Fact]
-      [UseCulture("ru-RU")]
       public void IsCorrectValueInSeconds()
       {
-        Assert.Equal(3_600, DateUtil.Hour);
+        DateUtil.Hour.Should().Be(3_600);
       }
     }
 
@@ -42,10 +40,9 @@ namespace Iface.Oik.Tm.Test.Utils
     public class DayProperty
     {
       [Fact]
-      [UseCulture("ru-RU")]
       public void IsCorrectValueInSeconds()
       {
-        Assert.Equal(86_400, DateUtil.Day);
+        DateUtil.Day.Should().Be(86_400);
       }
     }
 
@@ -53,10 +50,9 @@ namespace Iface.Oik.Tm.Test.Utils
     public class WeekProperty
     {
       [Fact]
-      [UseCulture("ru-RU")]
       public void IsCorrectValueInSeconds()
       {
-        Assert.Equal(604_800, DateUtil.Week);
+        DateUtil.Week.Should().Be(604_800);
       }
     }
 
@@ -64,10 +60,9 @@ namespace Iface.Oik.Tm.Test.Utils
     public class YearProperty
     {
       [Fact]
-      [UseCulture("ru-RU")]
       public void IsCorrectValueInSeconds()
       {
-        Assert.Equal(31_536_000, DateUtil.Year);
+        DateUtil.Year.Should().Be(31_536_000);
       }
     }
 
@@ -83,8 +78,7 @@ namespace Iface.Oik.Tm.Test.Utils
       {
         var result = DateUtil.GetDateTime(s);
 
-        Assert.Equal(new DateTime(year, month, day, hour, minute, second, ms),
-                     result);
+        result.Should().Be(new DateTime(year, month, day, hour, minute, second, ms));
       }
 
 
@@ -98,7 +92,7 @@ namespace Iface.Oik.Tm.Test.Utils
       {
         var result = DateUtil.GetDateTime(s);
 
-        Assert.Null(result);
+        result.Should().BeNull();
       }
     }
 
@@ -114,8 +108,7 @@ namespace Iface.Oik.Tm.Test.Utils
       {
         var result = DateUtil.GetDateTimeFromTmString(s);
 
-        Assert.Equal(new DateTime(year, month, day, hour, minute, second),
-                     result);
+        result.Should().Be(new DateTime(year, month, day, hour, minute, second));
       }
 
 
@@ -130,7 +123,7 @@ namespace Iface.Oik.Tm.Test.Utils
       {
         var result = DateUtil.GetDateTimeFromTmString(s);
 
-        Assert.Null(result);
+        result.Should().BeNull();
       }
     }
 
@@ -145,8 +138,7 @@ namespace Iface.Oik.Tm.Test.Utils
       {
         var result = DateUtil.GetDateTimeFromTimestamp(timestamp);
 
-        Assert.Equal(new DateTime(year, month, day, hour, minute, second, ms),
-                     result);
+        result.Should().Be(new DateTime(year, month, day, hour, minute, second, ms));
       }
 
 
@@ -159,8 +151,7 @@ namespace Iface.Oik.Tm.Test.Utils
       {
         var result = DateUtil.GetDateTimeFromTimestamp(timestamp, timestampMs);
 
-        Assert.Equal(new DateTime(year, month, day, hour, minute, second, ms),
-                     result);
+        result.Should().Be(new DateTime(year, month, day, hour, minute, second, ms));
       }
     }
 
@@ -176,8 +167,7 @@ namespace Iface.Oik.Tm.Test.Utils
       {
         var result = DateUtil.GetDateTimeFromTimestampWithEpochCheck(timestamp, timestampMs);
 
-        Assert.Equal(new DateTime(year, month, day, hour, minute, second, ms),
-                     result);
+        result.Should().Be(new DateTime(year, month, day, hour, minute, second, ms));
       }
 
 
@@ -186,8 +176,8 @@ namespace Iface.Oik.Tm.Test.Utils
       public void ReturnsNullForEpoch()
       {
         var result = DateUtil.GetDateTimeFromTimestampWithEpochCheck(0, 0);
-        
-        Assert.Null(result);
+
+        result.Should().BeNull();
       }
     }
 
@@ -196,14 +186,16 @@ namespace Iface.Oik.Tm.Test.Utils
     {
       [Theory]
       [UseCulture("ru-RU")]
-      [InlineData(17, 01, 2018, 00, 00, 00, 00,  1516129200)]
-      [InlineData(17, 01, 2018, 12, 23, 34, 567, 1516173814)]
+      [InlineData(17, 01, 2018, 00, 00, 00, 00,  1516147200)]
+      [InlineData(17, 01, 2018, 12, 23, 34, 567, 1516191814)]
       public void ReturnsCorrectValues(int  day, int month, int year, int hour, int minute, int second, int ms,
                                        long expected)
       {
-        var result = DateUtil.GetUtcTimestampFromDateTime(new DateTime(year, month, day, hour, minute, second));
+        var dateTime = DateTime.SpecifyKind(new DateTime(year, month, day, hour, minute, second), DateTimeKind.Utc);
+        
+        var result = DateUtil.GetUtcTimestampFromDateTime(dateTime);
 
-        Assert.Equal(expected, result);
+        result.Should().Be(expected);
       }
     }
 
@@ -220,7 +212,7 @@ namespace Iface.Oik.Tm.Test.Utils
 
         var result = DateUtil.NullIfEpoch(dateTime);
 
-        Assert.Equal(dateTime, result);
+        result.Should().Be(dateTime);
       }
 
 
@@ -230,7 +222,7 @@ namespace Iface.Oik.Tm.Test.Utils
       {
         var result = DateUtil.NullIfEpoch(new DateTime(1970, 01, 01));
 
-        Assert.Null(result);
+        result.Should().BeNull();
       }
     }
   }
