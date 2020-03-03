@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using AutoFixture;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Iface.Oik.Tm.Native.Interfaces;
@@ -13,7 +14,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
     public class Constructor
     {
       [Theory]
-      [InlineAutoData]
+      [TmInlineAutoData]
       [InlineData(0,   1,   1)]
       [InlineData(0,   1,   11)]
       [InlineData(0,   1,   65535)]
@@ -33,8 +34,8 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
 
       [Theory]
-      [InlineAutoData(TmType.Status)]
-      [InlineAutoData(TmType.Analog)]
+      [TmInlineAutoData(TmType.Status)]
+      [TmInlineAutoData(TmType.Analog)]
       public void FromTypeChRtuPointCorrectly(TmType type, ushort ch, ushort rtu, ushort point)
       {
         var tmAddr = new TmAddr(type, ch, rtu, point);
@@ -130,7 +131,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
     public class CreateMethod
     {
       [Theory]
-      [InlineAutoData]
+      [TmInlineAutoData]
       [InlineData(16,  33,  257)]
       [InlineData(254, 255, 65535)]
       public void FromChRtuPointCorrectly(ushort ch, ushort rtu, ushort point)
@@ -145,8 +146,8 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
 
       [Theory]
-      [InlineAutoData(TmType.Status)]
-      [InlineAutoData(TmType.Analog)]
+      [TmInlineAutoData(TmType.Status)]
+      [TmInlineAutoData(TmType.Analog)]
       public void FromTypeChRtuPointCorrectly(TmType type, ushort ch, ushort rtu, ushort point)
       {
         var tmAddr = TmAddr.Create(type, ch, rtu, point);
@@ -233,9 +234,11 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class SetChProperty
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void SetsChCorrectly(int ch, int rtu, int point)
       {
+        var f = new Fixture();
+        f.Create<int>();
         var tmAddr = new TmAddr(ch, rtu, point);
 
         tmAddr.Ch = 250;
@@ -244,7 +247,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ThrowsWhenInvalidCh(int ch, int rtu, int point)
       {
         var tmAddr = new TmAddr(ch, rtu, point);
@@ -258,7 +261,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class SetRtuProperty
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void SetsRtuCorrectly(int ch, int rtu, int point)
       {
         var tmAddr = new TmAddr(ch, rtu, point);
@@ -269,7 +272,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ThrowsWhenInvalidRtu(int ch, int rtu, int point)
       {
         var tmAddr = new TmAddr(ch, rtu, point);
@@ -283,7 +286,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class SetPointProperty
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void SetsPointCorrectly(int ch, int rtu, int point)
       {
         var tmAddr = new TmAddr(ch, rtu, point);
@@ -512,7 +515,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class EqualsThreeIntegersMethod
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsTrue(int ch, int rtu, int point)
       {
         var tmAddr = new TmAddr(ch, rtu, point);
@@ -523,7 +526,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForDifferentAddr(int ch, int rtu, int point)
       {
         var tmAddr = new TmAddr(ch, rtu, point + 1);
@@ -537,7 +540,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class GetTupleMethod
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsCorrectValues(int ch, int rtu, int point)
       {
         var tmAddr = new TmAddr(ch, rtu, point);
@@ -553,7 +556,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class GetTupleShortMethod
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsCorrectValues(short ch, short rtu, short point)
       {
         var tmAddr = new TmAddr(ch, rtu, point);
@@ -569,7 +572,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class ToAdrTmMethod
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsCorrectValues(short ch, short rtu, short point)
       {
         var tmAddr = new TmAddr(ch, rtu, point);

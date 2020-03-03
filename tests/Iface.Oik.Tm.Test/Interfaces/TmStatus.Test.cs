@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq;
-using AutoFixture.Xunit2;
-using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Interfaces;
+using Iface.Oik.Tm.Native.Interfaces;
 using Xunit;
 
 namespace Iface.Oik.Tm.Test.Interfaces
@@ -11,7 +10,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
   {
     public class Constructor
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ConstructsFromChRtuPointCorrectly(int ch, int rtu, int point)
       {
         var tmStatus = new TmStatus(ch, rtu, point);
@@ -23,7 +22,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ConstructsFromTmAddrCorrectly(int ch, int rtu, int point)
       {
         var tmAddr = new TmAddr(TmType.Status, ch, rtu, point);
@@ -131,7 +130,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class EqualsMethod
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForNull(int ch, int rtu, int point)
       {
         var tmStatus1 = new TmStatus(ch, rtu, point);
@@ -142,7 +141,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForWrongType(int ch, int rtu, int point)
       {
         var tmStatus1 = new TmStatus(ch, rtu, point);
@@ -154,7 +153,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsTrue(int ch, int rtu, int point)
       {
         var tmStatus1 = new TmStatus(ch, rtu, point);
@@ -166,7 +165,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForWrongAddr(int ch, int rtu, int point)
       {
         var tmStatus1 = new TmStatus(ch, rtu, point);
@@ -178,7 +177,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForWrongStatus(int ch, int rtu, int point)
       {
         var tmStatus1 = new TmStatus(ch, rtu, point);
@@ -190,7 +189,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForWrongFlags(int ch, int rtu, int point)
       {
         var tmStatus1 = new TmStatus(ch, rtu, point);
@@ -202,7 +201,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForWrongS2Flags(int ch, int rtu, int point)
       {
         var tmStatus1 = new TmStatus(ch, rtu, point);
@@ -217,7 +216,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class EqualityOperator
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForNull(int ch, int rtu, int point)
       {
         var tmStatus1 = new TmStatus(ch, rtu, point);
@@ -228,7 +227,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsTrueForNullWhenNull(int ch, int rtu, int point)
       {
         TmStatus tmStatus1 = null;
@@ -239,7 +238,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsTrue(int ch, int rtu, int point)
       {
         var tmStatus1 = new TmStatus(ch, rtu, point);
@@ -251,7 +250,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForWrongAddr(int ch, int rtu, int point)
       {
         var tmStatus1 = new TmStatus(ch, rtu, point);
@@ -263,7 +262,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForWrongStatus(int ch, int rtu, int point)
       {
         var tmStatus1 = new TmStatus(ch, rtu, point);
@@ -275,7 +274,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForWrongFlags(int ch, int rtu, int point)
       {
         var tmStatus1 = new TmStatus(ch, rtu, point);
@@ -287,7 +286,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForWrongS2Flags(int ch, int rtu, int point)
       {
         var tmStatus1 = new TmStatus(ch, rtu, point);

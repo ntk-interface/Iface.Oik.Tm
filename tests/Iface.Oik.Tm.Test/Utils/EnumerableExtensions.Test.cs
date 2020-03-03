@@ -29,7 +29,7 @@ namespace Iface.Oik.Tm.Test.Utils
 
     public class ForEachMethod
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void SetsCorrectValues(int expectedX, int expectedY)
       {
         var steps = 0;
@@ -49,7 +49,7 @@ namespace Iface.Oik.Tm.Test.Utils
 
       public class ForEachWithIndexMethod
       {
-        [Theory, AutoData]
+        [Theory, TmAutoData]
         public void SetsCorrectValues(int expectedX, int expectedY)
         {
           var steps = 0;
@@ -102,7 +102,7 @@ namespace Iface.Oik.Tm.Test.Utils
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForNonEmpty(int dummy)
       {
         var array      = new int[] { dummy };
