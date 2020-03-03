@@ -10,7 +10,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
   {
     public class NameProperty
     {
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public void ReturnsNameField(TmStatus status)
       {
         var sb = new StringBuilder("Name=Выключатель");
@@ -33,7 +33,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class PropertiesProperty
     {
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public void ReturnsNullForNotInit(TmStatus status)
       {
         status.Properties.Should().BeNull();
@@ -43,7 +43,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class ClassDataProperty
     {
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public void ReturnsNullForNotInit(TmStatus status)
       {
         status.ClassData.Should().BeNull();
@@ -53,7 +53,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class SetTmcObjectPropertiesMethod
     {
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public void SetsCorrectValuesToStatus(TmStatus status)
       {
         var sb = new StringBuilder("Key1=Value1\r\nKey2=0\r\nName=Выключатель");
@@ -71,10 +71,10 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
 
       [Theory]
-      [InlineAutoFakeItEasyData(0)]
-      [InlineAutoFakeItEasyData(1)]
-      [InlineAutoFakeItEasyData(2)]
-      [InlineAutoFakeItEasyData(3)]
+      [TmInlineAutoFakeItEasyData(0)]
+      [TmInlineAutoFakeItEasyData(1)]
+      [TmInlineAutoFakeItEasyData(2)]
+      [TmInlineAutoFakeItEasyData(3)]
       public void SetsCorrectImportanceToStatus(short    importance,
                                                 TmStatus status)
       {
@@ -87,10 +87,10 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
 
       [Theory]
-      [InlineAutoFakeItEasyData(0,    0)]
-      [InlineAutoFakeItEasyData(1,    1)]
-      [InlineAutoFakeItEasyData(-1,   -1)]
-      [InlineAutoFakeItEasyData(1337, -1)]
+      [TmInlineAutoFakeItEasyData(0,    0)]
+      [TmInlineAutoFakeItEasyData(1,    1)]
+      [TmInlineAutoFakeItEasyData(-1,   -1)]
+      [TmInlineAutoFakeItEasyData(1337, -1)]
       public void SetsCorrectNormalStatusToStatus(short    normalStatus, short expectedNormalStatus,
                                                   TmStatus status)
       {
@@ -102,7 +102,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public void SetsCorrectValuesToAnalog(TmAnalog analog)
       {
         var sb = new StringBuilder("Key1=Value1\r\nKey2=0\r\nName=Мощность\r\nUnits=МВт");
@@ -122,8 +122,8 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
 
       [Theory]
-      [InlineAutoFakeItEasyData("7.3", 7, 3)]
-      [InlineAutoFakeItEasyData("4.1", 4, 1)]
+      [TmInlineAutoFakeItEasyData("7.3", 7, 3)]
+      [TmInlineAutoFakeItEasyData("4.1", 4, 1)]
       public void SetsCorrectFormatToAnalog(string   format, byte expectedWidth, byte expectedPrecision,
                                             TmAnalog analog)
       {
@@ -137,9 +137,9 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
 
       [Theory]
-      [InlineAutoFakeItEasyData("20", TmTeleregulation.Step)]
-      [InlineAutoFakeItEasyData("40", TmTeleregulation.Code)]
-      [InlineAutoFakeItEasyData("60", TmTeleregulation.Value)]
+      [TmInlineAutoFakeItEasyData("20", TmTeleregulation.Step)]
+      [TmInlineAutoFakeItEasyData("40", TmTeleregulation.Code)]
+      [TmInlineAutoFakeItEasyData("60", TmTeleregulation.Value)]
       public void SetsCorrectTeleregulationToAnalog(string   code, TmTeleregulation expectedTeleregulation,
                                                     TmAnalog analog)
       {
@@ -154,7 +154,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class SetTmcClassDataMethod
     {
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public void SetsCorrectValues(TmStatus status)
       {
         var str = "0Txt=отключен\r\n1Txt=включен\r\nBTxt=обрыв";

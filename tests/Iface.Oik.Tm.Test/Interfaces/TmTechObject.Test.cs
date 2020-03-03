@@ -13,7 +13,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class SetPropertiesFromTmcMethod
     {
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public void SetsCorrectProperties(TmTechObject tob)
       {
         using (var monitor = tob.Monitor())
@@ -28,7 +28,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public void DoesNothingAndReturnsFalseForNull(TmTechObject tob)
       {
         using (var monitor = tob.Monitor())
@@ -42,7 +42,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public void DoesNothingAndReturnsFalseForEqualProperties(TmTechObject tob)
       {
         tob.SetPropertiesFromTmc(Properties1);
@@ -57,7 +57,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public void SetsCorrectPropertiesForNewOnes(TmTechObject tob)
       {
         tob.SetPropertiesFromTmc(Properties1);
@@ -76,7 +76,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class GetPropertyMethod
     {
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public void ReturnsCorrectValues(TmTechObject tob)
       {
         tob.SetPropertiesFromTmc(Properties1);
@@ -91,7 +91,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public void ReturnsNullForNull(TmTechObject tob)
       {
         tob.SetPropertiesFromTmc(Properties1);
@@ -102,7 +102,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public void ReturnsNullForNotDefinedKey(TmTechObject tob)
       {
         tob.SetPropertiesFromTmc(Properties1);
@@ -116,7 +116,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class TopologyStateProperty
     {
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public void ReturnsUnknownForNonInit(TmTechObject tob)
       {
         var result = tob.TopologyState;
@@ -126,13 +126,13 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
 
       [Theory]
-      [InlineAutoFakeItEasyData(new[] {"$V=1", "$G=1"}, TmTopologyState.IsGrounded)]
-      [InlineAutoFakeItEasyData(new[] {"$V=0", "$G=1"}, TmTopologyState.IsGrounded)]
-      [InlineAutoFakeItEasyData(new[] {"$V=1", "$G=0"}, TmTopologyState.IsVoltaged)]
-      [InlineAutoFakeItEasyData(new[] {"$V=0", "$G=0"}, TmTopologyState.IsNotVoltaged)]
-      [InlineAutoFakeItEasyData(new[] {"$V=1"},         TmTopologyState.Unknown)]
-      [InlineAutoFakeItEasyData(new[] {"$G=1"},         TmTopologyState.Unknown)]
-      [InlineAutoFakeItEasyData(new[] {"dummy"},        TmTopologyState.Unknown)]
+      [TmInlineAutoFakeItEasyData(new[] {"$V=1", "$G=1"}, TmTopologyState.IsGrounded)]
+      [TmInlineAutoFakeItEasyData(new[] {"$V=0", "$G=1"}, TmTopologyState.IsGrounded)]
+      [TmInlineAutoFakeItEasyData(new[] {"$V=1", "$G=0"}, TmTopologyState.IsVoltaged)]
+      [TmInlineAutoFakeItEasyData(new[] {"$V=0", "$G=0"}, TmTopologyState.IsNotVoltaged)]
+      [TmInlineAutoFakeItEasyData(new[] {"$V=1"},         TmTopologyState.Unknown)]
+      [TmInlineAutoFakeItEasyData(new[] {"$G=1"},         TmTopologyState.Unknown)]
+      [TmInlineAutoFakeItEasyData(new[] {"dummy"},        TmTopologyState.Unknown)]
       public void ReturnsCorrectValues(string[]        properties,
                                        TmTopologyState expected,
                                        TmTechObject    tob)

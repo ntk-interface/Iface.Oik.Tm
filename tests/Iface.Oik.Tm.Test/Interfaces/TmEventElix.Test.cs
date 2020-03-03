@@ -1,5 +1,4 @@
-﻿using AutoFixture.Xunit2;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Iface.Oik.Tm.Interfaces;
 using Xunit;
 
@@ -9,7 +8,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
   {
     public class Constructor
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void SetsCorrectValues(uint r, uint m)
       {
         var elix = new TmEventElix(r, m);
@@ -75,7 +74,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class EqualsMethod
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsTrue(uint r, uint m)
       {
         var elix1 = new TmEventElix(r, m);
@@ -85,7 +84,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForDifferentR(uint r, uint m)
       {
         var elix1 = new TmEventElix(r,     m);
@@ -95,7 +94,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForDifferentM(uint r, uint m)
       {
         var elix1 = new TmEventElix(r, m);
@@ -105,7 +104,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForNull(uint r, uint m)
       {
         var elix1 = new TmEventElix(r, m);
@@ -114,7 +113,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForWrongObject(uint r, uint m)
       {
         var elix1 = new TmEventElix(r, m);
@@ -127,7 +126,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class EqualityOperator
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsTrue(uint r, uint m)
       {
         var elix1 = new TmEventElix(r, m);
@@ -137,7 +136,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForDifferentR(uint r, uint m)
       {
         var elix1 = new TmEventElix(r,     m);
@@ -147,7 +146,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForDifferentM(uint r, uint m)
       {
         var elix1 = new TmEventElix(r, m);
@@ -157,7 +156,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForNull(uint r, uint m)
       {
         var elix1 = new TmEventElix(r, m);
@@ -166,7 +165,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsTrueForNullWhenNull(uint r, uint m)
       {
         TmEventElix elix1 = null;
@@ -178,7 +177,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class InequalityOperator
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsTrueForDifferentR(uint r, uint m)
       {
         var elix1 = new TmEventElix(r,     m);
@@ -188,7 +187,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsTrueForDifferentM(uint r, uint m)
       {
         var elix1 = new TmEventElix(r, m);
@@ -198,7 +197,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalse(uint r, uint m)
       {
         var elix1 = new TmEventElix(r, m);
@@ -208,7 +207,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsTrueForNull(uint r, uint m)
       {
         var elix1 = new TmEventElix(r, m);
@@ -220,7 +219,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class ToStringMethod
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsCorrectValues(uint r, uint m)
       {
         var elix = new TmEventElix(r, m);

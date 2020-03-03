@@ -135,7 +135,7 @@ namespace Iface.Oik.Tm.Test.Api
 
     public class GetSystemTimeStringMethod
     {
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public async void ReturnsCorrectTime([Frozen] ITmNative native, TmsApi tms)
       {
         var fakeTime         = "12.12.2017 09:14:30";
@@ -153,7 +153,7 @@ namespace Iface.Oik.Tm.Test.Api
 
     public class GetSystemTimeMethod
     {
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public async void ReturnsCorrectTime([Frozen] ITmNative native, TmsApi tms)
       {
         var fakeTime         = "12.12.2017 09:14:30";
@@ -171,7 +171,7 @@ namespace Iface.Oik.Tm.Test.Api
 
     public class GetStatusMethod
     {
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public async void ReturnsCorrectStatus([Frozen] ITmNative native, TmsApi tms,
                                              short              ch,     short  rtu, short point,
                                              short              expected)
@@ -188,7 +188,7 @@ namespace Iface.Oik.Tm.Test.Api
 
     public class GetAnalogMethod
     {
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public async void ReturnsCorrectAnalogNow([Frozen] ITmNative native, TmsApi tms,
                                                 short              ch,     short  rtu, short point,
                                                 float              expected)
@@ -205,7 +205,7 @@ namespace Iface.Oik.Tm.Test.Api
 
     public class GetAnalogRetroMethod
     {
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       [UseCulture("ru-RU")]
       public async void ReturnsNullForInvalidTimes(TmsApi tms)
       {
@@ -215,7 +215,7 @@ namespace Iface.Oik.Tm.Test.Api
       }
 
 
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       [UseCulture("ru-RU")]
       public async void ReturnsCorrectForNativeArgs([Frozen] ITmNative native, TmsApi tms,
                                                     short              ch,     short  rtu, short point)
@@ -238,7 +238,7 @@ namespace Iface.Oik.Tm.Test.Api
       }
 
 
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       [UseCulture("ru-RU")]
       public async void ReturnsCorrectForTimestampArgs([Frozen] ITmNative native, TmsApi tms,
                                                        short              ch,     short  rtu, short point)
@@ -260,7 +260,7 @@ namespace Iface.Oik.Tm.Test.Api
       }
 
 
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       [UseCulture("ru-RU")]
       public async void ReturnsCorrectForDateTimeArgs([Frozen] ITmNative native, TmsApi tms,
                                                       short              ch,     short  rtu, short point)
@@ -282,7 +282,7 @@ namespace Iface.Oik.Tm.Test.Api
       }
 
 
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       [UseCulture("ru-RU")]
       public async void ReturnsCorrectForStringArgs([Frozen] ITmNative native, TmsApi tms,
                                                     short              ch,     short  rtu, short point)
@@ -307,7 +307,7 @@ namespace Iface.Oik.Tm.Test.Api
 
     public class GetImpulseArchiveInstandMethod
     {
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       [UseCulture("ru-RU")]
       public async void ReturnsNullForInvalidTimes(TmsApi tms)
       {
@@ -317,7 +317,7 @@ namespace Iface.Oik.Tm.Test.Api
       }
 
 
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       [UseCulture("ru-RU")]
       public async void ReturnsCorrectForTimestampArgs([Frozen] ITmNative native, TmsApi tms,
                                                        short              ch,     short  rtu, short point)
@@ -343,7 +343,7 @@ namespace Iface.Oik.Tm.Test.Api
       }
 
 
-    [Theory, AutoFakeItEasyData]
+    [Theory, TmAutoFakeItEasyData]
     [UseCulture("ru-RU")]
     public async void ReturnsCorrectForDateTimeArgs([Frozen] ITmNative native, TmsApi tms,
                                                     short              ch,     short  rtu, short point)
@@ -369,7 +369,7 @@ namespace Iface.Oik.Tm.Test.Api
     }
 
 
-    [Theory, AutoFakeItEasyData]
+    [Theory, TmAutoFakeItEasyData]
     [UseCulture("ru-RU")]
     public async void ReturnsCorrectForStringArgs([Frozen] ITmNative native, TmsApi tms,
                                                   short              ch,     short  rtu, short point)
@@ -398,7 +398,7 @@ namespace Iface.Oik.Tm.Test.Api
 
     public class GetImpulseArchiveAverageMethod
     {
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       [UseCulture("ru-RU")]
       public async void ReturnsNullForInvalidTimes(TmsApi tms)
       {
@@ -408,7 +408,7 @@ namespace Iface.Oik.Tm.Test.Api
       }
 
 
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       [UseCulture("ru-RU")]
       public async void ReturnsCorrectForTimestampArgs([Frozen] ITmNative native, TmsApi tms,
                                                        short              ch,     short  rtu, short point)
@@ -434,7 +434,7 @@ namespace Iface.Oik.Tm.Test.Api
       }
 
 
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       [UseCulture("ru-RU")]
       public async void ReturnsCorrectForDateTimeArgs([Frozen] ITmNative native, TmsApi tms,
                                                       short              ch,     short  rtu, short point)
@@ -460,7 +460,7 @@ namespace Iface.Oik.Tm.Test.Api
       }
 
 
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       [UseCulture("ru-RU")]
       public async void ReturnsCorrectForStringArgs([Frozen] ITmNative native, TmsApi tms,
                                                     short              ch,     short  rtu, short point)
@@ -489,7 +489,7 @@ namespace Iface.Oik.Tm.Test.Api
 
     public class GetFilesInDirectoryMethod
     {
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public async void ReturnsNullWhenCfCidFails([Frozen] ITmNative native, TmsApi tms)
       {
         A.CallTo(() => native.TmcGetCfsHandle(A<int>._))
@@ -501,7 +501,7 @@ namespace Iface.Oik.Tm.Test.Api
       }
 
 
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public async void ReturnsNullWhenWhenTmconnReturnsFalse([Frozen] ITmNative native, TmsApi tms)
       {
         uint error;
@@ -520,7 +520,7 @@ namespace Iface.Oik.Tm.Test.Api
       }
 
 
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public async void ReturnsCorrectList([Frozen] ITmNative native, TmsApi tms)
       {
         uint error;
@@ -548,7 +548,7 @@ namespace Iface.Oik.Tm.Test.Api
 
     public class DownloadFileMethod
     {
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public async void ReturnsFalseWhenCfCidFails([Frozen] ITmNative native, TmsApi tms)
       {
         A.CallTo(() => native.TmcGetCfsHandle(A<int>._))
@@ -560,7 +560,7 @@ namespace Iface.Oik.Tm.Test.Api
       }
 
 
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public async void ReturnsFalseWhenTmconnReturnsFalse([Frozen] ITmNative native, TmsApi tms)
       {
         uint error;
@@ -577,7 +577,7 @@ namespace Iface.Oik.Tm.Test.Api
       }
 
 
-      [Theory, AutoFakeItEasyData]
+      [Theory, TmAutoFakeItEasyData]
       public async void ReturnsFalseWhenNoFileFound([Frozen] ITmNative native, TmsApi tms)
       {
         uint error;
