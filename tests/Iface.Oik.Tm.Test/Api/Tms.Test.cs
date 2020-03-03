@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using AutoFixture.Xunit2;
+using FluentAssertions;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Api;
 using Iface.Oik.Tm.Interfaces;
@@ -479,14 +480,14 @@ namespace Iface.Oik.Tm.Test.Api
         native.TmcGetCfsHandle(0)
               .ReturnsForAnyArgs((uint) 0);
 
-        var result = await tms.GetFilesInDirectory(Arg.Any<string>());
+        var result = await tms.GetFilesInDirectory("anyString");
 
         Assert.Null(result);
       }
 
 
       [Theory, AutoNSubstituteData]
-      public async void ReturnsNullWhenWhentmconnReturnsFalse([Frozen] ITmNative native, TmsApi tms)
+      public async void ReturnsNullWhenWhenTmconnReturnsFalse([Frozen] ITmNative native, TmsApi tms)
       {
         var  anyStringBuilder = new StringBuilder(80);
         uint anyBufLength     = 80;
@@ -501,7 +502,7 @@ namespace Iface.Oik.Tm.Test.Api
                 return false;
               });
 
-        var result = await tms.GetFilesInDirectory(Arg.Any<string>());
+        var result = await tms.GetFilesInDirectory("anyString");
 
         Assert.Null(result);
       }
@@ -527,7 +528,7 @@ namespace Iface.Oik.Tm.Test.Api
                 return true;
               });
 
-        var result = await tms.GetFilesInDirectory(Arg.Any<string>());
+        var result = await tms.GetFilesInDirectory("anyString");
 
         Assert.Equal(new List<string> {"Item1", "Item2"}, result);
       }
@@ -539,40 +540,42 @@ namespace Iface.Oik.Tm.Test.Api
       [Theory, AutoNSubstituteData]
       public async void ReturnsFalseWhenCfCidFails([Frozen] ITmNative native, TmsApi tms)
       {
-        native.TmcGetCfsHandle(0)
+        native.TmcGetCfsHandle(Arg.Any<int>())
               .ReturnsForAnyArgs((uint) 0);
 
-        var result = await tms.DownloadFile(Arg.Any<string>(), Arg.Any<string>());
+        var result = await tms.DownloadFile("anyString", "anyString");
 
-        Assert.False(result);
+        result.Should().BeFalse();
       }
 
 
       [Theory, AutoNSubstituteData]
-      public async void ReturnsFalseWhentmconnReturnsFalse([Frozen] ITmNative native, TmsApi tms)
+      public async void ReturnsFalseWhenTmconnReturnsFalse([Frozen] ITmNative native, TmsApi tms)
       {
+        var anyString        = Arg.Any<string>();
         var anyStringBuilder = new StringBuilder(80);
         native.TmcGetCfsHandle(0)
               .ReturnsForAnyArgs((uint) 1);
-        native.CfsFileGet(1, "", "", 0, IntPtr.Zero, out uint _, ref anyStringBuilder, 0)
+        native.CfsFileGet(1, anyString, anyString, 0, IntPtr.Zero, out uint _, ref anyStringBuilder, 0)
               .ReturnsForAnyArgs(false);
 
-        var result = await tms.DownloadFile(Arg.Any<string>(), Arg.Any<string>());
+        var result = await tms.DownloadFile("anyString", "anyString");
 
-        Assert.False(result);
+        result.Should().BeTrue();
       }
 
 
       [Theory, AutoNSubstituteData]
       public async void ReturnsFalseWhenNoFileFound([Frozen] ITmNative native, TmsApi tms)
       {
+        var anyString        = Arg.Any<string>();
         var anyStringBuilder = new StringBuilder(80);
         native.TmcGetCfsHandle(0)
               .ReturnsForAnyArgs((uint) 1);
-        native.CfsFileGet(1, "", "", 0, IntPtr.Zero, out uint _, ref anyStringBuilder, 0)
+        native.CfsFileGet(1, anyString, anyString, 0, IntPtr.Zero, out uint _, ref anyStringBuilder, 0)
               .ReturnsForAnyArgs(true);
 
-        var result = await tms.DownloadFile(Arg.Any<string>(), Arg.Any<string>());
+        var result = await tms.DownloadFile("anyString", "anyString");
 
         Assert.False(result);
       }
