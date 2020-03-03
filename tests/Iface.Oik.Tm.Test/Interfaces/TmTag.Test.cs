@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using FakeItEasy;
 using FluentAssertions;
 using Iface.Oik.Tm.Interfaces;
 using Xunit;
@@ -8,6 +9,51 @@ namespace Iface.Oik.Tm.Test.Interfaces
 {
   public class TmTagTest
   {
+    public class CreateMethod
+    {
+      [Fact]
+      public void ReturnsNullWhenAddrIsNull()
+      {
+        var result = TmTag.Create(null);
+
+        result.Should().BeNull();
+      }
+
+
+      [Fact]
+      public void ReturnsNullWhenAddrHasUnknownType()
+      {
+        var tmAddr = new TmAddr(A.Dummy<uint>());
+
+        var result = TmTag.Create(tmAddr);
+
+        result.Should().BeNull();
+      }
+
+
+      [Theory, TmInlineAutoData]
+      public void ReturnsCorrectValueForTmStatusAddr(int ch, int rtu, int point)
+      {
+        var tmAddr = new TmAddr(TmType.Status, ch, rtu, point);
+
+        var result = TmTag.Create(tmAddr);
+
+        result.Should().Be(new TmStatus(ch, rtu, point));
+      }
+
+
+      [Theory, TmInlineAutoData]
+      public void ReturnsCorrectValueForTmAnalogAddr(int ch, int rtu, int point)
+      {
+        var tmAddr = new TmAddr(TmType.Analog, ch, rtu, point);
+
+        var result = TmTag.Create(tmAddr);
+
+        result.Should().Be(new TmAnalog(ch, rtu, point));
+      }
+    }
+    
+    
     public class NameProperty
     {
       [Theory, TmAutoFakeItEasyData]
@@ -47,6 +93,47 @@ namespace Iface.Oik.Tm.Test.Interfaces
       public void ReturnsNullForNotInit(TmStatus status)
       {
         status.ClassData.Should().BeNull();
+        status.IsClassDataLoaded.Should().BeFalse();
+      }
+    }
+
+
+    public class IsStatusProperty
+    {
+      [Theory, TmInlineAutoData]
+      public void ReturnsTrueForStatus(int ch, int rtu, int point)
+      {
+        TmTag tag = new TmStatus(ch, rtu, point);
+        
+        tag.IsStatus.Should().BeTrue();
+      }
+      
+      [Theory, TmInlineAutoData]
+      public void ReturnsFalseForNonStatus(int ch, int rtu, int point)
+      {
+        TmTag tag = new TmAnalog(ch, rtu, point);
+        
+        tag.IsStatus.Should().BeFalse();
+      }
+    }
+
+
+    public class IsAnalogProperty
+    {
+      [Theory, TmInlineAutoData]
+      public void ReturnsTrueForAnalog(int ch, int rtu, int point)
+      {
+        TmTag tag = new TmAnalog(ch, rtu, point);
+        
+        tag.IsAnalog.Should().BeTrue();
+      }
+      
+      [Theory, TmInlineAutoData]
+      public void ReturnsFalseForNonAnalog(int ch, int rtu, int point)
+      {
+        TmTag tag = new TmStatus(ch, rtu, point);
+        
+        tag.IsAnalog.Should().BeFalse();
       }
     }
 
@@ -163,6 +250,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
         status.CaptionOff.Should().Be("отключен");
         status.CaptionOn.Should().Be("включен");
+        status.IsClassDataLoaded.Should().BeTrue();
         status.ClassData.Should().Equal(new Dictionary<string, string>
         {
           {"0Txt", "отключен"},
