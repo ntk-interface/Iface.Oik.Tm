@@ -46,5 +46,34 @@ namespace Iface.Oik.Tm.Test.Utils
         result.Should().BeFalse();
       }
     }
+
+
+    public class NullIfEpochMethod
+    {
+      [Theory]
+      [UseCulture("ru-RU")]
+      [InlineData(17, 01, 2018, 00, 00, 00)]
+      [InlineData(17, 01, 2018, 12, 23, 34)]
+      public void ReturnsDateTime(int day, int month, int year, int hour, int minute, int second)
+      {
+        DateTime? dateTime = new DateTime(year, month, day, hour, minute, second);
+
+        var result = dateTime.NullIfEpoch();
+
+        result.Should().Be(dateTime);
+      }
+
+
+      [Fact]
+      [UseCulture("ru-RU")]
+      public void ReturnsNullForEpoch()
+      {
+        DateTime? dateTime = new DateTime(1970, 01, 01);
+        
+        var result = dateTime.NullIfEpoch();
+
+        result.Should().BeNull();
+      }
+    }
   }
 }

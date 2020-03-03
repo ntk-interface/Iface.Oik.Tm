@@ -8,11 +8,9 @@ namespace Iface.Oik.Tm.Utils
   {
     public static IEnumerable<T> ForEach<T>(this IEnumerable<T> source, Action<T> action)
     {
-      if (action == null) throw new ArgumentNullException();
-
       foreach (var item in source)
       {
-        action(item);
+        action?.Invoke(item);
       }
 
       return source;
@@ -20,12 +18,10 @@ namespace Iface.Oik.Tm.Utils
 
     public static IEnumerable<T> ForEach<T>(this IEnumerable<T> source, Action<T, int> action)
     {
-      if (action == null) throw new ArgumentNullException();
-
       int index = 0;
       foreach (var item in source)
       {
-        action(item, index++);
+        action?.Invoke(item, index++);
       }
 
       return source;

@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using AutoFixture.Xunit2;
 using FakeItEasy;
 using FluentAssertions;
 using Iface.Oik.Tm.Utils;

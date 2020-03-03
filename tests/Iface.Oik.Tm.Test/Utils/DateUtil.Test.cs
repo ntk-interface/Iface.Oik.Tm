@@ -204,9 +204,9 @@ namespace Iface.Oik.Tm.Test.Utils
     {
       [Theory]
       [UseCulture("ru-RU")]
-      [InlineData(17, 01, 2018, 00, 00, 00, 00)]
-      [InlineData(17, 01, 2018, 12, 23, 34, 567)]
-      public void ReturnsDateTime(int day, int month, int year, int hour, int minute, int second, int ms)
+      [InlineData(17, 01, 2018, 00, 00, 00)]
+      [InlineData(17, 01, 2018, 12, 23, 34)]
+      public void ReturnsDateTime(int day, int month, int year, int hour, int minute, int second)
       {
         var dateTime = new DateTime(year, month, day, hour, minute, second);
 
@@ -220,7 +220,9 @@ namespace Iface.Oik.Tm.Test.Utils
       [UseCulture("ru-RU")]
       public void ReturnsNullForEpoch()
       {
-        var result = DateUtil.NullIfEpoch(new DateTime(1970, 01, 01));
+        var dateTime = new DateTime(1970, 01, 01);
+        
+        var result = DateUtil.NullIfEpoch(dateTime);
 
         result.Should().BeNull();
       }
