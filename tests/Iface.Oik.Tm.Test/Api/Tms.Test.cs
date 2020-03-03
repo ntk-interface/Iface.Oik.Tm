@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using AutoFixture.Xunit2;
+using FluentAssertions;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Api;
 using Iface.Oik.Tm.Interfaces;
@@ -18,7 +19,7 @@ namespace Iface.Oik.Tm.Test.Api
     {
       public const int  Timezone     = DateUtil.Hour * 5;
       public const long UtcStartTime = 1514505600;
-      public const int  Step         = 30;
+      public const int  Step         = 5;
       public const int  Count        = 3;
       public const long UtcMidTime   = UtcStartTime + Step;
       public const long UtcEndTime   = UtcStartTime + Step * 2;
@@ -31,7 +32,7 @@ namespace Iface.Oik.Tm.Test.Api
       public static readonly DateTime EndDateTime   = new DateTime(2017, 12, 29, 5, 1, 0);
 
       public const string StringStartTime = "29.12.2017 5:00:00";
-      public const string StringEndTime   = "29.12.2017 5:01:00";
+      public const string StringEndTime   = "29.12.2017 5:00:10";
 
       public static readonly TmNativeDefs.TAnalogPointShort[] AnalogPointShortList =
       {
@@ -204,7 +205,7 @@ namespace Iface.Oik.Tm.Test.Api
       {
         var result = await tms.GetAnalogRetro(new TmAddr(0, 1, 1), 1500000000, 1500000000);
 
-        Assert.Null(result);
+        result.Should().BeNull();
       }
 
 
@@ -222,9 +223,11 @@ namespace Iface.Oik.Tm.Test.Api
               .Do(x => x[8] = RetroConst.AnalogPointShortList);
 
         var result = await tms.GetAnalogRetro(new TmAddr(ch, rtu, point),
-                                              RetroConst.UtcStartTime, RetroConst.Count, RetroConst.Step);
+                                              RetroConst.UtcStartTime,
+                                              RetroConst.Count, 
+                                              RetroConst.Step);
 
-        Assert.Equal(RetroConst.TmAnalogRetroList, result);
+        result.Should().Equal(RetroConst.TmAnalogRetroList);
       }
 
 
@@ -242,9 +245,10 @@ namespace Iface.Oik.Tm.Test.Api
               .Do(x => x[8] = RetroConst.AnalogPointShortList);
 
         var result = await tms.GetAnalogRetro(new TmAddr(ch, rtu, point),
-                                              RetroConst.UtcStartTime, RetroConst.UtcEndTime);
+                                              RetroConst.UtcStartTime, 
+                                              RetroConst.UtcEndTime);
 
-        Assert.Equal(RetroConst.TmAnalogRetroList, result);
+        result.Should().Equal(RetroConst.TmAnalogRetroList);
       }
 
 
@@ -479,14 +483,14 @@ namespace Iface.Oik.Tm.Test.Api
         native.TmcGetCfsHandle(0)
               .ReturnsForAnyArgs((uint) 0);
 
-        var result = await tms.GetFilesInDirectory(Arg.Any<string>());
+        var result = await tms.GetFilesInDirectory("anyString");
 
         Assert.Null(result);
       }
 
 
       [Theory, AutoNSubstituteData]
-      public async void ReturnsNullWhenWhentmconnReturnsFalse([Frozen] ITmNative native, TmsApi tms)
+      public async void ReturnsNullWhenWhenTmconnReturnsFalse([Frozen] ITmNative native, TmsApi tms)
       {
         var  anyStringBuilder = new StringBuilder(80);
         uint anyBufLength     = 80;
@@ -501,7 +505,7 @@ namespace Iface.Oik.Tm.Test.Api
                 return false;
               });
 
-        var result = await tms.GetFilesInDirectory(Arg.Any<string>());
+        var result = await tms.GetFilesInDirectory("anyString");
 
         Assert.Null(result);
       }
@@ -527,7 +531,7 @@ namespace Iface.Oik.Tm.Test.Api
                 return true;
               });
 
-        var result = await tms.GetFilesInDirectory(Arg.Any<string>());
+        var result = await tms.GetFilesInDirectory("anyString");
 
         Assert.Equal(new List<string> {"Item1", "Item2"}, result);
       }
@@ -539,40 +543,42 @@ namespace Iface.Oik.Tm.Test.Api
       [Theory, AutoNSubstituteData]
       public async void ReturnsFalseWhenCfCidFails([Frozen] ITmNative native, TmsApi tms)
       {
-        native.TmcGetCfsHandle(0)
+        native.TmcGetCfsHandle(Arg.Any<int>())
               .ReturnsForAnyArgs((uint) 0);
 
-        var result = await tms.DownloadFile(Arg.Any<string>(), Arg.Any<string>());
+        var result = await tms.DownloadFile("anyString", "anyString");
 
-        Assert.False(result);
+        result.Should().BeFalse();
       }
 
 
       [Theory, AutoNSubstituteData]
-      public async void ReturnsFalseWhentmconnReturnsFalse([Frozen] ITmNative native, TmsApi tms)
+      public async void ReturnsFalseWhenTmconnReturnsFalse([Frozen] ITmNative native, TmsApi tms)
       {
+        var anyString        = Arg.Any<string>();
         var anyStringBuilder = new StringBuilder(80);
         native.TmcGetCfsHandle(0)
               .ReturnsForAnyArgs((uint) 1);
-        native.CfsFileGet(1, "", "", 0, IntPtr.Zero, out uint _, ref anyStringBuilder, 0)
+        native.CfsFileGet(1, anyString, anyString, 0, IntPtr.Zero, out uint _, ref anyStringBuilder, 0)
               .ReturnsForAnyArgs(false);
 
-        var result = await tms.DownloadFile(Arg.Any<string>(), Arg.Any<string>());
+        var result = await tms.DownloadFile("anyString", "anyString");
 
-        Assert.False(result);
+        result.Should().BeTrue();
       }
 
 
       [Theory, AutoNSubstituteData]
       public async void ReturnsFalseWhenNoFileFound([Frozen] ITmNative native, TmsApi tms)
       {
+        var anyString        = Arg.Any<string>();
         var anyStringBuilder = new StringBuilder(80);
         native.TmcGetCfsHandle(0)
               .ReturnsForAnyArgs((uint) 1);
-        native.CfsFileGet(1, "", "", 0, IntPtr.Zero, out uint _, ref anyStringBuilder, 0)
+        native.CfsFileGet(1, anyString, anyString, 0, IntPtr.Zero, out uint _, ref anyStringBuilder, 0)
               .ReturnsForAnyArgs(true);
 
-        var result = await tms.DownloadFile(Arg.Any<string>(), Arg.Any<string>());
+        var result = await tms.DownloadFile("anyString", "anyString");
 
         Assert.False(result);
       }

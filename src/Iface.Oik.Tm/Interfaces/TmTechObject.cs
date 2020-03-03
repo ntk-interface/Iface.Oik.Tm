@@ -100,8 +100,6 @@ namespace Iface.Oik.Tm.Interfaces
     {
       if (tmcProperties == null) return false;
 
-      IsInit = true;
-
       var newProperties = tmcProperties.Select(prop => prop.Split('='))
                                        .Where(kvp => kvp.Length == 2)
                                        .ToDictionary(kvp => kvp[0],
@@ -111,6 +109,7 @@ namespace Iface.Oik.Tm.Interfaces
         return false;
       }
 
+      IsInit        = true;
       Properties    = newProperties;
       Name          = GetNameFromProperties();
       TopologyState = GetTopologyStateFromProperties();
