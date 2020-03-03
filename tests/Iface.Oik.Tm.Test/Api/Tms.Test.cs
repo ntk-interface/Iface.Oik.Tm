@@ -19,7 +19,7 @@ namespace Iface.Oik.Tm.Test.Api
     {
       public const int  Timezone     = DateUtil.Hour * 5;
       public const long UtcStartTime = 1514505600;
-      public const int  Step         = 30;
+      public const int  Step         = 5;
       public const int  Count        = 3;
       public const long UtcMidTime   = UtcStartTime + Step;
       public const long UtcEndTime   = UtcStartTime + Step * 2;
@@ -32,7 +32,7 @@ namespace Iface.Oik.Tm.Test.Api
       public static readonly DateTime EndDateTime   = new DateTime(2017, 12, 29, 5, 1, 0);
 
       public const string StringStartTime = "29.12.2017 5:00:00";
-      public const string StringEndTime   = "29.12.2017 5:01:00";
+      public const string StringEndTime   = "29.12.2017 5:00:10";
 
       public static readonly TmNativeDefs.TAnalogPointShort[] AnalogPointShortList =
       {
@@ -205,7 +205,7 @@ namespace Iface.Oik.Tm.Test.Api
       {
         var result = await tms.GetAnalogRetro(new TmAddr(0, 1, 1), 1500000000, 1500000000);
 
-        Assert.Null(result);
+        result.Should().BeNull();
       }
 
 
@@ -223,9 +223,11 @@ namespace Iface.Oik.Tm.Test.Api
               .Do(x => x[8] = RetroConst.AnalogPointShortList);
 
         var result = await tms.GetAnalogRetro(new TmAddr(ch, rtu, point),
-                                              RetroConst.UtcStartTime, RetroConst.Count, RetroConst.Step);
+                                              RetroConst.UtcStartTime,
+                                              RetroConst.Count, 
+                                              RetroConst.Step);
 
-        Assert.Equal(RetroConst.TmAnalogRetroList, result);
+        result.Should().Equal(RetroConst.TmAnalogRetroList);
       }
 
 
@@ -243,9 +245,10 @@ namespace Iface.Oik.Tm.Test.Api
               .Do(x => x[8] = RetroConst.AnalogPointShortList);
 
         var result = await tms.GetAnalogRetro(new TmAddr(ch, rtu, point),
-                                              RetroConst.UtcStartTime, RetroConst.UtcEndTime);
+                                              RetroConst.UtcStartTime, 
+                                              RetroConst.UtcEndTime);
 
-        Assert.Equal(RetroConst.TmAnalogRetroList, result);
+        result.Should().Equal(RetroConst.TmAnalogRetroList);
       }
 
 
