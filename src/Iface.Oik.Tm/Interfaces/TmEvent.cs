@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using Iface.Oik.Tm.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
@@ -22,6 +23,8 @@ namespace Iface.Oik.Tm.Interfaces
     public TmType       TmAddrType           { get; private set; }
     public uint         TmAddrComplexInteger { get; private set; } // sql: tma // one-based, 0=none
     public string       TmAddrString         { get; private set; }
+    public object       Reference            { get; private set; }
+    public DateTime?    FixTime              { get; private set; }
 
     private int       _num;
     private DateTime? _ackTime;
@@ -116,12 +119,12 @@ namespace Iface.Oik.Tm.Interfaces
       var eventTypeString = (eventType == TmEventTypes.StatusChange    ||
                              eventType == TmEventTypes.ManualStatusSet ||
                              eventType == TmEventTypes.Alarm)
-        ? tmTypeString
-        : typeString;
+                              ? tmTypeString
+                              : typeString;
 
       var eventText = (eventType == TmEventTypes.Extended)
-        ? text
-        : name;
+                        ? text
+                        : name;
 
       var tmEvent = new TmEvent(elixBytes != null ? BitConverter.ToInt32(elixBytes, 8) : 0)
       {
@@ -163,11 +166,174 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
+    public static TmEvent CreateFromTEventElix(TmNativeDefs.TEventElix tEventElix)
+    {
+      var tmEventElix = new TmEventElix(tEventElix.Elix.R, tEventElix.Elix.M);
+      var tmEventType = (TmEventTypes) tEventElix.Event.Id;
+
+      var tmEvent = new TmEvent(BitConverter.ToInt32(tmEventElix.ToByteArray(), 8))
+      {
+        Elix         = tmEventElix,
+        Time         = DateUtil.GetDateTime(System.Text.Encoding.Default.GetString(tEventElix.Event.DateTime)),
+        Type         = tmEventType,
+        Importance   = tEventElix.Event.Imp,
+        TmAddrString = GetTmAddrStringFromTEvent(tEventElix.Event),
+        TmAddrType   = GetTmTypeFromTEvent(tEventElix.Event),
+      };
+
+      switch (tmEventType)
+      {
+        case TmEventTypes.StatusChange:
+          var                  statusData = TmNativeUtil.GetStatusDataFromTEvent(tEventElix.Event);
+          var                  isS2Only   = false;
+          TmNativeDefs.S2Flags s2         = 0x0000;
+          tmEvent.TypeString = statusData.Class != 1 ? "А.П.С." : "ТС";
+
+          if ((statusData.ExtSig & TmNativeDefs.ExtendedDataSignature) == TmNativeDefs.ExtendedDataSignature)
+          {
+            var extSigFlags = (TmNativeDefs.ExtendedDataSignatureFlag) (statusData.ExtSig ^
+                                                                        TmNativeDefs.ExtendedDataSignature);
+
+            if (extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.FixTime))
+            {
+              tmEvent.FixTime = DateUtil.GetDateTimeFromTimestamp(statusData.FixUT, statusData.FixMS);
+            }
+
+            if (extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.TmFlags))
+            {
+              tmEvent.Reference = tmEvent.Reference == null
+                                    ? $"F=${statusData.Flags:X8}"
+                                    : $"{tmEvent.Reference} F=${statusData.Flags:X8}";
+            }
+
+            if (extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.Secondary))
+            {
+              tmEvent.Reference = tmEvent.Reference == null ? "(s)" : $"{tmEvent.Reference} (s)";
+            }
+
+            if (!extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.CurData))
+            {
+              tmEvent.Reference = tmEvent.Reference == null ? "(d)" : $"{tmEvent.Reference} (d)";
+            }
+
+            if (extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.S2))
+            {
+              isS2Only = (statusData.S2                        & 0x8000) != 0;
+              s2       = (TmNativeDefs.S2Flags) (statusData.S2 & 0x7fff);
+            }
+          }
+
+          if (isS2Only)
+          {
+            tmEvent.StateString = tmEvent.StateString.IsNullOrEmpty()
+                                    ? "ИЗМ. АТРИБУТОВ"
+                                    : $"{tmEvent.StateString} ИЗМ. АТРИБУТОВ";
+            tmEvent.StateString = s2 == 0
+                                    ? $"{tmEvent.StateString} - НОРМА"
+                                    : $"{tmEvent.StateString} {GetS2StatusString(s2)}";
+          }
+          else
+          {
+            var stateString = statusData.State == 1 ? "ВКЛ" : "ОТКЛ";
+
+            tmEvent.StateString = tmEvent.StateString.IsNullOrEmpty()
+                                    ? $"{stateString}"
+                                    : $"{tmEvent.StateString} {stateString}";
+            if (s2 != 0)
+            {
+              tmEvent.StateString = $"{tmEvent.StateString} {GetS2StatusString(s2)}";
+            }
+          }
+
+          break;
+
+        case TmEventTypes.Alarm:
+          var alarmData = TmNativeUtil.GetAlarmDataFromTEvent(tEventElix.Event);
+          tmEvent.TypeString  = "УСТАВКА";
+          tmEvent.StateString = $"{alarmData.Val} - {(alarmData.State == 0 ? "Снята" : "Взведена")}";
+
+          break;
+
+        case TmEventTypes.ManualAnalogSet:
+          var analogSetData = TmNativeUtil.GetAnalogSetDataFromTEvent(tEventElix.Event);
+          tmEvent.TypeString  = "РУЧ. ТИТ";
+          tmEvent.Username    = System.Text.Encoding.Default.GetString(analogSetData.UserName);
+          tmEvent.StateString = $"{analogSetData.Value} - {(analogSetData.Cmd == 0 ? "Снято" : "Установлено")}";
+          break;
+
+        case TmEventTypes.ManualStatusSet: //TODO: Изучить вопрос, не стоит ли сделать как в клиенте
+          var mSData = TmNativeUtil.GetControlDataFromTEvent(tEventElix.Event);
+          tmEvent.TypeString  = "РУЧ. ТС";
+          tmEvent.Username    = System.Text.Encoding.Default.GetString(mSData.UserName);
+          tmEvent.StateString = mSData.Cmd == 1 ? "ВКЛ" : "ОТКЛ";
+          break;
+
+        case TmEventTypes.Control:
+          var controlData = TmNativeUtil.GetControlDataFromTEvent(tEventElix.Event);
+          tmEvent.TypeString  = "ТУ";
+          tmEvent.Username    = System.Text.Encoding.Default.GetString(controlData.UserName);
+          tmEvent.StateString = controlData.Cmd == 1 ? "ВКЛ" : "ОТКЛ";
+          if (controlData.Result != TmNativeDefs.Success)
+          {
+            tmEvent.StateString = $"{tmEvent.StateString} ОШИБКА";
+          }
+
+          break;
+
+        case TmEventTypes.Acknowledge:
+          var ackData = TmNativeUtil.GetAcknowledgeDataFromTEvent(tEventElix.Event);
+          tmEvent.TypeString = "КВИТИРОВАНИЕ";
+          tmEvent.Username   = System.Text.Encoding.Default.GetString(ackData.UserName);
+          if (tEventElix.Event.Point == 0)
+          {
+            tmEvent.Text = "ОБЩЕЕ";
+          }
+
+          break;
+        case TmEventTypes.Extended:
+          var strBinData   = TmNativeUtil.GetStrBinData(tEventElix.Event);
+          var extendedType = (TmNativeDefs.ExtendedEventTypes) tEventElix.Event.Ch;
+          tmEvent.TypeString = GetTypeStringByExtendedTypeString(extendedType);
+          tmEvent.StateString = System.Text.Encoding.Default.GetString(strBinData.StrBin,
+                                                                       0,
+                                                                       tEventElix.Event.Rtu);
+
+          switch (extendedType)
+          {
+            case TmNativeDefs.ExtendedEventTypes.Message:
+              if (strBinData.Source < 0x10000)
+              {
+                tmEvent.TmAddrString = $"Источник: {strBinData.Source}";
+              }
+              else
+              {
+                tmEvent.TmAddrString =
+                  $"Ист: {strBinData.Source          & 0xffff}, " +
+                  $"К: {(strBinData.Source  >> 0x24) & 0xff}, "   +
+                  $"КП: {(strBinData.Source >> 0x16) & 0xff}";
+              }
+
+              break;
+            case TmNativeDefs.ExtendedEventTypes.Model:
+              tmEvent.TmAddrString = $"Источник: {strBinData.Source}";
+              break;
+            default:
+              tmEvent.TmAddrString = "???";
+              break;
+          }
+
+          break;
+      }
+
+      return tmEvent;
+    }
+
+
     public override int GetHashCode()
     {
       return _hashCode != 0
-        ? _hashCode
-        : base.GetHashCode();
+               ? _hashCode
+               : base.GetHashCode();
     }
 
 
@@ -211,5 +377,73 @@ namespace Iface.Oik.Tm.Interfaces
           return string.Empty;
       }
     }
+
+    
+    private static string GetTmAddrStringFromTEvent(TmNativeDefs.TEvent tEvent)
+    {
+      switch ((TmEventTypes) tEvent.Id)
+      {
+        case TmEventTypes.StatusChange:
+        case TmEventTypes.Control:
+        case TmEventTypes.ManualStatusSet:
+        case TmEventTypes.Acknowledge:
+          return $"#TC{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
+
+        case TmEventTypes.Alarm:
+        case TmEventTypes.ManualAnalogSet:
+          return $"#ТТ{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
+        default:
+          return string.Empty;
+      }
+    }
+
+    
+    private static TmType GetTmTypeFromTEvent(TmNativeDefs.TEvent tEvent)
+    {
+      switch ((TmEventTypes) tEvent.Id)
+      {
+        case TmEventTypes.StatusChange:
+        case TmEventTypes.Control:
+        case TmEventTypes.ManualStatusSet:
+        case TmEventTypes.Acknowledge:
+          return TmType.Status;
+
+        case TmEventTypes.Alarm:
+        case TmEventTypes.ManualAnalogSet:
+          return TmType.Analog;
+        default:
+          return TmType.Unknown;
+      }
+    }
+
+    
+    private static string GetS2StatusString(TmNativeDefs.S2Flags s2Flag)
+    {
+      switch (s2Flag)
+      {
+        case TmNativeDefs.S2Flags.Break:
+          return $"[{s2Flag:D}] <ОБРЫВ>";
+        case TmNativeDefs.S2Flags.Malfunction:
+          return $"[{s2Flag:D}] <НЕИСП.>";
+        default:
+          return $"[{s2Flag:D}]";
+      }
+    }
+
+    
+    private static string GetTypeStringByExtendedTypeString(TmNativeDefs.ExtendedEventTypes eventType)
+    {
+      switch (eventType)
+      {
+        case TmNativeDefs.ExtendedEventTypes.Message:
+          return "СООБЩЕНИЕ";
+        case TmNativeDefs.ExtendedEventTypes.Model:
+          return "МОДЕЛЬ";
+        default:
+          return "???";
+      }
+    }
+    
+    
   }
 }
