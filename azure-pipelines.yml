@@ -30,7 +30,7 @@ steps:
   inputs:
     command: test
     projects: '**/*.Test/*.csproj'
-    arguments: '--configuration $(buildConfiguration)'
+    arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
     
 - task: CopyFiles@2 # подумать над NuGet
   inputs:
