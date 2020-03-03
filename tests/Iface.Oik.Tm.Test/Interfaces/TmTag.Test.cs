@@ -2,7 +2,6 @@
 using System.Text;
 using FluentAssertions;
 using Iface.Oik.Tm.Interfaces;
-using Iface.Oik.Tm.Native.Interfaces;
 using Xunit;
 
 namespace Iface.Oik.Tm.Test.Interfaces
@@ -11,7 +10,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
   {
     public class NameProperty
     {
-      [Theory, AutoNSubstituteData]
+      [Theory, AutoFakeItEasyData]
       public void ReturnsNameField(TmStatus status)
       {
         var sb = new StringBuilder("Name=Выключатель");
@@ -34,7 +33,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class PropertiesProperty
     {
-      [Theory, AutoNSubstituteData]
+      [Theory, AutoFakeItEasyData]
       public void ReturnsNullForNotInit(TmStatus status)
       {
         status.Properties.Should().BeNull();
@@ -44,7 +43,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class ClassDataProperty
     {
-      [Theory, AutoNSubstituteData]
+      [Theory, AutoFakeItEasyData]
       public void ReturnsNullForNotInit(TmStatus status)
       {
         status.ClassData.Should().BeNull();
@@ -54,7 +53,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class SetTmcObjectPropertiesMethod
     {
-      [Theory, AutoNSubstituteData]
+      [Theory, AutoFakeItEasyData]
       public void SetsCorrectValuesToStatus(TmStatus status)
       {
         var sb = new StringBuilder("Key1=Value1\r\nKey2=0\r\nName=Выключатель");
@@ -72,10 +71,10 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
 
       [Theory]
-      [InlineAutoNSubstituteData(0)]
-      [InlineAutoNSubstituteData(1)]
-      [InlineAutoNSubstituteData(2)]
-      [InlineAutoNSubstituteData(3)]
+      [InlineAutoFakeItEasyData(0)]
+      [InlineAutoFakeItEasyData(1)]
+      [InlineAutoFakeItEasyData(2)]
+      [InlineAutoFakeItEasyData(3)]
       public void SetsCorrectImportanceToStatus(short    importance,
                                                 TmStatus status)
       {
@@ -88,10 +87,10 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
 
       [Theory]
-      [InlineAutoNSubstituteData(0,    0)]
-      [InlineAutoNSubstituteData(1,    1)]
-      [InlineAutoNSubstituteData(-1,   -1)]
-      [InlineAutoNSubstituteData(1337, -1)]
+      [InlineAutoFakeItEasyData(0,    0)]
+      [InlineAutoFakeItEasyData(1,    1)]
+      [InlineAutoFakeItEasyData(-1,   -1)]
+      [InlineAutoFakeItEasyData(1337, -1)]
       public void SetsCorrectNormalStatusToStatus(short    normalStatus, short expectedNormalStatus,
                                                   TmStatus status)
       {
@@ -103,7 +102,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoNSubstituteData]
+      [Theory, AutoFakeItEasyData]
       public void SetsCorrectValuesToAnalog(TmAnalog analog)
       {
         var sb = new StringBuilder("Key1=Value1\r\nKey2=0\r\nName=Мощность\r\nUnits=МВт");
@@ -123,8 +122,8 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
 
       [Theory]
-      [InlineAutoNSubstituteData("7.3", 7, 3)]
-      [InlineAutoNSubstituteData("4.1", 4, 1)]
+      [InlineAutoFakeItEasyData("7.3", 7, 3)]
+      [InlineAutoFakeItEasyData("4.1", 4, 1)]
       public void SetsCorrectFormatToAnalog(string   format, byte expectedWidth, byte expectedPrecision,
                                             TmAnalog analog)
       {
@@ -138,9 +137,9 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
 
       [Theory]
-      [InlineAutoNSubstituteData("20", TmTeleregulation.Step)]
-      [InlineAutoNSubstituteData("40", TmTeleregulation.Code)]
-      [InlineAutoNSubstituteData("60", TmTeleregulation.Value)]
+      [InlineAutoFakeItEasyData("20", TmTeleregulation.Step)]
+      [InlineAutoFakeItEasyData("40", TmTeleregulation.Code)]
+      [InlineAutoFakeItEasyData("60", TmTeleregulation.Value)]
       public void SetsCorrectTeleregulationToAnalog(string   code, TmTeleregulation expectedTeleregulation,
                                                     TmAnalog analog)
       {
@@ -155,7 +154,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class SetTmcClassDataMethod
     {
-      [Theory, AutoNSubstituteData]
+      [Theory, AutoFakeItEasyData]
       public void SetsCorrectValues(TmStatus status)
       {
         var str = "0Txt=отключен\r\n1Txt=включен\r\nBTxt=обрыв";

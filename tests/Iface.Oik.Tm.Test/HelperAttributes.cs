@@ -3,26 +3,26 @@ using System.Globalization;
 using System.Reflection;
 using System.Threading;
 using AutoFixture;
-using AutoFixture.AutoNSubstitute;
+using AutoFixture.AutoFakeItEasy;
 using AutoFixture.Xunit2;
 using Xunit;
 using Xunit.Sdk;
 
 namespace Iface.Oik.Tm.Test
 {
-  public class AutoNSubstituteDataAttribute : AutoDataAttribute
+  public class AutoFakeItEasyDataAttribute : AutoDataAttribute
   {
-    public AutoNSubstituteDataAttribute()
-      : base(() => new Fixture().Customize(new AutoNSubstituteCustomization()))
+    public AutoFakeItEasyDataAttribute()
+      : base(() => new Fixture().Customize(new AutoFakeItEasyCustomization()))
     {
     }
   }
 
 
-  public class InlineAutoNSubstituteDataAttribute : CompositeDataAttribute
+  public class InlineAutoFakeItEasyDataAttribute : CompositeDataAttribute
   {
-    public InlineAutoNSubstituteDataAttribute(params object[] values)
-      : base(new InlineDataAttribute(values), new AutoNSubstituteDataAttribute())
+    public InlineAutoFakeItEasyDataAttribute(params object[] values)
+      : base(new InlineDataAttribute(values), new AutoFakeItEasyDataAttribute())
     {
     }
   }

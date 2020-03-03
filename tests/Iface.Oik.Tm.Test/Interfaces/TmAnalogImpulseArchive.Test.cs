@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
+using FakeItEasy;
 using Iface.Oik.Tm.Interfaces;
-using NSubstitute;
 using Xunit;
 
 namespace Iface.Oik.Tm.Test.Interfaces
@@ -28,9 +28,9 @@ namespace Iface.Oik.Tm.Test.Interfaces
       [Fact]
       public void SetsUnreliableForUnreliableFlag()
       {
-        var analog = new TmAnalogImpulseArchiveInstant(Arg.Any<float>(),
+        var analog = new TmAnalogImpulseArchiveInstant(A.Dummy<float>(),
                                                        0x01,
-                                                       Arg.Any<uint>(), Arg.Any<ushort>());
+                                                       A.Dummy<uint>(), A.Dummy<ushort>());
 
         Assert.True(analog.IsUnreliable);
       }
@@ -60,9 +60,9 @@ namespace Iface.Oik.Tm.Test.Interfaces
       [Fact]
       public void SetsUnreliableForUnreliableFlag()
       {
-        var analog = new TmAnalogImpulseArchiveAverage(Arg.Any<float>(), Arg.Any<float>(), Arg.Any<float>(),
+        var analog = new TmAnalogImpulseArchiveAverage(A.Dummy<float>(), A.Dummy<float>(), A.Dummy<float>(),
                                                        0x01,
-                                                       Arg.Any<uint>(), Arg.Any<ushort>());
+                                                       A.Dummy<uint>(), A.Dummy<ushort>());
 
         Assert.True(analog.IsUnreliable);
       }
