@@ -174,6 +174,18 @@ namespace Iface.Oik.Tm.Native.Interfaces
       St1      = 0x08,
       SkipRes  = 0x10,
     }
+    
+    
+    [Flags]
+    public enum ExtendedDataSignatureFlag : UInt32
+    {
+      Reserve   = 0x01,
+      FixTime   = 0x02,
+      S2        = 0x04,
+      Secondary = 0x08,
+      TmFlags   = 0x10,
+      CurData   = 0x20
+    }
 
 
     public enum AnalogRegulationFlag
