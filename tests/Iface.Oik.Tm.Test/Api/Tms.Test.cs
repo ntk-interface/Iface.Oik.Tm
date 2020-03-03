@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text;
 using AutoFixture.Xunit2;
 using FakeItEasy;
@@ -28,7 +29,7 @@ namespace Iface.Oik.Tm.Test.Api
       public const float Value3 = 0;
 
       public static readonly DateTime StartDateTime = new DateTime(2017, 12, 29, 5, 0, 0);
-      public static readonly DateTime EndDateTime   = new DateTime(2017, 12, 29, 5, 1, 0);
+      public static readonly DateTime EndDateTime   = new DateTime(2017, 12, 29, 5, 0, 10);
 
       public const string StringStartTime = "29.12.2017 5:00:00";
       public const string StringEndTime   = "29.12.2017 5:00:10";
@@ -202,13 +203,13 @@ namespace Iface.Oik.Tm.Test.Api
     }
 
 
-    /*public class GetAnalogRetroMethod
+    public class GetAnalogRetroMethod
     {
       [Theory, AutoFakeItEasyData]
       [UseCulture("ru-RU")]
       public async void ReturnsNullForInvalidTimes(TmsApi tms)
       {
-        var result = await tms.GetAnalogRetro(new TmAddr(0, 1, 1), 1500000000, 1500000000);
+        var result = await tms.GetAnalogRetro(A.Dummy<TmAddr>(), 1500000000, 1500000000);
 
         result.Should().BeNull();
       }
@@ -220,12 +221,13 @@ namespace Iface.Oik.Tm.Test.Api
                                                     short              ch,     short  rtu, short point)
       {
         var analogPointsShort = new TmNativeDefs.TAnalogPointShort[RetroConst.Count];
-        native.UxGmTime2UxTime(RetroConst.UtcStartTime)
-              .Returns(RetroConst.UtcStartTime);
-        native.WhenForAnyArgs(x => x.TmcTakeRetroTit(0, ch, rtu, point,
-                                                     0, 0, 0, 0,
-                                                     ref analogPointsShort))
-              .Do(x => x[8] = RetroConst.AnalogPointShortList);
+        A.CallTo(() => native.UxGmTime2UxTime(RetroConst.UtcStartTime))
+         .Returns(RetroConst.UtcStartTime);
+        A.CallTo(() => native.TmcTakeRetroTit(0, ch, rtu, point,
+                                              0, 0, 0, 0,
+                                              ref analogPointsShort))
+         .WithAnyArguments()
+         .AssignsOutAndRefParameters(RetroConst.AnalogPointShortList);
 
         var result = await tms.GetAnalogRetro(new TmAddr(ch, rtu, point),
                                               RetroConst.UtcStartTime,
@@ -242,12 +244,13 @@ namespace Iface.Oik.Tm.Test.Api
                                                        short              ch,     short  rtu, short point)
       {
         var analogPointsShort = new TmNativeDefs.TAnalogPointShort[RetroConst.Count];
-        native.UxGmTime2UxTime(RetroConst.UtcStartTime)
-              .Returns(RetroConst.UtcStartTime);
-        native.WhenForAnyArgs(x => x.TmcTakeRetroTit(0, ch, rtu, point,
-                                                     0, 0, 0, 0,
-                                                     ref analogPointsShort))
-              .Do(x => x[8] = RetroConst.AnalogPointShortList);
+        A.CallTo(() => native.UxGmTime2UxTime(RetroConst.UtcStartTime))
+         .Returns(RetroConst.UtcStartTime);
+        A.CallTo(() => native.TmcTakeRetroTit(0, ch, rtu, point,
+                                              0, 0, 0, 0,
+                                              ref analogPointsShort))
+         .WithAnyArguments()
+         .AssignsOutAndRefParameters(RetroConst.AnalogPointShortList);
 
         var result = await tms.GetAnalogRetro(new TmAddr(ch, rtu, point),
                                               RetroConst.UtcStartTime,
@@ -263,17 +266,19 @@ namespace Iface.Oik.Tm.Test.Api
                                                       short              ch,     short  rtu, short point)
       {
         var analogPointsShort = new TmNativeDefs.TAnalogPointShort[RetroConst.Count];
-        native.UxGmTime2UxTime(RetroConst.UtcStartTime)
-              .Returns(RetroConst.UtcStartTime);
-        native.WhenForAnyArgs(x => x.TmcTakeRetroTit(0, ch, rtu, point,
-                                                     0, 0, 0, 0,
-                                                     ref analogPointsShort))
-              .Do(x => x[8] = RetroConst.AnalogPointShortList);
+        A.CallTo(() => native.UxGmTime2UxTime(RetroConst.UtcStartTime))
+         .Returns(RetroConst.UtcStartTime);
+        A.CallTo(() => native.TmcTakeRetroTit(0, ch, rtu, point,
+                                              0, 0, 0, 0,
+                                              ref analogPointsShort))
+         .WithAnyArguments()
+         .AssignsOutAndRefParameters(RetroConst.AnalogPointShortList);
 
         var result = await tms.GetAnalogRetro(new TmAddr(ch, rtu, point),
-                                              RetroConst.StartDateTime, RetroConst.EndDateTime);
+                                              RetroConst.StartDateTime,
+                                              RetroConst.EndDateTime);
 
-        Assert.Equal(RetroConst.TmAnalogRetroList, result);
+        result.Should().Equal(RetroConst.TmAnalogRetroList);
       }
 
 
@@ -283,17 +288,19 @@ namespace Iface.Oik.Tm.Test.Api
                                                     short              ch,     short  rtu, short point)
       {
         var analogPointsShort = new TmNativeDefs.TAnalogPointShort[RetroConst.Count];
-        native.UxGmTime2UxTime(RetroConst.UtcStartTime)
-              .Returns(RetroConst.UtcStartTime);
-        native.WhenForAnyArgs(x => x.TmcTakeRetroTit(0, ch, rtu, point,
-                                                     0, 0, 0, 0,
-                                                     ref analogPointsShort))
-              .Do(x => x[8] = RetroConst.AnalogPointShortList);
+        A.CallTo(() => native.UxGmTime2UxTime(RetroConst.UtcStartTime))
+         .Returns(RetroConst.UtcStartTime);
+        A.CallTo(() => native.TmcTakeRetroTit(0, ch, rtu, point,
+                                              0, 0, 0, 0,
+                                              ref analogPointsShort))
+         .WithAnyArguments()
+         .AssignsOutAndRefParameters(RetroConst.AnalogPointShortList);
 
         var result = await tms.GetAnalogRetro(new TmAddr(ch, rtu, point),
-                                              RetroConst.StringStartTime, RetroConst.StringEndTime);
+                                              RetroConst.StringStartTime,
+                                              RetroConst.StringEndTime);
 
-        Assert.Equal(RetroConst.TmAnalogRetroList, result);
+        result.Should().Equal(RetroConst.TmAnalogRetroList);
       }
     }
 
@@ -304,9 +311,9 @@ namespace Iface.Oik.Tm.Test.Api
       [UseCulture("ru-RU")]
       public async void ReturnsNullForInvalidTimes(TmsApi tms)
       {
-        var result = await tms.GetImpulseArchiveInstant(new TmAddr(0, 1, 1), 1500000001, 1500000000);
+        var result = await tms.GetImpulseArchiveInstant(A.Dummy<TmAddr>(), 1500000001, 1500000000);
 
-        Assert.Null(result);
+        result.Should().BeNull();
       }
 
 
@@ -315,78 +322,78 @@ namespace Iface.Oik.Tm.Test.Api
       public async void ReturnsCorrectForTimestampArgs([Frozen] ITmNative native, TmsApi tms,
                                                        short              ch,     short  rtu, short point)
       {
-        GCHandle pinnedAanList = GCHandle.Alloc(RetroConst.AanInstantList, GCHandleType.Pinned);
-        native.UxGmTime2UxTime(RetroConst.UtcStartTime)
-              .Returns(RetroConst.UtcStartTime);
-        native.TmcAanReadArchive(0, new TmAddr(ch, rtu, point).ToIntegerWithoutPadding(),
-                                 0, 0,
-                                 0, 0, out uint _, null, IntPtr.Zero)
-              .ReturnsForAnyArgs(x =>
-              {
-                x[6] = (uint) RetroConst.Count;
-                return pinnedAanList.AddrOfPinnedObject();
-              });
+        var  pinnedAanList = GCHandle.Alloc(RetroConst.AanInstantList, GCHandleType.Pinned);
+        uint aanCount;
+        A.CallTo(() => native.UxGmTime2UxTime(RetroConst.UtcStartTime))
+         .Returns(RetroConst.UtcStartTime);
+        A.CallTo(() => native.TmcAanReadArchive(0, new TmAddr(ch, rtu, point).ToIntegerWithoutPadding(),
+                                                0, 0,
+                                                0, 0, out aanCount, null, IntPtr.Zero))
+         .WithAnyArguments()
+         .Returns(pinnedAanList.AddrOfPinnedObject())
+         .AssignsOutAndRefParameters((uint) RetroConst.Count);
+        
+        pinnedAanList.Free();
 
         var result = await tms.GetImpulseArchiveInstant(new TmAddr(ch, rtu, point),
-                                                        RetroConst.UtcStartTime, RetroConst.UtcEndTime);
+                                                        RetroConst.UtcStartTime,
+                                                        RetroConst.UtcEndTime);
 
-        Assert.Equal(RetroConst.TmAnalogImpulseArchiveInstantList, result);
-
-        pinnedAanList.Free();
+        result.Should().Equal(RetroConst.TmAnalogImpulseArchiveInstantList);
       }
 
 
-      [Theory, AutoFakeItEasyData]
-      [UseCulture("ru-RU")]
-      public async void ReturnsCorrectForDateTimeArgs([Frozen] ITmNative native, TmsApi tms,
-                                                      short              ch,     short  rtu, short point)
-      {
-        GCHandle pinnedAanList = GCHandle.Alloc(RetroConst.AanInstantList, GCHandleType.Pinned);
-        native.UxGmTime2UxTime(RetroConst.UtcStartTime)
-              .Returns(RetroConst.UtcStartTime);
-        native.TmcAanReadArchive(0, new TmAddr(ch, rtu, point).ToIntegerWithoutPadding(),
-                                 0, 0,
-                                 0, 0, out uint _, null, IntPtr.Zero)
-              .ReturnsForAnyArgs(x =>
-              {
-                x[6] = (uint) RetroConst.Count;
-                return pinnedAanList.AddrOfPinnedObject();
-              });
-
-        var result = await tms.GetImpulseArchiveInstant(new TmAddr(ch, rtu, point),
-                                                        RetroConst.StartDateTime, RetroConst.EndDateTime);
-
-        Assert.Equal(RetroConst.TmAnalogImpulseArchiveInstantList, result);
-
-        pinnedAanList.Free();
-      }
-
-
-      [Theory, AutoFakeItEasyData]
-      [UseCulture("ru-RU")]
-      public async void ReturnsCorrectForStringArgs([Frozen] ITmNative native, TmsApi tms,
+    [Theory, AutoFakeItEasyData]
+    [UseCulture("ru-RU")]
+    public async void ReturnsCorrectForDateTimeArgs([Frozen] ITmNative native, TmsApi tms,
                                                     short              ch,     short  rtu, short point)
-      {
-        GCHandle pinnedAanList = GCHandle.Alloc(RetroConst.AanInstantList, GCHandleType.Pinned);
-        native.UxGmTime2UxTime(RetroConst.UtcStartTime)
-              .Returns(RetroConst.UtcStartTime);
-        native.TmcAanReadArchive(0, new TmAddr(ch, rtu, point).ToIntegerWithoutPadding(),
-                                 0, 0,
-                                 0, 0, out uint _, null, IntPtr.Zero)
-              .ReturnsForAnyArgs(x =>
-              {
-                x[6] = (uint) RetroConst.Count;
-                return pinnedAanList.AddrOfPinnedObject();
-              });
+    {
+      var  pinnedAanList = GCHandle.Alloc(RetroConst.AanInstantList, GCHandleType.Pinned);
+      uint aanCount;
+      A.CallTo(() => native.UxGmTime2UxTime(RetroConst.UtcStartTime))
+       .Returns(RetroConst.UtcStartTime);
+      A.CallTo(() => native.TmcAanReadArchive(0, new TmAddr(ch, rtu, point).ToIntegerWithoutPadding(),
+                                              0, 0,
+                                              0, 0, out aanCount, null, IntPtr.Zero))
+       .WithAnyArguments()
+       .Returns(pinnedAanList.AddrOfPinnedObject())
+       .AssignsOutAndRefParameters((uint) RetroConst.Count);
+      
+      pinnedAanList.Free();
 
-        var result = await tms.GetImpulseArchiveInstant(new TmAddr(ch, rtu, point),
-                                                        RetroConst.StringStartTime, RetroConst.StringEndTime);
+      var result = await tms.GetImpulseArchiveInstant(new TmAddr(ch, rtu, point),
+                                                      RetroConst.StartDateTime, 
+                                                      RetroConst.EndDateTime);
 
-        Assert.Equal(RetroConst.TmAnalogImpulseArchiveInstantList, result);
-
-        pinnedAanList.Free();
-      }
+      result.Should().Equal(RetroConst.TmAnalogImpulseArchiveInstantList);
     }
+
+
+    [Theory, AutoFakeItEasyData]
+    [UseCulture("ru-RU")]
+    public async void ReturnsCorrectForStringArgs([Frozen] ITmNative native, TmsApi tms,
+                                                  short              ch,     short  rtu, short point)
+    {
+      var  pinnedAanList = GCHandle.Alloc(RetroConst.AanInstantList, GCHandleType.Pinned);
+      uint aanCount;
+      A.CallTo(() => native.UxGmTime2UxTime(RetroConst.UtcStartTime))
+       .Returns(RetroConst.UtcStartTime);
+      A.CallTo(() => native.TmcAanReadArchive(0, new TmAddr(ch, rtu, point).ToIntegerWithoutPadding(),
+                                              0, 0,
+                                              0, 0, out aanCount, null, IntPtr.Zero))
+       .WithAnyArguments()
+       .Returns(pinnedAanList.AddrOfPinnedObject())
+       .AssignsOutAndRefParameters((uint) RetroConst.Count);
+
+      pinnedAanList.Free();
+
+      var result = await tms.GetImpulseArchiveInstant(new TmAddr(ch, rtu, point),
+                                                      RetroConst.StringStartTime, 
+                                                      RetroConst.StringEndTime);
+
+      result.Should().Equal(RetroConst.TmAnalogImpulseArchiveInstantList);
+    }
+  }
 
 
     public class GetImpulseArchiveAverageMethod
@@ -397,7 +404,7 @@ namespace Iface.Oik.Tm.Test.Api
       {
         var result = await tms.GetImpulseArchiveAverage(new TmAddr(0, 1, 1), 1500000001, 1500000000);
 
-        Assert.Null(result);
+        result.Should().BeNull();
       }
 
 
@@ -406,24 +413,24 @@ namespace Iface.Oik.Tm.Test.Api
       public async void ReturnsCorrectForTimestampArgs([Frozen] ITmNative native, TmsApi tms,
                                                        short              ch,     short  rtu, short point)
       {
-        GCHandle pinnedAanList = GCHandle.Alloc(RetroConst.AanAverageList, GCHandleType.Pinned);
-        native.UxGmTime2UxTime(RetroConst.UtcStartTime)
-              .Returns(RetroConst.UtcStartTime);
-        native.TmcAanReadArchive(0, new TmAddr(ch, rtu, point).ToIntegerWithoutPadding(),
-                                 0, 0,
-                                 0, 0, out uint _, null, IntPtr.Zero)
-              .ReturnsForAnyArgs(x =>
-              {
-                x[6] = (uint) RetroConst.Count * 3; // среднее+мин+макс
-                return pinnedAanList.AddrOfPinnedObject();
-              });
+        var  pinnedAanList = GCHandle.Alloc(RetroConst.AanAverageList, GCHandleType.Pinned);
+        uint aanCount;
+        A.CallTo(() => native.UxGmTime2UxTime(RetroConst.UtcStartTime))
+         .Returns(RetroConst.UtcStartTime);
+        A.CallTo(() => native.TmcAanReadArchive(0, new TmAddr(ch, rtu, point).ToIntegerWithoutPadding(),
+                                                0, 0,
+                                                0, 0, out aanCount, null, IntPtr.Zero))
+         .WithAnyArguments()
+         .Returns(pinnedAanList.AddrOfPinnedObject())
+         .AssignsOutAndRefParameters((uint) RetroConst.Count * 3); // среднее+мин+макс
+      
+        pinnedAanList.Free();
 
         var result = await tms.GetImpulseArchiveAverage(new TmAddr(ch, rtu, point),
-                                                        RetroConst.UtcStartTime, RetroConst.UtcEndTime);
+                                                        RetroConst.UtcStartTime, 
+                                                        RetroConst.UtcEndTime);
 
-        Assert.Equal(RetroConst.TmAnalogImpulseArchiveAverageList, result);
-
-        pinnedAanList.Free();
+        result.Should().Equal(RetroConst.TmAnalogImpulseArchiveAverageList);
       }
 
 
@@ -432,24 +439,24 @@ namespace Iface.Oik.Tm.Test.Api
       public async void ReturnsCorrectForDateTimeArgs([Frozen] ITmNative native, TmsApi tms,
                                                       short              ch,     short  rtu, short point)
       {
-        GCHandle pinnedAanList = GCHandle.Alloc(RetroConst.AanAverageList, GCHandleType.Pinned);
-        native.UxGmTime2UxTime(RetroConst.UtcStartTime)
-              .Returns(RetroConst.UtcStartTime);
-        native.TmcAanReadArchive(0, new TmAddr(ch, rtu, point).ToIntegerWithoutPadding(),
-                                 0, 0,
-                                 0, 0, out uint _, null, IntPtr.Zero)
-              .ReturnsForAnyArgs(x =>
-              {
-                x[6] = (uint) RetroConst.Count * 3; // среднее+мин+макс
-                return pinnedAanList.AddrOfPinnedObject();
-              });
+        var  pinnedAanList = GCHandle.Alloc(RetroConst.AanAverageList, GCHandleType.Pinned);
+        uint aanCount;
+        A.CallTo(() => native.UxGmTime2UxTime(RetroConst.UtcStartTime))
+         .Returns(RetroConst.UtcStartTime);
+        A.CallTo(() => native.TmcAanReadArchive(0, new TmAddr(ch, rtu, point).ToIntegerWithoutPadding(),
+                                                0, 0,
+                                                0, 0, out aanCount, null, IntPtr.Zero))
+         .WithAnyArguments()
+         .Returns(pinnedAanList.AddrOfPinnedObject())
+         .AssignsOutAndRefParameters((uint) RetroConst.Count * 3); // среднее+мин+макс
+      
+        pinnedAanList.Free();
 
         var result = await tms.GetImpulseArchiveAverage(new TmAddr(ch, rtu, point),
-                                                        RetroConst.StartDateTime, RetroConst.EndDateTime);
+                                                        RetroConst.StartDateTime, 
+                                                        RetroConst.EndDateTime);
 
-        Assert.Equal(RetroConst.TmAnalogImpulseArchiveAverageList, result);
-
-        pinnedAanList.Free();
+        result.Should().Equal(RetroConst.TmAnalogImpulseArchiveAverageList);
       }
 
 
@@ -458,24 +465,24 @@ namespace Iface.Oik.Tm.Test.Api
       public async void ReturnsCorrectForStringArgs([Frozen] ITmNative native, TmsApi tms,
                                                     short              ch,     short  rtu, short point)
       {
-        GCHandle pinnedAanList = GCHandle.Alloc(RetroConst.AanAverageList, GCHandleType.Pinned);
-        native.UxGmTime2UxTime(RetroConst.UtcStartTime)
-              .Returns(RetroConst.UtcStartTime);
-        native.TmcAanReadArchive(0, new TmAddr(ch, rtu, point).ToIntegerWithoutPadding(),
-                                 0, 0,
-                                 0, 0, out uint _, null, IntPtr.Zero)
-              .ReturnsForAnyArgs(x =>
-              {
-                x[6] = (uint) RetroConst.Count * 3; // среднее+мин+макс
-                return pinnedAanList.AddrOfPinnedObject();
-              });
+        var  pinnedAanList = GCHandle.Alloc(RetroConst.AanAverageList, GCHandleType.Pinned);
+        uint aanCount;
+        A.CallTo(() => native.UxGmTime2UxTime(RetroConst.UtcStartTime))
+         .Returns(RetroConst.UtcStartTime);
+        A.CallTo(() => native.TmcAanReadArchive(0, new TmAddr(ch, rtu, point).ToIntegerWithoutPadding(),
+                                                0, 0,
+                                                0, 0, out aanCount, null, IntPtr.Zero))
+         .WithAnyArguments()
+         .Returns(pinnedAanList.AddrOfPinnedObject())
+         .AssignsOutAndRefParameters((uint) RetroConst.Count * 3); // среднее+мин+макс
+      
+        pinnedAanList.Free();
 
         var result = await tms.GetImpulseArchiveAverage(new TmAddr(ch, rtu, point),
-                                                        RetroConst.StringStartTime, RetroConst.StringEndTime);
+                                                        RetroConst.StringStartTime, 
+                                                        RetroConst.StringEndTime);
 
-        Assert.Equal(RetroConst.TmAnalogImpulseArchiveAverageList, result);
-
-        pinnedAanList.Free();
+        result.Should().Equal(RetroConst.TmAnalogImpulseArchiveAverageList);
       }
     }
 
@@ -485,60 +492,56 @@ namespace Iface.Oik.Tm.Test.Api
       [Theory, AutoFakeItEasyData]
       public async void ReturnsNullWhenCfCidFails([Frozen] ITmNative native, TmsApi tms)
       {
-        native.TmcGetCfsHandle(0)
-              .ReturnsForAnyArgs((uint) 0);
+        A.CallTo(() => native.TmcGetCfsHandle(A<int>._))
+         .Returns((uint) 0);
 
-        var result = await tms.GetFilesInDirectory("anyString");
+        var result = await tms.GetFilesInDirectory(A.Dummy<string>());
 
-        Assert.Null(result);
+        result.Should().BeNull();
       }
 
 
       [Theory, AutoFakeItEasyData]
       public async void ReturnsNullWhenWhenTmconnReturnsFalse([Frozen] ITmNative native, TmsApi tms)
       {
-        var  anyStringBuilder = new StringBuilder(80);
-        uint anyBufLength     = 80;
-        var  anyBuf           = new char[anyBufLength];
-        native.TmcGetCfsHandle(0)
-              .ReturnsForAnyArgs((uint) 1);
-        native.CfsDirEnum(1, "", ref anyBuf, anyBufLength, out uint _, ref anyStringBuilder, 0)
-              .ReturnsForAnyArgs(x =>
-              {
-                x[4] = (uint) 13;
-                x[5] = new StringBuilder("Error");
-                return false;
-              });
+        uint error;
+        var  errorStringBuilder = new StringBuilder(80);
+        uint bufLength          = 80;
+        var  buf                = new char[bufLength];
+        A.CallTo(() => native.TmcGetCfsHandle(A<int>._))
+         .Returns((uint) 1);
+        A.CallTo(() => native.CfsDirEnum(1, "", ref buf, bufLength, out error, ref errorStringBuilder, 0))
+         .WithAnyArguments()
+         .Returns(false);
 
-        var result = await tms.GetFilesInDirectory("anyString");
+        var result = await tms.GetFilesInDirectory(A.Dummy<string>());
 
-        Assert.Null(result);
+        result.Should().BeNull();
       }
 
 
       [Theory, AutoFakeItEasyData]
       public async void ReturnsCorrectList([Frozen] ITmNative native, TmsApi tms)
       {
-        var  anyStringBuilder = new StringBuilder(80);
-        uint bufLength        = 80;
-        var  buf              = new char[bufLength];
-        native.TmcGetCfsHandle(0)
-              .ReturnsForAnyArgs((uint) 1);
-        native.CfsDirEnum(1, "", ref buf, bufLength, out uint _, ref anyStringBuilder, 0)
-              .ReturnsForAnyArgs(x =>
-              {
-                x[2] = new[]
-                {
-                  'I', 't', 'e', 'm', '1', '\0',
-                  'I', 't', 'e', 'm', '2', '\0', '\0',
-                  'T', 'r', 'a', 's', 'h'
-                };
-                return true;
-              });
+        uint error;
+        var  errorStringBuilder = new StringBuilder(80);
+        uint bufLength          = 80;
+        var  buf                = new char[bufLength];
+        A.CallTo(() => native.TmcGetCfsHandle(A<int>._))
+         .Returns((uint) 1);
+        A.CallTo(() => native.CfsDirEnum(1, "", ref buf, bufLength, out error, ref errorStringBuilder, 0))
+         .WithAnyArguments()
+         .Returns(true)
+         .AssignsOutAndRefParameters(new[]
+         {
+           'I', 't', 'e', 'm', '1', '\0',
+           'I', 't', 'e', 'm', '2', '\0', '\0',
+           'T', 'r', 'a', 's', 'h'
+         }, A.Dummy<uint>(), A.Dummy<StringBuilder>());
 
-        var result = await tms.GetFilesInDirectory("anyString");
+        var result = await tms.GetFilesInDirectory(A.Dummy<string>());
 
-        Assert.Equal(new List<string> {"Item1", "Item2"}, result);
+        result.Should().Equal("Item1", "Item2");
       }
     }
 
@@ -548,10 +551,10 @@ namespace Iface.Oik.Tm.Test.Api
       [Theory, AutoFakeItEasyData]
       public async void ReturnsFalseWhenCfCidFails([Frozen] ITmNative native, TmsApi tms)
       {
-        native.TmcGetCfsHandle(Arg.Any<int>())
-              .ReturnsForAnyArgs((uint) 0);
+        A.CallTo(() => native.TmcGetCfsHandle(A<int>._))
+         .Returns((uint) 0);
 
-        var result = await tms.DownloadFile("anyString", "anyString");
+        var result = await tms.DownloadFile(A.Dummy<string>(), A.Dummy<string>());
 
         result.Should().BeFalse();
       }
@@ -560,33 +563,35 @@ namespace Iface.Oik.Tm.Test.Api
       [Theory, AutoFakeItEasyData]
       public async void ReturnsFalseWhenTmconnReturnsFalse([Frozen] ITmNative native, TmsApi tms)
       {
-        var anyString        = Arg.Any<string>();
-        var anyStringBuilder = new StringBuilder(80);
-        native.TmcGetCfsHandle(0)
-              .ReturnsForAnyArgs((uint) 1);
-        native.CfsFileGet(1, anyString, anyString, 0, IntPtr.Zero, out uint _, ref anyStringBuilder, 0)
-              .ReturnsForAnyArgs(false);
+        uint error;
+        var  errorStringBuilder = new StringBuilder(80);
+        A.CallTo(() => native.TmcGetCfsHandle(A<int>._))
+         .Returns((uint) 1);
+        A.CallTo(() => native.CfsFileGet(1, "", "", 0, IntPtr.Zero, out error, ref errorStringBuilder, 0))
+         .WithAnyArguments()
+         .Returns(false);
 
-        var result = await tms.DownloadFile("anyString", "anyString");
+        var result = await tms.DownloadFile(A.Dummy<string>(), A.Dummy<string>());
 
-        result.Should().BeTrue();
+        result.Should().BeFalse();
       }
 
 
       [Theory, AutoFakeItEasyData]
       public async void ReturnsFalseWhenNoFileFound([Frozen] ITmNative native, TmsApi tms)
       {
-        var anyString        = Arg.Any<string>();
-        var anyStringBuilder = new StringBuilder(80);
-        native.TmcGetCfsHandle(0)
-              .ReturnsForAnyArgs((uint) 1);
-        native.CfsFileGet(1, anyString, anyString, 0, IntPtr.Zero, out uint _, ref anyStringBuilder, 0)
-              .ReturnsForAnyArgs(true);
+        uint error;
+        var  errorStringBuilder = new StringBuilder(80);
+        A.CallTo(() => native.TmcGetCfsHandle(A<int>._))
+         .Returns((uint) 1);
+        A.CallTo(() => native.CfsFileGet(1, "", "", 0, IntPtr.Zero, out error, ref errorStringBuilder, 0))
+         .WithAnyArguments()
+         .Returns(true);
 
-        var result = await tms.DownloadFile("anyString", "anyString");
+        var result = await tms.DownloadFile(A.Dummy<string>(), A.Dummy<string>());
 
-        Assert.False(result);
+        result.Should().BeFalse();
       }
-    }*/
+    }
   }
 }
