@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 using System.Text;
 using Iface.Oik.Tm.Native.Interfaces;
@@ -28,7 +29,7 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static IEnumerable<string> GetStringListFromDoubleNullTerminatedChars(char[] chars)
+    public static string[] GetStringListFromDoubleNullTerminatedChars(char[] chars)
     {
       var s          = new string(chars);
       int doubleNull = s.IndexOf("\0\0", StringComparison.Ordinal);
@@ -40,7 +41,7 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static IEnumerable<string> GetStringListFromDoubleNullTerminatedBytes(byte[] bytes)
+    public static string[] GetStringListFromDoubleNullTerminatedBytes(byte[] bytes)
     {
       int doubleNull = 0;
       for (var i = 1; i < bytes.Length; i++)
@@ -82,8 +83,8 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static IEnumerable<string> GetStringListFromDoubleNullTerminatedPointer(IntPtr ptr, 
-                                                                                   int maxSize)
+    public static ReadOnlyCollection<string> GetStringListFromDoubleNullTerminatedPointer(IntPtr ptr,
+                                                                                          int    maxSize)
     {
       var result = new List<string>();
 
@@ -111,7 +112,7 @@ namespace Iface.Oik.Tm.Native.Utils
         stringBytes[stringCursor++] = marshalBytes[0];
         isNullFound                 = false;
       }
-      return result;
+      return result.AsReadOnly();
     }
 
 

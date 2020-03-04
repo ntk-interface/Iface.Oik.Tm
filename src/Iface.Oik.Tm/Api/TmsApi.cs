@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -412,7 +413,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task UpdateStatuses(IList<TmStatus> statuses)
+    public async Task UpdateStatuses(IReadOnlyList<TmStatus> statuses)
     {
       if (statuses.IsNullOrEmpty()) return;
 
@@ -473,7 +474,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task UpdateAnalogs(IList<TmAnalog> analogs)
+    public async Task UpdateAnalogs(IReadOnlyList<TmAnalog> analogs)
     {
       if (analogs.IsNullOrEmpty()) return;
 
@@ -534,7 +535,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task UpdateTagsPropertiesAndClassData(IEnumerable<TmTag> tags)
+    public async Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags)
     {
       if (tags.IsNullOrEmpty()) return;
 
@@ -645,7 +646,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IEnumerable<TmClassStatus>> GetStatusesClasses()
+    public async Task<ReadOnlyCollection<TmClassStatus>> GetStatusesClasses()
     {
       var tmClasses = new List<TmClassStatus>();
       var tmcAddr = new TmNativeDefs.TAdrTm
@@ -696,11 +697,11 @@ namespace Iface.Oik.Tm.Api
         }
       }
 
-      return tmClasses;
+      return tmClasses.AsReadOnly();
     }
 
 
-    public async Task<IEnumerable<TmClassAnalog>> GetAnalogsClasses()
+    public async Task<ReadOnlyCollection<TmClassAnalog>> GetAnalogsClasses()
     {
       var tmAnalogs = new List<TmClassAnalog>();
       var tmcAddr = new TmNativeDefs.TAdrTm
@@ -745,11 +746,11 @@ namespace Iface.Oik.Tm.Api
         }
       }
 
-      return tmAnalogs;
+      return tmAnalogs.AsReadOnly();
     }
 
 
-    public async Task UpdateTechObjectsProperties(IList<TmTechObject> techObjects)
+    public async Task UpdateTechObjectsProperties(IReadOnlyList<TmTechObject> techObjects)
     {
       if (techObjects.IsNullOrEmpty()) return;
 
@@ -784,7 +785,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<(bool, IReadOnlyList<TmControlScriptCondition>)> CheckTelecontrolScript(TmStatus tmStatus)
+    public async Task<(bool, ReadOnlyCollection<TmControlScriptCondition>)> CheckTelecontrolScript(TmStatus tmStatus)
     {
       if (tmStatus == null) return (false, null);
 
@@ -795,7 +796,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<(bool, IReadOnlyList<TmControlScriptCondition>)> CheckTelecontrolScriptExplicitly(
+    public async Task<(bool, ReadOnlyCollection<TmControlScriptCondition>)> CheckTelecontrolScriptExplicitly(
       TmStatus tmStatus,
       int      explicitNewStatus)
     {
@@ -831,7 +832,7 @@ namespace Iface.Oik.Tm.Api
           conditions.Add(new TmControlScriptCondition(isConditionMet, text));
         });
 
-      return (scriptResult == 1, conditions);
+      return (scriptResult == 1, conditions.AsReadOnly());
     }
 
 
@@ -1496,7 +1497,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IEnumerable<string>> GetFilesInDirectory(string path)
+    public async Task<ReadOnlyCollection<string>> GetFilesInDirectory(string path)
     {
       var cfCid = await GetCfCid().ConfigureAwait(false);
       if (cfCid == 0)
@@ -1522,7 +1523,7 @@ namespace Iface.Oik.Tm.Api
         Console.WriteLine($"Ошибка при запросе списка файлов: {errCode} - {errString}");
         return null;
       }
-      return TmNativeUtil.GetStringListFromDoubleNullTerminatedChars(buf);
+      return Array.AsReadOnly(TmNativeUtil.GetStringListFromDoubleNullTerminatedChars(buf));
     }
 
 
@@ -1560,7 +1561,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IEnumerable<TmChannel>> GetTmTreeChannels()
+    public async Task<ReadOnlyCollection<TmChannel>> GetTmTreeChannels()
     {
       var result = new List<TmChannel>();
 
@@ -1578,11 +1579,11 @@ namespace Iface.Oik.Tm.Api
         }
       }).ConfigureAwait(false);
 
-      return result;
+      return result.AsReadOnly();
     }
 
 
-    public async Task<IEnumerable<TmRtu>> GetTmTreeRtus(int channelId)
+    public async Task<ReadOnlyCollection<TmRtu>> GetTmTreeRtus(int channelId)
     {
       if (channelId < 0 || channelId > 254)
       {
@@ -1609,7 +1610,7 @@ namespace Iface.Oik.Tm.Api
         }
       }).ConfigureAwait(false);
 
-      return result;
+      return result.AsReadOnly();
     }
 
 
@@ -1644,7 +1645,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IEnumerable<TmTag>> GetTmsPoints(TmType tmType, int channelId, int rtuId)
+    public async Task<ReadOnlyCollection<TmTag>> GetTmsPoints(TmType tmType, int channelId, int rtuId)
     {
       if (channelId < 0 || channelId > 254)
       {
@@ -1712,7 +1713,7 @@ namespace Iface.Oik.Tm.Api
         }
       }
 
-      return result;
+      return result.AsReadOnly();
     }
 
 
