@@ -186,9 +186,9 @@ namespace Iface.Oik.Tm.Test.Utils
     {
       [Theory]
       [UseCulture("ru-RU")]
-      [InlineData(17, 01, 2018, 00, 00, 00, 00,  1516147200)]
-      [InlineData(17, 01, 2018, 12, 23, 34, 567, 1516191814)]
-      public void ReturnsCorrectValues(int  day, int month, int year, int hour, int minute, int second, int ms,
+      [InlineData(17, 01, 2018, 00, 00, 00, 1516147200)]
+      [InlineData(17, 01, 2018, 12, 23, 34, 1516191814)]
+      public void ReturnsCorrectValues(int  day, int month, int year, int hour, int minute, int second,
                                        long expected)
       {
         var dateTime = DateTime.SpecifyKind(new DateTime(year, month, day, hour, minute, second), DateTimeKind.Utc);
