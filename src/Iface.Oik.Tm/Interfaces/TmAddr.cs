@@ -1,5 +1,6 @@
 ﻿using System;
 using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
@@ -416,7 +417,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     public short GetSqlTmaType()
     {
-      return (short) TmTypeToNative(Type);
+      return (short) Type.ToNativeType();
     }
 
 
@@ -443,35 +444,7 @@ namespace Iface.Oik.Tm.Interfaces
     {
       return ((short) Ch, (short) Rtu, (short) Point);
     }
-    public static TmNativeDefs.TmDataTypes TmTypeToNative(TmType tmType)
-    {
-      switch (tmType)
-      {
-        case TmType.Status:
-          return TmNativeDefs.TmDataTypes.Status;
-        case TmType.Analog:
-          return TmNativeDefs.TmDataTypes.Analog;
-        case TmType.Accum:
-          return TmNativeDefs.TmDataTypes.Accum;
-        default:
-          return 0;
-      }
-    }
-
-    public static TmType NativeToTmType(TmNativeDefs.TmDataTypes nativeType)
-    {
-      switch (nativeType)
-      {
-        case TmNativeDefs.TmDataTypes.Status:
-          return TmType.Status;
-        case TmNativeDefs.TmDataTypes.Analog:
-          return TmType.Analog;
-        case TmNativeDefs.TmDataTypes.Accum:
-          return TmType.Accum;
-        default:
-          return TmType.Unknown;
-      }
-    }
+    
 
     public static bool DecodeComplexInteger(uint addr, out ushort ch, out ushort rtu, out ushort point)
     {
@@ -486,6 +459,7 @@ namespace Iface.Oik.Tm.Interfaces
       return ch < 255 && rtu <= 255 && point <= 65535;
     }
 
+    
     public static void DecodeNormalizedInteger(uint addr, out ushort ch, out ushort rtu, out ushort point)
     {
       ch    = (ushort)((addr & 0xFF_00_00_00) >> 24);

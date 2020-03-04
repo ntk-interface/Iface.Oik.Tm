@@ -72,7 +72,9 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<IReadOnlyCollection<TmRtu>> GetTmTreeRtus(int channelId);
 
-    Task<IReadOnlyCollection<TmTag>> GetTmsPoints(TmType tmType, int channelId, int rtuId);
+    Task<IReadOnlyCollection<TmStatus>> GetTmTreeStatuses(int channelId, int rtuId);
+    
+    Task<IReadOnlyCollection<TmAnalog>> GetTmTreeAnalogs(int channelId, int rtuId);
 
     Task<IReadOnlyCollection<TmClassStatus>> GetStatusesClasses();
 

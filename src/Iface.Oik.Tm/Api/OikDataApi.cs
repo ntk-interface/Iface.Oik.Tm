@@ -520,10 +520,10 @@ namespace Iface.Oik.Tm.Api
                                                                        int       rtuId,
                                                                        PreferApi prefer = PreferApi.Auto)
     {
-      var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
+      var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: true, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
       {
-        throw new NotImplementedException();
+        return await _tms.GetTmTreeStatuses(channelId, rtuId).ConfigureAwait(false);
       }
       else if (api == ApiSelection.Sql)
       {
@@ -540,10 +540,10 @@ namespace Iface.Oik.Tm.Api
                                                                       int       rtuId,
                                                                       PreferApi prefer = PreferApi.Auto)
     {
-      var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
+      var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: true, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
       {
-        throw new NotImplementedException();
+        return await _tms.GetTmTreeAnalogs(channelId, rtuId).ConfigureAwait(false);
       }
       else if (api == ApiSelection.Sql)
       {
