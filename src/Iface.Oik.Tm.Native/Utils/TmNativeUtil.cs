@@ -83,8 +83,8 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static ReadOnlyCollection<string> GetStringListFromDoubleNullTerminatedPointer(IntPtr ptr,
-                                                                                          int    maxSize)
+    public static IReadOnlyCollection<string> GetStringListFromDoubleNullTerminatedPointer(IntPtr ptr,
+                                                                                           int    maxSize)
     {
       var result = new List<string>();
 
@@ -112,7 +112,7 @@ namespace Iface.Oik.Tm.Native.Utils
         stringBytes[stringCursor++] = marshalBytes[0];
         isNullFound                 = false;
       }
-      return result.AsReadOnly();
+      return result;
     }
 
 

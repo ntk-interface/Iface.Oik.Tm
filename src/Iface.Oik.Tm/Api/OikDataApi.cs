@@ -404,7 +404,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmEvent>> GetEventsArchive(TmEventFilter filter,
+    public async Task<IReadOnlyCollection<TmEvent>> GetEventsArchive(TmEventFilter filter,
                                                                     PreferApi     prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
@@ -441,8 +441,8 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<(ReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix,
-                                                                                   PreferApi   prefer = PreferApi.Auto)
+    public async Task<(IReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix,
+                                                                                    PreferApi   prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
@@ -479,7 +479,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmChannel>> GetTmTreeChannels(PreferApi prefer = PreferApi.Auto)
+    public async Task<IReadOnlyCollection<TmChannel>> GetTmTreeChannels(PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: true, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
@@ -497,8 +497,8 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmRtu>> GetTmTreeRtus(int       channelId,
-                                                               PreferApi prefer = PreferApi.Auto)
+    public async Task<IReadOnlyCollection<TmRtu>> GetTmTreeRtus(int       channelId,
+                                                                PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: true, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
@@ -516,9 +516,9 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmStatus>> GetTmTreeStatuses(int       channelId,
-                                                                      int       rtuId,
-                                                                      PreferApi prefer = PreferApi.Auto)
+    public async Task<IReadOnlyCollection<TmStatus>> GetTmTreeStatuses(int       channelId,
+                                                                       int       rtuId,
+                                                                       PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
@@ -536,9 +536,9 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmAnalog>> GetTmTreeAnalogs(int       channelId,
-                                                                     int       rtuId,
-                                                                     PreferApi prefer = PreferApi.Auto)
+    public async Task<IReadOnlyCollection<TmAnalog>> GetTmTreeAnalogs(int       channelId,
+                                                                      int       rtuId,
+                                                                      PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
@@ -556,7 +556,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmClassStatus>> GetStatusesClasses(PreferApi prefer = PreferApi.Auto)
+    public async Task<IReadOnlyCollection<TmClassStatus>> GetStatusesClasses(PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
@@ -574,7 +574,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmClassAnalog>> GetAnalogsClasses(PreferApi prefer = PreferApi.Auto)
+    public async Task<IReadOnlyCollection<TmClassAnalog>> GetAnalogsClasses(PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
@@ -592,12 +592,12 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmAnalogRetro>> GetAnalogRetro(TmAddr    addr,
-                                                                        long      utcStartTime,
-                                                                        int       count,
-                                                                        int       step,
-                                                                        int       retroNum = 0,
-                                                                        PreferApi prefer   = PreferApi.Auto)
+    public async Task<IReadOnlyCollection<TmAnalogRetro>> GetAnalogRetro(TmAddr    addr,
+                                                                         long      utcStartTime,
+                                                                         int       count,
+                                                                         int       step,
+                                                                         int       retroNum = 0,
+                                                                         PreferApi prefer   = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
@@ -615,12 +615,12 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmAnalogRetro>> GetAnalogRetro(TmAddr    addr,
-                                                                        DateTime  startTime,
-                                                                        DateTime  endTime,
-                                                                        int       step     = 0,
-                                                                        int       retroNum = 0,
-                                                                        PreferApi prefer   = PreferApi.Auto)
+    public async Task<IReadOnlyCollection<TmAnalogRetro>> GetAnalogRetro(TmAddr    addr,
+                                                                         DateTime  startTime,
+                                                                         DateTime  endTime,
+                                                                         int       step     = 0,
+                                                                         int       retroNum = 0,
+                                                                         PreferApi prefer   = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
@@ -638,12 +638,12 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmAnalogRetro>> GetAnalogRetro(TmAddr    addr,
-                                                                        string    startTime,
-                                                                        string    endTime,
-                                                                        int       step     = 0,
-                                                                        int       retroNum = 0,
-                                                                        PreferApi prefer   = PreferApi.Auto)
+    public async Task<IReadOnlyCollection<TmAnalogRetro>> GetAnalogRetro(TmAddr    addr,
+                                                                         string    startTime,
+                                                                         string    endTime,
+                                                                         int       step     = 0,
+                                                                         int       retroNum = 0,
+                                                                         PreferApi prefer   = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
@@ -661,11 +661,11 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr addr,
-                                                                                                  long   utcStartTime,
-                                                                                                  long   utcEndTime,
-                                                                                                  PreferApi prefer =
-                                                                                                    PreferApi.Auto)
+    public async Task<IReadOnlyCollection<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr addr,
+                                                                                                   long   utcStartTime,
+                                                                                                   long   utcEndTime,
+                                                                                                   PreferApi prefer =
+                                                                                                     PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
@@ -683,11 +683,11 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr   addr,
-                                                                                                  DateTime startTime,
-                                                                                                  DateTime endTime,
-                                                                                                  PreferApi prefer =
-                                                                                                    PreferApi.Auto)
+    public async Task<IReadOnlyCollection<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr   addr,
+                                                                                                   DateTime startTime,
+                                                                                                   DateTime endTime,
+                                                                                                   PreferApi prefer =
+                                                                                                     PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
@@ -705,11 +705,11 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr addr,
-                                                                                                  string startTime,
-                                                                                                  string endTime,
-                                                                                                  PreferApi prefer =
-                                                                                                    PreferApi.Auto)
+    public async Task<IReadOnlyCollection<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr addr,
+                                                                                                   string startTime,
+                                                                                                   string endTime,
+                                                                                                   PreferApi prefer =
+                                                                                                     PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
@@ -727,12 +727,12 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr addr,
-                                                                                                  long   utcStartTime,
-                                                                                                  long   utcEndTime,
-                                                                                                  int    step = 0,
-                                                                                                  PreferApi prefer =
-                                                                                                    PreferApi.Auto)
+    public async Task<IReadOnlyCollection<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr addr,
+                                                                                                   long   utcStartTime,
+                                                                                                   long   utcEndTime,
+                                                                                                   int    step = 0,
+                                                                                                   PreferApi prefer =
+                                                                                                     PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
@@ -750,12 +750,12 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr   addr,
-                                                                                                  DateTime startTime,
-                                                                                                  DateTime endTime,
-                                                                                                  int      step = 0,
-                                                                                                  PreferApi prefer =
-                                                                                                    PreferApi.Auto)
+    public async Task<IReadOnlyCollection<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr   addr,
+                                                                                                   DateTime startTime,
+                                                                                                   DateTime endTime,
+                                                                                                   int      step = 0,
+                                                                                                   PreferApi prefer =
+                                                                                                     PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
@@ -773,12 +773,12 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr addr,
-                                                                                                  string startTime,
-                                                                                                  string endTime,
-                                                                                                  int    step = 0,
-                                                                                                  PreferApi prefer =
-                                                                                                    PreferApi.Auto)
+    public async Task<IReadOnlyCollection<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr addr,
+                                                                                                   string startTime,
+                                                                                                   string endTime,
+                                                                                                   int    step = 0,
+                                                                                                   PreferApi prefer =
+                                                                                                     PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
@@ -796,7 +796,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmStatus>> GetPresentAps(PreferApi prefer = PreferApi.Auto)
+    public async Task<IReadOnlyCollection<TmStatus>> GetPresentAps(PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
@@ -814,7 +814,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmStatus>> GetUnackedAps(PreferApi prefer = PreferApi.Auto)
+    public async Task<IReadOnlyCollection<TmStatus>> GetUnackedAps(PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
@@ -832,7 +832,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmStatus>> GetAbnormalStatuses(PreferApi prefer = PreferApi.Auto)
+    public async Task<IReadOnlyCollection<TmStatus>> GetAbnormalStatuses(PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
@@ -850,7 +850,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmAlarm>> GetPresentAlarms(PreferApi prefer = PreferApi.Auto)
+    public async Task<IReadOnlyCollection<TmAlarm>> GetPresentAlarms(PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
@@ -868,8 +868,8 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmAlarm>> GetAnalogAlarms(TmAnalog  analog,
-                                                                   PreferApi prefer = PreferApi.Auto)
+    public async Task<IReadOnlyCollection<TmAlarm>> GetAnalogAlarms(TmAnalog  analog,
+                                                                    PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
@@ -887,8 +887,8 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmStatus>> LookupStatuses(TmStatusFilter filter,
-                                                                   PreferApi      prefer = PreferApi.Auto)
+    public async Task<IReadOnlyCollection<TmStatus>> LookupStatuses(TmStatusFilter filter,
+                                                                    PreferApi      prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
@@ -906,8 +906,8 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmAnalog>> LookupAnalogs(TmAnalogFilter filter,
-                                                                  PreferApi      prefer = PreferApi.Auto)
+    public async Task<IReadOnlyCollection<TmAnalog>> LookupAnalogs(TmAnalogFilter filter,
+                                                                   PreferApi      prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
@@ -1132,7 +1132,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<(bool, ReadOnlyCollection<TmControlScriptCondition>)> CheckTelecontrolScript(
+    public async Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTelecontrolScript(
       TmStatus  status,
       PreferApi prefer = PreferApi.Auto)
     {
@@ -1152,7 +1152,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<(bool, ReadOnlyCollection<TmControlScriptCondition>)> CheckTelecontrolScriptExplicitly(
+    public async Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTelecontrolScriptExplicitly(
       TmStatus  status,
       int       explicitNewStatus,
       PreferApi prefer = PreferApi.Auto)
@@ -1478,8 +1478,8 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<string>> GetFilesInDirectory(string    path,
-                                                                      PreferApi prefer = PreferApi.Auto)
+    public async Task<IReadOnlyCollection<string>> GetFilesInDirectory(string    path,
+                                                                       PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
