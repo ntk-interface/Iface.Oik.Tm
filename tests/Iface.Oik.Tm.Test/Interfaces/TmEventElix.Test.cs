@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Diagnostics.CodeAnalysis;
+using FluentAssertions;
 using Iface.Oik.Tm.Interfaces;
 using Xunit;
 
@@ -80,7 +81,21 @@ namespace Iface.Oik.Tm.Test.Interfaces
         var elix1 = new TmEventElix(r, m);
         var elix2 = new TmEventElix(r, m);
 
-        Assert.True(elix1.Equals(elix2));
+        var result = elix1.Equals(elix2);
+
+        result.Should().BeTrue();
+      }
+
+
+      [Theory, TmAutoData]
+      public void ReturnsTrueForSameReference(uint r, uint m)
+      {
+        var elix1 = new TmEventElix(r, m);
+        var elix2 = elix1;
+
+        var result = elix1.Equals(elix2);
+
+        result.Should().BeTrue();
       }
 
 
@@ -90,7 +105,9 @@ namespace Iface.Oik.Tm.Test.Interfaces
         var elix1 = new TmEventElix(r,     m);
         var elix2 = new TmEventElix(r + 1, m);
 
-        Assert.False(elix1.Equals(elix2));
+        var result = elix1.Equals(elix2);
+
+        result.Should().BeFalse();
       }
 
 
@@ -100,7 +117,9 @@ namespace Iface.Oik.Tm.Test.Interfaces
         var elix1 = new TmEventElix(r, m);
         var elix2 = new TmEventElix(r, m + 1);
 
-        Assert.False(elix1.Equals(elix2));
+        var result = elix1.Equals(elix2);
+
+        result.Should().BeFalse();
       }
 
 
@@ -109,7 +128,9 @@ namespace Iface.Oik.Tm.Test.Interfaces
       {
         var elix1 = new TmEventElix(r, m);
 
-        Assert.False(elix1.Equals(null));
+        var result = elix1.Equals(null);
+
+        result.Should().BeFalse();
       }
 
 
@@ -119,7 +140,9 @@ namespace Iface.Oik.Tm.Test.Interfaces
         var elix1 = new TmEventElix(r, m);
 
         // ReSharper disable once SuspiciousTypeConversion.Global
-        Assert.False(elix1.Equals("string, will not work"));
+        var result = elix1.Equals("string, will not work");
+
+        result.Should().BeFalse();
       }
     }
 
@@ -132,7 +155,9 @@ namespace Iface.Oik.Tm.Test.Interfaces
         var elix1 = new TmEventElix(r, m);
         var elix2 = new TmEventElix(r, m);
 
-        Assert.True(elix1 == elix2);
+        var result = elix1 == elix2;
+
+        result.Should().BeTrue();
       }
 
 
@@ -142,7 +167,9 @@ namespace Iface.Oik.Tm.Test.Interfaces
         var elix1 = new TmEventElix(r,     m);
         var elix2 = new TmEventElix(r + 1, m);
 
-        Assert.False(elix1 == elix2);
+        var result = elix1 == elix2;
+
+        result.Should().BeFalse();
       }
 
 
@@ -152,25 +179,33 @@ namespace Iface.Oik.Tm.Test.Interfaces
         var elix1 = new TmEventElix(r, m);
         var elix2 = new TmEventElix(r, m + 1);
 
-        Assert.False(elix1 == elix2);
+        var result = elix1 == elix2;
+
+        result.Should().BeFalse();
       }
 
 
       [Theory, TmAutoData]
+      [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse")]
       public void ReturnsFalseForNull(uint r, uint m)
       {
         var elix1 = new TmEventElix(r, m);
 
-        Assert.False(elix1 == null);
+        var result = elix1 == null;
+
+        result.Should().BeFalse();
       }
 
 
-      [Theory, TmAutoData]
-      public void ReturnsTrueForNullWhenNull(uint r, uint m)
+      [Fact]
+      [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse")]
+      public void ReturnsTrueForNullWhenNull()
       {
         TmEventElix elix1 = null;
 
-        Assert.True(elix1 == null);
+        var result = elix1 == null;
+
+        result.Should().BeTrue();
       }
     }
 
@@ -183,7 +218,9 @@ namespace Iface.Oik.Tm.Test.Interfaces
         var elix1 = new TmEventElix(r,     m);
         var elix2 = new TmEventElix(r + 1, m);
 
-        Assert.True(elix1 != elix2);
+        var result = elix1 != elix2;
+
+        result.Should().BeTrue();
       }
 
 
@@ -193,7 +230,9 @@ namespace Iface.Oik.Tm.Test.Interfaces
         var elix1 = new TmEventElix(r, m);
         var elix2 = new TmEventElix(r, m + 1);
 
-        Assert.True(elix1 != elix2);
+        var result = elix1 != elix2;
+
+        result.Should().BeTrue();
       }
 
 
@@ -203,16 +242,42 @@ namespace Iface.Oik.Tm.Test.Interfaces
         var elix1 = new TmEventElix(r, m);
         var elix2 = new TmEventElix(r, m);
 
-        Assert.False(elix1 != elix2);
+        var result = elix1 != elix2;
+
+        result.Should().BeFalse();
       }
 
 
       [Theory, TmAutoData]
+      [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse")]
       public void ReturnsTrueForNull(uint r, uint m)
       {
         var elix1 = new TmEventElix(r, m);
 
-        Assert.True(elix1 != null);
+        var result = elix1 != null;
+
+        result.Should().BeTrue();
+      }
+    }
+
+
+    public class CompareToMethod
+    {
+      [Theory]
+      [InlineData(5, 10, 5, 10, 0)]
+      [InlineData(6, 10, 5, 10, +1)]
+      [InlineData(4, 10, 5, 10, -1)]
+      [InlineData(5, 11, 5, 10, +1)]
+      [InlineData(5, 9,  5, 10, -1)]
+      [InlineData(6, 9,  5, 10, +1)]
+      public void ReturnsCorrectValues(uint r1, uint m1, uint r2, uint m2, int expected)
+      {
+        var elix1 = new TmEventElix(r1, m1);
+        var elix2 = new TmEventElix(r2, m2);
+
+        var result = elix1.CompareTo(elix2);
+
+        result.Should().Be(expected);
       }
     }
 
