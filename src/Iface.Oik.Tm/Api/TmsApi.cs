@@ -1240,6 +1240,73 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task SetTagsFlags(IEnumerable<TmTag> tmTags,
+                                   TmFlags            flags)
+    {
+      await ToggleTagsFlags(tmTags, flags, isSet: true).ConfigureAwait(false);
+    }
+
+
+    public async Task ClearTagsFlags(IEnumerable<TmTag> tmTags,
+                                     TmFlags            flags)
+    {
+      await ToggleTagsFlags(tmTags, flags, isSet: false).ConfigureAwait(false);
+    }
+
+
+    private async Task ToggleTagsFlags(IEnumerable<TmTag> tmTags,
+                                              TmFlags            flags,
+                                              bool               isSet)
+    {
+      var timedValuesAndFlags = new List<TmNativeDefs.TTimedValueAndFlags>();
+
+      foreach (var tmTag in tmTags)
+      {
+        byte timedValueType;
+        switch (tmTag)
+        {
+          case TmStatus _:
+            timedValueType = (byte) TmNativeDefs.VfType.Status;
+            break;
+          case TmAnalog _:
+            timedValueType = (byte) TmNativeDefs.VfType.AnalogFloat;
+            break;
+          default:
+            continue;
+        }
+
+        if (isSet)
+        {
+          timedValueType += (byte) TmNativeDefs.VfType.FlagSet;
+        }
+        else
+        {
+          timedValueType += (byte) TmNativeDefs.VfType.FlagClear;
+        }
+
+        timedValuesAndFlags.Add(new TmNativeDefs.TTimedValueAndFlags
+        {
+          Vf =
+          {
+            Adr   = tmTag.TmAddr.ToAdrTm(),
+            Type  = timedValueType,
+            Flags = (byte) flags,
+            Bits  = 0,
+          },
+          Xt =
+          {
+            Flags = (ushort) TmNativeDefs.TMXTimeFlags.User,
+          }
+        });
+      }
+
+      await Task.Run(() => _native.TmcSetTimedValues(_cid,
+                                                     (uint) timedValuesAndFlags.Count,
+                                                     timedValuesAndFlags.ToArray()))
+                .ConfigureAwait(false);
+    }
+
+
     public async Task<bool> SwitchStatusManually(TmStatus tmStatus,
                                                  bool     alsoBlockManually = false)
     {
@@ -1716,93 +1783,25 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    // todo OikDataApi
-    public async Task SetMultipleTagsFlags(IEnumerable<TmTag> tmTags,
-                                           TmFlags            flags)
-    {
-      await ToggleMultipleTagsFlags(tmTags, flags, isSet: true).ConfigureAwait(false);
-    }
-
-
-    // todo OikDataApi
-    public async Task ClearMultipleTagsFlags(IEnumerable<TmTag> tmTags,
-                                             TmFlags            flags)
-    {
-      await ToggleMultipleTagsFlags(tmTags, flags, isSet: false).ConfigureAwait(false);
-    }
-
-
-    public async Task ToggleMultipleTagsFlags(IEnumerable<TmTag> tmTags,
-                                              TmFlags            flags,
-                                              bool               isSet)
-    {
-      var timedValuesAndFlags = new List<TmNativeDefs.TTimedValueAndFlags>();
-
-      foreach (var tmTag in tmTags)
-      {
-        byte timedValueType;
-        switch (tmTag)
-        {
-          case TmStatus _:
-            timedValueType = (byte) TmNativeDefs.VfType.Status;
-            break;
-          case TmAnalog _:
-            timedValueType = (byte) TmNativeDefs.VfType.AnalogFloat;
-            break;
-          default:
-            continue;
-        }
-
-        if (isSet)
-        {
-          timedValueType += (byte) TmNativeDefs.VfType.FlagSet;
-        }
-        else
-        {
-          timedValueType += (byte) TmNativeDefs.VfType.FlagClear;
-        }
-
-        timedValuesAndFlags.Add(new TmNativeDefs.TTimedValueAndFlags
-        {
-          Vf =
-          {
-            Adr   = tmTag.TmAddr.ToAdrTm(),
-            Type  = timedValueType,
-            Flags = (byte) flags,
-            Bits  = 0,
-          },
-          Xt =
-          {
-            Flags = (ushort) TmNativeDefs.TMXTimeFlags.User,
-          }
-        });
-      }
-
-      await Task.Run(() => _native.TmcSetTimedValues(_cid,
-                                                     (uint) timedValuesAndFlags.Count,
-                                                     timedValuesAndFlags.ToArray()))
-                .ConfigureAwait(false);
-    }
-
-
     public async Task<bool> SetTagFlagsExplicitly(TmTag tag, TmFlags flags)
     {
       var (ch, rtu, point) = tag.TmAddr.GetTupleShort();
 
-      short result = 0;
       switch (tag)
       {
         case TmStatus _:
-          result = await Task.Run(() => _native.TmcSetStatusFlags(_cid, ch, rtu, point, (short) flags))
-                             .ConfigureAwait(false);
-          break;
-        case TmAnalog _:
-          result = await Task.Run(() => _native.TmcSetAnalogFlags(_cid, ch, rtu, point, (short) flags))
-                             .ConfigureAwait(false);
-          break;
-      }
+          return await Task.Run(() => _native.TmcSetStatusFlags(_cid, ch, rtu, point, (short) flags))
+                           .ConfigureAwait(false)
+                 == TmNativeDefs.Success;
 
-      return result == TmNativeDefs.Success;
+        case TmAnalog _:
+          return await Task.Run(() => _native.TmcSetAnalogFlags(_cid, ch, rtu, point, (short) flags))
+                           .ConfigureAwait(false)
+                 == TmNativeDefs.Success;
+
+        default:
+          return false;
+      }
     }
 
 
@@ -1810,20 +1809,21 @@ namespace Iface.Oik.Tm.Api
     {
       var (ch, rtu, point) = tag.TmAddr.GetTupleShort();
 
-      short result = 0;
       switch (tag)
       {
         case TmStatus _:
-          result = await Task.Run(() => _native.TmcClrStatusFlags(_cid, ch, rtu, point, (short) flags))
-                             .ConfigureAwait(false);
-          break;
-        case TmAnalog _:
-          result = await Task.Run(() => _native.TmcClrAnalogFlags(_cid, ch, rtu, point, (short) flags))
-                             .ConfigureAwait(false);
-          break;
-      }
+          return await Task.Run(() => _native.TmcClrStatusFlags(_cid, ch, rtu, point, (short) flags))
+                           .ConfigureAwait(false)
+                 == TmNativeDefs.Success;
 
-      return result == TmNativeDefs.Success;
+        case TmAnalog _:
+          return await Task.Run(() => _native.TmcClrAnalogFlags(_cid, ch, rtu, point, (short) flags))
+                           .ConfigureAwait(false)
+                 == TmNativeDefs.Success;
+
+        default:
+          return false;
+      }
     }
   }
 }

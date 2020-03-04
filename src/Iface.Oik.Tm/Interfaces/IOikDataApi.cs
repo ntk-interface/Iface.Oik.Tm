@@ -303,6 +303,16 @@ namespace Iface.Oik.Tm.Interfaces
                        PreferApi prefer = PreferApi.Auto);
 
 
+    Task SetTagsFlags(IEnumerable<TmTag> tags,
+                      TmFlags            flags,
+                      PreferApi          prefer = PreferApi.Auto);
+
+
+    Task ClearTagsFlags(IEnumerable<TmTag> tags,
+                        TmFlags            flags,
+                        PreferApi          prefer = PreferApi.Auto);
+
+
     Task<bool> SetAnalogManually(TmAnalog  analog,
                                  float     value,
                                  PreferApi prefer = PreferApi.Auto);

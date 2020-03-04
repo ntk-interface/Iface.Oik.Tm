@@ -405,7 +405,7 @@ namespace Iface.Oik.Tm.Api
 
 
     public async Task<IReadOnlyCollection<TmEvent>> GetEventsArchive(TmEventFilter filter,
-                                                                    PreferApi     prefer = PreferApi.Auto)
+                                                                     PreferApi     prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
@@ -1467,6 +1467,44 @@ namespace Iface.Oik.Tm.Api
       if (api == ApiSelection.Tms)
       {
         await _tms.ClearTagFlags(tag, flags).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+      }
+    }
+
+
+    public async Task SetTagsFlags(IEnumerable<TmTag> tags,
+                                   TmFlags            flags,
+                                   PreferApi          prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        await _tms.SetTagsFlags(tags, flags).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+      }
+    }
+
+
+    public async Task ClearTagsFlags(IEnumerable<TmTag> tags,
+                                     TmFlags            flags,
+                                     PreferApi          prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        await _tms.ClearTagsFlags(tags, flags).ConfigureAwait(false);
       }
       else if (api == ApiSelection.Sql)
       {

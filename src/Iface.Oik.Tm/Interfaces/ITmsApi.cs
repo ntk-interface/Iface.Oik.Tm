@@ -73,7 +73,7 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<TmRtu>> GetTmTreeRtus(int channelId);
 
     Task<IReadOnlyCollection<TmStatus>> GetTmTreeStatuses(int channelId, int rtuId);
-    
+
     Task<IReadOnlyCollection<TmAnalog>> GetTmTreeAnalogs(int channelId, int rtuId);
 
     Task<IReadOnlyCollection<TmClassStatus>> GetStatusesClasses();
@@ -160,6 +160,14 @@ namespace Iface.Oik.Tm.Interfaces
                        TmFlags flags);
 
 
+    Task SetTagsFlags(IEnumerable<TmTag> tmTags,
+                      TmFlags            flags);
+
+
+    Task ClearTagsFlags(IEnumerable<TmTag> tmTags,
+                        TmFlags            flags);
+
+
     Task<bool> SetAnalogManually(TmAnalog tmAnalog,
                                  float    value);
 
@@ -224,14 +232,6 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<bool> DownloadFile(string remotePath,
                             string localPath);
-
-
-    Task SetMultipleTagsFlags(IEnumerable<TmTag> tmTags,
-                              TmFlags            flags);
-
-
-    Task ClearMultipleTagsFlags(IEnumerable<TmTag> tmTags,
-                                TmFlags            flags);
 
 
     Task<bool> SetTagFlagsExplicitly(TmTag tag, TmFlags flags);
