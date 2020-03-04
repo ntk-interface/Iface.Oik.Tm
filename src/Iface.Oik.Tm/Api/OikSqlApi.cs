@@ -257,18 +257,18 @@ namespace Iface.Oik.Tm.Api
 
       switch (tags)
       {
-        case IEnumerable<TmStatus> statuses:
-          await UpdateStatusesPropertiesAndClassData(statuses.ToList()).ConfigureAwait(false);
+        case IReadOnlyList<TmStatus> statuses:
+          await UpdateStatusesPropertiesAndClassData(statuses).ConfigureAwait(false);
           return;
 
-        case IEnumerable<TmAnalog> analogs:
-          await UpdateAnalogsPropertiesAndClassData(analogs.ToList()).ConfigureAwait(false);
+        case IReadOnlyList<TmAnalog> analogs:
+          await UpdateAnalogsPropertiesAndClassData(analogs).ConfigureAwait(false);
           return;
       }
     }
 
 
-    private async Task UpdateStatusesPropertiesAndClassData(IList<TmStatus> statuses)
+    private async Task UpdateStatusesPropertiesAndClassData(IReadOnlyList<TmStatus> statuses)
     {
       if (statuses.IsNullOrEmpty()) return;
 
@@ -305,7 +305,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    private async Task UpdateAnalogsPropertiesAndClassData(IList<TmAnalog> analogs)
+    private async Task UpdateAnalogsPropertiesAndClassData(IReadOnlyList<TmAnalog> analogs)
     {
       if (analogs.IsNullOrEmpty()) return;
 

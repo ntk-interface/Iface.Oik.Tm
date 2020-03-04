@@ -33,24 +33,32 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task UpdateStatus(TmStatus status);
-    
-    Task UpdateStatusExplicitly(TmStatus status, 
+
+
+    Task UpdateStatusExplicitly(TmStatus status,
                                 bool     getRealTelemetry = false);
+
 
     Task UpdateAnalog(TmAnalog analog);
-    
-    Task UpdateAnalogExplicitly(TmAnalog analog, 
+
+
+    Task UpdateAnalogExplicitly(TmAnalog analog,
                                 bool     getRealTelemetry = false);
 
+
     Task UpdateStatuses(IReadOnlyList<TmStatus> statuses);
-    
-    Task UpdateStatusesExplicitly(IList<TmStatus> statuses, 
+
+
+    Task UpdateStatusesExplicitly(IList<TmStatus> statuses,
                                   bool            getRealTelemetry = false);
 
+
     Task UpdateAnalogs(IReadOnlyList<TmAnalog> analogs);
-    
-    Task UpdateAnalogsExplicitly(IList<TmAnalog> analogs, 
+
+
+    Task UpdateAnalogsExplicitly(IList<TmAnalog> analogs,
                                  bool            getRealTelemetry = false);
+
 
     Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags);
 
@@ -63,7 +71,7 @@ namespace Iface.Oik.Tm.Interfaces
     Task<ReadOnlyCollection<TmChannel>> GetTmTreeChannels();
 
     Task<ReadOnlyCollection<TmRtu>> GetTmTreeRtus(int channelId);
-    
+
     Task<ReadOnlyCollection<TmTag>> GetTmsPoints(TmType tmType, int channelId, int rtuId);
 
     Task<ReadOnlyCollection<TmClassStatus>> GetStatusesClasses();
@@ -71,58 +79,58 @@ namespace Iface.Oik.Tm.Interfaces
     Task<ReadOnlyCollection<TmClassAnalog>> GetAnalogsClasses();
 
 
-    Task<IEnumerable<TmAnalogRetro>> GetAnalogRetro(TmAddr addr,
-                                                    long   utcStartTime,
-                                                    int    count,
-                                                    int    step,
-                                                    int    retroNum = 0);
+    Task<ReadOnlyCollection<TmAnalogRetro>> GetAnalogRetro(TmAddr addr,
+                                                           long   utcStartTime,
+                                                           int    count,
+                                                           int    step,
+                                                           int    retroNum = 0);
 
 
-    Task<IEnumerable<TmAnalogRetro>> GetAnalogRetro(TmAddr   addr,
-                                                    DateTime startTime,
-                                                    DateTime endTime,
-                                                    int      step     = 0,
-                                                    int      retroNum = 0);
+    Task<ReadOnlyCollection<TmAnalogRetro>> GetAnalogRetro(TmAddr   addr,
+                                                           DateTime startTime,
+                                                           DateTime endTime,
+                                                           int      step     = 0,
+                                                           int      retroNum = 0);
 
 
-    Task<IEnumerable<TmAnalogRetro>> GetAnalogRetro(TmAddr addr,
-                                                    string startTime,
-                                                    string endTime,
-                                                    int    step     = 0,
-                                                    int    retroNum = 0);
+    Task<ReadOnlyCollection<TmAnalogRetro>> GetAnalogRetro(TmAddr addr,
+                                                           string startTime,
+                                                           string endTime,
+                                                           int    step     = 0,
+                                                           int    retroNum = 0);
 
 
-    Task<IEnumerable<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr addr,
-                                                                              long   utcStartTime,
-                                                                              long   utcEndTime);
+    Task<ReadOnlyCollection<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr addr,
+                                                                                     long   utcStartTime,
+                                                                                     long   utcEndTime);
 
 
-    Task<IEnumerable<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr   addr,
-                                                                              DateTime startTime,
-                                                                              DateTime endTime);
+    Task<ReadOnlyCollection<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr   addr,
+                                                                                     DateTime startTime,
+                                                                                     DateTime endTime);
 
 
-    Task<IEnumerable<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr addr,
-                                                                              string startTime,
-                                                                              string endTime);
+    Task<ReadOnlyCollection<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr addr,
+                                                                                     string startTime,
+                                                                                     string endTime);
 
 
-    Task<IEnumerable<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr addr,
-                                                                              long   utcStartTime,
-                                                                              long   utcEndTime,
-                                                                              int    step = 0);
+    Task<ReadOnlyCollection<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr addr,
+                                                                                     long   utcStartTime,
+                                                                                     long   utcEndTime,
+                                                                                     int    step = 0);
 
 
-    Task<IEnumerable<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr   addr,
-                                                                              DateTime startTime,
-                                                                              DateTime endTime,
-                                                                              int      step = 0);
+    Task<ReadOnlyCollection<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr   addr,
+                                                                                     DateTime startTime,
+                                                                                     DateTime endTime,
+                                                                                     int      step = 0);
 
 
-    Task<IEnumerable<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr addr,
-                                                                              string startTime,
-                                                                              string endTime,
-                                                                              int    step = 0);
+    Task<ReadOnlyCollection<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr addr,
+                                                                                     string startTime,
+                                                                                     string endTime,
+                                                                                     int    step = 0);
 
 
     Task<bool> AckTag(TmAddr addr);
@@ -214,19 +222,19 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<bool> DownloadFile(string remotePath,
                             string localPath);
-    
-    
+
+
     Task SetMultipleTagsFlags(IEnumerable<TmTag> tmTags,
                               TmFlags            flags);
 
-    
+
     Task ClearMultipleTagsFlags(IEnumerable<TmTag> tmTags,
                                 TmFlags            flags);
 
 
     Task<bool> SetTagFlagsExplicitly(TmTag tag, TmFlags flags);
-    
-    
+
+
     Task<bool> ClearTagFlagsExplicitly(TmTag tag, TmFlags flags);
   }
 }

@@ -135,67 +135,67 @@ namespace Iface.Oik.Tm.Interfaces
                                                         PreferApi prefer = PreferApi.Auto);
 
 
-    Task<IEnumerable<TmAnalogRetro>> GetAnalogRetro(TmAddr    addr,
-                                                    long      utcStartTime,
-                                                    int       count,
-                                                    int       step,
-                                                    int       retroNum = 0,
-                                                    PreferApi prefer   = PreferApi.Auto);
+    Task<ReadOnlyCollection<TmAnalogRetro>> GetAnalogRetro(TmAddr    addr,
+                                                           long      utcStartTime,
+                                                           int       count,
+                                                           int       step,
+                                                           int       retroNum = 0,
+                                                           PreferApi prefer   = PreferApi.Auto);
 
 
-    Task<IEnumerable<TmAnalogRetro>> GetAnalogRetro(TmAddr    addr,
-                                                    DateTime  startTime,
-                                                    DateTime  endTime,
-                                                    int       step     = 0,
-                                                    int       retroNum = 0,
-                                                    PreferApi prefer   = PreferApi.Auto);
+    Task<ReadOnlyCollection<TmAnalogRetro>> GetAnalogRetro(TmAddr    addr,
+                                                           DateTime  startTime,
+                                                           DateTime  endTime,
+                                                           int       step     = 0,
+                                                           int       retroNum = 0,
+                                                           PreferApi prefer   = PreferApi.Auto);
 
 
-    Task<IEnumerable<TmAnalogRetro>> GetAnalogRetro(TmAddr    addr,
-                                                    string    startTime,
-                                                    string    endTime,
-                                                    int       step     = 0,
-                                                    int       retroNum = 0,
-                                                    PreferApi prefer   = PreferApi.Auto);
+    Task<ReadOnlyCollection<TmAnalogRetro>> GetAnalogRetro(TmAddr    addr,
+                                                           string    startTime,
+                                                           string    endTime,
+                                                           int       step     = 0,
+                                                           int       retroNum = 0,
+                                                           PreferApi prefer   = PreferApi.Auto);
 
 
-    Task<IEnumerable<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr    addr,
-                                                                              long      utcStartTime,
-                                                                              long      utcEndTime,
-                                                                              PreferApi prefer = PreferApi.Auto);
+    Task<ReadOnlyCollection<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr    addr,
+                                                                                     long      utcStartTime,
+                                                                                     long      utcEndTime,
+                                                                                     PreferApi prefer = PreferApi.Auto);
 
 
-    Task<IEnumerable<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr   addr,
-                                                                              DateTime startTime,
-                                                                              DateTime endTime,
-                                                                              PreferApi prefer = PreferApi.Auto);
+    Task<ReadOnlyCollection<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr    addr,
+                                                                                     DateTime  startTime,
+                                                                                     DateTime  endTime,
+                                                                                     PreferApi prefer = PreferApi.Auto);
 
 
-    Task<IEnumerable<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr addr,
-                                                                              string startTime,
-                                                                              string endTime,
-                                                                              PreferApi prefer = PreferApi.Auto);
+    Task<ReadOnlyCollection<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr    addr,
+                                                                                     string    startTime,
+                                                                                     string    endTime,
+                                                                                     PreferApi prefer = PreferApi.Auto);
 
 
-    Task<IEnumerable<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr addr,
-                                                                              long   utcStartTime,
-                                                                              long   utcEndTime,
-                                                                              int    step = 0,
-                                                                              PreferApi prefer = PreferApi.Auto);
+    Task<ReadOnlyCollection<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr    addr,
+                                                                                     long      utcStartTime,
+                                                                                     long      utcEndTime,
+                                                                                     int       step   = 0,
+                                                                                     PreferApi prefer = PreferApi.Auto);
 
 
-    Task<IEnumerable<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr   addr,
-                                                                              DateTime startTime,
-                                                                              DateTime endTime,
-                                                                              int      step = 0,
-                                                                              PreferApi prefer = PreferApi.Auto);
+    Task<ReadOnlyCollection<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr    addr,
+                                                                                     DateTime  startTime,
+                                                                                     DateTime  endTime,
+                                                                                     int       step   = 0,
+                                                                                     PreferApi prefer = PreferApi.Auto);
 
 
-    Task<IEnumerable<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr addr,
-                                                                              string startTime,
-                                                                              string endTime,
-                                                                              int    step = 0,
-                                                                              PreferApi prefer = PreferApi.Auto);
+    Task<ReadOnlyCollection<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr    addr,
+                                                                                     string    startTime,
+                                                                                     string    endTime,
+                                                                                     int       step   = 0,
+                                                                                     PreferApi prefer = PreferApi.Auto);
 
 
     Task<ReadOnlyCollection<TmStatus>> GetPresentAps(PreferApi prefer = PreferApi.Auto);
