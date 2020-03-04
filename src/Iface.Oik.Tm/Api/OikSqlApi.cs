@@ -423,7 +423,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmChannel>> GetTmTreeChannels()
+    public async Task<IReadOnlyCollection<TmChannel>> GetTmTreeChannels()
     {
       try
       {
@@ -435,7 +435,7 @@ namespace Iface.Oik.Tm.Api
                                   .QueryAsync<TmChannel>(commandText)
                                   .ConfigureAwait(false);
 
-          return Array.AsReadOnly(channels.ToArray());
+          return channels.ToList();
         }
       }
       catch (NpgsqlException ex)
@@ -451,7 +451,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmRtu>> GetTmTreeRtus(int channelId)
+    public async Task<IReadOnlyCollection<TmRtu>> GetTmTreeRtus(int channelId)
     {
       if (channelId < 0 || channelId > 254) return null;
 
@@ -466,7 +466,7 @@ namespace Iface.Oik.Tm.Api
                               .QueryAsync<TmRtu>(commandText, parameters)
                               .ConfigureAwait(false);
 
-          return Array.AsReadOnly(rtus.ToArray());
+          return rtus.ToList();
         }
       }
       catch (NpgsqlException ex)
@@ -482,7 +482,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmStatus>> GetTmTreeStatuses(int channelId, int rtuId)
+    public async Task<IReadOnlyCollection<TmStatus>> GetTmTreeStatuses(int channelId, int rtuId)
     {
       if (channelId < 0 || channelId > 254 ||
           rtuId     < 1 || rtuId     > 255)
@@ -509,8 +509,8 @@ namespace Iface.Oik.Tm.Api
                               .QueryAsync<TmStatusTmTreeDto>(commandText, parameters)
                               .ConfigureAwait(false);
 
-          return Array.AsReadOnly(dtos.Select(TmStatus.CreateFromTmTreeDto)
-                                      .ToArray());
+          return dtos.Select(TmStatus.CreateFromTmTreeDto)
+                     .ToList();
         }
       }
       catch (NpgsqlException ex)
@@ -526,7 +526,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmAnalog>> GetTmTreeAnalogs(int channelId, int rtuId)
+    public async Task<IReadOnlyCollection<TmAnalog>> GetTmTreeAnalogs(int channelId, int rtuId)
     {
       if (channelId < 0 || channelId > 254 ||
           rtuId     < 1 || rtuId     > 255)
@@ -549,8 +549,8 @@ namespace Iface.Oik.Tm.Api
                               .QueryAsync<TmAnalogTmTreeDto>(commandText, parameters)
                               .ConfigureAwait(false);
 
-          return Array.AsReadOnly(dtos.Select(TmAnalog.CreateFromTmTreeDto)
-                                      .ToArray());
+          return dtos.Select(TmAnalog.CreateFromTmTreeDto)
+                     .ToList();
         }
       }
       catch (NpgsqlException ex)
@@ -566,7 +566,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmStatus>> GetPresentAps()
+    public async Task<IReadOnlyCollection<TmStatus>> GetPresentAps()
     {
       try
       {
@@ -589,8 +589,8 @@ namespace Iface.Oik.Tm.Api
                               .QueryAsync<TmStatusTmTreeDto>(commandText, parameters)
                               .ConfigureAwait(false);
 
-          return Array.AsReadOnly(dtos.Select(TmStatus.CreateFromTmTreeDto)
-                                      .ToArray());
+          return dtos.Select(TmStatus.CreateFromTmTreeDto)
+                     .ToList();
         }
       }
       catch (NpgsqlException ex)
@@ -606,7 +606,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmStatus>> GetUnackedAps()
+    public async Task<IReadOnlyCollection<TmStatus>> GetUnackedAps()
     {
       try
       {
@@ -630,8 +630,8 @@ namespace Iface.Oik.Tm.Api
                               .QueryAsync<TmStatusTmTreeDto>(commandText, parameters)
                               .ConfigureAwait(false);
 
-          return Array.AsReadOnly(dtos.Select(TmStatus.CreateFromTmTreeDto)
-                                      .ToArray());
+          return dtos.Select(TmStatus.CreateFromTmTreeDto)
+                     .ToList();
         }
       }
       catch (NpgsqlException ex)
@@ -647,7 +647,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmStatus>> GetAbnormalStatuses()
+    public async Task<IReadOnlyCollection<TmStatus>> GetAbnormalStatuses()
     {
       try
       {
@@ -664,8 +664,8 @@ namespace Iface.Oik.Tm.Api
                               .QueryAsync<TmStatusTmTreeDto>(commandText, parameters)
                               .ConfigureAwait(false);
 
-          return Array.AsReadOnly(dtos.Select(TmStatus.CreateFromTmTreeDto)
-                                      .ToArray());
+          return dtos.Select(TmStatus.CreateFromTmTreeDto)
+                     .ToList();
         }
       }
       catch (NpgsqlException ex)
@@ -681,7 +681,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmAlarm>> GetPresentAlarms()
+    public async Task<IReadOnlyCollection<TmAlarm>> GetPresentAlarms()
     {
       try
       {
@@ -696,8 +696,7 @@ namespace Iface.Oik.Tm.Api
                                     .QueryAsync<TmAlarmDto>(alarmsCommandText)
                                     .ConfigureAwait(false);
           var alarms = alarmsDtos.Select(TmAlarm.CreateFromDto)
-                                 .ToList()
-                                 .AsReadOnly();
+                                 .ToList();
 
           // потом запрос данных о ТИТ, если конечно есть уставки
           if (alarms.Count == 0)
@@ -732,7 +731,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmAlarm>> GetAnalogAlarms(TmAnalog analog)
+    public async Task<IReadOnlyCollection<TmAlarm>> GetAnalogAlarms(TmAnalog analog)
     {
       if (analog == null) return null;
 
@@ -749,8 +748,8 @@ namespace Iface.Oik.Tm.Api
                               .QueryAsync<TmAlarmDto>(commandText, parameters)
                               .ConfigureAwait(false);
 
-          return Array.AsReadOnly(dtos.Select(dto => TmAlarm.CreateFromDto(dto, analog))
-                                      .ToArray());
+          return dtos.Select(dto => TmAlarm.CreateFromDto(dto, analog))
+                     .ToList();
         }
       }
       catch (NpgsqlException ex)
@@ -766,7 +765,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmStatus>> LookupStatuses(TmStatusFilter filter)
+    public async Task<IReadOnlyCollection<TmStatus>> LookupStatuses(TmStatusFilter filter)
     {
       if (filter == null) return null;
 
@@ -822,8 +821,8 @@ namespace Iface.Oik.Tm.Api
                               .QueryAsync<TmStatusTmTreeDto>(commandText, parameters)
                               .ConfigureAwait(false);
 
-          return Array.AsReadOnly(dtos.Select(TmStatus.CreateFromTmTreeDto)
-                                      .ToArray());
+          return dtos.Select(TmStatus.CreateFromTmTreeDto)
+                     .ToList();
         }
       }
       catch (NpgsqlException ex)
@@ -909,7 +908,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmAnalog>> LookupAnalogs(TmAnalogFilter filter)
+    public async Task<IReadOnlyCollection<TmAnalog>> LookupAnalogs(TmAnalogFilter filter)
     {
       if (filter == null) return null;
 
@@ -951,8 +950,8 @@ namespace Iface.Oik.Tm.Api
                               .QueryAsync<TmAnalogTmTreeDto>(commandText, parameters)
                               .ConfigureAwait(false);
 
-          return Array.AsReadOnly(dtos.Select(TmAnalog.CreateFromTmTreeDto)
-                                      .ToArray());
+          return dtos.Select(TmAnalog.CreateFromTmTreeDto)
+                     .ToList();
         }
       }
       catch (NpgsqlException ex)
@@ -1074,7 +1073,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReadOnlyCollection<TmEvent>> GetArchEvents(TmEventFilter filter)
+    public async Task<IReadOnlyCollection<TmEvent>> GetArchEvents(TmEventFilter filter)
     {
       if (filter == null) return null; //???
 
@@ -1133,7 +1132,7 @@ namespace Iface.Oik.Tm.Api
             }
           });
         }
-        return events.AsReadOnly();
+        return events;
       }
       catch (NpgsqlException ex)
       {
@@ -1276,7 +1275,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<(ReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix)
+    public async Task<(IReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix)
     {
       if (elix == null) return (null, null);
 
@@ -1312,7 +1311,7 @@ namespace Iface.Oik.Tm.Api
             tmEvents.Add(tmEvent);
           });
         }
-        return (tmEvents.AsReadOnly(), newElix);
+        return (tmEvents, newElix);
       }
       catch (NpgsqlException ex)
       {

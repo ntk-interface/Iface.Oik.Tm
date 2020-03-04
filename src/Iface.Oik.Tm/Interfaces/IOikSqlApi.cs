@@ -29,31 +29,31 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task UpdateTagPropertiesAndClassData(TmTag tag);
 
-    Task<ReadOnlyCollection<TmEvent>> GetArchEvents(TmEventFilter filter);
+    Task<IReadOnlyCollection<TmEvent>> GetArchEvents(TmEventFilter filter);
 
-    Task<(ReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix);
+    Task<(IReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix);
 
-    Task<ReadOnlyCollection<TmChannel>> GetTmTreeChannels();
+    Task<IReadOnlyCollection<TmChannel>> GetTmTreeChannels();
 
-    Task<ReadOnlyCollection<TmRtu>> GetTmTreeRtus(int channelId);
+    Task<IReadOnlyCollection<TmRtu>> GetTmTreeRtus(int channelId);
 
-    Task<ReadOnlyCollection<TmStatus>> GetTmTreeStatuses(int channelId, int rtuId);
+    Task<IReadOnlyCollection<TmStatus>> GetTmTreeStatuses(int channelId, int rtuId);
 
-    Task<ReadOnlyCollection<TmAnalog>> GetTmTreeAnalogs(int channelId, int rtuId);
+    Task<IReadOnlyCollection<TmAnalog>> GetTmTreeAnalogs(int channelId, int rtuId);
 
-    Task<ReadOnlyCollection<TmStatus>> GetPresentAps();
+    Task<IReadOnlyCollection<TmStatus>> GetPresentAps();
     
-    Task<ReadOnlyCollection<TmStatus>> GetUnackedAps();
+    Task<IReadOnlyCollection<TmStatus>> GetUnackedAps();
 
-    Task<ReadOnlyCollection<TmStatus>> GetAbnormalStatuses();
+    Task<IReadOnlyCollection<TmStatus>> GetAbnormalStatuses();
 
-    Task<ReadOnlyCollection<TmAlarm>> GetPresentAlarms();
+    Task<IReadOnlyCollection<TmAlarm>> GetPresentAlarms();
 
-    Task<ReadOnlyCollection<TmAlarm>> GetAnalogAlarms(TmAnalog analog);
+    Task<IReadOnlyCollection<TmAlarm>> GetAnalogAlarms(TmAnalog analog);
     
-    Task<ReadOnlyCollection<TmStatus>> LookupStatuses(TmStatusFilter filter);
+    Task<IReadOnlyCollection<TmStatus>> LookupStatuses(TmStatusFilter filter);
     
-    Task<ReadOnlyCollection<TmAnalog>> LookupAnalogs(TmAnalogFilter filter);
+    Task<IReadOnlyCollection<TmAnalog>> LookupAnalogs(TmAnalogFilter filter);
     
     Task<bool> UpdateAckedEventsIfAny(IReadOnlyList<TmEvent> tmEvents);
     

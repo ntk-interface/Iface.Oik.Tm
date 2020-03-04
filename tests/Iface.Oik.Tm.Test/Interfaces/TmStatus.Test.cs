@@ -227,8 +227,8 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, TmAutoData]
-      public void ReturnsTrueForNullWhenNull(int ch, int rtu, int point)
+      [Fact]
+      public void ReturnsTrueForNullWhenNull()
       {
         TmStatus tmStatus1 = null;
 
