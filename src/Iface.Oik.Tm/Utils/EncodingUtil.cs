@@ -23,14 +23,23 @@ namespace Iface.Oik.Tm.Utils
       return utf8.GetString(Encoding.Convert(win1251, utf8, win1251.GetBytes(src)));
     }
 
-
     public static string Cp866ToUtf8(string src)
+    {
+      if (src == null) return null;
+      
+      var cp866 = Encoding.GetEncoding(866);
+      return Cp866BytesToUtf8String(cp866.GetBytes(src));
+    }
+    
+    
+    public static string Cp866BytesToUtf8String(byte[] src)
     {
       if (src == null) return null;
 
       var utf8  = Encoding.UTF8;
       var cp866 = Encoding.GetEncoding(866);
-      return utf8.GetString(Encoding.Convert(cp866, utf8, cp866.GetBytes(src)));
+      return utf8.GetString(Encoding.Convert(cp866, utf8, src));
     }
+    
   }
 }
