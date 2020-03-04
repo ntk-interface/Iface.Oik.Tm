@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
 namespace Iface.Oik.Tm.Interfaces
@@ -20,41 +21,41 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task UpdateAnalog(TmAnalog analog);
 
-    Task UpdateStatuses(IList<TmStatus> statuses);
+    Task UpdateStatuses(IReadOnlyList<TmStatus> statuses);
 
-    Task UpdateAnalogs(IList<TmAnalog> analogs);
+    Task UpdateAnalogs(IReadOnlyList<TmAnalog> analogs);
 
-    Task UpdateTagsPropertiesAndClassData(IEnumerable<TmTag> tags);
+    Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags);
 
     Task UpdateTagPropertiesAndClassData(TmTag tag);
 
-    Task<IEnumerable<TmEvent>> GetArchEvents(TmEventFilter filter);
+    Task<ReadOnlyCollection<TmEvent>> GetArchEvents(TmEventFilter filter);
 
-    Task<(IEnumerable<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix);
+    Task<(ReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix);
 
-    Task<IEnumerable<TmChannel>> GetTmTreeChannels();
+    Task<ReadOnlyCollection<TmChannel>> GetTmTreeChannels();
 
-    Task<IEnumerable<TmRtu>> GetTmTreeRtus(int channelId);
+    Task<ReadOnlyCollection<TmRtu>> GetTmTreeRtus(int channelId);
 
-    Task<IEnumerable<TmStatus>> GetTmTreeStatuses(int channelId, int rtuId);
+    Task<ReadOnlyCollection<TmStatus>> GetTmTreeStatuses(int channelId, int rtuId);
 
-    Task<IEnumerable<TmAnalog>> GetTmTreeAnalogs(int channelId, int rtuId);
+    Task<ReadOnlyCollection<TmAnalog>> GetTmTreeAnalogs(int channelId, int rtuId);
 
-    Task<IEnumerable<TmStatus>> GetPresentAps();
+    Task<ReadOnlyCollection<TmStatus>> GetPresentAps();
     
-    Task<IEnumerable<TmStatus>> GetUnackedAps();
+    Task<ReadOnlyCollection<TmStatus>> GetUnackedAps();
 
-    Task<IEnumerable<TmStatus>> GetAbnormalStatuses();
-    
-    Task<IEnumerable<TmStatus>> LookupStatuses(TmStatusFilter filter);
-    
-    Task<IEnumerable<TmAnalog>> LookupAnalogs(TmAnalogFilter filter);
+    Task<ReadOnlyCollection<TmStatus>> GetAbnormalStatuses();
 
-    Task<IEnumerable<TmAlarm>> GetPresentAlarms();
+    Task<ReadOnlyCollection<TmAlarm>> GetPresentAlarms();
 
-    Task<IEnumerable<TmAlarm>> GetAnalogAlarms(TmAnalog analog);
+    Task<ReadOnlyCollection<TmAlarm>> GetAnalogAlarms(TmAnalog analog);
     
-    Task<bool> UpdateAckedEventsIfAny(IList<TmEvent> tmEvents);
+    Task<ReadOnlyCollection<TmStatus>> LookupStatuses(TmStatusFilter filter);
+    
+    Task<ReadOnlyCollection<TmAnalog>> LookupAnalogs(TmAnalogFilter filter);
+    
+    Task<bool> UpdateAckedEventsIfAny(IReadOnlyList<TmEvent> tmEvents);
     
     Task<bool> HasPresentAps();
     

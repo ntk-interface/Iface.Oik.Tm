@@ -37,7 +37,7 @@ namespace ConsoleApp
     public async Task DoWork()
     {
       Console.WriteLine(_infr.TmUserInfo?.Name);
-      Console.WriteLine(await _api.GetSystemTimeString(DataApiPreference.Sql));
+      Console.WriteLine(await _api.GetSystemTimeString());
 
       var ts = new TmStatus(20, 1, 1);
       var ti = new TmAnalog(20, 1, 1);

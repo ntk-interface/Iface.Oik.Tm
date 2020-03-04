@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 using System.Text;
 using Iface.Oik.Tm.Native.Interfaces;
@@ -28,7 +29,7 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static IEnumerable<string> GetStringListFromDoubleNullTerminatedChars(char[] chars)
+    public static string[] GetStringListFromDoubleNullTerminatedChars(char[] chars)
     {
       var s          = new string(chars);
       int doubleNull = s.IndexOf("\0\0", StringComparison.Ordinal);
@@ -40,7 +41,7 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static IEnumerable<string> GetStringListFromDoubleNullTerminatedBytes(byte[] bytes)
+    public static string[] GetStringListFromDoubleNullTerminatedBytes(byte[] bytes)
     {
       int doubleNull = 0;
       for (var i = 1; i < bytes.Length; i++)
@@ -60,9 +61,9 @@ namespace Iface.Oik.Tm.Native.Utils
 
 
     public static byte[] GetDoubleNullTerminatedBytesFromStringList(IEnumerable<string> list,
-                                                                    int maxSize = 1024)
+                                                                    int                 maxSize = 1024)
     {
-      var bytes = new byte[maxSize];
+      var bytes  = new byte[maxSize];
       var cursor = 0;
 
       foreach (var str in list)
@@ -70,20 +71,20 @@ namespace Iface.Oik.Tm.Native.Utils
         var strBytes = Encoding.GetEncoding(1251).GetBytes(str);
         Array.Copy(strBytes, 0, bytes, cursor, strBytes.Length);
         cursor += strBytes.Length;
-        
+
         bytes[cursor] = 0;
         cursor++;
       }
 
       var result = new byte[cursor + 1]; // на конце второй ноль
       Array.Copy(bytes, result, cursor);
-      
+
       return result;
     }
 
 
-    public static IEnumerable<string> GetStringListFromDoubleNullTerminatedPointer(IntPtr ptr, 
-                                                                                   int maxSize)
+    public static ReadOnlyCollection<string> GetStringListFromDoubleNullTerminatedPointer(IntPtr ptr,
+                                                                                          int    maxSize)
     {
       var result = new List<string>();
 
@@ -111,7 +112,7 @@ namespace Iface.Oik.Tm.Native.Utils
         stringBytes[stringCursor++] = marshalBytes[0];
         isNullFound                 = false;
       }
-      return result;
+      return result.AsReadOnly();
     }
 
 
@@ -128,7 +129,7 @@ namespace Iface.Oik.Tm.Native.Utils
       return result;
     }
 
-    
+
     public static TmNativeDefs.StatusData GetStatusDataFromTEvent(TmNativeDefs.TEvent tEvent)
     {
       if (tEvent.Data == null)
@@ -138,6 +139,7 @@ namespace Iface.Oik.Tm.Native.Utils
       return FromBytes<TmNativeDefs.StatusData>(tEvent.Data);
     }
 
+
     public static TmNativeDefs.AlarmData GetAlarmDataFromTEvent(TmNativeDefs.TEvent tEvent)
     {
       if (tEvent.Data == null)
@@ -146,7 +148,8 @@ namespace Iface.Oik.Tm.Native.Utils
       }
       return FromBytes<TmNativeDefs.AlarmData>(tEvent.Data);
     }
-    
+
+
     public static TmNativeDefs.AnalogSetData GetAnalogSetDataFromTEvent(TmNativeDefs.TEvent tEvent)
     {
       if (tEvent.Data == null)
@@ -155,7 +158,8 @@ namespace Iface.Oik.Tm.Native.Utils
       }
       return FromBytes<TmNativeDefs.AnalogSetData>(tEvent.Data);
     }
-    
+
+
     public static TmNativeDefs.ControlData GetControlDataFromTEvent(TmNativeDefs.TEvent tEvent)
     {
       if (tEvent.Data == null)
@@ -165,6 +169,7 @@ namespace Iface.Oik.Tm.Native.Utils
       return FromBytes<TmNativeDefs.ControlData>(tEvent.Data);
     }
 
+
     public static TmNativeDefs.AcknowledgeData GetAcknowledgeDataFromTEvent(TmNativeDefs.TEvent tEvent)
     {
       if (tEvent.Data == null)
@@ -173,7 +178,8 @@ namespace Iface.Oik.Tm.Native.Utils
       }
       return FromBytes<TmNativeDefs.AcknowledgeData>(tEvent.Data);
     }
-    
+
+
     public static TmNativeDefs.StrBinData GetStrBinData(TmNativeDefs.TEvent tEvent)
     {
       if (tEvent.Data == null)
@@ -182,7 +188,7 @@ namespace Iface.Oik.Tm.Native.Utils
       }
       return FromBytes<TmNativeDefs.StrBinData>(tEvent.Data);
     }
-    
+
 
     public static byte[] GetBytes<T>(T structure) where T : struct
     {

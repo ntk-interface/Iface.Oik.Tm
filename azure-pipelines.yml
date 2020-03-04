@@ -1,8 +1,8 @@
 name: $(majorVersion).$(minorVersion).$(patchVersion)
 
 variables:
-  majorVersion: 1
-  minorVersion: 0
+  majorVersion: 0
+  minorVersion: 2
   patchVersion: $[counter(format('{0}.{1}', variables['majorVersion'], variables['minorVersion']), 0)]
   buildConfiguration: Release
 
