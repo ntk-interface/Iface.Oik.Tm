@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using Iface.Oik.Tm.Native.Interfaces;
@@ -198,6 +199,15 @@ namespace Iface.Oik.Tm.Native.Utils
         handle.Free();
       }
       return bytes;
+    }
+
+
+    public static string GetStringFromStrBinBytes(byte[] strBin)
+    {
+      return Encoding.GetEncoding(1251)
+                     .GetString(strBin)
+                     .Split(new[] {'\0'})
+                     .FirstOrDefault();
     }
 
 
