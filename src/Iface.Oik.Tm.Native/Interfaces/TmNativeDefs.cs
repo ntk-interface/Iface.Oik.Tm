@@ -294,7 +294,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt16 Rtu;
       public UInt16 Point;
 
-      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 22)]
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2048)]
       public byte[] Data;
     }
 
@@ -435,7 +435,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
     {
       public UInt32 Source;
 
-      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 97)]
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2044)]
       public byte[] StrBin;
     }
 
