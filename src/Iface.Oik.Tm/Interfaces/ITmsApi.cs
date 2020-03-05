@@ -234,9 +234,9 @@ namespace Iface.Oik.Tm.Interfaces
                             string localPath);
 
 
-    Task<bool> SetTagFlagsExplicitly(TmTag tag, TmFlags flags);
+    Task SetTagFlagsExplicitly(TmTag tag, TmFlags flags);
 
 
-    Task<bool> ClearTagFlagsExplicitly(TmTag tag, TmFlags flags);
+    Task ClearTagFlagsExplicitly(TmTag tag, TmFlags flags);
   }
 }
