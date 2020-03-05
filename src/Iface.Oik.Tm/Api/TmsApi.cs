@@ -1821,5 +1821,106 @@ namespace Iface.Oik.Tm.Api
 
       return result == TmNativeDefs.Success;
     }
+    
+    public async Task<IEnumerable<TmEvent>> GetEventsByElix(TmEventFilter filter) // TODO unit test
+    {
+      if (filter.StartTime == null || filter.EndTime == null)
+      {
+        throw new Exception("Не задано время начало и конца архива событий");
+      }
+
+      long startTime  = _native.UxGmTime2UxTime(DateUtil.GetUtcTimestampFromDateTime(filter.StartTime.Value));
+      long endTime    = _native.UxGmTime2UxTime(DateUtil.GetUtcTimestampFromDateTime(filter.EndTime.Value));
+      var  elix       = new TmNativeDefs.TTMSElix();
+      var  eventsList = new List<TmEvent>();
+      
+      var i = 0;
+      var tmcEventsElixPtr = await Task.Run( () => _native.TmcEventLogByElix(_cid,
+                                                                      ref elix,
+                                                                      (ushort) filter.Types,
+                                                                      (uint) startTime,
+                                                                      (uint) endTime))
+                                       .ConfigureAwait(false);
+
+      
+      while (tmcEventsElixPtr != IntPtr.Zero)
+      {
+        var currentPtr = tmcEventsElixPtr;
+        while (currentPtr != IntPtr.Zero)
+        {
+          var tmcEventElix = Marshal.PtrToStructure<TmNativeDefs.TEventElix>(currentPtr);
+
+          var sourceObjectName = await GetEventSourceObjectName(tmcEventElix.Event)
+                                   .ConfigureAwait(false);
+          
+          
+          var tmEvent = TmEvent.CreateFromTEventElix(tmcEventElix, sourceObjectName);
+          
+          eventsList.Add(tmEvent);
+          currentPtr = tmcEventElix.Next;
+          i++;
+        }
+          
+        _native.TmcFreeMemory(tmcEventsElixPtr);
+
+        i = 0;
+        tmcEventsElixPtr = await Task.Run( () => _native.TmcEventLogByElix(_cid,
+                                                                           ref elix,
+                                                                           (ushort) filter.Types,
+                                                                           (uint) startTime,
+                                                                           (uint) endTime))
+                                     .ConfigureAwait(false);
+      }
+
+      return eventsList;
+    }
+
+    public async Task<string> GetEventSourceObjectName(TmNativeDefs.TEvent tEvent)
+    {
+      var buf = new StringBuilder(1024);
+      var eventType = (TmEventTypes) tEvent.Id;
+      switch (eventType)
+      {
+        case TmEventTypes.StatusChange:
+        case TmEventTypes.ManualStatusSet:
+        case TmEventTypes.Control:
+          await Task.Run(() => _native.TmcGetObjectName(_cid, 
+                                                       (ushort) TmNativeDefs.TmDataTypes.Status, 
+                                                       (short) tEvent.Ch, 
+                                                       (short) tEvent.Rtu, 
+                                                       (short) tEvent.Point, 
+                                                       ref buf, 
+                                                       1024))
+                    .ConfigureAwait(false);
+          return buf.ToString();
+        
+        case TmEventTypes.Alarm:
+        case TmEventTypes.ManualAnalogSet:
+          await Task.Run(() => _native.TmcGetObjectName(_cid, 
+                                                        (ushort) TmNativeDefs.TmDataTypes.Analog, 
+                                                        (short) tEvent.Ch, 
+                                                        (short) tEvent.Rtu, 
+                                                        (short) tEvent.Point, 
+                                                        ref buf, 
+                                                        1024))
+                    .ConfigureAwait(false);
+          return buf.ToString();
+        
+        case TmEventTypes.Acknowledge:
+          var ackData = TmNativeUtil.GetAcknowledgeDataFromTEvent(tEvent);
+          await Task.Run(() => _native.TmcGetObjectName(_cid, 
+                                                        ackData.TmType, 
+                                                        (short) tEvent.Ch, 
+                                                        (short) tEvent.Rtu, 
+                                                        (short) tEvent.Point, 
+                                                        ref buf, 
+                                                        1024))
+                    .ConfigureAwait(false);
+          return buf.ToString();
+        
+        default: 
+          return "";
+      }
+    }
   }
 }
