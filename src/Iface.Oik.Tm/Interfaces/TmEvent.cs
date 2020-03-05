@@ -166,7 +166,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public static TmEvent CreateFromTEventElix(TmNativeDefs.TEventElix tEventElix)
+    public static TmEvent CreateFromTEventElix(TmNativeDefs.TEventElix tEventElix, string sourceObjectName)
     {
       var tmEventElix = new TmEventElix(tEventElix.Elix.R, tEventElix.Elix.M);
       var tmEventType = (TmEventTypes) tEventElix.Event.Id;
@@ -179,6 +179,7 @@ namespace Iface.Oik.Tm.Interfaces
         Importance   = tEventElix.Event.Imp,
         TmAddrString = GetTmAddrStringFromTEvent(tEventElix.Event),
         TmAddrType   = GetTmTypeFromTEvent(tEventElix.Event),
+        Text = sourceObjectName,
       };
 
       switch (tmEventType)
@@ -187,7 +188,7 @@ namespace Iface.Oik.Tm.Interfaces
           var                  statusData = TmNativeUtil.GetStatusDataFromTEvent(tEventElix.Event);
           var                  isS2Only   = false;
           TmNativeDefs.S2Flags s2         = 0x0000;
-          tmEvent.TypeString = statusData.Class != 1 ? "А.П.С." : "ТС";
+          tmEvent.TypeString = statusData.Class == 1 ? "А.П.С." : "ТС";
 
           if ((statusData.ExtSig & TmNativeDefs.ExtendedDataSignature) == TmNativeDefs.ExtendedDataSignature)
           {
@@ -257,21 +258,21 @@ namespace Iface.Oik.Tm.Interfaces
         case TmEventTypes.ManualAnalogSet:
           var analogSetData = TmNativeUtil.GetAnalogSetDataFromTEvent(tEventElix.Event);
           tmEvent.TypeString  = "РУЧ. ТИТ";
-          tmEvent.Username    = System.Text.Encoding.Default.GetString(analogSetData.UserName);
+          tmEvent.Username    = EncodingUtil.Cp866BytesToUtf8String(analogSetData.UserName);
           tmEvent.StateString = $"{analogSetData.Value} - {(analogSetData.Cmd == 0 ? "Снято" : "Установлено")}";
           break;
 
         case TmEventTypes.ManualStatusSet: //TODO: Изучить вопрос, не стоит ли сделать как в клиенте
           var mSData = TmNativeUtil.GetControlDataFromTEvent(tEventElix.Event);
           tmEvent.TypeString  = "РУЧ. ТС";
-          tmEvent.Username    = System.Text.Encoding.Default.GetString(mSData.UserName);
+          tmEvent.Username    = EncodingUtil.Cp866BytesToUtf8String(mSData.UserName);
           tmEvent.StateString = mSData.Cmd == 1 ? "ВКЛ" : "ОТКЛ";
           break;
 
         case TmEventTypes.Control:
           var controlData = TmNativeUtil.GetControlDataFromTEvent(tEventElix.Event);
           tmEvent.TypeString  = "ТУ";
-          tmEvent.Username    = System.Text.Encoding.Default.GetString(controlData.UserName);
+          tmEvent.Username    = EncodingUtil.Cp866BytesToUtf8String(controlData.UserName);
           tmEvent.StateString = controlData.Cmd == 1 ? "ВКЛ" : "ОТКЛ";
           if (controlData.Result != TmNativeDefs.Success)
           {
@@ -283,7 +284,7 @@ namespace Iface.Oik.Tm.Interfaces
         case TmEventTypes.Acknowledge:
           var ackData = TmNativeUtil.GetAcknowledgeDataFromTEvent(tEventElix.Event);
           tmEvent.TypeString = "КВИТИРОВАНИЕ";
-          tmEvent.Username   = System.Text.Encoding.Default.GetString(ackData.UserName);
+          tmEvent.Username   = EncodingUtil.Cp866BytesToUtf8String(ackData.UserName);
           if (tEventElix.Event.Point == 0)
           {
             tmEvent.Text = "ОБЩЕЕ";
@@ -294,9 +295,7 @@ namespace Iface.Oik.Tm.Interfaces
           var strBinData   = TmNativeUtil.GetStrBinData(tEventElix.Event);
           var extendedType = (TmNativeDefs.ExtendedEventTypes) tEventElix.Event.Ch;
           tmEvent.TypeString = GetTypeStringByExtendedTypeString(extendedType);
-          tmEvent.StateString = System.Text.Encoding.Default.GetString(strBinData.StrBin,
-                                                                       0,
-                                                                       tEventElix.Event.Rtu);
+          tmEvent.Text = TmNativeUtil.GetStringFromStrBinBytes(strBinData.StrBin);
 
           switch (extendedType)
           {
