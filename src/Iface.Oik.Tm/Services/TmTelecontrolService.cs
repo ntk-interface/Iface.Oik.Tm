@@ -40,14 +40,15 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
-    public async Task<(bool, IReadOnlyList<TmControlScriptCondition>)> CheckScript(TmStatus tmStatus)
+    public async Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckScript(TmStatus tmStatus)
     {
       return await _api.CheckTelecontrolScript(tmStatus);
     }
 
 
-    public async Task<(bool, IReadOnlyList<TmControlScriptCondition>)> CheckScriptExplicitly(TmStatus tmStatus,
-                                                                                             int      explicitNewStatus)
+    public async Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckScriptExplicitly(TmStatus tmStatus,
+                                                                                                   int
+                                                                                                     explicitNewStatus)
     {
       return await _api.CheckTelecontrolScriptExplicitly(tmStatus, explicitNewStatus);
     }

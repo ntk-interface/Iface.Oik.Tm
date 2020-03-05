@@ -1,5 +1,4 @@
-﻿using AutoFixture.Xunit2;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Iface.Oik.Tm.Interfaces;
 using Xunit;
 
@@ -9,7 +8,7 @@ namespace Iface.Oik.Tm.Test.Services
   {
     public class Constructor
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void SetsCorrectValues(int userId, string userName, string keyId, byte group, byte[] permissionBytes)
       {
         var userInfo = new TmUserInfo(userId, userName, keyId, group, permissionBytes);
@@ -25,10 +24,10 @@ namespace Iface.Oik.Tm.Test.Services
     public class HasAccessMethod
     {
       [Theory]
-      [InlineAutoData(new byte[] {1, 0, 1}, (TmUserPermissions) 0,    true)]
-      [InlineAutoData(new byte[] {1, 0, 1}, (TmUserPermissions) 1,    false)]
-      [InlineAutoData(new byte[] {1, 0, 1}, (TmUserPermissions) 2,    true)]
-      [InlineAutoData(new byte[] {1, 0, 1}, (TmUserPermissions) 1000, false)]
+      [TmInlineAutoData(new byte[] {1, 0, 1}, (TmUserPermissions) 0,    true)]
+      [TmInlineAutoData(new byte[] {1, 0, 1}, (TmUserPermissions) 1,    false)]
+      [TmInlineAutoData(new byte[] {1, 0, 1}, (TmUserPermissions) 2,    true)]
+      [TmInlineAutoData(new byte[] {1, 0, 1}, (TmUserPermissions) 1000, false)]
       public void ReturnsCorrectValues(byte[]            permissionBytes,
                                        TmUserPermissions permission,
                                        bool              expected,

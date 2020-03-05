@@ -1,7 +1,6 @@
 using System;
 using FluentAssertions;
 using Iface.Oik.Tm.Utils;
-using NSubstitute;
 using Xunit;
 
 namespace Iface.Oik.Tm.Test.Utils

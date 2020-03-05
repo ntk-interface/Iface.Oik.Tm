@@ -1,14 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using AutoFixture.Xunit2;
+using FakeItEasy;
+using FluentAssertions;
 using Iface.Oik.Tm.Utils;
 using Xunit;
 
 namespace Iface.Oik.Tm.Test.Utils
 {
-  public class EnumerableExtensions
+  public class EnumerableExtensionsTest
   {
-    private struct Dummy
+    private class Dummy
     {
       public int X;
       public int Y;
@@ -18,53 +20,44 @@ namespace Iface.Oik.Tm.Test.Utils
     private const int DummyCount = 3;
 
 
-    private static IEnumerable<Dummy> GetDummyList()
-    {
-      for (var i = 0; i < DummyCount; i++)
-      {
-        yield return new Dummy();
-      }
-    }
-
-
     public class ForEachMethod
     {
-      [Theory, AutoData]
-      public void SetsCorrectValues(int expectedX, int expectedY)
+      [Theory, TmAutoData]
+      public void SetsCorrectValues(int x, int y)
       {
-        var steps = 0;
+        var dummies = A.CollectionOfDummy<Dummy>(DummyCount);
+        var steps   = 0;
 
-        GetDummyList().ForEach(dummy =>
+        dummies.ForEach(dummy =>
         {
-          dummy.X = expectedX;
-          dummy.Y = expectedY;
-          Assert.Equal(expectedX, dummy.X);
-          Assert.Equal(expectedY, dummy.Y);
+          dummy.X = x;
+          dummy.Y = y;
           steps++;
         });
 
-        Assert.Equal(DummyCount, steps);
+        dummies.Should().AllBeEquivalentTo(new Dummy {X = x, Y = y});
+        steps.Should().Be(DummyCount);
       }
 
 
       public class ForEachWithIndexMethod
       {
-        [Theory, AutoData]
-        public void SetsCorrectValues(int expectedX, int expectedY)
+        [Theory, TmAutoData]
+        public void SetsCorrectValues(int x, int y)
         {
-          var steps = 0;
+          var dummies = A.CollectionOfDummy<Dummy>(DummyCount);
+          var steps   = 0;
 
-          GetDummyList().ForEach((dummy, index) =>
+          dummies.ForEach((dummy, index) =>
           {
-            dummy.X = expectedX;
-            dummy.Y = expectedY;
-            Assert.Equal(expectedX, dummy.X);
-            Assert.Equal(expectedY, dummy.Y);
-            Assert.Equal(index,     steps);
+            dummy.X = x;
+            dummy.Y = y;
+            index.Should().Be(steps);
             steps++;
           });
 
-          Assert.Equal(DummyCount, steps);
+          dummies.Should().AllBeEquivalentTo(new Dummy {X = x, Y = y});
+          steps.Should().Be(DummyCount);
         }
       }
     }
@@ -80,10 +73,10 @@ namespace Iface.Oik.Tm.Test.Utils
         List<int>            list       = null;
         Dictionary<int, int> dictionary = null;
 
-        Assert.True(array.IsNullOrEmpty());
-        Assert.True(collection.IsNullOrEmpty());
-        Assert.True(list.IsNullOrEmpty());
-        Assert.True(dictionary.IsNullOrEmpty());
+        array.IsNullOrEmpty().Should().BeTrue();
+        collection.IsNullOrEmpty().Should().BeTrue();
+        list.IsNullOrEmpty().Should().BeTrue();
+        dictionary.IsNullOrEmpty().Should().BeTrue();
       }
 
 
@@ -95,25 +88,25 @@ namespace Iface.Oik.Tm.Test.Utils
         var list       = new List<int>();
         var dictionary = new Dictionary<int, int>();
 
-        Assert.True(array.IsNullOrEmpty());
-        Assert.True(collection.IsNullOrEmpty());
-        Assert.True(list.IsNullOrEmpty());
-        Assert.True(dictionary.IsNullOrEmpty());
+        array.IsNullOrEmpty().Should().BeTrue();
+        collection.IsNullOrEmpty().Should().BeTrue();
+        list.IsNullOrEmpty().Should().BeTrue();
+        dictionary.IsNullOrEmpty().Should().BeTrue();
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForNonEmpty(int dummy)
       {
-        var array      = new int[] { dummy };
+        var array      = new int[] {dummy};
         var collection = new Collection<int> {dummy};
         var list       = new List<int> {dummy};
         var dictionary = new Dictionary<int, int> {{dummy, dummy}};
 
-        Assert.False(array.IsNullOrEmpty());
-        Assert.False(collection.IsNullOrEmpty());
-        Assert.False(list.IsNullOrEmpty());
-        Assert.False(dictionary.IsNullOrEmpty());
+        array.IsNullOrEmpty().Should().BeFalse();
+        collection.IsNullOrEmpty().Should().BeFalse();
+        list.IsNullOrEmpty().Should().BeFalse();
+        dictionary.IsNullOrEmpty().Should().BeFalse();
       }
     }
   }

@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
+using FakeItEasy;
+using FluentAssertions;
 using Iface.Oik.Tm.Interfaces;
-using NSubstitute;
 using Xunit;
 
 namespace Iface.Oik.Tm.Test.Interfaces
@@ -17,22 +18,23 @@ namespace Iface.Oik.Tm.Test.Interfaces
       {
         var analog = new TmAnalogImpulseArchiveInstant(value, flags, unixTime, ms);
 
-        Assert.Equal(value,         analog.Value);
-        Assert.Equal(expectedFlags, analog.Flags);
-        Assert.Equal(expectedTime,  analog.Time.ToString(CultureInfo.InvariantCulture));
-        Assert.Equal(ms,            analog.Time.Millisecond);
-        Assert.False(analog.IsUnreliable);
+        analog.Value.Should().Be(value);
+        analog.Flags.Should().Be(expectedFlags);
+        analog.Time.ToString(CultureInfo.InvariantCulture).Should().Be(expectedTime);
+        analog.Time.Millisecond.Should().Be(ms);
+        analog.IsUnreliable.Should().BeFalse();
       }
 
 
       [Fact]
       public void SetsUnreliableForUnreliableFlag()
       {
-        var analog = new TmAnalogImpulseArchiveInstant(Arg.Any<float>(),
+        var analog = new TmAnalogImpulseArchiveInstant(A.Dummy<float>(),
                                                        0x01,
-                                                       Arg.Any<uint>(), Arg.Any<ushort>());
+                                                       A.Dummy<uint>(), 
+                                                       A.Dummy<ushort>());
 
-        Assert.True(analog.IsUnreliable);
+        analog.IsUnreliable.Should().BeTrue();
       }
     }
 
@@ -47,24 +49,28 @@ namespace Iface.Oik.Tm.Test.Interfaces
       {
         var analog = new TmAnalogImpulseArchiveAverage(avg, min, max, flags, unixTime, ms);
 
-        Assert.Equal(avg,           analog.AvgValue);
-        Assert.Equal(min,           analog.MinValue);
-        Assert.Equal(max,           analog.MaxValue);
-        Assert.Equal(expectedFlags, analog.Flags);
-        Assert.Equal(expectedTime,  analog.Time.ToString(CultureInfo.InvariantCulture));
-        Assert.Equal(ms,            analog.Time.Millisecond);
-        Assert.False(analog.IsUnreliable);
+        analog.Value.Should().Be(avg);
+        analog.AvgValue.Should().Be(avg);
+        analog.MinValue.Should().Be(min);
+        analog.MaxValue.Should().Be(max);
+        analog.Flags.Should().Be(expectedFlags);
+        analog.Time.ToString(CultureInfo.InvariantCulture).Should().Be(expectedTime);
+        analog.Time.Millisecond.Should().Be(ms);
+        analog.IsUnreliable.Should().BeFalse();
       }
 
 
       [Fact]
       public void SetsUnreliableForUnreliableFlag()
       {
-        var analog = new TmAnalogImpulseArchiveAverage(Arg.Any<float>(), Arg.Any<float>(), Arg.Any<float>(),
+        var analog = new TmAnalogImpulseArchiveAverage(A.Dummy<float>(), 
+                                                       A.Dummy<float>(), 
+                                                       A.Dummy<float>(),
                                                        0x01,
-                                                       Arg.Any<uint>(), Arg.Any<ushort>());
+                                                       A.Dummy<uint>(), 
+                                                       A.Dummy<ushort>());
 
-        Assert.True(analog.IsUnreliable);
+        analog.IsUnreliable.Should().BeTrue();
       }
     }
   }

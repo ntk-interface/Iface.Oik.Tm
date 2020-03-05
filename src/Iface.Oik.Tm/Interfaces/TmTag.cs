@@ -90,7 +90,7 @@ namespace Iface.Oik.Tm.Interfaces
     public bool IsClassDataLoaded => ClassId.HasValue ||
                                      ClassData != null;
 
-    public ushort TmcType
+    public ushort NativeType
     {
       get
       {

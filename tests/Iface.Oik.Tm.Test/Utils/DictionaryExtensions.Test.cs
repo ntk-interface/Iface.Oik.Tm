@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using FluentAssertions;
 using Iface.Oik.Tm.Utils;
 using Xunit;
 
@@ -25,8 +26,8 @@ namespace Iface.Oik.Tm.Test.Utils
         };
 
         var result = dict1.DictionaryEquals(dict2);
-        
-        Assert.True(result);
+
+        result.Should().BeTrue();
       }
 
 
@@ -42,8 +43,8 @@ namespace Iface.Oik.Tm.Test.Utils
         var dict2 = dict1;
 
         var result = dict1.DictionaryEquals(dict2);
-        
-        Assert.True(result);
+
+        result.Should().BeTrue();
       }
       
       
@@ -64,8 +65,8 @@ namespace Iface.Oik.Tm.Test.Utils
         };
 
         var result = dict1.DictionaryEquals(dict2);
-        
-        Assert.True(result);
+
+        result.Should().BeTrue();
       }
       
       [Fact]
@@ -80,8 +81,8 @@ namespace Iface.Oik.Tm.Test.Utils
         Dictionary<string, string> dict2 = null;
 
         var result = dict1.DictionaryEquals(dict2);
-        
-        Assert.False(result);
+
+        result.Should().BeFalse();
       }
       
       [Fact]
@@ -101,8 +102,8 @@ namespace Iface.Oik.Tm.Test.Utils
         };
 
         var result = dict1.DictionaryEquals(dict2);
-        
-        Assert.False(result);
+
+        result.Should().BeFalse();
       }
       
       [Fact]
@@ -122,8 +123,8 @@ namespace Iface.Oik.Tm.Test.Utils
         };
 
         var result = dict1.DictionaryEquals(dict2);
-        
-        Assert.False(result);
+
+        result.Should().BeFalse();
       }
       
       [Fact]
@@ -142,8 +143,8 @@ namespace Iface.Oik.Tm.Test.Utils
         };
 
         var result = dict1.DictionaryEquals(dict2);
-        
-        Assert.False(result);
+
+        result.Should().BeFalse();
       }
       
       [Fact]
@@ -162,8 +163,8 @@ namespace Iface.Oik.Tm.Test.Utils
         };
 
         var result = dict1.DictionaryEquals(dict2);
-        
-        Assert.False(result);
+
+        result.Should().BeFalse();
       }
     }
   }

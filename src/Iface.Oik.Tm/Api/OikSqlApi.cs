@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq;
 using System.Threading;
@@ -135,9 +136,9 @@ namespace Iface.Oik.Tm.Api
                               FROM oik_cur_ts
                               WHERE tma = @Tma";
           var parameters = new {Tma = status.TmAddr.ToSqlTma()};
-          var dto        = await sql.DbConnection
-                                    .QueryFirstOrDefaultAsync<TmStatusDto>(commandText, parameters)
-                                    .ConfigureAwait(false);
+          var dto = await sql.DbConnection
+                             .QueryFirstOrDefaultAsync<TmStatusDto>(commandText, parameters)
+                             .ConfigureAwait(false);
 
           status.UpdateWithDto(dto);
         }
@@ -166,9 +167,9 @@ namespace Iface.Oik.Tm.Api
                               FROM oik_cur_tt
                               WHERE tma = @Tma";
           var parameters = new {Tma = analog.TmAddr.ToSqlTma()};
-          var dto        = await sql.DbConnection
-                                    .QueryFirstOrDefaultAsync<TmAnalogDto>(commandText, parameters)
-                                    .ConfigureAwait(false);
+          var dto = await sql.DbConnection
+                             .QueryFirstOrDefaultAsync<TmAnalogDto>(commandText, parameters)
+                             .ConfigureAwait(false);
 
           analog.UpdateWithDto(dto);
         }
@@ -184,7 +185,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task UpdateStatuses(IList<TmStatus> statuses)
+    public async Task UpdateStatuses(IReadOnlyList<TmStatus> statuses)
     {
       if (statuses.IsNullOrEmpty()) return;
 
@@ -199,9 +200,9 @@ namespace Iface.Oik.Tm.Api
                 ON tma = t.a
               ORDER BY t.i";
           var parameters = new {TmaArray = statuses.Select(tag => tag.TmAddr.ToSqlTma()).ToArray()};
-          var dtos       = await sql.DbConnection
-                                    .QueryAsync<TmStatusDto>(commandText, parameters)
-                                    .ConfigureAwait(false);
+          var dtos = await sql.DbConnection
+                              .QueryAsync<TmStatusDto>(commandText, parameters)
+                              .ConfigureAwait(false);
 
           dtos.ForEach((dto, idx) => statuses[idx].UpdateWithDto(dto));
         }
@@ -217,7 +218,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task UpdateAnalogs(IList<TmAnalog> analogs)
+    public async Task UpdateAnalogs(IReadOnlyList<TmAnalog> analogs)
     {
       if (analogs.IsNullOrEmpty()) return;
 
@@ -232,9 +233,9 @@ namespace Iface.Oik.Tm.Api
               ON tma = t.a
             ORDER BY t.i";
           var parameters = new {TmaArray = analogs.Select(tag => tag.TmAddr.ToSqlTma()).ToArray()};
-          var dtos       = await sql.DbConnection
-                                    .QueryAsync<TmAnalogDto>(commandText, parameters)
-                                    .ConfigureAwait(false);
+          var dtos = await sql.DbConnection
+                              .QueryAsync<TmAnalogDto>(commandText, parameters)
+                              .ConfigureAwait(false);
 
           dtos.ForEach((dto, idx) => analogs[idx].UpdateWithDto(dto));
         }
@@ -250,24 +251,24 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task UpdateTagsPropertiesAndClassData(IEnumerable<TmTag> tags)
+    public async Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags)
     {
       if (tags == null) return;
 
       switch (tags)
       {
-        case IEnumerable<TmStatus> statuses:
-          await UpdateStatusesPropertiesAndClassData(statuses.ToList()).ConfigureAwait(false);
+        case IReadOnlyList<TmStatus> statuses:
+          await UpdateStatusesPropertiesAndClassData(statuses).ConfigureAwait(false);
           return;
 
-        case IEnumerable<TmAnalog> analogs:
-          await UpdateAnalogsPropertiesAndClassData(analogs.ToList()).ConfigureAwait(false);
+        case IReadOnlyList<TmAnalog> analogs:
+          await UpdateAnalogsPropertiesAndClassData(analogs).ConfigureAwait(false);
           return;
       }
     }
 
 
-    private async Task UpdateStatusesPropertiesAndClassData(IList<TmStatus> statuses)
+    private async Task UpdateStatusesPropertiesAndClassData(IReadOnlyList<TmStatus> statuses)
     {
       if (statuses.IsNullOrEmpty()) return;
 
@@ -286,9 +287,9 @@ namespace Iface.Oik.Tm.Api
                 ON tma = t.a
               ORDER BY t.i";
           var parameters = new {TmaArray = statuses.Select(tag => tag.TmAddr.ToSqlTma()).ToArray()};
-          var dtos       = await sql.DbConnection
-                                    .QueryAsync<TmStatusPropertiesDto>(commandText, parameters)
-                                    .ConfigureAwait(false);
+          var dtos = await sql.DbConnection
+                              .QueryAsync<TmStatusPropertiesDto>(commandText, parameters)
+                              .ConfigureAwait(false);
 
           dtos.ForEach((dto, idx) => statuses[idx].UpdatePropertiesWithDto(dto));
         }
@@ -304,7 +305,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    private async Task UpdateAnalogsPropertiesAndClassData(IList<TmAnalog> analogs)
+    private async Task UpdateAnalogsPropertiesAndClassData(IReadOnlyList<TmAnalog> analogs)
     {
       if (analogs.IsNullOrEmpty()) return;
 
@@ -319,9 +320,9 @@ namespace Iface.Oik.Tm.Api
               ON tma = t.a
             ORDER BY t.i";
           var parameters = new {TmaArray = analogs.Select(tag => tag.TmAddr.ToSqlTma()).ToArray()};
-          var dtos       = await sql.DbConnection
-                                    .QueryAsync<TmAnalogPropertiesDto>(commandText, parameters)
-                                    .ConfigureAwait(false);
+          var dtos = await sql.DbConnection
+                              .QueryAsync<TmAnalogPropertiesDto>(commandText, parameters)
+                              .ConfigureAwait(false);
 
           dtos.ForEach((dto, idx) => analogs[idx].UpdatePropertiesWithDto(dto));
         }
@@ -371,9 +372,9 @@ namespace Iface.Oik.Tm.Api
               FROM oik_cur_ts
               WHERE tma = @Tma";
           var parameters = new {Tma = status.TmAddr.ToSqlTma()};
-          var dto        = await sql.DbConnection
-                                    .QueryFirstAsync<TmStatusPropertiesDto>(commandText, parameters)
-                                    .ConfigureAwait(false);
+          var dto = await sql.DbConnection
+                             .QueryFirstAsync<TmStatusPropertiesDto>(commandText, parameters)
+                             .ConfigureAwait(false);
 
           status.UpdatePropertiesWithDto(dto);
         }
@@ -404,9 +405,9 @@ namespace Iface.Oik.Tm.Api
                               FROM oik_cur_tt
                               WHERE tma = @Tma";
           var parameters = new {Tma = analog.TmAddr.ToSqlTma()};
-          var dto        = await sql.DbConnection
-                                    .QueryFirstAsync<TmAnalogPropertiesDto>(commandText, parameters)
-                                    .ConfigureAwait(false);
+          var dto = await sql.DbConnection
+                             .QueryFirstAsync<TmAnalogPropertiesDto>(commandText, parameters)
+                             .ConfigureAwait(false);
 
           analog.UpdatePropertiesWithDto(dto);
         }
@@ -422,7 +423,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IEnumerable<TmChannel>> GetTmTreeChannels()
+    public async Task<IReadOnlyCollection<TmChannel>> GetTmTreeChannels()
     {
       try
       {
@@ -430,9 +431,11 @@ namespace Iface.Oik.Tm.Api
         {
           await sql.OpenAsync().ConfigureAwait(false);
           var commandText = "SELECT ch AS ChannelId, name AS Name FROM oik_chn ORDER BY ch";
-          return await sql.DbConnection
-                          .QueryAsync<TmChannel>(commandText)
-                          .ConfigureAwait(false);
+          var channels = await sql.DbConnection
+                                  .QueryAsync<TmChannel>(commandText)
+                                  .ConfigureAwait(false);
+
+          return channels.ToList();
         }
       }
       catch (NpgsqlException ex)
@@ -448,7 +451,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IEnumerable<TmRtu>> GetTmTreeRtus(int channelId)
+    public async Task<IReadOnlyCollection<TmRtu>> GetTmTreeRtus(int channelId)
     {
       if (channelId < 0 || channelId > 254) return null;
 
@@ -459,9 +462,11 @@ namespace Iface.Oik.Tm.Api
           await sql.OpenAsync().ConfigureAwait(false);
           var commandText = "SELECT @Ch AS ChannelId, rtu AS RtuId, name AS Name FROM oik_rtu WHERE ch = @Ch";
           var parameters  = new {Ch = channelId};
-          return await sql.DbConnection
-                          .QueryAsync<TmRtu>(commandText, parameters)
-                          .ConfigureAwait(false);
+          var rtus = await sql.DbConnection
+                              .QueryAsync<TmRtu>(commandText, parameters)
+                              .ConfigureAwait(false);
+
+          return rtus.ToList();
         }
       }
       catch (NpgsqlException ex)
@@ -477,7 +482,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IEnumerable<TmStatus>> GetTmTreeStatuses(int channelId, int rtuId)
+    public async Task<IReadOnlyCollection<TmStatus>> GetTmTreeStatuses(int channelId, int rtuId)
     {
       if (channelId < 0 || channelId > 254 ||
           rtuId     < 1 || rtuId     > 255)
@@ -500,11 +505,12 @@ namespace Iface.Oik.Tm.Api
                               FROM oik_cur_ts
                               WHERE ch = @Ch AND rtu = @Rtu";
           var parameters = new {Ch = channelId, Rtu = rtuId};
-          var dtos       = await sql.DbConnection
-                                    .QueryAsync<TmStatusTmTreeDto>(commandText, parameters)
-                                    .ConfigureAwait(false);
+          var dtos = await sql.DbConnection
+                              .QueryAsync<TmStatusTmTreeDto>(commandText, parameters)
+                              .ConfigureAwait(false);
 
-          return dtos.Select(TmStatus.CreateFromTmTreeDto);
+          return dtos.Select(TmStatus.CreateFromTmTreeDto)
+                     .ToList();
         }
       }
       catch (NpgsqlException ex)
@@ -520,7 +526,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IEnumerable<TmAnalog>> GetTmTreeAnalogs(int channelId, int rtuId)
+    public async Task<IReadOnlyCollection<TmAnalog>> GetTmTreeAnalogs(int channelId, int rtuId)
     {
       if (channelId < 0 || channelId > 254 ||
           rtuId     < 1 || rtuId     > 255)
@@ -539,11 +545,12 @@ namespace Iface.Oik.Tm.Api
                               FROM oik_cur_tt
                               WHERE ch = @Ch AND rtu = @Rtu";
           var parameters = new {Ch = channelId, Rtu = rtuId};
-          var dtos       = await sql.DbConnection
-                                    .QueryAsync<TmAnalogTmTreeDto>(commandText, parameters)
-                                    .ConfigureAwait(false);
+          var dtos = await sql.DbConnection
+                              .QueryAsync<TmAnalogTmTreeDto>(commandText, parameters)
+                              .ConfigureAwait(false);
 
-          return dtos.Select(TmAnalog.CreateFromTmTreeDto);
+          return dtos.Select(TmAnalog.CreateFromTmTreeDto)
+                     .ToList();
         }
       }
       catch (NpgsqlException ex)
@@ -559,7 +566,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IEnumerable<TmStatus>> GetPresentAps()
+    public async Task<IReadOnlyCollection<TmStatus>> GetPresentAps()
     {
       try
       {
@@ -582,7 +589,8 @@ namespace Iface.Oik.Tm.Api
                               .QueryAsync<TmStatusTmTreeDto>(commandText, parameters)
                               .ConfigureAwait(false);
 
-          return dtos.Select(TmStatus.CreateFromTmTreeDto);
+          return dtos.Select(TmStatus.CreateFromTmTreeDto)
+                     .ToList();
         }
       }
       catch (NpgsqlException ex)
@@ -598,7 +606,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IEnumerable<TmStatus>> GetUnackedAps()
+    public async Task<IReadOnlyCollection<TmStatus>> GetUnackedAps()
     {
       try
       {
@@ -622,7 +630,8 @@ namespace Iface.Oik.Tm.Api
                               .QueryAsync<TmStatusTmTreeDto>(commandText, parameters)
                               .ConfigureAwait(false);
 
-          return dtos.Select(TmStatus.CreateFromTmTreeDto);
+          return dtos.Select(TmStatus.CreateFromTmTreeDto)
+                     .ToList();
         }
       }
       catch (NpgsqlException ex)
@@ -638,7 +647,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IEnumerable<TmStatus>> GetAbnormalStatuses()
+    public async Task<IReadOnlyCollection<TmStatus>> GetAbnormalStatuses()
     {
       try
       {
@@ -651,11 +660,12 @@ namespace Iface.Oik.Tm.Api
                               FROM oik_cur_ts
                               WHERE (flags & @FlagAbnormal > 0)";
           var parameters = new {FlagAbnormal = (int) TmFlags.Abnormal};
-          var dtos       = await sql.DbConnection
-                                    .QueryAsync<TmStatusTmTreeDto>(commandText, parameters)
-                                    .ConfigureAwait(false);
+          var dtos = await sql.DbConnection
+                              .QueryAsync<TmStatusTmTreeDto>(commandText, parameters)
+                              .ConfigureAwait(false);
 
-          return dtos.Select(TmStatus.CreateFromTmTreeDto);
+          return dtos.Select(TmStatus.CreateFromTmTreeDto)
+                     .ToList();
         }
       }
       catch (NpgsqlException ex)
@@ -671,7 +681,91 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IEnumerable<TmStatus>> LookupStatuses(TmStatusFilter filter)
+    public async Task<IReadOnlyCollection<TmAlarm>> GetPresentAlarms()
+    {
+      try
+      {
+        using (var sql = _createOikSqlConnection())
+        {
+          await sql.OpenAsync().ConfigureAwait(false);
+          // сначала запрос списка уставок
+          var alarmsCommandText = @"SELECT alarm_id, alarm_name, cmp_val, cmp_sign, importance, in_use, active, tma
+                                    FROM oik_alarms
+                                    WHERE active = TRUE";
+          var alarmsDtos = await sql.DbConnection
+                                    .QueryAsync<TmAlarmDto>(alarmsCommandText)
+                                    .ConfigureAwait(false);
+          var alarms = alarmsDtos.Select(TmAlarm.CreateFromDto)
+                                 .ToList();
+
+          // потом запрос данных о ТИТ, если конечно есть уставки
+          if (alarms.Count == 0)
+          {
+            return alarms;
+          }
+          var analogsCommandText = @"SELECT name, v_unit, v_format, class_id, provider, v_val, flags, change_time
+                                     FROM oik_cur_tt
+                                       RIGHT JOIN UNNEST(@TmaArray) WITH ORDINALITY t (a,i)
+                                     ON tma = a
+                                     ORDER BY t.i";
+          var analogsParameters = new {TmaArray = alarms.Select(alarm => alarm.TmAnalog.TmAddr.ToSqlTma()).ToArray()};
+          var analogsDtos = await sql.DbConnection
+                                     .QueryAsync<TmAnalogTmTreeDto>(analogsCommandText, analogsParameters)
+                                     .ConfigureAwait(false);
+
+          analogsDtos.ForEach((dto, idx) => alarms[idx].TmAnalog.UpdateWithTmTreeDto(dto));
+
+          return alarms;
+        }
+      }
+      catch (NpgsqlException ex)
+      {
+        HandleNpgsqlException(ex);
+        return null;
+      }
+      catch (Exception ex)
+      {
+        HandleException(ex);
+        return null;
+      }
+    }
+
+
+    public async Task<IReadOnlyCollection<TmAlarm>> GetAnalogAlarms(TmAnalog analog)
+    {
+      if (analog == null) return null;
+
+      try
+      {
+        using (var sql = _createOikSqlConnection())
+        {
+          await sql.OpenAsync().ConfigureAwait(false);
+          var commandText = @"SELECT alarm_id, alarm_name, cmp_val, cmp_sign, importance, in_use, active
+                              FROM oik_alarms
+                              WHERE tma = @Tma";
+          var parameters = new {Tma = analog.TmAddr.ToSqlTma()};
+          var dtos = await sql.DbConnection
+                              .QueryAsync<TmAlarmDto>(commandText, parameters)
+                              .ConfigureAwait(false);
+
+          return dtos.Select(dto => TmAlarm.CreateFromDto(dto, analog))
+                     .ToList();
+        }
+      }
+      catch (NpgsqlException ex)
+      {
+        HandleNpgsqlException(ex);
+        return null;
+      }
+      catch (Exception ex)
+      {
+        HandleException(ex);
+        return null;
+      }
+    }
+
+
+    public async Task<IReadOnlyCollection<TmStatus>> LookupStatuses(TmStatusFilter filter)
     {
       if (filter == null) return null;
 
@@ -727,7 +821,8 @@ namespace Iface.Oik.Tm.Api
                               .QueryAsync<TmStatusTmTreeDto>(commandText, parameters)
                               .ConfigureAwait(false);
 
-          return dtos.Select(TmStatus.CreateFromTmTreeDto);
+          return dtos.Select(TmStatus.CreateFromTmTreeDto)
+                     .ToList();
         }
       }
       catch (NpgsqlException ex)
@@ -813,7 +908,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IEnumerable<TmAnalog>> LookupAnalogs(TmAnalogFilter filter)
+    public async Task<IReadOnlyCollection<TmAnalog>> LookupAnalogs(TmAnalogFilter filter)
     {
       if (filter == null) return null;
 
@@ -855,7 +950,8 @@ namespace Iface.Oik.Tm.Api
                               .QueryAsync<TmAnalogTmTreeDto>(commandText, parameters)
                               .ConfigureAwait(false);
 
-          return dtos.Select(TmAnalog.CreateFromTmTreeDto);
+          return dtos.Select(TmAnalog.CreateFromTmTreeDto)
+                     .ToList();
         }
       }
       catch (NpgsqlException ex)
@@ -912,89 +1008,6 @@ namespace Iface.Oik.Tm.Api
           default:
             return "";
         }
-      }
-    }
-
-
-    public async Task<IEnumerable<TmAlarm>> GetPresentAlarms()
-    {
-      try
-      {
-        using (var sql = _createOikSqlConnection())
-        {
-          await sql.OpenAsync().ConfigureAwait(false);
-          // сначала запрос списка уставок
-          var alarmsCommandText = @"SELECT alarm_id, alarm_name, cmp_val, cmp_sign, importance, in_use, active, tma
-                                    FROM oik_alarms
-                                    WHERE active = TRUE";
-          var alarmsDtos = await sql.DbConnection
-                                    .QueryAsync<TmAlarmDto>(alarmsCommandText)
-                                    .ConfigureAwait(false);
-          var alarms = alarmsDtos.Select(TmAlarm.CreateFromDto)
-                                 .ToList();
-
-          // потом запрос данных о ТИТ, если конечно есть уставки
-          if (alarms.Count == 0)
-          {
-            return alarms;
-          }
-          var analogsCommandText = @"SELECT name, v_unit, v_format, class_id, provider, v_val, flags, change_time
-                                     FROM oik_cur_tt
-                                       RIGHT JOIN UNNEST(@TmaArray) WITH ORDINALITY t (a,i)
-                                     ON tma = a
-                                     ORDER BY t.i";
-          var analogsParameters = new {TmaArray = alarms.Select(alarm => alarm.TmAnalog.TmAddr.ToSqlTma()).ToArray()};
-          var analogsDtos = await sql.DbConnection
-                                     .QueryAsync<TmAnalogTmTreeDto>(analogsCommandText, analogsParameters)
-                                     .ConfigureAwait(false);
-
-          analogsDtos.ForEach((dto, idx) => alarms[idx].TmAnalog.UpdateWithTmTreeDto(dto));
-
-          return alarms;
-        }
-      }
-      catch (NpgsqlException ex)
-      {
-        HandleNpgsqlException(ex);
-        return null;
-      }
-      catch (Exception ex)
-      {
-        HandleException(ex);
-        return null;
-      }
-    }
-
-
-    public async Task<IEnumerable<TmAlarm>> GetAnalogAlarms(TmAnalog analog)
-    {
-      if (analog == null) return null;
-
-      try
-      {
-        using (var sql = _createOikSqlConnection())
-        {
-          await sql.OpenAsync().ConfigureAwait(false);
-          var commandText = @"SELECT alarm_id, alarm_name, cmp_val, cmp_sign, importance, in_use, active
-                              FROM oik_alarms
-                              WHERE tma = @Tma";
-          var parameters = new {Tma = analog.TmAddr.ToSqlTma()};
-          var dtos       = await sql.DbConnection
-                                    .QueryAsync<TmAlarmDto>(commandText, parameters)
-                                    .ConfigureAwait(false);
-
-          return dtos.Select(dto => TmAlarm.CreateFromDto(dto, analog));
-        }
-      }
-      catch (NpgsqlException ex)
-      {
-        HandleNpgsqlException(ex);
-        return null;
-      }
-      catch (Exception ex)
-      {
-        HandleException(ex);
-        return null;
       }
     }
 
@@ -1060,7 +1073,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IEnumerable<TmEvent>> GetArchEvents(TmEventFilter filter)
+    public async Task<IReadOnlyCollection<TmEvent>> GetArchEvents(TmEventFilter filter)
     {
       if (filter == null) return null; //???
 
@@ -1262,7 +1275,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<(IEnumerable<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix)
+    public async Task<(IReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix)
     {
       if (elix == null) return (null, null);
 
@@ -1282,9 +1295,9 @@ namespace Iface.Oik.Tm.Api
                               WHERE elix > @Elix
                               ORDER BY update_time";
           var parameters = new {Elix = elix.ToByteArray()};
-          var dtos       = await sql.DbConnection
-                                    .QueryAsync<TmEventDto>(commandText, parameters)
-                                    .ConfigureAwait(false);
+          var dtos = await sql.DbConnection
+                              .QueryAsync<TmEventDto>(commandText, parameters)
+                              .ConfigureAwait(false);
 
           dtos.ForEach(dto =>
           {
@@ -1313,7 +1326,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<bool> UpdateAckedEventsIfAny(IList<TmEvent> tmEvents)
+    public async Task<bool> UpdateAckedEventsIfAny(IReadOnlyList<TmEvent> tmEvents)
     {
       if (tmEvents.IsNullOrEmpty()) return false;
 
@@ -1330,9 +1343,9 @@ namespace Iface.Oik.Tm.Api
               ON elix = t.e
             ORDER BY t.i";
           var parameters = new {ElixArray = tmEvents.Select(e => e.Elix.ToByteArray()).ToArray()};
-          var dtos       = await sql.DbConnection
-                                    .QueryAsync<TmEventDto>(commandText, parameters)
-                                    .ConfigureAwait(false);
+          var dtos = await sql.DbConnection
+                              .QueryAsync<TmEventDto>(commandText, parameters)
+                              .ConfigureAwait(false);
 
           dtos.ForEach((dto, idx) =>
           {
