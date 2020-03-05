@@ -322,5 +322,10 @@ namespace Iface.Oik.Tm.Native.Interfaces
     Int32 TmcTechObjWriteValues(Int32                        cid,
                                 TmNativeDefs.TTechObjProps[] props,
                                 UInt32                       count);
+
+    
+    UInt32 TmcEventGetAdditionalRecData(UInt32     id,
+                                        ref byte[] buf,
+                                        UInt32     bufSize);
   }
 }

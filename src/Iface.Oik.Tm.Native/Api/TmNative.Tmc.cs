@@ -484,5 +484,12 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcTechObjWriteValues(cid, props, count);
     }
+
+    public UInt32 TmcEventGetAdditionalRecData(UInt32 id, 
+                                              ref byte[] buf, 
+                                              UInt32 bufSize)
+    {
+      return tmcEventGetAdditionalRecData(id, buf, bufSize);
+    }
   }
 }
