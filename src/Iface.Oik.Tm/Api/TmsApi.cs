@@ -447,7 +447,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task UpdateStatusesExplicitly(IList<TmStatus> statuses, bool getRealTelemetry)
+    public async Task UpdateStatusesExplicitly(IReadOnlyList<TmStatus> statuses, bool getRealTelemetry = false)
     {
       if (statuses.IsNullOrEmpty()) return;
 
@@ -508,7 +508,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task UpdateAnalogsExplicitly(IList<TmAnalog> analogs, bool getRealTelemetry)
+    public async Task UpdateAnalogsExplicitly(IReadOnlyList<TmAnalog> analogs, bool getRealTelemetry = false)
     {
       if (analogs.IsNullOrEmpty()) return;
 
