@@ -1,17 +1,62 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using FakeItEasy;
 using FluentAssertions;
 using Iface.Oik.Tm.Interfaces;
-using Iface.Oik.Tm.Native.Interfaces;
 using Xunit;
 
 namespace Iface.Oik.Tm.Test.Interfaces
 {
   public class TmTagTest
   {
+    public class CreateMethod
+    {
+      [Fact]
+      public void ReturnsNullWhenAddrIsNull()
+      {
+        var result = TmTag.Create(null);
+
+        result.Should().BeNull();
+      }
+
+
+      [Fact]
+      public void ReturnsNullWhenAddrHasUnknownType()
+      {
+        var tmAddr = new TmAddr(A.Dummy<uint>());
+
+        var result = TmTag.Create(tmAddr);
+
+        result.Should().BeNull();
+      }
+
+
+      [Theory, TmInlineAutoData]
+      public void ReturnsCorrectValueForTmStatusAddr(int ch, int rtu, int point)
+      {
+        var tmAddr = new TmAddr(TmType.Status, ch, rtu, point);
+
+        var result = TmTag.Create(tmAddr);
+
+        result.Should().Be(new TmStatus(ch, rtu, point));
+      }
+
+
+      [Theory, TmInlineAutoData]
+      public void ReturnsCorrectValueForTmAnalogAddr(int ch, int rtu, int point)
+      {
+        var tmAddr = new TmAddr(TmType.Analog, ch, rtu, point);
+
+        var result = TmTag.Create(tmAddr);
+
+        result.Should().Be(new TmAnalog(ch, rtu, point));
+      }
+    }
+    
+    
     public class NameProperty
     {
-      [Theory, AutoNSubstituteData]
+      [Theory, TmAutoFakeItEasyData]
       public void ReturnsNameField(TmStatus status)
       {
         var sb = new StringBuilder("Name=Выключатель");
@@ -34,7 +79,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class PropertiesProperty
     {
-      [Theory, AutoNSubstituteData]
+      [Theory, TmAutoFakeItEasyData]
       public void ReturnsNullForNotInit(TmStatus status)
       {
         status.Properties.Should().BeNull();
@@ -44,17 +89,58 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class ClassDataProperty
     {
-      [Theory, AutoNSubstituteData]
+      [Theory, TmAutoFakeItEasyData]
       public void ReturnsNullForNotInit(TmStatus status)
       {
         status.ClassData.Should().BeNull();
+        status.IsClassDataLoaded.Should().BeFalse();
+      }
+    }
+
+
+    public class IsStatusProperty
+    {
+      [Theory, TmInlineAutoData]
+      public void ReturnsTrueForStatus(int ch, int rtu, int point)
+      {
+        TmTag tag = new TmStatus(ch, rtu, point);
+        
+        tag.IsStatus.Should().BeTrue();
+      }
+      
+      [Theory, TmInlineAutoData]
+      public void ReturnsFalseForNonStatus(int ch, int rtu, int point)
+      {
+        TmTag tag = new TmAnalog(ch, rtu, point);
+        
+        tag.IsStatus.Should().BeFalse();
+      }
+    }
+
+
+    public class IsAnalogProperty
+    {
+      [Theory, TmInlineAutoData]
+      public void ReturnsTrueForAnalog(int ch, int rtu, int point)
+      {
+        TmTag tag = new TmAnalog(ch, rtu, point);
+        
+        tag.IsAnalog.Should().BeTrue();
+      }
+      
+      [Theory, TmInlineAutoData]
+      public void ReturnsFalseForNonAnalog(int ch, int rtu, int point)
+      {
+        TmTag tag = new TmStatus(ch, rtu, point);
+        
+        tag.IsAnalog.Should().BeFalse();
       }
     }
 
 
     public class SetTmcObjectPropertiesMethod
     {
-      [Theory, AutoNSubstituteData]
+      [Theory, TmAutoFakeItEasyData]
       public void SetsCorrectValuesToStatus(TmStatus status)
       {
         var sb = new StringBuilder("Key1=Value1\r\nKey2=0\r\nName=Выключатель");
@@ -72,10 +158,10 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
 
       [Theory]
-      [InlineAutoNSubstituteData(0)]
-      [InlineAutoNSubstituteData(1)]
-      [InlineAutoNSubstituteData(2)]
-      [InlineAutoNSubstituteData(3)]
+      [TmInlineAutoFakeItEasyData(0)]
+      [TmInlineAutoFakeItEasyData(1)]
+      [TmInlineAutoFakeItEasyData(2)]
+      [TmInlineAutoFakeItEasyData(3)]
       public void SetsCorrectImportanceToStatus(short    importance,
                                                 TmStatus status)
       {
@@ -88,10 +174,10 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
 
       [Theory]
-      [InlineAutoNSubstituteData(0,    0)]
-      [InlineAutoNSubstituteData(1,    1)]
-      [InlineAutoNSubstituteData(-1,   -1)]
-      [InlineAutoNSubstituteData(1337, -1)]
+      [TmInlineAutoFakeItEasyData(0,    0)]
+      [TmInlineAutoFakeItEasyData(1,    1)]
+      [TmInlineAutoFakeItEasyData(-1,   -1)]
+      [TmInlineAutoFakeItEasyData(1337, -1)]
       public void SetsCorrectNormalStatusToStatus(short    normalStatus, short expectedNormalStatus,
                                                   TmStatus status)
       {
@@ -103,7 +189,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoNSubstituteData]
+      [Theory, TmAutoFakeItEasyData]
       public void SetsCorrectValuesToAnalog(TmAnalog analog)
       {
         var sb = new StringBuilder("Key1=Value1\r\nKey2=0\r\nName=Мощность\r\nUnits=МВт");
@@ -123,8 +209,8 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
 
       [Theory]
-      [InlineAutoNSubstituteData("7.3", 7, 3)]
-      [InlineAutoNSubstituteData("4.1", 4, 1)]
+      [TmInlineAutoFakeItEasyData("7.3", 7, 3)]
+      [TmInlineAutoFakeItEasyData("4.1", 4, 1)]
       public void SetsCorrectFormatToAnalog(string   format, byte expectedWidth, byte expectedPrecision,
                                             TmAnalog analog)
       {
@@ -138,9 +224,9 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
 
       [Theory]
-      [InlineAutoNSubstituteData("20", TmTeleregulation.Step)]
-      [InlineAutoNSubstituteData("40", TmTeleregulation.Code)]
-      [InlineAutoNSubstituteData("60", TmTeleregulation.Value)]
+      [TmInlineAutoFakeItEasyData("20", TmTeleregulation.Step)]
+      [TmInlineAutoFakeItEasyData("40", TmTeleregulation.Code)]
+      [TmInlineAutoFakeItEasyData("60", TmTeleregulation.Value)]
       public void SetsCorrectTeleregulationToAnalog(string   code, TmTeleregulation expectedTeleregulation,
                                                     TmAnalog analog)
       {
@@ -155,7 +241,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class SetTmcClassDataMethod
     {
-      [Theory, AutoNSubstituteData]
+      [Theory, TmAutoFakeItEasyData]
       public void SetsCorrectValues(TmStatus status)
       {
         var str = "0Txt=отключен\r\n1Txt=включен\r\nBTxt=обрыв";
@@ -164,6 +250,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
         status.CaptionOff.Should().Be("отключен");
         status.CaptionOn.Should().Be("включен");
+        status.IsClassDataLoaded.Should().BeTrue();
         status.ClassData.Should().Equal(new Dictionary<string, string>
         {
           {"0Txt", "отключен"},

@@ -1,7 +1,6 @@
-﻿using AutoFixture.Xunit2;
+﻿using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
-using Iface.Oik.Tm.Interfaces;
 using Xunit;
 
 namespace Iface.Oik.Tm.Test.Interfaces
@@ -10,7 +9,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
   {
     public class Constructor
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ConstructsFromChRtuPointCorrectly(int ch, int rtu, int point)
       {
         var tmAnalog = new TmAnalog(ch, rtu, point);
@@ -22,7 +21,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ConstructsFromTmAddrCorrectly(int ch, int rtu, int point)
       {
         var tmAddr = new TmAddr(TmType.Analog, ch, rtu, point);
@@ -122,7 +121,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class EqualsMethod
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForNull(int ch, int rtu, int point)
       {
         var tmAnalog1 = new TmAnalog(ch, rtu, point);
@@ -133,7 +132,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForWrongType(int ch, int rtu, int point)
       {
         var tmAnalog1 = new TmAnalog(ch, rtu, point);
@@ -145,7 +144,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForWrongAddr(int ch, int rtu, int point)
       {
         var tmAnalog1 = new TmAnalog(ch, rtu, point);
@@ -157,7 +156,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsTrue(int ch, int rtu, int point)
       {
         var tmAnalog1 = new TmAnalog(ch, rtu, point);
@@ -169,7 +168,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForWrongValue(int ch, int rtu, int point)
       {
         var tmAnalog1 = new TmAnalog(ch, rtu, point);
@@ -181,7 +180,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForWrongFlags(int ch, int rtu, int point)
       {
         var tmAnalog1 = new TmAnalog(ch, rtu, point);
@@ -196,7 +195,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class EqualityOperator
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForNull(int ch, int rtu, int point)
       {
         var tmAnalog1 = new TmAnalog(ch, rtu, point);
@@ -207,8 +206,8 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
-      public void ReturnsTrueForNullWhenNull(int ch, int rtu, int point)
+      [Fact]
+      public void ReturnsTrueForNullWhenNull()
       {
         TmAnalog tmAnalog1 = null;
 
@@ -218,7 +217,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsTrue(int ch, int rtu, int point)
       {
         var tmAnalog1 = new TmAnalog(ch, rtu, point);
@@ -230,7 +229,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForWrongAddr(int ch, int rtu, int point)
       {
         var tmAnalog1 = new TmAnalog(ch, rtu, point);
@@ -242,7 +241,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForWrongValue(int ch, int rtu, int point)
       {
         var tmAnalog1 = new TmAnalog(ch, rtu, point);
@@ -254,7 +253,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForWrongFlags(int ch, int rtu, int point)
       {
         var tmAnalog1 = new TmAnalog(ch, rtu, point);

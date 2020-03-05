@@ -3,26 +3,59 @@ using System.Globalization;
 using System.Reflection;
 using System.Threading;
 using AutoFixture;
-using AutoFixture.AutoNSubstitute;
+using AutoFixture.AutoFakeItEasy;
 using AutoFixture.Xunit2;
 using Xunit;
 using Xunit.Sdk;
 
 namespace Iface.Oik.Tm.Test
 {
-  public class AutoNSubstituteDataAttribute : AutoDataAttribute
+  // Обычный генератор AutoFixture подставляет значения int от 0 до 255
+  // Канал ТМ-адреса ограничен 254, что может вызвать ошибку
+  // Поэтому переопределяем генератор
+  public class TmAutoDataAttribute : AutoDataAttribute
   {
-    public AutoNSubstituteDataAttribute()
-      : base(() => new Fixture().Customize(new AutoNSubstituteCustomization()))
+    public static Fixture TmRandomNumberFixture
+    {
+      get
+      {
+        var f = new Fixture();
+        f.Customizations.Add(new RandomNumericSequenceGenerator(1, 254));
+        return f;
+      }
+    }
+    
+    
+    public TmAutoDataAttribute()
+      : base(() => TmRandomNumberFixture)
     {
     }
   }
 
 
-  public class InlineAutoNSubstituteDataAttribute : CompositeDataAttribute
+  public class TmInlineAutoDataAttribute : CompositeDataAttribute
   {
-    public InlineAutoNSubstituteDataAttribute(params object[] values)
-      : base(new InlineDataAttribute(values), new AutoNSubstituteDataAttribute())
+    public TmInlineAutoDataAttribute(params object[] values)
+    : base(new InlineDataAttribute(values), new TmAutoDataAttribute())
+    {
+      
+    }
+  }
+  
+  
+  public class TmAutoFakeItEasyDataAttribute : AutoDataAttribute
+  {
+    public TmAutoFakeItEasyDataAttribute()
+      : base(() => TmAutoDataAttribute.TmRandomNumberFixture.Customize(new AutoFakeItEasyCustomization()))
+    {
+    }
+  }
+
+
+  public class TmInlineAutoFakeItEasyDataAttribute : CompositeDataAttribute
+  {
+    public TmInlineAutoFakeItEasyDataAttribute(params object[] values)
+      : base(new InlineDataAttribute(values), new TmAutoFakeItEasyDataAttribute())
     {
     }
   }

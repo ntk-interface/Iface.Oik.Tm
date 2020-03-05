@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AspWebApi.Model;
 using AutoMapper;
@@ -18,6 +21,40 @@ namespace AspWebApi.Controllers
     {
       _api    = api;
       _mapper = mapper;
+    }
+
+
+    [HttpGet]
+    public async Task<IActionResult> ShowList([FromQuery(Name = "s")] string statuses,
+                                              [FromQuery(Name = "a")] string analogs)
+    {
+      List<TmStatus> tmStatuses;
+      List<TmAnalog> tmAnalogs;
+
+      try
+      {
+        tmStatuses = statuses?.Split(',')
+                             .Select(tmAddrString => new TmStatus(TmAddr.Parse(tmAddrString, TmType.Status)))
+                             .ToList();
+        tmAnalogs = analogs?.Split(',')
+                           .Select(tmAddrString => new TmAnalog(TmAddr.Parse(tmAddrString, TmType.Analog)))
+                           .ToList();
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(ex.Message);
+      }
+
+      await Task.WhenAll(_api.UpdateTagsPropertiesAndClassData(tmAnalogs),
+                         _api.UpdateAnalogs(tmAnalogs),
+                         _api.UpdateTagsPropertiesAndClassData(tmStatuses),
+                         _api.UpdateStatuses(tmStatuses));
+
+      return Ok(new
+      {
+        s = _mapper.Map<IEnumerable<TmStatusDto>>(tmStatuses),
+        a = _mapper.Map<IEnumerable<TmAnalogDto>>(tmAnalogs),
+      });
     }
 
 

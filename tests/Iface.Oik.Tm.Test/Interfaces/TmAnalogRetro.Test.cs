@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
+using FakeItEasy;
 using FluentAssertions;
 using Iface.Oik.Tm.Interfaces;
-using NSubstitute;
 using Xunit;
 
 namespace Iface.Oik.Tm.Test.Interfaces
@@ -30,7 +30,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       [InlineData(10,             -1)]
       public void SetsInvalidFlagForInvalidValues(float value, short flags)
       {
-        var analogRetro = new TmAnalogRetro(value, flags, Arg.Any<long>());
+        var analogRetro = new TmAnalogRetro(value, flags, A.Dummy<long>());
 
         analogRetro.IsValid.Should().BeFalse();
       }

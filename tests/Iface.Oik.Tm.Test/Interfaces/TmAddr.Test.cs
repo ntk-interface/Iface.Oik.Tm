@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using AutoFixture;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Iface.Oik.Tm.Native.Interfaces;
@@ -13,7 +14,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
     public class Constructor
     {
       [Theory]
-      [InlineAutoData]
+      [TmInlineAutoData]
       [InlineData(0,   1,   1)]
       [InlineData(0,   1,   11)]
       [InlineData(0,   1,   65535)]
@@ -33,8 +34,8 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
 
       [Theory]
-      [InlineAutoData(TmType.Status)]
-      [InlineAutoData(TmType.Analog)]
+      [TmInlineAutoData(TmType.Status)]
+      [TmInlineAutoData(TmType.Analog)]
       public void FromTypeChRtuPointCorrectly(TmType type, ushort ch, ushort rtu, ushort point)
       {
         var tmAddr = new TmAddr(type, ch, rtu, point);
@@ -130,7 +131,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
     public class CreateMethod
     {
       [Theory]
-      [InlineAutoData]
+      [TmInlineAutoData]
       [InlineData(16,  33,  257)]
       [InlineData(254, 255, 65535)]
       public void FromChRtuPointCorrectly(ushort ch, ushort rtu, ushort point)
@@ -145,8 +146,8 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
 
       [Theory]
-      [InlineAutoData(TmType.Status)]
-      [InlineAutoData(TmType.Analog)]
+      [TmInlineAutoData(TmType.Status)]
+      [TmInlineAutoData(TmType.Analog)]
       public void FromTypeChRtuPointCorrectly(TmType type, ushort ch, ushort rtu, ushort point)
       {
         var tmAddr = TmAddr.Create(type, ch, rtu, point);
@@ -228,12 +229,25 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
         tmAddr.Should().BeNull();
       }
+
+
+      [Theory]
+      [InlineData(TmType.Status, "16",    "33",    "dummy")]
+      [InlineData(TmType.Status, "16",    "dummy", "257")]
+      [InlineData(TmType.Analog, "dummy", "33",    "257")]
+      [InlineData(TmType.Analog, "256",   "33",    "257")]
+      public void ReturnsNullFromIncorrectStringsWithType(TmType type, string ch, string rtu, string point)
+      {
+        var tmAddr = TmAddr.Create(type, ch, rtu, point);
+
+        tmAddr.Should().BeNull();
+      }
     }
 
 
     public class SetChProperty
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void SetsChCorrectly(int ch, int rtu, int point)
       {
         var tmAddr = new TmAddr(ch, rtu, point);
@@ -244,7 +258,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ThrowsWhenInvalidCh(int ch, int rtu, int point)
       {
         var tmAddr = new TmAddr(ch, rtu, point);
@@ -258,7 +272,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class SetRtuProperty
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void SetsRtuCorrectly(int ch, int rtu, int point)
       {
         var tmAddr = new TmAddr(ch, rtu, point);
@@ -269,7 +283,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ThrowsWhenInvalidRtu(int ch, int rtu, int point)
       {
         var tmAddr = new TmAddr(ch, rtu, point);
@@ -283,7 +297,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class SetPointProperty
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void SetsPointCorrectly(int ch, int rtu, int point)
       {
         var tmAddr = new TmAddr(ch, rtu, point);
@@ -336,113 +350,125 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class EqualsMethod
     {
-      [Fact]
-      public void ReturnsTrue()
+      [Theory, TmAutoData]
+      public void ReturnsTrue(int ch, int rtu, int point)
       {
-        var tmAddr1 = new TmAddr(TmType.Status, 16, 33, 257);
-        var tmAddr2 = new TmAddr(TmType.Status, 0x10_20_01_00);
+        var tmAddr1 = new TmAddr(TmType.Status, ch, rtu, point);
+        var tmAddr2 = new TmAddr(TmType.Status, ch, rtu, point);
 
-        var isEqual = tmAddr1.Equals(tmAddr2);
+        var result = tmAddr1.Equals(tmAddr2);
 
-        isEqual.Should().BeTrue();
+        result.Should().BeTrue();
       }
 
 
-      [Fact]
-      public void ReturnsFalseForDifferentAddr()
+      [Theory, TmAutoData]
+      public void ReturnsTrueForSameReference(int ch, int rtu, int point)
       {
-        var tmAddr1 = new TmAddr(16, 33, 257);
-        var tmAddr2 = new TmAddr(0x10_20_01_01);
+        var tmAddr1 = new TmAddr(TmType.Status, ch, rtu, point);
+        var tmAddr2 = tmAddr1;
 
-        var isEqual = tmAddr1.Equals(tmAddr2);
+        var result = tmAddr1.Equals(tmAddr2);
 
-        isEqual.Should().BeFalse();
+        result.Should().BeTrue();
       }
 
 
-      [Fact]
-      public void ReturnsFalseForDifferentType()
+      [Theory, TmAutoData]
+      public void ReturnsFalseForDifferentAddr(int ch, int rtu, int point)
       {
-        var tmAddr1 = new TmAddr(TmType.Status, 16, 33, 257);
-        var tmAddr2 = new TmAddr(TmType.Analog, 0x10_20_01_00);
+        var tmAddr1 = new TmAddr(ch, rtu, point);
+        var tmAddr2 = new TmAddr(ch, rtu, point + 1);
 
-        var isEqual = tmAddr1.Equals(tmAddr2);
+        var result = tmAddr1.Equals(tmAddr2);
 
-        isEqual.Should().BeFalse();
+        result.Should().BeFalse();
       }
 
 
-      [Fact]
-      public void ReturnsFalseForNull()
+      [Theory, TmAutoData]
+      public void ReturnsFalseForDifferentType(int ch, int rtu, int point)
       {
-        var tmAddr1 = new TmAddr(16, 33, 257);
+        var tmAddr1 = new TmAddr(TmType.Status, ch, rtu, point);
+        var tmAddr2 = new TmAddr(TmType.Analog, ch, rtu, point);
 
-        var isEqual = tmAddr1.Equals(null);
+        var result = tmAddr1.Equals(tmAddr2);
 
-        isEqual.Should().BeFalse();
+        result.Should().BeFalse();
       }
 
 
-      [Fact]
+      [Theory, TmAutoData]
+      public void ReturnsFalseForNull(int ch, int rtu, int point)
+      {
+        var tmAddr1 = new TmAddr(ch, rtu, point);
+
+        var result = tmAddr1.Equals(null);
+
+        result.Should().BeFalse();
+      }
+
+
+      [Theory, TmAutoData]
       [SuppressMessage("ReSharper", "SuspiciousTypeConversion.Global")]
-      public void ReturnsFalseForWrongObject()
+      public void ReturnsFalseForWrongObject(int ch, int rtu, int point)
       {
-        var tmAddr1 = new TmAddr(16, 33, 257);
+        var tmAddr1 = new TmAddr(ch, rtu, point);
 
-        var isEqual = tmAddr1.Equals("string, will not work");
+        var result = tmAddr1.Equals("string, will not work");
 
-        isEqual.Should().BeFalse();
+        result.Should().BeFalse();
       }
     }
 
 
     public class EqualityOperator
     {
-      [Fact]
-      public void ReturnsTrue()
+      [Theory, TmAutoData]
+      public void ReturnsTrue(int ch, int rtu, int point)
       {
-        var tmAddr1 = new TmAddr(TmType.Status, 16, 33, 257);
-        var tmAddr2 = new TmAddr(TmType.Status, 0x10_20_01_00);
+        var tmAddr1 = new TmAddr(TmType.Status, ch, rtu, point);
+        var tmAddr2 = new TmAddr(TmType.Status, ch, rtu, point);
 
-        var isEqual = tmAddr1 == tmAddr2;
+        var result = tmAddr1 == tmAddr2;
 
-        isEqual.Should().BeTrue();
+        result.Should().BeTrue();
       }
 
 
-      [Fact]
-      public void ReturnsFalseForDifferentAddr()
+      [Theory, TmAutoData]
+      public void ReturnsFalseForDifferentAddr(int ch, int rtu, int point)
       {
-        var tmAddr1 = new TmAddr(TmType.Status, 16, 33, 257);
-        var tmAddr2 = new TmAddr(TmType.Status, 0x10_20_01_01);
+        var tmAddr1 = new TmAddr(TmType.Status, ch, rtu, point);
+        var tmAddr2 = new TmAddr(TmType.Status, ch, rtu, point + 1);
 
-        var isEqual = tmAddr1 == tmAddr2;
+        var result = tmAddr1 == tmAddr2;
 
-        isEqual.Should().BeFalse();
+        result.Should().BeFalse();
       }
 
 
-      [Fact]
-      public void ReturnsFalseForDifferentType()
+      [Theory, TmAutoData]
+      public void ReturnsFalseForDifferentType(int ch, int rtu, int point)
       {
-        var tmAddr1 = new TmAddr(TmType.Status, 16, 33, 257);
-        var tmAddr2 = new TmAddr(TmType.Analog, 0x10_20_01_00);
+        var tmAddr1 = new TmAddr(TmType.Status, ch, rtu, point);
+        var tmAddr2 = new TmAddr(TmType.Analog, ch, rtu, point);
 
-        var isEqual = tmAddr1 == tmAddr2;
+        var result = tmAddr1 == tmAddr2;
 
-        isEqual.Should().BeFalse();
+        result.Should().BeFalse();
       }
 
 
-      [Fact]
+      [Theory, TmAutoData]
       [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse")]
-      public void ReturnsFalseForNull()
+      public void ReturnsFalseForNull(int ch, int rtu, int point)
       {
-        var tmAddr1 = new TmAddr(16, 33, 257);
+        var tmAddr1 = new TmAddr(ch, rtu, point);
 
-        var isEqual = tmAddr1 == null;
+        var result = tmAddr1 == null;
 
-        isEqual.Should().BeFalse();
+        result.Should().BeFalse();
       }
 
 
@@ -451,21 +477,21 @@ namespace Iface.Oik.Tm.Test.Interfaces
       public void ReturnsTrueForNullWhenNull()
       {
         TmAddr tmAddr1 = null;
-        
-        var isEqual = tmAddr1 == null;
 
-        isEqual.Should().BeTrue();
+        var result = tmAddr1 == null;
+
+        result.Should().BeTrue();
       }
     }
 
 
     public class InequalityOperator
     {
-      [Fact]
-      public void ReturnsTrueForDifferentAddr()
+      [Theory, TmAutoData]
+      public void ReturnsTrueForDifferentAddr(int ch, int rtu, int point)
       {
-        var tmAddr1 = new TmAddr(TmType.Status, 16, 33, 257);
-        var tmAddr2 = new TmAddr(TmType.Status, 0x10_20_01_01);
+        var tmAddr1 = new TmAddr(TmType.Status, ch, rtu, point);
+        var tmAddr2 = new TmAddr(TmType.Status, ch, rtu, point + 1);
 
         var isNotEqual = tmAddr1 != tmAddr2;
 
@@ -473,11 +499,11 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Fact]
-      public void ReturnsTrueForDifferentType()
+      [Theory, TmAutoData]
+      public void ReturnsTrueForDifferentType(int ch, int rtu, int point)
       {
-        var tmAddr1 = new TmAddr(TmType.Status, 16, 33, 257);
-        var tmAddr2 = new TmAddr(TmType.Analog, 0x10_20_01_00);
+        var tmAddr1 = new TmAddr(TmType.Status, ch, rtu, point);
+        var tmAddr2 = new TmAddr(TmType.Analog, ch, rtu, point);
 
         var isNotEqual = tmAddr1 != tmAddr2;
 
@@ -485,11 +511,11 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Fact]
-      public void ReturnsFalse()
+      [Theory, TmAutoData]
+      public void ReturnsFalse(int ch, int rtu, int point)
       {
-        var tmAddr1 = new TmAddr(TmType.Status, 16, 33, 257);
-        var tmAddr2 = new TmAddr(TmType.Status, 0x10_20_01_00);
+        var tmAddr1 = new TmAddr(TmType.Status, ch, rtu, point);
+        var tmAddr2 = new TmAddr(TmType.Status, ch, rtu, point);
 
         var isNotEqual = tmAddr1 != tmAddr2;
 
@@ -497,11 +523,11 @@ namespace Iface.Oik.Tm.Test.Interfaces
       }
 
 
-      [Fact]
+      [Theory, TmAutoData]
       [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse")]
-      public void ReturnsTrueForNull()
+      public void ReturnsTrueForNull(int ch, int rtu, int point)
       {
-        var tmAddr1 = new TmAddr(16, 33, 257);
+        var tmAddr1 = new TmAddr(ch, rtu, point);
 
         var isNotEqual = tmAddr1 != null;
 
@@ -510,34 +536,57 @@ namespace Iface.Oik.Tm.Test.Interfaces
     }
 
 
+    public class CompareToMethod
+    {
+      [Theory]
+      [InlineData(5, 10, 200, 5, 10, 200, 0)]
+      [InlineData(6, 10, 200, 5, 10, 200, +1)]
+      [InlineData(4, 10, 200, 5, 10, 200, -1)]
+      [InlineData(5, 11, 200, 5, 10, 200, +1)]
+      [InlineData(5, 9,  200, 5, 10, 200, -1)]
+      [InlineData(5, 10, 201, 5, 10, 200, +1)]
+      [InlineData(5, 10, 199, 5, 10, 200, -1)]
+      [InlineData(6, 9, 199, 5, 10, 200, +1)]
+      public void ReturnsCorrectValues(int ch1, int rtu1, int point1, int ch2, int rtu2, int point2, int expected)
+      {
+        var tmAddr1 = new TmAddr(ch1, rtu1, point1);
+        var tmAddr2 = new TmAddr(ch2, rtu2, point2);
+
+        var result = tmAddr1.CompareTo(tmAddr2);
+
+        result.Should().Be(expected);
+      }
+    }
+
+
     public class EqualsThreeIntegersMethod
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsTrue(int ch, int rtu, int point)
       {
         var tmAddr = new TmAddr(ch, rtu, point);
 
-        var isEqual = tmAddr.Equals(ch, rtu, point);
+        var result = tmAddr.Equals(ch, rtu, point);
 
-        isEqual.Should().BeTrue();
+        result.Should().BeTrue();
       }
 
 
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsFalseForDifferentAddr(int ch, int rtu, int point)
       {
-        var tmAddr = new TmAddr(ch, rtu, point + 1);
+        var tmAddr = new TmAddr(ch, rtu, point);
 
-        var isEqual = tmAddr.Equals(ch, rtu, point);
+        var result = tmAddr.Equals(ch, rtu, point + 1);
 
-        isEqual.Should().BeFalse();
+        result.Should().BeFalse();
       }
     }
 
 
     public class GetTupleMethod
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsCorrectValues(int ch, int rtu, int point)
       {
         var tmAddr = new TmAddr(ch, rtu, point);
@@ -553,7 +602,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class GetTupleShortMethod
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsCorrectValues(short ch, short rtu, short point)
       {
         var tmAddr = new TmAddr(ch, rtu, point);
@@ -569,7 +618,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
     public class ToAdrTmMethod
     {
-      [Theory, AutoData]
+      [Theory, TmAutoData]
       public void ReturnsCorrectValues(short ch, short rtu, short point)
       {
         var tmAddr = new TmAddr(ch, rtu, point);
