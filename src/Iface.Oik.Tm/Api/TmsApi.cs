@@ -1783,46 +1783,40 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<bool> SetTagFlagsExplicitly(TmTag tag, TmFlags flags)
+    public async Task SetTagFlagsExplicitly(TmTag tag, TmFlags flags)
     {
       var (ch, rtu, point) = tag.TmAddr.GetTupleShort();
 
       switch (tag)
       {
         case TmStatus _:
-          return await Task.Run(() => _native.TmcSetStatusFlags(_cid, ch, rtu, point, (short) flags))
-                           .ConfigureAwait(false)
-                 == TmNativeDefs.Success;
+          await Task.Run(() => _native.TmcSetStatusFlags(_cid, ch, rtu, point, (short) flags))
+                    .ConfigureAwait(false);
+          return;
 
         case TmAnalog _:
-          return await Task.Run(() => _native.TmcSetAnalogFlags(_cid, ch, rtu, point, (short) flags))
-                           .ConfigureAwait(false)
-                 == TmNativeDefs.Success;
-
-        default:
-          return false;
+          await Task.Run(() => _native.TmcSetAnalogFlags(_cid, ch, rtu, point, (short) flags))
+                    .ConfigureAwait(false);
+          return;
       }
     }
 
 
-    public async Task<bool> ClearTagFlagsExplicitly(TmTag tag, TmFlags flags)
+    public async Task ClearTagFlagsExplicitly(TmTag tag, TmFlags flags)
     {
       var (ch, rtu, point) = tag.TmAddr.GetTupleShort();
 
       switch (tag)
       {
         case TmStatus _:
-          return await Task.Run(() => _native.TmcClrStatusFlags(_cid, ch, rtu, point, (short) flags))
-                           .ConfigureAwait(false)
-                 == TmNativeDefs.Success;
+          await Task.Run(() => _native.TmcClrStatusFlags(_cid, ch, rtu, point, (short) flags))
+                    .ConfigureAwait(false);
+          return;
 
         case TmAnalog _:
-          return await Task.Run(() => _native.TmcClrAnalogFlags(_cid, ch, rtu, point, (short) flags))
-                           .ConfigureAwait(false)
-                 == TmNativeDefs.Success;
-
-        default:
-          return false;
+          await Task.Run(() => _native.TmcClrAnalogFlags(_cid, ch, rtu, point, (short) flags))
+                    .ConfigureAwait(false);
+          return;
       }
     }
   }

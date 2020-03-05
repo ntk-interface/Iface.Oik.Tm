@@ -157,6 +157,30 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
+    public static (int tmCid, int rbCid, int rbPort, TmUserInfo userInfo) Initialize(TmInitializeOptions options)
+    {
+      var (tmCid, userInfo) = InitializeWithoutSql(options);
+
+      var rbCid = Connect(options.Host,
+                          options.RbServer,
+                          options.ApplicationName,
+                          EmptyTmCallbackDelegate,
+                          IntPtr.Zero);
+      if (rbCid == 0)
+      {
+        throw new Exception("Нет связи с RB-сервером, ошибка " + GetLastError());
+      }
+
+      var rbPort = OpenSqlRedirector(rbCid);
+      if (rbPort == 0)
+      {
+        throw new Exception("Ошибка при открытии редиректора к SQL");
+      }
+
+      return (tmCid, rbCid, rbPort, userInfo);
+    }
+
+
     public static (int tmCid, TmUserInfo userInfo) InitializeWithoutSql(TmInitializeOptions options)
     {
       Native.CfsInitLibrary();
@@ -181,6 +205,32 @@ namespace Iface.Oik.Tm.Helpers
       }
 
       return (tmCid, userInfo);
+    }
+
+
+    public static (int tmCid, int rbCid, int rbPort, TmUserInfo userInfo, uint stopEventHandle)
+      InitializeAsTask(TmOikTaskOptions    taskOptions,
+                       TmInitializeOptions options)
+    {
+      var (tmCid, userInfo, stopEventHandle) = InitializeAsTaskWithoutSql(taskOptions, options);
+
+      var rbCid = Connect(options.Host,
+                          options.RbServer,
+                          options.ApplicationName,
+                          EmptyTmCallbackDelegate,
+                          IntPtr.Zero);
+      if (rbCid == 0)
+      {
+        throw new Exception("Нет связи с RB-сервером, ошибка " + GetLastError());
+      }
+
+      var rbPort = OpenSqlRedirector(rbCid);
+      if (rbPort == 0)
+      {
+        throw new Exception("Ошибка при открытии редиректора к SQL");
+      }
+
+      return (tmCid, rbCid, rbPort, userInfo, stopEventHandle);
     }
 
 
@@ -221,30 +271,6 @@ namespace Iface.Oik.Tm.Helpers
       }
 
       return (tmCid, userInfo, stopEventHandle);
-    }
-
-
-    public static (int tmCid, int rbCid, int rbPort, TmUserInfo userInfo) Initialize(TmInitializeOptions options)
-    {
-      var (tmCid, userInfo) = InitializeWithoutSql(options);
-
-      var rbCid = Connect(options.Host,
-                          options.RbServer,
-                          options.ApplicationName,
-                          EmptyTmCallbackDelegate,
-                          IntPtr.Zero);
-      if (rbCid == 0)
-      {
-        throw new Exception("Нет связи с RB-сервером, ошибка " + GetLastError());
-      }
-
-      var rbPort = OpenSqlRedirector(rbCid);
-      if (rbPort == 0)
-      {
-        throw new Exception("Ошибка при открытии редиректора к SQL");
-      }
-
-      return (tmCid, rbCid, rbPort, userInfo);
     }
 
 
