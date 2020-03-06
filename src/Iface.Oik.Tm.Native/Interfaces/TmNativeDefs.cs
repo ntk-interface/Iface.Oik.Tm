@@ -627,6 +627,17 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public IntPtr pData;
     }
 
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct TTMSEventAddData
+    {
+      public TTMSElix Elix;
+      public UInt32 AckSec;
+      public UInt16 AckMs;
+
+      [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 15)]
+      public string UserName;
+    }
+
 
     public const Int16  RealTelemetryFlag     = unchecked((short) 0x8000);
     public const UInt32 ExtendedDataSignature = 0xEEAAEE00;
