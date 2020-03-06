@@ -188,6 +188,16 @@ namespace Iface.Oik.Tm.Native.Utils
       }
       return FromBytes<TmNativeDefs.StrBinData>(tEvent.Data);
     }
+    
+    
+    public static TmNativeDefs.TTMSEventAddData GetEventAddData(byte[] addDataBytes)
+    {
+      if (addDataBytes == null)
+      {
+        throw new ArgumentException("Массив байтов пуст");
+      }
+      return FromBytes<TmNativeDefs.TTMSEventAddData>(addDataBytes);
+    }
 
 
     public static byte[] GetBytes<T>(T structure) where T : struct
