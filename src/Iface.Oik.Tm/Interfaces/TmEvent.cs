@@ -166,7 +166,9 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public static TmEvent CreateFromTEventElix(TmNativeDefs.TEventElix tEventElix, string sourceObjectName)
+    public static TmEvent CreateFromTEventElix(TmNativeDefs.TEventElix       tEventElix,
+                                               TmNativeDefs.TTMSEventAddData eventAddData,
+                                               string                        sourceObjectName)
     {
       var tmEventElix = new TmEventElix(tEventElix.Elix.R, tEventElix.Elix.M);
       var tmEventType = (TmEventTypes) tEventElix.Event.Id;
@@ -179,8 +181,14 @@ namespace Iface.Oik.Tm.Interfaces
         Importance   = tEventElix.Event.Imp,
         TmAddrString = GetTmAddrStringFromTEvent(tEventElix.Event),
         TmAddrType   = GetTmTypeFromTEvent(tEventElix.Event),
-        Text = sourceObjectName,
+        Text         = sourceObjectName,
       };
+
+      if (eventAddData.AckSec != 0 && !eventAddData.UserName.IsNullOrEmpty())
+      {
+        tmEvent.AckTime = DateUtil.GetDateTimeFromTimestamp(eventAddData.AckSec, eventAddData.AckMs);
+        tmEvent.AckUser = eventAddData.UserName;
+      }
 
       switch (tmEventType)
       {
@@ -295,7 +303,7 @@ namespace Iface.Oik.Tm.Interfaces
           var strBinData   = TmNativeUtil.GetStrBinData(tEventElix.Event);
           var extendedType = (TmNativeDefs.ExtendedEventTypes) tEventElix.Event.Ch;
           tmEvent.TypeString = GetTypeStringByExtendedTypeString(extendedType);
-          tmEvent.Text = TmNativeUtil.GetStringFromStrBinBytes(strBinData.StrBin);
+          tmEvent.Text       = TmNativeUtil.GetStringFromStrBinBytes(strBinData.StrBin);
 
           switch (extendedType)
           {
@@ -377,7 +385,7 @@ namespace Iface.Oik.Tm.Interfaces
       }
     }
 
-    
+
     private static string GetTmAddrStringFromTEvent(TmNativeDefs.TEvent tEvent)
     {
       switch ((TmEventTypes) tEvent.Id)
@@ -396,7 +404,7 @@ namespace Iface.Oik.Tm.Interfaces
       }
     }
 
-    
+
     private static TmType GetTmTypeFromTEvent(TmNativeDefs.TEvent tEvent)
     {
       switch ((TmEventTypes) tEvent.Id)
@@ -415,7 +423,7 @@ namespace Iface.Oik.Tm.Interfaces
       }
     }
 
-    
+
     private static string GetS2StatusString(TmNativeDefs.S2Flags s2Flag)
     {
       switch (s2Flag)
@@ -429,7 +437,7 @@ namespace Iface.Oik.Tm.Interfaces
       }
     }
 
-    
+
     private static string GetTypeStringByExtendedTypeString(TmNativeDefs.ExtendedEventTypes eventType)
     {
       switch (eventType)
@@ -442,7 +450,5 @@ namespace Iface.Oik.Tm.Interfaces
           return "???";
       }
     }
-    
-    
   }
 }
