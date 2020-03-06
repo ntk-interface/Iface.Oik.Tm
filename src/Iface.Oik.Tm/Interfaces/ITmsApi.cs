@@ -239,6 +239,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<bool> ClearTagFlagsExplicitly(TmTag tag, TmFlags flags);
 
-    Task<IEnumerable<TmEvent>> GetEventsByElix(TmEventFilter filter);
+    
+    Task<IReadOnlyList<TmEvent>> GetEventsByElix(TmEventFilter filter);
   }
 }
