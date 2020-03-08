@@ -1,9 +1,12 @@
 ﻿namespace Iface.Oik.Tm.Interfaces
 {
-  public class TmChannel
+  public readonly struct TmChannel
   {
-    public int    ChannelId { get; set; }
-    public string Name      { get; set; }
+    public int    ChannelId { get; }
+    public string Name      { get; }
+
+
+    public TmChannel(int channelId, string name) => (ChannelId, Name) = (channelId, name);
 
 
     public static int ToSqlTma(int channelId)

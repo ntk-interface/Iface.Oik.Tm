@@ -3,7 +3,7 @@ using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public struct TmAnalogRetro : ITmAnalogRetro
+  public readonly struct TmAnalogRetro : ITmAnalogRetro
   {
     private readonly bool _invalidFlags;
 

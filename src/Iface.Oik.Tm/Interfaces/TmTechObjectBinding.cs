@@ -35,15 +35,17 @@ namespace Iface.Oik.Tm.Interfaces
           switch (TmTag)
           {
             case TmStatus status:
-              statusesClasses.TryGetValue(status.ClassId ?? 0,
-                                          out var statusClass);
-              UpdateModeIfTmStatus(statusClass?.Name);
+              if (statusesClasses.TryGetValue(status.ClassId ?? 0, out var statusClass))
+              {
+                UpdateModeIfTmStatus(statusClass.Name);
+              }
               break;
 
             case TmAnalog analog:
-              analogsClasses.TryGetValue(analog.ClassId ?? 0,
-                                         out var analogClass);
-              UpdateModeIfTmAnalog(analogClass?.Name);
+              if (analogsClasses.TryGetValue(analog.ClassId ?? 0, out var analogClass))
+              {
+                UpdateModeIfTmAnalog(analogClass.Name);
+              }
               break;
           }
           break;

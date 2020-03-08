@@ -2,7 +2,7 @@
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public class TmAlarm
+  public readonly struct TmAlarm
   {
     public int      Id                   { get; }
     public string   Name                 { get; }

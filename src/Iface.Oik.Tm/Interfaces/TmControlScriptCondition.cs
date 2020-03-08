@@ -1,6 +1,6 @@
 namespace Iface.Oik.Tm.Interfaces
 {
-  public struct TmControlScriptCondition
+  public readonly struct TmControlScriptCondition
   {
     public bool   IsConditionMet { get; }
     public string Text           { get; }

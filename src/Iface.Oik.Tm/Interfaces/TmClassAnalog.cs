@@ -1,10 +1,11 @@
 namespace Iface.Oik.Tm.Interfaces
 {
-  public class TmClassAnalog : TmClass
+  public readonly struct TmClassAnalog
   {
-    public TmClassAnalog(int id, string name)
-      : base(id, name)
-    {
-    }
+    public int    Id   { get; }
+    public string Name { get; }
+
+
+    public TmClassAnalog(int id, string name) => (Id, Name) = (id, name);
   }
 }

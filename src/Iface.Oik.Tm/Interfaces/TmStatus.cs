@@ -305,7 +305,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     private string GetClassDataValue(string key, string defaultValue = "")
     {
-      if (ClassData != null && ClassData.TryGetValue(key, out var caption))
+      if (ClassData != null && 
+          ClassData.TryGetValue(key, out var caption))
       {
         return caption ?? defaultValue;
       }

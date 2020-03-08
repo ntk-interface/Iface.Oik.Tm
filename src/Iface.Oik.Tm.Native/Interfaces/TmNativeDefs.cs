@@ -403,7 +403,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public byte[] UserName; // пользователь, выдавший ТУ
 
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2026)]
-      public byte[] DummyBytes;
+      public byte[] DummyBytes; // пустой массив нужен для корректного маршалинга в TEvent.Data
     }
 
 
@@ -429,7 +429,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public byte[] UserName;
 
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2027)]
-      public byte[] DummyBytes;
+      public byte[] DummyBytes; // пустой массив нужен для корректного маршалинга в TEvent.Data
     }
 
 

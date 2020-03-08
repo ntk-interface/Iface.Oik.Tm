@@ -3,7 +3,7 @@ using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public struct TmAnalogImpulseArchiveInstant : ITmAnalogRetro
+  public readonly struct TmAnalogImpulseArchiveInstant : ITmAnalogRetro
   {
     public float    Value { get; }
     public TmFlags  Flags { get; }

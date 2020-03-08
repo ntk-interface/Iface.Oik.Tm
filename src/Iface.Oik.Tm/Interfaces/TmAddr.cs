@@ -205,9 +205,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     public bool Equals(int ch, int rtu, int point)
     {
-      return Ch    == ch  &&
-             Rtu   == rtu &&
-             Point == point;
+      return (Ch, Rtu, Point) == (ch, rtu, point);
     }
 
 
@@ -228,8 +226,7 @@ namespace Iface.Oik.Tm.Interfaces
         return true;
       }
 
-      return _addr == comparison._addr &&
-             _type == comparison._type;
+      return (_addr, _type) == (comparison._addr, comparison._type);
     }
 
 
