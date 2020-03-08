@@ -401,6 +401,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
       public byte[] UserName; // пользователь, выдавший ТУ
+
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2026)]
+      public byte[] DummyBytes;
     }
 
 
@@ -425,7 +428,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
       public byte[] UserName;
 
-      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1)]
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2027)]
       public byte[] DummyBytes;
     }
 
