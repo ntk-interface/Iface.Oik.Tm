@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Interfaces;
 
-namespace Iface.Oik.Tm.Helpers
+namespace Iface.Oik.Tm.Services
 {
-  public class TmTelecontrolService
+  public class TmTelecontrolService : ITmTelecontrolService
   {
     private readonly ICommonInfrastructure _infr;
     private readonly IOikDataApi           _api;
