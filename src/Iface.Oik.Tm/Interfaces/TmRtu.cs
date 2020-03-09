@@ -1,13 +1,18 @@
 ﻿namespace Iface.Oik.Tm.Interfaces
 {
-  public readonly struct TmRtu
+  public class TmRtu
   {
     public int    ChannelId { get; }
     public int    RtuId     { get; }
     public string Name      { get; }
 
 
-    public TmRtu(int channelId, int rtuId, string name) => (ChannelId, RtuId, Name) = (channelId, rtuId, name);
+    public TmRtu(int channelId, int rtuId, string name)
+    {
+      ChannelId = channelId;
+      RtuId     = rtuId;
+      Name      = name;
+    }
 
 
     public static int ToSqlTma(int channelId, int rtuId)
