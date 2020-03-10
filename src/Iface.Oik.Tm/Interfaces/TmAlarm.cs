@@ -31,6 +31,26 @@ namespace Iface.Oik.Tm.Interfaces
         : "Отключена";
 
 
+    public TmAlarm(short    id,
+                   string   name,
+                   float    compareValue,
+                   short    compareSign,
+                   short    importance,
+                   short    isInUse,
+                   bool     isActive,
+                   TmAnalog tmAnalog)
+    {
+      Id                   = id;
+      Name                 = name;
+      CompareValue         = compareValue;
+      IsCompareGreaterThan = (compareSign == 0);
+      Importance           = importance;
+      IsInUse              = (isInUse > 0);
+      IsActive             = isActive;
+      TmAnalog             = tmAnalog;
+    }
+
+
     public static TmAlarm CreateFromDto(TmAlarmDto dto)
     {
       return new TmAlarm(dto.AlarmId,
@@ -54,26 +74,6 @@ namespace Iface.Oik.Tm.Interfaces
                          dto.InUse,
                          dto.Active,
                          analog);
-    }
-
-
-    public TmAlarm(short    id,
-                   string   name,
-                   float    compareValue,
-                   short    compareSign,
-                   short    importance,
-                   short    isInUse,
-                   bool     isActive,
-                   TmAnalog tmAnalog)
-    {
-      Id                   = id;
-      Name                 = name;
-      CompareValue         = compareValue;
-      IsCompareGreaterThan = (compareSign == 0);
-      Importance           = importance;
-      IsInUse              = (isInUse > 0);
-      IsActive             = isActive;
-      TmAnalog             = tmAnalog;
     }
   }
 }

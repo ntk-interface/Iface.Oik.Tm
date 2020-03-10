@@ -181,7 +181,7 @@ namespace GuiApp.Shared.ViewModels
     {
       AddToLog("Активные уставки:");
       var alarms = await _api.GetPresentAlarms();
-      alarms?.ForEach(AddToLog);
+      alarms?.ForEach(alarm => AddToLog($"{alarm.FullName}, {alarm.StateName}"));
     }
 
 
