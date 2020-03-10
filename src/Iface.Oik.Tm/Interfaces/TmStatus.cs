@@ -486,8 +486,8 @@ namespace Iface.Oik.Tm.Interfaces
     {
       if (dto?.Name == null) return;
 
-      UpdateWithDto(dto.AdaptToTmStatusDto());
-      UpdatePropertiesWithDto(dto.AdaptToTmStatusPropertiesDto());
+      UpdateWithDto(dto.MapToTmStatusDto());
+      UpdatePropertiesWithDto(dto.MapToTmStatusPropertiesDto());
     }
   }
 }

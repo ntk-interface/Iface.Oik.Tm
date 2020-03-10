@@ -411,8 +411,8 @@ namespace Iface.Oik.Tm.Interfaces
     {
       if (dto?.Name == null) return;
 
-      UpdateWithDto(dto.AdaptToTmAnalogDto());
-      UpdatePropertiesWithDto(dto.AdaptToTmAnalogPropertiesDto());
+      UpdateWithDto(dto.MapToTmAnalogDto());
+      UpdatePropertiesWithDto(dto.MapToTmAnalogPropertiesDto());
     }
   }
 }

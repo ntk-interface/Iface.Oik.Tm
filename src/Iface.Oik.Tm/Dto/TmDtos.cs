@@ -2,6 +2,21 @@ using System;
 
 namespace Iface.Oik.Tm.Dto
 {
+  public class TmChannelDto
+  {
+    public int    ChannelId { get; set; }
+    public string Name      { get; set; }
+  }
+
+
+  public class TmRtuDto
+  {
+    public int    ChannelId { get; set; }
+    public int    RtuId     { get; set; }
+    public string Name      { get; set; }
+  }
+
+
   public class TmStatusDto
   {
     public short     VCode      { get; set; }

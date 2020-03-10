@@ -1,8 +1,22 @@
+using Iface.Oik.Tm.Interfaces;
+
 namespace Iface.Oik.Tm.Dto
 {
   public static class TmDtosExtensions
   {
-    public static TmStatusDto AdaptToTmStatusDto(this TmStatusTmTreeDto dto)
+    public static TmChannel MapToTmChannel(this TmChannelDto dto)
+    {
+      return new TmChannel(dto.ChannelId, dto.Name);
+    }
+
+
+    public static TmRtu MapToTmRtu(this TmRtuDto dto)
+    {
+      return new TmRtu(dto.ChannelId, dto.RtuId, dto.Name);
+    }
+
+
+    public static TmStatusDto MapToTmStatusDto(this TmStatusTmTreeDto dto)
     {
       return new TmStatusDto
       {
@@ -14,7 +28,7 @@ namespace Iface.Oik.Tm.Dto
     }
 
 
-    public static TmStatusPropertiesDto AdaptToTmStatusPropertiesDto(this TmStatusTmTreeDto dto)
+    public static TmStatusPropertiesDto MapToTmStatusPropertiesDto(this TmStatusTmTreeDto dto)
     {
       return new TmStatusPropertiesDto
       {
@@ -42,7 +56,7 @@ namespace Iface.Oik.Tm.Dto
     }
 
 
-    public static TmAnalogDto AdaptToTmAnalogDto(this TmAnalogTmTreeDto dto)
+    public static TmAnalogDto MapToTmAnalogDto(this TmAnalogTmTreeDto dto)
     {
       return new TmAnalogDto
       {
@@ -53,7 +67,7 @@ namespace Iface.Oik.Tm.Dto
     }
 
 
-    public static TmAnalogPropertiesDto AdaptToTmAnalogPropertiesDto(this TmAnalogTmTreeDto dto)
+    public static TmAnalogPropertiesDto MapToTmAnalogPropertiesDto(this TmAnalogTmTreeDto dto)
     {
       return new TmAnalogPropertiesDto
       {

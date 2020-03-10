@@ -431,11 +431,12 @@ namespace Iface.Oik.Tm.Api
         {
           await sql.OpenAsync().ConfigureAwait(false);
           var commandText = "SELECT ch AS ChannelId, name AS Name FROM oik_chn ORDER BY ch";
-          var channels = await sql.DbConnection
-                                  .QueryAsync<TmChannel>(commandText)
+          var dtos = await sql.DbConnection
+                                  .QueryAsync<TmChannelDto>(commandText)
                                   .ConfigureAwait(false);
 
-          return channels.ToList();
+          return dtos.Select(dto => dto.MapToTmChannel())
+                     .ToList();
         }
       }
       catch (NpgsqlException ex)
@@ -462,11 +463,12 @@ namespace Iface.Oik.Tm.Api
           await sql.OpenAsync().ConfigureAwait(false);
           var commandText = "SELECT @Ch AS ChannelId, rtu AS RtuId, name AS Name FROM oik_rtu WHERE ch = @Ch";
           var parameters  = new {Ch = channelId};
-          var rtus = await sql.DbConnection
-                              .QueryAsync<TmRtu>(commandText, parameters)
+          var dtos = await sql.DbConnection
+                              .QueryAsync<TmRtuDto>(commandText, parameters)
                               .ConfigureAwait(false);
 
-          return rtus.ToList();
+          return dtos.Select(dto => dto.MapToTmRtu())
+                     .ToList();
         }
       }
       catch (NpgsqlException ex)
