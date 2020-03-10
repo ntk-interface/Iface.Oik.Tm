@@ -52,7 +52,7 @@ namespace ConsoleApp
       Console.WriteLine(ti);
 
       Console.WriteLine("Активные уставки:");
-      (await _api.GetPresentAlarms())?.ForEach(Console.WriteLine);
+      (await _api.GetPresentAlarms())?.ForEach(alarm => Console.WriteLine($"{alarm.FullName}, {alarm.StateName}"));
 
       Console.WriteLine("Активные АПС:");
       (await _api.GetPresentAps())?.ForEach(Console.WriteLine);
