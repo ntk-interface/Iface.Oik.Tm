@@ -16,7 +16,7 @@ namespace ConsoleAppWithoutSql
     {
       // требуется для работы с кодировкой Win-1251
       Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-      
+
       // устанавливаем соединение с сервером ОИК
       try
       {
@@ -27,10 +27,11 @@ namespace ConsoleAppWithoutSql
         Console.WriteLine(ex.Message);
         Environment.Exit(-1);
       }
-      
+
       // .NET Generic Host
       CreateHostBuilder(args).Build().Run();
     }
+
 
     public static IHostBuilder CreateHostBuilder(string[] args) =>
       Host.CreateDefaultBuilder(args)
@@ -44,7 +45,7 @@ namespace ConsoleAppWithoutSql
             services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
             services.AddSingleton<ServerService>();
             services.AddSingleton<ICommonServerService>(provider => provider.GetService<ServerService>());
-            
+
             // регистрация фоновых служб
             services.AddHostedService<TmStartup>();
             services.AddSingleton<IHostedService>(provider => provider.GetService<ServerService>());
