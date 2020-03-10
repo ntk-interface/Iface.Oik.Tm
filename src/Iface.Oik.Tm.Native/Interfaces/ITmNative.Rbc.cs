@@ -10,5 +10,10 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     bool RbcIpgStopRedirector(Int32  cid,
                               UInt16 portIdx);
+
+
+    Int32 RbcGetSecurity(Int32      cid,
+                         out bool   pAdmin,
+                         out UInt32 pAccessMask);
   }
 }

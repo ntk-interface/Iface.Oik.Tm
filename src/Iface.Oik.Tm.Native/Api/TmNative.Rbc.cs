@@ -18,5 +18,13 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return rbcIpgStopRedirector(cid, portIdx);
     }
+
+
+    public Int32 RbcGetSecurity(Int32      cid,
+                                out bool   pAdmin,
+                                out UInt32 pAccessMask)
+    {
+      return rbcGetSecurity(cid, out pAdmin, out pAccessMask);
+    }
   }
 }

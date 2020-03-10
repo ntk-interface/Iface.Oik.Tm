@@ -78,6 +78,16 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
+    public static TmSecurityAccessFlags GetSecurityAccessFlags(int tmCid)
+    {
+      if (Native.RbcGetSecurity(tmCid, out var isAdmin, out var accessFlags) == 0)
+      {
+        return TmSecurityAccessFlags.None;
+      }
+      return (TmSecurityAccessFlags) accessFlags;
+    }
+
+
     public static TmUserInfo GetUserInfo(int    tmCid,
                                          string serverName)
     {
