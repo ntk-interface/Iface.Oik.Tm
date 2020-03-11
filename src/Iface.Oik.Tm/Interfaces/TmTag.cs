@@ -183,55 +183,30 @@ namespace Iface.Oik.Tm.Interfaces
         {
           continue;
         }
-        Properties.Add(kvp[0], kvp[1]);
-        if (kvp[0] == "Name")
-        {
-          Name = kvp[1];
-        }
+
+        SetTmcObjectSpecificProperties(kvp[0], kvp[1]);
+
         switch (this)
         {
-          case TmAnalog tmAnalog:
-          {
-            if (kvp[0] == "Units")
-            {
-              tmAnalog.Unit = kvp[1];
-            }
-            if (kvp[0] == "Format")
-            {
-              var formatParts = kvp[1].Split('.');
-              if (formatParts.Length > 1                        &&
-                  byte.TryParse(formatParts[0], out byte width) &&
-                  byte.TryParse(formatParts[1], out byte precision))
-              {
-                tmAnalog.Width     = width;
-                tmAnalog.Precision = precision;
-              }
-            }
-            if (kvp[0] == "FBFlagsC")
-            {
-              tmAnalog.Teleregulation = TmAnalog.GetRegulationFromNativeFlag(kvp[1]);
-            }
-            break;
-          }
           case TmStatus tmStatus:
-          {
-            if (kvp[0] == "Normal")
-            {
-              if (int.TryParse(kvp[1], out var normalStatus))
-              {
-                tmStatus.NormalStatus = (short) ((normalStatus == 0 || normalStatus == 1) ? normalStatus : -1);
-              }
-            }
-            if (kvp[0] == "Importance")
-            {
-              if (int.TryParse(kvp[1], out var importance))
-              {
-                tmStatus.Importance = (short) importance;
-              }
-            }
+            tmStatus.SetTmcObjectSpecificProperties(kvp[0], kvp[1]);
             break;
-          }
+
+          case TmAnalog tmAnalog:
+            tmAnalog.SetTmcObjectSpecificProperties(kvp[0], kvp[1]);
+            break;
         }
+      }
+    }
+
+
+    private void SetTmcObjectSpecificProperties(string key, string value)
+    {
+      Properties.AddWithUniquePostfixIfNeeded(key, value);
+
+      if (key == "Name")
+      {
+        Name = value;
       }
     }
 

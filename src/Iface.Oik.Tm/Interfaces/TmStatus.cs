@@ -312,6 +312,25 @@ namespace Iface.Oik.Tm.Interfaces
       }
       return defaultValue;
     }
+    
+
+    public void SetTmcObjectSpecificProperties(string key, string value)
+    {
+      if (key == "Normal")
+      {
+        if (int.TryParse(value, out var normalStatus))
+        {
+          NormalStatus = (short) ((normalStatus == 0 || normalStatus == 1) ? normalStatus : -1);
+        }
+      }
+      if (key == "Importance")
+      {
+        if (int.TryParse(value, out var importance))
+        {
+          Importance = (short) importance;
+        }
+      }
+    }
 
 
     public void FromTmcCommonPoint(TmNativeDefs.TCommonPoint tmcCommonPoint)

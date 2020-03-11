@@ -236,6 +236,17 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
         analog.Teleregulation.Should().Be(expectedTeleregulation);
       }
+
+
+      [Theory, TmAutoFakeItEasyData]
+      public void SetsCorrectDuplicateKeys(TmStatus status)
+      {
+        var sb = new StringBuilder("A=1\r\nA=2\r\nA=3");
+        
+        status.SetTmcObjectProperties(sb);
+
+        status.Properties.Should().ContainKeys("A", "A_1", "A_2");
+      }
     }
 
 
