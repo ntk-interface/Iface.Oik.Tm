@@ -46,8 +46,8 @@ namespace Iface.Oik.Tm.Test.Utils
 
         result.Should().BeTrue();
       }
-      
-      
+
+
       [Fact]
       public void ReturnsTrueWhenOrderDiffers()
       {
@@ -68,7 +68,8 @@ namespace Iface.Oik.Tm.Test.Utils
 
         result.Should().BeTrue();
       }
-      
+
+
       [Fact]
       public void ReturnsFalseWhenNull()
       {
@@ -84,7 +85,8 @@ namespace Iface.Oik.Tm.Test.Utils
 
         result.Should().BeFalse();
       }
-      
+
+
       [Fact]
       public void ReturnsFalseWhenValueDiffers()
       {
@@ -105,7 +107,8 @@ namespace Iface.Oik.Tm.Test.Utils
 
         result.Should().BeFalse();
       }
-      
+
+
       [Fact]
       public void ReturnsFalseWhenKeyDiffers()
       {
@@ -126,7 +129,8 @@ namespace Iface.Oik.Tm.Test.Utils
 
         result.Should().BeFalse();
       }
-      
+
+
       [Fact]
       public void ReturnsFalseWhenFirstIsBigger()
       {
@@ -146,7 +150,8 @@ namespace Iface.Oik.Tm.Test.Utils
 
         result.Should().BeFalse();
       }
-      
+
+
       [Fact]
       public void ReturnsFalseWhenSecondIsBigger()
       {
@@ -165,6 +170,31 @@ namespace Iface.Oik.Tm.Test.Utils
         var result = dict1.DictionaryEquals(dict2);
 
         result.Should().BeFalse();
+      }
+    }
+
+
+    public class AddWithUniquePostfixIfNeededMethod
+    {
+      [Fact]
+      public void AddsCorrectKeyValuePairs()
+      {
+        var dict = new Dictionary<string, string>();
+
+        dict.AddWithUniquePostfixIfNeeded("a", "value1");
+        dict.AddWithUniquePostfixIfNeeded("b", "value2");
+        dict.AddWithUniquePostfixIfNeeded("c", "value3");
+        dict.AddWithUniquePostfixIfNeeded("c", "value4");
+        dict.AddWithUniquePostfixIfNeeded("c", "value5");
+
+        dict.Should().Equal(new Dictionary<string, string>
+        {
+          {"a", "value1"}, 
+          {"b", "value2"},
+          {"c", "value3"},
+          {"c_1", "value4"},
+          {"c_2", "value5"},
+        });
       }
     }
   }

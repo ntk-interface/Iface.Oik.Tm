@@ -132,13 +132,13 @@ namespace Iface.Oik.Tm.Interfaces
     EditStatuses = 0x00_00_00_02,
     EditAnalogs  = 0x00_00_00_04,
     EditAccums   = 0x00_00_00_08,
-    Telecontrol  = 0x00_00_01_00,
-    GetRetro     = 0x00_00_02_00,
-    GetEvents    = 0x00_00_04_00,
-    EditAlarms   = 0x00_00_08_00,
-    GetTmSource  = 0x00_00_10_00,
-    GetHardware  = 0x00_00_20_00,
-    EditTob      = 0x00_00_40_00,
+    Telecontrol  = 0x00_00_00_10,
+    GetRetro     = 0x00_00_00_20,
+    GetEvents    = 0x00_00_00_40,
+    EditAlarms   = 0x00_00_00_80,
+    GetTmSource  = 0x00_00_01_00,
+    GetHardware  = 0x00_00_02_00,
+    EditTob      = 0x00_00_04_00,
   }
 
 

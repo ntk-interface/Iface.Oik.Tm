@@ -24,5 +24,27 @@ namespace Iface.Oik.Tm.Utils
       return dict1.All(kvp => dict2.TryGetValue(kvp.Key, out var value2) &&
                               (kvp.Value == null ? value2 == null : kvp.Value.Equals(value2)));
     }
+
+
+    public static void AddWithUniquePostfixIfNeeded<TValue>(this IDictionary<string, TValue> dict,
+                                                            string                           key,
+                                                            TValue                           value)
+    {
+      if (!dict.ContainsKey(key))
+      {
+        dict.Add(key, value);
+        return;
+      }
+
+      var    postfix = 0;
+      string uniqueKey;
+      do
+      {
+        postfix++;
+        uniqueKey = $"{key}_{postfix}";
+      } while (dict.ContainsKey(uniqueKey));
+      
+      dict.Add(uniqueKey, value);
+    }
   }
 }

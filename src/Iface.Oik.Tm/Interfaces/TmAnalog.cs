@@ -285,6 +285,30 @@ namespace Iface.Oik.Tm.Interfaces
           return TmTeleregulation.None;
       }
     }
+    
+
+    public void SetTmcObjectSpecificProperties(string key, string value)
+    {
+      if (key == "Units")
+      {
+        Unit = value;
+      }
+      if (key == "Format")
+      {
+        var formatParts = value.Split('.');
+        if (formatParts.Length > 1                        &&
+            byte.TryParse(formatParts[0], out byte width) &&
+            byte.TryParse(formatParts[1], out byte precision))
+        {
+          Width     = width;
+          Precision = precision;
+        }
+      }
+      if (key == "FBFlagsC")
+      {
+        Teleregulation = TmAnalog.GetRegulationFromNativeFlag(value);
+      }
+    }
 
 
     public void FromTmcCommonPoint(TmNativeDefs.TCommonPoint tmcCommonPoint)
