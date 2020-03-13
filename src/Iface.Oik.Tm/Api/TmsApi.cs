@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -1850,7 +1850,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IReadOnlyList<TmEvent>> GetEventsByElix(TmEventFilter filter) // TODO unit test
+    public async Task<IReadOnlyCollection<TmEvent>> GetEventsArchive(TmEventFilter filter) // TODO unit test
     {
       if (filter.StartTime == null || filter.EndTime == null)
       {
@@ -1874,6 +1874,35 @@ namespace Iface.Oik.Tm.Api
       }
 
       return events;
+    }
+
+    
+    public async Task<(IReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix)
+    {
+      if (elix == null) return (null, null);
+
+      var currentElix = new TmNativeDefs.TTMSElix
+      {
+        R = elix.R, 
+        M = elix.M
+      };
+
+      var events = new List<TmEvent>();
+
+      while (true)
+      {
+        var (eventsBatchList, lastBatchElix) = await GetEventsBatch(currentElix, 
+                                                                    TmEventTypes.Any, 
+                                                                    0, 
+                                                                    0xFFFFFFFF)
+                                                 .ConfigureAwait(false);
+        if (eventsBatchList.IsNullOrEmpty()) break;
+        events.AddRange(eventsBatchList);
+        currentElix = lastBatchElix;
+      }
+
+      return (events, new TmEventElix(currentElix.R, currentElix.M));
+
     }
 
 
