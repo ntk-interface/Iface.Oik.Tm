@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -1865,7 +1865,9 @@ namespace Iface.Oik.Tm.Api
 
       while (true)
       {
-        var (eventsBatchList, lastElix) = await GetEventsBatch(elix, filter.Types, startTime, endTime);
+        var (eventsBatchList, lastElix) = await GetEventsBatch(elix, filter.Types, startTime, endTime)
+                                            .ConfigureAwait(false);
+        
         if (eventsBatchList.IsNullOrEmpty()) break;
         events.AddRange(eventsBatchList);
         elix = lastElix;
@@ -1914,7 +1916,8 @@ namespace Iface.Oik.Tm.Api
                        }
 
                        _native.TmcFreeMemory(tmcEventsElixPtr);
-                     });
+                     })
+                .ConfigureAwait(false);
 
       return (eventsList, lastElix);
     }
