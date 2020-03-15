@@ -178,6 +178,13 @@ namespace Iface.Oik.Tm.Interfaces
         (ushort)(value & 0x00_00_FF_FF));
     }
 
+
+    public static TmAddr CreateFromSqlTmaAndTmaType(short tmaType, int value)
+    {
+      return CreateFromSqlTma(((TmNativeDefs.TmDataTypes) tmaType).ToTmType(), value);
+    }
+
+    
     public static TmAddr CreateFromSqlTma(TmType type, int value)
     {
       return CreateFromNormalized(type, (uint) value);

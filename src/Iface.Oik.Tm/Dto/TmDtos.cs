@@ -143,10 +143,29 @@ namespace Iface.Oik.Tm.Dto
     public short     Importance   { get; set; }
     public int       Tma          { get; set; }
     public string    TmaStr       { get; set; }
+    public short?    TmaType      { get; set; }
     public string    TmTypeName   { get; set; }
-    public short?    TmType       { get; set; }
     public short?    ClassId      { get; set; }
     public DateTime? AckTime      { get; set; }
     public string    AckUser      { get; set; }
+  }
+
+
+  public class TmAlertDto
+  {
+    public byte[]    AlertId    { get; set; }
+    public short     Importance { get; set; }
+    public bool      Active     { get; set; }
+    public bool      Unack      { get; set; }
+    public DateTime? OnTime     { get; set; }
+    public DateTime? OffTime    { get; set; }
+    public string    TypeName   { get; set; }
+    public string    Name       { get; set; }
+    public string    ValueText  { get; set; }
+    public DateTime? CurTime    { get; set; }
+    public float     CurValue   { get; set; }
+    public int       Tma        { get; set; }
+    public short?    TmaType    { get; set; }
+    public short?    ClassId    { get; set; }
   }
 }

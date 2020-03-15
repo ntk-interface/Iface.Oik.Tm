@@ -47,6 +47,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<IReadOnlyCollection<TmStatus>> GetAbnormalStatuses();
 
+    Task<IReadOnlyCollection<TmAlert>> GetAlerts();
+    
     Task<IReadOnlyCollection<TmAlarm>> GetPresentAlarms();
 
     Task<IReadOnlyCollection<TmAlarm>> GetAnalogAlarms(TmAnalog analog);

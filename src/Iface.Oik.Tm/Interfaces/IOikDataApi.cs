@@ -23,6 +23,7 @@ namespace Iface.Oik.Tm.Interfaces
     TmNativeCallback EmptyTmsCallbackDelegate { get; }
 
     event EventHandler TmEventsAcked;
+    event EventHandler TmAlertsChanged;
     event EventHandler UserInfoUpdated;
 
 
@@ -209,6 +210,9 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<TmStatus>> GetUnackedAps(PreferApi prefer = PreferApi.Auto);
 
     Task<IReadOnlyCollection<TmStatus>> GetAbnormalStatuses(PreferApi prefer = PreferApi.Auto);
+
+
+    Task<IReadOnlyCollection<TmAlert>> GetAlerts(PreferApi prefer = PreferApi.Auto);
 
 
     Task<IReadOnlyCollection<TmAlarm>> GetPresentAlarms(PreferApi prefer = PreferApi.Auto);

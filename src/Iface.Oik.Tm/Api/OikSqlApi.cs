@@ -683,6 +683,37 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<IReadOnlyCollection<TmAlert>> GetAlerts()
+    {
+      try
+      {
+        using (var sql = _createOikSqlConnection())
+        {
+          await sql.OpenAsync().ConfigureAwait(false);
+          var commandText = @"SELECT alert_id, importance, active, unack, on_time, off_time, type_name, name, tm_type, tma, class_id
+                                value_text, cur_time, cur_value 
+                              FROM oik_alerts";
+          var dtos = await sql.DbConnection
+                              .QueryAsync<TmAlertDto>(commandText)
+                              .ConfigureAwait(false);
+          
+          return dtos.Select(TmAlert.CreateFromDto)
+                     .ToList();
+        }
+      }
+      catch (NpgsqlException ex)
+      {
+        HandleNpgsqlException(ex);
+        return null;
+      }
+      catch (Exception ex)
+      {
+        HandleException(ex);
+        return null;
+      }
+    }
+
+
     public async Task<IReadOnlyCollection<TmAlarm>> GetPresentAlarms()
     {
       try
