@@ -803,6 +803,12 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<bool> RemoveAlert(TmAlert alert)
+    {
+      return false; // todo al
+    }
+
+
     public async Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTelecontrolScript(TmStatus tmStatus)
     {
       if (tmStatus == null) return (false, null);

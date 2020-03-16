@@ -215,6 +215,9 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<TmAlert>> GetAlerts(PreferApi prefer = PreferApi.Auto);
 
 
+    Task<bool> RemoveAlert(TmAlert alert, PreferApi prefer = PreferApi.Auto);
+
+
     Task<IReadOnlyCollection<TmAlarm>> GetPresentAlarms(PreferApi prefer = PreferApi.Auto);
 
 

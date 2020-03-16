@@ -18,6 +18,9 @@ namespace Iface.Oik.Tm.Interfaces
     public float     CurrentValue       { get; }
     public TmAddr    TmAddr             { get; }
 
+    public bool CanRemove => !IsActive &&
+                             !IsUnacked;
+
 
     public TmAlert(byte[]    id,
                    int       importance,

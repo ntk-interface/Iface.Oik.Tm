@@ -135,6 +135,9 @@ namespace Iface.Oik.Tm.Interfaces
                                                                                       int    step = 0);
 
 
+    Task<bool> RemoveAlert(TmAlert alert);
+
+
     Task<bool> AckTag(TmAddr addr);
 
     Task AckAllStatuses();
