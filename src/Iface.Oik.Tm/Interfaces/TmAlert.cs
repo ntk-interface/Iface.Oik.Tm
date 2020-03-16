@@ -3,7 +3,7 @@ using Iface.Oik.Tm.Dto;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public readonly struct TmAlert
+  public class TmAlert
   {
     public byte[]    Id                 { get; }
     public int       Importance         { get; }
