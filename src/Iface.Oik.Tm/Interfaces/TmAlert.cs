@@ -16,10 +16,17 @@ namespace Iface.Oik.Tm.Interfaces
     public string    CurrentValueString { get; }
     public DateTime? CurrentValueTime   { get; }
     public float     CurrentValue       { get; }
+    public int       TmClassId          { get; }
     public TmAddr    TmAddr             { get; }
 
     public bool CanRemove => !IsActive &&
                              !IsUnacked;
+
+    public string ImportanceName  => TmEvent.ImportanceToName(Importance);
+    public string ImportanceAlias => TmEvent.ImportanceToAlias(Importance);
+
+    public bool HasTmStatus => TmAddr.Type == TmType.Status;
+    public bool HasTmAnalog => TmAddr.Type == TmType.Analog;
 
 
     public TmAlert(byte[]    id,
@@ -33,6 +40,7 @@ namespace Iface.Oik.Tm.Interfaces
                    string    currentValueString,
                    DateTime? currentValueTime,
                    float     currentValue,
+                   int       tmClassId,
                    TmAddr    tmAddr)
     {
       Id                 = id;
@@ -46,6 +54,7 @@ namespace Iface.Oik.Tm.Interfaces
       CurrentValueString = currentValueString;
       CurrentValueTime   = currentValueTime;
       CurrentValue       = currentValue;
+      TmClassId          = tmClassId;
       TmAddr             = tmAddr;
     }
 
@@ -63,6 +72,7 @@ namespace Iface.Oik.Tm.Interfaces
                          dto.ValueText,
                          dto.CurTime,
                          dto.CurValue,
+                         dto.ClassId ?? 0,
                          TmAddr.CreateFromSqlTmaAndTmaType(dto.TmaType ?? 0,
                                                            dto.Tma));
     }
