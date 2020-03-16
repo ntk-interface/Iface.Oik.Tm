@@ -690,7 +690,7 @@ namespace Iface.Oik.Tm.Api
         using (var sql = _createOikSqlConnection())
         {
           await sql.OpenAsync().ConfigureAwait(false);
-          var commandText = @"SELECT alert_id, importance, active, unack, on_time, off_time, type_name, name, tm_type, tma, class_id
+          var commandText = @"SELECT alert_id, importance, active, unack, on_time, off_time, type_name, name, tm_type, tma, class_id,
                                 value_text, cur_time, cur_value 
                               FROM oik_alerts";
           var dtos = await sql.DbConnection
