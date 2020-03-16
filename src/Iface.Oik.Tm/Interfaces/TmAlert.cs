@@ -74,7 +74,7 @@ namespace Iface.Oik.Tm.Interfaces
                          dto.CurTime,
                          dto.CurValue,
                          dto.ClassId ?? 0,
-                         TmAddr.CreateFromSqlTmaAndTmaType(dto.TmType ?? 0,
+                         TmAddr.CreateFromSqlTmaAndTmaType((ushort) (dto.TmType ?? 0),
                                                            dto.Tma));
     }
   }
