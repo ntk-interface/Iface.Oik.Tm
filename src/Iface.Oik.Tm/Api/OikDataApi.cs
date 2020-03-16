@@ -19,6 +19,7 @@ namespace Iface.Oik.Tm.Api
     public TmNativeCallback EmptyTmsCallbackDelegate { get; } = delegate { };
 
     public event EventHandler TmEventsAcked   = delegate { };
+    public event EventHandler TmAlertsChanged = delegate { };
     public event EventHandler UserInfoUpdated = delegate { };
 
     public bool IsTmsAllowed { get; set; } = true;
@@ -58,7 +59,14 @@ namespace Iface.Oik.Tm.Api
           buf[1] == 'L' &&
           buf[2] == 'A')
       {
-        TmEventsAcked?.Invoke(this, EventArgs.Empty);
+        TmEventsAcked.Invoke(this, EventArgs.Empty);
+      }
+      else if (buf[0] == 'A' &&
+               buf[1] == 'L' &&
+               buf[2] == 'R' &&
+               buf[3] == 'T')
+      {
+        TmAlertsChanged.Invoke(this, EventArgs.Empty);
       }
     }
 
@@ -842,6 +850,24 @@ namespace Iface.Oik.Tm.Api
       else if (api == ApiSelection.Sql)
       {
         return await _sql.GetAbnormalStatuses().ConfigureAwait(false);
+      }
+      else
+      {
+        return null;
+      }
+    }
+
+
+    public async Task<IReadOnlyCollection<TmAlert>> GetAlerts(PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
+      if (api == ApiSelection.Tms)
+      {
+        throw new NotImplementedException();
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        return await _sql.GetAlerts().ConfigureAwait(false);
       }
       else
       {

@@ -90,7 +90,7 @@ namespace Iface.Oik.Tm.Interfaces
                            dto.Tma,
                            dto.TmaStr,
                            dto.TmTypeName,
-                           dto.TmType,
+                           dto.TmaType,
                            dto.ClassId,
                            dto.AckTime,
                            dto.AckUser);
