@@ -119,12 +119,12 @@ namespace Iface.Oik.Tm.Interfaces
       var eventTypeString = (eventType == TmEventTypes.StatusChange    ||
                              eventType == TmEventTypes.ManualStatusSet ||
                              eventType == TmEventTypes.Alarm)
-                              ? tmTypeString
-                              : typeString;
+        ? tmTypeString
+        : typeString;
 
       var eventText = (eventType == TmEventTypes.Extended)
-                        ? text
-                        : name;
+        ? text
+        : name;
 
       var tmEvent = new TmEvent(elixBytes != null ? BitConverter.ToInt32(elixBytes, 8) : 0)
       {
@@ -175,14 +175,13 @@ namespace Iface.Oik.Tm.Interfaces
 
       var tmEvent = new TmEvent(BitConverter.ToInt32(tmEventElix.ToByteArray(), 8))
       {
-        Elix         = tmEventElix,
-        Time         = DateUtil.GetDateTime(System.Text.Encoding.Default.GetString(tEventElix.Event.DateTime)),
-        Type         = tmEventType,
-        Importance   = tEventElix.Event.Imp,
-        TmAddrString = GetTmAddrStringFromTEvent(tEventElix.Event),
-        TmAddrType   = GetTmTypeFromTEvent(tEventElix.Event),
-        Text         = sourceObjectName,
+        Elix                 = tmEventElix,
+        Time                 = DateUtil.GetDateTime(System.Text.Encoding.Default.GetString(tEventElix.Event.DateTime)),
+        Type                 = tmEventType,
+        Importance           = tEventElix.Event.Imp,
+        Text                 = sourceObjectName,
       };
+      (tmEvent.TmAddrString, tmEvent.TmAddrComplexInteger, tmEvent.TmAddrType) = GetTmAddrFromTEvent(tEventElix.Event);
 
       if (eventAddData.AckSec != 0 && !eventAddData.UserName.IsNullOrEmpty())
       {
@@ -211,8 +210,8 @@ namespace Iface.Oik.Tm.Interfaces
             if (extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.TmFlags))
             {
               tmEvent.Reference = tmEvent.Reference == null
-                                    ? $"F=${statusData.Flags:X8}"
-                                    : $"{tmEvent.Reference} F=${statusData.Flags:X8}";
+                ? $"F=${statusData.Flags:X8}"
+                : $"{tmEvent.Reference} F=${statusData.Flags:X8}";
             }
 
             if (extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.Secondary))
@@ -235,19 +234,19 @@ namespace Iface.Oik.Tm.Interfaces
           if (isS2Only)
           {
             tmEvent.StateString = tmEvent.StateString.IsNullOrEmpty()
-                                    ? "ИЗМ. АТРИБУТОВ"
-                                    : $"{tmEvent.StateString} ИЗМ. АТРИБУТОВ";
+              ? "ИЗМ. АТРИБУТОВ"
+              : $"{tmEvent.StateString} ИЗМ. АТРИБУТОВ";
             tmEvent.StateString = s2 == 0
-                                    ? $"{tmEvent.StateString} - НОРМА"
-                                    : $"{tmEvent.StateString} {GetS2StatusString(s2)}";
+              ? $"{tmEvent.StateString} - НОРМА"
+              : $"{tmEvent.StateString} {GetS2StatusString(s2)}";
           }
           else
           {
             var stateString = statusData.State == 1 ? "ВКЛ" : "ОТКЛ";
 
             tmEvent.StateString = tmEvent.StateString.IsNullOrEmpty()
-                                    ? $"{stateString}"
-                                    : $"{tmEvent.StateString} {stateString}";
+              ? $"{stateString}"
+              : $"{tmEvent.StateString} {stateString}";
             if (s2 != 0)
             {
               tmEvent.StateString = $"{tmEvent.StateString} {GetS2StatusString(s2)}";
@@ -339,8 +338,8 @@ namespace Iface.Oik.Tm.Interfaces
     public override int GetHashCode()
     {
       return _hashCode != 0
-               ? _hashCode
-               : base.GetHashCode();
+        ? _hashCode
+        : base.GetHashCode();
     }
 
 
@@ -386,7 +385,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    private static string GetTmAddrStringFromTEvent(TmNativeDefs.TEvent tEvent)
+    private static (string, uint, TmType) GetTmAddrFromTEvent(TmNativeDefs.TEvent tEvent)
     {
       switch ((TmEventTypes) tEvent.Id)
       {
@@ -394,32 +393,20 @@ namespace Iface.Oik.Tm.Interfaces
         case TmEventTypes.Control:
         case TmEventTypes.ManualStatusSet:
         case TmEventTypes.Acknowledge:
-          return $"#TC{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
+          return (
+            $"#TC{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}",
+            (uint) (tEvent.Point + (tEvent.Rtu << 16) + (tEvent.Ch << 24)),
+            TmType.Status);
 
         case TmEventTypes.Alarm:
         case TmEventTypes.ManualAnalogSet:
-          return $"#ТТ{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
+          return (
+            $"#TT{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}",
+            (uint) (tEvent.Point + (tEvent.Rtu << 16) + (tEvent.Ch << 24)),
+            TmType.Analog);
+
         default:
-          return string.Empty;
-      }
-    }
-
-
-    private static TmType GetTmTypeFromTEvent(TmNativeDefs.TEvent tEvent)
-    {
-      switch ((TmEventTypes) tEvent.Id)
-      {
-        case TmEventTypes.StatusChange:
-        case TmEventTypes.Control:
-        case TmEventTypes.ManualStatusSet:
-        case TmEventTypes.Acknowledge:
-          return TmType.Status;
-
-        case TmEventTypes.Alarm:
-        case TmEventTypes.ManualAnalogSet:
-          return TmType.Analog;
-        default:
-          return TmType.Unknown;
+          return (string.Empty, 0, TmType.Unknown);
       }
     }
 
