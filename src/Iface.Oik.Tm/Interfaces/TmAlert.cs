@@ -1,5 +1,6 @@
 using System;
 using Iface.Oik.Tm.Dto;
+using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
@@ -66,14 +67,14 @@ namespace Iface.Oik.Tm.Interfaces
                          dto.Active,
                          dto.Unack,
                          dto.OnTime,
-                         dto.OffTime,
+                         dto.OffTime.NullIfEpoch(),
                          dto.TypeName,
                          dto.Name,
                          dto.ValueText,
                          dto.CurTime,
                          dto.CurValue,
                          dto.ClassId ?? 0,
-                         TmAddr.CreateFromSqlTmaAndTmaType(dto.TmaType ?? 0,
+                         TmAddr.CreateFromSqlTmaAndTmaType(dto.TmType ?? 0,
                                                            dto.Tma));
     }
   }
