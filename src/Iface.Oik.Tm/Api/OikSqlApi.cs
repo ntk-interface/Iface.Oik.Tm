@@ -19,15 +19,11 @@ namespace Iface.Oik.Tm.Api
     private Func<ICommonOikSqlConnection> _createOikSqlConnection;
 
 
-    public OikSqlApi()
-    {
-      DefaultTypeMap.MatchNamesWithUnderscores = true; // Dapper
-    }
-
-
     public void SetCreateOikSqlConnection(Func<ICommonOikSqlConnection> createOikSqlConnection)
     {
       _createOikSqlConnection = createOikSqlConnection;
+      
+      DefaultTypeMap.MatchNamesWithUnderscores = true; // Dapper
     }
 
 

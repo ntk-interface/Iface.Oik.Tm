@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapper;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Services;
 using Iface.Oik.Tm.Utils;
@@ -65,8 +66,8 @@ namespace Iface.Oik.Tm.Helpers
 
     private void DoWork()
     {
-      var tmsSystemTime = Tms.GetSystemTime(_tmCid);
-      if (tmsSystemTime == null)
+      var isTmsConnected = CheckTms();
+      if (!isTmsConnected)
       {
         IsConnected = false;
         return;
@@ -74,39 +75,47 @@ namespace Iface.Oik.Tm.Helpers
 
       if (!CheckSqlConnection)
       {
-        ServerTime  = tmsSystemTime.Value;
         IsConnected = true;
         return;
       }
 
+      IsConnected = CheckSql();
+    }
+
+
+    private bool CheckTms()
+    {
+      var serverTime = Tms.GetSystemTime(_tmCid);
+      if (!serverTime.HasValue)
+      {
+        return false;
+      }
+      ServerTime = serverTime.Value;
+      return true;
+    }
+
+
+    private bool CheckSql()
+    {
       try
       {
         using (var sql = _createOikSqlConnection())
         {
           sql.Open();
-          using (var cmd = sql.CreateCommand())
+          var serverTime = sql.DbConnection.QueryFirstOrDefault<DateTime?>("SELECT oik_systemtime()");
+          if (!serverTime.HasValue)
           {
-            cmd.CommandText = "SELECT oik_systemtime()";
-            using (var reader = cmd.ExecuteReaderSeq())
-            {
-              if (!reader.Read())
-              {
-                IsConnected = false;
-                return;
-              }
-              ServerTime = reader.GetDateTime(0);
-            }
+            return false;
           }
+          ServerTime = serverTime.Value;
+          return true;
         }
       }
       catch (Exception ex)
       {
         Console.WriteLine(ex.Message);
-        IsConnected = false;
-        return;
+        return false;
       }
-
-      IsConnected = true;
     }
   }
 }

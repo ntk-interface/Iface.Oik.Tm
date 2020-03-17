@@ -24,9 +24,6 @@ namespace Iface.Oik.Tm.Helpers
       TmsApi        = tms;
       OikSqlApi     = sql;
       ServerService = serverService;
-
-      OikSqlApi.SetCreateOikSqlConnection(CreateOikSqlConnection);
-      ServerService.SetCreateOikSqlConnection(CreateOikSqlConnection);
     }
 
 
@@ -36,6 +33,9 @@ namespace Iface.Oik.Tm.Helpers
       RbCid      = rbCid;
       RbPort     = rbPort;
       TmUserInfo = userInfo;
+
+      OikSqlApi.SetCreateOikSqlConnection(CreateOikSqlConnection);
+      ServerService.SetCreateOikSqlConnection(CreateOikSqlConnection);
 
       OikDataApi.SetUserInfo(TmUserInfo);
       TmsApi.SetCidAndUserInfo(TmCid, TmUserInfo);
