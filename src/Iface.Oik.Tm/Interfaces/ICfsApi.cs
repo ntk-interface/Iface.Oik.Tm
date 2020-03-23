@@ -8,25 +8,37 @@ namespace Iface.Oik.Tm.Interfaces
   {
     void SetCfIdAndHost(IntPtr cfId, string host);
 
+    
     Task<(IntPtr, DateTime)> OpenMasterServiceConfiguration();
 
+    
     Task<bool> SaveMasterServiceConfiguration(IntPtr treeHandle, string serverName);
 
+    
     Task<List<CfTreeNode>> GetMasterServiceTree(IntPtr rootHandle);
 
+    
     Task<IntPtr> CreateNewMasterServiceTree(IEnumerable<CfTreeNode> tree);
 
+    
     void FreeMasterServiceConfigurationHandle(IntPtr handle);
 
+    
     Task<uint> GetSoftware();
 
+    
     Task<CfsDefs.MasterServiceStatus> MasterServiceStatus();
 
+    
     Task StartMasterService();
 
+    
     Task StopMasterService();
 
-    Task<bool> IsConnected();
     
+    Task<bool> IsConnected();
+
+
+    Task GetTmServersTree();
   }
 }
