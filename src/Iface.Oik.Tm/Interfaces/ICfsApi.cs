@@ -39,6 +39,6 @@ namespace Iface.Oik.Tm.Interfaces
     Task<bool> IsConnected();
 
 
-    Task GetTmServersTree();
+    Task<IReadOnlyCollection<TmServer>> GetTmServersTree();
   }
 }

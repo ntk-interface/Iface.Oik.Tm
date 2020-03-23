@@ -490,10 +490,20 @@ namespace Iface.Oik.Tm.Api
                        .ConfigureAwait(false);
     }
 
-    public async Task GetTmServersTree()
+    public async Task<IReadOnlyCollection<TmServer>> GetTmServersTree()
     {
+      var lookup = new Dictionary<uint, TmServer>();
       var tmServers = await GetTmServers();
 
+      tmServers.ForEach(x => lookup.Add(x.ProcessId, x));
+      foreach (var tmServer in tmServers)
+      {
+        if (!lookup.TryGetValue(tmServer.ParentProcessId, out var proposedParent)) continue;
+        tmServer.Parent = proposedParent;
+        proposedParent.Children.Add(tmServer);
+      }
+
+      return lookup.Values.Where(x => x.Parent == null).ToList();
     }
 
 
@@ -508,9 +518,7 @@ namespace Iface.Oik.Tm.Api
       {
         var tmServer = TmServer.CreateFromIfaceServer(await GetIfaceServerData(serverId)
                                                         .ConfigureAwait(false));
-        var serverUsers = tmUsers.Where(x => x.ParentProcessId == tmServer.ProcessId)
-                                 .Select(x => x)
-                                 .ToList();
+        var serverUsers = tmUsers.Where(x => x.ParentProcessId == tmServer.ProcessId);
         tmServer.Users.AddRange(serverUsers);
         
         tmServersList.Add(tmServer); 
