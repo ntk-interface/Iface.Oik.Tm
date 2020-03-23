@@ -28,7 +28,7 @@ namespace Iface.Oik.Tm.Interfaces
     public uint ResState { get; private set; }
 
     public ObservableCollection<TmServer> Children { get; private set; }
-    public TmServer                       Parent   { get; private set; }
+    public TmServer                       Parent   { get; set; }
     public ObservableCollection<TmUser>   Users    { get; private set; }
 
     public TmServer()
@@ -57,18 +57,6 @@ namespace Iface.Oik.Tm.Interfaces
       tmServer.ResState        = ifaceServer.ResState;
 
       return tmServer;
-    }
-
-    public bool AddChildServer(TmServer tmServer)
-    {
-      if (tmServer.ParentProcessId != ProcessId)
-      {
-        return Children.Select(child => child.AddChildServer(tmServer)).Any(result => result);
-      }
-
-      tmServer.Parent = this;
-      Children.Add(tmServer);
-      return true;
     }
   }
 }
