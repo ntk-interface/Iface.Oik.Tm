@@ -23,7 +23,7 @@ namespace Iface.Oik.Tm.Native.Api
                                                        [MarshalAs(UnmanagedType.LPStr)] string serverName,
                                                        IntPtr                                  buf,
                                                        UInt32                                  bufSize);
-    
+
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern UInt32 cfsGetExtendedUserData(IntPtr                                  cfCid,
                                                        [MarshalAs(UnmanagedType.LPStr)] string serverType,
@@ -117,6 +117,39 @@ namespace Iface.Oik.Tm.Native.Api
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
     public static extern bool cfsIsConnected(IntPtr connId);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern IntPtr cfsTraceEnumServers(IntPtr                                         connId,
+                                                    out                              UInt32        errCode,
+                                                    [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
+                                                    UInt32                                         maxErrs);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern bool cfsTraceGetServerData(IntPtr                                  connId,
+                                                    [MarshalAs(UnmanagedType.LPStr)] string serverId,
+                                                    [In, Out]
+                                                    ref TmNativeDefs.IfaceServer ifaceServer,
+                                                    out                              uint          errCode,
+                                                    [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
+                                                    uint                                           maxErrs);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern IntPtr cfsTraceEnumUsers(IntPtr                                         connId,
+                                                  out                              UInt32        errCode,
+                                                  [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
+                                                  UInt32                                         maxErrs);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern bool cfsTraceGetUserData(IntPtr                                                  connId,
+                                                  [MarshalAs(UnmanagedType.LPStr)] string                 userId,
+                                                  [In, Out] ref                    TmNativeDefs.IfaceUser ifaceUser,
+                                                  out                              uint                   errCode,
+                                                  [MarshalAs(UnmanagedType.LPStr)] StringBuilder          errString,
+                                                  uint                                                    maxErrs);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.Cdecl)]

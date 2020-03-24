@@ -6,7 +6,6 @@ namespace Iface.Oik.Tm.Native.Api
 {
   public partial class TmNative
   {
-
     public bool CfsInitLibrary(string baseDir = null, string extArg = null)
     {
       return cfsInitLibrary(baseDir, extArg);
@@ -99,7 +98,7 @@ namespace Iface.Oik.Tm.Native.Api
       return cfsFileGet(cfCid, remotePath, localPath, timeout, fileTime, out errCode, errString, maxErrs);
     }
 
-    
+
     public IntPtr CfsConnect(string            serverName,
                              out UInt32        errCode,
                              ref StringBuilder errString,
@@ -108,7 +107,7 @@ namespace Iface.Oik.Tm.Native.Api
       return cfsConnect(serverName, out errCode, errString, maxErrs);
     }
 
-    
+
     public IntPtr CfsConfFileOpenCid(IntPtr                    connId,
                                      string                    serverName,
                                      string                    fileName,
@@ -121,7 +120,7 @@ namespace Iface.Oik.Tm.Native.Api
       return cfsConfFileOpenCid(connId, serverName, fileName, timeout, ref fileTime, out errCode, errString, maxErrs);
     }
 
-    
+
     public bool CfsConfFileSaveAs(IntPtr                    treeHandle,
                                   string                    serverName,
                                   string                    remoteFileName,
@@ -135,25 +134,61 @@ namespace Iface.Oik.Tm.Native.Api
                                maxErrs);
     }
 
-    
+
     public UInt32 CfsGetSoftwareType(IntPtr connId)
     {
       return cfsGetSoftwareType(connId);
     }
 
-    
+
     public UInt32 CfsIfpcMaster(IntPtr connId, Byte command)
     {
       return cfsIfpcMaster(connId, command);
     }
 
-    
+
     public bool CfsIsConnected(IntPtr connId)
     {
       return cfsIsConnected(connId);
     }
 
-    
+    public IntPtr CfsTraceEnumServers(IntPtr            connId,
+                                      out uint          errCode,
+                                      ref StringBuilder errString,
+                                      uint              maxErrs)
+    {
+      return cfsTraceEnumServers(connId, out errCode, errString, maxErrs);
+    }
+
+    public bool CfsTraceGetServerData(IntPtr                       connId,
+                                      string                       serverId,
+                                      ref TmNativeDefs.IfaceServer ifaceServer,
+                                      out uint                     errCode,
+                                      ref StringBuilder            errString,
+                                      uint                         maxErrs)
+    {
+      return cfsTraceGetServerData(connId, serverId, ref ifaceServer, out errCode, errString, maxErrs);
+    }
+
+    public IntPtr CfsTraceEnumUsers(IntPtr            connId,
+                                    out uint          errCode,
+                                    ref StringBuilder errString,
+                                    uint              maxErrs)
+    {
+      return cfsTraceEnumUsers(connId, out errCode, errString, maxErrs);
+    }
+
+    public bool CfsTraceGetUserData(IntPtr                     connId,
+                                    string                     userId,
+                                    ref TmNativeDefs.IfaceUser ifaceServer,
+                                    out uint                   errCode,
+                                    ref StringBuilder          errString,
+                                    uint                       maxErrs)
+    {
+      return cfsTraceGetUserData(connId, userId, ref ifaceServer, out errCode, errString, maxErrs);
+    }
+
+
     public Int64 UxGmTime2UxTime(Int64 time)
     {
       return uxgmtime2uxtime(time);
@@ -176,6 +211,5 @@ namespace Iface.Oik.Tm.Native.Api
     {
       e_printf(message);
     }
-    
   }
 }

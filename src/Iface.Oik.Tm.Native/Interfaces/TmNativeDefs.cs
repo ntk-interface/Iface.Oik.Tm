@@ -174,8 +174,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
       St1      = 0x08,
       SkipRes  = 0x10,
     }
-    
-    
+
+
     [Flags]
     public enum ExtendedDataSignatureFlag : UInt32
     {
@@ -553,6 +553,30 @@ namespace Iface.Oik.Tm.Native.Interfaces
     }
 
 
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct IfaceUser
+    {
+      public UInt32 Signature;
+      public UInt32 Unique;
+      public UInt32 Thid;
+      public UInt32 Pid;
+      public UInt32 Flags;
+      public UInt32 DbgCnt;
+      public UInt32 LoudCnt;
+
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
+      public byte[] Name;
+
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
+      public byte[] Comment;
+
+      public UInt64 BytesIn;
+      public UInt64 BytesOut;
+      public UInt32 Handle;
+
+      public Int32 CreationTime;
+    }
+
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode)]
     public struct DomainInfoS
     {
@@ -634,8 +658,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
     public struct TTMSEventAddData
     {
       public TTMSElix Elix;
-      public UInt32 AckSec;
-      public UInt16 AckMs;
+      public UInt32   AckSec;
+      public UInt16   AckMs;
 
       [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 15)]
       public string UserName;

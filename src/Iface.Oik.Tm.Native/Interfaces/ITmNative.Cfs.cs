@@ -19,13 +19,13 @@ namespace Iface.Oik.Tm.Native.Interfaces
                                   IntPtr buf,
                                   UInt32 bufSize);
 
-    
+
     UInt32 CfsGetExtendedUserData(IntPtr cfCid,
                                   string serverType,
                                   string serverName,
                                   IntPtr buf,
                                   UInt32 bufSize);
-    
+
 
     bool CfsPmonLocalRegisterProcess(Int32      argc,
                                      string[]   argv,
@@ -72,12 +72,12 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     Int64 UxGmTime2UxTime(Int64 time);
 
-    
+
     IntPtr CfsConnect(string            serverName,
                       out UInt32        errCode,
                       ref StringBuilder errString,
                       UInt32            maxErrs);
-    
+
 
     IntPtr CfsConfFileOpenCid(IntPtr                    connId,
                               string                    serverName,
@@ -87,7 +87,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
                               out UInt32                errCode,
                               ref StringBuilder         errString,
                               UInt32                    maxErrs);
-    
+
 
     bool CfsConfFileSaveAs(IntPtr                    treeHandle,
                            string                    serverName,
@@ -99,13 +99,40 @@ namespace Iface.Oik.Tm.Native.Interfaces
                            UInt32                    maxErrs);
 
     UInt32 CfsGetSoftwareType(IntPtr connId);
-    
+
 
     UInt32 CfsIfpcMaster(IntPtr connId, Byte command);
-    
+
 
     bool CfsIsConnected(IntPtr connId);
-    
+
+
+    IntPtr CfsTraceEnumServers(IntPtr            connId,
+                               out UInt32        errCode,
+                               ref StringBuilder errString,
+                               UInt32            maxErrs);
+
+
+    bool CfsTraceGetServerData(IntPtr                       connId,
+                               string                       serverId,
+                               ref TmNativeDefs.IfaceServer ifaceServer,
+                               out uint                     errCode,
+                               ref StringBuilder            errString,
+                               uint                         maxErrs);
+
+    IntPtr CfsTraceEnumUsers(IntPtr            connId,
+                             out UInt32        errCode,
+                             ref StringBuilder errString,
+                             UInt32            maxErrs);
+
+
+    bool CfsTraceGetUserData(IntPtr                     connId,
+                             string                     userId,
+                             ref TmNativeDefs.IfaceUser ifaceServer,
+                             out uint                   errCode,
+                             ref StringBuilder          errString,
+                             uint                       maxErrs);
+
 
     void DPrintF(string message);
     void MPrintF(string message);
