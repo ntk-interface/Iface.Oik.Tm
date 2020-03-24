@@ -5,27 +5,30 @@ namespace Iface.Oik.Tm.Interfaces
 {
   public class TmUserInfo
   {
-    public int    Id      { get; }
-    public string Name    { get; }
-    public string KeyId   { get; }
-    public int    GroupId { get; }
+    public int    Id       { get; }
+    public string Name     { get; }
+    public string Category { get; }
+    public string KeyId    { get; }
+    public int    GroupId  { get; }
 
     private readonly bool[] _userPermissions;
 
 
-    public TmUserInfo(int    userId,
-                      string userName,
+    public TmUserInfo(int    id,
+                      string name,
+                      string category,
                       string keyId,
                       byte   groupId,
                       byte[] permissionBytes)
     {
-      Id      = userId;
-      Name    = userName;
-      KeyId   = keyId;
-      GroupId = groupId;
+      Id       = id;
+      Name     = name;
+      Category = category;
+      KeyId    = keyId;
+      GroupId  = groupId;
 
       _userPermissions = new bool[permissionBytes.Length];
-      permissionBytes.ForEach((b, id) => _userPermissions[id] = b > 0);
+      permissionBytes.ForEach((b, idx) => _userPermissions[idx] = b > 0);
     }
 
 
