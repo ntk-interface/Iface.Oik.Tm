@@ -60,6 +60,11 @@ namespace Iface.Oik.Tm.Native.Interfaces
                         IntPtr            tmStruct);
 
 
+    Boolean TmcGetUserInfo(Int32                      cid,
+                           UInt32                     usid,
+                           ref TmNativeDefs.TUserInfo userInfo);
+
+
     Int16 TmcStatus(Int32 cid,
                     Int16 ch,
                     Int16 rtu,
@@ -178,8 +183,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
                          UInt16                      count,
                          TmNativeDefs.TAdrTm[]       addr,
                          TmNativeDefs.TStatusPoint[] statuses);
-    
-    
+
+
     void TmcAnalogByList(Int32                       cid,
                          UInt16                      count,
                          TmNativeDefs.TAdrTm[]       addr,
@@ -223,15 +228,15 @@ namespace Iface.Oik.Tm.Native.Interfaces
                        Byte   value,
                        string dateTime,
                        Int16  hund);
-    
-    
+
+
     Int16 TmcSetStatusFlags(Int32 cid,
                             Int16 ch,
                             Int16 rtu,
                             Int16 point,
                             Int16 flags);
 
-    
+
     Int16 TmcClrStatusFlags(Int32 cid,
                             Int16 ch,
                             Int16 rtu,
@@ -252,8 +257,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
                             Int16 rtu,
                             Int16 point,
                             Int16 flags);
-    
-    
+
+
     Int16 TmcClrAnalogFlags(Int32 cid,
                             Int16 ch,
                             Int16 rtu,
@@ -323,7 +328,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
                                 TmNativeDefs.TTechObjProps[] props,
                                 UInt32                       count);
 
-    
+
     UInt32 TmcEventGetAdditionalRecData(UInt32     id,
                                         ref byte[] buf,
                                         UInt32     bufSize);

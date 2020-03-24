@@ -102,6 +102,14 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public Boolean TmcGetUserInfo(Int32                      cid,
+                                  UInt32                     usid,
+                                  ref TmNativeDefs.TUserInfo userInfo)
+    {
+      return tmcGetUserInfo(cid, usid, ref userInfo);
+    }
+
+
     public Int16 TmcStatus(Int32 cid,
                            Int16 ch,
                            Int16 rtu,
@@ -277,8 +285,8 @@ namespace Iface.Oik.Tm.Native.Api
     {
       tmcStatusByList(cid, count, addr, statuses);
     }
-    
-    
+
+
     public void TmcAnalogByList(Int32                       cid,
                                 UInt16                      count,
                                 TmNativeDefs.TAdrTm[]       addr,
@@ -340,8 +348,8 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcSetStatus(cid, ch, rtu, point, value, dateTime, hund);
     }
-    
-    
+
+
     public Int16 TmcSetStatusFlags(Int32 cid,
                                    Int16 ch,
                                    Int16 rtu,
@@ -351,7 +359,7 @@ namespace Iface.Oik.Tm.Native.Api
       return tmcSetStatusFlags(cid, ch, rtu, point, flags);
     }
 
-    
+
     public Int16 TmcClrStatusFlags(Int32 cid,
                                    Int16 ch,
                                    Int16 rtu,
@@ -379,8 +387,8 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcSetAnalogFlags(cid, ch, rtu, point, flags);
     }
-    
-    
+
+
     public Int16 TmcClrAnalogFlags(Int32 cid,
                                    Int16 ch,
                                    Int16 rtu,
@@ -485,9 +493,10 @@ namespace Iface.Oik.Tm.Native.Api
       return tmcTechObjWriteValues(cid, props, count);
     }
 
-    public UInt32 TmcEventGetAdditionalRecData(UInt32 id, 
-                                              ref byte[] buf, 
-                                              UInt32 bufSize)
+
+    public UInt32 TmcEventGetAdditionalRecData(UInt32     id,
+                                               ref byte[] buf,
+                                               UInt32     bufSize)
     {
       return tmcEventGetAdditionalRecData(id, buf, bufSize);
     }

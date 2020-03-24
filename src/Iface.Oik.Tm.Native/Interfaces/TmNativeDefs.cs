@@ -509,6 +509,35 @@ namespace Iface.Oik.Tm.Native.Interfaces
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TUserInfo
     {
+      public Boolean Valid;
+
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
+      public byte[] UserName;
+
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
+      public byte[] UserComment;
+
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
+      public byte[] NtUserName;
+
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
+      public byte[] NtUserDomain;
+      
+      public UInt32 DatagramMask;
+      public UInt32 AccessMask;
+      public UInt32 ConnectTime;
+
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
+      public byte[] UserCategory;
+
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
+      public byte[] Reserved;
+    }
+
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct TExtendedUserInfo
+    {
       public Int32 RecNum;
       public Int32 UserId;
       public Byte  Group;
