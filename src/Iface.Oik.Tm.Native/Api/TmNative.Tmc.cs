@@ -157,14 +157,14 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public bool TmcEvlogPutStrBin(Int32  cid,
-                                  UInt32 unixTime,
-                                  Byte   unixHund,
-                                  Byte   importance,
-                                  UInt32 sourceTag,
-                                  string str,
-                                  Byte[] bin,
-                                  UInt32 cbBin)
+    public Boolean TmcEvlogPutStrBin(Int32  cid,
+                                     UInt32 unixTime,
+                                     Byte   unixHund,
+                                     Byte   importance,
+                                     UInt32 sourceTag,
+                                     string str,
+                                     Byte[] bin,
+                                     UInt32 cbBin)
     {
       return tmcEvlogPutStrBin(cid, unixTime, unixHund, importance, sourceTag, str, bin, cbBin);
     }
@@ -180,10 +180,17 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public bool TmcGetCurrentElix(Int32                     cid,
-                                  ref TmNativeDefs.TTMSElix elix)
+    public Boolean TmcGetCurrentElix(Int32                     cid,
+                                     ref TmNativeDefs.TTMSElix elix)
     {
       return tmcGetCurrentElix(cid, ref elix);
+    }
+
+
+    public Boolean TmcAlertListRemove(Int32                       cid,
+                                      TmNativeDefs.TAlertListId[] listIds)
+    {
+      return tmcAlertListRemove(cid, listIds);
     }
 
 
@@ -205,8 +212,8 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public bool TmcOverrideControlScript(Int32 cid,
-                                         bool  fOverride)
+    public Boolean TmcOverrideControlScript(Int32 cid,
+                                            bool  fOverride)
     {
       return tmcOverrideControlScript(cid, fOverride);
     }
@@ -270,9 +277,9 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public bool TmcEventLogAckRecords(Int32                     cid,
-                                      ref TmNativeDefs.TTMSElix elix,
-                                      UInt32                    count)
+    public Boolean TmcEventLogAckRecords(Int32                     cid,
+                                         ref TmNativeDefs.TTMSElix elix,
+                                         UInt32                    count)
     {
       return tmcEventLogAckRecords(cid, ref elix, count);
     }
@@ -474,13 +481,13 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public bool TmcTechObjBeginUpdate(Int32 cid)
+    public Boolean TmcTechObjBeginUpdate(Int32 cid)
     {
       return tmcTechObjBeginUpdate(cid);
     }
 
 
-    public bool TmcTechObjEndUpdate(Int32 cid)
+    public Boolean TmcTechObjEndUpdate(Int32 cid)
     {
       return tmcTechObjEndUpdate(cid);
     }

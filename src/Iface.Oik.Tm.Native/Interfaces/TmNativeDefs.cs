@@ -471,6 +471,14 @@ namespace Iface.Oik.Tm.Native.Interfaces
     }
 
 
+    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
+    public struct TAlertListId
+    {
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
+      public byte[] IData;
+    }
+
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TMAAN_ARCH_VALUE
     {

@@ -138,6 +138,9 @@ namespace Iface.Oik.Tm.Interfaces
     Task<bool> RemoveAlert(TmAlert alert);
 
 
+    Task<bool> RemoveAlerts(IEnumerable<TmAlert> alerts);
+
+
     Task<bool> AckTag(TmAddr addr);
 
     Task AckAllStatuses();
