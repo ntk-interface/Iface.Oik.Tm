@@ -60,6 +60,11 @@ namespace Iface.Oik.Tm.Native.Interfaces
                         IntPtr            tmStruct);
 
 
+    Boolean TmcGetUserInfo(Int32                      cid,
+                           UInt32                     usid,
+                           ref TmNativeDefs.TUserInfo userInfo);
+
+
     Int16 TmcStatus(Int32 cid,
                     Int16 ch,
                     Int16 rtu,
@@ -92,14 +97,14 @@ namespace Iface.Oik.Tm.Native.Interfaces
                       TmNativeDefs.TEvent tmEvent);
 
 
-    bool TmcEvlogPutStrBin(Int32  cid,
-                           UInt32 unixTime,
-                           Byte   unixHund,
-                           Byte   importance,
-                           UInt32 sourceTag,
-                           string str,
-                           byte[] bin,
-                           UInt32 cbBin);
+    Boolean TmcEvlogPutStrBin(Int32  cid,
+                              UInt32 unixTime,
+                              Byte   unixHund,
+                              Byte   importance,
+                              UInt32 sourceTag,
+                              string str,
+                              byte[] bin,
+                              UInt32 cbBin);
 
 
     IntPtr TmcEventLogByElix(Int32                     cid,
@@ -109,8 +114,12 @@ namespace Iface.Oik.Tm.Native.Interfaces
                              UInt32                    endUnixTime);
 
 
-    bool TmcGetCurrentElix(Int32                     cid,
-                           ref TmNativeDefs.TTMSElix elix);
+    Boolean TmcGetCurrentElix(Int32                     cid,
+                              ref TmNativeDefs.TTMSElix elix);
+
+
+    Boolean TmcAlertListRemove(Int32                       cid,
+                               TmNativeDefs.TAlertListId[] listIds);
 
 
     Int16 TmcSetTimedValues(Int32                              cid,
@@ -125,8 +134,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
                                   Int16 cmd);
 
 
-    bool TmcOverrideControlScript(Int32 cid,
-                                  bool  fOverride);
+    Boolean TmcOverrideControlScript(Int32 cid,
+                                     bool  fOverride);
 
 
     Int16 TmcControlByStatus(Int32 cid,
@@ -169,17 +178,17 @@ namespace Iface.Oik.Tm.Native.Interfaces
                         Int16  command);
 
 
-    bool TmcEventLogAckRecords(Int32                     cid,
-                               ref TmNativeDefs.TTMSElix elix,
-                               UInt32                    count);
+    Boolean TmcEventLogAckRecords(Int32                     cid,
+                                  ref TmNativeDefs.TTMSElix elix,
+                                  UInt32                    count);
 
 
     void TmcStatusByList(Int32                       cid,
                          UInt16                      count,
                          TmNativeDefs.TAdrTm[]       addr,
                          TmNativeDefs.TStatusPoint[] statuses);
-    
-    
+
+
     void TmcAnalogByList(Int32                       cid,
                          UInt16                      count,
                          TmNativeDefs.TAdrTm[]       addr,
@@ -223,15 +232,15 @@ namespace Iface.Oik.Tm.Native.Interfaces
                        Byte   value,
                        string dateTime,
                        Int16  hund);
-    
-    
+
+
     Int16 TmcSetStatusFlags(Int32 cid,
                             Int16 ch,
                             Int16 rtu,
                             Int16 point,
                             Int16 flags);
 
-    
+
     Int16 TmcClrStatusFlags(Int32 cid,
                             Int16 ch,
                             Int16 rtu,
@@ -252,8 +261,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
                             Int16 rtu,
                             Int16 point,
                             Int16 flags);
-    
-    
+
+
     Int16 TmcClrAnalogFlags(Int32 cid,
                             Int16 ch,
                             Int16 rtu,
@@ -314,16 +323,16 @@ namespace Iface.Oik.Tm.Native.Interfaces
                                 UInt32                  count);
 
 
-    bool TmcTechObjBeginUpdate(Int32 cid);
+    Boolean TmcTechObjBeginUpdate(Int32 cid);
 
-    bool TmcTechObjEndUpdate(Int32 cid);
+    Boolean TmcTechObjEndUpdate(Int32 cid);
 
 
     Int32 TmcTechObjWriteValues(Int32                        cid,
                                 TmNativeDefs.TTechObjProps[] props,
                                 UInt32                       count);
 
-    
+
     UInt32 TmcEventGetAdditionalRecData(UInt32     id,
                                         ref byte[] buf,
                                         UInt32     bufSize);

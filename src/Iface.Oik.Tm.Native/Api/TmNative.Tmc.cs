@@ -102,6 +102,14 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public Boolean TmcGetUserInfo(Int32                      cid,
+                                  UInt32                     usid,
+                                  ref TmNativeDefs.TUserInfo userInfo)
+    {
+      return tmcGetUserInfo(cid, usid, ref userInfo);
+    }
+
+
     public Int16 TmcStatus(Int32 cid,
                            Int16 ch,
                            Int16 rtu,
@@ -149,14 +157,14 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public bool TmcEvlogPutStrBin(Int32  cid,
-                                  UInt32 unixTime,
-                                  Byte   unixHund,
-                                  Byte   importance,
-                                  UInt32 sourceTag,
-                                  string str,
-                                  Byte[] bin,
-                                  UInt32 cbBin)
+    public Boolean TmcEvlogPutStrBin(Int32  cid,
+                                     UInt32 unixTime,
+                                     Byte   unixHund,
+                                     Byte   importance,
+                                     UInt32 sourceTag,
+                                     string str,
+                                     Byte[] bin,
+                                     UInt32 cbBin)
     {
       return tmcEvlogPutStrBin(cid, unixTime, unixHund, importance, sourceTag, str, bin, cbBin);
     }
@@ -172,10 +180,17 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public bool TmcGetCurrentElix(Int32                     cid,
-                                  ref TmNativeDefs.TTMSElix elix)
+    public Boolean TmcGetCurrentElix(Int32                     cid,
+                                     ref TmNativeDefs.TTMSElix elix)
     {
       return tmcGetCurrentElix(cid, ref elix);
+    }
+
+
+    public Boolean TmcAlertListRemove(Int32                       cid,
+                                      TmNativeDefs.TAlertListId[] listIds)
+    {
+      return tmcAlertListRemove(cid, listIds);
     }
 
 
@@ -197,8 +212,8 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public bool TmcOverrideControlScript(Int32 cid,
-                                         bool  fOverride)
+    public Boolean TmcOverrideControlScript(Int32 cid,
+                                            bool  fOverride)
     {
       return tmcOverrideControlScript(cid, fOverride);
     }
@@ -262,9 +277,9 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public bool TmcEventLogAckRecords(Int32                     cid,
-                                      ref TmNativeDefs.TTMSElix elix,
-                                      UInt32                    count)
+    public Boolean TmcEventLogAckRecords(Int32                     cid,
+                                         ref TmNativeDefs.TTMSElix elix,
+                                         UInt32                    count)
     {
       return tmcEventLogAckRecords(cid, ref elix, count);
     }
@@ -277,8 +292,8 @@ namespace Iface.Oik.Tm.Native.Api
     {
       tmcStatusByList(cid, count, addr, statuses);
     }
-    
-    
+
+
     public void TmcAnalogByList(Int32                       cid,
                                 UInt16                      count,
                                 TmNativeDefs.TAdrTm[]       addr,
@@ -340,8 +355,8 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcSetStatus(cid, ch, rtu, point, value, dateTime, hund);
     }
-    
-    
+
+
     public Int16 TmcSetStatusFlags(Int32 cid,
                                    Int16 ch,
                                    Int16 rtu,
@@ -351,7 +366,7 @@ namespace Iface.Oik.Tm.Native.Api
       return tmcSetStatusFlags(cid, ch, rtu, point, flags);
     }
 
-    
+
     public Int16 TmcClrStatusFlags(Int32 cid,
                                    Int16 ch,
                                    Int16 rtu,
@@ -379,8 +394,8 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcSetAnalogFlags(cid, ch, rtu, point, flags);
     }
-    
-    
+
+
     public Int16 TmcClrAnalogFlags(Int32 cid,
                                    Int16 ch,
                                    Int16 rtu,
@@ -466,13 +481,13 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public bool TmcTechObjBeginUpdate(Int32 cid)
+    public Boolean TmcTechObjBeginUpdate(Int32 cid)
     {
       return tmcTechObjBeginUpdate(cid);
     }
 
 
-    public bool TmcTechObjEndUpdate(Int32 cid)
+    public Boolean TmcTechObjEndUpdate(Int32 cid)
     {
       return tmcTechObjEndUpdate(cid);
     }
@@ -485,9 +500,10 @@ namespace Iface.Oik.Tm.Native.Api
       return tmcTechObjWriteValues(cid, props, count);
     }
 
-    public UInt32 TmcEventGetAdditionalRecData(UInt32 id, 
-                                              ref byte[] buf, 
-                                              UInt32 bufSize)
+
+    public UInt32 TmcEventGetAdditionalRecData(UInt32     id,
+                                               ref byte[] buf,
+                                               UInt32     bufSize)
     {
       return tmcEventGetAdditionalRecData(id, buf, bufSize);
     }

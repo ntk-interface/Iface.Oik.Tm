@@ -91,7 +91,7 @@ namespace Iface.Oik.Tm.Helpers
     public static TmUserInfo GetUserInfo(int    tmCid,
                                          string serverName)
     {
-      var nativeUserInfoSize = Marshal.SizeOf(typeof(TmNativeDefs.TUserInfo));
+      var nativeUserInfoSize = Marshal.SizeOf(typeof(TmNativeDefs.TExtendedUserInfo));
       var nativeUserInfoPtr  = Marshal.AllocHGlobal(nativeUserInfoSize);
 
       var cfCid = Native.TmcGetCfsHandle(tmCid);
@@ -109,13 +109,20 @@ namespace Iface.Oik.Tm.Helpers
         return null;
       }
 
-      var nativeUserInfo = Marshal.PtrToStructure<TmNativeDefs.TUserInfo>(nativeUserInfoPtr);
+      var extendedUserInfo = Marshal.PtrToStructure<TmNativeDefs.TExtendedUserInfo>(nativeUserInfoPtr);
+      
+      var userInfo = new TmNativeDefs.TUserInfo();
+      if (!Native.TmcGetUserInfo(tmCid, 0, ref userInfo))
+      {
+        return null;
+      }
 
-      return new TmUserInfo(nativeUserInfo.UserId,
-                            Encoding.GetEncoding(1251).GetString(nativeUserInfo.UserName).Trim('\0'),
-                            Encoding.GetEncoding(1251).GetString(nativeUserInfo.KeyId).Trim('\0'),
-                            nativeUserInfo.Group,
-                            nativeUserInfo.Rights);
+      return new TmUserInfo(extendedUserInfo.UserId,
+                            Encoding.GetEncoding(1251).GetString(extendedUserInfo.UserName).Trim('\0'),
+                            Encoding.GetEncoding(1251).GetString(userInfo.UserCategory).Trim('\0'),
+                            Encoding.GetEncoding(1251).GetString(extendedUserInfo.KeyId).Trim('\0'),
+                            extendedUserInfo.Group,
+                            extendedUserInfo.Rights);
     }
 
 

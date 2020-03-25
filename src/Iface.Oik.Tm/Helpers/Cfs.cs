@@ -75,11 +75,12 @@ namespace Iface.Oik.Tm.Helpers
       public string Password { get; set; }
     }
     
+    // todo надо ли вообще здесь такую реализацию
     public static TmUserInfo GetUserInfo(IntPtr cfCid,
                                          string serverName, 
                                          string serverType)
     {
-      var nativeUserInfoSize = Marshal.SizeOf(typeof(TmNativeDefs.TUserInfo));
+      var nativeUserInfoSize = Marshal.SizeOf(typeof(TmNativeDefs.TExtendedUserInfo));
       var nativeUserInfoPtr  = Marshal.AllocHGlobal(nativeUserInfoSize);
       
       var fetchResult = Native.CfsGetExtendedUserData(cfCid,
@@ -92,10 +93,11 @@ namespace Iface.Oik.Tm.Helpers
         return null;
       }
 
-      var nativeUserInfo = Marshal.PtrToStructure<TmNativeDefs.TUserInfo>(nativeUserInfoPtr);
+      var nativeUserInfo = Marshal.PtrToStructure<TmNativeDefs.TExtendedUserInfo>(nativeUserInfoPtr);
 
       return new TmUserInfo(nativeUserInfo.UserId,
                             Encoding.GetEncoding(1251).GetString(nativeUserInfo.UserName).Trim('\0'),
+                            string.Empty, // todo надо ли сделать получать категорию
                             Encoding.GetEncoding(1251).GetString(nativeUserInfo.KeyId).Trim('\0'),
                             nativeUserInfo.Group,
                             nativeUserInfo.Rights);

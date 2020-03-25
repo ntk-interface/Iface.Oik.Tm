@@ -9,12 +9,13 @@ namespace Iface.Oik.Tm.Test.Services
     public class Constructor
     {
       [Theory, TmAutoData]
-      public void SetsCorrectValues(int userId, string userName, string keyId, byte group, byte[] permissionBytes)
+      public void SetsCorrectValues(int    id, string name, string category, string keyId, byte group,
+                                    byte[] permissionBytes)
       {
-        var userInfo = new TmUserInfo(userId, userName, keyId, group, permissionBytes);
+        var userInfo = new TmUserInfo(id, name, category, keyId, group, permissionBytes);
 
-        userInfo.Id.Should().Be(userId);
-        userInfo.Name.Should().Be(userName);
+        userInfo.Id.Should().Be(id);
+        userInfo.Name.Should().Be(name);
         userInfo.KeyId.Should().Be(keyId);
         userInfo.GroupId.Should().Be(group);
       }
@@ -31,12 +32,13 @@ namespace Iface.Oik.Tm.Test.Services
       public void ReturnsCorrectValues(byte[]            permissionBytes,
                                        TmUserPermissions permission,
                                        bool              expected,
-                                       int               userId,
-                                       string            userName,
+                                       int               id,
+                                       string            name,
+                                       string            category,
                                        string            keyId,
                                        byte              group)
       {
-        var userInfo = new TmUserInfo(userId, userName, keyId, group, permissionBytes);
+        var userInfo = new TmUserInfo(id, name, category, keyId, group, permissionBytes);
 
         var result = userInfo.HasAccess(permission);
 
