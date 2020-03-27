@@ -9,6 +9,8 @@ namespace Iface.Oik.Tm.Interfaces
 {
   public class TmServer : TmNotifyPropertyChanged
   {
+    private bool _isSelected;
+    
     public string Name            { get; private set; }
     public string Comment         { get; private set; }
     public uint   Signature       { get; private set; }
@@ -30,6 +32,16 @@ namespace Iface.Oik.Tm.Interfaces
     public ObservableCollection<TmServer> Children { get; private set; }
     public TmServer                       Parent   { get; set; }
     public ObservableCollection<TmUser>   Users    { get; private set; }
+
+    public bool IsSelected
+    {
+      get => _isSelected;
+      set
+      {
+        _isSelected = value;
+        NotifyOfPropertyChange();
+      }
+    }
 
     public TmServer()
     {
@@ -57,6 +69,27 @@ namespace Iface.Oik.Tm.Interfaces
       tmServer.ResState        = ifaceServer.ResState;
 
       return tmServer;
+    }
+
+    public TmServer GetChildTmServer(TmServer serverToFind)
+    {
+      foreach (var child in Children)
+      {
+        if (child.Unique == serverToFind.Unique)
+        {
+          return child;
+        }
+
+        var nexDepthTmServer = child.GetChildTmServer(serverToFind);
+        if (nexDepthTmServer != null) return nexDepthTmServer;
+      }
+
+      return null;
+    }
+
+    public void DeleteChildTmServer(TmServer serverToDelete)
+    {
+
     }
   }
 }
