@@ -9,8 +9,8 @@ namespace Iface.Oik.Tm.Interfaces
 {
   public class TmServer : TmNotifyPropertyChanged
   {
-    private bool _isSelected;
-    
+    private readonly int _hashCode;
+
     public string Name            { get; private set; }
     public string Comment         { get; private set; }
     public uint   Signature       { get; private set; }
@@ -33,63 +33,97 @@ namespace Iface.Oik.Tm.Interfaces
     public TmServer                       Parent   { get; set; }
     public ObservableCollection<TmUser>   Users    { get; private set; }
 
-    public bool IsSelected
+    public TmServer(int hashCode)
     {
-      get => _isSelected;
-      set
-      {
-        _isSelected = value;
-        NotifyOfPropertyChange();
-      }
-    }
-
-    public TmServer()
-    {
-      Children = new ObservableCollection<TmServer>();
-      Users    = new ObservableCollection<TmUser>();
+      Children  = new ObservableCollection<TmServer>();
+      Users     = new ObservableCollection<TmUser>();
+      _hashCode = hashCode;
     }
 
     public static TmServer CreateFromIfaceServer(TmNativeDefs.IfaceServer ifaceServer)
     {
-      var tmServer = new TmServer();
+      var name    = EncodingUtil.Win1251BytesToUft8(ifaceServer.Name);
+      var comment = EncodingUtil.Win1251BytesToUft8(ifaceServer.Comment);
 
-      tmServer.Name            = EncodingUtil.Win1251BytesToUft8(ifaceServer.Name);
-      tmServer.Comment         = EncodingUtil.Win1251BytesToUft8(ifaceServer.Comment);
-      tmServer.Signature       = ifaceServer.Signature;
-      tmServer.Unique          = ifaceServer.Unique;
-      tmServer.ProcessId       = ifaceServer.Pid;
-      tmServer.ParentProcessId = ifaceServer.Ppid;
-      tmServer.Flags           = ifaceServer.Flags;
-      tmServer.DbgCnt          = ifaceServer.DbgCnt;
-      tmServer.LoudCnt         = ifaceServer.LoudCnt;
-      tmServer.BytesIn         = ifaceServer.BytesIn;
-      tmServer.BytesOut        = ifaceServer.BytesOut;
-      tmServer.State           = ifaceServer.State;
-      tmServer.CreationTime    = DateUtil.GetDateTimeFromTimestamp(ifaceServer.CreationTime);
-      tmServer.ResState        = ifaceServer.ResState;
+      var tmServer = new TmServer((name, comment, ifaceServer.Signature, ifaceServer.Unique).ToTuple().GetHashCode())
+                     {
+                       Name            = name,
+                       Comment         = comment,
+                       Signature       = ifaceServer.Signature,
+                       Unique          = ifaceServer.Unique,
+                       ProcessId       = ifaceServer.Pid,
+                       ParentProcessId = ifaceServer.Ppid,
+                       Flags           = ifaceServer.Flags,
+                       DbgCnt          = ifaceServer.DbgCnt,
+                       LoudCnt         = ifaceServer.LoudCnt,
+                       BytesIn         = ifaceServer.BytesIn,
+                       BytesOut        = ifaceServer.BytesOut,
+                       State           = ifaceServer.State,
+                       CreationTime    = DateUtil.GetDateTimeFromTimestamp(ifaceServer.CreationTime),
+                       ResState        = ifaceServer.ResState
+                     };
+
 
       return tmServer;
     }
 
-    public TmServer GetChildTmServer(TmServer serverToFind)
+    public override bool Equals(object obj)
     {
-      foreach (var child in Children)
-      {
-        if (child.Unique == serverToFind.Unique)
-        {
-          return child;
-        }
-
-        var nexDepthTmServer = child.GetChildTmServer(serverToFind);
-        if (nexDepthTmServer != null) return nexDepthTmServer;
-      }
-
-      return null;
+      return Equals(obj as TmServer);
     }
 
-    public void DeleteChildTmServer(TmServer serverToDelete)
-    {
 
+    public bool Equals(TmServer comparison)
+    {
+      if (ReferenceEquals(comparison, null))
+      {
+        return false;
+      }
+
+      if (ReferenceEquals(this, comparison))
+      {
+        return true;
+      }
+
+      var usersHashSet = new HashSet<TmUser>(Users);
+      var comparerUserHashSet = new HashSet<TmUser>(comparison.Users);
+      
+      return Name            == comparison.Name
+          && Comment         == comparison.Comment
+          && Signature       == comparison.Signature
+          && Unique          == comparison.Unique
+          && ProcessId       == comparison.ProcessId
+          && ParentProcessId == comparison.ParentProcessId
+          && Flags           == comparison.Flags
+          && DbgCnt          == comparison.DbgCnt
+          && LoudCnt         == comparison.LoudCnt
+          && BytesIn         == comparison.BytesIn
+          && BytesOut        == comparison.BytesOut
+          && State           == comparison.State
+          && CreationTime    == comparison.CreationTime
+          && ResState        == comparison.ResState
+          && usersHashSet.SetEquals(comparerUserHashSet);
+    }
+
+
+    public static bool operator ==(TmServer left, TmServer right)
+    {
+      if (ReferenceEquals(left, null))
+      {
+        return ReferenceEquals(right, null);
+      }
+
+      return left.Equals(right);
+    }
+
+    public static bool operator !=(TmServer left, TmServer right)
+    {
+      return !(left == right);
+    }
+
+    public override int GetHashCode()
+    {
+      return _hashCode;
     }
   }
 }
