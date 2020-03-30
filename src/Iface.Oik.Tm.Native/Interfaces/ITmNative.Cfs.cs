@@ -134,6 +134,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
                              uint                       maxErrs);
 
 
+    void CfsFreeMemory(IntPtr memory);
+
+
     void DPrintF(string message);
     void MPrintF(string message);
     void EPrintF(string message);

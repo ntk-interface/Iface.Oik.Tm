@@ -151,6 +151,9 @@ namespace Iface.Oik.Tm.Native.Api
                                                   [MarshalAs(UnmanagedType.LPStr)] StringBuilder          errString,
                                                   uint                                                    maxErrs);
 
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
+    public static extern void cfsFreeMemory(IntPtr memory);
+
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.Cdecl)]
     public static extern Int64 uxgmtime2uxtime(Int64 time);

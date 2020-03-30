@@ -188,6 +188,11 @@ namespace Iface.Oik.Tm.Native.Api
       return cfsTraceGetUserData(connId, userId, ref ifaceServer, out errCode, errString, maxErrs);
     }
 
+    public void CfsFreeMemory(IntPtr memory)
+    {
+      cfsFreeMemory(memory);
+    }
+
 
     public Int64 UxGmTime2UxTime(Int64 time)
     {
