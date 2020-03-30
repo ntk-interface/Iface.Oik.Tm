@@ -541,7 +541,10 @@ namespace Iface.Oik.Tm.Api
                                         .ConfigureAwait(false);
 
 
-      return TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(serversIdsPointer,1000);
+      var serversIds =  TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(serversIdsPointer, 1000);
+
+      _native.CfsFreeMemory(serversIdsPointer);
+      return serversIds;
     }
 
     
@@ -592,7 +595,10 @@ namespace Iface.Oik.Tm.Api
                                                                            errCode))
                                       .ConfigureAwait(false);
 
-      return TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(usersIdsPointer, 1000);
+      var usersIds = TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(usersIdsPointer, 1000);
+      
+      _native.CfsFreeMemory(usersIdsPointer);
+      return usersIds;
     }
 
 
