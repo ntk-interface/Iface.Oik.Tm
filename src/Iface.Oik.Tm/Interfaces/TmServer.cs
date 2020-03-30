@@ -85,9 +85,12 @@ namespace Iface.Oik.Tm.Interfaces
         return true;
       }
 
-      var usersHashSet = new HashSet<TmUser>(Users);
-      var comparerUserHashSet = new HashSet<TmUser>(comparison.Users);
-      
+      var usersHashSet          = new HashSet<TmUser>(Users);
+      var comparisonUserHashSet = new HashSet<TmUser>(comparison.Users);
+
+      var childrenHashSet           = new HashSet<TmServer>(Children);
+      var comparisonChildrenHashSet = new HashSet<TmServer>(comparison.Children);
+
       return Name            == comparison.Name
           && Comment         == comparison.Comment
           && Signature       == comparison.Signature
@@ -102,7 +105,8 @@ namespace Iface.Oik.Tm.Interfaces
           && State           == comparison.State
           && CreationTime    == comparison.CreationTime
           && ResState        == comparison.ResState
-          && usersHashSet.SetEquals(comparerUserHashSet);
+          && usersHashSet.SetEquals(comparisonUserHashSet)
+          && childrenHashSet.SetEquals(comparisonChildrenHashSet);
     }
 
 
