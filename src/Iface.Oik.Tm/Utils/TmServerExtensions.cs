@@ -6,32 +6,19 @@ namespace Iface.Oik.Tm.Utils
 {
   public static class TmServerExtensions
   {
-    public static bool GotChildTmServer(this TmServer node, TmServer serverToFind)
-    {
-      foreach (var child in node.Children)
-      {
-        if (child.ProcessId == serverToFind.ProcessId)
-        {
-          return true;
-        }
-
-        var nextDepthCheck = child.GotChildTmServer(serverToFind);
-        if (nextDepthCheck) return true;
-      }
-
-      return false;
-    }
-    
-    public static IEnumerable<TmServer> Flatten(this TmServer root)
+    public static IEnumerable<TmServer> Flatten(this IEnumerable<TmServer> tree)
     {
       var queue = new Queue<TmServer>();
-      queue.Enqueue(root);
-      while(queue.Count > 0)
+      foreach (var root in tree)
       {
-        var current = queue.Dequeue();
-        yield return current;
-        foreach(var child in current.Children)
-          queue.Enqueue(child);
+        queue.Enqueue(root);
+        while(queue.Count > 0)
+        {
+          var current = queue.Dequeue();
+          yield return current;
+          foreach(var child in current.Children)
+            queue.Enqueue(child);
+        }
       }
     }
   }
