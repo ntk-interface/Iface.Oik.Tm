@@ -61,6 +61,24 @@ namespace Iface.Oik.Tm.Test
   }
 
 
+  public class TmAutoFakeItEasyMutableDataAttribute : AutoDataAttribute
+  {
+    public TmAutoFakeItEasyMutableDataAttribute()
+      : base(() => TmAutoDataAttribute.TmRandomNumberFixture.Customize(new SupportMutableValueTypesCustomization()))
+    {
+    }
+  }
+
+  
+  public class TmInlineAutoFakeItEasyMutableDataAttribute : CompositeDataAttribute
+  {
+    public TmInlineAutoFakeItEasyMutableDataAttribute(params object[] values)
+      : base(new InlineDataAttribute(values), new TmAutoFakeItEasyMutableDataAttribute())
+    {
+    }
+  }
+  
+
   public class UseCultureAttribute : BeforeAfterTestAttribute
   {
     private readonly Lazy<CultureInfo> _culture;
