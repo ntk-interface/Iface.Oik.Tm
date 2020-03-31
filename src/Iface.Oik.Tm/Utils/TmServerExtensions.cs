@@ -24,6 +24,8 @@ namespace Iface.Oik.Tm.Utils
 
     public static TmServer FindServerByHash(this IEnumerable<TmServer> tree, TmServer comparison)
     {
+      if (comparison == null) return null;
+      
       foreach (var root in tree)
       {
         if (root.GetHashCode() == comparison.GetHashCode())
