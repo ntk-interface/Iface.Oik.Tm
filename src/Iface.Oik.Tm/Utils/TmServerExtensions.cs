@@ -21,5 +21,25 @@ namespace Iface.Oik.Tm.Utils
         }
       }
     }
+
+    public static TmServer FindServerByHash(this IEnumerable<TmServer> tree, TmServer comparison)
+    {
+      foreach (var root in tree)
+      {
+        if (root.GetHashCode() == comparison.GetHashCode())
+        {
+          return root;
+        }
+
+        var child = root.Children.FindServerByHash(comparison);
+        if (child != null)
+        {
+          return child;
+        }
+
+      }
+      
+      return null;
+    } 
   }
 }
