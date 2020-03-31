@@ -11,27 +11,25 @@ namespace Iface.Oik.Tm.Interfaces
   {
     private readonly int _hashCode;
 
-    public string Name            { get; private set; }
-    public string Comment         { get; private set; }
-    public uint   Signature       { get; private set; }
-    public uint   Unique          { get; private set; }
-    public uint   ProcessId       { get; private set; }
-    public uint   ParentProcessId { get; private set; }
-    public uint   Flags           { get; private set; } //В текущей версии libif_cfs не используется
-    public uint   DbgCnt          { get; private set; } //В текущей версии libif_cfs не используется
-    public uint   LoudCnt         { get; private set; } //В текущей версии libif_cfs не используется
-    public ulong  BytesIn         { get; private set; } //В текущей версии libif_cfs не используется
-    public ulong  BytesOut        { get; private set; } //В текущей версии libif_cfs не используется
+    public string    Name            { get; private set; }
+    public string    Comment         { get; private set; }
+    public uint      Signature       { get; private set; }
+    public uint      Unique          { get; private set; }
+    public uint      ProcessId       { get; private set; }
+    public uint      ParentProcessId { get; private set; }
+    public uint      Flags           { get; private set; } //В текущей версии libif_cfs не используется
+    public uint      DbgCnt          { get; private set; } //В текущей версии libif_cfs не используется
+    public uint      LoudCnt         { get; private set; } //В текущей версии libif_cfs не используется
+    public ulong     BytesIn         { get; private set; } //В текущей версии libif_cfs не используется
+    public ulong     BytesOut        { get; private set; } //В текущей версии libif_cfs не используется
+    public uint      State           { get; private set; }
+    public DateTime? CreationTime    { get; private set; }
+    public uint      ResState        { get; private set; }
 
-    public uint State { get; private set; }
-
-    public DateTime? CreationTime { get; private set; }
-
-    public uint ResState { get; private set; }
-
-    public ObservableCollection<TmServer> Children { get; private set; }
-    public TmServer                       Parent   { get; set; }
-    public ObservableCollection<TmUser>   Users    { get; private set; }
+    public string                         DisplayName => $"{Name} {Comment}";
+    public ObservableCollection<TmServer> Children    { get; private set; }
+    public TmServer                       Parent      { get; set; }
+    public ObservableCollection<TmUser>   Users       { get; private set; }
 
     public TmServer(int hashCode)
     {

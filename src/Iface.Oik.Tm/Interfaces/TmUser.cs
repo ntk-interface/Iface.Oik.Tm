@@ -23,6 +23,7 @@ namespace Iface.Oik.Tm.Interfaces
     public uint      Handle          { get; private set; } //В текущей версии libif_cfs не используется
     public DateTime? CreationTime    { get; private set; }
 
+    public string DisplayName => $"{Name} {Comment}";
 
     public TmUser(int hashCode)
     {
