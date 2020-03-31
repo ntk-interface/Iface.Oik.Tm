@@ -1102,17 +1102,17 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IReadOnlyCollection<TmEvent>> GetArchEvents(TmEventFilter filter)
+    public async Task<IReadOnlyCollection<TmEvent>> GetEventsArchive(TmEventFilter filter)
     {
       if (filter == null) return null; //???
 
-      var whereBeg                   = GetArchEventWhereBeg(filter);
-      var whereEnd                   = GetArchEventsWhereEnd(filter);
-      var whereEventTypes            = GetArchEventsWhereEventTypes(filter);
-      var whereEventImportances      = GetArchEventsWhereEventImportances(filter);
-      var whereEventTmStatusClassIds = GetArchEventsWhereEventTmStatusClassIds(filter);
-      var whereEventChannelsAndRtus  = GetArchEventsWhereEventChannelsAndRtus(filter); // todo al не работает, см. ниже
-      var whereEventTmAddr           = GetArchEventsWhereEventTmAddr(filter);
+      var whereBeg                   = GetWhereEventStartTime(filter);
+      var whereEnd                   = GetWhereEventEndTime(filter);
+      var whereEventTypes            = GetWhereEventTypes(filter);
+      var whereEventImportances      = GetWhereEventImportances(filter);
+      var whereEventTmStatusClassIds = GetWhereEventTmStatusClassIds(filter);
+      var whereEventChannelsAndRtus  = GetWhereEventChannelsAndRtus(filter); // todo al не работает, см. ниже
+      var whereEventTmAddr           = GetWhereEventTmAddr(filter);
 
       try
       {
@@ -1210,7 +1210,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    private static string GetArchEventsWhereEventChannelsAndRtus(TmEventFilter filter)
+    private static string GetWhereEventChannelsAndRtus(TmEventFilter filter)
     {
       // todo al Подход хороший, но не работает для oik_event_log конструкция с множественным OR для tma
       return "";
@@ -1240,7 +1240,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    private static string GetArchEventsWhereEventTmStatusClassIds(TmEventFilter filter)
+    private static string GetWhereEventTmStatusClassIds(TmEventFilter filter)
     {
       if (filter.TmStatusClassIdList.IsNullOrEmpty()) return "";
 
@@ -1253,7 +1253,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    private static string GetArchEventsWhereEventTmAddr(TmEventFilter filter)
+    private static string GetWhereEventTmAddr(TmEventFilter filter)
     {
       if (filter.TmAddrList.IsNullOrEmpty()) return "";
 
@@ -1264,7 +1264,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    private static string GetArchEventsWhereEventImportances(TmEventFilter filter)
+    private static string GetWhereEventImportances(TmEventFilter filter)
     {
       if (filter.Importances == TmEventImportances.None ||
           filter.Importances == TmEventImportances.Any)
@@ -1276,7 +1276,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    private static string GetArchEventsWhereEventTypes(TmEventFilter filter)
+    private static string GetWhereEventTypes(TmEventFilter filter)
     {
       if (filter.Types == TmEventTypes.None ||
           filter.Types == TmEventTypes.Any)
@@ -1288,7 +1288,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    private static string GetArchEventsWhereEnd(TmEventFilter filter)
+    private static string GetWhereEventEndTime(TmEventFilter filter)
     {
       if (!filter.EndTime.HasValue) return "";
 
@@ -1296,7 +1296,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    private static string GetArchEventWhereBeg(TmEventFilter filter)
+    private static string GetWhereEventStartTime(TmEventFilter filter)
     {
       if (!filter.StartTime.HasValue) return "";
 
