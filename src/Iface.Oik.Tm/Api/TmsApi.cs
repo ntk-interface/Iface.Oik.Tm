@@ -1882,6 +1882,13 @@ namespace Iface.Oik.Tm.Api
         throw new Exception("Не задано время начала и конца архива событий");
       }
 
+      var filterTypes = (filter.Types != TmEventTypes.None) 
+        ? filter.Types 
+        : TmEventTypes.Any;
+      var filterImportances = (filter.Importances != TmEventImportances.None) 
+        ? filter.Importances 
+        : TmEventImportances.Any;
+
       var startTime = _native.UxGmTime2UxTime(DateUtil.GetUtcTimestampFromDateTime(filter.StartTime.Value));
       var endTime   = _native.UxGmTime2UxTime(DateUtil.GetUtcTimestampFromDateTime(filter.EndTime.Value));
 
@@ -1890,11 +1897,14 @@ namespace Iface.Oik.Tm.Api
 
       while (true)
       {
-        var (eventsBatchList, lastElix) = await GetEventsBatch(elix, filter.Types, startTime, endTime)
+        var (eventsBatchList, lastElix) = await GetEventsBatch(elix, filterTypes, startTime, endTime)
           .ConfigureAwait(false);
 
-        if (eventsBatchList.IsNullOrEmpty()) break;
-        events.AddRange(eventsBatchList);
+        if (eventsBatchList.IsNullOrEmpty())
+        {
+          break;
+        }
+        events.AddRange(eventsBatchList.Where(e => filterImportances.HasFlag(e.ImportanceFlag)));
         elix = lastElix;
       }
 
@@ -1921,7 +1931,10 @@ namespace Iface.Oik.Tm.Api
                                                                     0,
                                                                     0xFFFFFFFF)
           .ConfigureAwait(false);
-        if (eventsBatchList.IsNullOrEmpty()) break;
+        if (eventsBatchList.IsNullOrEmpty())
+        {
+          break;
+        }
         events.AddRange(eventsBatchList);
         currentElix = lastBatchElix;
       }
