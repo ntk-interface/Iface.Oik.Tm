@@ -193,6 +193,21 @@ namespace Iface.Oik.Tm.Native.Api
       cfsFreeMemory(memory);
     }
 
+    public bool CfsLogOpen(IntPtr connId, out uint errCode, ref StringBuilder errString, uint maxErrs)
+    {
+      return cfsLogOpen(connId, out errCode, errString, maxErrs);
+    }
+
+    public bool CfsCloseLog(IntPtr connId, out uint errCode, ref StringBuilder errString, uint maxErrs)
+    {
+      return cfsLogClose(connId, out errCode, errString, maxErrs);
+    }
+
+    public IntPtr CfsLogGetRecord(IntPtr connId, bool fFirst, out uint errCode, ref StringBuilder errString, uint maxErrs)
+    {
+      return cfsLogGetRecord(connId, fFirst, out errCode, errString, maxErrs);
+    }
+
 
     public Int64 UxGmTime2UxTime(Int64 time)
     {

@@ -137,6 +137,25 @@ namespace Iface.Oik.Tm.Native.Interfaces
     void CfsFreeMemory(IntPtr memory);
 
 
+    bool CfsLogOpen(IntPtr            connId,
+                    out uint          errCode,
+                    ref StringBuilder errString,
+                    uint              maxErrs);
+
+
+    bool CfsCloseLog(IntPtr            connId,
+                     out uint          errCode,
+                     ref StringBuilder errString,
+                     uint              maxErrs);
+
+
+    IntPtr CfsLogGetRecord(IntPtr            connId,
+                           bool              fFirst,
+                           out uint          errCode,
+                           ref StringBuilder errString,
+                           uint              maxErrs);
+
+
     void DPrintF(string message);
     void MPrintF(string message);
     void EPrintF(string message);
