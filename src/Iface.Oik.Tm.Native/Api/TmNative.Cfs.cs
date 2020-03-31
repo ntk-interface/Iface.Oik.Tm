@@ -198,7 +198,7 @@ namespace Iface.Oik.Tm.Native.Api
       return cfsLogOpen(connId, out errCode, errString, maxErrs);
     }
 
-    public bool CfsCloseLog(IntPtr connId, out uint errCode, ref StringBuilder errString, uint maxErrs)
+    public bool CfsLogClose(IntPtr connId, out uint errCode, ref StringBuilder errString, uint maxErrs)
     {
       return cfsLogClose(connId, out errCode, errString, maxErrs);
     }

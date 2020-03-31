@@ -143,7 +143,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
                     uint              maxErrs);
 
 
-    bool CfsCloseLog(IntPtr            connId,
+    bool CfsLogClose(IntPtr            connId,
                      out uint          errCode,
                      ref StringBuilder errString,
                      uint              maxErrs);
