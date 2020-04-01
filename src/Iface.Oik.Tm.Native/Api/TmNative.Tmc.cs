@@ -507,5 +507,23 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcEventGetAdditionalRecData(id, buf, bufSize);
     }
+
+
+    public IntPtr TmcComtradeEnumDays(Int32 cid)
+    {
+      return tmcComtradeEnumDays(cid);
+    }
+
+
+    public IntPtr TmcComtradeEnumFiles(Int32  cid, string date)
+    {
+      return tmcComtradeEnumFiles(cid, date);
+    }
+
+
+    public Boolean TmcComtradeGetFile(Int32  cid, string fileName, string localDirectory)
+    {
+      return tmcComtradeGetFile(cid, fileName, localDirectory);
+    }
   }
 }

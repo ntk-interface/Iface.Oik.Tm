@@ -336,5 +336,12 @@ namespace Iface.Oik.Tm.Native.Interfaces
     UInt32 TmcEventGetAdditionalRecData(UInt32     id,
                                         ref byte[] buf,
                                         UInt32     bufSize);
+
+
+    IntPtr TmcComtradeEnumDays(Int32 cid);
+
+    IntPtr TmcComtradeEnumFiles(Int32 cid, string date);
+
+    Boolean TmcComtradeGetFile(Int32 cid, string fileName, string localDirectory);
   }
 }
