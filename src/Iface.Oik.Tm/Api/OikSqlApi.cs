@@ -1140,7 +1140,7 @@ namespace Iface.Oik.Tm.Api
           }
           if (!whereEventTypes.IsNullOrEmpty())
           {
-            parameters.Add("@Types", filter.Types, DbType.Int16);
+            parameters.Add("@Types", (short) filter.Types, DbType.Int16);
           }
           if (!whereEventImportances.IsNullOrEmpty())
           {
