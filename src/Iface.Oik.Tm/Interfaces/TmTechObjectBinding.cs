@@ -13,6 +13,9 @@ namespace Iface.Oik.Tm.Interfaces
     public static readonly string PortableGroundClassName  = TmTechObjectBindingsMode.PortableGround.GetDescription();
     public static readonly string OperLockClassName        = TmTechObjectBindingsMode.OperLock.GetDescription();
 
+    private const TmTechObjectBindingsMode DefaultTmStatusMode = TmTechObjectBindingsMode.DamageLocation;
+    private const TmTechObjectBindingsMode DefaultTmAnalogMode = TmTechObjectBindingsMode.Measurement;
+
 
     public TmTechObject             TmTechObject { get; set; }
     public TmTechObjectBindingType  BindingType  { get; set; }
@@ -39,12 +42,20 @@ namespace Iface.Oik.Tm.Interfaces
               {
                 UpdateModeIfTmStatus(statusClass.Name);
               }
+              else
+              {
+                Mode = DefaultTmStatusMode;
+              }
               break;
 
             case TmAnalog analog:
               if (analogsClasses.TryGetValue(analog.ClassId ?? 0, out var analogClass))
               {
                 UpdateModeIfTmAnalog(analogClass.Name);
+              }
+              else
+              {
+                Mode = DefaultTmAnalogMode;
               }
               break;
           }
@@ -73,7 +84,7 @@ namespace Iface.Oik.Tm.Interfaces
       }
       else
       {
-        Mode = TmTechObjectBindingsMode.DamageLocation;
+        Mode = DefaultTmStatusMode;
       }
     }
 
@@ -98,7 +109,7 @@ namespace Iface.Oik.Tm.Interfaces
       }
       else
       {
-        Mode = TmTechObjectBindingsMode.Measurement;
+        Mode = DefaultTmAnalogMode;
       }
     }
   }
