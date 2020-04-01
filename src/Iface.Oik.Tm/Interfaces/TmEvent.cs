@@ -302,7 +302,7 @@ namespace Iface.Oik.Tm.Interfaces
           var strBinData   = TmNativeUtil.GetStrBinData(tEventElix.Event);
           var extendedType = (TmNativeDefs.ExtendedEventTypes) tEventElix.Event.Ch;
           tmEvent.TypeString = GetTypeStringByExtendedTypeString(extendedType);
-          tmEvent.Text       = TmNativeUtil.GetStringFromStrBinBytes(strBinData.StrBin);
+          tmEvent.Text       = TmNativeUtil.GetStringFromBytesWithAdditionalPart(strBinData.StrBin);
 
           switch (extendedType)
           {

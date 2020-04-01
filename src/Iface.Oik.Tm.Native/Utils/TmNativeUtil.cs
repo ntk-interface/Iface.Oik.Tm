@@ -216,13 +216,23 @@ namespace Iface.Oik.Tm.Native.Utils
       return bytes;
     }
 
-
-    public static string GetStringFromStrBinBytes(byte[] strBin)
+    
+    public static string GetStringFromIntPtrWithAdditionalPart(IntPtr ptr, int size)
     {
-      return Encoding.GetEncoding(1251)
-                     .GetString(strBin)
-                     .Split(new[] {'\0'})
-                     .FirstOrDefault();
+      var bytes = new byte[size];
+      Marshal.Copy(ptr, bytes, 0, size);
+      return GetStringFromBytesWithAdditionalPart(bytes);
+    }
+    
+
+    public static string GetStringFromBytesWithAdditionalPart(byte[] bytes)
+    {
+      return  Encoding.GetEncoding(1251)
+                        .GetString(bytes)
+                        .Split(new[] {'\0'})
+                        .FirstOrDefault()?
+                        .Trim('\n');
+      
     }
 
 
