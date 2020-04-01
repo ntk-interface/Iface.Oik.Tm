@@ -230,4 +230,12 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Оконечное устройство занято другой операцией")]                   Busy                   = -16,
     [Description("Команда не была отправлена")]                                     CommandNotSentToServer = -100,
   }
+
+
+  public enum TmServerLogRecordType
+  {
+    [Description("Неопределённый")] Undefined = -1,
+    [Description("Сообщение")] Msg = 1,
+    [Description("Ошибка")] Error = 2,
+  }
 }
