@@ -84,7 +84,7 @@ namespace Iface.Oik.Tm.Api
     public async Task<List<CfTreeNode>> GetMasterServiceTree(IntPtr rootHandle)
     {
       return await GetNodeChildren(rootHandle)
-               .ConfigureAwait(false);
+              .ConfigureAwait(false);
     }
 
 
@@ -103,7 +103,7 @@ namespace Iface.Oik.Tm.Api
                                 await GetNodeProps(childHandle).ConfigureAwait(false),
                                 parent);
         nodeChild.Children = await GetNodeChildren(childHandle, nodeChild)
-                               .ConfigureAwait(false);
+                              .ConfigureAwait(false);
         children.Add(nodeChild);
       }
 
@@ -131,12 +131,12 @@ namespace Iface.Oik.Tm.Api
       for (var i = 0;; i++)
       {
         var propName = await GetPropName(nodeHandle, i)
-                         .ConfigureAwait(false);
+                        .ConfigureAwait(false);
         if (propName == "")
           break;
 
         var propValue = await GetPropValue(nodeHandle, propName)
-                          .ConfigureAwait(false);
+                         .ConfigureAwait(false);
 
         props.Add(propName, propValue);
       }
@@ -250,7 +250,7 @@ namespace Iface.Oik.Tm.Api
       foreach (var node in tree)
       {
         await CreateNode(newTreeHandle, node)
-          .ConfigureAwait(false);
+         .ConfigureAwait(false);
       }
 
       return newTreeHandle;
@@ -264,7 +264,7 @@ namespace Iface.Oik.Tm.Api
                                  .ConfigureAwait(false);
 
       if (!await CreateNodeProperties(nodeHandle, node)
-             .ConfigureAwait(false))
+            .ConfigureAwait(false))
         throw new Exception("Ошибка заполнения дерева конфигурации");
 
       var i = 0;
@@ -279,14 +279,14 @@ namespace Iface.Oik.Tm.Api
     private async Task<bool> CreateNodeProperties(IntPtr nodeHandle, CfTreeNode node)
     {
       if (!await CreateNodePropertyAsync(nodeHandle, "ProgName", node.ProgName)
-             .ConfigureAwait(false))
+            .ConfigureAwait(false))
         return false;
 
       switch (node)
       {
         case MasterNode _:
           if (!await CreateMasterNodeProperties(nodeHandle, node)
-                 .ConfigureAwait(false))
+                .ConfigureAwait(false))
           {
             return false;
           }
@@ -294,7 +294,7 @@ namespace Iface.Oik.Tm.Api
           break;
         case TmsNode _:
           if (!await CreateTmsNodeProperties(nodeHandle, node)
-                 .ConfigureAwait(false))
+                .ConfigureAwait(false))
           {
             return false;
           }
@@ -302,7 +302,7 @@ namespace Iface.Oik.Tm.Api
           break;
         case ExternalTaskNode _:
           if (!await CreateExternalTaskNodeProperties(nodeHandle, node)
-                 .ConfigureAwait(false))
+                .ConfigureAwait(false))
           {
             return false;
           }
@@ -310,7 +310,7 @@ namespace Iface.Oik.Tm.Api
           break;
         default:
           if (!await CreateChildNodeProperties(nodeHandle, node)
-                 .ConfigureAwait(false))
+                .ConfigureAwait(false))
           {
             return false;
           }
@@ -329,7 +329,7 @@ namespace Iface.Oik.Tm.Api
       if (!await CreateNodePropertyAsync(nodeHandle,
                                          "Размер лог-файла",
                                          props.LogFileSize.ToString())
-             .ConfigureAwait(false))
+            .ConfigureAwait(false))
       {
         return false;
       }
@@ -337,7 +337,7 @@ namespace Iface.Oik.Tm.Api
       if (!await CreateNodePropertyAsync(nodeHandle,
                                          "Отмена запуска",
                                          Convert.ToInt32(props.NoStart).ToString())
-             .ConfigureAwait(false))
+            .ConfigureAwait(false))
       {
         return false;
       }
@@ -346,7 +346,7 @@ namespace Iface.Oik.Tm.Api
       if (!await CreateNodePropertyAsync(nodeHandle,
                                          "Рабочий каталог",
                                          props.WorkDir)
-             .ConfigureAwait(false))
+            .ConfigureAwait(false))
       {
         return false;
       }
@@ -362,7 +362,7 @@ namespace Iface.Oik.Tm.Api
       if (!await CreateNodePropertyAsync(nodeHandle,
                                          "PipeName",
                                          props.PipeName)
-             .ConfigureAwait(false))
+            .ConfigureAwait(false))
       {
         return false;
       }
@@ -370,7 +370,7 @@ namespace Iface.Oik.Tm.Api
       if (!await CreateNodePropertyAsync(nodeHandle,
                                          "Отмена запуска",
                                          Convert.ToInt32(props.NoStart).ToString())
-             .ConfigureAwait(false))
+            .ConfigureAwait(false))
       {
         return false;
       }
@@ -385,7 +385,7 @@ namespace Iface.Oik.Tm.Api
       var props = (TmsNodeProperties) node.Properties;
 
       if (!await CreateChildNodeProperties(nodeHandle, node)
-             .ConfigureAwait(false))
+            .ConfigureAwait(false))
       {
         return false;
       }
@@ -393,7 +393,7 @@ namespace Iface.Oik.Tm.Api
       if (!await CreateNodePropertyAsync(nodeHandle,
                                          "Пассивный режим",
                                          Convert.ToInt32(props.PassiveMode).ToString())
-             .ConfigureAwait(false))
+            .ConfigureAwait(false))
       {
         return false;
       }
@@ -414,7 +414,7 @@ namespace Iface.Oik.Tm.Api
       if (!await CreateNodePropertyAsync(nodeHandle,
                                          "Программа",
                                          props.TaskPath)
-             .ConfigureAwait(false))
+            .ConfigureAwait(false))
       {
         return false;
       }
@@ -422,7 +422,7 @@ namespace Iface.Oik.Tm.Api
       if (!await CreateNodePropertyAsync(nodeHandle,
                                          "Программа",
                                          props.TaskArguments)
-             .ConfigureAwait(false))
+            .ConfigureAwait(false))
       {
         return false;
       }
@@ -430,7 +430,7 @@ namespace Iface.Oik.Tm.Api
       if (!await CreateNodePropertyAsync(nodeHandle,
                                          "Программа",
                                          props.ConfigurationFilePath)
-             .ConfigureAwait(false))
+            .ConfigureAwait(false))
       {
         return false;
       }
@@ -492,7 +492,7 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<IReadOnlyCollection<TmServer>> GetTmServersTree()
     {
-      var lookup = new Dictionary<uint, TmServer>();
+      var lookup    = new Dictionary<uint, TmServer>();
       var tmServers = await GetTmServers();
 
       tmServers.ForEach(x => lookup.Add(x.ProcessId, x));
@@ -510,29 +510,29 @@ namespace Iface.Oik.Tm.Api
     private async Task<IReadOnlyCollection<TmServer>> GetTmServers()
     {
       var serverIdsList = await GetIfaceServerId().ConfigureAwait(false);
-      var tmUsers = await GetTmUsers();
-      
+      var tmUsers       = await GetTmUsers();
+
       var tmServersList = new List<TmServer>();
 
       foreach (var serverId in serverIdsList)
       {
         var tmServer = TmServer.CreateFromIfaceServer(await GetIfaceServerData(serverId)
-                                                        .ConfigureAwait(false));
+                                                       .ConfigureAwait(false));
         var serverUsers = tmUsers.Where(x => x.ParentProcessId == tmServer.ProcessId);
         tmServer.Users.AddRange(serverUsers);
-        
-        tmServersList.Add(tmServer); 
+
+        tmServersList.Add(tmServer);
       }
 
       return tmServersList;
     }
-    
+
 
     private async Task<IReadOnlyCollection<string>> GetIfaceServerId()
     {
       const int errStringLength = 1000;
       var       errString       = new StringBuilder(errStringLength);
-      uint errCode = 0;
+      uint      errCode         = 0;
 
       var serversIdsPointer = await Task.Run(() => _native.CfsTraceEnumServers(CfId,
                                                                                out errCode,
@@ -541,29 +541,29 @@ namespace Iface.Oik.Tm.Api
                                         .ConfigureAwait(false);
 
 
-      var serversIds =  TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(serversIdsPointer, 1000);
+      var serversIds = TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(serversIdsPointer, 1000);
 
       _native.CfsFreeMemory(serversIdsPointer);
       return serversIds;
     }
 
-    
+
     private async Task<TmNativeDefs.IfaceServer> GetIfaceServerData(string serverId)
     {
       const int errStringLength = 1000;
       var       errString       = new StringBuilder(errStringLength);
       uint      errCode         = 0;
       var       ifaceServer     = new TmNativeDefs.IfaceServer();
-      
-      await Task.Run(() => _native.CfsTraceGetServerData(CfId, 
-                                                                      serverId,
-                                                                      ref 
-                                                                      ifaceServer, 
-                                                                      out errCode, 
-                                                                      ref errString, 
-                                                                      errStringLength))
-                             .ConfigureAwait(false);
-      
+
+      await Task.Run(() => _native.CfsTraceGetServerData(CfId,
+                                                         serverId,
+                                                         ref
+                                                         ifaceServer,
+                                                         out errCode,
+                                                         ref errString,
+                                                         errStringLength))
+                .ConfigureAwait(false);
+
       return ifaceServer;
     }
 
@@ -571,7 +571,7 @@ namespace Iface.Oik.Tm.Api
     private async Task<IReadOnlyCollection<TmUser>> GetTmUsers()
     {
       var usersIds = await GetIfaceUsersIds().ConfigureAwait(false);
-      var tmUsers = new List<TmUser>();
+      var tmUsers  = new List<TmUser>();
 
       foreach (var userId in usersIds)
       {
@@ -581,7 +581,7 @@ namespace Iface.Oik.Tm.Api
 
       return tmUsers;
     }
-    
+
 
     private async Task<IReadOnlyCollection<string>> GetIfaceUsersIds()
     {
@@ -589,14 +589,14 @@ namespace Iface.Oik.Tm.Api
       var       errString       = new StringBuilder(errStringLength);
       uint      errCode         = 0;
 
-      var usersIdsPointer = await Task.Run(() => _native.CfsTraceEnumUsers(CfId, 
-                                                                           out errCode, 
-                                                                           ref errString, 
+      var usersIdsPointer = await Task.Run(() => _native.CfsTraceEnumUsers(CfId,
+                                                                           out errCode,
+                                                                           ref errString,
                                                                            errCode))
                                       .ConfigureAwait(false);
 
       var usersIds = TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(usersIdsPointer, 1000);
-      
+
       _native.CfsFreeMemory(usersIdsPointer);
       return usersIds;
     }
@@ -607,7 +607,7 @@ namespace Iface.Oik.Tm.Api
       const int errStringLength = 1000;
       var       errString       = new StringBuilder(errStringLength);
       uint      errCode         = 0;
-      var ifaceUser = new TmNativeDefs.IfaceUser();
+      var       ifaceUser       = new TmNativeDefs.IfaceUser();
 
       await Task.Run(() => _native.CfsTraceGetUserData(CfId,
                                                        userId,
@@ -619,6 +619,83 @@ namespace Iface.Oik.Tm.Api
                 .ConfigureAwait(false);
 
       return ifaceUser;
+    }
+
+
+    public async Task<IReadOnlyCollection<TmServerLogRecord>> GetTmServersLog()
+    {
+      await OpenTmServerLog().ConfigureAwait(false);
+      var tmServersLog = new List<TmServerLogRecord>();
+
+      var firstRecord = true;
+
+      while (true)
+      {
+        var logRecord = await GetTmServersLogRecord(firstRecord)
+                         .ConfigureAwait(false);
+        firstRecord = false;
+        
+        if (logRecord == null) break;
+        
+        tmServersLog.Add(logRecord);
+      }
+      
+      await CloseTmServerLog().ConfigureAwait(false);
+
+      return tmServersLog;
+    }
+
+    private async Task OpenTmServerLog()
+    {
+      const int errStringLength = 1000;
+      var       errString       = new StringBuilder(errStringLength);
+      uint      errCode         = 0;
+
+      var result = await Task.Run(() =>_native.CfsLogOpen(CfId, 
+                                                          out errCode, 
+                                                          ref errString, 
+                                                          errStringLength));
+      if (!result)
+      {
+        throw new Exception($"Ошибка получения журнала сервера: {errString} Код: {errCode}");
+      }
+    }
+    
+    
+    private async Task CloseTmServerLog()
+    {
+      const int errStringLength = 1000;
+      var       errString       = new StringBuilder(errStringLength);
+      uint      errCode         = 0;
+
+      var result = await Task.Run(() =>_native.CfsLogClose(CfId, 
+                                                          out errCode, 
+                                                          ref errString, 
+                                                          errStringLength));
+      if (!result)
+      {
+        throw new Exception($"Ошибка получения журнала сервера: {errString} Код: {errCode}");
+      }
+    }
+
+
+    private async Task<TmServerLogRecord> GetTmServersLogRecord(bool isFirst = false)
+    {
+      const int errStringLength = 1000;
+      var       errString       = new StringBuilder(errStringLength);
+      uint      errCode         = 0;
+      
+      var logRecordPtr =
+        await Task.Run(() => _native.CfsLogGetRecord(CfId, isFirst, out errCode, ref errString, errCode))
+                  .ConfigureAwait(false);
+      
+      if (logRecordPtr == IntPtr.Zero) return null;
+
+      var cfsLogRecord = TmNativeUtil.ParseCfsServerLogRecordPointerToStringArray(logRecordPtr, 1000);
+
+      _native.CfsFreeMemory(logRecordPtr);
+      
+      return TmServerLogRecord.CreateFromCfsLogRecord(cfsLogRecord);
     }
   }
 }
