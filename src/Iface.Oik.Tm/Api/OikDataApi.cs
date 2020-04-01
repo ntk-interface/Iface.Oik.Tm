@@ -415,14 +415,14 @@ namespace Iface.Oik.Tm.Api
     public async Task<IReadOnlyCollection<TmEvent>> GetEventsArchive(TmEventFilter filter,
                                                                      PreferApi     prefer = PreferApi.Auto)
     {
-      var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
+      var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: true, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
       {
-        throw new NotImplementedException();
+        return await _tms.GetEventsArchive(filter).ConfigureAwait(false);
       }
       else if (api == ApiSelection.Sql)
       {
-        return await _sql.GetArchEvents(filter).ConfigureAwait(false);
+        return await _sql.GetEventsArchive(filter).ConfigureAwait(false);
       }
       else
       {

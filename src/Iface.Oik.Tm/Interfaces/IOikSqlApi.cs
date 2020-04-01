@@ -29,7 +29,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task UpdateTagPropertiesAndClassData(TmTag tag);
 
-    Task<IReadOnlyCollection<TmEvent>> GetArchEvents(TmEventFilter filter);
+    Task<IReadOnlyCollection<TmEvent>> GetEventsArchive(TmEventFilter filter);
 
     Task<(IReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix);
 

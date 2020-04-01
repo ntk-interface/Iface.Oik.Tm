@@ -314,9 +314,9 @@ namespace Iface.Oik.Tm.Interfaces
               else
               {
                 tmEvent.TmAddrString =
-                  $"Ист: {strBinData.Source          & 0xffff}, " +
-                  $"К: {(strBinData.Source  >> 0x24) & 0xff}, "   +
-                  $"КП: {(strBinData.Source >> 0x16) & 0xff}";
+                  $"Ист: {strBinData.Source & 0x0000_ffff}, "        +
+                  $"К: {(strBinData.Source  & 0xff00_0000) >> 24}, " +
+                  $"КП: {(strBinData.Source & 0x00ff_0000) >> 16}";
               }
 
               break;
