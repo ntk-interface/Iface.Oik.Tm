@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using Iface.Oik.Tm.Native.Interfaces;
 
 namespace Iface.Oik.Tm.Native.Utils
@@ -15,6 +16,7 @@ namespace Iface.Oik.Tm.Native.Utils
       {
         throw new ArgumentException("Отсутствует Data в CommonPoint");
       }
+
       return FromBytes<TmNativeDefs.TStatusPoint>(commonPoint.Data);
     }
 
@@ -25,6 +27,7 @@ namespace Iface.Oik.Tm.Native.Utils
       {
         throw new ArgumentException("Отсутствует Data в CommonPoint");
       }
+
       return FromBytes<TmNativeDefs.TAnalogPoint>(commonPoint.Data);
     }
 
@@ -37,6 +40,7 @@ namespace Iface.Oik.Tm.Native.Utils
       {
         s = s.Remove(doubleNull);
       }
+
       return s.Split(new[] {'\0'}, StringSplitOptions.RemoveEmptyEntries);
     }
 
@@ -52,6 +56,7 @@ namespace Iface.Oik.Tm.Native.Utils
           break;
         }
       }
+
       var significantBytes = new byte[doubleNull];
       Array.Copy(bytes, significantBytes, doubleNull);
       return Encoding.GetEncoding(1251)
@@ -101,6 +106,7 @@ namespace Iface.Oik.Tm.Native.Utils
           {
             break;
           }
+
           result.Add(Encoding.GetEncoding(1251)
                              .GetString(stringBytes)
                              .Trim('\0'));
@@ -109,10 +115,35 @@ namespace Iface.Oik.Tm.Native.Utils
           isNullFound  = true;
           continue;
         }
+
         stringBytes[stringCursor++] = marshalBytes[0];
         isNullFound                 = false;
       }
+
       return result;
+    }
+
+
+    public static TmNativeDefs.CfsLogRecord ParseCfsServerLogRecordPointerToStringArray(IntPtr ptr, int maxSize)
+    {
+      var bytes = new byte[maxSize];
+      Marshal.Copy(ptr, bytes, 0, maxSize);
+      var str = Encoding.GetEncoding(1251).GetString(bytes);
+      var regex =
+        new
+          Regex(@"(\d{2}:\d{2}:\d{2}.\d{3}) (\d{2}.\d{2}.\d{4}) \\\\\\([\s\S]*)\\\\([\s\S]*)\\\\([\s\S]*)\s*- ThID=([\s\S]*) :\n([^\n]+)");
+      var mc = regex.Match(str);
+
+      return new TmNativeDefs.CfsLogRecord
+             {
+               Time     = mc.Groups[1].Value,
+               Date     = mc.Groups[2].Value,
+               Name     = mc.Groups[3].Value,
+               Type     = mc.Groups[4].Value,
+               MsgType  = mc.Groups[5].Value.Trim(' '),
+               ThreadId = mc.Groups[6].Value,
+               Message  = mc.Groups[7].Value,
+             };
     }
 
 
@@ -122,6 +153,7 @@ namespace Iface.Oik.Tm.Native.Utils
       {
         s = string.Empty;
       }
+
       var result = new byte[size];
       Array.Copy(Encoding.GetEncoding(encoding).GetBytes(s),
                  result,
@@ -136,6 +168,7 @@ namespace Iface.Oik.Tm.Native.Utils
       {
         throw new ArgumentException("Отсутствует Data в TEvent");
       }
+
       return FromBytes<TmNativeDefs.StatusData>(tEvent.Data);
     }
 
@@ -146,6 +179,7 @@ namespace Iface.Oik.Tm.Native.Utils
       {
         throw new ArgumentException("Отсутствует Data в TEvent");
       }
+
       return FromBytes<TmNativeDefs.AlarmData>(tEvent.Data);
     }
 
@@ -156,6 +190,7 @@ namespace Iface.Oik.Tm.Native.Utils
       {
         throw new ArgumentException("Отсутствует Data в TEvent");
       }
+
       return FromBytes<TmNativeDefs.AnalogSetData>(tEvent.Data);
     }
 
@@ -166,6 +201,7 @@ namespace Iface.Oik.Tm.Native.Utils
       {
         throw new ArgumentException("Отсутствует Data в TEvent");
       }
+
       return FromBytes<TmNativeDefs.ControlData>(tEvent.Data);
     }
 
@@ -176,6 +212,7 @@ namespace Iface.Oik.Tm.Native.Utils
       {
         throw new ArgumentException("Отсутствует Data в TEvent");
       }
+
       return FromBytes<TmNativeDefs.AcknowledgeData>(tEvent.Data);
     }
 
@@ -186,16 +223,18 @@ namespace Iface.Oik.Tm.Native.Utils
       {
         throw new ArgumentException("Отсутствует Data в TEvent");
       }
+
       return FromBytes<TmNativeDefs.StrBinData>(tEvent.Data);
     }
-    
-    
+
+
     public static TmNativeDefs.TTMSEventAddData GetEventAddData(byte[] addDataBytes)
     {
       if (addDataBytes == null)
       {
         throw new ArgumentException("Массив байтов пуст");
       }
+
       return FromBytes<TmNativeDefs.TTMSEventAddData>(addDataBytes);
     }
 
@@ -213,26 +252,26 @@ namespace Iface.Oik.Tm.Native.Utils
       {
         handle.Free();
       }
+
       return bytes;
     }
 
-    
+
     public static string GetStringFromIntPtrWithAdditionalPart(IntPtr ptr, int size)
     {
       var bytes = new byte[size];
       Marshal.Copy(ptr, bytes, 0, size);
       return GetStringFromBytesWithAdditionalPart(bytes);
     }
-    
+
 
     public static string GetStringFromBytesWithAdditionalPart(byte[] bytes)
     {
-      return  Encoding.GetEncoding(1251)
-                        .GetString(bytes)
-                        .Split(new[] {'\0'})
-                        .FirstOrDefault()?
-                        .Trim('\n');
-      
+      return Encoding.GetEncoding(1251)
+                     .GetString(bytes)
+                     .Split(new[] {'\0'})
+                     .FirstOrDefault()?
+                     .Trim('\n');
     }
 
 
@@ -248,6 +287,7 @@ namespace Iface.Oik.Tm.Native.Utils
       {
         handle.Free();
       }
+
       return structure;
     }
   }

@@ -720,6 +720,18 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public Int32 dwLowDateTime;
       public Int32 dwHighDateTime;
     }
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct CfsLogRecord
+    {
+      public string Time;
+      public string Date;
+      public string Name;
+      public string Type;
+      public string MsgType;
+      public string ThreadId;
+      public string Message;
+    }
 
     #endregion
   }
