@@ -193,7 +193,7 @@ namespace Iface.Oik.Tm.Native.Api
     public static extern void d_printf([MarshalAs(UnmanagedType.LPStr)] string format);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern IntPtr lf_ParseMessage(IntPtr stringPtrToParse,
                                                 [MarshalAs(UnmanagedType.LPStr)] StringBuilder sTime,
                                                 [MarshalAs(UnmanagedType.LPStr)] StringBuilder sDate,
