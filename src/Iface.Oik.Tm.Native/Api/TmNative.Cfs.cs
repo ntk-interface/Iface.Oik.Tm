@@ -231,5 +231,16 @@ namespace Iface.Oik.Tm.Native.Api
     {
       e_printf(message);
     }
+
+    public IntPtr LfParseMessage(IntPtr stringPtrToParse, 
+                                 ref StringBuilder time, 
+                                 ref StringBuilder date,
+                                 ref StringBuilder name,
+                                 ref StringBuilder type, 
+                                 ref StringBuilder msgType, 
+                                 ref StringBuilder thid)
+    {
+      return lf_ParseMessage(stringPtrToParse, time, date, name, type, msgType, thid);
+    }
   }
 }

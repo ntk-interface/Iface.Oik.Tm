@@ -176,7 +176,7 @@ namespace Iface.Oik.Tm.Native.Api
                                                 [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
                                                 uint                                           maxErrs);
 
-    
+
     [DllImport(Cfshare, CallingConvention = CallingConvention.Cdecl)]
     public static extern Int64 uxgmtime2uxtime(Int64 time);
 
@@ -191,5 +191,15 @@ namespace Iface.Oik.Tm.Native.Api
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
     public static extern void d_printf([MarshalAs(UnmanagedType.LPStr)] string format);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+    public static extern IntPtr lf_ParseMessage(IntPtr stringPtrToParse,
+                                                [MarshalAs(UnmanagedType.LPStr)] StringBuilder sTime,
+                                                [MarshalAs(UnmanagedType.LPStr)] StringBuilder sDate,
+                                                [MarshalAs(UnmanagedType.LPStr)] StringBuilder sName,
+                                                [MarshalAs(UnmanagedType.LPStr)] StringBuilder sType,
+                                                [MarshalAs(UnmanagedType.LPStr)] StringBuilder sMsgType,
+                                                [MarshalAs(UnmanagedType.LPStr)] StringBuilder sThid);
   }
 }

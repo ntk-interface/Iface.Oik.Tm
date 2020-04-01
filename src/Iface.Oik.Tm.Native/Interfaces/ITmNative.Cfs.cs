@@ -159,5 +159,14 @@ namespace Iface.Oik.Tm.Native.Interfaces
     void DPrintF(string message);
     void MPrintF(string message);
     void EPrintF(string message);
+
+
+    IntPtr LfParseMessage(IntPtr stringPtrToParse,
+                          ref StringBuilder time,
+                          ref StringBuilder date,
+                          ref StringBuilder name,
+                          ref StringBuilder type,
+                          ref StringBuilder msgType,
+                          ref StringBuilder thid);
   }
 }
