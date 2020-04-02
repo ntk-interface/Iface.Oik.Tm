@@ -181,7 +181,6 @@ namespace Iface.Oik.Tm.Interfaces
         Importance           = tEventElix.Event.Imp,
         Text                 = sourceObjectName,
       };
-      (tmEvent.TmAddrString, tmEvent.TmAddrComplexInteger, tmEvent.TmAddrType) = GetTmAddrFromTEvent(tEventElix.Event);
 
       if (eventAddData.AckSec != 0 && !eventAddData.UserName.IsNullOrEmpty())
       {
@@ -195,6 +194,12 @@ namespace Iface.Oik.Tm.Interfaces
           var                  statusData = TmNativeUtil.GetStatusDataFromTEvent(tEventElix.Event);
           var                  isS2Only   = false;
           TmNativeDefs.S2Flags s2         = 0x0000;
+
+          tmEvent.TmAddrString = $"#TC{tEventElix.Event.Ch}:{tEventElix.Event.Rtu}:{tEventElix.Event.Point}";
+          tmEvent.TmAddrComplexInteger =
+            (uint) (tEventElix.Event.Point + (tEventElix.Event.Rtu << 16) + (tEventElix.Event.Ch << 24));
+          tmEvent.TmAddrType = TmType.Status;
+            
           tmEvent.TypeString = statusData.Class == 1 ? "А.П.С." : "ТС";
 
           if ((statusData.ExtSig & TmNativeDefs.ExtendedDataSignature) == TmNativeDefs.ExtendedDataSignature)
@@ -257,6 +262,12 @@ namespace Iface.Oik.Tm.Interfaces
 
         case TmEventTypes.Alarm:
           var alarmData = TmNativeUtil.GetAlarmDataFromTEvent(tEventElix.Event);
+          
+          tmEvent.TmAddrString = $"#TT{tEventElix.Event.Ch}:{tEventElix.Event.Rtu}:{tEventElix.Event.Point}";
+          tmEvent.TmAddrComplexInteger =
+            (uint) (tEventElix.Event.Point + (tEventElix.Event.Rtu << 16) + (tEventElix.Event.Ch << 24));
+          tmEvent.TmAddrType = TmType.Analog;
+          
           tmEvent.TypeString  = "УСТАВКА";
           tmEvent.StateString = $"{alarmData.Val} - {(alarmData.State == 0 ? "Снята" : "Взведена")}";
 
@@ -264,13 +275,25 @@ namespace Iface.Oik.Tm.Interfaces
 
         case TmEventTypes.ManualAnalogSet:
           var analogSetData = TmNativeUtil.GetAnalogSetDataFromTEvent(tEventElix.Event);
-          tmEvent.TypeString  = "РУЧ. ТИТ";
+          
+          tmEvent.TmAddrString = $"#TT{tEventElix.Event.Ch}:{tEventElix.Event.Rtu}:{tEventElix.Event.Point}";
+          tmEvent.TmAddrComplexInteger =
+            (uint) (tEventElix.Event.Point + (tEventElix.Event.Rtu << 16) + (tEventElix.Event.Ch << 24));
+          tmEvent.TmAddrType = TmType.Analog;
+          
+          tmEvent.TypeString  = "Ручн. ТИТ";
           tmEvent.Username    = EncodingUtil.Cp866BytesToUtf8String(analogSetData.UserName);
           tmEvent.StateString = $"{analogSetData.Value} - {(analogSetData.Cmd == 0 ? "Снято" : "Установлено")}";
           break;
 
         case TmEventTypes.ManualStatusSet: //TODO: Изучить вопрос, не стоит ли сделать как в клиенте
           var mSData = TmNativeUtil.GetControlDataFromTEvent(tEventElix.Event);
+          
+          tmEvent.TmAddrString = $"#TC{tEventElix.Event.Ch}:{tEventElix.Event.Rtu}:{tEventElix.Event.Point}";
+          tmEvent.TmAddrComplexInteger =
+            (uint) (tEventElix.Event.Point + (tEventElix.Event.Rtu << 16) + (tEventElix.Event.Ch << 24));
+          tmEvent.TmAddrType = TmType.Status;
+          
           tmEvent.TypeString  = "РУЧ. ТС";
           tmEvent.Username    = EncodingUtil.Cp866BytesToUtf8String(mSData.UserName);
           tmEvent.StateString = mSData.Cmd == 1 ? "ВКЛ" : "ОТКЛ";
@@ -278,6 +301,12 @@ namespace Iface.Oik.Tm.Interfaces
 
         case TmEventTypes.Control:
           var controlData = TmNativeUtil.GetControlDataFromTEvent(tEventElix.Event);
+          
+          tmEvent.TmAddrString = $"#TC{tEventElix.Event.Ch}:{tEventElix.Event.Rtu}:{tEventElix.Event.Point}";
+          tmEvent.TmAddrComplexInteger =
+            (uint) (tEventElix.Event.Point + (tEventElix.Event.Rtu << 16) + (tEventElix.Event.Ch << 24));
+          tmEvent.TmAddrType = TmType.Status;
+          
           tmEvent.TypeString  = "ТУ";
           tmEvent.Username    = EncodingUtil.Cp866BytesToUtf8String(controlData.UserName);
           tmEvent.StateString = controlData.Cmd == 1 ? "ВКЛ" : "ОТКЛ";
@@ -290,17 +319,50 @@ namespace Iface.Oik.Tm.Interfaces
 
         case TmEventTypes.Acknowledge:
           var ackData = TmNativeUtil.GetAcknowledgeDataFromTEvent(tEventElix.Event);
-          tmEvent.TypeString = "КВИТИРОВАНИЕ";
-          tmEvent.Username   = EncodingUtil.Cp866BytesToUtf8String(ackData.UserName);
-          if (tEventElix.Event.Point == 0)
+          
+          tmEvent.TmAddrComplexInteger =
+            (uint) (tEventElix.Event.Point + (tEventElix.Event.Rtu << 16) + (tEventElix.Event.Ch << 24));
+
+          tmEvent.TmAddrType = ((TmNativeDefs.TmDataTypes) ackData.TmType).ToTmType();
+
+          switch (tmEvent.TmAddrType)
           {
-            tmEvent.Text = "ОБЩЕЕ";
+            case TmType.Status:
+              tmEvent.TmAddrString = $"#TC{tEventElix.Event.Ch}:{tEventElix.Event.Rtu}:{tEventElix.Event.Point}";
+              if (tEventElix.Event.Point == 0)
+              {
+                tmEvent.Text = "Общее квитирование ТС";
+              }
+              break;
+            case TmType.Analog:
+              tmEvent.TmAddrString = $"#TT{tEventElix.Event.Ch}:{tEventElix.Event.Rtu}:{tEventElix.Event.Point}";
+              if (tEventElix.Event.Point == 0)
+              {
+                tmEvent.Text = "Общее квитирование ТИ";
+              }
+              break;
+            default:
+              tmEvent.TmAddrString = $"#XX{tEventElix.Event.Ch}:{tEventElix.Event.Rtu}:{tEventElix.Event.Point}";
+              if (tEventElix.Event.Point == 0)
+              {
+                tmEvent.Text = "Общее квитирование";
+              }
+              break;
           }
+          
+          tmEvent.TypeString = "Квитирование";
+          tmEvent.Username   = EncodingUtil.Cp866BytesToUtf8String(ackData.UserName);
+          
 
           break;
         case TmEventTypes.Extended:
           var strBinData   = TmNativeUtil.GetStrBinData(tEventElix.Event);
           var extendedType = (TmNativeDefs.ExtendedEventTypes) tEventElix.Event.Ch;
+
+          tmEvent.TmAddrString = "";
+          tmEvent.TmAddrComplexInteger = 0;
+          tmEvent.TmAddrType = TmType.Unknown;
+
           tmEvent.TypeString = GetTypeStringByExtendedTypeString(extendedType);
           tmEvent.Text       = TmNativeUtil.GetStringFromBytesWithAdditionalPart(strBinData.StrBin);
 
@@ -385,31 +447,6 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    private static (string, uint, TmType) GetTmAddrFromTEvent(TmNativeDefs.TEvent tEvent)
-    {
-      switch ((TmEventTypes) tEvent.Id)
-      {
-        case TmEventTypes.StatusChange:
-        case TmEventTypes.Control:
-        case TmEventTypes.ManualStatusSet:
-        case TmEventTypes.Acknowledge:
-          return (
-            $"#TC{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}",
-            (uint) (tEvent.Point + (tEvent.Rtu << 16) + (tEvent.Ch << 24)),
-            TmType.Status);
-
-        case TmEventTypes.Alarm:
-        case TmEventTypes.ManualAnalogSet:
-          return (
-            $"#TT{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}",
-            (uint) (tEvent.Point + (tEvent.Rtu << 16) + (tEvent.Ch << 24)),
-            TmType.Analog);
-
-        default:
-          return (string.Empty, 0, TmType.Unknown);
-      }
-    }
-
 
     private static string GetS2StatusString(TmNativeDefs.S2Flags s2Flag)
     {
@@ -430,9 +467,9 @@ namespace Iface.Oik.Tm.Interfaces
       switch (eventType)
       {
         case TmNativeDefs.ExtendedEventTypes.Message:
-          return "СООБЩЕНИЕ";
+          return "Сообщение";
         case TmNativeDefs.ExtendedEventTypes.Model:
-          return "МОДЕЛЬ";
+          return "Модель";
         default:
           return "???";
       }
