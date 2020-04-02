@@ -1681,6 +1681,34 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<IReadOnlyCollection<string>> GetComtradeDays()
+    {
+      var ptr = await Task.Run(() => _native.TmcComtradeEnumDays(_cid));
+
+      return TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(ptr, 8192);
+    }
+
+
+    public async Task<IReadOnlyCollection<string>> GetComtradeFilesByDay(string day)
+    {
+      var ptr = await Task.Run(() => _native.TmcComtradeEnumFiles(_cid, day));
+
+      return TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(ptr, 8192);
+    }
+
+
+    public async Task<bool> DownloadComtradeFile(string filename, string localPath)
+    {
+      if (!await Task.Run(() => _native.TmcComtradeGetFile(_cid, filename, localPath)))
+      {
+        Console.WriteLine($"Ошибка при скачивании файла: {GetLastTmcError()}");
+        return false;
+      }
+
+      return true;
+    }
+
+
     public async Task<IReadOnlyCollection<TmChannel>> GetTmTreeChannels()
     {
       var result = new List<TmChannel>();

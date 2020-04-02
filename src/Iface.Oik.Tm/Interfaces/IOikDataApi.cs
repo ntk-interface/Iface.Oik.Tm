@@ -379,5 +379,17 @@ namespace Iface.Oik.Tm.Interfaces
     Task<bool> DownloadFile(string    remotePath,
                             string    localPath,
                             PreferApi prefer = PreferApi.Auto);
+
+
+    Task<IReadOnlyCollection<string>> GetComtradeDays(PreferApi prefer = PreferApi.Auto);
+
+
+    Task<IReadOnlyCollection<string>> GetComtradeFilesByDay(string    day,
+                                                            PreferApi prefer = PreferApi.Auto);
+
+
+    Task<bool> DownloadComtradeFile(string    filename,
+                                    string    localPath,
+                                    PreferApi prefer = PreferApi.Auto);
   }
 }
