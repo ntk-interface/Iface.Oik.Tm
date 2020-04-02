@@ -134,6 +134,13 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<TmAnalog>> GetTmTreeAnalogs(int       channelId,
                                                          int       rtuId,
                                                          PreferApi prefer = PreferApi.Auto);
+    
+    Task<string> GetChannelName(int channelId,
+                                PreferApi prefer = PreferApi.Auto);
+
+    Task<string> GetRtuName(int channelId, 
+                            int rtuId,
+                            PreferApi prefer = PreferApi.Auto);
 
 
     Task<IReadOnlyCollection<TmAnalogRetro>> GetAnalogRetro(TmAddr    addr,

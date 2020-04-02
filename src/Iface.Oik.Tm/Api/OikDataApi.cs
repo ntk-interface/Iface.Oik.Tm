@@ -564,6 +564,45 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<string> GetChannelName(int       channelId,
+                                         PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.GetChannelName(channelId).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        return await _sql.GetChannelName(channelId).ConfigureAwait(false);
+      }
+      else
+      {
+        return null;
+      }
+    }
+
+
+    public async Task<string> GetRtuName(int       channelId,
+                                         int       rtuId,
+                                         PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.GetRtuName(channelId, rtuId).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        return await _sql.GetRtuName(channelId, rtuId).ConfigureAwait(false);
+      }
+      else
+      {
+        return null;
+      }
+    }
+
+
     public async Task<IReadOnlyCollection<TmClassStatus>> GetStatusesClasses(PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
