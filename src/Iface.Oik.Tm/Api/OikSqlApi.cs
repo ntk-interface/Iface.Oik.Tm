@@ -564,6 +564,65 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<string> GetChannelName(int channelId)
+    {
+      if (channelId < 0 || channelId > 254) return null;
+
+      try
+      {
+        using (var sql = _createOikSqlConnection())
+        {
+          await sql.OpenAsync().ConfigureAwait(false);
+          var commandText = "SELECT name FROM oik_chn WHERE ch = @Ch";
+          return await sql.DbConnection.QueryFirstOrDefaultAsync<string>(commandText, 
+                                                                         new {Ch = channelId});
+        }
+      }
+      catch (NpgsqlException ex)
+      {
+        HandleNpgsqlException(ex);
+        return null;
+      }
+      catch (Exception ex)
+      {
+        HandleException(ex);
+        return null;
+      }
+    }
+
+
+    public async Task<string> GetRtuName(int channelId, int rtuId)
+    {
+      if (channelId < 0 || channelId > 254 ||
+          rtuId     < 1 || rtuId     > 255)
+      {
+        return null;
+      }
+
+      try
+      {
+        using (var sql = _createOikSqlConnection())
+        {
+          await sql.OpenAsync().ConfigureAwait(false);
+          var commandText = "SELECT name FROM oik_rtu WHERE ch = @Ch AND rtu = @Rtu";
+          return await sql.DbConnection.QueryFirstOrDefaultAsync<string>(commandText, 
+                                                                         new {Ch = channelId, Rtu = rtuId});
+        }
+      }
+      catch (NpgsqlException ex)
+      {
+        HandleNpgsqlException(ex);
+        return null;
+      }
+      catch (Exception ex)
+      {
+        HandleException(ex);
+        return null;
+      }
+      
+    }
+
+
     public async Task<IReadOnlyCollection<TmStatus>> GetPresentAps()
     {
       try

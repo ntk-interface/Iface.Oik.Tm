@@ -1723,7 +1723,7 @@ namespace Iface.Oik.Tm.Api
         {
           var channelId = itemsIndexes[i];
           result.Add(new TmChannel(channelId,
-                                   GetChannelName(channelId)));
+                                   GetChannelNameSync(channelId)));
         }
       }).ConfigureAwait(false);
 
@@ -1748,7 +1748,7 @@ namespace Iface.Oik.Tm.Api
           var rtuId = itemsIndexes[i];
           result.Add(new TmRtu(channelId,
                                rtuId,
-                               UpdateRtuName(channelId, rtuId)));
+                               GetRtuNameSync(channelId, rtuId)));
         }
       }).ConfigureAwait(false);
 
@@ -1834,6 +1834,44 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<string> GetChannelName(int channelId)
+    {
+      return await Task.Run(() => GetChannelNameSync(channelId));
+    }
+
+
+    private string GetChannelNameSync(int channelId)
+    {
+      if (channelId < 0 || channelId > 254) return null;
+      
+      var buf = new StringBuilder(1024);
+      _native.TmcGetObjectName(_cid, (ushort) TmNativeDefs.TmDataTypes.Channel, (short) channelId, 0, 0,
+                               ref buf, 1024);
+      return buf.ToString();
+    }
+
+
+    public async Task<string> GetRtuName(int channelId, int rtuId)
+    {
+      return await Task.Run(() => GetRtuNameSync(channelId, rtuId));
+    }
+
+
+    private string GetRtuNameSync(int channelId, int rtuId)
+    {
+      if (channelId < 0 || channelId > 254 ||
+          rtuId     < 1 || rtuId     > 255)
+      {
+        return null;
+      }
+      
+      var buf = new StringBuilder(1024);
+      _native.TmcGetObjectName(_cid, (ushort) TmNativeDefs.TmDataTypes.Rtu, (short) channelId, (short) rtuId, 0,
+                               ref buf, 1024);
+      return buf.ToString();
+    }
+
+
     public async Task<TmEventElix> GetCurrentEventsElix()
     {
       var elix = new TmNativeDefs.TTMSElix();
@@ -1844,24 +1882,6 @@ namespace Iface.Oik.Tm.Api
       }
 
       return new TmEventElix(elix.R, elix.M);
-    }
-
-
-    private string GetChannelName(int channelId)
-    {
-      var buf = new StringBuilder(1024);
-      _native.TmcGetObjectName(_cid, (ushort) TmNativeDefs.TmDataTypes.Channel, (short) channelId, 0, 0,
-                               ref buf, 1024);
-      return buf.ToString();
-    }
-
-
-    private string UpdateRtuName(int channelId, int rtuId)
-    {
-      var buf = new StringBuilder(1024);
-      _native.TmcGetObjectName(_cid, (ushort) TmNativeDefs.TmDataTypes.Rtu, (short) channelId, (short) rtuId, 0,
-                               ref buf, 1024);
-      return buf.ToString();
     }
 
 
