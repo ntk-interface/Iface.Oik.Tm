@@ -388,7 +388,7 @@ namespace Iface.Oik.Tm.Interfaces
                                                             PreferApi prefer = PreferApi.Auto);
 
 
-    Task<bool> DownloadComtradeFile(string    remotePath,
+    Task<bool> DownloadComtradeFile(string    filename,
                                     string    localPath,
                                     PreferApi prefer = PreferApi.Auto);
   }

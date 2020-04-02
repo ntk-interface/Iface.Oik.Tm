@@ -1697,17 +1697,11 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<bool> DownloadComtradeFile(string remotePath, string localPath)
+    public async Task<bool> DownloadComtradeFile(string filename, string localPath)
     {
-      if (!await Task.Run(() => _native.TmcComtradeGetFile(_cid, remotePath, localPath)))
+      if (!await Task.Run(() => _native.TmcComtradeGetFile(_cid, filename, localPath)))
       {
         Console.WriteLine($"Ошибка при скачивании файла: {GetLastTmcError()}");
-        return false;
-      }
-
-      if (!File.Exists(localPath))
-      {
-        Console.WriteLine("Ошибка при сохранении файла в файловую систему");
         return false;
       }
 

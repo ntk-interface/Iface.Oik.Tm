@@ -248,7 +248,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<IReadOnlyCollection<string>> GetComtradeFilesByDay(string day);
 
-    Task<bool> DownloadComtradeFile(string remotePath, string localPath);
+    Task<bool> DownloadComtradeFile(string filename, string localPath);
 
 
     Task SetTagFlagsExplicitly(TmTag tag, TmFlags flags);

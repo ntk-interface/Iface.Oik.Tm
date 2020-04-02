@@ -1654,14 +1654,14 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<bool> DownloadComtradeFile(string    remotePath,
+    public async Task<bool> DownloadComtradeFile(string    filename,
                                                  string    localPath,
                                                  PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
       {
-        return await _tms.DownloadComtradeFile(remotePath, localPath).ConfigureAwait(false);
+        return await _tms.DownloadComtradeFile(filename, localPath).ConfigureAwait(false);
       }
       else if (api == ApiSelection.Sql)
       {
