@@ -29,7 +29,7 @@ namespace Iface.Oik.Tm.Utils
       
       var utf8   = Encoding.UTF8;
       var cp1251 = Encoding.GetEncoding(1251);
-      return utf8.GetString(Encoding.Convert(cp1251, utf8, src));
+      return utf8.GetString(Encoding.Convert(cp1251, utf8, src)).Trim('\0');
     }
     
     
@@ -48,7 +48,7 @@ namespace Iface.Oik.Tm.Utils
 
       var utf8  = Encoding.UTF8;
       var cp866 = Encoding.GetEncoding(866);
-      return utf8.GetString(Encoding.Convert(cp866, utf8, src));
+      return utf8.GetString(Encoding.Convert(cp866, utf8, src)).Trim('\0');
     }
     
   }
