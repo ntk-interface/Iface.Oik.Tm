@@ -23,6 +23,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       RetroStatus = 0x9010,
       RetroAnalog = 0x9011,
       RetroAccum  = 0x9012,
+      AnalogAlarm = 0x9021
     }
 
 
