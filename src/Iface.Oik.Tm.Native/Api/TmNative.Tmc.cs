@@ -472,6 +472,16 @@ namespace Iface.Oik.Tm.Native.Api
       return tmcGetObjectName(cid, objectType, ch, rtu, point, buf, bufSize);
     }
 
+    public short TmcGetObjectNameEx(int               cid, 
+                                    ushort objectType, 
+                                    short ch, short rtu, 
+                                    short point, short subObjectId,
+                                    ref StringBuilder buf, 
+                                    int    bufSize)
+    {
+      return tmcGetObjectNameEx(cid, objectType, ch, rtu, point, subObjectId, buf, bufSize);
+    }
+
 
     public IntPtr TmcTechObjReadValues(Int32                   cid,
                                        TmNativeDefs.TTechObj[] objects,

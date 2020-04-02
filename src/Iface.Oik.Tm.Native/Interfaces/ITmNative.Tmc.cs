@@ -318,6 +318,16 @@ namespace Iface.Oik.Tm.Native.Interfaces
                            Int32             bufSize);
 
 
+    Int16 TmcGetObjectNameEx(Int32             cid,
+                             UInt16            objectType,
+                             Int16             ch,
+                             Int16             rtu,
+                             Int16             point,
+                             Int16             subObjectId,
+                             ref StringBuilder buf,
+                             Int32             bufSize);
+
+
     IntPtr TmcTechObjReadValues(Int32                   cid,
                                 TmNativeDefs.TTechObj[] objects,
                                 UInt32                  count);
