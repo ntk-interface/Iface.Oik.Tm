@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using Iface.Oik.Tm.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
@@ -403,7 +403,6 @@ namespace Iface.Oik.Tm.Interfaces
           if (strBinData.Source < 0x10000)
           {
             extendedEvent.Reference    = $"Источник: {strBinData.Source}";
-            extendedEvent.TmAddrString = "#XX0:0:0";
           }
           else
           {
@@ -417,11 +416,9 @@ namespace Iface.Oik.Tm.Interfaces
 
           break;
         case TmNativeDefs.ExtendedEventTypes.Model:
-          extendedEvent.TmAddrString = "#XX0:0:0";
           extendedEvent.Reference    = $"Источник: {strBinData.Source}";
           break;
         default:
-          extendedEvent.TmAddrString = "#XX0:0:0";
           extendedEvent.Reference    = "???";
           break;
       }
