@@ -442,7 +442,7 @@ namespace Iface.Oik.Tm.Interfaces
         (uint) (tEventElix.Event.Point + (tEventElix.Event.Rtu << 16) + (tEventElix.Event.Ch << 24));
       statusChangeEvent.TmAddrType = TmType.Status;
       
-      statusChangeEvent.TypeString = changedStatus.ClassName.IsNullOrEmpty() ? $"{(statusData.Class == 1 ? "АПС" : "ТС")}" : changedStatus.ClassName;
+      statusChangeEvent.TypeString = changedStatus.ClassName.IsNullOrEmpty() ? $"{(changedStatus.IsAps ? "АПС" : "ТС")}" : changedStatus.ClassName;
       statusChangeEvent.ExplicitTypeString = statusData.Class == 1 ? "АПС" : "ТС";
 
       if ((statusData.ExtSig & TmNativeDefs.ExtendedDataSignature) == TmNativeDefs.ExtendedDataSignature)
