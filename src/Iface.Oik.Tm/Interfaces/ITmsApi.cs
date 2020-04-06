@@ -76,6 +76,10 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<IReadOnlyCollection<TmAnalog>> GetTmTreeAnalogs(int channelId, int rtuId);
 
+    Task<string> GetChannelName(int channelId);
+
+    Task<string> GetRtuName(int channelId, int rtuId);
+
     Task<IReadOnlyCollection<TmClassStatus>> GetStatusesClasses();
 
     Task<IReadOnlyCollection<TmClassAnalog>> GetAnalogsClasses();
@@ -143,7 +147,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<IReadOnlyCollection<TmEvent>> GetEventsArchive(TmEventFilter filter);
 
-    
+
     Task<(IReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix);
 
 
@@ -241,9 +245,14 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<IReadOnlyCollection<string>> GetFilesInDirectory(string path);
 
+    Task<bool> DownloadFile(string remotePath, string localPath);
 
-    Task<bool> DownloadFile(string remotePath,
-                            string localPath);
+
+    Task<IReadOnlyCollection<string>> GetComtradeDays();
+
+    Task<IReadOnlyCollection<string>> GetComtradeFilesByDay(string day);
+
+    Task<bool> DownloadComtradeFile(string filename, string localPath);
 
 
     Task SetTagFlagsExplicitly(TmTag tag, TmFlags flags);

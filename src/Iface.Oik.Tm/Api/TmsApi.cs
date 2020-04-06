@@ -1649,6 +1649,34 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<IReadOnlyCollection<string>> GetComtradeDays()
+    {
+      var ptr = await Task.Run(() => _native.TmcComtradeEnumDays(_cid));
+
+      return TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(ptr, 8192);
+    }
+
+
+    public async Task<IReadOnlyCollection<string>> GetComtradeFilesByDay(string day)
+    {
+      var ptr = await Task.Run(() => _native.TmcComtradeEnumFiles(_cid, day));
+
+      return TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(ptr, 8192);
+    }
+
+
+    public async Task<bool> DownloadComtradeFile(string filename, string localPath)
+    {
+      if (!await Task.Run(() => _native.TmcComtradeGetFile(_cid, filename, localPath)))
+      {
+        Console.WriteLine($"Ошибка при скачивании файла: {GetLastTmcError()}");
+        return false;
+      }
+
+      return true;
+    }
+
+
     public async Task<IReadOnlyCollection<TmChannel>> GetTmTreeChannels()
     {
       var result = new List<TmChannel>();
@@ -1659,13 +1687,13 @@ namespace Iface.Oik.Tm.Api
                        var count = _native.TmcEnumObjects(_cid, (ushort) TmNativeDefs.TmDataTypes.Channel, 255,
                                                           ref itemsIndexes, 0, 0, 0);
 
-                       for (int i = 0; i < count; i++)
-                       {
-                         var channelId = itemsIndexes[i];
-                         result.Add(new TmChannel(channelId,
-                                                  GetChannelName(channelId)));
-                       }
-                     }).ConfigureAwait(false);
+        for (int i = 0; i < count; i++)
+        {
+          var channelId = itemsIndexes[i];
+          result.Add(new TmChannel(channelId,
+                                   GetChannelNameSync(channelId)));
+        }
+      }).ConfigureAwait(false);
 
       return result;
     }
@@ -1683,14 +1711,14 @@ namespace Iface.Oik.Tm.Api
                        var count = _native.TmcEnumObjects(_cid, (ushort) TmNativeDefs.TmDataTypes.Rtu, 255,
                                                           ref itemsIndexes, (short) channelId, 0, 0);
 
-                       for (int i = 0; i < count; i++)
-                       {
-                         var rtuId = itemsIndexes[i];
-                         result.Add(new TmRtu(channelId,
-                                              rtuId,
-                                              UpdateRtuName(channelId, rtuId)));
-                       }
-                     }).ConfigureAwait(false);
+        for (int i = 0; i < count; i++)
+        {
+          var rtuId = itemsIndexes[i];
+          result.Add(new TmRtu(channelId,
+                               rtuId,
+                               GetRtuNameSync(channelId, rtuId)));
+        }
+      }).ConfigureAwait(false);
 
       return result;
     }
@@ -1774,6 +1802,44 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<string> GetChannelName(int channelId)
+    {
+      return await Task.Run(() => GetChannelNameSync(channelId));
+    }
+
+
+    private string GetChannelNameSync(int channelId)
+    {
+      if (channelId < 0 || channelId > 254) return null;
+      
+      var buf = new StringBuilder(1024);
+      _native.TmcGetObjectName(_cid, (ushort) TmNativeDefs.TmDataTypes.Channel, (short) channelId, 0, 0,
+                               ref buf, 1024);
+      return buf.ToString();
+    }
+
+
+    public async Task<string> GetRtuName(int channelId, int rtuId)
+    {
+      return await Task.Run(() => GetRtuNameSync(channelId, rtuId));
+    }
+
+
+    private string GetRtuNameSync(int channelId, int rtuId)
+    {
+      if (channelId < 0 || channelId > 254 ||
+          rtuId     < 1 || rtuId     > 255)
+      {
+        return null;
+      }
+      
+      var buf = new StringBuilder(1024);
+      _native.TmcGetObjectName(_cid, (ushort) TmNativeDefs.TmDataTypes.Rtu, (short) channelId, (short) rtuId, 0,
+                               ref buf, 1024);
+      return buf.ToString();
+    }
+
+
     public async Task<TmEventElix> GetCurrentEventsElix()
     {
       var elix = new TmNativeDefs.TTMSElix();
@@ -1784,24 +1850,6 @@ namespace Iface.Oik.Tm.Api
       }
 
       return new TmEventElix(elix.R, elix.M);
-    }
-
-
-    private string GetChannelName(int channelId)
-    {
-      var buf = new StringBuilder(1024);
-      _native.TmcGetObjectName(_cid, (ushort) TmNativeDefs.TmDataTypes.Channel, (short) channelId, 0, 0,
-                               ref buf, 1024);
-      return buf.ToString();
-    }
-
-
-    private string UpdateRtuName(int channelId, int rtuId)
-    {
-      var buf = new StringBuilder(1024);
-      _native.TmcGetObjectName(_cid, (ushort) TmNativeDefs.TmDataTypes.Rtu, (short) channelId, (short) rtuId, 0,
-                               ref buf, 1024);
-      return buf.ToString();
     }
 
 

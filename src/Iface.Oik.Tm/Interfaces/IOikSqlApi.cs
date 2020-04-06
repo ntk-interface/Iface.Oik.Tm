@@ -41,6 +41,10 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<IReadOnlyCollection<TmAnalog>> GetTmTreeAnalogs(int channelId, int rtuId);
 
+    Task<string> GetChannelName(int channelId);
+
+    Task<string> GetRtuName(int channelId, int rtuId);
+
     Task<IReadOnlyCollection<TmStatus>> GetPresentAps();
     
     Task<IReadOnlyCollection<TmStatus>> GetUnackedAps();

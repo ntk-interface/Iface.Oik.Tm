@@ -409,5 +409,20 @@ namespace Iface.Oik.Tm.Native.Api
                                                              byte[] buf,
                                                              UInt32
                                                                bufSize);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern IntPtr tmcComtradeEnumDays(Int32 cid);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern IntPtr tmcComtradeEnumFiles(Int32                                   cid,
+                                                     [MarshalAs(UnmanagedType.LPStr)] string date);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Boolean tmcComtradeGetFile(Int32                                   cid,
+                                                    [MarshalAs(UnmanagedType.LPStr)] string fName,
+                                                    [MarshalAs(UnmanagedType.LPStr)] string locDir);
   }
 }
