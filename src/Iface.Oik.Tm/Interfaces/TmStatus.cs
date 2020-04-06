@@ -31,6 +31,7 @@ namespace Iface.Oik.Tm.Interfaces
       Flag4,
       Flag4Off,
       Flag4On,
+      ClassName
     }
 
 
@@ -115,6 +116,8 @@ namespace Iface.Oik.Tm.Interfaces
     public bool IsFlag2           => Flags.HasFlag(TmFlags.LevelB);
     public bool IsFlag3           => Flags.HasFlag(TmFlags.LevelC);
     public bool IsFlag4           => Flags.HasFlag(TmFlags.LevelD);
+    
+    public string ClassName => GetClassCaption(ClassCaption.ClassName);
 
     public string CaptionOn  => GetClassCaption(ClassCaption.On);
     public string CaptionOff => GetClassCaption(ClassCaption.Off);
@@ -123,6 +126,15 @@ namespace Iface.Oik.Tm.Interfaces
     public string Flag2Name => GetClassCaption(ClassCaption.Flag2);
     public string Flag3Name => GetClassCaption(ClassCaption.Flag3);
     public string Flag4Name => GetClassCaption(ClassCaption.Flag4);
+
+    public string CaptionFlag1On => GetClassCaption(ClassCaption.Flag1On);
+    public string CaptionFlag1Off => GetClassCaption(ClassCaption.Flag1Off);
+    public string CaptionFlag2On  => GetClassCaption(ClassCaption.Flag2On);
+    public string CaptionFlag2Off => GetClassCaption(ClassCaption.Flag2Off);
+    public string CaptionFlag3On  => GetClassCaption(ClassCaption.Flag3On);
+    public string CaptionFlag3Off => GetClassCaption(ClassCaption.Flag3Off);
+    public string CaptionFlag4On  => GetClassCaption(ClassCaption.Flag4On);
+    public string CaptionFlag4Off => GetClassCaption(ClassCaption.Flag4Off);
 
     public string Flag1Status =>
       IsFlag1 ? GetClassCaption(ClassCaption.Flag1On) : GetClassCaption(ClassCaption.Flag1Off);
@@ -170,6 +182,9 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     public override string ValueToDisplay => StatusCaption;
+    
+    public string CaptionBreak => GetClassCaption(ClassCaption.Break);
+    public string CaptionMalfunction => GetClassCaption(ClassCaption.Malfunction);
 
 
     public TmStatus(int ch, int rtu, int point)
@@ -296,6 +311,9 @@ namespace Iface.Oik.Tm.Interfaces
 
         case ClassCaption.Flag4On:
           return GetClassDataValue("F41Txt");
+        
+        case ClassCaption.ClassName:
+          return GetClassDataValue("ClassName");
 
         default:
           return "";
