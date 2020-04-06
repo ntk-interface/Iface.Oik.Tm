@@ -496,13 +496,13 @@ namespace Iface.Oik.Tm.Interfaces
 
       if (s2 == 0)
       {
-        statusChangeEvent.StateString = $"{(statusData.State == 1 ? changedStatus.CaptionOn : changedStatus.CaptionOff)} {flagsStateAddOn}";
+        statusChangeEvent.StateString = $"{(statusData.State == 1 ? changedStatus.CaptionOn : changedStatus.CaptionOff)}{flagsStateAddOn}";
         statusChangeEvent.ExplicitStateString = isS2Only ? "ИЗМ. АТРИБУТОВ - НОРМА" 
                                                   : $"{(statusData.State == 1 ? "ВКЛ" : "ОТКЛ")}";
       }
       else
       {
-        statusChangeEvent.StateString = $"{GetS2StatusString(s2, changedStatus)} {flagsStateAddOn}";
+        statusChangeEvent.StateString = $"{GetS2StatusString(s2, changedStatus)}{flagsStateAddOn}";
         statusChangeEvent.ExplicitStateString = $"{(isS2Only ? "ИЗМ. АТРИБУТОВ" : $"{(statusData.State == 1 ? "ВКЛ" : "ОТКЛ")}")} {GetS2StatusString(s2)}";
 
       }
