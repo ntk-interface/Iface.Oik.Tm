@@ -369,7 +369,7 @@ namespace Iface.Oik.Tm.Interfaces
       else
       {
         controlEvent.ExplicitStateString = controlData.Cmd == 1 ? "ВКЛ" : "ОТКЛ";
-        controlEvent.StateString         = controlData.Cmd == 1 ? controlStatus.CaptionOn : controlStatus.CaptionOff;
+        controlEvent.StateString = $"Команда {(controlData.Cmd == 1 ? controlStatus.CaptionOn : controlStatus.CaptionOff)}";
       }
 
       return controlEvent;
