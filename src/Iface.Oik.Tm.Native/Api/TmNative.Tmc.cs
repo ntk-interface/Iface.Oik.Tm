@@ -491,6 +491,16 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public IntPtr TmcTechObjEnumValues(Int32      cid,
+                                       UInt32     tobS,
+                                       UInt32     tobT,
+                                       IntPtr     props,
+                                       out UInt32 count)
+    {
+      return tmcTechObjEnumValues(cid, tobS, tobT, props, out count);
+    }
+
+
     public Boolean TmcTechObjBeginUpdate(Int32 cid)
     {
       return tmcTechObjBeginUpdate(cid);
