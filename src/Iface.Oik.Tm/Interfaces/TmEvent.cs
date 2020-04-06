@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using Iface.Oik.Tm.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
@@ -592,16 +592,16 @@ namespace Iface.Oik.Tm.Interfaces
 
     private static string GetS2StatusString(TmNativeDefs.S2Flags s2Flag, TmStatus status = null)
     {
-      switch (s2Flag)
-        {
-          case TmNativeDefs.S2Flags.Break:
-            
-            return status == null ? $"[{s2Flag:D}] <ОБРЫВ>" : status.CaptionBreak;
-          case TmNativeDefs.S2Flags.Malfunction:
-            return  status == null ? $"[{s2Flag:D}] <НЕИСП.>" : status.CaptionMalfunction;
-          default:
-            return $"[{s2Flag:D}]";
-        }
+      if (s2Flag.HasFlag(TmNativeDefs.S2Flags.Break))
+      {
+        return status == null ? $"[{s2Flag:D}] <ОБРЫВ>" : status.CaptionBreak;
+      }
+      if (s2Flag.HasFlag(TmNativeDefs.S2Flags.Malfunction))
+      {
+        return  status == null ? $"[{s2Flag:D}] <НЕИСП.>" : status.CaptionMalfunction;
+      }
+
+      return $"[{s2Flag:D}]";
     }
 
 
