@@ -170,12 +170,11 @@ namespace Iface.Oik.Tm.Interfaces
 
     public static TmEvent CreateAlarmTmEvent(TmNativeDefs.TEventElix       tEventElix,
                                              TmNativeDefs.TTMSEventAddData eventAddData,
-                                             string                        sourceObjectName,
                                              string                        alarmTypeName,
                                              TmAnalog                      sourceAnalog,
                                              TmNativeDefs.AlarmData        data)
     {
-      var alarmEvent = CreateFromTEventElix(tEventElix, eventAddData, sourceObjectName);
+      var alarmEvent = CreateFromTEventElix(tEventElix, eventAddData, sourceAnalog.Name);
 
       alarmEvent.TmAddrString = $"#TT{tEventElix.Event.Ch}:{tEventElix.Event.Rtu}:{tEventElix.Event.Point}";
       alarmEvent.TmAddrComplexInteger =
@@ -216,11 +215,10 @@ namespace Iface.Oik.Tm.Interfaces
 
     public static TmEvent CreateManualAnalogSetEvent(TmNativeDefs.TEventElix       tEventElix,
                                                      TmNativeDefs.TTMSEventAddData eventAddData,
-                                                     string                        sourceObjectName,
                                                      TmAnalog                      setAnalog,
                                                      TmNativeDefs.AnalogSetData    analogSetData)
     {
-      var manualAnalogSetEvent = CreateFromTEventElix(tEventElix, eventAddData, sourceObjectName);
+      var manualAnalogSetEvent = CreateFromTEventElix(tEventElix, eventAddData, setAnalog.Name);
 
       manualAnalogSetEvent.TmAddrString = $"#TT{tEventElix.Event.Ch}:{tEventElix.Event.Rtu}:{tEventElix.Event.Point}";
       manualAnalogSetEvent.TmAddrComplexInteger =
@@ -243,11 +241,10 @@ namespace Iface.Oik.Tm.Interfaces
 
     public static TmEvent CreateManualStatusSetEvent(TmNativeDefs.TEventElix       tEventElix,
                                                      TmNativeDefs.TTMSEventAddData eventAddData,
-                                                     string                        sourceObjectName,
                                                      TmStatus                      setStatus,
                                                      TmNativeDefs.ControlData      mSData)
     {
-      var manualStatusSetEvent = CreateFromTEventElix(tEventElix, eventAddData, sourceObjectName);
+      var manualStatusSetEvent = CreateFromTEventElix(tEventElix, eventAddData, setStatus.Name);
 
       manualStatusSetEvent.TmAddrString = $"#TС{tEventElix.Event.Ch}:{tEventElix.Event.Rtu}:{tEventElix.Event.Point}";
       manualStatusSetEvent.TmAddrComplexInteger =
@@ -348,11 +345,10 @@ namespace Iface.Oik.Tm.Interfaces
 
     public static TmEvent CreateControlEvent(TmNativeDefs.TEventElix       tEventElix,
                                              TmNativeDefs.TTMSEventAddData eventAddData,
-                                             string controlStatusName,
                                              TmStatus                      controlStatus,
                                              TmNativeDefs.ControlData      controlData)
     {
-      var controlEvent = CreateFromTEventElix(tEventElix, eventAddData, controlStatusName);
+      var controlEvent = CreateFromTEventElix(tEventElix, eventAddData, controlStatus.Name);
 
       controlEvent.TmAddrString = $"#TC{tEventElix.Event.Ch}:{tEventElix.Event.Rtu}:{tEventElix.Event.Point}";
       controlEvent.TmAddrComplexInteger =
