@@ -385,7 +385,7 @@ namespace Iface.Oik.Tm.Interfaces
 
       var extendedType = (TmNativeDefs.ExtendedEventTypes) tEventElix.Event.Ch;
 
-      extendedEvent.TmAddrString         = "";
+      extendedEvent.TmAddrString         = null;
       extendedEvent.TmAddrComplexInteger = 0;
       extendedEvent.TmAddrType           = TmType.Unknown;
 
@@ -398,6 +398,7 @@ namespace Iface.Oik.Tm.Interfaces
         case TmNativeDefs.ExtendedEventTypes.Message:
           if (strBinData.Source < 0x10000)
           {
+            
             extendedEvent.Reference    = $"Источник: {strBinData.Source}";
           }
           else
