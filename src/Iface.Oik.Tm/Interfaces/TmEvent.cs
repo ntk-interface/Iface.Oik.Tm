@@ -308,23 +308,28 @@ namespace Iface.Oik.Tm.Interfaces
       switch (acknowledgeEvent.TmAddrType)
       {
         case TmType.Status:
-          acknowledgeEvent.TmAddrString = $"#TC{tEventElix.Event.Ch}:{tEventElix.Event.Rtu}:{tEventElix.Event.Point}";
           if (tEventElix.Event.Point == 0)
           {
             acknowledgeEvent.Text = "Общее квитирование ТС";
           }
+          else
+          {
+            acknowledgeEvent.TmAddrString = $"#TC{tEventElix.Event.Ch}:{tEventElix.Event.Rtu}:{tEventElix.Event.Point}";
+          }
 
           break;
         case TmType.Analog:
-          acknowledgeEvent.TmAddrString = $"#TT{tEventElix.Event.Ch}:{tEventElix.Event.Rtu}:{tEventElix.Event.Point}";
+          
           if (tEventElix.Event.Point == 0)
           {
             acknowledgeEvent.Text = "Общее квитирование ТИ";
           }
-
+          else
+          {
+            acknowledgeEvent.TmAddrString = $"#TT{tEventElix.Event.Ch}:{tEventElix.Event.Rtu}:{tEventElix.Event.Point}";
+          }
           break;
         default:
-          acknowledgeEvent.TmAddrString = $"#XX{tEventElix.Event.Ch}:{tEventElix.Event.Rtu}:{tEventElix.Event.Point}";
           if (tEventElix.Event.Point == 0)
           {
             acknowledgeEvent.Text = "Общее квитирование";

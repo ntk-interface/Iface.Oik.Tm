@@ -2053,11 +2053,15 @@ namespace Iface.Oik.Tm.Api
                              break;
                            case TmEventTypes.Acknowledge:
                              var ackData = TmNativeUtil.GetAcknowledgeDataFromTEvent(tmcEventElix.Event);
-                             var ackTargetTmAddr = new TmAddr(((TmNativeDefs.TmDataTypes) ackData.TmType).ToTmType(), 
-                                                       tmcEventElix.Event.Ch, 
-                                                       tmcEventElix.Event.Rtu, 
-                                                       tmcEventElix.Event.Point);
-                             var ackTargetName = GetObjectName(ackTargetTmAddr);
+                             var ackTargetName = "";
+                             if (tmcEventElix.Event.Point != 0)
+                             {
+                               var ackTargetTmAddr = new TmAddr(((TmNativeDefs.TmDataTypes) ackData.TmType).ToTmType(), 
+                                                                tmcEventElix.Event.Ch, 
+                                                                tmcEventElix.Event.Rtu, 
+                                                                tmcEventElix.Event.Point);
+                               ackTargetName = GetObjectName(ackTargetTmAddr);
+                             }
                              
                              tmEvent = TmEvent.CreateAcknowledgeEvent(tmcEventElix, addData, ackTargetName, ackData);
                              break;
