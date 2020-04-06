@@ -275,6 +275,20 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
+    public static (string, string) GetMessageAndUserFromStrBinBytes(byte[] bytes)
+    {
+      var str = Encoding.GetEncoding(1251)
+                        .GetString(bytes);
+      
+      var regex = new Regex(@"(.*?)\0(.*?)\0");
+      var mc    = regex.Match(str);
+      var text  = mc.Groups[1].Value;
+      var user  = mc.Groups[2].Value;
+
+      return (text, user);
+    }
+    
+
     private static T FromBytes<T>(byte[] bytes) where T : struct
     {
       T        structure;

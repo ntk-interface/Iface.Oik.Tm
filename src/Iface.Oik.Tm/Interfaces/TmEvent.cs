@@ -395,7 +395,7 @@ namespace Iface.Oik.Tm.Interfaces
 
       extendedEvent.TypeString         = GetTypeStringByExtendedTypeString(extendedType);
       extendedEvent.ExplicitTypeString = GetTypeStringByExtendedTypeString(extendedType);
-      extendedEvent.Text               = TmNativeUtil.GetStringFromBytesWithAdditionalPart(strBinData.StrBin);
+      (extendedEvent.Text, extendedEvent.Username) = TmNativeUtil.GetMessageAndUserFromStrBinBytes(strBinData.StrBin);
 
       switch (extendedType)
       {
