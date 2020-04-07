@@ -66,6 +66,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task UpdateTechObjectsProperties(IReadOnlyList<TmTechObject> techObjects);
 
+    Task<IReadOnlyCollection<TmTechObject>> GetTechObjects(TmTechObjectFilter filter);
+
     Task<TmEventElix> GetCurrentEventsElix();
 
     Task<IReadOnlyCollection<TmChannel>> GetTmTreeChannels();

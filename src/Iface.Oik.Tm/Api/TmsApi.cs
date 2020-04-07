@@ -760,6 +760,43 @@ namespace Iface.Oik.Tm.Api
       }
 
       _native.TmcFreeMemory(tmcTechObjPropsPtr);
+    } 
+
+
+    public async Task<IReadOnlyCollection<TmTechObject>> GetTechObjects(TmTechObjectFilter filter)
+    {
+      uint count            = 0;
+      var  filterProperties = TmNativeUtil.GetDoubleNullTerminatedPointerFromStringList(filter?.Properties);
+      var tmcTechObjPropsPtr = await Task.Run(() => _native.TmcTechObjEnumValues(_cid, 
+                                                                                 filter?.Scheme ?? uint.MaxValue, 
+                                                                                 filter?.Type   ?? uint.MaxValue, 
+                                                                                 filterProperties, 
+                                                                                 out count))
+                                         .ConfigureAwait(false);
+      if (tmcTechObjPropsPtr == IntPtr.Zero)
+      {
+        return Array.Empty<TmTechObject>();
+      }
+
+      var tmTechObjects = new List<TmTechObject>();
+      var structSize = Marshal.SizeOf(typeof(TmNativeDefs.TTechObjProps));
+      for (var i = 0; i < count; i++)
+      {
+        var currentPtr      = new IntPtr(tmcTechObjPropsPtr.ToInt64() + i * structSize);
+        var tmcTechObjProps = Marshal.PtrToStructure<TmNativeDefs.TTechObjProps>(currentPtr);
+        if (tmcTechObjProps.Props == IntPtr.Zero)
+        {
+          continue;
+        }
+
+        var tob = new TmTechObject(tmcTechObjProps.Scheme, tmcTechObjProps.Type, tmcTechObjProps.Object);
+        tob.SetPropertiesFromTmc(TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(tmcTechObjProps.Props,
+                                                                                           1024));
+        tmTechObjects.Add(tob);
+      }
+      _native.TmcFreeMemory(tmcTechObjPropsPtr);
+
+      return tmTechObjects;
     }
 
 

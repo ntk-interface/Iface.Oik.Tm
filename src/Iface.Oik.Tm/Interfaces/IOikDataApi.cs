@@ -104,6 +104,10 @@ namespace Iface.Oik.Tm.Interfaces
                            PreferApi                   prefer = PreferApi.Auto);
 
 
+    Task<IReadOnlyCollection<TmTechObject>> GetTechObjects(TmTechObjectFilter filter,
+                                                           PreferApi          prefer = PreferApi.Auto);
+
+
     Task<IReadOnlyCollection<TmEvent>> GetEventsArchive(TmEventFilter filter,
                                                         PreferApi     prefer = PreferApi.Auto);
 
@@ -134,12 +138,14 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<TmAnalog>> GetTmTreeAnalogs(int       channelId,
                                                          int       rtuId,
                                                          PreferApi prefer = PreferApi.Auto);
-    
-    Task<string> GetChannelName(int channelId,
+
+
+    Task<string> GetChannelName(int       channelId,
                                 PreferApi prefer = PreferApi.Auto);
 
-    Task<string> GetRtuName(int channelId, 
-                            int rtuId,
+
+    Task<string> GetRtuName(int       channelId,
+                            int       rtuId,
                             PreferApi prefer = PreferApi.Auto);
 
 

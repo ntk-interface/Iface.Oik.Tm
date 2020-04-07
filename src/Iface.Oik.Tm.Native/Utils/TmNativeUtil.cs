@@ -124,6 +124,29 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
+    public static IntPtr GetDoubleNullTerminatedPointerFromStringList(IEnumerable<string> list)
+    {
+      if (list == null) return IntPtr.Zero;
+
+      var byteList = new List<byte>(); 
+      foreach (var item in list)
+      {
+        var bytes = Encoding.GetEncoding(1251)
+                            .GetBytes(item);
+        byteList.AddRange(bytes);
+        byteList.Add(0);
+      }
+      byteList.Add(0);
+      
+      var handle = GCHandle.Alloc(byteList.ToArray(), GCHandleType.Pinned);
+      var ptr    = handle.AddrOfPinnedObject();
+      handle.Free();
+
+      return ptr;
+    }
+
+
+    public static TmNativeDefs.CfsLogRecord ParseCfsServerLogRecordPointerToStringArray(IntPtr ptr, int maxSize)
     public static TmNativeDefs.CfsLogRecord ParseCfsServerLogRecordPointer(IntPtr ptr, int maxSize)
     {
       var bytes = new byte[maxSize];

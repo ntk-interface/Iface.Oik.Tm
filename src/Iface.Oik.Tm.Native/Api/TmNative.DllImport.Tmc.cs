@@ -138,15 +138,14 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Boolean tmcEvlogPutStrBin(Int32                                        cid,
-                                                   UInt32                                       unixTime,
-                                                   Byte                                         unixHund,
-                                                   Byte                                         importance,
-                                                   UInt32                                       sourceTag,
-                                                   [In] [MarshalAs(UnmanagedType.LPStr)] string str,
-                                                   [In] [MarshalAs(UnmanagedType.LPArray)]
-                                                   Byte[] bin,
-                                                   UInt32 cbBin);
+    public static extern Boolean tmcEvlogPutStrBin(Int32                                          cid,
+                                                   UInt32                                         unixTime,
+                                                   Byte                                           unixHund,
+                                                   Byte                                           importance,
+                                                   UInt32                                         sourceTag,
+                                                   [In] [MarshalAs(UnmanagedType.LPStr)]   string str,
+                                                   [In] [MarshalAs(UnmanagedType.LPArray)] Byte[] bin,
+                                                   UInt32                                         cbBin);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -372,6 +371,7 @@ namespace Iface.Oik.Tm.Native.Api
                                                [MarshalAs(UnmanagedType.LPStr)] StringBuilder buf,
                                                Int32                                          bufSize);
 
+
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Byte tmcGetObjectNameEx(Int32                                          cid,
                                                  UInt16                                         objectType,
@@ -390,6 +390,14 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern IntPtr tmcTechObjEnumValues(Int32      cid,
+                                                     UInt32     tobS,
+                                                     UInt32     tobT,
+                                                     IntPtr     props,
+                                                     out UInt32 count);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Boolean tmcTechObjBeginUpdate(Int32 cid);
 
 
@@ -404,9 +412,8 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern UInt32 tmcEventGetAdditionalRecData(UInt32 idx,
-                                                             [MarshalAs(UnmanagedType.LPArray)] [In, Out]
-                                                             byte[] buf,
+    public static extern UInt32 tmcEventGetAdditionalRecData(UInt32                                              idx,
+                                                             [MarshalAs(UnmanagedType.LPArray)] [In, Out] byte[] buf,
                                                              UInt32
                                                                bufSize);
 

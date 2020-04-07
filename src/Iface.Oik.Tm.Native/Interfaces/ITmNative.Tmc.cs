@@ -333,6 +333,13 @@ namespace Iface.Oik.Tm.Native.Interfaces
                                 UInt32                  count);
 
 
+    IntPtr TmcTechObjEnumValues(Int32      cid,
+                                UInt32     tobS,
+                                UInt32     tobT,
+                                IntPtr     props,
+                                out UInt32 count);
+
+
     Boolean TmcTechObjBeginUpdate(Int32 cid);
 
     Boolean TmcTechObjEndUpdate(Int32 cid);
