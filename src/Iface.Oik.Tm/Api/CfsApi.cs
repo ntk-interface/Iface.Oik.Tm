@@ -691,7 +691,7 @@ namespace Iface.Oik.Tm.Api
       
       if (logRecordPtr == IntPtr.Zero) return null;
 
-      var cfsLogRecord = TmNativeUtil.ParseCfsServerLogRecordPointerToStringArray(logRecordPtr, 1000);
+      var cfsLogRecord = TmNativeUtil.ParseCfsServerLogRecordPointer(logRecordPtr, 1000);
 
       _native.CfsFreeMemory(logRecordPtr);
       
