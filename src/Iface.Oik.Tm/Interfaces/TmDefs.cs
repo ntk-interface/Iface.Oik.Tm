@@ -232,10 +232,11 @@ namespace Iface.Oik.Tm.Interfaces
   }
 
 
-  public enum TmServerLogRecordType
+  public enum TmServerLogRecordTypes
   {
-    [Description("Неопределённый")] Undefined = -1,
-    [Description("Сообщение")] Msg = 1,
-    [Description("Ошибка")] Error = 2,
+    [Description("???")] Undefined = -1,
+    [Description("Any")] Any = 0,
+    [Description("MSG")] Msg = 1,
+    [Description("ERROR")] Error = 2,
   }
 }
