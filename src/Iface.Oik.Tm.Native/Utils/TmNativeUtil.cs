@@ -124,14 +124,14 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static TmNativeDefs.CfsLogRecord ParseCfsServerLogRecordPointerToStringArray(IntPtr ptr, int maxSize)
+    public static TmNativeDefs.CfsLogRecord ParseCfsServerLogRecordPointer(IntPtr ptr, int maxSize)
     {
       var bytes = new byte[maxSize];
       Marshal.Copy(ptr, bytes, 0, maxSize);
       var str = Encoding.GetEncoding(1251).GetString(bytes);
       var regex =
         new
-          Regex(@"(\d{2}:\d{2}:\d{2}.\d{3}) (\d{2}.\d{2}.\d{4}) \\\\\\([\s\S]*)\\\\([\s\S]*)\\\\([\s\S]*)\s*- ThID=([\s\S]*) :\n([^\n]+)");
+          Regex(@"(\d{2}:\d{2}:\d{2}.\d{3}) (\d{2}.\d{2}.\d{4}) \\\\\\(.*?)\\\\(.*?)\\\\(.*?)\s*- ThID=(.*?) :\n(.*?)\n");
       var mc = regex.Match(str);
 
       return new TmNativeDefs.CfsLogRecord
