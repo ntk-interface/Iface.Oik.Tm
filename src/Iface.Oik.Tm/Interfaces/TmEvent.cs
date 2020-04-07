@@ -183,31 +183,10 @@ namespace Iface.Oik.Tm.Interfaces
 
       alarmEvent.TypeString         = alarmTypeName;
       alarmEvent.ExplicitTypeString = "Уставка";
+      
+      alarmEvent.StateString         = data.State == 0 ? "Снята" : "Взведена";
+      alarmEvent.ExplicitStateString = data.State == 0 ? $"{data.Val} - Снята" : $"{data.Val} - Взведена";
 
-      if (data.State == 0)
-      {
-        alarmEvent.StateString         = "Снята";
-        alarmEvent.ExplicitStateString = $"{data.Val} - Снята";
-      }
-      else
-      {
-        var value = 
-          $"{data.Val.ToString($"N{sourceAnalog.Precision}")}{(sourceAnalog.Unit.IsNullOrEmpty() ? "" : $" {sourceAnalog.Unit}")}";
-        switch (alarmEvent.Importance)
-        {
-          case 3:
-            alarmEvent.StateString = $"Тревога: {value}";
-            break;
-          case 2:
-            alarmEvent.StateString = $"Предупреждение: {value}";
-            break;
-          default:
-            alarmEvent.StateString = value;
-            break;
-        }
-
-        alarmEvent.ExplicitStateString = $"{data.Val} - Взведена";
-      }
 
       return alarmEvent;
     }
