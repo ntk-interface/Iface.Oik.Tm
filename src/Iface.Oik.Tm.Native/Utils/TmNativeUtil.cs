@@ -146,7 +146,6 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static TmNativeDefs.CfsLogRecord ParseCfsServerLogRecordPointerToStringArray(IntPtr ptr, int maxSize)
     public static TmNativeDefs.CfsLogRecord ParseCfsServerLogRecordPointer(IntPtr ptr, int maxSize)
     {
       var bytes = new byte[maxSize];
