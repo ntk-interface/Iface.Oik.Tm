@@ -412,6 +412,25 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<IReadOnlyCollection<TmTechObject>> GetTechObjects(TmTechObjectFilter filter,
+                                                                        PreferApi          prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.GetTechObjects(filter).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+        return null;
+      }
+    }
+
+
     public async Task<IReadOnlyCollection<TmEvent>> GetEventsArchive(TmEventFilter filter,
                                                                      PreferApi     prefer = PreferApi.Auto)
     {
@@ -565,7 +584,7 @@ namespace Iface.Oik.Tm.Api
 
 
     public async Task<string> GetChannelName(int       channelId,
-                                         PreferApi prefer = PreferApi.Auto)
+                                             PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
       if (api == ApiSelection.Tms)

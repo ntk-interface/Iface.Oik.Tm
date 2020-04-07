@@ -124,6 +124,28 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
+    public static IntPtr GetDoubleNullTerminatedPointerFromStringList(IEnumerable<string> list)
+    {
+      if (list == null) return IntPtr.Zero;
+
+      var byteList = new List<byte>(); 
+      foreach (var item in list)
+      {
+        var bytes = Encoding.GetEncoding(1251)
+                            .GetBytes(item);
+        byteList.AddRange(bytes);
+        byteList.Add(0);
+      }
+      byteList.Add(0);
+      
+      var handle = GCHandle.Alloc(byteList.ToArray(), GCHandleType.Pinned);
+      var ptr    = handle.AddrOfPinnedObject();
+      handle.Free();
+
+      return ptr;
+    }
+
+
     public static TmNativeDefs.CfsLogRecord ParseCfsServerLogRecordPointerToStringArray(IntPtr ptr, int maxSize)
     {
       var bytes = new byte[maxSize];
@@ -131,19 +153,20 @@ namespace Iface.Oik.Tm.Native.Utils
       var str = Encoding.GetEncoding(1251).GetString(bytes);
       var regex =
         new
-          Regex(@"(\d{2}:\d{2}:\d{2}.\d{3}) (\d{2}.\d{2}.\d{4}) \\\\\\([\s\S]*)\\\\([\s\S]*)\\\\([\s\S]*)\s*- ThID=([\s\S]*) :\n([^\n]+)");
+          Regex(
+            @"(\d{2}:\d{2}:\d{2}.\d{3}) (\d{2}.\d{2}.\d{4}) \\\\\\([\s\S]*)\\\\([\s\S]*)\\\\([\s\S]*)\s*- ThID=([\s\S]*) :\n([^\n]+)");
       var mc = regex.Match(str);
 
       return new TmNativeDefs.CfsLogRecord
-             {
-               Time     = mc.Groups[1].Value,
-               Date     = mc.Groups[2].Value,
-               Name     = mc.Groups[3].Value,
-               Type     = mc.Groups[4].Value,
-               MsgType  = mc.Groups[5].Value.Trim(' '),
-               ThreadId = mc.Groups[6].Value,
-               Message  = mc.Groups[7].Value,
-             };
+      {
+        Time     = mc.Groups[1].Value,
+        Date     = mc.Groups[2].Value,
+        Name     = mc.Groups[3].Value,
+        Type     = mc.Groups[4].Value,
+        MsgType  = mc.Groups[5].Value.Trim(' '),
+        ThreadId = mc.Groups[6].Value,
+        Message  = mc.Groups[7].Value,
+      };
     }
 
 
