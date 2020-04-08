@@ -188,6 +188,16 @@ namespace Iface.Oik.Tm.Native.Api
       return cfsTraceGetUserData(connId, userId, ref ifaceServer, out errCode, errString, maxErrs);
     }
 
+    public bool CfsTraceStopProcess(IntPtr connId, UInt32 processId, out UInt32 errCode, ref StringBuilder errString, UInt32 maxErrs)
+    {
+      return cfsTraceStopProcess(connId, processId, out errCode, errString, maxErrs);
+    }
+
+    public bool CfsTraceRestartProcess(IntPtr connId, UInt32 processId, out UInt32 errCode, ref StringBuilder errString, UInt32 maxErrs)
+    {
+      return cfsTraceRestartProcess(connId, processId, out errCode, errString, maxErrs);
+    }
+
     public void CfsFreeMemory(IntPtr memory)
     {
       cfsFreeMemory(memory);

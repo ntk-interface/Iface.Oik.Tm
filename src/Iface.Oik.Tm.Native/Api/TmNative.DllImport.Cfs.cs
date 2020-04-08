@@ -133,7 +133,7 @@ namespace Iface.Oik.Tm.Native.Api
                                                     ref TmNativeDefs.IfaceServer ifaceServer,
                                                     out                              uint          errCode,
                                                     [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
-                                                    uint                                           maxErrs);
+                                                    UInt32                                         maxErrs);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
@@ -149,8 +149,25 @@ namespace Iface.Oik.Tm.Native.Api
                                                   [In, Out] ref                    TmNativeDefs.IfaceUser ifaceUser,
                                                   out                              uint                   errCode,
                                                   [MarshalAs(UnmanagedType.LPStr)] StringBuilder          errString,
-                                                  uint                                                    maxErrs);
+                                                  UInt32                                                  maxErrs);
 
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern bool cfsTraceStopProcess(IntPtr                                         connId,
+                                                  UInt32                                         processId,
+                                                  out                              UInt32        errCode,
+                                                  [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
+                                                  UInt32                                         maxErrs);
+
+    
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern bool cfsTraceRestartProcess(IntPtr                                         connId,
+                                                     UInt32                                         processId,
+                                                     out                              UInt32        errCode,
+                                                     [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
+                                                     UInt32                                         maxErrs);
+    
+    
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
     public static extern void cfsFreeMemory(IntPtr memory);
 
@@ -194,7 +211,7 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr lf_ParseMessage(IntPtr stringPtrToParse,
+    public static extern IntPtr lf_ParseMessage(IntPtr                                         stringPtrToParse,
                                                 [MarshalAs(UnmanagedType.LPStr)] StringBuilder sTime,
                                                 [MarshalAs(UnmanagedType.LPStr)] StringBuilder sDate,
                                                 [MarshalAs(UnmanagedType.LPStr)] StringBuilder sName,

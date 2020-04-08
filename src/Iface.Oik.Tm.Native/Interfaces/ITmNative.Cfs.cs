@@ -134,6 +134,20 @@ namespace Iface.Oik.Tm.Native.Interfaces
                              uint                       maxErrs);
 
 
+    bool CfsTraceStopProcess(IntPtr            connId,
+                             UInt32            processId,
+                             out UInt32        errCode,
+                             ref StringBuilder errString,
+                             UInt32            maxErrs);
+
+
+    bool CfsTraceRestartProcess(IntPtr            connId,
+                                UInt32            processId,
+                                out UInt32        errCode,
+                                ref StringBuilder errString,
+                                UInt32            maxErrs);
+
+
     void CfsFreeMemory(IntPtr memory);
 
 
@@ -161,7 +175,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
     void EPrintF(string message);
 
 
-    IntPtr LfParseMessage(IntPtr stringPtrToParse,
+    IntPtr LfParseMessage(IntPtr            stringPtrToParse,
                           ref StringBuilder time,
                           ref StringBuilder date,
                           ref StringBuilder name,
