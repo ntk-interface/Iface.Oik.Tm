@@ -153,9 +153,9 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
     public IntPtr CfsTraceEnumServers(IntPtr            connId,
-                                      out uint          errCode,
+                                      out UInt32 errCode,
                                       ref StringBuilder errString,
-                                      uint              maxErrs)
+                                      UInt32 maxErrs)
     {
       return cfsTraceEnumServers(connId, out errCode, errString, maxErrs);
     }
@@ -163,17 +163,17 @@ namespace Iface.Oik.Tm.Native.Api
     public bool CfsTraceGetServerData(IntPtr                       connId,
                                       string                       serverId,
                                       ref TmNativeDefs.IfaceServer ifaceServer,
-                                      out uint                     errCode,
+                                      out UInt32 errCode,
                                       ref StringBuilder            errString,
-                                      uint                         maxErrs)
+                                      UInt32 maxErrs)
     {
       return cfsTraceGetServerData(connId, serverId, ref ifaceServer, out errCode, errString, maxErrs);
     }
 
     public IntPtr CfsTraceEnumUsers(IntPtr            connId,
-                                    out uint          errCode,
+                                    out UInt32 errCode,
                                     ref StringBuilder errString,
-                                    uint              maxErrs)
+                                    UInt32 maxErrs)
     {
       return cfsTraceEnumUsers(connId, out errCode, errString, maxErrs);
     }
@@ -181,9 +181,9 @@ namespace Iface.Oik.Tm.Native.Api
     public bool CfsTraceGetUserData(IntPtr                     connId,
                                     string                     userId,
                                     ref TmNativeDefs.IfaceUser ifaceServer,
-                                    out uint                   errCode,
+                                    out UInt32 errCode,
                                     ref StringBuilder          errString,
-                                    uint                       maxErrs)
+                                    UInt32 maxErrs)
     {
       return cfsTraceGetUserData(connId, userId, ref ifaceServer, out errCode, errString, maxErrs);
     }
@@ -203,17 +203,17 @@ namespace Iface.Oik.Tm.Native.Api
       cfsFreeMemory(memory);
     }
 
-    public bool CfsLogOpen(IntPtr connId, out uint errCode, ref StringBuilder errString, uint maxErrs)
+    public bool CfsLogOpen(IntPtr connId, out UInt32 errCode, ref StringBuilder errString, UInt32 maxErrs)
     {
       return cfsLogOpen(connId, out errCode, errString, maxErrs);
     }
 
-    public bool CfsLogClose(IntPtr connId, out uint errCode, ref StringBuilder errString, uint maxErrs)
+    public bool CfsLogClose(IntPtr connId, out UInt32 errCode, ref StringBuilder errString, UInt32 maxErrs)
     {
       return cfsLogClose(connId, out errCode, errString, maxErrs);
     }
 
-    public IntPtr CfsLogGetRecord(IntPtr connId, bool fFirst, out uint errCode, ref StringBuilder errString, uint maxErrs)
+    public IntPtr CfsLogGetRecord(IntPtr connId, bool fFirst, out UInt32 errCode, ref StringBuilder errString, UInt32 maxErrs)
     {
       return cfsLogGetRecord(connId, fFirst, out errCode, errString, maxErrs);
     }
