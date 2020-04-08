@@ -218,6 +218,11 @@ namespace Iface.Oik.Tm.Native.Api
       return cfsLogGetRecord(connId, fFirst, out errCode, errString, maxErrs);
     }
 
+    public IntPtr CfsEnumThreads(IntPtr connId, out UInt32 errCode, ref StringBuilder errString, UInt32 maxErrs)
+    {
+      return cfsEnumThreads(connId, out errCode, errString, maxErrs);
+    }
+
 
     public Int64 UxGmTime2UxTime(Int64 time)
     {

@@ -116,9 +116,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
     bool CfsTraceGetServerData(IntPtr                       connId,
                                string                       serverId,
                                ref TmNativeDefs.IfaceServer ifaceServer,
-                               out uint                     errCode,
+                               out UInt32 errCode,
                                ref StringBuilder            errString,
-                               uint                         maxErrs);
+                               UInt32 maxErrs);
 
     IntPtr CfsTraceEnumUsers(IntPtr            connId,
                              out UInt32        errCode,
@@ -129,7 +129,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
     bool CfsTraceGetUserData(IntPtr                     connId,
                              string                     userId,
                              ref TmNativeDefs.IfaceUser ifaceServer,
-                             out uint                   errCode,
+                             out UInt32 errCode,
                              ref StringBuilder          errString,
                              uint                       maxErrs);
 
@@ -152,22 +152,28 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
     bool CfsLogOpen(IntPtr            connId,
-                    out uint          errCode,
+                    out UInt32 errCode,
                     ref StringBuilder errString,
-                    uint              maxErrs);
+                    UInt32 maxErrs);
 
 
     bool CfsLogClose(IntPtr            connId,
-                     out uint          errCode,
+                     out UInt32 errCode,
                      ref StringBuilder errString,
-                     uint              maxErrs);
+                     UInt32 maxErrs);
 
 
     IntPtr CfsLogGetRecord(IntPtr            connId,
                            bool              fFirst,
-                           out uint          errCode,
+                           out UInt32 errCode,
                            ref StringBuilder errString,
-                           uint              maxErrs);
+                           UInt32 maxErrs);
+    
+    
+    IntPtr CfsEnumThreads(IntPtr            connId,
+                          out UInt32 errCode,
+                          ref StringBuilder errString,
+                          UInt32 maxErrs);
 
 
     void DPrintF(string message);
