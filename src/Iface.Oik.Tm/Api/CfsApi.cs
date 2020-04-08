@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Interfaces;
@@ -645,6 +647,7 @@ namespace Iface.Oik.Tm.Api
       return tmServersLog;
     }
 
+
     private async Task OpenTmServerLog()
     {
       const int errStringLength = 1000;
@@ -691,11 +694,34 @@ namespace Iface.Oik.Tm.Api
       
       if (logRecordPtr == IntPtr.Zero) return null;
 
-      var cfsLogRecord = TmNativeUtil.ParseCfsServerLogRecordPointer(logRecordPtr, 1000);
+      var cfsLogRecord = ParseCfsServerLogRecordPointer(logRecordPtr, 1000);
 
       _native.CfsFreeMemory(logRecordPtr);
       
       return TmServerLogRecord.CreateFromCfsLogRecord(cfsLogRecord);
+    }
+
+
+    private static TmNativeDefs.CfsLogRecord ParseCfsServerLogRecordPointer(IntPtr ptr, int maxSize)
+    {
+      var bytes = new byte[maxSize];
+      Marshal.Copy(ptr, bytes, 0, maxSize);
+      var str = Encoding.GetEncoding(1251).GetString(bytes);
+      var regex =
+        new
+          Regex(@"(\d{2}:\d{2}:\d{2}.\d{3}) (\d{2}.\d{2}.\d{4}) \\\\\\(.*?)\\\\(.*?)\\\\(.*?)\s*- ThID=(.*?) :\n(.*?)\n");
+      var mc = regex.Match(str);
+
+      return new TmNativeDefs.CfsLogRecord
+             {
+               Time     = mc.Groups[1].Value,
+               Date     = mc.Groups[2].Value,
+               Name     = mc.Groups[3].Value,
+               Type     = mc.Groups[4].Value,
+               MsgType  = mc.Groups[5].Value.Trim(' '),
+               ThreadId = mc.Groups[6].Value,
+               Message  = mc.Groups[7].Value,
+             };
     }
   }
 }

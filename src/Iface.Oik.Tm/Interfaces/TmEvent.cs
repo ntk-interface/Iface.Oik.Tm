@@ -1,8 +1,8 @@
 ﻿using System;
-using System.ComponentModel;
+using System.Text;
+using System.Text.RegularExpressions;
 using Iface.Oik.Tm.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
-using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
@@ -370,7 +370,7 @@ namespace Iface.Oik.Tm.Interfaces
 
       extendedEvent.TypeString         = GetTypeStringByExtendedTypeString(extendedType);
       extendedEvent.ExplicitTypeString = GetTypeStringByExtendedTypeString(extendedType);
-      (extendedEvent.Text, extendedEvent.Username) = TmNativeUtil.GetMessageAndUserFromStrBinBytes(strBinData.StrBin);
+      (extendedEvent.Text, extendedEvent.Username) = GetMessageAndUserFromStrBinBytes(strBinData.StrBin);
 
       switch (extendedType)
       {
@@ -592,6 +592,20 @@ namespace Iface.Oik.Tm.Interfaces
         default:
           return "???";
       }
+    }
+    
+    
+    public static (string, string) GetMessageAndUserFromStrBinBytes(byte[] bytes)
+    {
+      var str = Encoding.GetEncoding(1251)
+                        .GetString(bytes);
+      
+      var regex = new Regex(@"(.*?)\0(.*?)\0");
+      var mc    = regex.Match(str);
+      var text  = mc.Groups[1].Value;
+      var user  = mc.Groups[2].Value;
+
+      return (text, user);
     }
   }
 }

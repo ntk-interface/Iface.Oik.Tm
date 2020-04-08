@@ -146,29 +146,6 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static TmNativeDefs.CfsLogRecord ParseCfsServerLogRecordPointer(IntPtr ptr, int maxSize)
-    {
-      var bytes = new byte[maxSize];
-      Marshal.Copy(ptr, bytes, 0, maxSize);
-      var str = Encoding.GetEncoding(1251).GetString(bytes);
-      var regex =
-        new
-          Regex(@"(\d{2}:\d{2}:\d{2}.\d{3}) (\d{2}.\d{2}.\d{4}) \\\\\\(.*?)\\\\(.*?)\\\\(.*?)\s*- ThID=(.*?) :\n(.*?)\n");
-      var mc = regex.Match(str);
-
-      return new TmNativeDefs.CfsLogRecord
-             {
-               Time     = mc.Groups[1].Value,
-               Date     = mc.Groups[2].Value,
-               Name     = mc.Groups[3].Value,
-               Type     = mc.Groups[4].Value,
-               MsgType  = mc.Groups[5].Value.Trim(' '),
-               ThreadId = mc.Groups[6].Value,
-               Message  = mc.Groups[7].Value,
-             };
-    }
-
-
     public static byte[] GetFixedBytesWithTrailingZero(string s, int size, string encoding)
     {
       if (s == null)
@@ -295,21 +272,6 @@ namespace Iface.Oik.Tm.Native.Utils
                      .FirstOrDefault()?
                      .Trim('\n');
     }
-
-
-    public static (string, string) GetMessageAndUserFromStrBinBytes(byte[] bytes)
-    {
-      var str = Encoding.GetEncoding(1251)
-                        .GetString(bytes);
-      
-      var regex = new Regex(@"(.*?)\0(.*?)\0");
-      var mc    = regex.Match(str);
-      var text  = mc.Groups[1].Value;
-      var user  = mc.Groups[2].Value;
-
-      return (text, user);
-    }
-    
 
     private static T FromBytes<T>(byte[] bytes) where T : struct
     {
