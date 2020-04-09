@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -646,6 +647,43 @@ namespace Iface.Oik.Tm.Api
 
       return tmServersLog;
     }
+    
+    
+    public async Task<IReadOnlyCollection<TmServerThread>> GetTmServersThreads()
+    {
+      const int errStringLength = 1000;
+      const int bufSize         = 8192;
+      var       errString       = new StringBuilder(errStringLength);
+      uint      errCode         = 0;
+      
+      var threadPtr = 
+        await Task.Run(() => _native.CfsEnumThreads(CfId, out errCode, ref errString, errCode));
+
+      if (threadPtr == IntPtr.Zero)
+      {
+        throw new Exception($"Ошибка получения потоков сервера: {errString} Код: {errCode}");
+      }
+      
+      var threadsStringLists = 
+        TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(threadPtr, bufSize);
+
+      _native.CfsFreeMemory(threadPtr);
+      
+      var tmServerThreadsList = new List<TmServerThread>();
+
+      foreach (var threadString in threadsStringLists)
+      {
+        var regex    = new Regex(@"([0-9]*), (.*?) • ([-+]?[0-9]*) s • ([-+]?[0-9]*\.?[0-9]+) s");
+        var mc       = regex.Match(threadString);
+        var id       = int.Parse(mc.Groups[1].Value);
+        var name     = mc.Groups[2].Value;
+        var upTime   = int.Parse(mc.Groups[3].Value);
+        var workTime = float.Parse(mc.Groups[4].Value, CultureInfo.InvariantCulture);
+        tmServerThreadsList.Add(new TmServerThread(id, name, upTime, workTime));
+      }
+      
+      return tmServerThreadsList;
+    }
 
 
     private async Task OpenTmServerLog()
@@ -700,8 +738,8 @@ namespace Iface.Oik.Tm.Api
       
       return TmServerLogRecord.CreateFromCfsLogRecord(cfsLogRecord);
     }
-
-
+    
+    
     private static TmNativeDefs.CfsLogRecord ParseCfsServerLogRecordPointer(IntPtr ptr, int maxSize)
     {
       var bytes = new byte[maxSize];
