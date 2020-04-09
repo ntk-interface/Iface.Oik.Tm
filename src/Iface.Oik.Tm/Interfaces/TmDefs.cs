@@ -228,15 +228,16 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Скрипт запрещает выполнение ТУ")]                                 ScriptError            = -14,
     [Description("Исключение при выполнении ТУ")]                                   Except                 = -15,
     [Description("Оконечное устройство занято другой операцией")]                   Busy                   = -16,
+    [Description("Отказано: нет захвата ТУ")]                                       NoControlCapture       = -17,
     [Description("Команда не была отправлена")]                                     CommandNotSentToServer = -100,
   }
 
 
   public enum TmServerLogRecordTypes
   {
-    [Description("???")] Undefined = -1,
-    [Description("Any")] Any = 0,
-    [Description("MSG")] Msg = 1,
-    [Description("ERROR")] Error = 2,
+    [Description("???")]   Undefined = -1,
+    [Description("Any")]   Any       = 0,
+    [Description("MSG")]   Msg       = 1,
+    [Description("ERROR")] Error     = 2,
   }
 }
