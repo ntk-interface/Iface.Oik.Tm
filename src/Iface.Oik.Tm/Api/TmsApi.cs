@@ -1,6 +1,5 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -2046,14 +2045,8 @@ namespace Iface.Oik.Tm.Api
 
                              var statusData = TmNativeUtil.GetStatusDataFromTEvent(tmcEventElix.Event);
 
-                             if (!tmTagsCache.TryGetValue(statusTmAddr.ToString(), out var status))
-                             {
-                               status = new TmStatus(statusTmAddr);
-                               UpdateStatusSynchronously((TmStatus) status);
-                               UpdateTagPropertiesAndClassDataSynchronously(status);
-                               tmTagsCache.Add(statusTmAddr.ToString(), status);
-                             }
-                             
+                             var status = GetAndCacheUpdatedTmTagSynchronously(statusTmAddr, tmTagsCache);
+
                              tmEvent = TmEvent.CreateStatusChangeEvent(tmcEventElix, addData, (TmStatus) status, statusData);
                              break;
 
@@ -2068,14 +2061,8 @@ namespace Iface.Oik.Tm.Api
                                                                        alarmData.AlarmID, 
                                                                        TmNativeDefs.TmDataTypes.AnalogAlarm);
                              
-                             if (!tmTagsCache.TryGetValue(alarmSourceTmAddr.ToString(), out var alarmSourceAnalog))
-                             {
-                               alarmSourceAnalog = new TmAnalog(alarmSourceTmAddr);
-                               UpdateAnalogSynchronously((TmAnalog) alarmSourceAnalog);
-                               UpdateTagPropertiesAndClassDataSynchronously(alarmSourceAnalog);
-                               tmTagsCache.Add(alarmSourceTmAddr.ToString(), alarmSourceAnalog);
-                             }
-                             
+                             var alarmSourceAnalog = GetAndCacheUpdatedTmTagSynchronously(alarmSourceTmAddr, tmTagsCache);
+
                              tmEvent = TmEvent.CreateAlarmTmEvent(tmcEventElix, 
                                                                   addData,
                                                                   alarmTypeName,
@@ -2091,13 +2078,7 @@ namespace Iface.Oik.Tm.Api
                              
                              var controlData = TmNativeUtil.GetControlDataFromTEvent(tmcEventElix.Event);
                              
-                             if (!tmTagsCache.TryGetValue(controlStatusTmAddr.ToString(), out var controlStatus))
-                             {
-                               controlStatus = new TmStatus(controlStatusTmAddr);
-                               UpdateStatusSynchronously((TmStatus) controlStatus);
-                               UpdateTagPropertiesAndClassDataSynchronously(controlStatus);
-                               tmTagsCache.Add(controlStatusTmAddr.ToString(), controlStatus);
-                             }
+                             var controlStatus = GetAndCacheUpdatedTmTagSynchronously(controlStatusTmAddr, tmTagsCache);
 
                              tmEvent = TmEvent.CreateControlEvent(tmcEventElix, 
                                                                   addData,
@@ -2127,13 +2108,7 @@ namespace Iface.Oik.Tm.Api
                                                      tmcEventElix.Event.Point);
                              var setStatusData = TmNativeUtil.GetControlDataFromTEvent(tmcEventElix.Event);
                              
-                             if (!tmTagsCache.TryGetValue(setStatusTmAddr.ToString(), out var setStatus))
-                             {
-                               setStatus = new TmStatus(setStatusTmAddr);
-                               UpdateStatusSynchronously((TmStatus) setStatus);
-                               UpdateTagPropertiesAndClassDataSynchronously(setStatus);
-                               tmTagsCache.Add(setStatusTmAddr.ToString(), setStatus);
-                             }
+                             var setStatus = GetAndCacheUpdatedTmTagSynchronously(setStatusTmAddr , tmTagsCache);
 
                              tmEvent = TmEvent.CreateManualStatusSetEvent(tmcEventElix, 
                                                                           addData,
@@ -2149,13 +2124,7 @@ namespace Iface.Oik.Tm.Api
                              
                              var setAnalogData     = TmNativeUtil.GetAnalogSetDataFromTEvent(tmcEventElix.Event);
 
-                             if (!tmTagsCache.TryGetValue(setAnalogTmAddr.ToString(), out var setAnalog))
-                             {
-                               setAnalog = new TmAnalog(setAnalogTmAddr);
-                               UpdateAnalogSynchronously((TmAnalog) setAnalog);
-                               UpdateTagPropertiesAndClassDataSynchronously(setAnalog);
-                               tmTagsCache.Add(setAnalogTmAddr.ToString(), setAnalog);
-                             }
+                             var setAnalog = GetAndCacheUpdatedTmTagSynchronously(setAnalogTmAddr , tmTagsCache);
 
                              tmEvent = TmEvent.CreateManualAnalogSetEvent(tmcEventElix, addData,
                                                                           (TmAnalog) setAnalog, 
@@ -2180,13 +2149,8 @@ namespace Iface.Oik.Tm.Api
                              {
                                var flagsChangeDataStatus = TmNativeUtil.GetFlagsChangeDataStatus(tmcEventElix.Event);
                                
-                               if (!tmTagsCache.TryGetValue(flagsChangeSourceTmAddr.ToString(), out var flagsChangeSourceStatus))
-                               {
-                                 flagsChangeSourceStatus = new TmStatus(flagsChangeSourceTmAddr);
-                                 UpdateStatusSynchronously((TmStatus) flagsChangeSourceStatus);
-                                 UpdateTagPropertiesAndClassDataSynchronously(flagsChangeSourceStatus);
-                                 tmTagsCache.Add(flagsChangeSourceTmAddr.ToString(), flagsChangeSourceStatus);
-                               }
+                               var flagsChangeSourceStatus =
+                                 GetAndCacheUpdatedTmTagSynchronously(flagsChangeSourceTmAddr, tmTagsCache);
                                
                                tmEvent = TmEvent.CreateStatusFlagsChangeEvent(tmcEventElix, 
                                                                               addData, 
@@ -2196,15 +2160,10 @@ namespace Iface.Oik.Tm.Api
                              else if (flagsChangeSourceType == TmNativeDefs.TmDataTypes.Analog)
                              {
                                var flagsChangeDataAnalog = TmNativeUtil.GetFlagsChangeDataAnalog(tmcEventElix.Event);
-                               
-                               if (!tmTagsCache.TryGetValue(flagsChangeSourceTmAddr.ToString(), out var flagsChangeSourceAnalog))
-                               {
-                                 flagsChangeSourceAnalog = new TmAnalog(flagsChangeSourceTmAddr);
-                                 UpdateAnalogSynchronously((TmAnalog) flagsChangeSourceAnalog);
-                                 UpdateTagPropertiesAndClassDataSynchronously(flagsChangeSourceAnalog);
-                                 tmTagsCache.Add(flagsChangeSourceTmAddr.ToString(), flagsChangeSourceAnalog);
-                               }
-                               
+
+                               var flagsChangeSourceAnalog =
+                                 GetAndCacheUpdatedTmTagSynchronously(flagsChangeSourceTmAddr, tmTagsCache);
+
                                tmEvent = TmEvent.CreateAnalogFlagsChangeEvent(tmcEventElix, 
                                                                               addData, 
                                                                               (TmAnalog) flagsChangeSourceAnalog, 
@@ -2346,6 +2305,28 @@ namespace Iface.Oik.Tm.Api
       }
 
       _native.TmcFreeMemory(tmcCommonPointsPtr);
+    }
+
+    private TmTag GetAndCacheUpdatedTmTagSynchronously(TmAddr tagTmAddr, IDictionary<string, TmTag> cache)
+    {
+      if (cache.TryGetValue(tagTmAddr.ToString(), out var tmTag)) return tmTag;
+      
+      TmTag newTag;
+      if (tagTmAddr.Type == TmType.Status)
+      {
+        newTag = new TmStatus(tagTmAddr);
+        UpdateStatusSynchronously((TmStatus) newTag);
+      }
+      else
+      {
+        newTag = new TmAnalog(tagTmAddr);
+        UpdateAnalogSynchronously((TmAnalog) newTag);
+      }
+      UpdateTagPropertiesAndClassDataSynchronously(newTag);
+        
+      cache.Add(tagTmAddr.ToString(), newTag);
+
+      return newTag;
     }
   }
 }
