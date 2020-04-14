@@ -409,10 +409,43 @@ namespace Iface.Oik.Tm.Interfaces
                                                   TmStatus                      changedStatus,
                                                   TmNativeDefs.StatusData       statusData)
     {
-      var statusChangeEvent = CreateFromTEventElix(tEventElix, eventAddData, changedStatus.Name);
+      var statusChangeEvent = CreateStatusChangeEvent(tEventElix, eventAddData, changedStatus, statusData.State, 
+                                                      statusData.Class, statusData.ExtSig, statusData.FixUT, 
+                                                      statusData.FixMS, statusData.S2, statusData.Flags);
+      
+      return statusChangeEvent;
+    }
 
+
+    public static TmEvent CreateStatusChangeExtendedEvent(TmNativeDefs.TEventElix       tEventElix,
+                                                    TmNativeDefs.TTMSEventAddData eventAddData,
+                                                    TmStatus                      changedStatus,
+                                                    TmNativeDefs.StatusDataEx     statusDataEx)
+    {
+      var statusChangeExtendedEvent = CreateStatusChangeEvent(tEventElix,       eventAddData,      changedStatus, statusDataEx.State, 
+                                                                    statusDataEx.Class, statusDataEx.ExtSig, statusDataEx.FixUT, 
+                                                                    statusDataEx.FixMS, statusDataEx.S2, statusDataEx.Flags, statusDataEx.OldFlags);
+
+      statusChangeExtendedEvent.Username = EncodingUtil.Win1251BytesToUft8(statusDataEx.UserName);
+      return statusChangeExtendedEvent;
+    }
+
+    private static TmEvent CreateStatusChangeEvent(TmNativeDefs.TEventElix       tEventElix,
+                                                   TmNativeDefs.TTMSEventAddData eventAddData,
+                                                   TmStatus                      changedStatus,
+                                                   byte state,
+                                                   byte                          statusClass,
+                                                   UInt32                        extSig, 
+                                                   UInt32 fixUt, 
+                                                   UInt16 fixMs,
+                                                   UInt16                        s2,     
+                                                   UInt32 flags,
+                                                   UInt32?                       oldFlags = null)
+    {
+      var statusChangeEvent = CreateFromTEventElix(tEventElix, eventAddData, changedStatus.Name);
+      
       var                  isS2Only = false;
-      TmNativeDefs.S2Flags s2       = 0x0000;
+      TmNativeDefs.S2Flags s2Flags       = 0x0000;
 
       statusChangeEvent.TmAddrString = $"#TC{tEventElix.Event.Ch}:{tEventElix.Event.Rtu}:{tEventElix.Event.Point}";
       statusChangeEvent.TmAddrComplexInteger =
@@ -420,69 +453,66 @@ namespace Iface.Oik.Tm.Interfaces
       statusChangeEvent.TmAddrType = TmType.Status;
       
       statusChangeEvent.TypeString = changedStatus.ClassName.IsNullOrEmpty() ? $"{(changedStatus.IsAps ? "АПС" : "ТС")}" : changedStatus.ClassName;
-      statusChangeEvent.ExplicitTypeString = statusData.Class == 1 ? "АПС" : "ТС";
+      statusChangeEvent.ExplicitTypeString = statusClass == 1 ? "АПС" : "ТС";
 
-      if ((statusData.ExtSig & TmNativeDefs.ExtendedDataSignature) == TmNativeDefs.ExtendedDataSignature)
+      var hasFixTime = false;
+      var hasTmFlags = false;;
+      var hasSecondary = false;
+      var hasNoCurData = false;
+      var hasS2 = false;
+      if ((extSig & TmNativeDefs.ExtendedDataSignature) == TmNativeDefs.ExtendedDataSignature)
       {
-        var extSigFlags = (TmNativeDefs.ExtendedDataSignatureFlag) (statusData.ExtSig ^
+        var extSigFlags = (TmNativeDefs.ExtendedDataSignatureFlag) (extSig ^
                                                                     TmNativeDefs.ExtendedDataSignature);
-
-        if (extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.FixTime))
-        {
-          statusChangeEvent.FixTime = DateUtil.GetDateTimeFromTimestamp(statusData.FixUT, statusData.FixMS);
-        }
-
-        if (extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.TmFlags))
-        {
-          statusChangeEvent.Reference = statusChangeEvent.Reference == null
-                                ? $"F=${statusData.Flags:X8}"
-                                : $"{statusChangeEvent.Reference} F=${statusData.Flags:X8}";
-        }
-
-        if (extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.Secondary))
-        {
-          statusChangeEvent.Reference = statusChangeEvent.Reference == null ? "(s)" : $"{statusChangeEvent.Reference} (s)";
-        }
-
-        if (!extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.CurData))
-        {
-          statusChangeEvent.Reference = statusChangeEvent.Reference == null ? "(d)" : $"{statusChangeEvent.Reference} (d)";
-        }
-
-        if (extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.S2))
-        {
-          isS2Only = (statusData.S2                        & 0x8000) != 0;
-          s2       = (TmNativeDefs.S2Flags) (statusData.S2 & 0x7fff);
-        }
-      }
-
-      var flagsStateAddOn = string.Empty;
-      var eventStatusFlags = (TmNativeDefs.Flags) statusData.Flags;
-
-      if (eventStatusFlags.HasFlag(TmNativeDefs.Flags.UnreliableHdw))
-      {
-        flagsStateAddOn += " + Н.А.";
-      }
-      if (eventStatusFlags.HasFlag(TmNativeDefs.Flags.UnreliableManu))
-      {
-        flagsStateAddOn += " + БЛОК";
-      }
-      if (eventStatusFlags.HasFlag(TmNativeDefs.Flags.ManuallySet))
-      {
-        flagsStateAddOn += " + РУЧН";
+        hasFixTime = extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.FixTime);
+        hasTmFlags = extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.TmFlags);
+        hasSecondary = extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.Secondary);
+        hasNoCurData = !extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.CurData);
+        hasS2 = extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.S2);
       }
       
-
-      if (s2 == 0)
+      
+      if (hasFixTime)
       {
-        statusChangeEvent.StateString = $"{(statusData.State == 1 ? changedStatus.CaptionOn : changedStatus.CaptionOff)}{flagsStateAddOn}";
-        statusChangeEvent.ExplicitStateString = isS2Only ? "ИЗМ. АТРИБУТОВ - НОРМА" 
-                                                  : $"{(statusData.State == 1 ? "ВКЛ" : "ОТКЛ")}";
+        statusChangeEvent.FixTime = DateUtil.GetDateTimeFromTimestamp(fixUt, fixMs);
+      }
+      
+      if (oldFlags == null)
+      {
+        statusChangeEvent.Reference = hasTmFlags ? $"F=${flags:X8}" : "";
       }
       else
       {
-        statusChangeEvent.StateString = $"{GetS2StatusString(s2, changedStatus)}{flagsStateAddOn}";
-        statusChangeEvent.ExplicitStateString = $"{(isS2Only ? "ИЗМ. АТРИБУТОВ" : $"{(statusData.State == 1 ? "ВКЛ" : "ОТКЛ")}")} {GetS2StatusString(s2)}";
+        statusChangeEvent.Reference = oldFlags == flags ? $"F=${flags:X8}" : $"F=${oldFlags:X8} -> ${flags:X8}";
+      }
+      
+      if (hasSecondary)
+      {
+        statusChangeEvent.Reference = statusChangeEvent.Reference == null ? "(s)" : $"{statusChangeEvent.Reference} (s)";
+      }
+
+      if (hasNoCurData)
+      {
+        statusChangeEvent.Reference = statusChangeEvent.Reference == null ? "(d)" : $"{statusChangeEvent.Reference} (d)";
+      }
+
+      if (hasS2)
+      {
+        isS2Only = (s2                        & 0x8000) != 0;
+        s2Flags  = (TmNativeDefs.S2Flags) (s2 & 0x7fff);
+      }
+
+
+      if (s2Flags == 0)
+      {
+        statusChangeEvent.StateString = state == 1 ? changedStatus.CaptionOn : changedStatus.CaptionOff;
+        statusChangeEvent.ExplicitStateString = isS2Only ? "ИЗМ. АТРИБУТОВ - НОРМА" 
+                                                  : $"{(state == 1 ? "ВКЛ" : "ОТКЛ")}";
+      }
+      else
+      {
+        statusChangeEvent.StateString = GetS2StatusString(s2Flags, changedStatus);
+        statusChangeEvent.ExplicitStateString = $"{(isS2Only ? "ИЗМ. АТРИБУТОВ" : $"{(state == 1 ? "ВКЛ" : "ОТКЛ")}")} {GetS2StatusString(s2Flags)}";
 
       }
 

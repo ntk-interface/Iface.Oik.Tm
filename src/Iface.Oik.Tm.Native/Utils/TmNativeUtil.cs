@@ -170,6 +170,17 @@ namespace Iface.Oik.Tm.Native.Utils
 
       return FromBytes<TmNativeDefs.StatusData>(tEvent.Data);
     }
+    
+    
+    public static TmNativeDefs.StatusDataEx GetStatusDataExFromTEvent(TmNativeDefs.TEvent tEvent)
+    {
+      if (tEvent.Data == null)
+      {
+        throw new ArgumentException("Отсутствует Data в TEvent");
+      }
+
+      return FromBytes<TmNativeDefs.StatusDataEx>(tEvent.Data);
+    }
 
 
     public static TmNativeDefs.AlarmData GetAlarmDataFromTEvent(TmNativeDefs.TEvent tEvent)

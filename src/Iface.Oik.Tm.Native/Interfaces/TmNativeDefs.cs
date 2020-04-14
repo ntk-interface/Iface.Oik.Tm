@@ -381,6 +381,26 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt16 FixMS;
     }
     
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
+    public struct StatusDataEx
+    {
+      public byte   State;
+      public byte   Class;
+      public UInt32 ExtSig;
+      public byte   ResCh;
+      public byte   ResRtu;
+      public UInt16 ResPoint;
+      public UInt32 FixUT;
+      public UInt16 S2;
+      public UInt32 Flags;
+      public UInt16 FixMS;
+      public UInt32 OldFlags;
+      
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
+      public byte[] UserName;
+    }
+    
 
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct AlarmData
@@ -746,6 +766,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     public const Int16  RealTelemetryFlag     = unchecked((short) 0x8000);
     public const UInt32 ExtendedDataSignature = 0xEEAAEE00;
+    
+    public const UInt32 ExtendedStatusChangedEventSize = 76;
 
     #region Cfs
 

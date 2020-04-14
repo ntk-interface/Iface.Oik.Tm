@@ -2042,12 +2042,19 @@ namespace Iface.Oik.Tm.Api
                                                                   tmcEventElix.Event.Ch,
                                                                   tmcEventElix.Event.Rtu,
                                                                   tmcEventElix.Event.Point);
-
-                             var statusData = TmNativeUtil.GetStatusDataFromTEvent(tmcEventElix.Event);
-
                              var status = GetAndCacheUpdatedTmTagSynchronously(statusTmAddr, tmTagsCache);
 
-                             tmEvent = TmEvent.CreateStatusChangeEvent(tmcEventElix, addData, (TmStatus) status, statusData);
+                             if (tmcEventElix.EventSize >= TmNativeDefs.ExtendedStatusChangedEventSize)
+                             {
+                               var statusDataEx = TmNativeUtil.GetStatusDataExFromTEvent(tmcEventElix.Event);
+                               tmEvent = TmEvent.CreateStatusChangeExtendedEvent(tmcEventElix, addData, (TmStatus) status, statusDataEx);
+                             }
+                             else
+                             {
+                               var statusData = TmNativeUtil.GetStatusDataFromTEvent(tmcEventElix.Event);
+                               tmEvent = TmEvent.CreateStatusChangeEvent(tmcEventElix, addData, (TmStatus) status, statusData);
+                             }
+                             
                              break;
 
                            case TmEventTypes.Alarm:
