@@ -8,15 +8,25 @@ namespace Iface.Oik.Tm.Interfaces
   // the type in use with JsonConvert Serialize/Deserialize
   public class TmEventFilter
   {
-    public TmEventTypes       Types               { get; set; }
-    public TmEventImportances Importances         { get; set; }
     public DateTime?          StartTime           { get; set; }
     public DateTime?          EndTime             { get; set; }
+    public TmEventTypes       Types               { get; set; }
+    public TmEventImportances Importances         { get; set; }
     public List<TmAddr>       TmAddrList          { get; } = new List<TmAddr>();
     public List<int>          TmStatusClassIdList { get; set; }
 
     // channelNum -> { null(весь канал) | коллекция rtuNum }
     public Dictionary<int, HashSet<int>> ChannelAndRtuCollection { get; set; }
+
+
+    public bool IsBasicOnly => (Types       == 0 || Types       == TmEventTypes.Any)                   &&
+                               (Importances == 0 || Importances == TmEventImportances.Any)             &&
+                               TmAddrList.Count == 0                                                   &&
+                               (TmStatusClassIdList     == null || TmStatusClassIdList.Count     == 0) &&
+                               (ChannelAndRtuCollection == null || ChannelAndRtuCollection.Count == 0);
+
+
+    public bool IsAdvanced => !IsBasicOnly;
 
 
     public TmEventFilter()
