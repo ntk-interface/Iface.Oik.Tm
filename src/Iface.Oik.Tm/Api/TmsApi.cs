@@ -1078,15 +1078,7 @@ namespace Iface.Oik.Tm.Api
                                                               (short) TmNativeDefs.DriverCall.Acknowledge,
                                                               1))
                              .ConfigureAwait(false);
-      if (result != TmNativeDefs.Success)
-      {
-        // TODO мы всегда в этой ветке, хотя квитируется
-        Console.WriteLine("ACK NOT OK");
-        return false;
-      }
-
-      Console.WriteLine("ACK OK");
-      return true;
+      return result == TmNativeDefs.Success;
     }
 
 
@@ -1099,15 +1091,7 @@ namespace Iface.Oik.Tm.Api
                                                               (short) TmNativeDefs.DriverCall.AckAnalog,
                                                               1))
                              .ConfigureAwait(false);
-      if (result != TmNativeDefs.Success)
-      {
-        // TODO мы всегда в этой ветке, хотя квитируется
-        Console.WriteLine("ACK NOT OK");
-        return false;
-      }
-
-      Console.WriteLine("ACK OK");
-      return true;
+      return result == TmNativeDefs.Success;
     }
 
 

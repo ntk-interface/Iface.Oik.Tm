@@ -399,12 +399,12 @@ namespace Iface.Oik.Tm.Interfaces
 
     public uint ToComplexInteger()
     {
-      return (uint)(Point + (Rtu << 16) + (Ch << 24));
+      return EncodeComplexInteger(Ch, Rtu, Point);
     }
 
     public uint ToIntegerWithoutPadding()
     {
-      return ToComplexInteger();
+      return EncodeComplexInteger(Ch, Rtu, Point);
     }
 
 
@@ -447,6 +447,18 @@ namespace Iface.Oik.Tm.Interfaces
     public (short, short, short) GetTupleShort()
     {
       return ((short) Ch, (short) Rtu, (short) Point);
+    }
+
+
+    public static uint EncodeComplexInteger(int ch, int rtu, int point)
+    {
+      return (uint) (point + (rtu << 16) + (ch << 24));
+    }
+
+
+    public static uint EncodeNormalizedInteger(int ch, int rtu, int point)
+    {
+      return (uint) ((point - 1) + ((rtu - 1) << 16) + (ch << 24));
     }
     
 

@@ -471,7 +471,7 @@ namespace Iface.Oik.Tm.Api
     public async Task<(IReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix,
                                                                                     PreferApi   prefer = PreferApi.Auto)
     {
-      var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
+      var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: true, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
       {
         return await _tms.GetCurrentEvents(elix).ConfigureAwait(false);

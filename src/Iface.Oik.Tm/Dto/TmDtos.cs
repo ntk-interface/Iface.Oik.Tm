@@ -143,7 +143,7 @@ namespace Iface.Oik.Tm.Dto
     public short     Importance   { get; set; }
     public int       Tma          { get; set; }
     public string    TmaStr       { get; set; }
-    public short?    TmaType      { get; set; }
+    public short?    TmType      { get; set; }
     public string    TmTypeName   { get; set; }
     public short?    ClassId      { get; set; }
     public DateTime? AckTime      { get; set; }
