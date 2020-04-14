@@ -227,6 +227,39 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
+    public static TmNativeDefs.FlagsChangeData GetFlagsChangeData(TmNativeDefs.TEvent tEvent)
+    {
+      if (tEvent.Data == null)
+      {
+        throw new ArgumentException("Отсутствует Data в TEvent");
+      }
+
+      return FromBytes<TmNativeDefs.FlagsChangeData>(tEvent.Data);
+    }
+    
+    
+    public static TmNativeDefs.FlagsChangeDataStatus GetFlagsChangeDataStatus(TmNativeDefs.TEvent tEvent)
+    {
+      if (tEvent.Data == null)
+      {
+        throw new ArgumentException("Отсутствует Data в TEvent");
+      }
+
+      return FromBytes<TmNativeDefs.FlagsChangeDataStatus>(tEvent.Data);
+    }
+    
+    
+    public static TmNativeDefs.FlagsChangeDataAnalog GetFlagsChangeDataAnalog(TmNativeDefs.TEvent tEvent)
+    {
+      if (tEvent.Data == null)
+      {
+        throw new ArgumentException("Отсутствует Data в TEvent");
+      }
+
+      return FromBytes<TmNativeDefs.FlagsChangeDataAnalog>(tEvent.Data);
+    }
+
+
     public static TmNativeDefs.TTMSEventAddData GetEventAddData(byte[] addDataBytes)
     {
       if (addDataBytes == null)

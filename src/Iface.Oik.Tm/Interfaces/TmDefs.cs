@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using Iface.Oik.Tm.Native.Interfaces;
 
@@ -94,7 +94,7 @@ namespace Iface.Oik.Tm.Interfaces
     Acknowledge     = TmNativeDefs.EventTypes.Acknowledge,
     ManualStatusSet = TmNativeDefs.EventTypes.ManualStatusSet,
     ManualAnalogSet = TmNativeDefs.EventTypes.ManualAnalogSet,
-    Res1            = TmNativeDefs.EventTypes.Res1,
+    FlagsChange     = TmNativeDefs.EventTypes.FlagsChange,
     Res2            = TmNativeDefs.EventTypes.Res2,
     ExtLink         = TmNativeDefs.EventTypes.ExtLink,     // Служебное значение - не использовать!
     ExtFileLink     = TmNativeDefs.EventTypes.ExtFileLink, // Служебное значение - не использовать!

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -2166,8 +2166,62 @@ namespace Iface.Oik.Tm.Api
                              var strBinData = TmNativeUtil.GetStrBinData(tmcEventElix.Event);
                              tmEvent = TmEvent.CreateExtendedEvent(tmcEventElix, addData, strBinData);
                              break;
+                           
+                           case TmEventTypes.FlagsChange:
+                             var flagsChangeData = TmNativeUtil.GetFlagsChangeData(tmcEventElix.Event);
+                             var flagsChangeSourceType = (TmNativeDefs.TmDataTypes) flagsChangeData.TmType;
+                             
+                             var flagsChangeSourceTmAddr = new TmAddr(flagsChangeSourceType.ToTmType(), 
+                                                                      tmcEventElix.Event.Ch, 
+                                                                      tmcEventElix.Event.Rtu, 
+                                                                      tmcEventElix.Event.Point);
+
+                             if (flagsChangeSourceType == TmNativeDefs.TmDataTypes.Status)
+                             {
+                               var flagsChangeDataStatus = TmNativeUtil.GetFlagsChangeDataStatus(tmcEventElix.Event);
+                               
+                               if (!tmTagsCache.TryGetValue(flagsChangeSourceTmAddr.ToString(), out var flagsChangeSourceStatus))
+                               {
+                                 flagsChangeSourceStatus = new TmStatus(flagsChangeSourceTmAddr);
+                                 UpdateStatusSynchronously((TmStatus) flagsChangeSourceStatus);
+                                 UpdateTagPropertiesAndClassDataSynchronously(flagsChangeSourceStatus);
+                                 tmTagsCache.Add(flagsChangeSourceTmAddr.ToString(), flagsChangeSourceStatus);
+                               }
+                               
+                               tmEvent = TmEvent.CreateStatusFlagsChangeEvent(tmcEventElix, 
+                                                                              addData, 
+                                                                              (TmStatus) flagsChangeSourceStatus, 
+                                                                              flagsChangeDataStatus);
+                             }
+                             else if (flagsChangeSourceType == TmNativeDefs.TmDataTypes.Analog)
+                             {
+                               var flagsChangeDataAnalog = TmNativeUtil.GetFlagsChangeDataAnalog(tmcEventElix.Event);
+                               
+                               if (!tmTagsCache.TryGetValue(flagsChangeSourceTmAddr.ToString(), out var flagsChangeSourceAnalog))
+                               {
+                                 flagsChangeSourceAnalog = new TmAnalog(flagsChangeSourceTmAddr);
+                                 UpdateAnalogSynchronously((TmAnalog) flagsChangeSourceAnalog);
+                                 UpdateTagPropertiesAndClassDataSynchronously(flagsChangeSourceAnalog);
+                                 tmTagsCache.Add(flagsChangeSourceTmAddr.ToString(), flagsChangeSourceAnalog);
+                               }
+                               
+                               tmEvent = TmEvent.CreateAnalogFlagsChangeEvent(tmcEventElix, 
+                                                                              addData, 
+                                                                              (TmAnalog) flagsChangeSourceAnalog, 
+                                                                              flagsChangeDataAnalog);
+                             }
+                             else
+                             {
+                               var sourceAccumName = GetObjectName(flagsChangeSourceTmAddr);
+                               tmEvent = TmEvent.CreateAccumFlagsChangeEvent(tmcEventElix, 
+                                                                              addData, 
+                                                                              sourceAccumName, 
+                                                                              flagsChangeData);
+                             }
+                             break;
+                           
                            default:
-                             tmEvent = TmEvent.CreateFromTEventElix(tmcEventElix, addData, "");
+                             tmEvent = TmEvent.CreateFromTEventElix(tmcEventElix, addData, "???");
                              break;
                          }
 

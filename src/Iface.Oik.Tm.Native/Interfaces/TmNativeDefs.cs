@@ -69,7 +69,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       Acknowledge     = 0x0008,
       ManualStatusSet = 0x0010,
       ManualAnalogSet = 0x0020,
-      Res1            = 0x0040,
+      FlagsChange     = 0x0040,
       Res2            = 0x0080,
       ExtLink         = 0x2000, // Служебное значение - не использовать!
       ExtFileLink     = 0x4000, // Служебное значение - не использовать!
@@ -380,7 +380,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt32 Flags;
       public UInt16 FixMS;
     }
-
+    
 
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct AlarmData
@@ -442,8 +442,48 @@ namespace Iface.Oik.Tm.Native.Interfaces
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2044)]
       public byte[] StrBin;
     }
+    
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
+    public struct FlagsChangeData
+    {
+      public UInt16 TmType;
+      public UInt32 OldFlags;
+      public UInt32 NewFlags;
+    }
 
-
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
+    public struct FlagsChangeDataStatus
+    {
+      public UInt16 TmType;
+      public UInt32 OldFlags;
+      public UInt32 NewFlags;
+      public Byte State;
+      public Byte S2;
+      public UInt32 Reserved;
+      public UInt32 Reserved1;
+      
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
+      public byte[] UserName;
+    }
+    
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
+    public struct FlagsChangeDataAnalog 
+    {
+      public UInt16 TmType;
+      public UInt32 OldFlags;
+      public UInt32 NewFlags;
+      public UInt16 AsCode;
+      public Single AsFloat;
+      public UInt32 Reserved;
+      
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
+      public byte[] UserName;
+    }
+    
+    
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TMXTime
     {

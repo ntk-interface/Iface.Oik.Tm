@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 using Iface.Oik.Tm.Dto;
@@ -488,6 +489,105 @@ namespace Iface.Oik.Tm.Interfaces
       return statusChangeEvent;
     }
 
+
+    public static TmEvent CreateStatusFlagsChangeEvent(TmNativeDefs.TEventElix            tEventElix,
+                                                 TmNativeDefs.TTMSEventAddData      eventAddData,
+                                                 TmStatus                           sourceStatus,
+                                                 TmNativeDefs.FlagsChangeDataStatus flagsChangeDataStatus)
+    {
+      var flagsChangeEvent = CreateFlagsChangeEvent(tEventElix, 
+                                                    eventAddData, 
+                                                    sourceStatus.Name, 
+                                                    TmType.Status, 
+                                                    flagsChangeDataStatus.OldFlags, 
+                                                    flagsChangeDataStatus.NewFlags,
+                                                    EncodingUtil.Win1251BytesToUft8(flagsChangeDataStatus.UserName));
+      
+      flagsChangeEvent.TypeString = $"Изм. флагов {(sourceStatus.ClassName.IsNullOrEmpty() ? $"{(sourceStatus.IsAps ? "АПС" : "ТС")}" : sourceStatus.ClassName)}";
+
+
+      return flagsChangeEvent;
+    }
+
+
+    public static TmEvent CreateAnalogFlagsChangeEvent(TmNativeDefs.TEventElix            tEventElix,
+                                                       TmNativeDefs.TTMSEventAddData      eventAddData,
+                                                       TmAnalog                          sourceAnalog,
+                                                       TmNativeDefs.FlagsChangeDataAnalog flagsChangeDataAnalog)
+    {
+      var flagsChangeEvent = CreateFlagsChangeEvent(tEventElix, 
+                                                    eventAddData, 
+                                                    sourceAnalog.Name, 
+                                                    TmType.Analog, 
+                                                    flagsChangeDataAnalog.OldFlags, 
+                                                    flagsChangeDataAnalog.NewFlags,
+                                                    EncodingUtil.Win1251BytesToUft8(flagsChangeDataAnalog.UserName));
+
+      flagsChangeEvent.TypeString = "Изм. флагов ТИ";
+
+      return flagsChangeEvent;
+    }
+
+
+    public static TmEvent CreateAccumFlagsChangeEvent(TmNativeDefs.TEventElix       tEventElix,
+                                                     TmNativeDefs.TTMSEventAddData eventAddData,
+                                                     string                        sourceObjectName, 
+                                                     TmNativeDefs.FlagsChangeData flagsChangeData)
+    {
+      var flagsChangeEvent = CreateFlagsChangeEvent(tEventElix, 
+                                                    eventAddData, 
+                                                    sourceObjectName, 
+                                                    TmType.Accum, 
+                                                    flagsChangeData.OldFlags, 
+                                                    flagsChangeData.NewFlags,
+                                                    "");
+      
+      flagsChangeEvent.TypeString = "Изм. флагов ТИИ";
+
+      return flagsChangeEvent;
+    }
+    
+
+    private static TmEvent CreateFlagsChangeEvent(TmNativeDefs.TEventElix       tEventElix,
+                                                 TmNativeDefs.TTMSEventAddData eventAddData,   
+                                                 string sourceObjectName,
+                                                 TmType sourceDataType, 
+                                                 uint   oldFlags,
+                                                 uint                          newFlags, 
+                                                 string username) 
+    {
+      var flagsChangeEvent = CreateFromTEventElix(tEventElix, eventAddData, sourceObjectName);
+      
+      flagsChangeEvent.TmAddrComplexInteger =
+        (uint) (tEventElix.Event.Point + (tEventElix.Event.Rtu << 16) + (tEventElix.Event.Ch << 24));
+      flagsChangeEvent.Username = username;
+
+      switch (sourceDataType)
+      {
+        case TmType.Status:
+          flagsChangeEvent.TmAddrString = $"#TC{tEventElix.Event.Ch}:{tEventElix.Event.Rtu}:{tEventElix.Event.Point}";
+          flagsChangeEvent.ExplicitTypeString = "Изм. флагов ТС";
+          flagsChangeEvent.TmAddrType = TmType.Status;
+          break;
+        case TmType.Analog:
+          flagsChangeEvent.TmAddrString = $"#TТ{tEventElix.Event.Ch}:{tEventElix.Event.Rtu}:{tEventElix.Event.Point}";
+          flagsChangeEvent.ExplicitTypeString = "Изм. флагов ТИТ";
+          flagsChangeEvent.TmAddrType = TmType.Analog;
+          break;
+        case TmType.Accum:
+          flagsChangeEvent.TmAddrString = $"#TИ{tEventElix.Event.Ch}:{tEventElix.Event.Rtu}:{tEventElix.Event.Point}";
+          flagsChangeEvent.ExplicitTypeString = "Изм. флагов ТИИ";
+          flagsChangeEvent.TmAddrType = TmType.Accum;
+          break;
+      }
+      
+      
+      flagsChangeEvent.ExplicitStateString = $"${oldFlags:X8}X -> ${newFlags:X8}X";
+      flagsChangeEvent.StateString         = $"${oldFlags:X8}X -> ${newFlags:X8}X";
+      
+      return flagsChangeEvent;
+    }
+    
 
     public static TmEvent CreateFromTEventElix(TmNativeDefs.TEventElix       tEventElix,
                                                TmNativeDefs.TTMSEventAddData eventAddData,
