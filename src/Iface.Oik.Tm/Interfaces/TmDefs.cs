@@ -239,6 +239,7 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Any")]   Any       = 0,
     [Description("MSG")]   Msg       = 1,
     [Description("ERROR")] Error     = 2,
+    [Description("DEBUG")] Debug = 3,
   }
 
 

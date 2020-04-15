@@ -168,6 +168,31 @@ namespace Iface.Oik.Tm.Native.Api
                                                      UInt32                                         maxErrs);
 
 
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern bool cfsTraceBeginTraceEx(IntPtr                                         connId,
+                                                   UInt32                                         pid,
+                                                   UInt32                                         thid,
+                                                   bool                                           fDebug,
+                                                   UInt32                                         pause,
+                                                   out                              UInt32        errCode,
+                                                   [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
+                                                   UInt32                                         maxErrs);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern bool cfsTraceEndTrace(IntPtr                                         connId,
+                                               out                              UInt32        errCode,
+                                               [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
+                                               UInt32                                         maxErrs);
+    
+    
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern IntPtr cfsTraceGetMessage(IntPtr                                         connId,
+                                                   out                              UInt32        errCode,
+                                                   [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
+                                                   UInt32                                         maxErrs);
+
+
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
     public static extern void cfsFreeMemory(IntPtr memory);
 

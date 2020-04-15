@@ -7,7 +7,7 @@ using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public class TmServer : TmNotifyPropertyChanged
+  public class TmServer : TmNotifyPropertyChanged, ITmServerTraceable
   {
     private readonly int _hashCode;
 
@@ -16,6 +16,7 @@ namespace Iface.Oik.Tm.Interfaces
     public uint      Signature       { get; private set; }
     public uint      Unique          { get; private set; }
     public uint      ProcessId       { get; private set; }
+    public uint      ThreadId        { get; } = 0xffffffff;
     public uint      ParentProcessId { get; private set; }
     public uint      Flags           { get; private set; } //В текущей версии libif_cfs не используется
     public uint      DbgCnt          { get; private set; } //В текущей версии libif_cfs не используется

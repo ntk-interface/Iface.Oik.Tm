@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -16,6 +15,10 @@ namespace Iface.Oik.Tm.Api
   public class CfsApi : ICfsApi
   {
     private readonly ITmNative _native;
+    
+    private readonly Regex _cfsServerLogRecordRegex = new
+      Regex(@"(\d{2}:\d{2}:\d{2}.\d{3}) (\d{2}.\d{2}.\d{4}) [\\]{3}([^\\]*)[\\]{2}([^\\]*)[\\]{2}([^\s]*)\s*- ThID=([0-9A-Fx]*) :\n([^\n]*)\n", 
+            RegexOptions.Compiled);
 
     public IntPtr CfId { get; private set; }
     public string Host { get; private set; }
@@ -521,7 +524,7 @@ namespace Iface.Oik.Tm.Api
       {
         var tmServer = TmServer.CreateFromIfaceServer(await GetIfaceServerData(serverId)
                                                        .ConfigureAwait(false));
-        var serverUsers = tmUsers.Where(x => x.ParentProcessId == tmServer.ProcessId);
+        var serverUsers = tmUsers.Where(x => x.ProcessId == tmServer.ProcessId);
         tmServer.Users.AddRange(serverUsers);
 
         tmServersList.Add(tmServer);
@@ -686,6 +689,61 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task RegisterTmServerTracer(ITmServerTraceable traceTarget, bool debug, int timeout)
+    {
+      const int errStringLength = 1000;
+      var       errString       = new StringBuilder(errStringLength);
+      uint      errCode         = 0;
+
+      var result = await Task.Run(() => _native.CfsTraceBeginTraceEx(CfId,
+                                                                     traceTarget.ProcessId,
+                                                                     traceTarget.ThreadId, debug,
+                                                                     (uint) timeout,
+                                                                     out errCode,
+                                                                     ref errString,
+                                                                     errStringLength));
+      Console.WriteLine($"Register result: {result}");
+
+    }
+
+
+    public async Task StopTmServerTrace()
+    {
+      const int errStringLength = 1000;
+      var       errString       = new StringBuilder(errStringLength);
+      uint      errCode         = 0;
+
+      var result = await Task.Run(() =>_native.CfsTraceEndTrace(CfId, out errCode, ref errString, errStringLength));
+      Console.WriteLine($"Stop result: {result}");
+    }
+ 
+
+    public async Task<IReadOnlyCollection<TmServerLogRecord>> TraceTmServerLogRecords()
+    {
+      const int errStringLength = 1000;
+      var       errString       = new StringBuilder(errStringLength);
+      uint      errCode         = 0;
+      
+      var logRecordPtr = await Task.Run(() => _native.CfsTraceGetMessage(CfId,out errCode, 
+                                                                         ref errString, 
+                                                                         errStringLength));
+
+      if (logRecordPtr == IntPtr.Zero) return null;
+      
+      if (errCode != 0)
+      {
+        throw new Exception($"Ошибка трассировки: {errString} Код: {errCode} CfId:{CfId}" );
+      }
+
+      var cfsLogRecords = ParseCfsServerLogRecordPointer(logRecordPtr, 5120);
+
+      await Task.Run(() => _native.CfsFreeMemory(logRecordPtr));
+      
+
+      return cfsLogRecords.Select(TmServerLogRecord.CreateFromCfsLogRecord).ToList();
+    }
+
+
     private async Task OpenTmServerLog()
     {
       const int errStringLength = 1000;
@@ -732,34 +790,32 @@ namespace Iface.Oik.Tm.Api
       
       if (logRecordPtr == IntPtr.Zero) return null;
 
-      var cfsLogRecord = ParseCfsServerLogRecordPointer(logRecordPtr, 1000);
+      var cfsLogRecord = ParseCfsServerLogRecordPointer(logRecordPtr, 1000).FirstOrDefault();
 
       _native.CfsFreeMemory(logRecordPtr);
-      
+
       return TmServerLogRecord.CreateFromCfsLogRecord(cfsLogRecord);
     }
     
     
-    private static TmNativeDefs.CfsLogRecord ParseCfsServerLogRecordPointer(IntPtr ptr, int maxSize)
+    private IReadOnlyCollection<TmNativeDefs.CfsLogRecord> ParseCfsServerLogRecordPointer(IntPtr ptr, int maxSize)
     {
-      var bytes = new byte[maxSize];
-      Marshal.Copy(ptr, bytes, 0, maxSize);
-      var str = Encoding.GetEncoding(1251).GetString(bytes);
-      var regex =
-        new
-          Regex(@"(\d{2}:\d{2}:\d{2}.\d{3}) (\d{2}.\d{2}.\d{4}) \\\\\\(.*?)\\\\(.*?)\\\\(.*?)\s*- ThID=(.*?) :\n(.*?)\n");
-      var mc = regex.Match(str);
+      var strList = TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(ptr, maxSize);
 
-      return new TmNativeDefs.CfsLogRecord
-             {
-               Time     = mc.Groups[1].Value,
-               Date     = mc.Groups[2].Value,
-               Name     = mc.Groups[3].Value,
-               Type     = mc.Groups[4].Value,
-               MsgType  = mc.Groups[5].Value.Trim(' '),
-               ThreadId = mc.Groups[6].Value,
-               Message  = mc.Groups[7].Value,
-             };
+      
+      return strList.Select(x => {
+                              var mc = _cfsServerLogRecordRegex.Match(x);
+                              return new TmNativeDefs.CfsLogRecord
+                                     {
+                                       Time     = mc.Groups[1].Value,
+                                       Date     = mc.Groups[2].Value,
+                                       Name     = mc.Groups[3].Value,
+                                       Type     = mc.Groups[4].Value,
+                                       MsgType  = mc.Groups[5].Value.Trim(' '),
+                                       ThreadId = mc.Groups[6].Value,
+                                       Message  = mc.Groups[7].Value,
+                                     }; })
+                    .ToList();
     }
   }
 }
