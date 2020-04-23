@@ -22,9 +22,9 @@ namespace Iface.Oik.Tm.Interfaces
     TmNativeCallback TmsCallbackDelegate      { get; }
     TmNativeCallback EmptyTmsCallbackDelegate { get; }
 
-    event EventHandler TmEventsAcked;
-    event EventHandler TmAlertsChanged;
-    event EventHandler UserInfoUpdated;
+    event EventHandler                   UserInfoUpdated;
+    event EventHandler                   TmEventsAcked;
+    event EventHandler<TmAlertEventArgs> TmAlertsChanged;
 
 
     void SetUserInfo(TmUserInfo userInfo);
