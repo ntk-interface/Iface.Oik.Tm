@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Native.Interfaces;
@@ -18,9 +19,9 @@ namespace Iface.Oik.Tm.Api
     public TmNativeCallback TmsCallbackDelegate      { get; }
     public TmNativeCallback EmptyTmsCallbackDelegate { get; } = delegate { };
 
-    public event EventHandler TmEventsAcked   = delegate { };
-    public event EventHandler TmAlertsChanged = delegate { };
-    public event EventHandler UserInfoUpdated = delegate { };
+    public event EventHandler                   UserInfoUpdated = delegate { };
+    public event EventHandler                   TmEventsAcked   = delegate { };
+    public event EventHandler<TmAlertEventArgs> TmAlertsChanged = delegate { };
 
     public bool IsTmsAllowed { get; set; } = true;
     public bool IsSqlAllowed { get; set; } = true;
@@ -59,15 +60,68 @@ namespace Iface.Oik.Tm.Api
           buf[1] == 'L' &&
           buf[2] == 'A')
       {
-        TmEventsAcked.Invoke(this, EventArgs.Empty);
+        HandleTmsCallbackEventsAcked();
       }
       else if (buf[0] == 'A' &&
                buf[1] == 'L' &&
                buf[2] == 'R' &&
                buf[3] == 'T')
       {
-        TmAlertsChanged.Invoke(this, EventArgs.Empty);
+        HandleTmsCallbackAlerts(buf.ElementAtOrDefault(4),
+                                buf.ElementAtOrDefault(5));
       }
+    }
+
+
+    private void HandleTmsCallbackEventsAcked()
+    {
+      TmEventsAcked.Invoke(this, EventArgs.Empty);
+    }
+
+
+    private void HandleTmsCallbackAlerts(byte reason, byte importance)
+    {
+      var eventArgs = new TmAlertEventArgs();
+      
+      switch ((char) reason)
+      {
+        case 'a':
+          eventArgs.Reason = TmAlertEventReason.Added;
+          break;
+          
+        case 'r':
+          eventArgs.Reason = TmAlertEventReason.Removed;
+          break;
+          
+        default:
+          eventArgs.Reason = TmAlertEventReason.Unknown;
+          break;
+      }
+      
+      switch ((char) importance)
+      {
+        case '0':
+          eventArgs.Importance = TmEventImportances.Imp0;
+          break;
+          
+        case '1':
+          eventArgs.Importance = TmEventImportances.Imp1;
+          break;
+          
+        case '2':
+          eventArgs.Importance = TmEventImportances.Imp2;
+          break;
+          
+        case '3':
+          eventArgs.Importance = TmEventImportances.Imp3;
+          break;
+          
+        default:
+          eventArgs.Importance = TmEventImportances.None;
+          break;
+      }
+      
+      TmAlertsChanged.Invoke(this, eventArgs);
     }
 
 
