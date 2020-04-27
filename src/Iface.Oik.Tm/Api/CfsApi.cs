@@ -689,7 +689,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task RegisterTmServerTracer(ITmServerTraceable traceTarget, bool debug, int timeout)
+    public async Task RegisterTmServerTracer(ITmServerTraceable traceTarget, bool debug, int pause)
     {
       const int errStringLength = 1000;
       var       errString       = new StringBuilder(errStringLength);
@@ -698,7 +698,7 @@ namespace Iface.Oik.Tm.Api
       var result = await Task.Run(() => _native.CfsTraceBeginTraceEx(CfId,
                                                                      traceTarget.ProcessId,
                                                                      traceTarget.ThreadId, debug,
-                                                                     (uint) timeout,
+                                                                     (uint) pause,
                                                                      out errCode,
                                                                      ref errString,
                                                                      errStringLength));

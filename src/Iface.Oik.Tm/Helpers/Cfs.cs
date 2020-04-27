@@ -102,5 +102,11 @@ namespace Iface.Oik.Tm.Helpers
                             nativeUserInfo.Group,
                             nativeUserInfo.Rights);
     }
+
+
+    public static void CloseCfsConnection(IntPtr cfId)
+    {
+      Native.CfsDisconnect(cfId);
+    }
   }
 }

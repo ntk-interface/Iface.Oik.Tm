@@ -107,6 +107,11 @@ namespace Iface.Oik.Tm.Native.Api
       return cfsConnect(serverName, out errCode, errString, maxErrs);
     }
 
+    public void CfsDisconnect(IntPtr connId)
+    {
+      cfsDisconnect(connId);
+    }
+
 
     public IntPtr CfsConfFileOpenCid(IntPtr                    connId,
                                      string                    serverName,

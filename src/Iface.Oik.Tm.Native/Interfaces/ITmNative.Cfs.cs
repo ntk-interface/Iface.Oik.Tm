@@ -77,6 +77,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
                       out UInt32        errCode,
                       ref StringBuilder errString,
                       UInt32            maxErrs);
+    
+    
+    void CfsDisconnect(IntPtr connId);
 
 
     IntPtr CfsConfFileOpenCid(IntPtr                    connId,

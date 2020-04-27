@@ -88,6 +88,11 @@ namespace Iface.Oik.Tm.Native.Api
                                            [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
                                            UInt32                                         maxErrs);
 
+    
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
+    public static extern void cfsDisconnect(IntPtr connId);
+    
+
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern IntPtr cfsConfFileOpenCid(IntPtr                                                 connId,
                                                    [MarshalAs(UnmanagedType.LPStr)] string                serverName,
