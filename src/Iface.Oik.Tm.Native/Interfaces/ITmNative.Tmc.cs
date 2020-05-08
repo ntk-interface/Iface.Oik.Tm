@@ -357,8 +357,18 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     IntPtr TmcComtradeEnumDays(Int32 cid);
 
+    
     IntPtr TmcComtradeEnumFiles(Int32 cid, string date);
 
+    
     Boolean TmcComtradeGetFile(Int32 cid, string fileName, string localDirectory);
+
+
+    Boolean TmcSetTracer(Int32  cid,
+                         Int16  ch,
+                         Int16  rtu,
+                         Int16  point,
+                         UInt16 tmType,
+                         UInt16 msgFilter);
   }
 }

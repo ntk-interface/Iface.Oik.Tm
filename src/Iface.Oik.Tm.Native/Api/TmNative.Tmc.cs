@@ -545,5 +545,15 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcComtradeGetFile(cid, fileName, localDirectory);
     }
+
+    public bool TmcSetTracer(Int32  cid,
+                             Int16  ch,
+                             Int16  rtu,
+                             Int16  point,
+                             UInt16 tmType,
+                             UInt16 msgFilter)
+    {
+      return tmcSetTracer(cid, ch, rtu, point, tmType, msgFilter);
+    }
   }
 }

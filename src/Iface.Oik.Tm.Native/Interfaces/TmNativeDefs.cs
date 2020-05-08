@@ -14,16 +14,20 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     public enum TmDataTypes
     {
-      Status      = 0x8000,
-      Analog      = 0x8001,
-      Accum       = 0x8002,
-      Control     = 0x8003,
-      Channel     = 0x9000,
-      Rtu         = 0x9001,
-      RetroStatus = 0x9010,
-      RetroAnalog = 0x9011,
-      RetroAccum  = 0x9012,
-      AnalogAlarm = 0x9021
+      Status           = 0x8000,
+      Analog           = 0x8001,
+      Accum            = 0x8002,
+      Control          = 0x8003,
+      Channel          = 0x9000,
+      Rtu              = 0x9001,
+      RetroStatus      = 0x9010,
+      RetroAnalog      = 0x9011,
+      RetroAccum       = 0x9012,
+      AnalogAlarm      = 0x9021,
+      StatusGroup      = 0xC321,
+      AnalogGroup      = 0xC322,
+      AccumGroup       = 0xC323,
+      StatusRetroGroup = 0xD331
     }
 
 
@@ -188,6 +192,16 @@ namespace Iface.Oik.Tm.Native.Interfaces
       CurData   = 0x20
     }
 
+
+    [Flags]
+    public enum TmsTraceFlags
+    {
+      Error   = 0x0001,
+      Message = 0x0002,
+      Debug   = 0x0004,
+      In      = 0x0008,
+      Out     = 0x0010
+    }
 
     public enum AnalogRegulationFlag
     {
@@ -380,8 +394,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt32 Flags;
       public UInt16 FixMS;
     }
-    
-    
+
+
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct StatusDataEx
     {
@@ -396,11 +410,11 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt32 Flags;
       public UInt16 FixMS;
       public UInt32 OldFlags;
-      
+
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
       public byte[] UserName;
     }
-    
+
 
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct AlarmData
@@ -462,8 +476,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2044)]
       public byte[] StrBin;
     }
-    
-    
+
+
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct FlagsChangeData
     {
@@ -472,25 +486,25 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt32 NewFlags;
     }
 
-    
+
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct FlagsChangeDataStatus
     {
       public UInt16 TmType;
       public UInt32 OldFlags;
       public UInt32 NewFlags;
-      public Byte State;
-      public Byte S2;
+      public Byte   State;
+      public Byte   S2;
       public UInt32 Reserved;
       public UInt32 Reserved1;
-      
+
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
       public byte[] UserName;
     }
-    
-    
+
+
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
-    public struct FlagsChangeDataAnalog 
+    public struct FlagsChangeDataAnalog
     {
       public UInt16 TmType;
       public UInt32 OldFlags;
@@ -498,12 +512,12 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt16 AsCode;
       public Single AsFloat;
       public UInt32 Reserved;
-      
+
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
       public byte[] UserName;
     }
-    
-    
+
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TMXTime
     {
@@ -591,7 +605,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
       public byte[] NtUserDomain;
-      
+
       public UInt32 DatagramMask;
       public UInt32 AccessMask;
       public UInt32 ConnectTime;
@@ -766,7 +780,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     public const Int16  RealTelemetryFlag     = unchecked((short) 0x8000);
     public const UInt32 ExtendedDataSignature = 0xEEAAEE00;
-    
+
     public const UInt32 ExtendedStatusChangedEventSize = 76;
 
     #region Cfs
@@ -783,7 +797,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public Int32 dwLowDateTime;
       public Int32 dwHighDateTime;
     }
-    
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct CfsLogRecord
     {

@@ -261,5 +261,10 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task ClearTagFlagsExplicitly(TmTag tag, TmFlags flags);
+
+
+    Task StartTmAddrTracer(int channel, int rtu, int point, TmType tmType, TmTraceTypes filterTypes);
+
+    Task StopTmAddrTracer(int channel, int rtu, int point, TmType tmType);
   }
 }

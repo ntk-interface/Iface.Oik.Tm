@@ -15,6 +15,16 @@ namespace Iface.Oik.Tm.Utils
           return TmNativeDefs.TmDataTypes.Analog;
         case TmType.Accum:
           return TmNativeDefs.TmDataTypes.Accum;
+        case TmType.Channel:
+          return TmNativeDefs.TmDataTypes.Channel;
+        case TmType.Rtu:
+          return TmNativeDefs.TmDataTypes.Rtu;
+        case TmType.StatusGroup:
+          return TmNativeDefs.TmDataTypes.StatusGroup;
+        case TmType.AnalogGroup:
+          return TmNativeDefs.TmDataTypes.AnalogGroup;
+        case TmType.AccumGroup:
+          return TmNativeDefs.TmDataTypes.AccumGroup;
         default:
           return 0;
       }

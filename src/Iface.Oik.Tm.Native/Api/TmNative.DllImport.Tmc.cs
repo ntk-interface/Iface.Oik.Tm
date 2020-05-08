@@ -431,5 +431,14 @@ namespace Iface.Oik.Tm.Native.Api
     public static extern Boolean tmcComtradeGetFile(Int32                                   cid,
                                                     [MarshalAs(UnmanagedType.LPStr)] string fName,
                                                     [MarshalAs(UnmanagedType.LPStr)] string locDir);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Boolean tmcSetTracer(Int32  cid,
+                                              Int16  ch,
+                                              Int16  rtu,
+                                              Int16  point,
+                                              UInt16 tmType,
+                                              UInt16 msgF);
   }
 }

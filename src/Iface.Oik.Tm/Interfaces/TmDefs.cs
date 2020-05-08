@@ -6,10 +6,15 @@ namespace Iface.Oik.Tm.Interfaces
 {
   public enum TmType
   {
-    Unknown = 0,
-    Status  = 1,
-    Analog  = 2,
-    Accum   = 3,
+    Unknown     = 0,
+    Status      = 1,
+    Analog      = 2,
+    Accum       = 3,
+    Channel     = 4,
+    Rtu         = 5,
+    StatusGroup = 11,
+    AnalogGroup = 12,
+    AccumGroup  = 13
   }
 
 
@@ -239,36 +244,48 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Any")]   Any       = 0,
     [Description("MSG")]   Msg       = 1,
     [Description("ERROR")] Error     = 2,
-    [Description("DEBUG")] Debug = 3,
+    [Description("DEBUG")] Debug     = 3,
   }
 
 
   public enum LicenseErrorCodes
   {
-    [Description("Неизвестная ошибка при проверке клбча защиты!")] Unknown = -1,
-    [Description("Не задан порт ключа защиты!")] NoComm = 0,
-    [Description("Невозможно открыть порт ключа защиты!")] CannotOpenCom = 1,
-    [Description("Ключ защиты не обнаружен!")] NoIButton = 2,
-    [Description("Ошибка ключа защиты!")] CannotRead = 3,
-    [Description("ID-файл не соответствует ключу защиты!")] KeyMismatch = 4,
-    [Description("Невозможно создать поток для ключа защиты!")] Thread = 5,
-    [Description("Таймаут освобождения порта ключа защиты!")] Timeout = 6,
-    [Description("Отсутствует или плохой ID-файл ключа защиты!")] File = 7,
-    [Description("Недостаточно памяти для проверки ключа защиты!")] NoMemory = 8,
-    [Description("Внутренняя ошибка при проверке ключа защиты!")] Internal = 9,
-    [Description("Неверная контрольная сумма исполняемого модуля!")] Checksum = 10,
-    [Description("Неверная контрольная сумма исполняемого модуля!")] IllUpdate = 11,
-    [Description("Программа не может работать с данным ключом — истекла дата обновления П.О.!")] OldFile = 12,
-    [Description("Ключ защиты: Текущая дата на сервере меньше даты программирования ключа!")] BadTime = 13,
-    [Description("Ключ защиты внесён в чёрный список!")] Annuled = 14,
-    [Description("Сетевой ключ не поддерживает несколько клиентов!")] Sharing = 15,
-    [Description("Ключевой файл не разрешает работу этой версии П.О.!")] Version = 16,
-    
-    [Description("Слишком много пользователей!")] TooManyUsers = 101,
-    [Description("Тестовый период окончен!")] ExpirationDate = 102,
-    [Description("Слишком много зарегестрированных телепараметров!")] TooManyTeleparameters = 103,
-    [Description("Горячее резервирование не разрешено!")] NoReservation = 104,
-    [Description("Ошибка высокого уровня при проверке ключа защиты!")] HlNoKey = 105,
-    [Description("Работа ARIS SCADA не предусмотрена!")] NoArisScada = 106
+    [Description("Неизвестная ошибка при проверке клбча защиты!")]                               Unknown       = -1,
+    [Description("Не задан порт ключа защиты!")]                                                 NoComm        = 0,
+    [Description("Невозможно открыть порт ключа защиты!")]                                       CannotOpenCom = 1,
+    [Description("Ключ защиты не обнаружен!")]                                                   NoIButton     = 2,
+    [Description("Ошибка ключа защиты!")]                                                        CannotRead    = 3,
+    [Description("ID-файл не соответствует ключу защиты!")]                                      KeyMismatch   = 4,
+    [Description("Невозможно создать поток для ключа защиты!")]                                  Thread        = 5,
+    [Description("Таймаут освобождения порта ключа защиты!")]                                    Timeout       = 6,
+    [Description("Отсутствует или плохой ID-файл ключа защиты!")]                                File          = 7,
+    [Description("Недостаточно памяти для проверки ключа защиты!")]                              NoMemory      = 8,
+    [Description("Внутренняя ошибка при проверке ключа защиты!")]                                Internal      = 9,
+    [Description("Неверная контрольная сумма исполняемого модуля!")]                             Checksum      = 10,
+    [Description("Неверная контрольная сумма исполняемого модуля!")]                             IllUpdate     = 11,
+    [Description("Программа не может работать с данным ключом — истекла дата обновления П.О.!")] OldFile       = 12,
+    [Description("Ключ защиты: Текущая дата на сервере меньше даты программирования ключа!")]    BadTime       = 13,
+    [Description("Ключ защиты внесён в чёрный список!")]                                         Annuled       = 14,
+    [Description("Сетевой ключ не поддерживает несколько клиентов!")]                            Sharing       = 15,
+    [Description("Ключевой файл не разрешает работу этой версии П.О.!")]                         Version       = 16,
+
+    [Description("Слишком много пользователей!")]                      TooManyUsers          = 101,
+    [Description("Тестовый период окончен!")]                          ExpirationDate        = 102,
+    [Description("Слишком много зарегестрированных телепараметров!")]  TooManyTeleparameters = 103,
+    [Description("Горячее резервирование не разрешено!")]              NoReservation         = 104,
+    [Description("Ошибка высокого уровня при проверке ключа защиты!")] HlNoKey               = 105,
+    [Description("Работа ARIS SCADA не предусмотрена!")]               NoArisScada           = 106
+  }
+
+
+  [Flags]
+  public enum TmTraceTypes : uint
+  {
+    None    = 0,
+    Error   = TmNativeDefs.TmsTraceFlags.Error,
+    Message = TmNativeDefs.TmsTraceFlags.Message,
+    Debug   = TmNativeDefs.TmsTraceFlags.Debug,
+    In      = TmNativeDefs.TmsTraceFlags.In,
+    Out     = TmNativeDefs.TmsTraceFlags.Out,
   }
 }
