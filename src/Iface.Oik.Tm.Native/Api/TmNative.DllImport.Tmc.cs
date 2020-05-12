@@ -440,5 +440,15 @@ namespace Iface.Oik.Tm.Native.Api
                                               Int16  point,
                                               UInt16 tmType,
                                               UInt16 msgF);
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern Int32 tmcConnectEx(string server,
+                                            string pipe,
+                                            string user,
+                                            [MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback callback,
+                                            IntPtr callbackParameter,
+                                            UInt32 cbProps,
+                                            [MarshalAs(UnmanagedType.LPArray, SizeConst = 8)] UInt32[] pProps,
+                                            [MarshalAs(UnmanagedType.LPArray, SizeConst = 8)] UInt32[] pPropValues);
   }
 }

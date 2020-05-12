@@ -39,6 +39,37 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
+    public static int ConnectExplicit(string           host,
+                                      string           serverName,
+                                      string           applicationName,
+                                      TmNativeCallback callback,
+                                      IntPtr           callbackParameter,
+                                      int              propsCount,
+                                      uint[]           props,
+                                      uint[]           propsValues)
+    {
+      var tmCid = Native.TmcConnectEx(host, serverName, applicationName, callback,
+                                      callbackParameter, (uint) propsCount, props, propsValues);
+      if (!IsConnected(tmCid))
+      {
+        tmCid = 0;
+      }
+
+      return tmCid;
+    }
+
+    public static int DeltaConnect(string           host,
+                                   string           serverName,
+                                   string           applicationName,
+                                   TmNativeCallback callback,
+                                   IntPtr           callbackParameter)
+    {
+      var props       = new uint[] {1}; //Props code 1 - datagram buffer size
+      var propsValues = new uint[] {1}; //Props code 1 value = 1 MB
+
+      return ConnectExplicit(host, serverName, applicationName, callback, callbackParameter, 1, props, propsValues);
+    }
+
     public static bool IsConnected(int tmCid)
     {
       return tmCid != 0 &&
@@ -84,6 +115,7 @@ namespace Iface.Oik.Tm.Helpers
       {
         return TmSecurityAccessFlags.None;
       }
+
       return (TmSecurityAccessFlags) accessFlags;
     }
 
@@ -99,6 +131,7 @@ namespace Iface.Oik.Tm.Helpers
       {
         return null;
       }
+
       var fetchResult = Native.CfsGetExtendedUserData(cfCid,
                                                       "tms$",
                                                       serverName,
@@ -110,7 +143,7 @@ namespace Iface.Oik.Tm.Helpers
       }
 
       var extendedUserInfo = Marshal.PtrToStructure<TmNativeDefs.TExtendedUserInfo>(nativeUserInfoPtr);
-      
+
       var userInfo = new TmNativeDefs.TUserInfo();
       if (!Native.TmcGetUserInfo(tmCid, 0, ref userInfo))
       {

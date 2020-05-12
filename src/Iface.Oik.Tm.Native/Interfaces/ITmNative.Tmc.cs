@@ -357,10 +357,10 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     IntPtr TmcComtradeEnumDays(Int32 cid);
 
-    
+
     IntPtr TmcComtradeEnumFiles(Int32 cid, string date);
 
-    
+
     Boolean TmcComtradeGetFile(Int32 cid, string fileName, string localDirectory);
 
 
@@ -370,5 +370,14 @@ namespace Iface.Oik.Tm.Native.Interfaces
                          Int16  point,
                          UInt16 tmType,
                          UInt16 msgFilter);
+
+    Int32 TmcConnectEx(string           server,
+                       string           pipe,
+                       string           user,
+                       TmNativeCallback callback,
+                       IntPtr           callbackParameter,
+                       UInt32           propsCount,
+                       UInt32[]           pProps,
+                       UInt32[] pPropValues);
   }
 }

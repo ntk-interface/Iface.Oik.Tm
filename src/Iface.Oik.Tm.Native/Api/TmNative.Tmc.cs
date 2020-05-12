@@ -555,5 +555,17 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcSetTracer(cid, ch, rtu, point, tmType, msgFilter);
     }
+
+    public Int32 TmcConnectEx(string server,  
+                              string pipe,   
+                              string user, 
+                              TmNativeCallback callback, 
+                              IntPtr callbackParameter,
+                              UInt32 propsCount, 
+                              UInt32[] pProps, 
+                              UInt32[] pPropValues)
+    {
+      return tmcConnectEx(server, pipe, user, callback, callbackParameter, propsCount, pProps, pPropValues);
+    }
   }
 }
