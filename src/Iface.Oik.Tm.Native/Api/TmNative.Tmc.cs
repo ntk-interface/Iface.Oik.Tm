@@ -567,5 +567,15 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcConnectEx(server, pipe, user, callback, callbackParameter, propsCount, pProps, pPropValues);
     }
+
+    public bool TmcDntGetConfig(Int32 cid, string fileName)
+    {
+      return tmcDntGetConfig(cid, fileName);
+    }
+
+    public Int32 TmcDntTreeChange(Int32 cid)
+    {
+      return tmcDntTreeChange(cid);
+    }
   }
 }

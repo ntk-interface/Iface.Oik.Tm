@@ -441,6 +441,7 @@ namespace Iface.Oik.Tm.Native.Api
                                               UInt16 tmType,
                                               UInt16 msgF);
 
+
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern Int32 tmcConnectEx(string server,
                                             string pipe,
@@ -450,5 +451,14 @@ namespace Iface.Oik.Tm.Native.Api
                                             UInt32 cbProps,
                                             [MarshalAs(UnmanagedType.LPArray, SizeConst = 8)] UInt32[] pProps,
                                             [MarshalAs(UnmanagedType.LPArray, SizeConst = 8)] UInt32[] pPropValues);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern Boolean tmcDntGetConfig(Int32                                  cid,
+                                                 [MarshalAs(UnmanagedType.LPStr)] string fName);
+
+    
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int32 tmcDntTreeChange(Int32 cid);
   }
 }

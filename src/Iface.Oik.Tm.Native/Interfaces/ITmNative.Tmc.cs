@@ -377,7 +377,13 @@ namespace Iface.Oik.Tm.Native.Interfaces
                        TmNativeCallback callback,
                        IntPtr           callbackParameter,
                        UInt32           propsCount,
-                       UInt32[]           pProps,
-                       UInt32[] pPropValues);
+                       UInt32[]         pProps,
+                       UInt32[]         pPropValues);
+
+
+    Boolean TmcDntGetConfig(Int32 cid,
+                            string fileName);
+
+    Int32 TmcDntTreeChange(Int32 cid);
   }
 }
