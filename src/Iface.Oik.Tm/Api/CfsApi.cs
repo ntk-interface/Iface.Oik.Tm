@@ -17,7 +17,7 @@ namespace Iface.Oik.Tm.Api
     private readonly ITmNative _native;
     
     private readonly Regex _cfsServerLogRecordRegex = new
-      Regex(@"(\d{2}:\d{2}:\d{2}.\d{3}) (\d{2}.\d{2}.\d{4}) [\\]{3}([^\\]*)[\\]{2}([^\\]*)[\\]{2}([^\s]*)\s*- ThID=([0-9A-Fx]*) :\n([^\n]*)\n", 
+      Regex(@"(\d{2}:\d{2}:\d{2}.\d{3}) (\d{2}.\d{2}.\d{4}) [\\]{3}([^\\]*)[\\]{2}([^\\]*)[\\]{2}([^\s]*)\s*- ThID=([0-9A-Fx]*) :\n([^\n]*)(\n|$)", 
             RegexOptions.Compiled);
 
     public IntPtr CfId { get; private set; }
@@ -801,7 +801,6 @@ namespace Iface.Oik.Tm.Api
     private IReadOnlyCollection<TmNativeDefs.CfsLogRecord> ParseCfsServerLogRecordPointer(IntPtr ptr, int maxSize)
     {
       var strList = TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(ptr, maxSize);
-
       
       return strList.Select(x => {
                               var mc = _cfsServerLogRecordRegex.Match(x);

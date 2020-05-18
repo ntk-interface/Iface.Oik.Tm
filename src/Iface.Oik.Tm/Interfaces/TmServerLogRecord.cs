@@ -19,7 +19,7 @@ namespace Iface.Oik.Tm.Interfaces
     public string RecordTypeString => RecordTypes.GetDescription();
     public string Date             => DateTime.HasValue ? DateTime.Value.ToString("dd.MM.yyyy") : "";
     public string Time             => DateTime.HasValue ? DateTime.Value.ToString("HH:mm:ss.fff") : "";
-    public string TraceLogString => $"{RecordTypeString} {Date} {Time} {Message}";
+    public string TraceLogString   => $"{RecordTypeString} {Date} {Time} {Message}";
 
 
     public TmServerLogRecord(int hashCode)
