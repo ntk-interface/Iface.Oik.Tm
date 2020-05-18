@@ -773,7 +773,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt32   AckSec;
       public UInt16   AckMs;
 
-      [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 15)]
+      [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 16)]
       public string UserName;
     }
 
