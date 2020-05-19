@@ -33,10 +33,10 @@ namespace Iface.Oik.Tm.Api
       var lookup = new Dictionary<string, DeltaComponent>();
       var components = await GetDeltaComponents();
       
-      components.ForEach(x => lookup.Add(x.TraceChain, x));
+      components.ForEach(x => lookup.Add(x.TraceChainString, x));
       foreach (var component in components)
       {
-        if (!lookup.TryGetValue(component.ParentTraceChain, out var proposedParent)) continue;
+        if (!lookup.TryGetValue(component.ParentTraceChainString, out var proposedParent)) continue;
         component.Parent = proposedParent;
         proposedParent.Children.Add(component);
       }
@@ -70,19 +70,11 @@ namespace Iface.Oik.Tm.Api
             var nameAndType = splitedArray[1].Split(',')
                                              .Select(x => x.Trim(charsToTrim))
                                              .ToArray();
-            var traceChainList = splitedArray[0].Split(',')
-                                                .Select(x => x.Trim(charsToTrim))
-                                                .ToList() ;
+            var traceChainArray = splitedArray[0].Split(',')
+                                                .Select(x => Convert.ToUInt32(x.Trim(charsToTrim), 10))
+                                                .ToArray() ;
 
-            var traceChain = string.Join("-", traceChainList) ;
-            var parentTraceChain = string.Empty;
-            if (traceChainList.Count > 1)
-            {
-              traceChainList .RemoveAt(traceChainList .Count - 1);
-              parentTraceChain = string.Join("-", traceChainList );
-            }
-            
-            components.Add(new DeltaComponent(nameAndType[1], nameAndType[0], traceChain, parentTraceChain));
+            components.Add(new DeltaComponent(nameAndType[1], nameAndType[0], traceChainArray));
           }
         }
 

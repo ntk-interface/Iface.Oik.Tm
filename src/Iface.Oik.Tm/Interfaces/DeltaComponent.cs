@@ -6,30 +6,30 @@ namespace Iface.Oik.Tm.Interfaces
 {
   public class DeltaComponent
   {
-    public string              Name             { get; }
-    public DeltaComponentTypes Type             { get; }
-    public string              TraceChain       { get; }
-    public string              ParentTraceChain { get; }
+    public string              Name                   { get; }
+    public DeltaComponentTypes Type                   { get; }
+    public uint[]              TraceChain             { get; }
+    public string              TraceChainString       { get; }
+    public string              ParentTraceChainString { get; }
 
 
     public DeltaComponent                       Parent   { get; set; }
     public ObservableCollection<DeltaComponent> Children { get; }
 
-    public uint[] TraceChainArray => TraceChain.Split('-')
-                                               .Select(x => Convert.ToUInt32(x, 10))
-                                               .ToArray();
+    public string TraceChainLastLinkString => TraceChain.Last().ToString();
 
-    public uint[] ParentTraceChainArray => ParentTraceChain.Split('-')
-                                                           .Select(x => Convert.ToUInt32(x, 10))
-                                                           .ToArray();
 
-    public DeltaComponent(string name, string type, string traceChain, string parentTraceChain)
+    public DeltaComponent(string name, string type, uint[] traceChain)
     {
       Name             = name;
       Type             = ParseComponentType(type);
       TraceChain       = traceChain;
-      ParentTraceChain = parentTraceChain;
-      Children         = new ObservableCollection<DeltaComponent>();
+      TraceChainString = string.Join("-", traceChain.Select(x => Convert.ToString(x, 10)));
+
+      ParentTraceChainString =
+        string.Join("-", traceChain.Take(traceChain.Length - 1).Select(x => Convert.ToString(x, 10)));
+      
+      Children               = new ObservableCollection<DeltaComponent>();
     }
 
     private static DeltaComponentTypes ParseComponentType(string componentTypeString)
