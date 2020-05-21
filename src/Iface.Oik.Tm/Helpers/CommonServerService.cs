@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Dapper;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Services;
-using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Helpers
 {

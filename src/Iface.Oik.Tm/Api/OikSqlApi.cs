@@ -575,7 +575,8 @@ namespace Iface.Oik.Tm.Api
           await sql.OpenAsync().ConfigureAwait(false);
           var commandText = "SELECT name FROM oik_chn WHERE ch = @Ch";
           return await sql.DbConnection.QueryFirstOrDefaultAsync<string>(commandText, 
-                                                                         new {Ch = channelId});
+                                                                         new {Ch = channelId})
+                          .ConfigureAwait(false);
         }
       }
       catch (NpgsqlException ex)
@@ -606,7 +607,8 @@ namespace Iface.Oik.Tm.Api
           await sql.OpenAsync().ConfigureAwait(false);
           var commandText = "SELECT name FROM oik_rtu WHERE ch = @Ch AND rtu = @Rtu";
           return await sql.DbConnection.QueryFirstOrDefaultAsync<string>(commandText, 
-                                                                         new {Ch = channelId, Rtu = rtuId});
+                                                                         new {Ch = channelId, Rtu = rtuId})
+                          .ConfigureAwait(false);
         }
       }
       catch (NpgsqlException ex)
