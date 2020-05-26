@@ -199,8 +199,10 @@ namespace Iface.Oik.Tm.Interfaces
 
   public enum TmTechObjectBindingType
   {
-    TmTag     = 0,
-    TechParam = 1,
+    TmTag            = 0,
+    TechParam        = 1,
+    TechDocument     = 2,
+    OperLockDocument = 3,
   }
 
 
