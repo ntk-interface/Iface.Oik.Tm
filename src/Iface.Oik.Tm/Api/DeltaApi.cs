@@ -31,7 +31,7 @@ namespace Iface.Oik.Tm.Api
     public async Task<IReadOnlyCollection<DeltaComponent>> GetComponentsTree()
     {
       var lookup     = new Dictionary<string, DeltaComponent>();
-      var components = await GetDeltaComponents();
+      var components = await GetDeltaComponents().ConfigureAwait(false);
 
       components.ForEach(x => lookup.Add(x.TraceChainString, x));
       foreach (var component in components)
@@ -47,7 +47,8 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<int> GetTreeChangeValue()
     {
-      return await Task.Run(() => _native.TmcDntTreeChange(_cid));
+      return await Task.Run(() => _native.TmcDntTreeChange(_cid))
+                       .ConfigureAwait(false);
     }
 
 
@@ -55,7 +56,8 @@ namespace Iface.Oik.Tm.Api
     {
       var componentItemsPtr = await Task.Run(() => _native.TmcDntOpenItem(_cid,
                                                                           (uint) component.TraceChain.Length,
-                                                                          component.TraceChain));
+                                                                          component.TraceChain))
+                                        .ConfigureAwait(false);
 
       if (componentItemsPtr == IntPtr.Zero) return;
 
@@ -63,7 +65,8 @@ namespace Iface.Oik.Tm.Api
 
       while (true)
       {
-        var itemPtr = await Task.Run(() => _native.TmcDntGetNextItem(componentItemsPtr));
+        var itemPtr = await Task.Run(() => _native.TmcDntGetNextItem(componentItemsPtr))
+                                .ConfigureAwait(false);
 
         if (itemPtr == IntPtr.Zero) break;
 
@@ -108,7 +111,7 @@ namespace Iface.Oik.Tm.Api
                                               statusStruct.TmsRtu,
                                               statusStruct.TmsPoint);
 
-            var statusObjectName = await GetObjectName(tmAddrStatus);
+            var statusObjectName = await GetObjectName(tmAddrStatus).ConfigureAwait(false);
 
             component.Items.Add(DeltaItem.CreateStatusDeltaItem(numStatus,
                                                                 statusStruct.LastUpdate,
@@ -138,7 +141,7 @@ namespace Iface.Oik.Tm.Api
                                               analogStruct.TmsRtu,
                                               analogStruct.TmsPoint);
 
-            var analogObjectName = await GetObjectName(tmAddrAnalog);
+            var analogObjectName = await GetObjectName(tmAddrAnalog).ConfigureAwait(false);
 
             component.Items.Add(DeltaItem.CreateAnalogDeltaItem(numAnalog,
                                                                 analogStruct.LastUpdate,
@@ -169,7 +172,7 @@ namespace Iface.Oik.Tm.Api
                                              accumStruct.TmsRtu,
                                              accumStruct.TmsPoint);
 
-            var accumObjectName = await GetObjectName(tmAddrAccum);
+            var accumObjectName = await GetObjectName(tmAddrAccum).ConfigureAwait(false);
 
             component.Items.Add(DeltaItem.CreateAccumDeltaItem(numAccum,
                                                                accumStruct.LastUpdate,
@@ -200,7 +203,7 @@ namespace Iface.Oik.Tm.Api
                                                controlStruct.TmsRtu,
                                                controlStruct.TmsPoint);
 
-            var controlObjectName = await GetObjectName(tmAddrControl);
+            var controlObjectName = await GetObjectName(tmAddrControl).ConfigureAwait(false);
 
             component.Items.Add(DeltaItem.CreateControlDeltaItem(numControl,
                                                                  controlStruct.LastUpdate,
@@ -233,7 +236,7 @@ namespace Iface.Oik.Tm.Api
                                                analogFStruct.TmsRtu,
                                                analogFStruct.TmsPoint);
 
-            var analogFObjectName = await GetObjectName(tmAddrAnalogF);
+            var analogFObjectName = await GetObjectName(tmAddrAnalogF).ConfigureAwait(false);
 
             component.Items.Add(DeltaItem.CreateAnalogFloatDeltaItem(numAnalogF,
                                                                      analogFStruct.LastUpdate,
@@ -263,7 +266,7 @@ namespace Iface.Oik.Tm.Api
                                               accumFStruct.TmsRtu,
                                               accumFStruct.TmsPoint);
 
-            var accumFObjectName = await GetObjectName(tmAddrAccumF);
+            var accumFObjectName = await GetObjectName(tmAddrAccumF).ConfigureAwait(false);
 
             component.Items.Add(DeltaItem.CreateAccumFloatDeltaItem(numAccumF,
                                                                     accumFStruct.LastUpdate,
@@ -307,7 +310,8 @@ namespace Iface.Oik.Tm.Api
         }
       }
 
-      await Task.Run(() => _native.TmcDntCloseItem(componentItemsPtr));
+      await Task.Run(() => _native.TmcDntCloseItem(componentItemsPtr))
+                .ConfigureAwait(false);
     }
 
 
@@ -319,7 +323,8 @@ namespace Iface.Oik.Tm.Api
 
         var tempConfFile = Path.GetTempFileName();
 
-        var result = await Task.Run(() => _native.TmcDntGetConfig(_cid, tempConfFile));
+        var result = await Task.Run(() => _native.TmcDntGetConfig(_cid, tempConfFile))
+                               .ConfigureAwait(false);
         if (!result)
         {
           throw new Exception("Не удалось прочитать конфигурацию Дельты");
@@ -329,7 +334,8 @@ namespace Iface.Oik.Tm.Api
         using (var streamReader = new StreamReader(tempConfFile, Encoding.GetEncoding(1251)))
         {
           string line;
-          while ((line = await streamReader.ReadLineAsync()) != null)
+          while ((line = await streamReader.ReadLineAsync()
+                                           .ConfigureAwait(false)) != null)
           {
             var splitedArray = EncodingUtil.Win1251ToUtf8(line).Split(';');
 
@@ -386,7 +392,8 @@ namespace Iface.Oik.Tm.Api
                                                     (short) tmAddr.Rtu,
                                                     (short) tmAddr.Point,
                                                     ref buf,
-                                                    bufSize));
+                                                    bufSize))
+                .ConfigureAwait(false);
       return buf.ToString();
     }
   }
