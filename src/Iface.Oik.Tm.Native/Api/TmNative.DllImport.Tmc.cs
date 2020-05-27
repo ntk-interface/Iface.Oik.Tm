@@ -454,11 +454,35 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean tmcDntGetConfig(Int32                                  cid,
+    public static extern Boolean tmcDntGetConfig(Int32                                   cid,
                                                  [MarshalAs(UnmanagedType.LPStr)] string fName);
 
-    
+
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int32 tmcDntTreeChange(Int32 cid);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern IntPtr tmcDntOpenItem(Int32                                                      cid,
+                                               UInt32                                                     count,
+                                               [MarshalAs(UnmanagedType.LPArray, SizeConst = 8)] UInt32[] pMask);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern IntPtr tmcDntGetNextItem(IntPtr itId);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern void tmcDntCloseItem(IntPtr itId);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern bool tmcDntGetObjectName(Int32                                          cid,
+                                                  UInt16                                         objectType,
+                                                  Int16                                          ch,
+                                                  Int16                                          rtu,
+                                                  Int16                                          point,
+                                                  [MarshalAs(UnmanagedType.LPStr)] StringBuilder buf,
+                                                  Int32                                          bufSize);
   }
 }

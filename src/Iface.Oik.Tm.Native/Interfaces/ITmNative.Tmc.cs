@@ -381,9 +381,27 @@ namespace Iface.Oik.Tm.Native.Interfaces
                        UInt32[]         pPropValues);
 
 
-    Boolean TmcDntGetConfig(Int32 cid,
+    Boolean TmcDntGetConfig(Int32  cid,
                             string fileName);
 
     Int32 TmcDntTreeChange(Int32 cid);
+
+    IntPtr TmcDntOpenItem(Int32    cid,
+                          UInt32   traceChainLength,
+                          UInt32[] traceChain);
+
+
+    IntPtr TmcDntGetNextItem(IntPtr componentItemsPtr);
+
+
+    void TmcDntCloseItem(IntPtr componentItemsPtr);
+
+    Boolean TmcDntGetObjectName(Int32             cid,
+                                UInt16            objectType,
+                                Int16             ch,
+                                Int16             rtu,
+                                Int16             point,
+                                ref StringBuilder buf,
+                                Int32             bufSize);
   }
 }

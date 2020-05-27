@@ -546,6 +546,7 @@ namespace Iface.Oik.Tm.Native.Api
       return tmcComtradeGetFile(cid, fileName, localDirectory);
     }
 
+    
     public bool TmcSetTracer(Int32  cid,
                              Int16  ch,
                              Int16  rtu,
@@ -556,6 +557,7 @@ namespace Iface.Oik.Tm.Native.Api
       return tmcSetTracer(cid, ch, rtu, point, tmType, msgFilter);
     }
 
+    
     public Int32 TmcConnectEx(string server,  
                               string pipe,   
                               string user, 
@@ -568,14 +570,45 @@ namespace Iface.Oik.Tm.Native.Api
       return tmcConnectEx(server, pipe, user, callback, callbackParameter, propsCount, pProps, pPropValues);
     }
 
+    
     public bool TmcDntGetConfig(Int32 cid, string fileName)
     {
       return tmcDntGetConfig(cid, fileName);
     }
 
+    
     public Int32 TmcDntTreeChange(Int32 cid)
     {
       return tmcDntTreeChange(cid);
+    }
+
+    
+    public IntPtr TmcDntOpenItem(Int32 cid, UInt32 traceChainLength, UInt32[] traceChain)
+    {
+      return tmcDntOpenItem(cid, traceChainLength, traceChain);
+    }
+
+    
+    public IntPtr TmcDntGetNextItem(IntPtr componentItemsPtr)
+    {
+      return tmcDntGetNextItem(componentItemsPtr);
+    }
+
+    
+    public void TmcDntCloseItem(IntPtr componentItemsPtr)
+    {
+      tmcDntCloseItem(componentItemsPtr);
+    }
+
+    public bool TmcDntGetObjectName(Int32             cid,
+                                    UInt16            objectType,
+                                    Int16             ch,
+                                    Int16             rtu,
+                                    Int16             point,
+                                    ref StringBuilder buf,
+                                    Int32             bufSize)
+    {
+      return tmcDntGetObjectName(cid, objectType, ch, rtu, point, buf, bufSize);
     }
   }
 }

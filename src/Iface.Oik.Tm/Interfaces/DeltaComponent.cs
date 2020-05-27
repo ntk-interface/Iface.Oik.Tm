@@ -1,20 +1,32 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public class DeltaComponent
+  public class DeltaComponent : TmNotifyPropertyChanged
   {
-    public string              Name                   { get; }
-    public DeltaComponentTypes Type                   { get; }
-    public uint[]              TraceChain             { get; }
-    public string              TraceChainString       { get; }
-    public string              ParentTraceChainString { get; }
+    private string _description;
 
+    public string                               Name                   { get; }
+    public DeltaComponentTypes                  Type                   { get; }
+    public uint[]                               TraceChain             { get; }
+    public string                               TraceChainString       { get; }
+    public string                               ParentTraceChainString { get; }
+    public DeltaComponent                       Parent                 { get; set; }
+    public ObservableCollection<DeltaComponent> Children               { get; }
+    public ObservableCollection<DeltaItem>      Items                  { get; }
 
-    public DeltaComponent                       Parent   { get; set; }
-    public ObservableCollection<DeltaComponent> Children { get; }
+    public string Description
+    {
+      get => _description;
+      set
+      {
+        _description = value;
+        Refresh();
+      }
+    }
 
     public string TraceChainLastLinkString => TraceChain.Last().ToString();
 
@@ -28,8 +40,15 @@ namespace Iface.Oik.Tm.Interfaces
 
       ParentTraceChainString =
         string.Join("-", traceChain.Take(traceChain.Length - 1).Select(x => Convert.ToString(x, 10)));
-      
-      Children               = new ObservableCollection<DeltaComponent>();
+
+      Children = new ObservableCollection<DeltaComponent>();
+      Items = new ObservableCollection<DeltaItem>();
+    }
+
+    public void ClearItems()
+    {
+      Description = string.Empty;
+      Items.Clear();
     }
 
     private static DeltaComponentTypes ParseComponentType(string componentTypeString)

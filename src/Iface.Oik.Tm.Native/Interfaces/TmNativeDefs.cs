@@ -777,7 +777,6 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public string UserName;
     }
 
-
     public const Int16  RealTelemetryFlag     = unchecked((short) 0x8000);
     public const UInt32 ExtendedDataSignature = 0xEEAAEE00;
 
@@ -808,6 +807,288 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public string MsgType;
       public string ThreadId;
       public string Message;
+    }
+
+    #endregion
+
+
+    #region Delta
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct DeltaCommon
+    {
+      public Byte Type;
+      public Byte Length;
+    }
+
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct DeltaStatus
+    {
+      public Byte   Type;
+      public Byte   Length;
+      public UInt16 Number;
+      public Int32  LastUpdate;
+      public UInt16 DeltaFlags;
+      public UInt16 TmsChn;
+      public UInt16 TmsRtu;
+      public UInt16 TmsPoint;
+
+      public Byte Value;
+    }
+
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct DeltaStatus2
+    {
+      public Byte   Type;
+      public Byte   Length;
+      public UInt16 Number;
+      public Int32  LastUpdate;
+      public UInt16 DeltaFlags;
+      public UInt16 TmsChn;
+      public UInt16 TmsRtu;
+      public UInt16 TmsPoint;
+
+      public Byte Value;
+      public Byte HiNum;
+    }
+
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct DeltaAnalog
+    {
+      public Byte   Type;
+      public Byte   Length;
+      public UInt16 Number;
+      public Int32  LastUpdate;
+      public UInt16 DeltaFlags;
+      public UInt16 TmsChn;
+      public UInt16 TmsRtu;
+      public UInt16 TmsPoint;
+
+      public Int32 Value;
+    }
+
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct DeltaAnalog2
+    {
+      public Byte   Type;
+      public Byte   Length;
+      public UInt16 Number;
+      public Int32  LastUpdate;
+      public UInt16 DeltaFlags;
+      public UInt16 TmsChn;
+      public UInt16 TmsRtu;
+      public UInt16 TmsPoint;
+
+      public Int32 Value;
+      public Byte  HiNum;
+    }
+
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct DeltaAnalogF
+    {
+      public Byte   Type;
+      public Byte   Length;
+      public UInt16 Number;
+      public Int32  LastUpdate;
+      public UInt16 DeltaFlags;
+      public UInt16 TmsChn;
+      public UInt16 TmsRtu;
+      public UInt16 TmsPoint;
+
+      public Single Value;
+    }
+
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct DeltaAnalogF2
+    {
+      public Byte   Type;
+      public Byte   Length;
+      public UInt16 Number;
+      public Int32  LastUpdate;
+      public UInt16 DeltaFlags;
+      public UInt16 TmsChn;
+      public UInt16 TmsRtu;
+      public UInt16 TmsPoint;
+
+      public Single Value;
+      public Byte   HiNum;
+    }
+
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct DeltaAccum
+    {
+      public Byte   Type;
+      public Byte   Length;
+      public UInt16 Number;
+      public Int32  LastUpdate;
+      public UInt16 DeltaFlags;
+      public UInt16 TmsChn;
+      public UInt16 TmsRtu;
+      public UInt16 TmsPoint;
+
+      public Int32 Value;
+    }
+
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct DeltaAccum2
+    {
+      public Byte   Type;
+      public Byte   Length;
+      public UInt16 Number;
+      public Int32  LastUpdate;
+      public UInt16 DeltaFlags;
+      public UInt16 TmsChn;
+      public UInt16 TmsRtu;
+      public UInt16 TmsPoint;
+
+      public Int32 Value;
+      public Byte  HiNum;
+    }
+
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct DeltaAccumF
+    {
+      public Byte   Type;
+      public Byte   Length;
+      public UInt16 Number;
+      public Int32  LastUpdate;
+      public UInt16 DeltaFlags;
+      public UInt16 TmsChn;
+      public UInt16 TmsRtu;
+      public UInt16 TmsPoint;
+
+      public Single Value;
+    }
+
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct DeltaAccumF2
+    {
+      public Byte   Type;
+      public Byte   Length;
+      public UInt16 Number;
+      public Int32  LastUpdate;
+      public UInt16 DeltaFlags;
+      public UInt16 TmsChn;
+      public UInt16 TmsRtu;
+      public UInt16 TmsPoint;
+
+      public Single Value;
+      public Byte   HiNum;
+    }
+
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct DeltaControl
+    {
+      public Byte   Type;
+      public Byte   Length;
+      public UInt16 Number;
+      public Int32  LastUpdate;
+      public UInt16 DeltaFlags;
+      public UInt16 TmsChn;
+      public UInt16 TmsRtu;
+      public UInt16 TmsPoint;
+
+      public UInt16 CtrlBlock;
+      public UInt16 CtrlGroup;
+      public UInt16 CtrlPoint;
+    }
+
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct DeltaControl2
+    {
+      public Byte   Type;
+      public Byte   Length;
+      public UInt16 Number;
+      public Int32  LastUpdate;
+      public UInt16 DeltaFlags;
+      public UInt16 TmsChn;
+      public UInt16 TmsRtu;
+      public UInt16 TmsPoint;
+
+      public UInt16 CtrlBlock;
+      public UInt16 CtrlGroup;
+      public UInt16 CtrlPoint;
+      public Byte   HiNum;
+    }
+
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct DeltaSliceTime
+    {
+      public Byte   Type;
+      public Byte   Length;
+      public UInt64 Current;
+    }
+
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
+    public struct DeltaDescription
+    {
+      public Byte Type;
+      public Byte Length;
+
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1)]
+      public byte[] Text;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
+    public struct DeltaStrval
+    {
+      public Byte   Type;
+      public Byte   Length;
+      public UInt16 Number;
+      public Int32  LastUpdate;
+      public UInt16 DeltaFlags;
+      public UInt16 TmsChn;
+      public UInt16 TmsRtu;
+      public UInt16 TmsPoint;
+
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1)]
+      public byte[] S;
+    }
+
+
+    public enum DeltaItemTypes
+    {
+      Description = 0,
+      Time        = 1,
+      Status      = 2,
+      Analog      = 3,
+      Accum       = 4,
+      Control     = 5,
+      AnalogF     = 6,
+      AccumF      = 7,
+      StrVal      = 8
+    }
+
+    [Flags]
+    public enum DeltaItemsFlags
+    {
+      Reliable = 0x0001,
+      ZeroEnum = 0x0002,
+      DestReli = 0x0004,
+      DestVal  = 0x0008,
+      Hex      = 0x0010,
+      Group8   = 0x0020,
+      NPrsnt   = 0x0040,
+      BinVal   = 0x0080,
+      Writable = 0x0100,
+      CtlValue = 0x0200,
+      S2Break  = 0x0400,
+      S2Malfn  = 0x0800,
+      Analong  = 0x1000
     }
 
     #endregion

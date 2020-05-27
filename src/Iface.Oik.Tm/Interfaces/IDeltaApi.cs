@@ -10,5 +10,7 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<DeltaComponent>> GetComponentsTree();
 
     Task<int> GetTreeChangeValue();
+
+    Task GetComponentsItems(DeltaComponent component);
   }
 }
