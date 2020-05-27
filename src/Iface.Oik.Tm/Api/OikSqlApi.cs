@@ -575,7 +575,8 @@ namespace Iface.Oik.Tm.Api
           await sql.OpenAsync().ConfigureAwait(false);
           var commandText = "SELECT name FROM oik_chn WHERE ch = @Ch";
           return await sql.DbConnection.QueryFirstOrDefaultAsync<string>(commandText, 
-                                                                         new {Ch = channelId});
+                                                                         new {Ch = channelId})
+                          .ConfigureAwait(false);
         }
       }
       catch (NpgsqlException ex)
@@ -606,7 +607,8 @@ namespace Iface.Oik.Tm.Api
           await sql.OpenAsync().ConfigureAwait(false);
           var commandText = "SELECT name FROM oik_rtu WHERE ch = @Ch AND rtu = @Rtu";
           return await sql.DbConnection.QueryFirstOrDefaultAsync<string>(commandText, 
-                                                                         new {Ch = channelId, Rtu = rtuId});
+                                                                         new {Ch = channelId, Rtu = rtuId})
+                          .ConfigureAwait(false);
         }
       }
       catch (NpgsqlException ex)
@@ -1170,7 +1172,7 @@ namespace Iface.Oik.Tm.Api
       var whereEventTypes            = GetWhereEventTypes(filter);
       var whereEventImportances      = GetWhereEventImportances(filter);
       var whereEventTmStatusClassIds = GetWhereEventTmStatusClassIds(filter);
-      var whereEventChannelsAndRtus  = GetWhereEventChannelsAndRtus(filter); // todo al не работает, см. ниже
+      var whereEventChannelsAndRtus  = GetWhereEventChannelsAndRtus(filter);
       var whereEventTmAddr           = GetWhereEventTmAddr(filter);
 
       try
@@ -1212,12 +1214,9 @@ namespace Iface.Oik.Tm.Api
 
           dtos.ForEach((dto, idx) =>
           {
-            if (IsTmaGoodForChannelAndRtuFilter(dto.Tma, filter))
-            {
               var tmEvent = TmEvent.CreateFromDto(dto);
               tmEvent.Num = idx;
               events.Add(tmEvent);
-            }
           });
         }
         return events;
@@ -1235,45 +1234,9 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    // todo al потом когда будет работать фильтр SQL убрать это
-    private static bool IsTmaGoodForChannelAndRtuFilter(int tma, TmEventFilter filter)
-    {
-      if (filter.ChannelAndRtuCollection.IsNullOrEmpty()) return true;
-
-      foreach (var chAndRtu in filter.ChannelAndRtuCollection)
-      {
-        var channelId = chAndRtu.Key;
-        var rtuList   = chAndRtu.Value;
-        if (rtuList == null)
-        {
-          var (tmaStart, tmaEnd) = TmChannel.GetSqlTmaRange(channelId);
-          if (tma >= tmaStart && tma <= tmaEnd)
-          {
-            return true;
-          }
-        }
-        else
-        {
-          foreach (var rtuId in rtuList)
-          {
-            var (tmaStart, tmaEnd) = TmRtu.GetSqlTmaRange(channelId, rtuId);
-            if (tma >= tmaStart && tma <= tmaEnd)
-            {
-              return true;
-            }
-          }
-        }
-      }
-
-      return false;
-    }
-
-
     private static string GetWhereEventChannelsAndRtus(TmEventFilter filter)
     {
-      // todo al Подход хороший, но не работает для oik_event_log конструкция с множественным OR для tma
-      return "";
-      /*if (filter.ChannelAndRtuCollection.IsNullOrEmpty()) return "";
+      if (filter.ChannelAndRtuCollection.IsNullOrEmpty()) return "";
 
       var tmaList = new List<string>();
       foreach (var chAndRtu in filter.ChannelAndRtuCollection)
@@ -1295,7 +1258,7 @@ namespace Iface.Oik.Tm.Api
         }
       }
 
-      return " AND (" + string.Join(" OR ", tmaList) + ")";*/
+      return " AND (" + string.Join(" OR ", tmaList) + ")";
     }
 
 
@@ -1303,11 +1266,8 @@ namespace Iface.Oik.Tm.Api
     {
       if (filter.TmStatusClassIdList.IsNullOrEmpty()) return "";
 
-      var classIdList = new List<string>();
-      foreach (var classId in filter.TmStatusClassIdList)
-      {
-        classIdList.Add($"(class_id = {classId})");
-      }
+      var classIdList = filter.TmStatusClassIdList.Select(classId => $"(class_id = {classId})");
+      
       return $" AND ((tm_type != {(int) TmNativeDefs.TmDataTypes.Status}) OR {string.Join(" OR ", classIdList)})";
     }
 
@@ -1316,8 +1276,8 @@ namespace Iface.Oik.Tm.Api
     {
       if (filter.TmAddrList.IsNullOrEmpty()) return "";
 
-      var tmaList = filter.TmAddrList.Select(tmAddr => $"(tma_str = '{tmAddr.ToSqlTmaStr()}')");
-      //tmaList.Add($"((tma = {tmAddr.ToSqlTma()}) AND (tm_type = {tmAddr.GetSqlTmType()}))"); // todo JO?!
+      var tmaList = filter.TmAddrList
+                          .Select(tmAddr => $"(tma = {tmAddr.ToSqlTma()} AND tm_type = {tmAddr.GetSqlTmaType()})");
 
       return " AND (" + string.Join(" OR ", tmaList) + ")";
     }

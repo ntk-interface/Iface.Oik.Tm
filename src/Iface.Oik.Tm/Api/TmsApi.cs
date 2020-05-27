@@ -1671,7 +1671,7 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<IReadOnlyCollection<string>> GetComtradeDays()
     {
-      var ptr = await Task.Run(() => _native.TmcComtradeEnumDays(_cid));
+      var ptr = await Task.Run(() => _native.TmcComtradeEnumDays(_cid)).ConfigureAwait(false);
 
       return TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(ptr, 8192);
     }
@@ -1679,7 +1679,7 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<IReadOnlyCollection<string>> GetComtradeFilesByDay(string day)
     {
-      var ptr = await Task.Run(() => _native.TmcComtradeEnumFiles(_cid, day));
+      var ptr = await Task.Run(() => _native.TmcComtradeEnumFiles(_cid, day)).ConfigureAwait(false);
 
       return TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(ptr, 8192);
     }
@@ -1687,7 +1687,7 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<bool> DownloadComtradeFile(string filename, string localPath)
     {
-      if (!await Task.Run(() => _native.TmcComtradeGetFile(_cid, filename, localPath)))
+      if (!await Task.Run(() => _native.TmcComtradeGetFile(_cid, filename, localPath)).ConfigureAwait(false))
       {
         Console.WriteLine($"Ошибка при скачивании файла: {GetLastTmcError()}");
         return false;
@@ -1824,7 +1824,7 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<string> GetChannelName(int channelId)
     {
-      return await Task.Run(() => GetChannelNameSync(channelId));
+      return await Task.Run(() => GetChannelNameSync(channelId)).ConfigureAwait(false);
     }
 
 
@@ -1841,7 +1841,7 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<string> GetRtuName(int channelId, int rtuId)
     {
-      return await Task.Run(() => GetRtuNameSync(channelId, rtuId));
+      return await Task.Run(() => GetRtuNameSync(channelId, rtuId)).ConfigureAwait(false);
     }
 
 

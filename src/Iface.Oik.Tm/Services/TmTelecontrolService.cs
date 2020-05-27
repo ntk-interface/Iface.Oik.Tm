@@ -42,7 +42,7 @@ namespace Iface.Oik.Tm.Services
 
     public async Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckScript(TmStatus tmStatus)
     {
-      return await _api.CheckTelecontrolScript(tmStatus);
+      return await _api.CheckTelecontrolScript(tmStatus).ConfigureAwait(false);
     }
 
 
@@ -50,7 +50,7 @@ namespace Iface.Oik.Tm.Services
                                                                                                    int
                                                                                                      explicitNewStatus)
     {
-      return await _api.CheckTelecontrolScriptExplicitly(tmStatus, explicitNewStatus);
+      return await _api.CheckTelecontrolScriptExplicitly(tmStatus, explicitNewStatus).ConfigureAwait(false);
     }
 
 
@@ -68,9 +68,9 @@ namespace Iface.Oik.Tm.Services
         {
           return TmTelecontrolResult.ScriptError;
         }
-        await _api.OverrideTelecontrolScript();
+        await _api.OverrideTelecontrolScript().ConfigureAwait(false);
       }
-      return await _api.Telecontrol(tmStatus);
+      return await _api.Telecontrol(tmStatus).ConfigureAwait(false);
     }
 
 
@@ -84,9 +84,9 @@ namespace Iface.Oik.Tm.Services
         {
           return TmTelecontrolResult.ScriptError;
         }
-        await _api.OverrideTelecontrolScript();
+        await _api.OverrideTelecontrolScript().ConfigureAwait(false);
       }
-      return await _api.TelecontrolExplicitly(tmStatus, explicitNewStatus);
+      return await _api.TelecontrolExplicitly(tmStatus, explicitNewStatus).ConfigureAwait(false);
     }
   }
 }

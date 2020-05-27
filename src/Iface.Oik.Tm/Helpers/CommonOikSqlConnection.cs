@@ -72,7 +72,7 @@ namespace Iface.Oik.Tm.Helpers
 
     public async Task OpenAsync()
     {
-      await OpenAsync(CancellationToken.None);
+      await OpenAsync(CancellationToken.None).ConfigureAwait(false);
     }
 
 

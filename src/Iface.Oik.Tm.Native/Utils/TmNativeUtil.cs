@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Text.RegularExpressions;
 using Iface.Oik.Tm.Native.Interfaces;
 
 namespace Iface.Oik.Tm.Native.Utils
@@ -34,6 +33,11 @@ namespace Iface.Oik.Tm.Native.Utils
 
     public static string[] GetStringListFromDoubleNullTerminatedChars(char[] chars)
     {
+      if (chars == null)
+      {
+        return Array.Empty<string>();
+      }
+      
       var s          = new string(chars);
       int doubleNull = s.IndexOf("\0\0", StringComparison.Ordinal);
       if (doubleNull != -1)
@@ -47,6 +51,11 @@ namespace Iface.Oik.Tm.Native.Utils
 
     public static string[] GetStringListFromDoubleNullTerminatedBytes(byte[] bytes)
     {
+      if (bytes == null)
+      {
+        return Array.Empty<string>();
+      }
+      
       int doubleNull = 0;
       for (var i = 1; i < bytes.Length; i++)
       {
@@ -68,6 +77,11 @@ namespace Iface.Oik.Tm.Native.Utils
     public static byte[] GetDoubleNullTerminatedBytesFromStringList(IEnumerable<string> list,
                                                                     int                 maxSize = 1024)
     {
+      if (list == null)
+      {
+        return Array.Empty<byte>();
+      }
+      
       var bytes  = new byte[maxSize];
       var cursor = 0;
 
@@ -91,6 +105,11 @@ namespace Iface.Oik.Tm.Native.Utils
     public static IReadOnlyCollection<string> GetStringListFromDoubleNullTerminatedPointer(IntPtr ptr,
                                                                                            int    maxSize)
     {
+      if (ptr == IntPtr.Zero)
+      {
+        return Array.Empty<string>();
+      }
+      
       var result = new List<string>();
 
       var marshalBytes = new byte[1];
@@ -126,7 +145,10 @@ namespace Iface.Oik.Tm.Native.Utils
 
     public static IntPtr GetDoubleNullTerminatedPointerFromStringList(IEnumerable<string> list)
     {
-      if (list == null) return IntPtr.Zero;
+      if (list == null)
+      {
+        return IntPtr.Zero;
+      }
 
       var byteList = new List<byte>(); 
       foreach (var item in list)
