@@ -7,10 +7,27 @@ namespace Iface.Oik.Tm.Interfaces
   {
     void SetCid(int cid);
 
+    
     Task<IReadOnlyCollection<DeltaComponent>> GetComponentsTree();
 
+    
     Task<int> GetTreeChangeValue();
 
+    
     Task GetComponentsItems(DeltaComponent component);
+    
+    
+    Task<bool> RegisterTracer();
+
+    
+    Task UnRegisterTracer();
+
+
+    Task TraceComponent(DeltaComponent component, 
+                        DeltaTraceTypes traceType, 
+                        bool showDebugMessages);
+
+
+    Task StopTrace();
   }
 }

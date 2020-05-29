@@ -1090,6 +1090,14 @@ namespace Iface.Oik.Tm.Native.Interfaces
       S2Malfn  = 0x0800,
       Analong  = 0x1000
     }
+    
+    
+    [Flags]
+    public enum DeltaTraceFlags : uint
+    {
+      Drv = 1,
+      Usr = 2
+    }
 
     #endregion
   }

@@ -396,6 +396,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     void TmcDntCloseItem(IntPtr componentItemsPtr);
 
+
     Boolean TmcDntGetObjectName(Int32             cid,
                                 UInt16            objectType,
                                 Int16             ch,
@@ -403,5 +404,28 @@ namespace Iface.Oik.Tm.Native.Interfaces
                                 Int16             point,
                                 ref StringBuilder buf,
                                 Int32             bufSize);
+
+
+    Boolean TmcDntRegisterUser(Int32 cid);
+
+
+    Boolean TmcDntUnRegisterUser(Int32 cid);
+
+
+    Boolean TmcDntBeginTraceEx(Int32    cid,
+                               UInt32   count,
+                               UInt32[] traceChain,
+                               UInt32   traceFlags,
+                               UInt32   res1,
+                               UInt32   res2);
+    
+    
+    Boolean TmcDntStopTrace(Int32 cid);
+
+
+    Boolean TmcDntBeginDebug(Int32 cid);
+
+
+    Boolean TmcDntStopDebug(Int32 cid);
   }
 }

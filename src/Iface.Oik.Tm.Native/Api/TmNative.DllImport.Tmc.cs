@@ -477,12 +477,42 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern bool tmcDntGetObjectName(Int32                                          cid,
+    public static extern Boolean tmcDntGetObjectName(Int32                                          cid,
                                                   UInt16                                         objectType,
                                                   Int16                                          ch,
                                                   Int16                                          rtu,
                                                   Int16                                          point,
                                                   [MarshalAs(UnmanagedType.LPStr)] StringBuilder buf,
                                                   Int32                                          bufSize);
+
+    
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Boolean tmcDntRegisterUser(Int32 cid);
+    
+    
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern bool tmcDntUnRegisterUser(Int32 cid);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Boolean tmcDntBeginTraceEx(Int32                                                      cid,
+                                                 UInt32                                                     count,
+                                                 [MarshalAs(UnmanagedType.LPArray, SizeConst = 8)] UInt32[] pMask,
+                                                 UInt32 traceFlags,
+                                                 UInt32 res1,
+                                                 UInt32 res2);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Boolean tmcDntStopTrace(Int32 cid);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Boolean tmcDntBeginDebug(Int32 cid);
+    
+    
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Boolean tmcDntStopDebug(Int32 cid);
+
   }
 }

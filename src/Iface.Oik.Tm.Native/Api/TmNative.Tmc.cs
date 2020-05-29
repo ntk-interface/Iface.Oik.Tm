@@ -600,7 +600,7 @@ namespace Iface.Oik.Tm.Native.Api
       tmcDntCloseItem(componentItemsPtr);
     }
 
-    public bool TmcDntGetObjectName(Int32             cid,
+    public Boolean TmcDntGetObjectName(Int32             cid,
                                     UInt16            objectType,
                                     Int16             ch,
                                     Int16             rtu,
@@ -609,6 +609,41 @@ namespace Iface.Oik.Tm.Native.Api
                                     Int32             bufSize)
     {
       return tmcDntGetObjectName(cid, objectType, ch, rtu, point, buf, bufSize);
+    }
+
+    public Boolean TmcDntRegisterUser(Int32 cid)
+    {
+      return tmcDntRegisterUser(cid);
+    }
+
+    public Boolean TmcDntUnRegisterUser(Int32 cid)
+    {
+      return tmcDntUnRegisterUser(cid);
+    }
+
+    public Boolean TmcDntBeginTraceEx(Int32 cid, 
+                                      UInt32 count, 
+                                      UInt32[] traceChain, 
+                                      UInt32 traceFlags, 
+                                      UInt32 res1, 
+                                      UInt32 res2)
+    {
+      return tmcDntBeginTraceEx(cid, count, traceChain, traceFlags, res1, res2);
+    }
+
+    public Boolean TmcDntStopTrace(Int32 cid)
+    {
+      return tmcDntStopTrace(cid);
+    }
+
+    public Boolean TmcDntBeginDebug(Int32 cid)
+    {
+      return tmcDntBeginDebug(cid);
+    }
+
+    public Boolean TmcDntStopDebug(Int32 cid)
+    {
+      return tmcDntStopDebug(cid);
     }
   }
 }

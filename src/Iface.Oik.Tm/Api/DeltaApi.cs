@@ -315,6 +315,62 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<bool> RegisterTracer()
+    {
+      return await Task.Run(() => _native.TmcDntRegisterUser(_cid)).
+                        ConfigureAwait(false);
+    }
+    
+    
+    public async Task UnRegisterTracer()
+    {
+      await Task.Run(() => _native.TmcDntUnRegisterUser(_cid)).
+                        ConfigureAwait(false);
+    }
+    
+    
+    public async Task TraceComponent(DeltaComponent component, 
+                                     DeltaTraceTypes  traceType, 
+                                     bool showDebugMessages)
+    {
+      var traceFlag = traceType == DeltaTraceTypes.Protocol
+                        ? TmNativeDefs.DeltaTraceFlags.Usr
+                        : TmNativeDefs.DeltaTraceFlags.Drv;
+
+      var traceChain = component.TraceChain;
+
+      if (traceType == DeltaTraceTypes.Physical)
+      {
+        traceChain[0] = ~traceChain[0];
+      }
+
+      await Task.Run(() => _native.TmcDntBeginTraceEx(_cid, 
+                                                      (uint) traceChain.Length, 
+                                                      traceChain, 
+                                                      (uint) traceFlag, 
+                                                      0, 
+                                                      0))
+                .ConfigureAwait(false);
+
+      if (showDebugMessages)
+      {
+        await Task.Run(() => _native.TmcDntStopDebug(_cid))
+                  .ConfigureAwait(false);
+      }
+    }
+    
+    
+    public async Task StopTrace()
+    {
+      await Task.Run(() => _native.TmcDntStopDebug(_cid))
+                .ConfigureAwait(false);
+      await Task.Run(() => _native.TmcDntStopTrace(_cid)).
+                 ConfigureAwait(false);
+    }
+    
+    
+
+    
     private async Task<IReadOnlyCollection<DeltaComponent>> GetDeltaComponents()
     {
       try

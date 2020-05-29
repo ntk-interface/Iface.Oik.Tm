@@ -26,4 +26,12 @@ namespace Iface.Oik.Tm.Interfaces
     AccumFloat  = TmNativeDefs.DeltaItemTypes.AccumF,
     StrVal      = TmNativeDefs.DeltaItemTypes.StrVal
   }
+
+
+  public enum DeltaTraceTypes
+  {
+    Protocol = 0,
+    Physical = 1,
+    Logical = 2
+  }
 }
