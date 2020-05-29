@@ -20,8 +20,9 @@ jobs:
         
     - name: Build
       run: |
-        dotnet build ${{env.APP_NAME}}.sln -c Release
-        dotnet build ${{env.APP_NAME}}.sln -c Release -p:Platform=x86
+        dotnet build Iface.Oik.Tm.sln -c Release
+        dotnet build Iface.Oik.Tm.Samples.sln -c Release
+        dotnet build src/Iface.Oik.Tm/Iface.Oik.Tm.csproj -c Release -p:Platform=x86
       
     - name: Test
       run: dotnet test ${{env.APP_NAME}}.sln -c Release
