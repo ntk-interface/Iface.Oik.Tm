@@ -199,10 +199,10 @@ namespace Iface.Oik.Tm.Interfaces
 
   public enum TmTechObjectBindingType
   {
-    TmTag            = 0,
-    TechParam        = 1,
-    TechDocument     = 2,
-    OperLockDocument = 3,
+    [Description("Сигналы и измерения")] TmTag            = 0,
+    [Description("ТЕХ данные")]          TechParam        = 1,
+    [Description("ТЕХ документ")]        TechDocument     = 2,
+    [Description("ОБР документ")]        OperLockDocument = 3,
   }
 
 
