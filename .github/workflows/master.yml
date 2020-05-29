@@ -39,8 +39,8 @@ jobs:
         
     - name: Make archives
       run: |
-        7z a ${{steps.release.outputs.x64_release}} -i!./{{env.X64_PATH}}/*.dll -i!./{{env.X64_PATH}}/*.so
-        7z a ${{steps.release.outputs.x86_release}} -i!./{{env.X86_PATH}}/*.dll -i!./{{env.X86_PATH}}/*.so
+        7z a ${{steps.release.outputs.x64_release}} -i!./${{env.X64_PATH}}/*.dll -i!./${{env.X64_PATH}}/*.so
+        7z a ${{steps.release.outputs.x86_release}} -i!./${{env.X86_PATH}}/*.dll -i!./${{env.X86_PATH}}/*.so
       
     - name: Create Github Release
       id: create_release
