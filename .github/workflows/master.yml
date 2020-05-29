@@ -20,11 +20,11 @@ jobs:
         
     - name: Build
       run: |
-        dotnet build -c Release
-        dotnet build -c Release -p:Platform=x86
+        dotnet build ${{env.APP_NAME}}.sln -c Release
+        dotnet build ${{env.APP_NAME}}.sln -c Release -p:Platform=x86
       
     - name: Test
-      run: dotnet test -c Release
+      run: dotnet test ${{env.APP_NAME}}.sln -c Release
 
     - name: Prepare version number
       id: version
