@@ -32,6 +32,18 @@ namespace Iface.Oik.Tm.Interfaces
   {
     Protocol = 0,
     Physical = 1,
-    Logical = 2
+    Logical  = 2
+  }
+
+  public enum DeltaTraceMessageTypes
+  {
+    Unknown = -1,
+    Error   = TmNativeDefs.DntTraceMessageTypes.Error,
+    Message = TmNativeDefs.DntTraceMessageTypes.Msg,
+    Debug   = TmNativeDefs.DntTraceMessageTypes.Debug,
+    In      = TmNativeDefs.DntTraceMessageTypes.TmIn,
+    Out     = TmNativeDefs.DntTraceMessageTypes.TmOut,
+    TmsIn   = TmNativeDefs.DntTraceMessageTypes.SIn,
+    TmsOut  = TmNativeDefs.DntTraceMessageTypes.SOut,
   }
 }
