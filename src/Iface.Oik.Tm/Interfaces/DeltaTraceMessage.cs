@@ -1,16 +1,28 @@
 using System;
+using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
   public class DeltaTraceMessage
   {
-    public DeltaTraceMessageTypes Type { get; }
-    public string                 Text { get; }
-    
-    public DeltaTraceMessage(DeltaTraceMessageTypes type, string text)
+    public DeltaTraceMessageTypes Type         { get; }
+    public DateTime?              Time     { get; }
+    public string                 Text         { get; }
+    public string                 BinaryString { get; }
+
+    public string TimeString => Time.HasValue ? $"{Time.Value:yyyy.MM.dd HH:mm:ss.fff}" : string.Empty;
+    public DeltaTraceMessage(DeltaTraceMessageTypes type, string dateTimeString, string text, string binaryString)
     {
-      Type = type;
-      Text = text;
+      Type     = type;
+
+      if (!dateTimeString.IsNullOrEmpty())
+      {
+        Time = DateTime.ParseExact(dateTimeString, "yyyy.MM.dd HH:mm:ss.fff",
+                                   System.Globalization.CultureInfo.InvariantCulture,
+                                   System.Globalization.DateTimeStyles.None);
+      }
+      Text     = text;
+      BinaryString = binaryString;
     }
 
     public override string ToString()
@@ -19,33 +31,34 @@ namespace Iface.Oik.Tm.Interfaces
       switch (Type)
       {
         case DeltaTraceMessageTypes.Error:
-          prefix = "Ошибка";
+          prefix = "Ошибка   ";
           break;
         case DeltaTraceMessageTypes.Message:
           prefix = "Сообщение";
           break;
         case DeltaTraceMessageTypes.Debug:
-          prefix = "Отладка";
+          prefix = "Отладка  ";
           break;
         case DeltaTraceMessageTypes.In:
-          prefix = "<--";
+          prefix = "<--      ";
           break;
         case DeltaTraceMessageTypes.Out:
-          prefix = "-->";
+          prefix = "-->      ";
           break;
         case DeltaTraceMessageTypes.TmsIn:
-          prefix = "ТМС <--";
+          prefix = "ТМС <--  ";
           break;
         case DeltaTraceMessageTypes.TmsOut:
-          prefix = "ТМС -->";
+          prefix = "ТМС -->  ";
           break;
         default:
-          prefix = "?";
+          prefix = "?        ";
           break;
       }
 
-      return $"{prefix}  {Text}";
+      var binaryString = BinaryString.IsNullOrEmpty() ? string.Empty : $" {BinaryString}";
+      var timeString = TimeString.IsNullOrEmpty() ? string.Empty : $" [{TimeString}]";
+      return $"{prefix}{timeString} {Text}{binaryString}";
     }
-    
   }
 }
