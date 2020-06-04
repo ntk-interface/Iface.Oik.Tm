@@ -81,7 +81,8 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public abstract string ValueToDisplay { get; }
+    public abstract string       ValueToDisplay { get; }
+    public abstract List<string> FlagsToDisplay { get; }
 
 
     public bool IsStatus => this is TmStatus;

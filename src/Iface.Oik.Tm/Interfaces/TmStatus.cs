@@ -119,8 +119,10 @@ namespace Iface.Oik.Tm.Interfaces
     
     public string ClassName => GetClassCaption(ClassCaption.ClassName);
 
-    public string CaptionOn  => GetClassCaption(ClassCaption.On);
-    public string CaptionOff => GetClassCaption(ClassCaption.Off);
+    public string CaptionOn          => GetClassCaption(ClassCaption.On);
+    public string CaptionOff         => GetClassCaption(ClassCaption.Off);
+    public string CaptionBreak       => GetClassCaption(ClassCaption.Break);
+    public string CaptionMalfunction => GetClassCaption(ClassCaption.Malfunction);
 
     public string Flag1Name => GetClassCaption(ClassCaption.Flag1);
     public string Flag2Name => GetClassCaption(ClassCaption.Flag2);
@@ -182,9 +184,61 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     public override string ValueToDisplay => StatusCaption;
-    
-    public string CaptionBreak => GetClassCaption(ClassCaption.Break);
-    public string CaptionMalfunction => GetClassCaption(ClassCaption.Malfunction);
+
+    public override List<string> FlagsToDisplay
+    {
+      get
+      {
+        var flagsToDisplay = new List<string>();
+
+        if (IsUnreliable)
+        {
+          flagsToDisplay.Add("Неактуальное значение (NT)");
+        }
+        if (IsInvalid)
+        {
+          flagsToDisplay.Add("Недействительное значение (IV)");
+        }
+        if (IsResChannel)
+        {
+          flagsToDisplay.Add("Взят с резерва");
+        }
+        if (IsRequested)
+        {
+          flagsToDisplay.Add("Идет опрос");
+        }
+        if (IsAbnormal)
+        {
+          flagsToDisplay.Add("Несоответствие нормальному режиму");
+        }
+        if (IsManuallyBlocked)
+        {
+          flagsToDisplay.Add("Заблокировано оператором");
+        }
+        if (IsManuallySet)
+        {
+          flagsToDisplay.Add("Установлено вручную");
+        }
+        if (IsFlag1)
+        {
+          flagsToDisplay.Add($"{Flag1Name}   {Flag1Status}");
+        }
+        if (IsFlag2)
+        {
+          flagsToDisplay.Add($"{Flag2Name}   {Flag2Status}");
+        }
+        if (IsFlag3)
+        {
+          flagsToDisplay.Add($"{Flag3Name}   {Flag3Status}");
+        }
+        if (IsFlag4)
+        {
+          flagsToDisplay.Add($"{Flag4Name}   {Flag4Status}");
+        }
+
+        return flagsToDisplay;
+      }
+    }
 
 
     public TmStatus(int ch, int rtu, int point)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using Iface.Oik.Tm.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
@@ -138,6 +139,57 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     public override string ValueToDisplay => ValueWithUnitString;
+    
+    public override List<string> FlagsToDisplay
+    {
+      get
+      {
+        var flagsToDisplay = new List<string>();
+
+        if (IsUnreliable)
+        {
+          flagsToDisplay.Add("Неактуальное значение (NT)");
+        }
+        if (IsInvalid)
+        {
+          flagsToDisplay.Add("Недействительное значение (IV)");
+        }
+        if (IsResChannel)
+        {
+          flagsToDisplay.Add("Взят с резерва");
+        }
+        if (IsRequested)
+        {
+          flagsToDisplay.Add("Идет опрос");
+        }
+        if (IsManuallyBlocked)
+        {
+          flagsToDisplay.Add("Заблокировано оператором");
+        }
+        if (IsManuallySet)
+        {
+          flagsToDisplay.Add("Установлено вручную");
+        }
+        if (IsAlarmLevel1)
+        {
+          flagsToDisplay.Add("Уставка оперативного состояния");
+        }
+        if (IsAlarmLevel2)
+        {
+          flagsToDisplay.Add("Уставка предупредительная 2");
+        }
+        if (IsAlarmLevel3)
+        {
+          flagsToDisplay.Add("Уставка предупредительная 1");
+        }
+        if (IsAlarmLevel4)
+        {
+          flagsToDisplay.Add("Уставка аварийная");
+        }
+
+        return flagsToDisplay;
+      }
+    }
 
 
     public TmAnalog(int ch, int rtu, int point)
