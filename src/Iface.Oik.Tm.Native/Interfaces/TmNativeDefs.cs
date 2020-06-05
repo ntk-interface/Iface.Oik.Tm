@@ -136,6 +136,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       ExtsShowS2 = 0x0100,
       TobChange  = 0x0200,
       Calc       = 0x0400,
+      NewClient  = 0x2000
     }
 
 

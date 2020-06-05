@@ -29,10 +29,14 @@ namespace Iface.Oik.Tm.Helpers
                               IntPtr           callbackParameter)
     {
       var tmCid = Native.TmcConnect(host, serverName, applicationName, callback, callbackParameter);
-
+      
       if (!IsConnected(tmCid))
       {
         tmCid = 0;
+      }
+      else
+      {
+        Native.TmcSetDgrmFlags(tmCid, (uint) TmNativeDefs.DatagramFlags.NewClient);
       }
 
       return tmCid;
@@ -54,7 +58,12 @@ namespace Iface.Oik.Tm.Helpers
       {
         tmCid = 0;
       }
-
+      else
+      {
+        Native.TmcSetDgrmFlags(tmCid, (uint) TmNativeDefs.DatagramFlags.NewClient);
+      }
+      
+      
       return tmCid;
     }
 
