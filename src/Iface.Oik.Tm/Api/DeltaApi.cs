@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Utils;
@@ -367,9 +368,48 @@ namespace Iface.Oik.Tm.Api
       await Task.Run(() => _native.TmcDntStopTrace(_cid)).
                  ConfigureAwait(false);
     }
-    
-    
 
+
+    public async Task UpdateComponentsTreeLiveInfo(IReadOnlyCollection<DeltaComponent> tree)
+    {
+      var flattenedTree = tree.Flatten();
+
+      foreach (var node in flattenedTree)
+      {
+        switch (node.Level)
+        {
+          case 2:
+          case 3:
+            uint data = 5;
+            var result = await Task.Run(() => _native.TmcDntGetLiveInfo(_cid,
+                                                                        (uint) node.Level,
+                                                                        node.TraceChain,
+                                                                        out data,
+                                                                        sizeof(uint)));
+            if (result < sizeof(uint))
+            {
+              var lastError = await Task.Run(Tms.GetLastError);
+              node.State = lastError == 120 ? DeltaComponentStates.NotSupported : DeltaComponentStates.Unknown;
+            }
+            else
+            {
+              node.State = (DeltaComponentStates) data;
+            }
+            break;
+          default:
+            node.State = DeltaComponentStates.None;
+            break;
+        }
+
+        if (node.State == DeltaComponentStates.Ok || node.State == DeltaComponentStates.None) continue;
+        
+        var driverNum = (node.TraceChain[0] - 0x80000000) >> 24;
+        node.Address = node.Level == 2
+                         ? $"D{driverNum}:A{node.TraceChain[1]}"
+                         : $"D{driverNum}:A{node.TraceChain[1]}:P{node.TraceChain[2]}";
+      }
+    }
+    
     
     private async Task<IReadOnlyCollection<DeltaComponent>> GetDeltaComponents()
     {

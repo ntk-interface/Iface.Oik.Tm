@@ -427,5 +427,12 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
     Boolean TmcDntStopDebug(Int32 cid);
+
+
+    UInt32 TmcDntGetLiveInfo(Int32      cid,
+                             UInt32     count,
+                             UInt32[]   traceChain,
+                             out UInt32 pData,
+                             UInt32     pDataSize);
   }
 }

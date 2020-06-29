@@ -3,7 +3,8 @@ using Iface.Oik.Tm.Native.Interfaces;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public enum DeltaComponentTypes
+  public enum
+    DeltaComponentTypes
   {
     Driver  = 0,
     Adapter = 1,
@@ -45,5 +46,16 @@ namespace Iface.Oik.Tm.Interfaces
     Out     = TmNativeDefs.DntTraceMessageTypes.TmOut,
     TmsIn   = TmNativeDefs.DntTraceMessageTypes.SIn,
     TmsOut  = TmNativeDefs.DntTraceMessageTypes.SOut,
+  }
+
+  public enum DeltaComponentStates
+  {
+    None                                      = -1,
+    [Description("ОК")]          Ok           = 0,
+    [Description("НЕТ ДИАГН.")]  NoDiags      = 1,
+    [Description("НЕТ СВЯЗИ")]   Error        = 2,
+    [Description("НЕ НАЙДЕН")]   NotFound     = 3,
+    [Description("НЕ ПОДДЕРЖ.")] NotSupported = 4,
+    [Description("???")]         Unknown      = 5
   }
 }

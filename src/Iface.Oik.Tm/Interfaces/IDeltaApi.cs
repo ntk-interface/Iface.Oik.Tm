@@ -29,5 +29,8 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task StopTrace();
+
+
+    Task UpdateComponentsTreeLiveInfo(IReadOnlyCollection<DeltaComponent> tree);
   }
 }
