@@ -73,7 +73,11 @@ namespace Iface.Oik.Tm.Interfaces
 
     public object Reference { get; set; } // ссылка на связанный объект, например для схемы - выключатель, прибор и т.п.
 
-    public string NameOrDefault => !string.IsNullOrEmpty(Name) ? Name : DefaultName;
+    public string NameOrDefault => !string.IsNullOrEmpty(Name)
+      ? Name
+      : Enum.IsDefined(typeof(ModusElement), Type)
+        ? ((ModusElement) (Type)).GetDescription()
+        : DefaultName;
 
 
     public TmTechObject(uint scheme, ushort type, uint obj, string name = null)
