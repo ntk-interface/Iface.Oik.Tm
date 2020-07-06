@@ -24,6 +24,16 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public Boolean TmcGetCurrentServer(Int32             cid,
+                                       ref StringBuilder machine,
+                                       UInt32            cbMachine,
+                                       ref StringBuilder pipe,
+                                       UInt32            cbPipe)
+    {
+      return tmcGetCurrentServer(cid, machine, cbMachine, pipe, cbPipe);
+    }
+
+
     public void TmcFreeMemory(IntPtr memory)
     {
       tmcFreeMemory(memory);
