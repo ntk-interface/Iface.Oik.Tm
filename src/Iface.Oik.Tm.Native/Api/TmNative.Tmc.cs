@@ -24,6 +24,16 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public Boolean TmcGetCurrentServer(Int32             cid,
+                                       ref StringBuilder machine,
+                                       UInt32            cbMachine,
+                                       ref StringBuilder pipe,
+                                       UInt32            cbPipe)
+    {
+      return tmcGetCurrentServer(cid, machine, cbMachine, pipe, cbPipe);
+    }
+
+
     public void TmcFreeMemory(IntPtr memory)
     {
       tmcFreeMemory(memory);
@@ -472,12 +482,13 @@ namespace Iface.Oik.Tm.Native.Api
       return tmcGetObjectName(cid, objectType, ch, rtu, point, buf, bufSize);
     }
 
-    public short TmcGetObjectNameEx(int               cid, 
-                                    ushort objectType, 
-                                    short ch, short rtu, 
-                                    short point, short subObjectId,
-                                    ref StringBuilder buf, 
-                                    int    bufSize)
+
+    public short TmcGetObjectNameEx(int               cid,
+                                    ushort            objectType,
+                                    short             ch,    short rtu,
+                                    short             point, short subObjectId,
+                                    ref StringBuilder buf,
+                                    int               bufSize)
     {
       return tmcGetObjectNameEx(cid, objectType, ch, rtu, point, subObjectId, buf, bufSize);
     }
@@ -535,18 +546,18 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public IntPtr TmcComtradeEnumFiles(Int32  cid, string date)
+    public IntPtr TmcComtradeEnumFiles(Int32 cid, string date)
     {
       return tmcComtradeEnumFiles(cid, date);
     }
 
 
-    public Boolean TmcComtradeGetFile(Int32  cid, string fileName, string localDirectory)
+    public Boolean TmcComtradeGetFile(Int32 cid, string fileName, string localDirectory)
     {
       return tmcComtradeGetFile(cid, fileName, localDirectory);
     }
 
-    
+
     public bool TmcSetTracer(Int32  cid,
                              Int16  ch,
                              Int16  rtu,
@@ -557,89 +568,96 @@ namespace Iface.Oik.Tm.Native.Api
       return tmcSetTracer(cid, ch, rtu, point, tmType, msgFilter);
     }
 
-    
-    public Int32 TmcConnectEx(string server,  
-                              string pipe,   
-                              string user, 
-                              TmNativeCallback callback, 
-                              IntPtr callbackParameter,
-                              UInt32 propsCount, 
-                              UInt32[] pProps, 
-                              UInt32[] pPropValues)
+
+    public Int32 TmcConnectEx(string           server,
+                              string           pipe,
+                              string           user,
+                              TmNativeCallback callback,
+                              IntPtr           callbackParameter,
+                              UInt32           propsCount,
+                              UInt32[]         pProps,
+                              UInt32[]         pPropValues)
     {
       return tmcConnectEx(server, pipe, user, callback, callbackParameter, propsCount, pProps, pPropValues);
     }
 
-    
+
     public bool TmcDntGetConfig(Int32 cid, string fileName)
     {
       return tmcDntGetConfig(cid, fileName);
     }
 
-    
+
     public Int32 TmcDntTreeChange(Int32 cid)
     {
       return tmcDntTreeChange(cid);
     }
 
-    
+
     public IntPtr TmcDntOpenItem(Int32 cid, UInt32 traceChainLength, UInt32[] traceChain)
     {
       return tmcDntOpenItem(cid, traceChainLength, traceChain);
     }
 
-    
+
     public IntPtr TmcDntGetNextItem(IntPtr componentItemsPtr)
     {
       return tmcDntGetNextItem(componentItemsPtr);
     }
 
-    
+
     public void TmcDntCloseItem(IntPtr componentItemsPtr)
     {
       tmcDntCloseItem(componentItemsPtr);
     }
 
+
     public Boolean TmcDntGetObjectName(Int32             cid,
-                                    UInt16            objectType,
-                                    Int16             ch,
-                                    Int16             rtu,
-                                    Int16             point,
-                                    ref StringBuilder buf,
-                                    Int32             bufSize)
+                                       UInt16            objectType,
+                                       Int16             ch,
+                                       Int16             rtu,
+                                       Int16             point,
+                                       ref StringBuilder buf,
+                                       Int32             bufSize)
     {
       return tmcDntGetObjectName(cid, objectType, ch, rtu, point, buf, bufSize);
     }
+
 
     public Boolean TmcDntRegisterUser(Int32 cid)
     {
       return tmcDntRegisterUser(cid);
     }
 
+
     public Boolean TmcDntUnRegisterUser(Int32 cid)
     {
       return tmcDntUnRegisterUser(cid);
     }
 
-    public Boolean TmcDntBeginTraceEx(Int32 cid, 
-                                      UInt32 count, 
-                                      UInt32[] traceChain, 
-                                      UInt32 traceFlags, 
-                                      UInt32 res1, 
-                                      UInt32 res2)
+
+    public Boolean TmcDntBeginTraceEx(Int32    cid,
+                                      UInt32   count,
+                                      UInt32[] traceChain,
+                                      UInt32   traceFlags,
+                                      UInt32   res1,
+                                      UInt32   res2)
     {
       return tmcDntBeginTraceEx(cid, count, traceChain, traceFlags, res1, res2);
     }
+
 
     public Boolean TmcDntStopTrace(Int32 cid)
     {
       return tmcDntStopTrace(cid);
     }
 
+
     public Boolean TmcDntBeginDebug(Int32 cid)
     {
       return tmcDntBeginDebug(cid);
     }
+
 
     public Boolean TmcDntStopDebug(Int32 cid)
     {

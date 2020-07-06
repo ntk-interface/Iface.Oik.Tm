@@ -18,6 +18,13 @@ namespace Iface.Oik.Tm.Native.Interfaces
     void TmcFreeMemory(IntPtr memory);
 
 
+    Boolean TmcGetCurrentServer(Int32             cid,
+                                ref StringBuilder machine,
+                                UInt32            cbMachine,
+                                ref StringBuilder pipe,
+                                UInt32            cbPipe);
+
+
     UInt32 TmcGetLastError();
 
 
@@ -371,6 +378,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
                          UInt16 tmType,
                          UInt16 msgFilter);
 
+
     Int32 TmcConnectEx(string           server,
                        string           pipe,
                        string           user,
@@ -384,7 +392,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
     Boolean TmcDntGetConfig(Int32  cid,
                             string fileName);
 
+
     Int32 TmcDntTreeChange(Int32 cid);
+
 
     IntPtr TmcDntOpenItem(Int32    cid,
                           UInt32   traceChainLength,
@@ -418,8 +428,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
                                UInt32   traceFlags,
                                UInt32   res1,
                                UInt32   res2);
-    
-    
+
+
     Boolean TmcDntStopTrace(Int32 cid);
 
 
