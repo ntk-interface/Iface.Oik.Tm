@@ -13,6 +13,9 @@ namespace Iface.Oik.Tm.Interfaces
     public static readonly string          DefaultName          = "Элемент";
     public static readonly TmTopologyState DefaultTopologyState = TmTopologyState.Unknown;
 
+    public static readonly string PropertyName              = "n";
+    public static readonly string PropertyIsVoltaged        = "$V";
+    public static readonly string PropertyIsGrounded        = "$G";
     public static readonly string PropertyPlacard           = "^pl1";
     public static readonly char   PropertyPlacardSplitter   = '|';
     public static readonly string PropertyGroundIsPermitted = "^plG";
@@ -70,6 +73,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     public object Reference { get; set; } // ссылка на связанный объект, например для схемы - выключатель, прибор и т.п.
 
+    public string NameOrDefault => !string.IsNullOrEmpty(Name) ? Name : DefaultName;
+
 
     public TmTechObject(uint scheme, ushort type, uint obj, string name = null)
     {
@@ -77,7 +82,7 @@ namespace Iface.Oik.Tm.Interfaces
       Type          = type;
       Object        = obj;
       Properties    = new Dictionary<string, string>();
-      Name          = name ?? DefaultName;
+      Name          = name;
       TopologyState = DefaultTopologyState;
     }
 
@@ -111,25 +116,17 @@ namespace Iface.Oik.Tm.Interfaces
 
       IsInit        = true;
       Properties    = newProperties;
-      Name          = GetNameFromProperties();
+      Name          = GetPropertyOrDefault(PropertyName);
       TopologyState = GetTopologyStateFromProperties();
 
       return true;
     }
 
 
-    private string GetNameFromProperties()
-    {
-      var name = GetPropertyOrDefault("n");
-
-      return (!string.IsNullOrEmpty(name)) ? name : DefaultName;
-    }
-
-
     private TmTopologyState GetTopologyStateFromProperties()
     {
-      var voltagedProperty = GetPropertyOrDefault("$V");
-      var groundedProperty = GetPropertyOrDefault("$G");
+      var voltagedProperty = GetPropertyOrDefault(PropertyIsVoltaged);
+      var groundedProperty = GetPropertyOrDefault(PropertyIsGrounded);
 
       if (voltagedProperty == null ||
           groundedProperty == null)

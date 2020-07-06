@@ -81,9 +81,9 @@ namespace Iface.Oik.Tm.Test.Interfaces
       {
         tob.SetPropertiesFromTmc(Properties1);
 
-        var resultV    = tob.GetPropertyOrDefault("$V");
-        var resultG    = tob.GetPropertyOrDefault("$G");
-        var resultName = tob.GetPropertyOrDefault("n");
+        var resultV    = tob.GetPropertyOrDefault(TmTechObject.PropertyIsVoltaged);
+        var resultG    = tob.GetPropertyOrDefault(TmTechObject.PropertyIsGrounded);
+        var resultName = tob.GetPropertyOrDefault(TmTechObject.PropertyName);
 
         resultV.Should().Be("1");
         resultG.Should().Be("1");
