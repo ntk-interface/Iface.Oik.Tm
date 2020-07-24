@@ -234,6 +234,13 @@ namespace Iface.Oik.Tm.Api
                                       properties.ContainsKey("Конф. файл") ? properties["Конф. файл"] : ""
                                      );
         }
+        case "ElectricTopology":
+        {
+          return new ElectricTopologyNode(properties["ProgName"], 
+                                          parent, 
+                                          properties.ContainsKey("PipeName") ? properties["PipeName"] : "", 
+                                          properties.ContainsKey("Отмена запуска") && properties["Отмена запуска"] == "1");
+        }
         default:
           return new CfTreeNode(progName,
                                 parent);
@@ -499,7 +506,7 @@ namespace Iface.Oik.Tm.Api
     public async Task<IReadOnlyCollection<TmServer>> GetTmServersTree()
     {
       var lookup    = new Dictionary<uint, TmServer>();
-      var tmServers = await GetTmServers();
+      var tmServers = await GetTmServers().ConfigureAwait(false);
 
       tmServers.ForEach(x => lookup.Add(x.ProcessId, x));
       foreach (var tmServer in tmServers)
@@ -516,7 +523,8 @@ namespace Iface.Oik.Tm.Api
     private async Task<IReadOnlyCollection<TmServer>> GetTmServers()
     {
       var serverIdsList = await GetIfaceServerId().ConfigureAwait(false);
-      var tmUsers       = await GetTmUsers();
+      var tmUsers       = await GetTmUsers()
+                            .ConfigureAwait(false);
 
       var tmServersList = new List<TmServer>();
 
@@ -660,7 +668,8 @@ namespace Iface.Oik.Tm.Api
       uint      errCode         = 0;
       
       var threadPtr = 
-        await Task.Run(() => _native.CfsEnumThreads(CfId, out errCode, ref errString, errCode));
+        await Task.Run(() => _native.CfsEnumThreads(CfId, out errCode, ref errString, errCode))
+                  .ConfigureAwait(false);
 
       if (threadPtr == IntPtr.Zero)
       {
@@ -698,10 +707,11 @@ namespace Iface.Oik.Tm.Api
       var result = await Task.Run(() => _native.CfsTraceBeginTraceEx(CfId,
                                                                      traceTarget.ProcessId,
                                                                      traceTarget.ThreadId, debug,
-                                                                     (uint) pause,
+                                                                     (uint)pause,
                                                                      out errCode,
                                                                      ref errString,
-                                                                     errStringLength));
+                                                                     errStringLength))
+                             .ConfigureAwait(false);
       Console.WriteLine($"Register result: {result}");
 
     }
@@ -713,7 +723,8 @@ namespace Iface.Oik.Tm.Api
       var       errString       = new StringBuilder(errStringLength);
       uint      errCode         = 0;
 
-      var result = await Task.Run(() =>_native.CfsTraceEndTrace(CfId, out errCode, ref errString, errStringLength));
+      var result = await Task.Run(() => _native.CfsTraceEndTrace(CfId, out errCode, ref errString, errStringLength))
+                             .ConfigureAwait(false);
       Console.WriteLine($"Stop result: {result}");
     }
  
@@ -724,9 +735,10 @@ namespace Iface.Oik.Tm.Api
       var       errString       = new StringBuilder(errStringLength);
       uint      errCode         = 0;
       
-      var logRecordPtr = await Task.Run(() => _native.CfsTraceGetMessage(CfId,out errCode, 
-                                                                         ref errString, 
-                                                                         errStringLength));
+      var logRecordPtr = await Task.Run(() => _native.CfsTraceGetMessage(CfId, out errCode,
+                                                                         ref errString,
+                                                                         errStringLength))
+                                   .ConfigureAwait(false);
 
       if (logRecordPtr == IntPtr.Zero) return null;
       
@@ -737,7 +749,7 @@ namespace Iface.Oik.Tm.Api
 
       var cfsLogRecords = ParseCfsServerLogRecordPointer(logRecordPtr, 5120);
 
-      await Task.Run(() => _native.CfsFreeMemory(logRecordPtr));
+      await Task.Run(() => _native.CfsFreeMemory(logRecordPtr)).ConfigureAwait(false);
       
 
       return cfsLogRecords.Select(TmServerLogRecord.CreateFromCfsLogRecord).ToList();
@@ -750,10 +762,11 @@ namespace Iface.Oik.Tm.Api
       var       errString       = new StringBuilder(errStringLength);
       uint      errCode         = 0;
 
-      var result = await Task.Run(() =>_native.CfsLogOpen(CfId, 
-                                                          out errCode, 
-                                                          ref errString, 
-                                                          errStringLength));
+      var result = await Task.Run(() => _native.CfsLogOpen(CfId,
+                                                          out errCode,
+                                                          ref errString,
+                                                          errStringLength))
+                             .ConfigureAwait(false);
       if (!result)
       {
         throw new Exception($"Ошибка получения журнала сервера: {errString} Код: {errCode}");
@@ -767,10 +780,11 @@ namespace Iface.Oik.Tm.Api
       var       errString       = new StringBuilder(errStringLength);
       uint      errCode         = 0;
 
-      var result = await Task.Run(() =>_native.CfsLogClose(CfId, 
-                                                          out errCode, 
-                                                          ref errString, 
-                                                          errStringLength));
+      var result = await Task.Run(() => _native.CfsLogClose(CfId,
+                                                          out errCode,
+                                                          ref errString,
+                                                          errStringLength))
+                             .ConfigureAwait(false);
       if (!result)
       {
         throw new Exception($"Ошибка получения журнала сервера: {errString} Код: {errCode}");

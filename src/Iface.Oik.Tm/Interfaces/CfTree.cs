@@ -6,8 +6,8 @@ namespace Iface.Oik.Tm.Interfaces
   public class CfTreeNode
   {
     public ICollection<CfTreeNode> Children   { get; set; }
-    public string                         ProgName   { get; }
-    public IMsNodeProperties              Properties { get; protected set; }
+    public string                  ProgName   { get; }
+    public IMsNodeProperties       Properties { get; protected set; }
     public CfTreeNode              Parent     { get; }
 
 
@@ -16,8 +16,8 @@ namespace Iface.Oik.Tm.Interfaces
       Children = new List<CfTreeNode>();
     }
 
-    public CfTreeNode(string            progName,
-                             CfTreeNode parent = null)
+    public CfTreeNode(string     progName,
+                      CfTreeNode parent = null)
     {
       ProgName = progName;
       Parent   = parent;
@@ -43,11 +43,11 @@ namespace Iface.Oik.Tm.Interfaces
 
   public class TmsNode : CfTreeNode
   {
-    public TmsNode(string progName, 
+    public TmsNode(string     progName,
                    CfTreeNode parent,
-                   string            pipeName,
-                   bool              noStart     = false,
-                   bool              passiveMode = false)
+                   string     pipeName,
+                   bool       noStart     = false,
+                   bool       passiveMode = false)
       : base(progName, parent)
     {
       Properties = new TmsNodeProperties
@@ -61,26 +61,26 @@ namespace Iface.Oik.Tm.Interfaces
 
   public class RbsNode : CfTreeNode
   {
-    public RbsNode(string progName, 
+    public RbsNode(string     progName,
                    CfTreeNode parent,
-                   string            pipeName,
-                   bool              noStart = false)
+                   string     pipeName,
+                   bool       noStart = false)
       : base(progName, parent)
     {
       Properties = new ChildNodeProperties
       {
-        NoStart     = noStart,
-        PipeName    = pipeName
+        NoStart  = noStart,
+        PipeName = pipeName
       };
     }
   }
 
   public class DeltaNode : CfTreeNode
   {
-    public DeltaNode(string progName, 
+    public DeltaNode(string     progName,
                      CfTreeNode parent,
-                     string            pipeName,
-                     bool              noStart = false)
+                     string     pipeName,
+                     bool       noStart = false)
       : base(progName, parent)
     {
       Properties = new ChildNodeProperties
@@ -93,10 +93,10 @@ namespace Iface.Oik.Tm.Interfaces
 
   public class TmCalcNode : CfTreeNode
   {
-    public TmCalcNode(string progName, 
+    public TmCalcNode(string     progName,
                       CfTreeNode parent,
-                      string            pipeName,
-                      bool              noStart = false)
+                      string     pipeName,
+                      bool       noStart = false)
       : base(progName, parent)
     {
       Properties = new ChildNodeProperties
@@ -109,22 +109,38 @@ namespace Iface.Oik.Tm.Interfaces
 
   public class ExternalTaskNode : CfTreeNode
   {
-    public ExternalTaskNode(string progName, 
+    public ExternalTaskNode(string     progName,
                             CfTreeNode parent,
-                            string            pipeName,
-                            bool              noStart       = false,
-                            string            taskPath      = "",
-                            string            taskArguments = "",
-                            string            confFilePath  = "")
+                            string     pipeName,
+                            bool       noStart       = false,
+                            string     taskPath      = "",
+                            string     taskArguments = "",
+                            string     confFilePath  = "")
       : base(progName, parent)
     {
       Properties = new ExternalTaskNodeProperties
       {
-        NoStart  = noStart,
-        PipeName = pipeName,
-        TaskPath = taskPath,
-        TaskArguments = taskArguments,
+        NoStart               = noStart,
+        PipeName              = pipeName,
+        TaskPath              = taskPath,
+        TaskArguments         = taskArguments,
         ConfigurationFilePath = confFilePath
+      };
+    }
+  }
+
+  public class ElectricTopologyNode : CfTreeNode
+  {
+    public ElectricTopologyNode(string     progName,
+                                CfTreeNode parent,
+                                string     pipeName,
+                                bool       noStart = false)
+      : base(progName, parent)
+    {
+      Properties = new ChildNodeProperties
+      {
+        NoStart  = noStart,
+        PipeName = pipeName
       };
     }
   }
