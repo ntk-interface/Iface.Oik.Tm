@@ -32,5 +32,7 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task UpdateComponentsTreeLiveInfo(IReadOnlyCollection<DeltaComponent> tree);
+
+    Task UpdatePortsStats(IReadOnlyCollection<DeltaComponent> components);
   }
 }

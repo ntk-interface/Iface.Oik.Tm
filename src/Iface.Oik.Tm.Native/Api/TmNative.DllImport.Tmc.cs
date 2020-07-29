@@ -529,5 +529,12 @@ namespace Iface.Oik.Tm.Native.Api
                                                   [MarshalAs(UnmanagedType.LPArray, SizeConst = 8)] UInt32[] pMask,
                                                   out                                               UInt32   pData,
                                                   UInt32                                                     cdData);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern UInt32 tmcDntGetPortStats(Int32                                          cid,
+                                                   [MarshalAs(UnmanagedType.LPArray, SizeConst = 8)] UInt32[] pDap,
+                                                   [MarshalAs(UnmanagedType.LPStr)] StringBuilder buf,
+                                                   Int32                                          bufSize);
   }
 }

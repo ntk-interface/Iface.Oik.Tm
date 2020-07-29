@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
@@ -17,6 +18,10 @@ namespace Iface.Oik.Tm.Api
     private int _cid;
 
     private readonly ITmNative _native;
+
+    private readonly Regex _portStatsRegex = new
+      Regex(@"@=(\d*),0=(\d*),1=(\d*),2=(\d*),3=(\d*)",
+            RegexOptions.Compiled);
 
     public DeltaApi(ITmNative native)
     {
@@ -209,7 +214,7 @@ namespace Iface.Oik.Tm.Api
             component.Items.Add(DeltaItem.CreateControlDeltaItem(numControl,
                                                                  controlStruct.LastUpdate,
                                                                  (TmNativeDefs.DeltaItemsFlags) controlStruct
-                                                                  .DeltaFlags,
+                                                                   .DeltaFlags,
                                                                  controlStruct.CtrlBlock,
                                                                  controlStruct.CtrlGroup,
                                                                  controlStruct.CtrlPoint,
@@ -242,7 +247,7 @@ namespace Iface.Oik.Tm.Api
             component.Items.Add(DeltaItem.CreateAnalogFloatDeltaItem(numAnalogF,
                                                                      analogFStruct.LastUpdate,
                                                                      (TmNativeDefs.DeltaItemsFlags) analogFStruct
-                                                                      .DeltaFlags,
+                                                                       .DeltaFlags,
                                                                      analogFStruct.Value,
                                                                      addStringAnalogF,
                                                                      tmAddrAnalogF,
@@ -272,7 +277,7 @@ namespace Iface.Oik.Tm.Api
             component.Items.Add(DeltaItem.CreateAccumFloatDeltaItem(numAccumF,
                                                                     accumFStruct.LastUpdate,
                                                                     (TmNativeDefs.DeltaItemsFlags) accumFStruct
-                                                                     .DeltaFlags,
+                                                                      .DeltaFlags,
                                                                     accumFStruct.Value,
                                                                     addStringAccumF,
                                                                     tmAddrAccumF,
@@ -289,7 +294,7 @@ namespace Iface.Oik.Tm.Api
 
             var strValDescriptionString = strValStruct.Length > structSizeWithValueString
                                             ? EncodingUtil.Win1251ToUtf8(Marshal.PtrToStringAnsi(IntPtr.Add(itemPtr,
-                                                                                                            structSizeWithValueString)))
+                                                                           structSizeWithValueString)))
                                             : "";
 
             var tmAddrStrVal = strValStruct.TmsRtu == 0 || strValStruct.TmsRtu == 0
@@ -318,21 +323,19 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<bool> RegisterTracer()
     {
-      return await Task.Run(() => _native.TmcDntRegisterUser(_cid)).
-                        ConfigureAwait(false);
+      return await Task.Run(() => _native.TmcDntRegisterUser(_cid)).ConfigureAwait(false);
     }
-    
-    
+
+
     public async Task UnRegisterTracer()
     {
-      await Task.Run(() => _native.TmcDntUnRegisterUser(_cid)).
-                        ConfigureAwait(false);
+      await Task.Run(() => _native.TmcDntUnRegisterUser(_cid)).ConfigureAwait(false);
     }
-    
-    
-    public async Task TraceComponent(DeltaComponent component, 
-                                     DeltaTraceTypes  traceType, 
-                                     bool showDebugMessages)
+
+
+    public async Task TraceComponent(DeltaComponent  component,
+                                     DeltaTraceTypes traceType,
+                                     bool            showDebugMessages)
     {
       var traceFlag = traceType == DeltaTraceTypes.Protocol
                         ? TmNativeDefs.DeltaTraceFlags.Usr
@@ -345,11 +348,11 @@ namespace Iface.Oik.Tm.Api
         traceChain[0] = ~traceChain[0];
       }
 
-      await Task.Run(() => _native.TmcDntBeginTraceEx(_cid, 
-                                                      (uint) traceChain.Length, 
-                                                      traceChain, 
-                                                      (uint) traceFlag, 
-                                                      0, 
+      await Task.Run(() => _native.TmcDntBeginTraceEx(_cid,
+                                                      (uint) traceChain.Length,
+                                                      traceChain,
+                                                      (uint) traceFlag,
+                                                      0,
                                                       0))
                 .ConfigureAwait(false);
 
@@ -359,14 +362,13 @@ namespace Iface.Oik.Tm.Api
                   .ConfigureAwait(false);
       }
     }
-    
-    
+
+
     public async Task StopTrace()
     {
       await Task.Run(() => _native.TmcDntStopDebug(_cid))
                 .ConfigureAwait(false);
-      await Task.Run(() => _native.TmcDntStopTrace(_cid)).
-                 ConfigureAwait(false);
+      await Task.Run(() => _native.TmcDntStopTrace(_cid)).ConfigureAwait(false);
     }
 
 
@@ -385,32 +387,39 @@ namespace Iface.Oik.Tm.Api
                                                                         (uint) node.Level,
                                                                         node.TraceChain,
                                                                         out data,
-                                                                        sizeof(uint)));
+                                                                        sizeof(uint)))
+                                   .ConfigureAwait(false);
             if (result < sizeof(uint))
             {
-              var lastError = await Task.Run(Tms.GetLastError);
+              var lastError = await Task.Run(Tms.GetLastError)
+                                        .ConfigureAwait(false);
               node.State = lastError == 120 ? DeltaComponentStates.NotSupported : DeltaComponentStates.Unknown;
             }
             else
             {
               node.State = (DeltaComponentStates) data;
             }
+
             break;
           default:
             node.State = DeltaComponentStates.None;
             break;
         }
-
-        if (node.State == DeltaComponentStates.Ok || node.State == DeltaComponentStates.None) continue;
-        
-        var driverNum = (node.TraceChain[0] - 0x80000000) >> 24;
-        node.Address = node.Level == 2
-                         ? $"D{driverNum}:A{node.TraceChain[1]}"
-                         : $"D{driverNum}:A{node.TraceChain[1]}:P{node.TraceChain[2]}";
       }
     }
-    
-    
+
+
+    public async Task UpdatePortsStats(IReadOnlyCollection<DeltaComponent> components)
+    {
+      foreach (var node in components)
+      {
+        if (node.Level != 3) continue;
+
+        await UpdateDeltaComponentPortStats(node).ConfigureAwait(false);
+      }
+    }
+
+
     private async Task<IReadOnlyCollection<DeltaComponent>> GetDeltaComponents()
     {
       try
@@ -483,14 +492,50 @@ namespace Iface.Oik.Tm.Api
       var       buf     = new StringBuilder(bufSize);
 
       await Task.Run(() => _native.TmcDntGetObjectName(_cid,
-                                                    (ushort) tmAddr.Type.ToNativeType(),
-                                                    (short) tmAddr.Ch,
-                                                    (short) tmAddr.Rtu,
-                                                    (short) tmAddr.Point,
-                                                    ref buf,
-                                                    bufSize))
+                                                       (ushort) tmAddr.Type.ToNativeType(),
+                                                       (short) tmAddr.Ch,
+                                                       (short) tmAddr.Rtu,
+                                                       (short) tmAddr.Point,
+                                                       ref buf,
+                                                       bufSize))
                 .ConfigureAwait(false);
       return buf.ToString();
+    }
+
+    private async Task UpdateDeltaComponentPortStats(DeltaComponent component)
+    {
+      const int bufLength = 1024;
+      var       buf       = new StringBuilder(bufLength);
+
+      var result = await Task.Run(() =>
+                                    _native.TmcDntGetPortStats(_cid,
+                                                               component.TraceChain,
+                                                               ref buf,
+                                                               bufLength))
+                             .ConfigureAwait(false);
+
+      if (result == 0) return;
+
+      var (ticks, statusCount, analogCount, accumCount, messagesCount) = ParsePortStatsString(buf.ToString());
+
+      if (component.InitialPerformanceStats == null)
+      {
+        component.SetInitialPerformanceStats(ticks, statusCount, analogCount, accumCount, messagesCount);
+        Console.WriteLine($"Initial string | Ticks: {ticks}; StatusCount: {statusCount}; AnalogCount: {analogCount} AccumCount: {messagesCount}");
+        return;
+      }
+      
+      component.UpdatePerformanceStatsAndString(ticks, statusCount, analogCount, accumCount, messagesCount);
+    }
+
+    private (long, long, long, long, long) ParsePortStatsString(string portStatsString)
+    {
+      var mc = _portStatsRegex.Match(portStatsString);
+      return (Convert.ToInt64(mc.Groups[1].Value),
+              Convert.ToInt64(mc.Groups[2].Value),
+              Convert.ToInt64(mc.Groups[3].Value),
+              Convert.ToInt64(mc.Groups[4].Value),
+              Convert.ToInt64(mc.Groups[5].Value));
     }
   }
 }

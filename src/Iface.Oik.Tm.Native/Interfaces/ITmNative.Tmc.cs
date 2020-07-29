@@ -444,5 +444,11 @@ namespace Iface.Oik.Tm.Native.Interfaces
                              UInt32[]   traceChain,
                              out UInt32 pData,
                              UInt32     pDataSize);
+
+
+    UInt32 TmcDntGetPortStats(Int32             cid,
+                              UInt32[]          pDap,
+                              ref StringBuilder buf,
+                              Int32             bufSize);
   }
 }

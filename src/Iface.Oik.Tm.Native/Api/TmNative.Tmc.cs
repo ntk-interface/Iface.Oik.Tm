@@ -672,5 +672,14 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcDntGetLiveInfo(cid, count, traceChain, out pData, pDataSize);
     }
+
+
+    public UInt32 TmcDntGetPortStats(Int32             cid,
+                                     UInt32[]          pDap,
+                                     ref StringBuilder buf,
+                                     Int32             bufSize)
+    {
+      return tmcDntGetPortStats(cid, pDap, buf, bufSize);
+    }
   }
 }
