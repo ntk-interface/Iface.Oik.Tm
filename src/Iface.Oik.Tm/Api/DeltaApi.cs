@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -514,17 +515,16 @@ namespace Iface.Oik.Tm.Api
                                                                bufLength))
                              .ConfigureAwait(false);
 
-      if (result == 0) return;
+      if (result == 0 || buf.ToString().IsNullOrEmpty()) return;
 
       var (ticks, statusCount, analogCount, accumCount, messagesCount) = ParsePortStatsString(buf.ToString());
 
       if (component.InitialPerformanceStats == null)
       {
         component.SetInitialPerformanceStats(ticks, statusCount, analogCount, accumCount, messagesCount);
-        Console.WriteLine($"Initial string | Ticks: {ticks}; StatusCount: {statusCount}; AnalogCount: {analogCount} AccumCount: {messagesCount}");
         return;
       }
-      
+
       component.UpdatePerformanceStatsAndString(ticks, statusCount, analogCount, accumCount, messagesCount);
     }
 
