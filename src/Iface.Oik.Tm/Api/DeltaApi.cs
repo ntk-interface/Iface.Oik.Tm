@@ -433,7 +433,7 @@ namespace Iface.Oik.Tm.Api
                                .ConfigureAwait(false);
         if (!result)
         {
-          throw new Exception("Не удалось прочитать конфигурацию Дельты");
+          return null;
         }
 
         var charsToTrim = new[] {' ', '\t'};
