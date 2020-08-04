@@ -113,7 +113,10 @@ namespace Iface.Oik.Tm.Native.Utils
       var result = new List<string>();
 
       var marshalBytes = new byte[1];
-      var stringBytes  = new byte[255];
+      
+      const int stringBytesSize = 512;
+      var       stringBytes     = new byte[stringBytesSize];
+      
       var stringCursor = 0;
       var isNullFound  = false;
       for (var i = 0; i < maxSize; i++)
@@ -129,7 +132,7 @@ namespace Iface.Oik.Tm.Native.Utils
           result.Add(Encoding.GetEncoding(1251)
                              .GetString(stringBytes)
                              .Trim('\0'));
-          Array.Clear(stringBytes, 0, 255);
+          Array.Clear(stringBytes, 0, stringBytesSize);
           stringCursor = 0;
           isNullFound  = true;
           continue;
