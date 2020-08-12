@@ -12,6 +12,7 @@ namespace Iface.Oik.Tm.Interfaces
     public static readonly string RegimeClassName          = TmTechObjectBindingsMode.Regime.GetDescription();
     public static readonly string PortableGroundClassName  = TmTechObjectBindingsMode.PortableGround.GetDescription();
     public static readonly string OperLockClassName        = TmTechObjectBindingsMode.OperLock.GetDescription();
+    public static readonly string FaultySwitchClassName    = TmTechObjectBindingsMode.FaultySwitch.GetDescription();
 
     private const TmTechObjectBindingsMode DefaultTmStatusMode = TmTechObjectBindingsMode.DamageLocation;
     private const TmTechObjectBindingsMode DefaultTmAnalogMode = TmTechObjectBindingsMode.Measurement;
@@ -106,6 +107,10 @@ namespace Iface.Oik.Tm.Interfaces
       else if (tmClassName == RegimeClassName)
       {
         Mode = TmTechObjectBindingsMode.Regime;
+      }
+      else if (tmClassName == FaultySwitchClassName)
+      {
+        Mode = TmTechObjectBindingsMode.FaultySwitch;
       }
       else
       {
