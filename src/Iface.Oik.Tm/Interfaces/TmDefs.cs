@@ -186,14 +186,15 @@ namespace Iface.Oik.Tm.Interfaces
 
   public enum TmTechObjectBindingsMode
   {
-    [Description("")]    None            = 0,
-    [Description("ИЗМ")] Measurement     = 1,
-    [Description("ОМП")] DamageLocation  = 2,
-    [Description("ТЕХ")] TechParams      = 3,
-    [Description("РЗА")] RelayProtection = 4,
-    [Description("РЕЖ")] Regime          = 5,
-    [Description("ПЗ")]  PortableGround  = 6,
-    [Description("ОБР")] OperLock        = 7,
+    [Description("")]       None            = 0,
+    [Description("ИЗМ")]    Measurement     = 1,
+    [Description("ОМП")]    DamageLocation  = 2,
+    [Description("ТЕХ")]    TechParams      = 3,
+    [Description("РЗА")]    RelayProtection = 4,
+    [Description("РЕЖ")]    Regime          = 5,
+    [Description("ПЗ")]     PortableGround  = 6,
+    [Description("ОБР")]    OperLock        = 7,
+    [Description("АВОТКЛ")] FaultySwitch    = 8,
   }
 
 
@@ -203,6 +204,14 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("ТЕХ данные")]          TechParam        = 1,
     [Description("ТЕХ документ")]        TechDocument     = 2,
     [Description("ОБР документ")]        OperLockDocument = 3,
+  }
+
+
+  public enum TmTechObjectLogAction
+  {
+    None         = 0,
+    Placard      = 1,
+    FaultySwitch = 2,
   }
 
 
