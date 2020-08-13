@@ -141,11 +141,11 @@ namespace Iface.Oik.Tm.Api
 
       var fetchResult = await Task.Run(() => _native.TmcAnalogMicroSeries(_cid, (uint) count, addrList, bufPtrList))
                              .ConfigureAwait(false);
-      /*if (result != TmNativeDefs.Success)
+      if (fetchResult != TmNativeDefs.Success)
       {
-        bufPtrList.ForEach(Marshal.FreeHGlobal);
-        return Array.Empty<TmAnalogRetro>();
-      }*/
+        bufPtrList.ForEach(_native.TmcFreeMemory);
+        return new [] {Array.Empty<ITmAnalogRetro>()};
+      }
 
       var result = new List<ITmAnalogRetro[]>(count);
       for (var i = 0; i < count; i++)
