@@ -21,7 +21,7 @@ namespace Iface.Oik.Tm.Interfaces
   }
 
 
-  public struct TmAnalogImpulseArchiveAverage : ITmAnalogRetro
+  public readonly struct TmAnalogImpulseArchiveAverage : ITmAnalogRetro
   {
     public float    AvgValue { get; }
     public float    MinValue { get; }

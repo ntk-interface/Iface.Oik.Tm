@@ -591,6 +591,26 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct TMSAnalogMSeries
+    {
+      public UInt16 Interval;
+      public UInt16 Count;
+      
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 10)]
+      public TMSAnalogMSeriesElement[] Elements;
+    }
+
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct TMSAnalogMSeriesElement
+    {
+      public Single Value;
+      public UInt32 Ut;
+      public Byte   SFlg; // 1 - present, 2 - unreliable
+    }
+
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TUserInfo
     {
       public Boolean Valid;

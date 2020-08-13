@@ -126,6 +126,41 @@ namespace Iface.Oik.Tm.Api
       return await Task.Run(() => _native.TmcAnalog(_cid, (short) ch, (short) rtu, (short) point, null, 0))
                        .ConfigureAwait(false);
     }
+    
+    
+    public async Task<IReadOnlyCollection<TmAnalogMicroSeries[]>> GetAnalogsMicroSeries(IReadOnlyList<TmAnalog> analogs)
+    {
+      var count      = analogs.Count;
+      var addrList   = new TmNativeDefs.TAdrTm[count];
+      var bufPtrList = new IntPtr[count];
+      for (var i = 0; i < count; i++)
+      {
+        addrList[i]   = analogs[i].TmAddr.ToAdrTm();
+        bufPtrList[i] = Marshal.AllocHGlobal(1024);
+      }
+
+      var fetchResult = await Task.Run(() => _native.TmcAnalogMicroSeries(_cid, (uint) count, addrList, bufPtrList))
+                             .ConfigureAwait(false);
+      /*if (result != TmNativeDefs.Success)
+      {
+        bufPtrList.ForEach(Marshal.FreeHGlobal);
+        return Array.Empty<TmAnalogRetro>();
+      }*/
+
+      var result = new List<TmAnalogMicroSeries[]>(count);
+      for (var i = 0; i < count; i++)
+      {
+        var analogSeries = Marshal.PtrToStructure<TmNativeDefs.TMSAnalogMSeries>(bufPtrList[i]);
+        result.Add(analogSeries.Elements
+                               .Take(analogSeries.Count)
+                               .Select(el => new TmAnalogMicroSeries(el.Value, (TmAnalogMicroSeriesFlags) el.SFlg, el.Ut))
+                               .ToArray());
+
+        _native.TmcFreeMemory(bufPtrList[i]);
+      }
+
+      return result;
+    }
 
 
     public async Task<IReadOnlyCollection<TmAnalogRetro>> GetAnalogRetro(TmAddr addr,

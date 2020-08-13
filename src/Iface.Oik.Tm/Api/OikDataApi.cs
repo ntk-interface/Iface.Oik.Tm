@@ -82,45 +82,45 @@ namespace Iface.Oik.Tm.Api
     private void HandleTmsCallbackAlerts(byte reason, byte importance)
     {
       var eventArgs = new TmAlertEventArgs();
-      
+
       switch ((char) reason)
       {
         case 'a':
           eventArgs.Reason = TmAlertEventReason.Added;
           break;
-          
+
         case 'r':
           eventArgs.Reason = TmAlertEventReason.Removed;
           break;
-          
+
         default:
           eventArgs.Reason = TmAlertEventReason.Unknown;
           break;
       }
-      
+
       switch ((char) importance)
       {
         case '0':
           eventArgs.Importance = TmEventImportances.Imp0;
           break;
-          
+
         case '1':
           eventArgs.Importance = TmEventImportances.Imp1;
           break;
-          
+
         case '2':
           eventArgs.Importance = TmEventImportances.Imp2;
           break;
-          
+
         case '3':
           eventArgs.Importance = TmEventImportances.Imp3;
           break;
-          
+
         default:
           eventArgs.Importance = TmEventImportances.None;
           break;
       }
-      
+
       TmAlertsChanged.Invoke(this, eventArgs);
     }
 
@@ -700,6 +700,26 @@ namespace Iface.Oik.Tm.Api
       if (api == ApiSelection.Tms)
       {
         return await _tms.GetAnalogsClasses().ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+        return null;
+      }
+    }
+
+
+    public async Task<IReadOnlyCollection<TmAnalogMicroSeries[]>> GetAnalogsMicroSeries(
+      IReadOnlyList<TmAnalog> analogs,
+      PreferApi               prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.GetAnalogsMicroSeries(analogs).ConfigureAwait(false);
       }
       else if (api == ApiSelection.Sql)
       {

@@ -86,6 +86,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<IReadOnlyCollection<TmClassAnalog>> GetAnalogsClasses();
 
+    Task<IReadOnlyCollection<TmAnalogMicroSeries[]>> GetAnalogsMicroSeries(IReadOnlyList<TmAnalog> analogs);
+
 
     Task<IReadOnlyCollection<TmAnalogRetro>> GetAnalogRetro(TmAddr addr,
                                                             long   utcStartTime,

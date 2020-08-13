@@ -218,6 +218,10 @@ namespace Iface.Oik.Tm.Interfaces
                                                                                         PreferApi.Auto);
 
 
+    Task<IReadOnlyCollection<TmAnalogMicroSeries[]>> GetAnalogsMicroSeries(IReadOnlyList<TmAnalog> analogs,
+                                                                           PreferApi prefer = PreferApi.Auto);
+
+
     Task<IReadOnlyCollection<TmStatus>> GetPresentAps(PreferApi prefer = PreferApi.Auto);
 
     Task<IReadOnlyCollection<TmStatus>> GetUnackedAps(PreferApi prefer = PreferApi.Auto);
