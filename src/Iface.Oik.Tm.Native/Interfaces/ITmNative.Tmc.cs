@@ -232,6 +232,12 @@ namespace Iface.Oik.Tm.Native.Interfaces
                          ref TmNativeDefs.TAnalogPointShort[] analogs);
 
 
+    Int16 TmcAnalogMicroSeries(Int32                 cid,
+                               UInt32                cnt,
+                               TmNativeDefs.TAdrTm[] addrList,
+                               IntPtr[]              resultList);
+
+
     Int16 TmcSetStatus(Int32  cid,
                        Int16  ch,
                        Int16  rtu,

@@ -275,6 +275,13 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int16 tmcAnalogMicroSeries(Int32                           cid,
+                                                    UInt32                          cnt,
+                                                    [In]      TmNativeDefs.TAdrTm[] addrList,
+                                                    [In, Out] IntPtr[]              resultList); // TMSAnalogMSeries**
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcSetStatus(Int32                                   cid,
                                             Int16                                   ch,
                                             Int16                                   rtu,
@@ -532,9 +539,9 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern UInt32 tmcDntGetPortStats(Int32                                          cid,
+    public static extern UInt32 tmcDntGetPortStats(Int32 cid,
                                                    [MarshalAs(UnmanagedType.LPArray, SizeConst = 8)] UInt32[] pDap,
-                                                   [MarshalAs(UnmanagedType.LPStr)] StringBuilder buf,
-                                                   Int32                                          bufSize);
+                                                   [MarshalAs(UnmanagedType.LPStr)]                  StringBuilder buf,
+                                                   Int32 bufSize);
   }
 }

@@ -90,6 +90,15 @@ namespace Iface.Oik.Tm.Interfaces
 
 
   [Flags]
+  public enum TmAnalogMicroSeriesFlags
+  {
+    None       = 0,
+    IsPresent  = 1,
+    IsReliable = 2,
+  }
+
+
+  [Flags]
   public enum TmEventTypes : ushort
   {
     None            = 0,

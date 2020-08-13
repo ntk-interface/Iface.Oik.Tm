@@ -15,6 +15,8 @@ namespace Iface.Oik.Tm.Interfaces
                            !Value.Equals(float.MaxValue) && 
                            !_invalidFlags;
 
+    public bool IsUnreliable => !IsValid;
+
 
     public TmAnalogRetro(float value, short flags, long timestamp)
     {

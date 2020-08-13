@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using Iface.Oik.Tm.Interfaces;
 
 namespace Iface.Oik.Tm.Interfaces
 {
@@ -86,59 +84,61 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<IReadOnlyCollection<TmClassAnalog>> GetAnalogsClasses();
 
-
-    Task<IReadOnlyCollection<TmAnalogRetro>> GetAnalogRetro(TmAddr addr,
-                                                            long   utcStartTime,
-                                                            int    count,
-                                                            int    step,
-                                                            int    retroNum = 0);
+    Task<IReadOnlyCollection<ITmAnalogRetro[]>> GetAnalogsMicroSeries(IReadOnlyList<TmAnalog> analogs);
 
 
-    Task<IReadOnlyCollection<TmAnalogRetro>> GetAnalogRetro(TmAddr   addr,
-                                                            DateTime startTime,
-                                                            DateTime endTime,
-                                                            int      step     = 0,
-                                                            int      retroNum = 0);
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAddr addr,
+                                                             long   utcStartTime,
+                                                             int    count,
+                                                             int    step,
+                                                             int    retroNum = 0);
 
 
-    Task<IReadOnlyCollection<TmAnalogRetro>> GetAnalogRetro(TmAddr addr,
-                                                            string startTime,
-                                                            string endTime,
-                                                            int    step     = 0,
-                                                            int    retroNum = 0);
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAddr   addr,
+                                                             DateTime startTime,
+                                                             DateTime endTime,
+                                                             int      step     = 0,
+                                                             int      retroNum = 0);
 
 
-    Task<IReadOnlyCollection<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr addr,
-                                                                                      long   utcStartTime,
-                                                                                      long   utcEndTime);
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAddr addr,
+                                                             string startTime,
+                                                             string endTime,
+                                                             int    step     = 0,
+                                                             int    retroNum = 0);
 
 
-    Task<IReadOnlyCollection<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr   addr,
-                                                                                      DateTime startTime,
-                                                                                      DateTime endTime);
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveInstant(TmAddr addr,
+                                                                       long   utcStartTime,
+                                                                       long   utcEndTime);
 
 
-    Task<IReadOnlyCollection<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr addr,
-                                                                                      string startTime,
-                                                                                      string endTime);
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveInstant(TmAddr   addr,
+                                                                       DateTime startTime,
+                                                                       DateTime endTime);
 
 
-    Task<IReadOnlyCollection<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr addr,
-                                                                                      long   utcStartTime,
-                                                                                      long   utcEndTime,
-                                                                                      int    step = 0);
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveInstant(TmAddr addr,
+                                                                       string startTime,
+                                                                       string endTime);
 
 
-    Task<IReadOnlyCollection<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr   addr,
-                                                                                      DateTime startTime,
-                                                                                      DateTime endTime,
-                                                                                      int      step = 0);
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(TmAddr addr,
+                                                                       long   utcStartTime,
+                                                                       long   utcEndTime,
+                                                                       int    step = 0);
 
 
-    Task<IReadOnlyCollection<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr addr,
-                                                                                      string startTime,
-                                                                                      string endTime,
-                                                                                      int    step = 0);
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(TmAddr   addr,
+                                                                       DateTime startTime,
+                                                                       DateTime endTime,
+                                                                       int      step = 0);
+
+
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(TmAddr addr,
+                                                                       string startTime,
+                                                                       string endTime,
+                                                                       int    step = 0);
 
 
     Task<bool> RemoveAlert(TmAlert alert);

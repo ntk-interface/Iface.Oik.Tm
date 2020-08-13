@@ -126,15 +126,53 @@ namespace Iface.Oik.Tm.Api
       return await Task.Run(() => _native.TmcAnalog(_cid, (short) ch, (short) rtu, (short) point, null, 0))
                        .ConfigureAwait(false);
     }
-
-
-    public async Task<IReadOnlyCollection<TmAnalogRetro>> GetAnalogRetro(TmAddr addr,
-                                                                         long   utcStartTime,
-                                                                         int    count,
-                                                                         int    step,
-                                                                         int    retroNum = 0)
+    
+    
+    public async Task<IReadOnlyCollection<ITmAnalogRetro[]>> GetAnalogsMicroSeries(IReadOnlyList<TmAnalog> analogs)
     {
-      var result = new List<TmAnalogRetro>();
+      var count      = analogs.Count;
+      var addrList   = new TmNativeDefs.TAdrTm[count];
+      var bufPtrList = new IntPtr[count];
+      for (var i = 0; i < count; i++)
+      {
+        addrList[i]   = analogs[i].TmAddr.ToAdrTm();
+        bufPtrList[i] = Marshal.AllocHGlobal(1024);
+      }
+
+      var fetchResult = await Task.Run(() => _native.TmcAnalogMicroSeries(_cid, (uint) count, addrList, bufPtrList))
+                             .ConfigureAwait(false);
+      /*if (result != TmNativeDefs.Success)
+      {
+        bufPtrList.ForEach(Marshal.FreeHGlobal);
+        return Array.Empty<TmAnalogRetro>();
+      }*/
+
+      var result = new List<ITmAnalogRetro[]>(count);
+      for (var i = 0; i < count; i++)
+      {
+        var analogSeries = Marshal.PtrToStructure<TmNativeDefs.TMSAnalogMSeries>(bufPtrList[i]);
+        result.Add(analogSeries.Elements
+                               .Take(analogSeries.Count)
+                               .Select(el => new TmAnalogMicroSeries(el.Value, 
+                                                                     (TmAnalogMicroSeriesFlags) el.SFlg, 
+                                                                     el.Ut))
+                               .Cast<ITmAnalogRetro>()
+                               .ToArray());
+
+        _native.TmcFreeMemory(bufPtrList[i]);
+      }
+
+      return result;
+    }
+
+
+    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAddr addr,
+                                                                          long   utcStartTime,
+                                                                          int    count,
+                                                                          int    step,
+                                                                          int    retroNum = 0)
+    {
+      var result = new List<ITmAnalogRetro>();
 
       var (ch, rtu, point) = addr.GetTupleShort();
       long startTime = _native.UxGmTime2UxTime(utcStartTime);
@@ -160,11 +198,11 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IReadOnlyCollection<TmAnalogRetro>> GetAnalogRetro(TmAddr addr,
-                                                                         long   utcStartTime,
-                                                                         long   utcEndTime,
-                                                                         int    step     = 0,
-                                                                         int    retroNum = 0)
+    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAddr addr,
+                                                                          long   utcStartTime,
+                                                                          long   utcEndTime,
+                                                                          int    step     = 0,
+                                                                          int    retroNum = 0)
     {
       if (utcEndTime <= utcStartTime)
       {
@@ -182,11 +220,11 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IReadOnlyCollection<TmAnalogRetro>> GetAnalogRetro(TmAddr   addr,
-                                                                         DateTime startTime,
-                                                                         DateTime endTime,
-                                                                         int      step     = 0,
-                                                                         int      retroNum = 0)
+    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAddr   addr,
+                                                                          DateTime startTime,
+                                                                          DateTime endTime,
+                                                                          int      step     = 0,
+                                                                          int      retroNum = 0)
     {
       return await GetAnalogRetro(addr,
                                   DateUtil.GetUtcTimestampFromDateTime(startTime),
@@ -197,11 +235,11 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IReadOnlyCollection<TmAnalogRetro>> GetAnalogRetro(TmAddr addr,
-                                                                         string startTime,
-                                                                         string endTime,
-                                                                         int    step     = 0,
-                                                                         int    retroNum = 0)
+    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAddr addr,
+                                                                          string startTime,
+                                                                          string endTime,
+                                                                          int    step     = 0,
+                                                                          int    retroNum = 0)
     {
       return await GetAnalogRetro(addr,
                                   DateUtil.GetDateTime(startTime) ?? throw new ArgumentException(),
@@ -212,12 +250,10 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IReadOnlyCollection<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr addr,
-                                                                                                   long   utcStartTime,
-                                                                                                   long   utcEndTime)
+    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveInstant(TmAddr addr,
+                                                                                    long   utcStartTime,
+                                                                                    long   utcEndTime)
     {
-      var result = new List<TmAnalogImpulseArchiveInstant>();
-
       if (utcEndTime <= utcStartTime)
       {
         return null;
@@ -244,6 +280,7 @@ namespace Iface.Oik.Tm.Api
         return null;
       }
 
+      var result = new List<ITmAnalogRetro>();
       try
       {
         var structSize = Marshal.SizeOf(typeof(TmNativeDefs.TMAAN_ARCH_VALUE));
@@ -266,7 +303,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IReadOnlyCollection<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr   addr,
+    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveInstant(TmAddr   addr,
                                                                                                    DateTime startTime,
                                                                                                    DateTime endTime)
     {
@@ -277,9 +314,9 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IReadOnlyCollection<TmAnalogImpulseArchiveInstant>> GetImpulseArchiveInstant(TmAddr addr,
-                                                                                                   string startTime,
-                                                                                                   string endTime)
+    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveInstant(TmAddr addr,
+                                                                                    string startTime,
+                                                                                    string endTime)
     {
       return await GetImpulseArchiveInstant(addr,
                                             DateUtil.GetDateTime(startTime) ?? throw new ArgumentException(),
@@ -288,13 +325,11 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IReadOnlyCollection<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr addr,
-                                                                                                   long   utcStartTime,
-                                                                                                   long   utcEndTime,
-                                                                                                   int    step = 0)
+    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(TmAddr addr,
+                                                                                    long   utcStartTime,
+                                                                                    long   utcEndTime,
+                                                                                    int    step = 0)
     {
-      var result = new List<TmAnalogImpulseArchiveAverage>();
-
       if (utcEndTime <= utcStartTime)
       {
         return null;
@@ -326,6 +361,7 @@ namespace Iface.Oik.Tm.Api
         return null;
       }
 
+      var result = new List<ITmAnalogRetro>();
       try
       {
         float minValue   = 0;
@@ -367,7 +403,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IReadOnlyCollection<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr   addr,
+    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(TmAddr   addr,
                                                                                                    DateTime startTime,
                                                                                                    DateTime endTime,
                                                                                                    int      step = 0)
@@ -380,10 +416,10 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IReadOnlyCollection<TmAnalogImpulseArchiveAverage>> GetImpulseArchiveAverage(TmAddr addr,
-                                                                                                   string startTime,
-                                                                                                   string endTime,
-                                                                                                   int    step = 0)
+    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(TmAddr addr,
+                                                                                    string startTime,
+                                                                                    string endTime,
+                                                                                    int    step = 0)
     {
       return await GetImpulseArchiveAverage(addr,
                                             DateUtil.GetDateTime(startTime) ?? throw new ArgumentException(),

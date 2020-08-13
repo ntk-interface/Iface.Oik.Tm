@@ -355,6 +355,15 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public Int16 TmcAnalogMicroSeries(Int32                 cid,
+                                      UInt32                cnt,
+                                      TmNativeDefs.TAdrTm[] addrList,
+                                      IntPtr[]              resultList)
+    {
+      return tmcAnalogMicroSeries(cid, cnt, addrList, resultList);
+    }
+
+
     public Int16 TmcSetStatus(Int32  cid,
                               Int16  ch,
                               Int16  rtu,
@@ -481,6 +490,7 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcGetObjectName(cid, objectType, ch, rtu, point, buf, bufSize);
     }
+
 
     public short TmcGetObjectNameEx(int               cid,
                                     ushort            objectType,
