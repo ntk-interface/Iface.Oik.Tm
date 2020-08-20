@@ -167,6 +167,10 @@ namespace Iface.Oik.Tm.Dto
     public int       Tma        { get; set; }
     public short?    TmType     { get; set; }
     public short?    ClassId    { get; set; }
+    
+    public float[]    MsValues { get; set; }
+    public DateTime[] MsTimes  { get; set; }
+    public short[]    MsFlags  { get; set; }
   }
 
 

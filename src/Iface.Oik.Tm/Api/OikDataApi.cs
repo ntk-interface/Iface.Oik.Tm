@@ -1001,6 +1001,24 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<IReadOnlyCollection<TmAlert>> GetAlertsWithAnalogMicroSeries(PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
+      if (api == ApiSelection.Tms)
+      {
+        throw new NotImplementedException();
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        return await _sql.GetAlertsWithAnalogMicroSeries().ConfigureAwait(false);
+      }
+      else
+      {
+        return null;
+      }
+    }
+
+
     public async Task<bool> RemoveAlert(TmAlert alert, PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
