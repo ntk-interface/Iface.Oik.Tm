@@ -440,23 +440,7 @@ namespace Iface.Oik.Tm.Api
           var dtos = await sql.DbConnection
                               .QueryAsync<TmAnalogMicroSeriesDto>(commandText, parameters)
                               .ConfigureAwait(false);
-
-          var result = new List<ITmAnalogRetro[]>(analogs.Count);
-          dtos.ForEach(dto =>
-          {
-            if (dto.Values.IsNullOrEmpty())
-            {
-              result.Add(Array.Empty<ITmAnalogRetro>());
-              return;
-            }
-            var analogSeries = new List<ITmAnalogRetro>();
-            for (var i = 0; i < dto.Values.Length; i++)
-            {
-              analogSeries.Add(new TmAnalogMicroSeries(dto.Values[i], dto.Flags[i], dto.Times[i]));
-            }
-            result.Add(analogSeries.ToArray());
-          });
-          return result;
+          return dtos.Select(dto => dto.MapToITmAnalogRetroArray()).ToList();
         }
       }
       catch (NpgsqlException ex)

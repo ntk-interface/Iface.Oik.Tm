@@ -1,4 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Iface.Oik.Tm.Interfaces;
+using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Dto
 {
@@ -77,6 +81,19 @@ namespace Iface.Oik.Tm.Dto
         ClassId  = dto.ClassId,
         Provider = dto.Provider,
       };
+    }
+
+
+    public static ITmAnalogRetro[] MapToITmAnalogRetroArray(this TmAnalogMicroSeriesDto dto)
+    {
+      if (dto.Values.IsNullOrEmpty())
+      {
+        return Array.Empty<ITmAnalogRetro>();
+      }
+      return dto.Values
+                .Select((value, idx) => new TmAnalogMicroSeries(value, dto.Flags[idx], dto.Times[idx]))
+                .Cast<ITmAnalogRetro>()
+                .ToArray();
     }
   }
 }
