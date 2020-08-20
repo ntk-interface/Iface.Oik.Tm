@@ -419,6 +419,59 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<IReadOnlyCollection<ITmAnalogRetro[]>> GetAnalogsMicroSeries(IReadOnlyList<TmAnalog> analogs)
+    {
+      if (analogs.IsNullOrEmpty())
+      {
+        return new [] {Array.Empty<ITmAnalogRetro>()};
+      }
+      try
+      {
+        using (var sql = _createOikSqlConnection())
+        {
+          await sql.OpenAsync().ConfigureAwait(false);
+          var commandText = @"SELECT array_agg(val) AS values, array_agg(vtime) AS times, array_agg(sflg) AS flags
+                              FROM oik_microseries
+                                RIGHT JOIN UNNEST(@TmaArray) WITH ORDINALITY t (a,i)
+                                  ON tma = t.a
+                              GROUP BY tma, t.i
+                              ORDER BY t.i";
+          var parameters = new {TmaArray = analogs.Select(tag => tag.TmAddr.ToSqlTma()).ToArray()};
+          var dtos = await sql.DbConnection
+                              .QueryAsync<TmAnalogMicroSeriesDto>(commandText, parameters)
+                              .ConfigureAwait(false);
+
+          var result = new List<ITmAnalogRetro[]>(analogs.Count);
+          dtos.ForEach(dto =>
+          {
+            if (dto.Values.IsNullOrEmpty())
+            {
+              result.Add(Array.Empty<ITmAnalogRetro>());
+              return;
+            }
+            var analogSeries = new List<ITmAnalogRetro>();
+            for (var i = 0; i < dto.Values.Length; i++)
+            {
+              analogSeries.Add(new TmAnalogMicroSeries(dto.Values[i], dto.Flags[i], dto.Times[i]));
+            }
+            result.Add(analogSeries.ToArray());
+          });
+          return result;
+        }
+      }
+      catch (NpgsqlException ex)
+      {
+        HandleNpgsqlException(ex);
+        return null;
+      }
+      catch (Exception ex)
+      {
+        HandleException(ex);
+        return null;
+      }
+    }
+
+
     public async Task<IReadOnlyCollection<TmChannel>> GetTmTreeChannels()
     {
       try

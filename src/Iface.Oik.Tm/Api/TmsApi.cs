@@ -130,6 +130,10 @@ namespace Iface.Oik.Tm.Api
     
     public async Task<IReadOnlyCollection<ITmAnalogRetro[]>> GetAnalogsMicroSeries(IReadOnlyList<TmAnalog> analogs)
     {
+      if (analogs.IsNullOrEmpty())
+      {
+        return new [] {Array.Empty<ITmAnalogRetro>()};
+      }
       var count      = analogs.Count;
       var addrList   = new TmNativeDefs.TAdrTm[count];
       var bufPtrList = new IntPtr[count];
@@ -153,9 +157,7 @@ namespace Iface.Oik.Tm.Api
         var analogSeries = Marshal.PtrToStructure<TmNativeDefs.TMSAnalogMSeries>(bufPtrList[i]);
         result.Add(analogSeries.Elements
                                .Take(analogSeries.Count)
-                               .Select(el => new TmAnalogMicroSeries(el.Value, 
-                                                                     (TmAnalogMicroSeriesFlags) el.SFlg, 
-                                                                     el.Ut))
+                               .Select(el => new TmAnalogMicroSeries(el.Value, el.SFlg, el.Ut))
                                .Cast<ITmAnalogRetro>()
                                .ToArray());
 
