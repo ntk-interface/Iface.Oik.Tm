@@ -143,7 +143,7 @@ namespace Iface.Oik.Tm.Dto
     public short     Importance   { get; set; }
     public int       Tma          { get; set; }
     public string    TmaStr       { get; set; }
-    public short?    TmType      { get; set; }
+    public short?    TmType       { get; set; }
     public string    TmTypeName   { get; set; }
     public short?    ClassId      { get; set; }
     public DateTime? AckTime      { get; set; }
@@ -167,5 +167,17 @@ namespace Iface.Oik.Tm.Dto
     public int       Tma        { get; set; }
     public short?    TmType     { get; set; }
     public short?    ClassId    { get; set; }
+    
+    public float[]    MsValues { get; set; }
+    public DateTime[] MsTimes  { get; set; }
+    public short[]    MsFlags  { get; set; }
+  }
+
+
+  public class TmAnalogMicroSeriesDto
+  {
+    public float[]    Values { get; set; }
+    public DateTime[] Times  { get; set; }
+    public short[]    Flags  { get; set; }
   }
 }

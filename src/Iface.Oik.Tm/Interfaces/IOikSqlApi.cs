@@ -12,11 +12,11 @@ namespace Iface.Oik.Tm.Interfaces
     Task<DateTime?> GetSystemTime();
 
     Task<string> GetSystemTimeString();
-    
+
     Task<int> GetStatus(int ch, int rtu, int point);
 
     Task<float> GetAnalog(int ch, int rtu, int point);
-    
+
     Task UpdateStatus(TmStatus status);
 
     Task UpdateAnalog(TmAnalog analog);
@@ -28,6 +28,8 @@ namespace Iface.Oik.Tm.Interfaces
     Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags);
 
     Task UpdateTagPropertiesAndClassData(TmTag tag);
+
+    Task<IReadOnlyCollection<ITmAnalogRetro[]>> GetAnalogsMicroSeries(IReadOnlyList<TmAnalog> analogs);
 
     Task<IReadOnlyCollection<TmEvent>> GetEventsArchive(TmEventFilter filter);
 
@@ -46,25 +48,27 @@ namespace Iface.Oik.Tm.Interfaces
     Task<string> GetRtuName(int channelId, int rtuId);
 
     Task<IReadOnlyCollection<TmStatus>> GetPresentAps();
-    
+
     Task<IReadOnlyCollection<TmStatus>> GetUnackedAps();
 
     Task<IReadOnlyCollection<TmStatus>> GetAbnormalStatuses();
 
     Task<IReadOnlyCollection<TmAlert>> GetAlerts();
     
+    Task<IReadOnlyCollection<TmAlert>> GetAlertsWithAnalogMicroSeries();
+
     Task<IReadOnlyCollection<TmAlarm>> GetPresentAlarms();
 
     Task<IReadOnlyCollection<TmAlarm>> GetAnalogAlarms(TmAnalog analog);
-    
+
     Task<IReadOnlyCollection<TmStatus>> LookupStatuses(TmStatusFilter filter);
-    
+
     Task<IReadOnlyCollection<TmAnalog>> LookupAnalogs(TmAnalogFilter filter);
-    
+
     Task<bool> UpdateAckedEventsIfAny(IReadOnlyList<TmEvent> tmEvents);
-    
+
     Task<bool> HasPresentAps();
-    
+
     Task<bool> HasPresentAlarms();
   }
 }

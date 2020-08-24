@@ -715,14 +715,14 @@ namespace Iface.Oik.Tm.Api
       IReadOnlyList<TmAnalog> analogs,
       PreferApi               prefer = PreferApi.Auto)
     {
-      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
       {
         return await _tms.GetAnalogsMicroSeries(analogs).ConfigureAwait(false);
       }
       else if (api == ApiSelection.Sql)
       {
-        throw new NotImplementedException();
+        return await _sql.GetAnalogsMicroSeries(analogs).ConfigureAwait(false);
       }
       else
       {
@@ -993,6 +993,24 @@ namespace Iface.Oik.Tm.Api
       else if (api == ApiSelection.Sql)
       {
         return await _sql.GetAlerts().ConfigureAwait(false);
+      }
+      else
+      {
+        return null;
+      }
+    }
+
+
+    public async Task<IReadOnlyCollection<TmAlert>> GetAlertsWithAnalogMicroSeries(PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
+      if (api == ApiSelection.Tms)
+      {
+        throw new NotImplementedException();
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        return await _sql.GetAlertsWithAnalogMicroSeries().ConfigureAwait(false);
       }
       else
       {

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Iface.Oik.Tm.Dto;
 using Iface.Oik.Tm.Utils;
 
@@ -20,6 +22,8 @@ namespace Iface.Oik.Tm.Interfaces
     public int       TmClassId          { get; }
     public TmAddr    TmAddr             { get; }
 
+    public List<ITmAnalogRetro> MicroSeries { get; }
+
     public bool CanRemove => !IsActive &&
                              !IsUnacked;
 
@@ -30,19 +34,20 @@ namespace Iface.Oik.Tm.Interfaces
     public bool HasTmAnalog => TmAddr.Type == TmType.Analog;
 
 
-    public TmAlert(byte[]    id,
-                   int       importance,
-                   bool      isActive,
-                   bool      isUnacked,
-                   DateTime? onTime,
-                   DateTime? offTime,
-                   string    type,
-                   string    name,
-                   string    currentValueString,
-                   DateTime? currentValueTime,
-                   float     currentValue,
-                   int       tmClassId,
-                   TmAddr    tmAddr)
+    public TmAlert(byte[]           id,
+                   int              importance,
+                   bool             isActive,
+                   bool             isUnacked,
+                   DateTime?        onTime,
+                   DateTime?        offTime,
+                   string           type,
+                   string           name,
+                   string           currentValueString,
+                   DateTime?        currentValueTime,
+                   float            currentValue,
+                   int              tmClassId,
+                   TmAddr           tmAddr,
+                   ITmAnalogRetro[] microSeries)
     {
       Id                 = id;
       Importance         = importance;
@@ -57,11 +62,18 @@ namespace Iface.Oik.Tm.Interfaces
       CurrentValue       = currentValue;
       TmClassId          = tmClassId;
       TmAddr             = tmAddr;
+      MicroSeries        = microSeries.ToList();
     }
 
 
     public static TmAlert CreateFromDto(TmAlertDto dto)
     {
+      var microSeriesDto = new TmAnalogMicroSeriesDto
+      {
+        Values = dto.MsValues,
+        Flags  = dto.MsFlags,
+        Times  = dto.MsTimes,
+      };
       return new TmAlert(dto.AlertId,
                          dto.Importance,
                          dto.Active,
@@ -75,7 +87,9 @@ namespace Iface.Oik.Tm.Interfaces
                          dto.CurValue,
                          dto.ClassId ?? 0,
                          TmAddr.CreateFromSqlTmaAndTmaType((ushort) (dto.TmType ?? 0),
-                                                           dto.Tma));
+                                                           dto.Tma),
+                         microSeriesDto.MapToITmAnalogRetroArray()
+      );
     }
   }
 }
