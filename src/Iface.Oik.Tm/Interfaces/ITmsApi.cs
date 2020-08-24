@@ -87,23 +87,23 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<ITmAnalogRetro[]>> GetAnalogsMicroSeries(IReadOnlyList<TmAnalog> analogs);
 
 
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAddr addr,
-                                                             long   utcStartTime,
-                                                             int    count,
-                                                             int    step,
-                                                             int    retroNum = 0);
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAnalog analog,
+                                                             long     utcStartTime,
+                                                             int      count,
+                                                             int      step,
+                                                             int      retroNum = 0);
 
 
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAddr              addr,
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAnalog            analog,
                                                              TmAnalogRetroFilter filter,
                                                              int                 retroNum = 0);
 
 
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveInstant(TmAddr              addr,
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveInstant(TmAnalog            analog,
                                                                        TmAnalogRetroFilter filter);
 
 
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(TmAddr              addr,
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(TmAnalog            analog,
                                                                        TmAnalogRetroFilter filter);
 
 

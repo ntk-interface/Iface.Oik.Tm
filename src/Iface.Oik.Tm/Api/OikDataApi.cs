@@ -522,7 +522,7 @@ namespace Iface.Oik.Tm.Api
 
 
     public async Task<(IReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix,
-      PreferApi                                                                                 prefer = PreferApi.Auto)
+                                                                                    PreferApi   prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: true, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
@@ -731,7 +731,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAddr    addr,
+    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAnalog  analog,
                                                                           long      utcStartTime,
                                                                           int       count,
                                                                           int       step,
@@ -741,7 +741,7 @@ namespace Iface.Oik.Tm.Api
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
       {
-        return await _tms.GetAnalogRetro(addr, utcStartTime, count, step, retroNum).ConfigureAwait(false);
+        return await _tms.GetAnalogRetro(analog, utcStartTime, count, step, retroNum).ConfigureAwait(false);
       }
       else if (api == ApiSelection.Sql)
       {
@@ -754,7 +754,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAddr              addr,
+    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAnalog            analog,
                                                                           TmAnalogRetroFilter filter,
                                                                           int                 retroNum = 0,
                                                                           PreferApi           prefer   = PreferApi.Auto)
@@ -762,7 +762,7 @@ namespace Iface.Oik.Tm.Api
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
       {
-        return await _tms.GetAnalogRetro(addr, filter, retroNum).ConfigureAwait(false);
+        return await _tms.GetAnalogRetro(analog, filter, retroNum).ConfigureAwait(false);
       }
       else if (api == ApiSelection.Sql)
       {
@@ -776,14 +776,14 @@ namespace Iface.Oik.Tm.Api
 
 
     public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveInstant(
-      TmAddr              addr,
+      TmAnalog            analog,
       TmAnalogRetroFilter filter,
       PreferApi           prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
       {
-        return await _tms.GetImpulseArchiveInstant(addr, filter).ConfigureAwait(false);
+        return await _tms.GetImpulseArchiveInstant(analog, filter).ConfigureAwait(false);
       }
       else if (api == ApiSelection.Sql)
       {
@@ -797,14 +797,14 @@ namespace Iface.Oik.Tm.Api
 
 
     public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(
-      TmAddr              addr,
+      TmAnalog            analog,
       TmAnalogRetroFilter filter,
       PreferApi           prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
       {
-        return await _tms.GetImpulseArchiveAverage(addr, filter).ConfigureAwait(false);
+        return await _tms.GetImpulseArchiveAverage(analog, filter).ConfigureAwait(false);
       }
       else if (api == ApiSelection.Sql)
       {

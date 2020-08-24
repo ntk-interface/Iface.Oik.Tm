@@ -148,7 +148,7 @@ namespace Iface.Oik.Tm.Interfaces
                             PreferApi prefer = PreferApi.Auto);
 
 
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAddr    addr,
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAnalog  analog,
                                                              long      utcStartTime,
                                                              int       count,
                                                              int       step,
@@ -156,18 +156,18 @@ namespace Iface.Oik.Tm.Interfaces
                                                              PreferApi prefer   = PreferApi.Auto);
 
 
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAddr              addr,
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAnalog            analog,
                                                              TmAnalogRetroFilter filter,
                                                              int                 retroNum = 0,
                                                              PreferApi           prefer   = PreferApi.Auto);
 
 
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveInstant(TmAddr              addr,
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveInstant(TmAnalog            analog,
                                                                        TmAnalogRetroFilter filter,
                                                                        PreferApi           prefer = PreferApi.Auto);
 
 
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(TmAddr              addr,
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(TmAnalog            analog,
                                                                        TmAnalogRetroFilter filter,
                                                                        PreferApi           prefer = PreferApi.Auto);
 

@@ -168,15 +168,15 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAddr addr,
-                                                                          long   utcStartTime,
-                                                                          int    count,
-                                                                          int    step,
-                                                                          int    retroNum = 0)
+    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAnalog analog,
+                                                                          long     utcStartTime,
+                                                                          int      count,
+                                                                          int      step,
+                                                                          int      retroNum = 0)
     {
       var result = new List<ITmAnalogRetro>();
 
-      var (ch, rtu, point) = addr.GetTupleShort();
+      var (ch, rtu, point) = analog.TmAddr.GetTupleShort();
       long startTime = _native.UxGmTime2UxTime(utcStartTime);
 
       var tmcAnalogShortList = new TmNativeDefs.TAnalogPointShort[count];
@@ -200,7 +200,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAddr              addr,
+    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAnalog            analog,
                                                                           TmAnalogRetroFilter filter,
                                                                           int                 retroNum = 0)
     {
@@ -215,12 +215,12 @@ namespace Iface.Oik.Tm.Api
 
       int pointsCount = (int) ((endTime - startTime) / step) + 1;
 
-      return await GetAnalogRetro(addr, startTime, pointsCount, step, retroNum).ConfigureAwait(false);
+      return await GetAnalogRetro(analog, startTime, pointsCount, step, retroNum).ConfigureAwait(false);
     }
 
 
     public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveInstant(
-      TmAddr              addr,
+      TmAnalog            analog,
       TmAnalogRetroFilter filter)
     {
       var startTime = DateUtil.GetUtcTimestampFromDateTime(filter.StartTime);
@@ -235,13 +235,14 @@ namespace Iface.Oik.Tm.Api
 
       uint count = 0;
       var tmcImpulseArchivePtr = await Task.Run(() => _native.TmcAanReadArchive(_cid,
-                                                  addr.ToIntegerWithoutPadding(),
-                                                  (uint) _native.UxGmTime2UxTime(startTime),
-                                                  (uint) _native.UxGmTime2UxTime(endTime),
-                                                  step,
-                                                  queryFlags,
-                                                  out count,
-                                                  null, IntPtr.Zero))
+                                                                                analog.TmAddr.ToIntegerWithoutPadding(),
+                                                                                (uint) _native.UxGmTime2UxTime(
+                                                                                  startTime),
+                                                                                (uint) _native.UxGmTime2UxTime(endTime),
+                                                                                step,
+                                                                                queryFlags,
+                                                                                out count,
+                                                                                null, IntPtr.Zero))
                                            .ConfigureAwait(false);
       if (tmcImpulseArchivePtr == IntPtr.Zero)
       {
@@ -272,7 +273,7 @@ namespace Iface.Oik.Tm.Api
 
 
     public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(
-      TmAddr addr,
+      TmAnalog            analog,
       TmAnalogRetroFilter filter)
     {
       var startTime = DateUtil.GetUtcTimestampFromDateTime(filter.StartTime);
@@ -285,18 +286,19 @@ namespace Iface.Oik.Tm.Api
       const uint queryFlags = (uint) (TmNativeDefs.ImpulseArchiveQueryFlags.Avg |
                                       TmNativeDefs.ImpulseArchiveQueryFlags.Min |
                                       TmNativeDefs.ImpulseArchiveQueryFlags.Max);
-      
+
       var step = filter.Step ?? TmUtil.GetRetrospectivePreferredStep(startTime, endTime);
 
       uint count = 0;
       var tmcImpulseArchivePtr = await Task.Run(() => _native.TmcAanReadArchive(_cid,
-                                                  addr.ToIntegerWithoutPadding(),
-                                                  (uint) _native.UxGmTime2UxTime(startTime),
-                                                  (uint) _native.UxGmTime2UxTime(endTime),
-                                                  (uint) step,
-                                                  queryFlags,
-                                                  out count,
-                                                  null, IntPtr.Zero))
+                                                                                analog.TmAddr.ToIntegerWithoutPadding(),
+                                                                                (uint) _native.UxGmTime2UxTime(
+                                                                                  startTime),
+                                                                                (uint) _native.UxGmTime2UxTime(endTime),
+                                                                                (uint) step,
+                                                                                queryFlags,
+                                                                                out count,
+                                                                                null, IntPtr.Zero))
                                            .ConfigureAwait(false);
       if (tmcImpulseArchivePtr == IntPtr.Zero)
       {
@@ -719,10 +721,10 @@ namespace Iface.Oik.Tm.Api
       uint count            = 0;
       var  filterProperties = TmNativeUtil.GetDoubleNullTerminatedPointerFromStringList(filter?.Properties);
       var tmcTechObjPropsPtr = await Task.Run(() => _native.TmcTechObjEnumValues(_cid,
-                                                filter?.Scheme ?? uint.MaxValue,
-                                                filter?.Type   ?? uint.MaxValue,
-                                                filterProperties,
-                                                out count))
+                                                                                 filter?.Scheme ?? uint.MaxValue,
+                                                                                 filter?.Type   ?? uint.MaxValue,
+                                                                                 filterProperties,
+                                                                                 out count))
                                          .ConfigureAwait(false);
       if (tmcTechObjPropsPtr == IntPtr.Zero)
       {
@@ -742,7 +744,7 @@ namespace Iface.Oik.Tm.Api
 
         var tob = new TmTechObject(tmcTechObjProps.Scheme, tmcTechObjProps.Type, tmcTechObjProps.Object);
         tob.SetPropertiesFromTmc(TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(tmcTechObjProps.Props,
-                                   1024));
+                                                                                           1024));
         tmTechObjects.Add(tob);
       }
       _native.TmcFreeMemory(tmcTechObjPropsPtr);
@@ -1081,8 +1083,8 @@ namespace Iface.Oik.Tm.Api
                                                      eventLogAddr,
                                                      str,
                                                      TmNativeUtil.GetFixedBytesWithTrailingZero(_userInfo?.Name,
-                                                       16,
-                                                       "windows-1251"),
+                                                                                                16,
+                                                                                                "windows-1251"),
                                                      16))
                 .ConfigureAwait(false);
     }
@@ -1967,10 +1969,11 @@ namespace Iface.Oik.Tm.Api
 
 
     private async Task<(IReadOnlyList<TmEvent>, TmNativeDefs.TTMSElix)> GetEventsBatch(TmNativeDefs.TTMSElix elix,
-      TmEventTypes type,
-      long startTime,
-      long endTime,
-      Dictionary<string, TmTag> tmTagsCache)
+                                                                                       TmEventTypes          type,
+                                                                                       long                  startTime,
+                                                                                       long                  endTime,
+                                                                                       Dictionary<string, TmTag>
+                                                                                         tmTagsCache)
     {
       var lastElix   = elix;
       var eventsList = new List<TmEvent>();
