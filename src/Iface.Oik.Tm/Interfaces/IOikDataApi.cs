@@ -156,59 +156,20 @@ namespace Iface.Oik.Tm.Interfaces
                                                              PreferApi prefer   = PreferApi.Auto);
 
 
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAddr    addr,
-                                                             DateTime  startTime,
-                                                             DateTime  endTime,
-                                                             int       step     = 0,
-                                                             int       retroNum = 0,
-                                                             PreferApi prefer   = PreferApi.Auto);
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAddr              addr,
+                                                             TmAnalogRetroFilter filter,
+                                                             int                 retroNum = 0,
+                                                             PreferApi           prefer   = PreferApi.Auto);
 
 
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAddr    addr,
-                                                             string    startTime,
-                                                             string    endTime,
-                                                             int       step     = 0,
-                                                             int       retroNum = 0,
-                                                             PreferApi prefer   = PreferApi.Auto);
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveInstant(TmAddr              addr,
+                                                                       TmAnalogRetroFilter filter,
+                                                                       PreferApi           prefer = PreferApi.Auto);
 
 
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveInstant(TmAddr    addr,
-                                                                       long      utcStartTime,
-                                                                       long      utcEndTime,
-                                                                       PreferApi prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveInstant(TmAddr    addr,
-                                                                       DateTime  startTime,
-                                                                       DateTime  endTime,
-                                                                       PreferApi prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveInstant(TmAddr    addr,
-                                                                       string    startTime,
-                                                                       string    endTime,
-                                                                       PreferApi prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(TmAddr    addr,
-                                                                       long      utcStartTime,
-                                                                       long      utcEndTime,
-                                                                       int       step   = 0,
-                                                                       PreferApi prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(TmAddr    addr,
-                                                                       DateTime  startTime,
-                                                                       DateTime  endTime,
-                                                                       int       step   = 0,
-                                                                       PreferApi prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(TmAddr    addr,
-                                                                       string    startTime,
-                                                                       string    endTime,
-                                                                       int       step   = 0,
-                                                                       PreferApi prefer = PreferApi.Auto);
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(TmAddr              addr,
+                                                                       TmAnalogRetroFilter filter,
+                                                                       PreferApi           prefer = PreferApi.Auto);
 
 
     Task<IReadOnlyCollection<ITmAnalogRetro[]>> GetAnalogsMicroSeries(IReadOnlyList<TmAnalog> analogs,
@@ -223,7 +184,7 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task<IReadOnlyCollection<TmAlert>> GetAlerts(PreferApi prefer = PreferApi.Auto);
-    
+
     Task<IReadOnlyCollection<TmAlert>> GetAlertsWithAnalogMicroSeries(PreferApi prefer = PreferApi.Auto);
 
 
