@@ -6,25 +6,29 @@ namespace Iface.Oik.Tm.Interfaces
   {
     public enum InitializeConnectionResult
     {
-      Ok                        = 0,
+      Ok = 0,
 
-      [Description("Ошибка авторизации!")]
-      InvalidLoginOrPassword      = 87,
-      
-      [Description("Ошибка соединения!")]
-      NonSpecifiedError           = 1000,
+      [Description("Ошибка авторизации!")] InvalidLoginOrPassword = 87,
+
+      [Description("Ошибка соединения!")] NonSpecifiedError = 1000,
     }
-    
+
     public enum MasterServiceStatus
     {
-      [Description("Потеряно соединение!")]
-      LostConnection = 0,
-      
+      [Description("Потеряно соединение!")] LostConnection = 0,
+
       [Description("Мастер-сервис остановлен!")]
-      Stopped        = 1,
-      
+      Stopped = 1,
+
       [Description("Мастер-сервис запущен!")]
-      Running        = 2
+      Running = 2
+    }
+
+    public enum SoftwareTypes
+    {
+      Unknown  = -1,
+      Old      = 0,
+      Version3 = 1
     }
   }
 }

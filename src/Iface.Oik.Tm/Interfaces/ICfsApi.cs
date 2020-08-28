@@ -24,7 +24,7 @@ namespace Iface.Oik.Tm.Interfaces
     void FreeMasterServiceConfigurationHandle(IntPtr handle);
 
     
-    Task<uint> GetSoftware();
+    Task<CfsDefs.SoftwareTypes> GetSoftwareType();
 
     
     Task<CfsDefs.MasterServiceStatus> MasterServiceStatus();

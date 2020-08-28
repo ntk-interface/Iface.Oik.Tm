@@ -459,10 +459,20 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<uint> GetSoftware()
+    public async Task<CfsDefs.SoftwareTypes> GetSoftwareType()
     {
-      return await Task.Run(() => _native.CfsGetSoftwareType(CfId))
-                       .ConfigureAwait(false);
+      var result = await Task.Run(() => _native.CfsGetSoftwareType(CfId))
+                             .ConfigureAwait(false);
+
+      switch (result)
+      {
+        case 48:
+          return CfsDefs.SoftwareTypes.Old;
+        case 49:
+          return CfsDefs.SoftwareTypes.Version3;
+        default:
+          return CfsDefs.SoftwareTypes.Unknown;
+      }
     }
 
 
