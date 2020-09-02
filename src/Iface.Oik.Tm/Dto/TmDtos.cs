@@ -170,7 +170,7 @@ namespace Iface.Oik.Tm.Dto
     
     public float[]    MsValues { get; set; }
     public DateTime[] MsTimes  { get; set; }
-    public short[]    MsFlags  { get; set; }
+    public short[]    MsSFlags { get; set; }
   }
 
 

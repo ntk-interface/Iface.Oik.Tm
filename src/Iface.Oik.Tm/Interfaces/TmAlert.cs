@@ -71,7 +71,7 @@ namespace Iface.Oik.Tm.Interfaces
       var microSeriesDto = new TmAnalogMicroSeriesDto
       {
         Values = dto.MsValues,
-        Flags  = dto.MsFlags,
+        Flags  = dto.MsSFlags,
         Times  = dto.MsTimes,
       };
       return new TmAlert(dto.AlertId,

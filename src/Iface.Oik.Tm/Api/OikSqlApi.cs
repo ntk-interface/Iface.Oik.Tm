@@ -814,15 +814,10 @@ namespace Iface.Oik.Tm.Api
         using (var sql = _createOikSqlConnection())
         {
           await sql.OpenAsync().ConfigureAwait(false);
-          var commandText = @"SELECT alert_id, importance, active, unack, on_time, off_time, type_name, name, tm_type, tma, class_id, value_text, cur_time, cur_value,
-                                ms_values, ms_times, ms_flags
-                              FROM oik_alerts al
-                              LEFT JOIN LATERAL
-                                (SELECT array_agg(val) AS ms_values, array_agg(vtime) AS ms_times, array_agg(sflg) AS ms_flags
-                                 FROM oik_microseries
-                                 WHERE tma = al.tma AND al.tm_type = @AnalogTmType
-                                 GROUP BY tma)
-                                AS ms ON TRUE";
+          var commandText = @"SELECT alert_id, importance, active, unack, on_time, off_time, type_name, al.name, al.tm_type, al.tma, al.class_id, value_text, cur_time, cur_value,
+                                ms_values, ms_times, ms_sflags
+                              FROM oik_alerts AS al
+                              LEFT JOIN oik_cur_tt AS tt ON tt.tma = al.tma";
           var dtos = await sql.DbConnection
                               .QueryAsync<TmAlertDto>(commandText, new {AnalogTmType = unchecked((short) TmNativeDefs.TmDataTypes.Analog)})
                               .ConfigureAwait(false);
