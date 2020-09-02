@@ -86,12 +86,12 @@ namespace Iface.Oik.Tm.Dto
 
     public static ITmAnalogRetro[] MapToITmAnalogRetroArray(this TmAnalogMicroSeriesDto dto)
     {
-      if (dto.Values.IsNullOrEmpty())
+      if (dto.MsValues.IsNullOrEmpty())
       {
         return Array.Empty<ITmAnalogRetro>();
       }
-      return dto.Values
-                .Select((value, idx) => new TmAnalogMicroSeries(value, dto.Flags[idx], dto.Times[idx]))
+      return dto.MsValues
+                .Select((value, idx) => new TmAnalogMicroSeries(value, dto.MsSFlags[idx], dto.MsTimes[idx]))
                 .Cast<ITmAnalogRetro>()
                 .ToArray();
     }

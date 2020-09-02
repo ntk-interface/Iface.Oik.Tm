@@ -429,11 +429,10 @@ namespace Iface.Oik.Tm.Api
         using (var sql = _createOikSqlConnection())
         {
           await sql.OpenAsync().ConfigureAwait(false);
-          var commandText = @"SELECT array_agg(val) AS values, array_agg(vtime) AS times, array_agg(sflg) AS flags
-                              FROM oik_microseries
-                                RIGHT JOIN UNNEST(@TmaArray) WITH ORDINALITY t (a,i)
+          var commandText = @"SELECT ms_values, ms_times, ms_sflags
+                              FROM oik_cur_tt
+                              RIGHT JOIN UNNEST(@TmaArray) WITH ORDINALITY t (a,i) 
                                   ON tma = t.a
-                              GROUP BY tma, t.i
                               ORDER BY t.i";
           var parameters = new {TmaArray = analogs.Select(tag => tag.TmAddr.ToSqlTma()).ToArray()};
           var dtos = await sql.DbConnection
