@@ -209,10 +209,13 @@ namespace Iface.Oik.Tm.Interfaces
 
   public enum TmTechObjectBindingType
   {
-    [Description("Сигналы и измерения")] TmTag            = 0,
-    [Description("ТЕХ данные")]          TechParam        = 1,
-    [Description("ТЕХ документ")]        TechDocument     = 2,
-    [Description("ОБР документ")]        OperLockDocument = 3,
+    [Description("Сигналы и измерения")]       TmTag              = 0,
+    [Description("ТЕХ данные")]                TechParam          = 1,
+    [Description("ТЕХ документ")]              TechDocument       = 2,
+    [Description("ОБР документ")]              OperLockDocument   = 3,
+    [Description("Сигнал состояния")]          MainTmStatus       = 4,
+    [Description("Измерение для отображения")] MainTmAnalog       = 5,
+    [Description("Ссылка на элемент")]         Parent             = 6,
   }
 
 

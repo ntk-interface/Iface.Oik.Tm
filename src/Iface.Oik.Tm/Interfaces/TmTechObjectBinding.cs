@@ -21,6 +21,7 @@ namespace Iface.Oik.Tm.Interfaces
     public TmTechObject             TmTechObject { get; set; }
     public TmTechObjectBindingType  BindingType  { get; set; }
     public TmTag                    TmTag        { get; set; }
+    public TmTechObject             Parent       { get; set; }
     public string                   Name         { get; set; }
     public string                   Value        { get; set; }
     public TmTechObjectBindingsMode Mode         { get; private set; }
