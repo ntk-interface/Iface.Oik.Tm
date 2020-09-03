@@ -70,9 +70,9 @@ namespace Iface.Oik.Tm.Interfaces
     {
       var microSeriesDto = new TmAnalogMicroSeriesDto
       {
-        Values = dto.MsValues,
-        Flags  = dto.MsFlags,
-        Times  = dto.MsTimes,
+        MsValues = dto.MsValues,
+        MsSFlags = dto.MsSFlags,
+        MsTimes  = dto.MsTimes,
       };
       return new TmAlert(dto.AlertId,
                          dto.Importance,

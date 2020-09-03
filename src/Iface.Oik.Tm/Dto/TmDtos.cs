@@ -170,14 +170,14 @@ namespace Iface.Oik.Tm.Dto
     
     public float[]    MsValues { get; set; }
     public DateTime[] MsTimes  { get; set; }
-    public short[]    MsFlags  { get; set; }
+    public short[]    MsSFlags { get; set; }
   }
 
 
   public class TmAnalogMicroSeriesDto
   {
-    public float[]    Values { get; set; }
-    public DateTime[] Times  { get; set; }
-    public short[]    Flags  { get; set; }
+    public float[]    MsValues { get; set; }
+    public DateTime[] MsTimes  { get; set; }
+    public short[]    MsSFlags { get; set; }
   }
 }
