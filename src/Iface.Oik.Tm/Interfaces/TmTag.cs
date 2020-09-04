@@ -22,62 +22,38 @@ namespace Iface.Oik.Tm.Interfaces
     public bool IsInit
     {
       get => _isInit;
-      set
-      {
-        _isInit = value;
-        Refresh();
-      }
+      set => SetPropertyValueAndRefresh(ref _isInit, value);
     }
 
     public DateTime? ChangeTime
     {
       get => _changeTime;
-      set
-      {
-        _changeTime = value;
-        Refresh();
-      }
+      set => SetPropertyValueAndRefresh(ref _changeTime, value);
     }
 
 
     public string Name
     {
       get => _name;
-      protected set
-      {
-        _name = value;
-        Refresh();
-      }
+      protected set => SetPropertyValueAndRefresh(ref _name, value);
     }
 
     public byte? ClassId
     {
       get => _classId;
-      protected set
-      {
-        _classId = value;
-        Refresh();
-      }
+      protected set => SetPropertyValueAndRefresh(ref _classId, value);
     }
 
     public Dictionary<string, string> ClassData
     {
       get => _classData;
-      protected set
-      {
-        _classData = value;
-        Refresh();
-      }
+      protected set => SetPropertyValueAndRefresh(ref _classData, value);
     }
 
     public Dictionary<string, string> Properties
     {
       get => _properties;
-      protected set
-      {
-        _properties = value;
-        Refresh();
-      }
+      private set => SetPropertyValueAndRefresh(ref _properties, value);
     }
 
 
