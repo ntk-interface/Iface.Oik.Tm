@@ -17,9 +17,7 @@ namespace Iface.Oik.Tm.Interfaces
 
       if (!dateTimeString.IsNullOrEmpty())
       {
-        Time = DateTime.ParseExact(dateTimeString, "yyyy.MM.dd HH:mm:ss.fff",
-                                   System.Globalization.CultureInfo.InvariantCulture,
-                                   System.Globalization.DateTimeStyles.None);
+        Time = DateUtil.GetDateTimeFromExtendedTmString(dateTimeString);
       }
       Text     = text;
       BinaryString = binaryString;

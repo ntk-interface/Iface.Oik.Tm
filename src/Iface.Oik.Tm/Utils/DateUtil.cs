@@ -25,15 +25,13 @@ namespace Iface.Oik.Tm.Utils
 
     public static DateTime? GetDateTimeFromTmString(string s)
     {
-      if (!DateTime.TryParseExact(s, 
-                                  "dd.MM.yyyy HH:mm:ss", 
-                                  System.Globalization.CultureInfo.InvariantCulture,
-                                  System.Globalization.DateTimeStyles.None,
-                                  out DateTime result))
-      {
-        return null;
-      }
-      return result;
+      return GetDateTimeFromTmStringByFormat(s, "dd.MM.yyyy HH:mm:ss");
+    }
+
+
+    public static DateTime? GetDateTimeFromExtendedTmString(string s)
+    {
+      return GetDateTimeFromTmStringByFormat(s, "dd.MM.yyyy HH:mm:ss.fff");
     }
 
 
@@ -59,6 +57,19 @@ namespace Iface.Oik.Tm.Utils
     public static DateTime? NullIfEpoch(DateTime? dateTime)
     {
       return (dateTime == Epoch) ? null : dateTime;
+    }
+
+    private static DateTime? GetDateTimeFromTmStringByFormat(string s, string format)
+    {
+      if (!DateTime.TryParseExact(s, 
+                                  format, 
+                                  System.Globalization.CultureInfo.InvariantCulture,
+                                  System.Globalization.DateTimeStyles.None,
+                                  out DateTime result))
+      {
+        return null;
+      }
+      return result;
     }
   }
 }
