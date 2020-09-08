@@ -364,6 +364,22 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public Boolean TmcGetAnalogTechParms(Int32                             cid,
+                                         TmNativeDefs.TAdrTm               addr,
+                                         ref TmNativeDefs.TAnalogTechParms tpr)
+    {
+      return tmcGetAnalogTechParms(cid, addr, ref tpr);
+    }
+
+
+    public Boolean TmcSetAnalogTechParms(Int32                         cid,
+                                         TmNativeDefs.TAdrTm           addr,
+                                         TmNativeDefs.TAnalogTechParms tpr)
+    {
+      return tmcSetAnalogTechParms(cid, addr, tpr);
+    }
+
+
     public Int16 TmcSetStatus(Int32  cid,
                               Int16  ch,
                               Int16  rtu,

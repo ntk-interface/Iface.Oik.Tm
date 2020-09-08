@@ -282,6 +282,18 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Boolean tmcGetAnalogTechParms(Int32                                       cid,
+                                                       [In]          TmNativeDefs.TAdrTm           addr,
+                                                       [In, Out] ref TmNativeDefs.TAnalogTechParms tpr);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Boolean tmcSetAnalogTechParms(Int32                              cid,
+                                                       [In] TmNativeDefs.TAdrTm           addr,
+                                                       [In] TmNativeDefs.TAnalogTechParms tpr);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcSetStatus(Int32                                   cid,
                                             Int16                                   ch,
                                             Int16                                   rtu,

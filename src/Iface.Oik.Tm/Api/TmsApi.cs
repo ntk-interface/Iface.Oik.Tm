@@ -445,11 +445,7 @@ namespace Iface.Oik.Tm.Api
       {
         foreach (var tag in tags)
         {
-          var sb = new StringBuilder(1024);
-          var (ch, rtu, point) = tag.TmAddr.GetTupleShort();
-          _native.TmcGetObjectProperties(_cid, tag.NativeType, ch, rtu, point,
-                                         ref sb, 1024);
-          tag.SetTmcObjectProperties(sb);
+          UpdateTagPropertiesSynchronously(tag);
         }
       });
 
@@ -457,47 +453,30 @@ namespace Iface.Oik.Tm.Api
       {
         foreach (var tag in tags)
         {
-          var    tmcAddr = tag.TmAddr.ToAdrTm();
-          IntPtr classDataPtr;
-
-          switch (tag.Type)
-          {
-            case TmType.Status:
-              classDataPtr = _native.TmcGetStatusClassData(_cid, 1, new[] {tmcAddr});
-              break;
-            case TmType.Analog:
-              classDataPtr = _native.TmcGetAnalogClassData(_cid, 1, new[] {tmcAddr});
-              break;
-            default:
-              return;
-          }
-
-          if (classDataPtr == IntPtr.Zero)
-          {
-            return;
-          }
-
-          var singleClassDataPtr =
-            Marshal
-              .PtrToStructure<IntPtr>(classDataPtr); // массив строк, а не просто строка
-          var str = Marshal.PtrToStringAnsi(singleClassDataPtr);
-          _native.TmcFreeMemory(classDataPtr);
-
-          tag.SetTmcClassData(str);
+          UpdateTagClassDataSynchronously(tag);
         }
       });
 
-      await Task.WhenAll(taskProperties, taskClassData)
+      var taskAnalogTechParameters = Task.Run(() =>
+      {
+        foreach (var tag in tags)
+        {
+          UpdateAnalogTechParametersSynchronously(tag);
+        }
+      });
+
+      await Task.WhenAll(taskProperties, taskClassData, taskAnalogTechParameters)
                 .ConfigureAwait(false);
     }
 
 
     public async Task UpdateTagPropertiesAndClassData(TmTag tag)
     {
-      var taskProperties = UpdateTagProperties(tag);
-      var taskClassData  = UpdateTagClassData(tag);
+      var taskProperties           = UpdateTagProperties(tag);
+      var taskClassData            = UpdateTagClassData(tag);
+      var taskAnalogTechParameters = UpdateAnalogTechParameters(tag);
 
-      await Task.WhenAll(taskProperties, taskClassData)
+      await Task.WhenAll(taskProperties, taskClassData, taskAnalogTechParameters)
                 .ConfigureAwait(false);
     }
 
@@ -563,6 +542,32 @@ namespace Iface.Oik.Tm.Api
       _native.TmcFreeMemory(classDataPtr);
 
       tag.SetTmcClassData(str);
+    }
+
+
+    private async Task UpdateAnalogTechParameters(TmTag tag)
+    {
+      await Task.Run(() => UpdateAnalogTechParametersSynchronously(tag)).ConfigureAwait(true);
+    }
+
+
+    private void UpdateAnalogTechParametersSynchronously(TmTag tag)
+    {
+      if (!(tag is TmAnalog tmAnalog))
+      {
+        return;
+      }
+      var tmcAddr    = tag.TmAddr.ToAdrTm();
+      var techParams = new TmNativeDefs.TAnalogTechParms
+      {
+        ZoneLim  = new float[TmNativeDefs.TAnalogTechParmsAlarmSize],
+        Reserved = new uint[TmNativeDefs.TAnalogTechParamsReservedSize],
+      };
+      if (!_native.TmcGetAnalogTechParms(_cid, tmcAddr, ref techParams))
+      {
+        return;
+      }
+      tmAnalog.SetTmcTechParameters(techParams);
     }
 
 
