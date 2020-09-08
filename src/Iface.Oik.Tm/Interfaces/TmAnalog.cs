@@ -416,7 +416,16 @@ namespace Iface.Oik.Tm.Interfaces
                               dto.VUnit,
                               dto.VFormat,
                               dto.ClassId,
-                              dto.Provider);
+                              dto.Provider,
+                              dto.TprMinVal,
+                              dto.TprMaxVal,
+                              dto.TprNominal,
+                              dto.TprAlrPresent,
+                              dto.TprAlrInUse,
+                              dto.TprZoneDLow,
+                              dto.TprZoneCLow,
+                              dto.TprZoneCHigh,
+                              dto.TprZoneDHigh);
     }
 
 
@@ -424,7 +433,16 @@ namespace Iface.Oik.Tm.Interfaces
                                         string unit,
                                         string format,
                                         short  classId,
-                                        string provider)
+                                        string provider,
+                                        float  min,
+                                        float  max,
+                                        float  nominal,
+                                        bool   hasAlarm,
+                                        bool   isAlarmInUse,
+                                        float  minAlarm,
+                                        float  minWarning,
+                                        float  maxWarning,
+                                        float  maxAlarm)
     {
       Name = name;
       Unit = unit.TrimEnd();
@@ -455,6 +473,16 @@ namespace Iface.Oik.Tm.Interfaces
                   }
                 });
       }
+      
+      TechParameters = new TmAnalogTechParameters(min,
+                                                  max,
+                                                  nominal,
+                                                  minAlarm,
+                                                  minWarning,
+                                                  maxWarning,
+                                                  maxAlarm,
+                                                  hasAlarm,
+                                                  isAlarmInUse);
 
       if (classId < 0)
       {

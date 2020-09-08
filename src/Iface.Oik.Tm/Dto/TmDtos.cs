@@ -93,11 +93,20 @@ namespace Iface.Oik.Tm.Dto
 
   public class TmAnalogPropertiesDto
   {
-    public string Name     { get; set; }
-    public string VUnit    { get; set; }
-    public string VFormat  { get; set; }
-    public short  ClassId  { get; set; }
-    public string Provider { get; set; }
+    public string Name          { get; set; }
+    public string VUnit         { get; set; }
+    public string VFormat       { get; set; }
+    public short  ClassId       { get; set; }
+    public string Provider      { get; set; }
+    public float  TprMinVal     { get; set; }
+    public float  TprMaxVal     { get; set; }
+    public float  TprNominal    { get; set; }
+    public bool   TprAlrPresent { get; set; }
+    public bool   TprAlrInUse   { get; set; }
+    public float  TprZoneDLow   { get; set; }
+    public float  TprZoneCLow   { get; set; }
+    public float  TprZoneCHigh  { get; set; }
+    public float  TprZoneDHigh  { get; set; }
   }
 
 
