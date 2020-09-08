@@ -44,51 +44,31 @@ namespace Iface.Oik.Tm.Interfaces
     public short Status
     {
       get => _status;
-      set
-      {
-        _status = value;
-        Refresh();
-      }
+      set => SetPropertyValueAndRefresh(ref _status, value);
     }
 
     public TmFlags Flags
     {
       get => _flags;
-      set
-      {
-        _flags = value;
-        Refresh();
-      }
+      set => SetPropertyValueAndRefresh(ref _flags, value);
     }
 
     public TmS2Flags S2Flags
     {
       get => _s2Flags;
-      set
-      {
-        _s2Flags = value;
-        Refresh();
-      }
+      set => SetPropertyValueAndRefresh(ref _s2Flags, value);
     }
 
     public short NormalStatus
     {
       get => _normalStatus;
-      set
-      {
-        _normalStatus = value;
-        Refresh();
-      }
+      set => SetPropertyValueAndRefresh(ref _normalStatus, value);
     }
 
     public short Importance
     {
       get => _importance;
-      set
-      {
-        _importance = value;
-        Refresh();
-      }
+      set => SetPropertyValueAndRefresh(ref _importance, value);
     }
 
     public bool IsNormalStatusOn      => NormalStatus == 1;

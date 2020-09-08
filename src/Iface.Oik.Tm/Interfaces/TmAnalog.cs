@@ -24,71 +24,43 @@ namespace Iface.Oik.Tm.Interfaces
     public short Code
     {
       get => _code;
-      set
-      {
-        _code = value;
-        Refresh();
-      }
+      set => SetPropertyValueAndRefresh(ref _code, value);
     }
 
     public float Value
     {
       get => _value;
-      set
-      {
-        _value = value;
-        Refresh();
-      }
+      set => SetPropertyValueAndRefresh(ref _value, value);
     }
 
     public TmFlags Flags
     {
       get => _flags;
-      set
-      {
-        _flags = value;
-        Refresh();
-      }
+      set => SetPropertyValueAndRefresh(ref _flags, value);
     }
 
     public byte Width
     {
       get => _width;
-      set
-      {
-        _width = value;
-        Refresh();
-      }
+      set => SetPropertyValueAndRefresh(ref _width, value);
     }
 
     public byte Precision
     {
       get => _precision;
-      set
-      {
-        _precision = value;
-        Refresh();
-      }
+      set => SetPropertyValueAndRefresh(ref _precision, value);
     }
 
     public string Unit
     {
       get => _unit;
-      set
-      {
-        _unit = value;
-        Refresh();
-      }
+      set => SetPropertyValueAndRefresh(ref _unit, value);
     }
 
     public TmTeleregulation Teleregulation
     {
       get => _teleregulation;
-      set
-      {
-        _teleregulation = value;
-        Refresh();
-      }
+      private set => SetPropertyValueAndRefresh(ref _teleregulation, value);
     }
 
     public bool IsUnreliable      => Flags.HasFlag(TmFlags.Unreliable);

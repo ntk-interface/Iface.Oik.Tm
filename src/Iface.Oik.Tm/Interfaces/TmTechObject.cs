@@ -34,41 +34,25 @@ namespace Iface.Oik.Tm.Interfaces
     public bool IsInit
     {
       get => _isInit;
-      private set
-      {
-        _isInit = value;
-        Refresh();
-      }
+      private set => SetPropertyValueAndRefresh(ref _isInit, value);
     }
 
     public Dictionary<string, string> Properties
     {
       get => _properties;
-      private set
-      {
-        _properties = value;
-        Refresh();
-      }
+      private set => SetPropertyValueAndRefresh(ref _properties, value);
     }
 
     public string Name
     {
       get => _name;
-      private set
-      {
-        _name = value;
-        Refresh();
-      }
+      private set => SetPropertyValueAndRefresh(ref _name, value);
     }
 
     public TmTopologyState TopologyState
     {
       get => _topologyState;
-      private set
-      {
-        _topologyState = value;
-        Refresh();
-      }
+      private set => SetPropertyValueAndRefresh(ref _topologyState, value);
     }
 
     public object Reference { get; set; } // ссылка на связанный объект, например для схемы - выключатель, прибор и т.п.
