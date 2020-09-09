@@ -412,20 +412,12 @@ namespace Iface.Oik.Tm.Interfaces
     {
       if (dto?.Name == null) return;
 
+      UpdateTechParametersWithDto(dto.MapToTmAnalogTechParametersDto());
       UpdatePropertiesWithDto(dto.Name,
                               dto.VUnit,
                               dto.VFormat,
                               dto.ClassId,
-                              dto.Provider,
-                              dto.TprMinVal,
-                              dto.TprMaxVal,
-                              dto.TprNominal,
-                              dto.TprAlrPresent,
-                              dto.TprAlrInUse,
-                              dto.TprZoneDLow,
-                              dto.TprZoneCLow,
-                              dto.TprZoneCHigh,
-                              dto.TprZoneDHigh);
+                              dto.Provider);
     }
 
 
@@ -433,16 +425,7 @@ namespace Iface.Oik.Tm.Interfaces
                                         string unit,
                                         string format,
                                         short  classId,
-                                        string provider,
-                                        float  min,
-                                        float  max,
-                                        float  nominal,
-                                        bool   hasAlarm,
-                                        bool   isAlarmInUse,
-                                        float  minAlarm,
-                                        float  minWarning,
-                                        float  maxWarning,
-                                        float  maxAlarm)
+                                        string provider)
     {
       Name = name;
       Unit = unit.TrimEnd();
@@ -473,16 +456,6 @@ namespace Iface.Oik.Tm.Interfaces
                   }
                 });
       }
-      
-      TechParameters = new TmAnalogTechParameters(min,
-                                                  max,
-                                                  nominal,
-                                                  minAlarm,
-                                                  minWarning,
-                                                  maxWarning,
-                                                  maxAlarm,
-                                                  hasAlarm,
-                                                  isAlarmInUse);
 
       if (classId < 0)
       {
@@ -490,6 +463,12 @@ namespace Iface.Oik.Tm.Interfaces
       }
 
       ClassId = (byte) classId;
+    }
+
+
+    public void UpdateTechParametersWithDto(TmAnalogTechParametersDto dto)
+    {
+      TechParameters = TmAnalogTechParameters.CreateFromDto(dto);
     }
 
 

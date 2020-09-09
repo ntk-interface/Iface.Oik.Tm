@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Utils;
@@ -80,6 +79,52 @@ namespace Iface.Oik.Tm.Dto
         VFormat  = dto.VFormat,
         ClassId  = dto.ClassId,
         Provider = dto.Provider,
+      };
+    }
+
+
+    public static TmAnalogMicroSeriesDto MapToTmAnalogMicroSeriesDto(this TmAlertDto dto)
+    {
+      return new TmAnalogMicroSeriesDto
+      {
+        MsValues = dto.MsValues,
+        MsSFlags = dto.MsSFlags,
+        MsTimes  = dto.MsTimes,
+      };
+    }
+    
+    
+    public static TmAnalogTechParametersDto MapToTmAnalogTechParametersDto(this TmAnalogPropertiesDto dto)
+    {
+      return new TmAnalogTechParametersDto
+      {
+        TprMinVal     = dto.TprMinVal,
+        TprMaxVal     = dto.TprMaxVal,
+        TprNominal    = dto.TprNominal,
+        TprZoneDLow   = dto.TprZoneDLow,
+        TprZoneCLow   = dto.TprZoneCLow,
+        TprZoneCHigh  = dto.TprZoneCHigh,
+        TprZoneDHigh  = dto.TprZoneDHigh,
+        TprAlrPresent = dto.TprAlrPresent,
+        TprAlrInUse   = dto.TprAlrInUse,
+      };
+    }
+    
+
+
+    public static TmAnalogTechParametersDto MapToTmAnalogTechParametersDto(this TmAlertDto dto)
+    {
+      return new TmAnalogTechParametersDto
+      {
+        TprMinVal     = dto.TprMinVal,
+        TprMaxVal     = dto.TprMaxVal,
+        TprNominal    = dto.TprNominal,
+        TprZoneDLow   = dto.TprZoneDLow,
+        TprZoneCLow   = dto.TprZoneCLow,
+        TprZoneCHigh  = dto.TprZoneCHigh,
+        TprZoneDHigh  = dto.TprZoneDHigh,
+        TprAlrPresent = dto.TprAlrPresent,
+        TprAlrInUse   = dto.TprAlrInUse,
       };
     }
 

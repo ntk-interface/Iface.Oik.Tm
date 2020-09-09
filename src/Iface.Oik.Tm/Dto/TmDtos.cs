@@ -180,6 +180,16 @@ namespace Iface.Oik.Tm.Dto
     public float[]    MsValues { get; set; }
     public DateTime[] MsTimes  { get; set; }
     public short[]    MsSFlags { get; set; }
+    
+    public float TprMinVal     { get; set; }
+    public float TprMaxVal     { get; set; }
+    public float TprNominal    { get; set; }
+    public bool  TprAlrPresent { get; set; }
+    public bool  TprAlrInUse   { get; set; }
+    public float TprZoneDLow   { get; set; }
+    public float TprZoneCLow   { get; set; }
+    public float TprZoneCHigh  { get; set; }
+    public float TprZoneDHigh  { get; set; }
   }
 
 
@@ -188,5 +198,19 @@ namespace Iface.Oik.Tm.Dto
     public float[]    MsValues { get; set; }
     public DateTime[] MsTimes  { get; set; }
     public short[]    MsSFlags { get; set; }
+  }
+
+
+  public class TmAnalogTechParametersDto
+  {
+    public float TprMinVal     { get; set; }
+    public float TprMaxVal     { get; set; }
+    public float TprNominal    { get; set; }
+    public bool  TprAlrPresent { get; set; }
+    public bool  TprAlrInUse   { get; set; }
+    public float TprZoneDLow   { get; set; }
+    public float TprZoneCLow   { get; set; }
+    public float TprZoneCHigh  { get; set; }
+    public float TprZoneDHigh  { get; set; }
   }
 }

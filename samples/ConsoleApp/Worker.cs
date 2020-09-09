@@ -52,10 +52,16 @@ namespace ConsoleApp
       Console.WriteLine(ti);
 
       Console.WriteLine("Активные уставки:");
-      (await _api.GetPresentAlarms())?.ForEach(alarm => Console.WriteLine($"{alarm.FullName}, {alarm.StateName}"));
+      var alarms = await _api.GetPresentAlarms();
+      alarms?.ForEach(alarm => Console.WriteLine($"{alarm.FullName}, {alarm.StateName}"));
 
       Console.WriteLine("Активные АПС:");
-      (await _api.GetPresentAps())?.ForEach(Console.WriteLine);
+      var aps = await _api.GetPresentAps();
+      aps?.ForEach(Console.WriteLine);
+
+      Console.WriteLine("Монитор тревог:");
+      var alerts = await _api.GetAlertsWithAnalogMicroSeries();
+      alerts?.ForEach(alert => Console.WriteLine($"{alert.Name}, {alert.ImportanceAlias}, {alert.CurrentValueString}"));
     }
   }
 }

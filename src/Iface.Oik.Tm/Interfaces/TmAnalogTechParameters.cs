@@ -1,3 +1,4 @@
+using Iface.Oik.Tm.Dto;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
@@ -35,6 +36,20 @@ namespace Iface.Oik.Tm.Interfaces
       MaxAlarm     = NumericUtil.NullIfMaxValue(maxAlarm);
       HasAlarm     = hasAlarm;
       IsAlarmInUse = isAlarmInUse;
+    }
+
+
+    public static TmAnalogTechParameters CreateFromDto(TmAnalogTechParametersDto dto)
+    {
+      return new TmAnalogTechParameters(dto.TprMinVal,
+                                        dto.TprMaxVal,
+                                        dto.TprNominal,
+                                        dto.TprZoneDLow,
+                                        dto.TprZoneCLow,
+                                        dto.TprZoneCHigh,
+                                        dto.TprZoneDHigh,
+                                        dto.TprAlrPresent,
+                                        dto.TprAlrInUse);
     }
   }
 }

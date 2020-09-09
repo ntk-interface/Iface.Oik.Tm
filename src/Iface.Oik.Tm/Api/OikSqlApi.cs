@@ -818,9 +818,11 @@ namespace Iface.Oik.Tm.Api
         {
           await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT alert_id, importance, active, unack, on_time, off_time, type_name, al.name, al.tm_type, al.tma, al.class_id, value_text, cur_time, cur_value,
-                                ms_values, ms_times, ms_sflags
+                                     ms_values, ms_times, ms_sflags,
+                                     tpr_min_val, tpr_max_val, tpr_nominal, tpr_alr_present, tpr_alr_inuse,
+                                     tpr_zone_d_low, tpr_zone_c_low, tpr_zone_c_high, tpr_zone_d_high
                               FROM oik_alerts AS al
-                              LEFT JOIN oik_cur_tt AS tt ON tt.tma = al.tma";
+                              LEFT JOIN oik_cur_tt AS tt ON tt.tma = al.tma AND al.tm_type = @AnalogTmType";
           var dtos = await sql.DbConnection
                               .QueryAsync<TmAlertDto>(commandText, new {AnalogTmType = unchecked((short) TmNativeDefs.TmDataTypes.Analog)})
                               .ConfigureAwait(false);
