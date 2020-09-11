@@ -595,7 +595,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
     {
       public UInt16 Interval;
       public UInt16 Count;
-      
+
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 10)]
       public TMSAnalogMSeriesElement[] Elements;
     }
@@ -811,6 +811,13 @@ namespace Iface.Oik.Tm.Native.Interfaces
     public const byte   StartMasterServiceCommand  = 1;
     public const byte   StopMasterServiceCommand   = 2;
 
+    public enum CfsIitgk : UInt32
+    {
+      Avail = 0,
+      Exe   = 1,
+      All   = 2,
+    }
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct FileTime
     {
@@ -828,6 +835,18 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public string MsgType;
       public string ThreadId;
       public string Message;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct CfsFileProperties
+    {
+      public FileTime CreationTime;
+      public FileTime ModificationTime;
+      public UInt32   Attributes;
+      public UInt32   Checksum;
+
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 12)]
+      public UInt32[] Reserved;
     }
 
     #endregion

@@ -41,14 +41,22 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<IReadOnlyCollection<TmServer>> GetTmServersTree();
     
+    
     Task<IReadOnlyCollection<TmServerLogRecord>> GetTmServersLog();
     
+    
     Task<IReadOnlyCollection<TmServerThread>> GetTmServersThreads();
+    
 
     Task RegisterTmServerTracer(ITmServerTraceable traceTarget, bool debug, int pause);
 
+    
     Task StopTmServerTrace();
+    
 
     Task<IReadOnlyCollection<TmServerLogRecord>> TraceTmServerLogRecords();
+
+
+    Task<TmInstallationInfo> GetTmInstallationInfo();
   }
 }

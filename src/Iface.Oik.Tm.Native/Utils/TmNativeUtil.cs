@@ -341,6 +341,33 @@ namespace Iface.Oik.Tm.Native.Utils
                      .FirstOrDefault()?
                      .Trim('\n');
     }
+    
+    public static string GetStringWithUnknownLengthFromIntPtr(IntPtr ptr)
+    {
+      const int bufferStep = 512;
+      var       bufSize    = bufferStep;
+
+      var stringBuf    = new byte[bufSize];
+      var marshalBytes = new byte[1];
+
+      for (var i = 0; i < bufSize; i++)
+      {
+        Marshal.Copy(new IntPtr(ptr.ToInt64() + i), marshalBytes, 0, 1);
+        if (marshalBytes[0] == 0) break;
+        stringBuf[i] = marshalBytes[0];
+
+        if (i != bufSize - 1) continue;
+
+        bufSize += bufferStep;
+        var oldStrBuffer = stringBuf;
+        stringBuf = new byte[bufSize];
+        Array.Copy(oldStrBuffer, stringBuf, oldStrBuffer.Length);
+      }
+
+      return Encoding.GetEncoding(1251)
+                     .GetString(stringBuf)
+                     .Trim('\0');
+    }
 
     private static T FromBytes<T>(byte[] bytes) where T : struct
     {

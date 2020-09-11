@@ -70,6 +70,32 @@ namespace Iface.Oik.Tm.Native.Interfaces
                     UInt32            maxErrs);
 
 
+    bool CfsFileGet(IntPtr            cfCid,
+                    string            remotePath,
+                    string            localPath,
+                    UInt32            timeout,
+                    IntPtr            fileTime,
+                    out UInt32        errCode,
+                    ref StringBuilder errString,
+                    UInt32            maxErrs);
+
+
+    bool CfsFileGetPropreties(IntPtr                             cfCid,
+                              string fileName,
+                              ref TmNativeDefs.CfsFileProperties pProps,
+                              out UInt32                         errCode,
+                              ref StringBuilder                  errString,
+                              UInt32                             maxErrs);
+
+    bool CfsCheckInstallationIntegrity(IntPtr            connId,
+                                       UInt32            kind,
+                                       out IntPtr pSig,
+                                       out IntPtr pErrs,
+                                       out UInt32        errCode,
+                                       ref StringBuilder errString,
+                                       UInt32            maxErrs);
+
+
     Int64 UxGmTime2UxTime(Int64 time);
 
 
@@ -77,8 +103,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
                       out UInt32        errCode,
                       ref StringBuilder errString,
                       UInt32            maxErrs);
-    
-    
+
+
     void CfsDisconnect(IntPtr connId);
 
 
@@ -199,6 +225,18 @@ namespace Iface.Oik.Tm.Native.Interfaces
                           out UInt32        errCode,
                           ref StringBuilder errString,
                           UInt32            maxErrs);
+
+
+    Boolean CfsGetIniString(IntPtr            connId,
+                            string            path,
+                            string            section,
+                            string            key,
+                            string            def,
+                            ref StringBuilder value,
+                            out UInt32        pcbValue,
+                            out UInt32        errCode,
+                            ref StringBuilder errString,
+                            UInt32            maxErrs);
 
 
     void DPrintF(string message);
