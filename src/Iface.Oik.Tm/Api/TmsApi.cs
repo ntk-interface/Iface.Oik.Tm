@@ -37,7 +37,7 @@ namespace Iface.Oik.Tm.Api
     public async Task<TmServerInfo> GetServerInfo()
     {
       var cfCid = await GetCfCid().ConfigureAwait(false);
-      if (cfCid == 0)
+      if (cfCid == IntPtr.Zero)
       {
         Console.WriteLine("Ошибка при получении cfCid"); // todo
         return null;
@@ -127,7 +127,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<uint> GetCfCid()
+    public async Task<IntPtr> GetCfCid()
     {
       return await Task.Run(() => _native.TmcGetCfsHandle(_cid))
                        .ConfigureAwait(false);
@@ -1584,7 +1584,7 @@ namespace Iface.Oik.Tm.Api
     public async Task<IReadOnlyCollection<string>> GetFilesInDirectory(string path)
     {
       var cfCid = await GetCfCid().ConfigureAwait(false);
-      if (cfCid == 0)
+      if (cfCid == IntPtr.Zero)
       {
         Console.WriteLine("Ошибка при получении cfCid"); // todo
         return null;
@@ -1615,7 +1615,7 @@ namespace Iface.Oik.Tm.Api
     public async Task<bool> DownloadFile(string remotePath, string localPath)
     {
       var cfCid = await GetCfCid().ConfigureAwait(false);
-      if (cfCid == 0)
+      if (cfCid == IntPtr.Zero)
       {
         Console.WriteLine("Ошибка при получении cfCid");
         return false;

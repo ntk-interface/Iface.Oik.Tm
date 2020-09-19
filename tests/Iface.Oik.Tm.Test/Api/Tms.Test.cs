@@ -512,7 +512,7 @@ namespace Iface.Oik.Tm.Test.Api
       public async void ReturnsNullWhenCfCidFails([Frozen] ITmNative native, TmsApi tms)
       {
         A.CallTo(() => native.TmcGetCfsHandle(A<int>._))
-         .Returns((uint) 0);
+         .Returns(IntPtr.Zero);
 
         var result = await tms.GetFilesInDirectory(A.Dummy<string>());
 
@@ -528,8 +528,8 @@ namespace Iface.Oik.Tm.Test.Api
         uint bufLength          = 80;
         var  buf                = new char[bufLength];
         A.CallTo(() => native.TmcGetCfsHandle(A<int>._))
-         .Returns((uint) 1);
-        A.CallTo(() => native.CfsDirEnum(1, "", ref buf, bufLength, out error, ref errorStringBuilder, 0))
+         .Returns(new IntPtr(1));
+        A.CallTo(() => native.CfsDirEnum(new IntPtr(1), "", ref buf, bufLength, out error, ref errorStringBuilder, 0))
          .WithAnyArguments()
          .Returns(false);
 
@@ -547,8 +547,8 @@ namespace Iface.Oik.Tm.Test.Api
         uint bufLength          = 80;
         var  buf                = new char[bufLength];
         A.CallTo(() => native.TmcGetCfsHandle(A<int>._))
-         .Returns((uint) 1);
-        A.CallTo(() => native.CfsDirEnum(1, "", ref buf, bufLength, out error, ref errorStringBuilder, 0))
+         .Returns(new IntPtr(1));
+        A.CallTo(() => native.CfsDirEnum(new IntPtr(1), "", ref buf, bufLength, out error, ref errorStringBuilder, 0))
          .WithAnyArguments()
          .Returns(true)
          .AssignsOutAndRefParameters(new[]
@@ -571,7 +571,7 @@ namespace Iface.Oik.Tm.Test.Api
       public async void ReturnsFalseWhenCfCidFails([Frozen] ITmNative native, TmsApi tms)
       {
         A.CallTo(() => native.TmcGetCfsHandle(A<int>._))
-         .Returns((uint) 0);
+         .Returns(IntPtr.Zero);
 
         var result = await tms.DownloadFile(A.Dummy<string>(), A.Dummy<string>());
 
@@ -585,8 +585,8 @@ namespace Iface.Oik.Tm.Test.Api
         uint error;
         var  errorStringBuilder = new StringBuilder(80);
         A.CallTo(() => native.TmcGetCfsHandle(A<int>._))
-         .Returns((uint) 1);
-        A.CallTo(() => native.CfsFileGet(1, "", "", 0, IntPtr.Zero, out error, ref errorStringBuilder, 0))
+         .Returns(new IntPtr(1));
+        A.CallTo(() => native.CfsFileGet(new IntPtr(1), "", "", 0, IntPtr.Zero, out error, ref errorStringBuilder, 0))
          .WithAnyArguments()
          .Returns(false);
 
@@ -602,8 +602,8 @@ namespace Iface.Oik.Tm.Test.Api
         uint error;
         var  errorStringBuilder = new StringBuilder(80);
         A.CallTo(() => native.TmcGetCfsHandle(A<int>._))
-         .Returns((uint) 1);
-        A.CallTo(() => native.CfsFileGet(1, "", "", 0, IntPtr.Zero, out error, ref errorStringBuilder, 0))
+         .Returns(new IntPtr(1));
+        A.CallTo(() => native.CfsFileGet(new IntPtr(1), "", "", 0, IntPtr.Zero, out error, ref errorStringBuilder, 0))
          .WithAnyArguments()
          .Returns(true);
 

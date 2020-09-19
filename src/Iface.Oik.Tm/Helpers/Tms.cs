@@ -136,7 +136,7 @@ namespace Iface.Oik.Tm.Helpers
       var nativeUserInfoPtr  = Marshal.AllocHGlobal(nativeUserInfoSize);
 
       var cfCid = Native.TmcGetCfsHandle(tmCid);
-      if (cfCid == 0)
+      if (cfCid == IntPtr.Zero)
       {
         return null;
       }

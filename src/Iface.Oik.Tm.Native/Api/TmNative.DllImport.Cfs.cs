@@ -53,7 +53,7 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern bool cfsGetComputerInfo(UInt32                                                      cfCid,
+    public static extern bool cfsGetComputerInfo(IntPtr                                                      cfCid,
                                                  ref                              TmNativeDefs.ComputerInfoS cis,
                                                  out                              UInt32                     errCode,
                                                  [MarshalAs(UnmanagedType.LPStr)] StringBuilder              errString,
@@ -61,22 +61,11 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern bool cfsDirEnum(UInt32                                  cfCid,
+    public static extern bool cfsDirEnum(IntPtr                                  cfCid,
                                          [MarshalAs(UnmanagedType.LPStr)] string path,
                                          [MarshalAs(UnmanagedType.LPArray)] [In, Out]
                                          char[] buf,
                                          UInt32                                         bufLength,
-                                         out                              UInt32        errCode,
-                                         [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
-                                         UInt32                                         maxErrs);
-
-
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern bool cfsFileGet(UInt32                                         cfCid,
-                                         [MarshalAs(UnmanagedType.LPStr)] string        remotePath,
-                                         [MarshalAs(UnmanagedType.LPStr)] string        localPath,
-                                         UInt32                                         timeout,
-                                         IntPtr                                         fileTime,
                                          out                              UInt32        errCode,
                                          [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
                                          UInt32                                         maxErrs);
@@ -222,7 +211,7 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
-    public static extern Boolean cfsIfpcGetLogonToken(UInt32                                         connId,
+    public static extern Boolean cfsIfpcGetLogonToken(IntPtr                                         connId,
                                                       [MarshalAs(UnmanagedType.LPStr)] StringBuilder tokUname,
                                                       [MarshalAs(UnmanagedType.LPStr)] StringBuilder tokToken,
                                                       out                              UInt32        errCode,

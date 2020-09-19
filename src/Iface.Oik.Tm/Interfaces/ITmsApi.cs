@@ -21,7 +21,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<(string user, string password)> GenerateTokenForExternalApp();
 
-    Task<uint> GetCfCid();
+    Task<IntPtr> GetCfCid();
 
     Task<int> GetStatus(int ch, int rtu, int point);
 

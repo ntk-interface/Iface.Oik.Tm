@@ -13,13 +13,6 @@ namespace Iface.Oik.Tm.Native.Interfaces
                     string password);
 
 
-    UInt32 CfsGetExtendedUserData(UInt32 cfCid,
-                                  string serverType,
-                                  string serverName,
-                                  IntPtr buf,
-                                  UInt32 bufSize);
-
-
     UInt32 CfsGetExtendedUserData(IntPtr cfCid,
                                   string serverType,
                                   string serverName,
@@ -44,30 +37,20 @@ namespace Iface.Oik.Tm.Native.Interfaces
                              UInt32                            state);
 
 
-    bool CfsGetComputerInfo(UInt32                         cfCid,
+    bool CfsGetComputerInfo(IntPtr                         cfCid,
                             ref TmNativeDefs.ComputerInfoS cis,
                             out UInt32                     errCode,
                             ref StringBuilder              errString,
                             UInt32                         maxErrs);
 
 
-    bool CfsDirEnum(UInt32            cfCid,
+    bool CfsDirEnum(IntPtr            cfCid,
                     string            path,
                     ref char[]        buf,
-                    UInt32            bufLength,
-                    out UInt32        errCode,
+                    uint              bufLength,
+                    out uint          errCode,
                     ref StringBuilder errString,
-                    UInt32            maxErrs);
-
-
-    bool CfsFileGet(UInt32            cfCid,
-                    string            remotePath,
-                    string            localPath,
-                    UInt32            timeout,
-                    IntPtr            fileTime,
-                    out UInt32        errCode,
-                    ref StringBuilder errString,
-                    UInt32            maxErrs);
+                    uint              maxErrs);
 
 
     bool CfsFileGet(IntPtr            cfCid,
@@ -205,7 +188,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
     void CfsFreeMemory(IntPtr memory);
 
 
-    bool CfsIfpcGetLogonToken(UInt32            cfCid,
+    bool CfsIfpcGetLogonToken(IntPtr            cfCid,
                               ref StringBuilder tokUname,
                               ref StringBuilder tokToken,
                               out UInt32        errCode,
