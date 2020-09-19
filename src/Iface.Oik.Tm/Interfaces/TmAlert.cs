@@ -24,6 +24,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     public List<ITmAnalogRetro> MicroSeries { get; }
 
+    public TmAnalogTechParameters AnalogTechParameters { get; }
+
     public bool CanRemove => !IsActive &&
                              !IsUnacked;
 
@@ -34,46 +36,42 @@ namespace Iface.Oik.Tm.Interfaces
     public bool HasTmAnalog => TmAddr.Type == TmType.Analog;
 
 
-    public TmAlert(byte[]           id,
-                   int              importance,
-                   bool             isActive,
-                   bool             isUnacked,
-                   DateTime?        onTime,
-                   DateTime?        offTime,
-                   string           type,
-                   string           name,
-                   string           currentValueString,
-                   DateTime?        currentValueTime,
-                   float            currentValue,
-                   int              tmClassId,
-                   TmAddr           tmAddr,
-                   ITmAnalogRetro[] microSeries)
+    public TmAlert(byte[]                 id,
+                   int                    importance,
+                   bool                   isActive,
+                   bool                   isUnacked,
+                   DateTime?              onTime,
+                   DateTime?              offTime,
+                   string                 type,
+                   string                 name,
+                   string                 currentValueString,
+                   DateTime?              currentValueTime,
+                   float                  currentValue,
+                   int                    tmClassId,
+                   TmAddr                 tmAddr,
+                   ITmAnalogRetro[]       microSeries,
+                   TmAnalogTechParameters analogTechParameters)
     {
-      Id                 = id;
-      Importance         = importance;
-      IsActive           = isActive;
-      IsUnacked          = isUnacked;
-      OnTime             = onTime;
-      OffTime            = offTime;
-      Type               = type;
-      Name               = name;
-      CurrentValueString = currentValueString;
-      CurrentValueTime   = currentValueTime;
-      CurrentValue       = currentValue;
-      TmClassId          = tmClassId;
-      TmAddr             = tmAddr;
-      MicroSeries        = microSeries.ToList();
+      Id                   = id;
+      Importance           = importance;
+      IsActive             = isActive;
+      IsUnacked            = isUnacked;
+      OnTime               = onTime;
+      OffTime              = offTime;
+      Type                 = type;
+      Name                 = name;
+      CurrentValueString   = currentValueString;
+      CurrentValueTime     = currentValueTime;
+      CurrentValue         = currentValue;
+      TmClassId            = tmClassId;
+      TmAddr               = tmAddr;
+      MicroSeries          = microSeries.ToList();
+      AnalogTechParameters = (tmAddr.Type == TmType.Analog) ? analogTechParameters : null;
     }
 
 
     public static TmAlert CreateFromDto(TmAlertDto dto)
     {
-      var microSeriesDto = new TmAnalogMicroSeriesDto
-      {
-        MsValues = dto.MsValues,
-        MsSFlags = dto.MsSFlags,
-        MsTimes  = dto.MsTimes,
-      };
       return new TmAlert(dto.AlertId,
                          dto.Importance,
                          dto.Active,
@@ -86,9 +84,9 @@ namespace Iface.Oik.Tm.Interfaces
                          dto.CurTime,
                          dto.CurValue,
                          dto.ClassId ?? 0,
-                         TmAddr.CreateFromSqlTmaAndTmaType((ushort) (dto.TmType ?? 0),
-                                                           dto.Tma),
-                         microSeriesDto.MapToITmAnalogRetroArray()
+                         TmAddr.CreateFromSqlTmaAndTmaType((ushort) (dto.TmType ?? 0), dto.Tma),
+                         dto.MapToTmAnalogMicroSeriesDto().MapToITmAnalogRetroArray(),
+                         TmAnalogTechParameters.CreateFromDto(dto.MapToTmAnalogTechParametersDto())
       );
     }
   }

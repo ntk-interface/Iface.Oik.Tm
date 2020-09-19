@@ -12,13 +12,14 @@ namespace Iface.Oik.Tm.Interfaces
   {
     public static readonly string InvalidValueString = "???";
 
-    private short            _code;
-    private float            _value;
-    private TmFlags          _flags = TmFlags.Invalid;
-    private byte             _width; // todo сейчас вообще не используется, а надо ли?
-    private byte             _precision = 3;
-    private string           _unit      = "";
-    private TmTeleregulation _teleregulation;
+    private short                  _code;
+    private float                  _value;
+    private TmFlags                _flags = TmFlags.Invalid;
+    private byte                   _width; // todo сейчас вообще не используется, а надо ли?
+    private byte                   _precision = 3;
+    private string                 _unit      = "";
+    private TmTeleregulation       _teleregulation;
+    private TmAnalogTechParameters _techParameters;
 
 
     public short Code
@@ -61,6 +62,12 @@ namespace Iface.Oik.Tm.Interfaces
     {
       get => _teleregulation;
       private set => SetPropertyValueAndRefresh(ref _teleregulation, value);
+    }
+
+    public TmAnalogTechParameters TechParameters
+    {
+      get => _techParameters;
+      private set => SetPropertyValueAndRefresh(ref _techParameters, value);
     }
 
     public bool IsUnreliable      => Flags.HasFlag(TmFlags.Unreliable);
@@ -330,7 +337,7 @@ namespace Iface.Oik.Tm.Interfaces
       }
       if (key == "FBFlagsC")
       {
-        Teleregulation = TmAnalog.GetRegulationFromNativeFlag(value);
+        Teleregulation = GetRegulationFromNativeFlag(value);
       }
     }
 
@@ -368,6 +375,20 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
+    public void SetTmcTechParameters(TmNativeDefs.TAnalogTechParms parameters)
+    {
+      TechParameters = new TmAnalogTechParameters(parameters.Nominal,
+                                                  parameters.MinVal,
+                                                  parameters.MaxVal,
+                                                  parameters.ZoneLim[0],
+                                                  parameters.ZoneLim[1],
+                                                  parameters.ZoneLim[2],
+                                                  parameters.ZoneLim[3],
+                                                  parameters.AlrPresent > 0,
+                                                  parameters.AlrInUse   > 0);
+    }
+
+
     public void UpdateWithDto(TmAnalogDto dto)
     {
       if (dto == null) return;
@@ -391,6 +412,7 @@ namespace Iface.Oik.Tm.Interfaces
     {
       if (dto?.Name == null) return;
 
+      UpdateTechParametersWithDto(dto.MapToTmAnalogTechParametersDto());
       UpdatePropertiesWithDto(dto.Name,
                               dto.VUnit,
                               dto.VFormat,
@@ -441,6 +463,12 @@ namespace Iface.Oik.Tm.Interfaces
       }
 
       ClassId = (byte) classId;
+    }
+
+
+    public void UpdateTechParametersWithDto(TmAnalogTechParametersDto dto)
+    {
+      TechParameters = TmAnalogTechParameters.CreateFromDto(dto);
     }
 
 

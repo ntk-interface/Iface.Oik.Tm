@@ -608,6 +608,29 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt32 Ut;
       public Byte   SFlg; // 1 - present, 2 - unreliable
     }
+    
+    
+    public const int TAnalogTechParmsAlarmSize     = 4;
+    public const int TAnalogTechParamsReservedSize = 64 - 8;
+
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct TAnalogTechParms
+    {
+      public Single Nominal;
+      public Single MinVal;
+      public Single MaxVal;
+      public Byte   AlrPresent;
+      public Byte   AlrInUse;
+      public Byte   AlrId;
+      public Byte   Reserved1;
+      
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = TAnalogTechParmsAlarmSize)]
+      public Single[] ZoneLim;
+      
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = TAnalogTechParamsReservedSize)]
+      public UInt32[] Reserved;
+    }
 
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

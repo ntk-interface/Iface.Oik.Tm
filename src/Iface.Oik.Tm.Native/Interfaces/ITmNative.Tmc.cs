@@ -238,6 +238,16 @@ namespace Iface.Oik.Tm.Native.Interfaces
                                IntPtr[]              resultList);
 
 
+    Boolean TmcGetAnalogTechParms(Int32                         cid,
+                                  TmNativeDefs.TAdrTm           addr,
+                                  ref TmNativeDefs.TAnalogTechParms tpr);
+
+
+    Boolean TmcSetAnalogTechParms(Int32                         cid,
+                                  TmNativeDefs.TAdrTm           addr,
+                                  TmNativeDefs.TAnalogTechParms tpr);
+
+
     Int16 TmcSetStatus(Int32  cid,
                        Int16  ch,
                        Int16  rtu,
