@@ -257,9 +257,21 @@ namespace Iface.Oik.Tm.Native.Api
       return cfsTraceGetMessage(connId, out errCode, errString, maxErrs);
     }
 
+    
     public void CfsFreeMemory(IntPtr memory)
     {
       cfsFreeMemory(memory);
+    }
+
+
+    public bool CfsIfpcGetLogonToken(UInt32            cfCid,
+                                     ref StringBuilder tokUname,
+                                     ref StringBuilder tokToken,
+                                     out UInt32        errCode,
+                                     ref StringBuilder errString,
+                                     UInt32            maxErrs)
+    {
+      return cfsIfpcGetLogonToken(cfCid, tokUname, tokToken, out errCode, errString, maxErrs);
     }
 
     public bool CfsLogOpen(IntPtr connId, out UInt32 errCode, ref StringBuilder errString, UInt32 maxErrs)

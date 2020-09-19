@@ -222,6 +222,15 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
+    public static extern Boolean cfsIfpcGetLogonToken(UInt32                                         connId,
+                                                      [MarshalAs(UnmanagedType.LPStr)] StringBuilder tokUname,
+                                                      [MarshalAs(UnmanagedType.LPStr)] StringBuilder tokToken,
+                                                      out                              UInt32        errCode,
+                                                      [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
+                                                      UInt32                                         maxErrs);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
     public static extern bool cfsLogOpen(IntPtr                                         connId,
                                          out                              UInt32        errCode,
                                          [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,

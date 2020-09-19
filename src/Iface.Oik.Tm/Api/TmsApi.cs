@@ -43,19 +43,19 @@ namespace Iface.Oik.Tm.Api
         return null;
       }
 
-      const int errStringLenth = 1000;
+      const int errStringLength = 1000;
       var cis = new TmNativeDefs.ComputerInfoS
       {
         Len = (uint) Marshal.SizeOf(typeof(TmNativeDefs.ComputerInfoS))
       };
-      var  errString = new StringBuilder(errStringLenth);
+      var  errString = new StringBuilder(errStringLength);
       uint errCode   = 0;
 
       if (!await Task.Run(() => _native.CfsGetComputerInfo(cfCid,
                                                            ref cis,
                                                            out errCode,
                                                            ref errString,
-                                                           errStringLenth))
+                                                           errStringLength))
                      .ConfigureAwait(false))
       {
         return null;
@@ -104,6 +104,26 @@ namespace Iface.Oik.Tm.Api
       await Task.Run(() => _native.TmcSystemTime(_cid, ref tmcTime, IntPtr.Zero))
                 .ConfigureAwait(false);
       return tmcTime.ToString();
+    }
+
+
+    public async Task<(string user, string password)> GenerateTokenForExternalApp()
+    {
+      const int tokenLength = 64;
+      var       user        = new StringBuilder(tokenLength);
+      var       password    = new StringBuilder(tokenLength);
+
+      const int errStringLength = 1000;
+      var       errString      = new StringBuilder(errStringLength);
+      uint      errCode        = 0;
+      
+      var cfCid = await GetCfCid().ConfigureAwait(false);
+
+      await Task.Run(() => _native.CfsIfpcGetLogonToken(cfCid, ref user, ref password,
+                                                        out errCode, ref errString, errStringLength))
+                .ConfigureAwait(false);
+
+      return (user.ToString(), password.ToString());
     }
 
 
@@ -557,7 +577,7 @@ namespace Iface.Oik.Tm.Api
       {
         return;
       }
-      var tmcAddr    = tag.TmAddr.ToAdrTm();
+      var tmcAddr = tag.TmAddr.ToAdrTm();
       var techParams = new TmNativeDefs.TAnalogTechParms
       {
         ZoneLim  = new float[TmNativeDefs.TAnalogTechParmsAlarmSize],
@@ -1571,9 +1591,9 @@ namespace Iface.Oik.Tm.Api
       }
 
       const uint bufLength      = 8192;
-      const int  errStringLenth = 1000;
+      const int  errStringLength = 1000;
       var        buf            = new char[bufLength];
-      var        errString      = new StringBuilder(errStringLenth);
+      var        errString      = new StringBuilder(errStringLength);
       uint       errCode        = 0;
       if (!await Task.Run(() => _native.CfsDirEnum(cfCid,
                                                    path,
@@ -1581,7 +1601,7 @@ namespace Iface.Oik.Tm.Api
                                                    bufLength,
                                                    out errCode,
                                                    ref errString,
-                                                   errStringLenth))
+                                                   errStringLength))
                      .ConfigureAwait(false))
       {
         Console.WriteLine($"Ошибка при запросе списка файлов: {errCode} - {errString}");
@@ -1601,8 +1621,8 @@ namespace Iface.Oik.Tm.Api
         return false;
       }
 
-      const int errStringLenth = 1000;
-      var       errString      = new StringBuilder(errStringLenth);
+      const int errStringLength = 1000;
+      var       errString      = new StringBuilder(errStringLength);
       uint      errCode        = 0;
       if (!await Task.Run(() => _native.CfsFileGet(cfCid,
                                                    remotePath,
@@ -1611,7 +1631,7 @@ namespace Iface.Oik.Tm.Api
                                                    IntPtr.Zero,
                                                    out errCode,
                                                    ref errString,
-                                                   errStringLenth))
+                                                   errStringLength))
                      .ConfigureAwait(false))
       {
         Console.WriteLine($"Ошибка при скачивании файла: {errCode} - {errString}");

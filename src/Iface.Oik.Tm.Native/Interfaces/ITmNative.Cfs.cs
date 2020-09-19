@@ -81,16 +81,17 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
     bool CfsFileGetPropreties(IntPtr                             cfCid,
-                              string fileName,
+                              string                             fileName,
                               ref TmNativeDefs.CfsFileProperties pProps,
                               out UInt32                         errCode,
                               ref StringBuilder                  errString,
                               UInt32                             maxErrs);
 
+
     bool CfsCheckInstallationIntegrity(IntPtr            connId,
                                        UInt32            kind,
-                                       out IntPtr pSig,
-                                       out IntPtr pErrs,
+                                       out IntPtr        pSig,
+                                       out IntPtr        pErrs,
                                        out UInt32        errCode,
                                        ref StringBuilder errString,
                                        UInt32            maxErrs);
@@ -127,6 +128,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
                            ref StringBuilder         errString,
                            UInt32                    maxErrs);
 
+
     UInt32 CfsGetSoftwareType(IntPtr connId);
 
 
@@ -148,6 +150,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
                                out UInt32                   errCode,
                                ref StringBuilder            errString,
                                UInt32                       maxErrs);
+
 
     IntPtr CfsTraceEnumUsers(IntPtr            connId,
                              out UInt32        errCode,
@@ -200,6 +203,14 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
     void CfsFreeMemory(IntPtr memory);
+
+
+    bool CfsIfpcGetLogonToken(UInt32            cfCid,
+                              ref StringBuilder tokUname,
+                              ref StringBuilder tokToken,
+                              out UInt32        errCode,
+                              ref StringBuilder errString,
+                              UInt32            maxErrs);
 
 
     bool CfsLogOpen(IntPtr            connId,
