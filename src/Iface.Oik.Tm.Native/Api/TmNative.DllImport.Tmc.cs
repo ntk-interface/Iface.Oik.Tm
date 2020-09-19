@@ -53,7 +53,7 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern UInt32 tmcGetCfsHandle(Int32 cid);
+    public static extern IntPtr tmcGetCfsHandle(Int32 cid);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]

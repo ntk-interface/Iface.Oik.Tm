@@ -53,7 +53,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
     Int16 TmcClrFeedback(Int32 cid);
 
 
-    UInt32 TmcGetCfsHandle(Int32 cid);
+    IntPtr TmcGetCfsHandle(int cid);
 
 
     UInt32 TmcReconnectCount(Int32 cid);

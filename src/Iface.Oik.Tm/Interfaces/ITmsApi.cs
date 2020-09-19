@@ -19,7 +19,9 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<string> GetSystemTimeString();
 
-    Task<uint> GetCfCid();
+    Task<(string user, string password)> GenerateTokenForExternalApp();
+
+    Task<IntPtr> GetCfCid();
 
     Task<int> GetStatus(int ch, int rtu, int point);
 

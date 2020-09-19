@@ -1,8 +1,6 @@
 using System;
-using System.IO;
 using System.Text;
 using Iface.Oik.Tm.Native.Interfaces;
-using Iface.Oik.Tm.Native.Utils;
 
 namespace Iface.Oik.Tm.Native.Api
 {
@@ -86,7 +84,7 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public UInt32 TmcGetCfsHandle(Int32 cid)
+    public IntPtr TmcGetCfsHandle(int cid)
     {
       return tmcGetCfsHandle(cid);
     }
