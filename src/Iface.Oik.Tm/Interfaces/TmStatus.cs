@@ -133,6 +133,9 @@ namespace Iface.Oik.Tm.Interfaces
     public bool IsDrawoutUnderMaintenance => Flag1Name.ToLower()   == "положение_тележки" &&
                                              Flag1Status.ToLower() == "ремонтное";
 
+    public bool IsDrawoutUnderCheckup => Flag2Name.ToLower()   == "положение_тележки" &&
+                                         Flag2Status.ToLower() == "контрольное";
+
 
     public string StatusCaption
     {
