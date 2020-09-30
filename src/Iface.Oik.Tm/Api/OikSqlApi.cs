@@ -272,7 +272,7 @@ namespace Iface.Oik.Tm.Api
         using (var sql = _createOikSqlConnection())
         {
           await sql.OpenAsync().ConfigureAwait(false);
-          var commandText = @"SELECT name, v_importance, v_normalstate, class_id, 
+          var commandText = @"SELECT name, v_importance, v_normalstate, class_id, provider, 
                                cl_text0, cl_text1, cl_break_text, cl_malfun_text, 
                                cl_fla_name, cl_flb_name, cl_flc_name, cl_fld_name,
                                cl_fla_text0, cl_flb_text0, cl_flc_text0, cl_fld_text0, 
@@ -361,7 +361,7 @@ namespace Iface.Oik.Tm.Api
         using (var sql = _createOikSqlConnection())
         {
           await sql.OpenAsync().ConfigureAwait(false);
-          var commandText = @"SELECT name, v_importance, v_normalstate, class_id, 
+          var commandText = @"SELECT name, v_importance, v_normalstate, class_id, provider, 
                                cl_text0, cl_text1, cl_break_text, cl_malfun_text, 
                                cl_fla_name, cl_flb_name, cl_flc_name, cl_fld_name,
                                cl_fla_text0, cl_flb_text0, cl_flc_text0, cl_fld_text0, 
@@ -533,7 +533,7 @@ namespace Iface.Oik.Tm.Api
         {
           await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT @Ch AS ch, @Rtu AS rtu, point, 
-                                name, v_importance, v_normalstate, class_id, 
+                                name, v_importance, v_normalstate, class_id, provider, 
                                 cl_text0, cl_text1, cl_break_text, cl_malfun_text, 
                                 cl_fla_name, cl_flb_name, cl_flc_name, cl_fld_name,
                                 cl_fla_text0, cl_flb_text0, cl_flc_text0, cl_fld_text0, 
@@ -944,9 +944,9 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          await sql.OpenAsync().ConfigureAwait(false);
+          await sql.OpenAsync().ConfigureAwait(false); 
           var commandText = $@"SELECT @Ch AS ch, @Rtu AS rtu, point, 
-                                name, v_importance, v_normalstate, class_id, 
+                                name, v_importance, v_normalstate, class_id, provider, 
                                 cl_text0, cl_text1, cl_break_text, cl_malfun_text, 
                                 cl_fla_name, cl_flb_name, cl_flc_name, cl_fld_name,
                                 cl_fla_text0, cl_flb_text0, cl_flc_text0, cl_fld_text0, 

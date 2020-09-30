@@ -38,6 +38,7 @@ namespace Iface.Oik.Tm.Dto
         Name         = dto.Name,
         VImportance  = dto.VImportance,
         VNormalState = dto.VNormalState,
+        Provider     = dto.Provider,
         ClassId      = dto.ClassId,
         ClText0      = dto.ClText0,
         ClText1      = dto.ClText1,
@@ -92,8 +93,8 @@ namespace Iface.Oik.Tm.Dto
         MsTimes  = dto.MsTimes,
       };
     }
-    
-    
+
+
     public static TmAnalogTechParametersDto MapToTmAnalogTechParametersDto(this TmAnalogPropertiesDto dto)
     {
       return new TmAnalogTechParametersDto
@@ -109,7 +110,6 @@ namespace Iface.Oik.Tm.Dto
         TprAlrInUse   = dto.TprAlrInUse,
       };
     }
-    
 
 
     public static TmAnalogTechParametersDto MapToTmAnalogTechParametersDto(this TmAlertDto dto)

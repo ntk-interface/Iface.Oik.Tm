@@ -31,6 +31,7 @@ namespace Iface.Oik.Tm.Dto
     public string Name         { get; set; }
     public short  VImportance  { get; set; }
     public short  VNormalState { get; set; }
+    public string Provider     { get; set; }
     public short  ClassId      { get; set; }
     public string ClText0      { get; set; }
     public string ClText1      { get; set; }
@@ -59,6 +60,7 @@ namespace Iface.Oik.Tm.Dto
     public string    Name         { get; set; }
     public short     VImportance  { get; set; }
     public short     VNormalState { get; set; }
+    public string    Provider     { get; set; }
     public short     ClassId      { get; set; }
     public string    ClText0      { get; set; }
     public string    ClText1      { get; set; }

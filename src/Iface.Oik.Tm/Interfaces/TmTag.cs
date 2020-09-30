@@ -16,6 +16,7 @@ namespace Iface.Oik.Tm.Interfaces
     private DateTime?                  _changeTime;
     private string                     _name;
     private byte?                      _classId;
+    private bool                       _hasTmProvider;
     private Dictionary<string, string> _classData;
     private Dictionary<string, string> _properties;
 
@@ -42,6 +43,12 @@ namespace Iface.Oik.Tm.Interfaces
     {
       get => _classId;
       protected set => SetPropertyValueAndRefresh(ref _classId, value);
+    }
+
+    public bool HasTmProvider
+    {
+      get => _hasTmProvider;
+      protected set => SetPropertyValueAndRefresh(ref _hasTmProvider, value);
     }
 
     public Dictionary<string, string> ClassData
@@ -151,7 +158,9 @@ namespace Iface.Oik.Tm.Interfaces
 
     public void SetTmcObjectProperties(StringBuilder tmcObjectProperties)
     {
-      Properties = new Dictionary<string, string>();
+      Properties    = new Dictionary<string, string>();
+      HasTmProvider = false;
+      
       var props = tmcObjectProperties.ToString().Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
       foreach (var prop in props)
       {
@@ -160,30 +169,22 @@ namespace Iface.Oik.Tm.Interfaces
         {
           continue;
         }
-
-        SetTmcObjectSpecificProperties(kvp[0], kvp[1]);
-
-        switch (this)
-        {
-          case TmStatus tmStatus:
-            tmStatus.SetTmcObjectSpecificProperties(kvp[0], kvp[1]);
-            break;
-
-          case TmAnalog tmAnalog:
-            tmAnalog.SetTmcObjectSpecificProperties(kvp[0], kvp[1]);
-            break;
-        }
+        SetTmcObjectProperties(kvp[0], kvp[1]);
       }
     }
 
 
-    private void SetTmcObjectSpecificProperties(string key, string value)
+    protected virtual void SetTmcObjectProperties(string key, string value)
     {
       Properties.AddWithUniquePostfixIfNeeded(key, value);
 
       if (key == "Name")
       {
         Name = value;
+      }
+      if (key == "Provider" && !string.IsNullOrEmpty(value))
+      {
+        HasTmProvider = true;
       }
     }
 

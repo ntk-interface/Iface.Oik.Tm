@@ -77,6 +77,46 @@ namespace Iface.Oik.Tm.Test.Interfaces
     }
 
 
+    public class HasTmProviderProperty
+    {
+      [Theory, TmAutoFakeItEasyData]
+      public void ReturnsTrueForTmStatus(TmStatus status)
+      {
+        status.SetTmcObjectProperties(new StringBuilder("Provider=123"));
+
+        status.HasTmProvider.Should().BeTrue();
+      }
+      
+      [Theory]
+      [TmInlineAutoFakeItEasyData("Provider=")]
+      [TmInlineAutoFakeItEasyData("Dummy=123")]
+      public void ReturnsFalseForTmStatus(string properties, TmStatus status)
+      {
+        status.SetTmcObjectProperties(new StringBuilder(properties));
+
+        status.HasTmProvider.Should().BeFalse();
+      }
+      
+      [Theory, TmAutoFakeItEasyData]
+      public void ReturnsTrueForTmAnalog(TmAnalog analog)
+      {
+        analog.SetTmcObjectProperties(new StringBuilder("Provider=123"));
+
+        analog.HasTmProvider.Should().BeTrue();
+      }
+      
+      [Theory]
+      [TmInlineAutoFakeItEasyData("Provider=")]
+      [TmInlineAutoFakeItEasyData("Dummy=123")]
+      public void ReturnsFalseForTmAnalog(string properties, TmAnalog analog)
+      {
+        analog.SetTmcObjectProperties(new StringBuilder(properties));
+
+        analog.HasTmProvider.Should().BeFalse();
+      }
+    }
+
+
     public class PropertiesProperty
     {
       [Theory, TmAutoFakeItEasyData]

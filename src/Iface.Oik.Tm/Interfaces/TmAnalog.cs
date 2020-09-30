@@ -318,8 +318,10 @@ namespace Iface.Oik.Tm.Interfaces
     }
     
 
-    public void SetTmcObjectSpecificProperties(string key, string value)
+    protected override void SetTmcObjectProperties(string key, string value)
     {
+      base.SetTmcObjectProperties(key, value);
+      
       if (key == "Units")
       {
         Unit = value;
@@ -441,6 +443,7 @@ namespace Iface.Oik.Tm.Interfaces
 
       if (!string.IsNullOrEmpty(provider))
       {
+        HasTmProvider = true;
         provider.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries)
                 .ForEach(property =>
                 {
@@ -455,6 +458,10 @@ namespace Iface.Oik.Tm.Interfaces
                     Teleregulation = GetRegulationFromNativeFlag(kvp[1]);
                   }
                 });
+      }
+      else
+      {
+        HasTmProvider = false;
       }
 
       if (classId < 0)

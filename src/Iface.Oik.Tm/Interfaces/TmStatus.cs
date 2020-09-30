@@ -369,8 +369,10 @@ namespace Iface.Oik.Tm.Interfaces
     }
     
 
-    public void SetTmcObjectSpecificProperties(string key, string value)
+    protected override void SetTmcObjectProperties(string key, string value)
     {
+      base.SetTmcObjectProperties(key, value);
+      
       if (key == "Normal")
       {
         if (int.TryParse(value, out var normalStatus))
@@ -473,6 +475,7 @@ namespace Iface.Oik.Tm.Interfaces
       SetSqlPropertiesAndClassData(dto.Name,
                                    dto.VImportance,
                                    dto.VNormalState,
+                                   dto.Provider,
                                    dto.ClassId,
                                    dto.ClText0,
                                    dto.ClText1,
@@ -496,6 +499,7 @@ namespace Iface.Oik.Tm.Interfaces
     public void SetSqlPropertiesAndClassData(string name,
                                              short  importance,
                                              short  normalStatus,
+                                             string provider,
                                              short  classId,
                                              string offCaption,
                                              string onCaption,
@@ -517,6 +521,8 @@ namespace Iface.Oik.Tm.Interfaces
       Name         = name;
       Importance   = importance;
       NormalStatus = (short) ((normalStatus == 0 || normalStatus == 1) ? normalStatus : -1);
+
+      HasTmProvider = !string.IsNullOrEmpty(provider);
 
       if (classId < 0)
       {
