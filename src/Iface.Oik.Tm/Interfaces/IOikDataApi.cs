@@ -42,8 +42,8 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task<string> GetSystemTimeString(PreferApi prefer = PreferApi.Auto);
-    
-    
+
+
     Task<(string user, string password)> GenerateTokenForExternalApp(PreferApi prefer = PreferApi.Auto);
 
 
@@ -102,12 +102,12 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<TmClassAnalog>> GetAnalogsClasses(PreferApi prefer = PreferApi.Auto);
 
 
-    Task UpdateTechObjects(IReadOnlyList<TmTechObject> techObjects,
-                           PreferApi                   prefer = PreferApi.Auto);
+    Task UpdateTechObjects(IReadOnlyList<Tob> techObjects,
+                           PreferApi          prefer = PreferApi.Auto);
 
 
-    Task<IReadOnlyCollection<TmTechObject>> GetTechObjects(TmTechObjectFilter filter,
-                                                           PreferApi          prefer = PreferApi.Auto);
+    Task<IReadOnlyCollection<Tob>> GetTechObjects(TobFilter filter,
+                                                  PreferApi prefer = PreferApi.Auto);
 
 
     Task<IReadOnlyCollection<TmEvent>> GetEventsArchive(TmEventFilter filter,

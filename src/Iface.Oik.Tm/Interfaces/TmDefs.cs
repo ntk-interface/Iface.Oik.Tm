@@ -193,37 +193,28 @@ namespace Iface.Oik.Tm.Interfaces
   }
 
 
-  public enum TmTechObjectBindingsMode
+  public enum TobBindingType
   {
-    [Description("")]       None            = 0,
-    [Description("ИЗМ")]    Measurement     = 1,
-    [Description("ОМП")]    DamageLocation  = 2,
-    [Description("ТЕХ")]    TechParams      = 3,
-    [Description("РЗА")]    RelayProtection = 4,
-    [Description("РЕЖ")]    Regime          = 5,
-    [Description("ПЗ")]     PortableGround  = 6,
-    [Description("ОБР")]    OperLock        = 7,
-    [Description("АВОТКЛ")] FaultySwitch    = 8,
+    [Description("Сигналы и измерения")]       TmTag             = 0,
+    [Description("ТЕХ данные")]                TechParam         = 1,
+    [Description("ТЕХ документ")]              TechDocument      = 2,
+    [Description("ОБР документ")]              OperLockDocument  = 3,
+    [Description("Сигнал состояния")]          MainTmStatus      = 4,
+    [Description("Измерение для отображения")] MainTmAnalog      = 5,
+    [Description("Ссылка на элемент")]         ParentTob         = 6,
+    [Description("ИЗМ")]                       TmMeasurement     = 7,
+    [Description("ОМП")]                       TmDamageLocation  = 8,
+    [Description("ТЕХ")]                       TmTechParam       = 9,
+    [Description("РЗА")]                       TmRelayProtection = 10,
+    [Description("РЕЖ")]                       TmRegime          = 11,
+    [Description("ОБР")]                       TmOperLock        = 12,
   }
 
 
-  public enum TmTechObjectBindingType
+  public enum TobLogAction
   {
-    [Description("Сигналы и измерения")]       TmTag              = 0,
-    [Description("ТЕХ данные")]                TechParam          = 1,
-    [Description("ТЕХ документ")]              TechDocument       = 2,
-    [Description("ОБР документ")]              OperLockDocument   = 3,
-    [Description("Сигнал состояния")]          MainTmStatus       = 4,
-    [Description("Измерение для отображения")] MainTmAnalog       = 5,
-    [Description("Ссылка на элемент")]         Parent             = 6,
-  }
-
-
-  public enum TmTechObjectLogAction
-  {
-    None         = 0,
-    Placard      = 1,
-    FaultySwitch = 2,
+    None    = 0,
+    Placard = 1,
   }
 
 

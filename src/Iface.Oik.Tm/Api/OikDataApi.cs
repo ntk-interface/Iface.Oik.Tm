@@ -464,7 +464,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task UpdateTechObjects(IReadOnlyList<TmTechObject> techObjects,
+    public async Task UpdateTechObjects(IReadOnlyList<Tob> techObjects,
                                         PreferApi                   prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
@@ -483,7 +483,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IReadOnlyCollection<TmTechObject>> GetTechObjects(TmTechObjectFilter filter,
+    public async Task<IReadOnlyCollection<Tob>> GetTechObjects(TobFilter filter,
                                                                         PreferApi          prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);

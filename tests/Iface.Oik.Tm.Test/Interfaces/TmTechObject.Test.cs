@@ -14,7 +14,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
     public class SetPropertiesFromTmcMethod
     {
       [Theory, TmAutoFakeItEasyData]
-      public void SetsCorrectProperties(TmTechObject tob)
+      public void SetsCorrectProperties(Tob tob)
       {
         using (var monitor = tob.Monitor())
         {
@@ -29,7 +29,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
 
       [Theory, TmAutoFakeItEasyData]
-      public void DoesNothingAndReturnsFalseForNull(TmTechObject tob)
+      public void DoesNothingAndReturnsFalseForNull(Tob tob)
       {
         using (var monitor = tob.Monitor())
         {
@@ -43,7 +43,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
 
       [Theory, TmAutoFakeItEasyData]
-      public void DoesNothingAndReturnsFalseForEqualProperties(TmTechObject tob)
+      public void DoesNothingAndReturnsFalseForEqualProperties(Tob tob)
       {
         tob.SetPropertiesFromTmc(Properties1);
 
@@ -58,7 +58,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
 
       [Theory, TmAutoFakeItEasyData]
-      public void SetsCorrectPropertiesForNewOnes(TmTechObject tob)
+      public void SetsCorrectPropertiesForNewOnes(Tob tob)
       {
         tob.SetPropertiesFromTmc(Properties1);
 
@@ -77,13 +77,13 @@ namespace Iface.Oik.Tm.Test.Interfaces
     public class GetPropertyMethod
     {
       [Theory, TmAutoFakeItEasyData]
-      public void ReturnsCorrectValues(TmTechObject tob)
+      public void ReturnsCorrectValues(Tob tob)
       {
         tob.SetPropertiesFromTmc(Properties1);
 
-        var resultV    = tob.GetPropertyOrDefault(TmTechObject.PropertyIsVoltaged);
-        var resultG    = tob.GetPropertyOrDefault(TmTechObject.PropertyIsGrounded);
-        var resultName = tob.GetPropertyOrDefault(TmTechObject.PropertyName);
+        var resultV    = tob.GetPropertyOrDefault(Tob.PropertyIsVoltaged);
+        var resultG    = tob.GetPropertyOrDefault(Tob.PropertyIsGrounded);
+        var resultName = tob.GetPropertyOrDefault(Tob.PropertyName);
 
         resultV.Should().Be("1");
         resultG.Should().Be("1");
@@ -92,7 +92,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
 
       [Theory, TmAutoFakeItEasyData]
-      public void ReturnsNullForNull(TmTechObject tob)
+      public void ReturnsNullForNull(Tob tob)
       {
         tob.SetPropertiesFromTmc(Properties1);
 
@@ -103,7 +103,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
 
       [Theory, TmAutoFakeItEasyData]
-      public void ReturnsNullForNotDefinedKey(TmTechObject tob)
+      public void ReturnsNullForNotDefinedKey(Tob tob)
       {
         tob.SetPropertiesFromTmc(Properties1);
 
@@ -117,7 +117,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
     public class TopologyStateProperty
     {
       [Theory, TmAutoFakeItEasyData]
-      public void ReturnsUnknownForNonInit(TmTechObject tob)
+      public void ReturnsUnknownForNonInit(Tob tob)
       {
         var result = tob.TopologyState;
 
@@ -135,7 +135,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       [TmInlineAutoFakeItEasyData(new[] {"dummy"},        TmTopologyState.Unknown)]
       public void ReturnsCorrectValues(string[]        properties,
                                        TmTopologyState expected,
-                                       TmTechObject    tob)
+                                       Tob    tob)
       {
         tob.SetPropertiesFromTmc(properties);
 
