@@ -246,9 +246,15 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
+    public string ToAddrString()
+    {
+      return $"#TO{Scheme}:{Type}:{Object}";
+    }
+
+
     public override string ToString()
     {
-      return $"{Scheme}:{Type}:{Object} {string.Join(" | ", Properties.Select(p => $"{p.Key}={p.Value}"))}";
+      return $"{ToAddrString()} {string.Join(" | ", Properties.Select(p => $"{p.Key}={p.Value}"))}";
     }
   }
 }

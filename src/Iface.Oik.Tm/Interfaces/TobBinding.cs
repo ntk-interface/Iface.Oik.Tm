@@ -1,7 +1,10 @@
+using System;
+
 namespace Iface.Oik.Tm.Interfaces
 {
   public class TobBinding
   {
+    public Guid           Id          { get; set; }
     public Tob            Tob         { get; set; }
     public TobBindingType BindingType { get; set; }
     public TmTag          TmTag       { get; set; }
@@ -9,9 +12,8 @@ namespace Iface.Oik.Tm.Interfaces
     public string         Name        { get; set; }
     public string         Value       { get; set; }
 
-    public bool IsOperLock => BindingType == TobBindingType.TmOperLock;
+    public string NameToDisplay => TmTag != null ? TmTag.Name : Name;
 
-    public bool IsTmStatus => TmTag is TmStatus;
-    public bool IsTmAnalog => TmTag is TmAnalog;
+    public bool IsOperLock => BindingType == TobBindingType.TmOperLock;
   }
 }

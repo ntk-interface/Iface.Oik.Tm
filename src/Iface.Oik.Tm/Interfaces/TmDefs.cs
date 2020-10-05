@@ -195,19 +195,20 @@ namespace Iface.Oik.Tm.Interfaces
 
   public enum TobBindingType
   {
-    [Description("Сигналы и измерения")]       TmTag             = 0,
+    None                                                         = -1,
+    [Description("УСТАРЕЛО")]                  DeprecatedTmTag   = 0,
     [Description("ТЕХ данные")]                TechParam         = 1,
-    [Description("ТЕХ документ")]              TechDocument      = 2,
-    [Description("ОБР документ")]              OperLockDocument  = 3,
+    [Description("ТЕХ документ")]              DocumentTech      = 2,
+    [Description("ОБР документ")]              DocumentOperLock  = 3,
     [Description("Сигнал состояния")]          MainTmStatus      = 4,
     [Description("Измерение для отображения")] MainTmAnalog      = 5,
     [Description("Ссылка на элемент")]         ParentTob         = 6,
-    [Description("ИЗМ")]                       TmMeasurement     = 7,
-    [Description("ОМП")]                       TmDamageLocation  = 8,
-    [Description("ТЕХ")]                       TmTechParam       = 9,
-    [Description("РЗА")]                       TmRelayProtection = 10,
-    [Description("РЕЖ")]                       TmRegime          = 11,
-    [Description("ОБР")]                       TmOperLock        = 12,
+    [Description("ОБР")]                       TmOperLock        = 7,
+    [Description("ИЗМ")]                       TmMeasurement     = 8,
+    [Description("ОМП")]                       TmDamageLocation  = 9,
+    [Description("ТЕХ")]                       TmTechParam       = 10,
+    [Description("РЗА")]                       TmRelayProtection = 11,
+    [Description("РЕЖ")]                       TmRegime          = 12,
   }
 
 
