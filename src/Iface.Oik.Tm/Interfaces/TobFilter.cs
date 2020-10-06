@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public class TmTechObjectFilter
+  public class TobFilter
   {
     public uint? Scheme { get; set; }
 

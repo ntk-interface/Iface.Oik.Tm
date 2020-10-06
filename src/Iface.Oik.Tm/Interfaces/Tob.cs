@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using Iface.Oik.Tm.Native.Interfaces;
@@ -8,7 +7,7 @@ using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public class TmTechObject : TmNotifyPropertyChanged
+  public class Tob : TmNotifyPropertyChanged
   {
     public static readonly string          DefaultName          = "Элемент";
     public static readonly TmTopologyState DefaultTopologyState = TmTopologyState.Unknown;
@@ -64,7 +63,7 @@ namespace Iface.Oik.Tm.Interfaces
         : DefaultName;
 
 
-    public TmTechObject(uint scheme, ushort type, uint obj, string name = null)
+    public Tob(uint scheme, ushort type, uint obj, string name = null)
     {
       Scheme        = scheme;
       Type          = type;
@@ -75,7 +74,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public TmTechObject(int scheme, int type, int obj, string name = null)
+    public Tob(int scheme, int type, int obj, string name = null)
       : this((uint) scheme, (ushort) type, (uint) obj, name)
     {
     }
@@ -174,7 +173,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public static bool IsAddrEqual(TmTechObject left, TmTechObject right)
+    public static bool IsAddrEqual(Tob left, Tob right)
     {
       if (left == null || right == null) return false;
 
@@ -192,9 +191,9 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public static TmTechObject Parse(string s)
+    public static Tob Parse(string s)
     {
-      if (!TryParse(s, out TmTechObject tmTob))
+      if (!TryParse(s, out Tob tmTob))
       {
         throw new ArgumentException("Недопустимая строка TmTechObject");
       }
@@ -203,7 +202,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public static bool TryParse(string s, out TmTechObject tmTob)
+    public static bool TryParse(string s, out Tob tmTob)
     {
       if (string.IsNullOrWhiteSpace(s))
       {
@@ -224,7 +223,7 @@ namespace Iface.Oik.Tm.Interfaces
         {
           scheme = scheme.Remove(0, 3);
         }
-        tmTob = new TmTechObject(uint.Parse(scheme), ushort.Parse(type), uint.Parse(obj));
+        tmTob = new Tob(uint.Parse(scheme), ushort.Parse(type), uint.Parse(obj));
         return true;
       }
       catch (Exception)
@@ -247,9 +246,15 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
+    public string ToAddrString()
+    {
+      return $"#TO{Scheme}:{Type}:{Object}";
+    }
+
+
     public override string ToString()
     {
-      return $"{Scheme}:{Type}:{Object} {string.Join(" | ", Properties.Select(p => $"{p.Key}={p.Value}"))}";
+      return $"{ToAddrString()} {string.Join(" | ", Properties.Select(p => $"{p.Key}={p.Value}"))}";
     }
   }
 }

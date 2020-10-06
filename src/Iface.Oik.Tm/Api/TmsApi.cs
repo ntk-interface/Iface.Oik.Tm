@@ -114,9 +114,9 @@ namespace Iface.Oik.Tm.Api
       var       password    = new StringBuilder(tokenLength);
 
       const int errStringLength = 1000;
-      var       errString      = new StringBuilder(errStringLength);
-      uint      errCode        = 0;
-      
+      var       errString       = new StringBuilder(errStringLength);
+      uint      errCode         = 0;
+
       var cfCid = await GetCfCid().ConfigureAwait(false);
 
       await Task.Run(() => _native.CfsIfpcGetLogonToken(cfCid, ref user, ref password,
@@ -702,7 +702,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task UpdateTechObjectsProperties(IReadOnlyList<TmTechObject> techObjects)
+    public async Task UpdateTechObjectsProperties(IReadOnlyList<Tob> techObjects)
     {
       if (techObjects.IsNullOrEmpty()) return;
 
@@ -741,7 +741,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IReadOnlyCollection<TmTechObject>> GetTechObjects(TmTechObjectFilter filter)
+    public async Task<IReadOnlyCollection<Tob>> GetTechObjects(TobFilter filter)
     {
       uint count            = 0;
       var  filterProperties = TmNativeUtil.GetDoubleNullTerminatedPointerFromStringList(filter?.Properties);
@@ -753,11 +753,11 @@ namespace Iface.Oik.Tm.Api
                                          .ConfigureAwait(false);
       if (tmcTechObjPropsPtr == IntPtr.Zero)
       {
-        return Array.Empty<TmTechObject>();
+        return Array.Empty<Tob>();
       }
 
-      var tmTechObjects = new List<TmTechObject>();
-      var structSize    = Marshal.SizeOf(typeof(TmNativeDefs.TTechObjProps));
+      var tobs       = new List<Tob>();
+      var structSize = Marshal.SizeOf(typeof(TmNativeDefs.TTechObjProps));
       for (var i = 0; i < count; i++)
       {
         var currentPtr      = new IntPtr(tmcTechObjPropsPtr.ToInt64() + i * structSize);
@@ -767,14 +767,14 @@ namespace Iface.Oik.Tm.Api
           continue;
         }
 
-        var tob = new TmTechObject(tmcTechObjProps.Scheme, tmcTechObjProps.Type, tmcTechObjProps.Object);
+        var tob = new Tob(tmcTechObjProps.Scheme, tmcTechObjProps.Type, tmcTechObjProps.Object);
         tob.SetPropertiesFromTmc(TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(tmcTechObjProps.Props,
                                                                                            1024));
-        tmTechObjects.Add(tob);
+        tobs.Add(tob);
       }
       _native.TmcFreeMemory(tmcTechObjPropsPtr);
 
-      return tmTechObjects;
+      return tobs;
     }
 
 
@@ -1590,11 +1590,11 @@ namespace Iface.Oik.Tm.Api
         return null;
       }
 
-      const uint bufLength      = 8192;
+      const uint bufLength       = 8192;
       const int  errStringLength = 1000;
-      var        buf            = new char[bufLength];
-      var        errString      = new StringBuilder(errStringLength);
-      uint       errCode        = 0;
+      var        buf             = new char[bufLength];
+      var        errString       = new StringBuilder(errStringLength);
+      uint       errCode         = 0;
       if (!await Task.Run(() => _native.CfsDirEnum(cfCid,
                                                    path,
                                                    ref buf,
@@ -1622,8 +1622,8 @@ namespace Iface.Oik.Tm.Api
       }
 
       const int errStringLength = 1000;
-      var       errString      = new StringBuilder(errStringLength);
-      uint      errCode        = 0;
+      var       errString       = new StringBuilder(errStringLength);
+      uint      errCode         = 0;
       if (!await Task.Run(() => _native.CfsFileGet(cfCid,
                                                    remotePath,
                                                    localPath,

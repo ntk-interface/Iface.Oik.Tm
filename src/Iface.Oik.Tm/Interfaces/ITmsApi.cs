@@ -64,9 +64,9 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task UpdateTagPropertiesAndClassData(TmTag tag);
 
-    Task UpdateTechObjectsProperties(IReadOnlyList<TmTechObject> techObjects);
+    Task UpdateTechObjectsProperties(IReadOnlyList<Tob> techObjects);
 
-    Task<IReadOnlyCollection<TmTechObject>> GetTechObjects(TmTechObjectFilter filter);
+    Task<IReadOnlyCollection<Tob>> GetTechObjects(TobFilter filter);
 
     Task<TmEventElix> GetCurrentEventsElix();
 
