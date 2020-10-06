@@ -1,11 +1,9 @@
 using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
-using Iface.Oik.Tm.Native.Utils;
-using Iface.Oik.Tm.Interfaces;
 
 namespace Iface.Oik.Tm.Helpers
 {
@@ -29,7 +27,7 @@ namespace Iface.Oik.Tm.Helpers
                               IntPtr           callbackParameter)
     {
       var tmCid = Native.TmcConnect(host, serverName, applicationName, callback, callbackParameter);
-      
+
       if (!IsConnected(tmCid))
       {
         tmCid = 0;
@@ -62,10 +60,11 @@ namespace Iface.Oik.Tm.Helpers
       {
         Native.TmcSetDgrmFlags(tmCid, (uint) TmNativeDefs.DatagramFlags.NewClient);
       }
-      
-      
+
+
       return tmCid;
     }
+
 
     public static int DeltaConnect(string           host,
                                    string           serverName,
@@ -78,6 +77,7 @@ namespace Iface.Oik.Tm.Helpers
 
       return ConnectExplicit(host, serverName, applicationName, callback, callbackParameter, 1, props, propsValues);
     }
+
 
     public static bool IsConnected(int tmCid)
     {
@@ -165,6 +165,32 @@ namespace Iface.Oik.Tm.Helpers
                             Encoding.GetEncoding(1251).GetString(extendedUserInfo.KeyId).Trim('\0'),
                             extendedUserInfo.Group,
                             extendedUserInfo.Rights);
+    }
+
+
+    public static TmServerFeatures GetServerFeatures(int tmCid)
+    {
+      var featuresBuf = new byte[16];
+
+      if (Native.TmcGetServerCaps(tmCid, ref featuresBuf) == 0)
+      {
+        return TmServerFeatures.Empty;
+      }
+
+      return new TmServerFeatures(isComtradeEnabled: CheckFeature(ServerFeature.Comtrade),
+                                  areMicroSeriesEnabled: CheckFeature(ServerFeature.MicroSeries));
+
+      bool CheckFeature(ServerFeature feature)
+      {
+        var b = (byte) feature;
+        return ((featuresBuf[b / 8] >> (b % 8)) & 1) > 0;
+      }
+    }
+
+
+    public static int GetLicenseFeature(int tmCid, CfsDefs.LicenseFeature feature)
+    {
+      return Native.TmcGetServerFeature(tmCid, (uint) feature);
     }
 
 

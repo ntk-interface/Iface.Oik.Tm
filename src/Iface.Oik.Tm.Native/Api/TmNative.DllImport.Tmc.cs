@@ -78,6 +78,16 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern UInt32 tmcGetServerCaps(Int32                                               cid,
+                                                 [MarshalAs(UnmanagedType.LPArray)] [In, Out] byte[] pCaps);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int32 tmcGetServerFeature(Int32  cid,
+                                                   UInt32 dwCode);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcSystemTime(Int32                                          cid,
                                              [MarshalAs(UnmanagedType.LPStr)] StringBuilder time,
                                              [In]                             IntPtr        tmStruct); // TODO test ref
