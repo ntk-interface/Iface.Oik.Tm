@@ -27,6 +27,8 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     void SetUserInfo(TmUserInfo userInfo);
+    
+    void SetServerFeatures(TmServerFeatures features);
 
 
     Task<TmServerInfo> GetServerInfo(PreferApi prefer = PreferApi.Auto);

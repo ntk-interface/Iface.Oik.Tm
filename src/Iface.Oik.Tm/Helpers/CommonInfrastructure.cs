@@ -9,10 +9,11 @@ namespace Iface.Oik.Tm.Helpers
     public IOikSqlApi           OikSqlApi     { get; }
     public ICommonServerService ServerService { get; }
 
-    public int        TmCid      { get; private set; }
-    public int        RbCid      { get; private set; }
-    public int        RbPort     { get; private set; }
-    public TmUserInfo TmUserInfo { get; private set; }
+    public int              TmCid          { get; private set; }
+    public int              RbCid          { get; private set; }
+    public int              RbPort         { get; private set; }
+    public TmUserInfo       TmUserInfo     { get; private set; }
+    public TmServerFeatures ServerFeatures { get; private set; }
 
 
     public CommonInfrastructure(IOikDataApi          api,
@@ -27,12 +28,13 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
-    public void InitializeTm(int tmCid, int rbCid, int rbPort, TmUserInfo userInfo)
+    public void InitializeTm(int tmCid, int rbCid, int rbPort, TmUserInfo userInfo, TmServerFeatures features)
     {
-      TmCid      = tmCid;
-      RbCid      = rbCid;
-      RbPort     = rbPort;
-      TmUserInfo = userInfo;
+      TmCid          = tmCid;
+      RbCid          = rbCid;
+      RbPort         = rbPort;
+      TmUserInfo     = userInfo;
+      ServerFeatures = features;
 
       OikSqlApi.SetCreateOikSqlConnection(CreateOikSqlConnection);
       ServerService.SetCreateOikSqlConnection(CreateOikSqlConnection);
@@ -43,10 +45,11 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
-    public void InitializeTmWithoutSql(int tmCid, TmUserInfo userInfo)
+    public void InitializeTmWithoutSql(int tmCid, TmUserInfo userInfo, TmServerFeatures features)
     {
-      TmCid      = tmCid;
-      TmUserInfo = userInfo;
+      TmCid          = tmCid;
+      TmUserInfo     = userInfo;
+      ServerFeatures = features;
 
       OikDataApi.SetUserInfo(TmUserInfo);
       TmsApi.SetCidAndUserInfo(TmCid, TmUserInfo);
@@ -59,10 +62,11 @@ namespace Iface.Oik.Tm.Helpers
 
     public void TerminateTm()
     {
-      TmCid      = 0;
-      RbCid      = 0;
-      RbPort     = 0;
-      TmUserInfo = null;
+      TmCid          = 0;
+      RbCid          = 0;
+      RbPort         = 0;
+      TmUserInfo     = null;
+      ServerFeatures = TmServerFeatures.Empty;
     }
 
 

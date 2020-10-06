@@ -168,27 +168,39 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
-    public static TmServerFeatures GetServerFeatures(int tmCid)
+    public static TmServerFeatures GetTmServerFeatures(int tmCid)
     {
-      var featuresBuf = new byte[16];
+      var capabilitiesBuf = new byte[16];
 
-      if (Native.TmcGetServerCaps(tmCid, ref featuresBuf) == 0)
+      if (Native.TmcGetServerCaps(tmCid, ref capabilitiesBuf) == 0)
       {
         return TmServerFeatures.Empty;
       }
 
-      return new TmServerFeatures(isComtradeEnabled: CheckFeature(ServerFeature.Comtrade),
-                                  areMicroSeriesEnabled: CheckFeature(ServerFeature.MicroSeries));
+      return new TmServerFeatures(isComtradeEnabled: IsCapabilityEnabled(TmNativeDefs.ServerCap.Comtrade),
+                                  areMicroSeriesEnabled: IsCapabilityEnabled(TmNativeDefs.ServerCap.MicroSeries),
+                                  isImpulseArchiveEnabled: IsImpulseArchiveEnabled(),
+                                  areTechObjectsEnabled: AreTechObjectsEnabled());
 
-      bool CheckFeature(ServerFeature feature)
+      bool IsCapabilityEnabled(TmNativeDefs.ServerCap capability)
       {
-        var b = (byte) feature;
-        return ((featuresBuf[b / 8] >> (b % 8)) & 1) > 0;
+        var capabilityByte = (byte) capability;
+        return ((capabilitiesBuf[capabilityByte / 8] >> (capabilityByte % 8)) & 1) > 0;
+      }
+
+      bool IsImpulseArchiveEnabled()
+      {
+        return true;
+      }
+
+      bool AreTechObjectsEnabled()
+      {
+        return true;
       }
     }
 
 
-    public static int GetLicenseFeature(int tmCid, CfsDefs.LicenseFeature feature)
+    public static int GetLicenseFeature(int tmCid, LicenseFeature feature)
     {
       return Native.TmcGetServerFeature(tmCid, (uint) feature);
     }
@@ -242,9 +254,10 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
-    public static (int tmCid, int rbCid, int rbPort, TmUserInfo userInfo) Initialize(TmInitializeOptions options)
+    public static (int tmCid, int rbCid, int rbPort, TmUserInfo userInfo, TmServerFeatures serverFeatures)
+      Initialize(TmInitializeOptions options)
     {
-      var (tmCid, userInfo) = InitializeWithoutSql(options);
+      var (tmCid, userInfo, serverFeatures) = InitializeWithoutSql(options);
 
       var rbCid = Connect(options.Host,
                           options.RbServer,
@@ -262,11 +275,12 @@ namespace Iface.Oik.Tm.Helpers
         throw new Exception("Ошибка при открытии редиректора к SQL");
       }
 
-      return (tmCid, rbCid, rbPort, userInfo);
+      return (tmCid, rbCid, rbPort, userInfo, serverFeatures);
     }
 
 
-    public static (int tmCid, TmUserInfo userInfo) InitializeWithoutSql(TmInitializeOptions options)
+    public static (int tmCid, TmUserInfo userInfo, TmServerFeatures serverFeatures)
+      InitializeWithoutSql(TmInitializeOptions options)
     {
       Native.CfsInitLibrary();
 
@@ -283,21 +297,15 @@ namespace Iface.Oik.Tm.Helpers
         throw new Exception("Нет связи с ТМ-сервером, ошибка " + GetLastError());
       }
 
-      var userInfo = GetUserInfo(tmCid, options.TmServer);
-      if (userInfo == null)
-      {
-        //throw new Exception("Не заданы права пользователя");
-      }
-
-      return (tmCid, userInfo);
+      return (tmCid, GetUserInfo(tmCid, options.TmServer), GetTmServerFeatures(tmCid));
     }
 
 
-    public static (int tmCid, int rbCid, int rbPort, TmUserInfo userInfo, uint stopEventHandle)
-      InitializeAsTask(TmOikTaskOptions    taskOptions,
-                       TmInitializeOptions options)
+    public static (int tmCid, int rbCid, int rbPort, TmUserInfo userInfo, TmServerFeatures serverFeatures, uint
+      stopEventHandle)
+      InitializeAsTask(TmOikTaskOptions taskOptions, TmInitializeOptions options)
     {
-      var (tmCid, userInfo, stopEventHandle) = InitializeAsTaskWithoutSql(taskOptions, options);
+      var (tmCid, userInfo, serverFeatures, stopEventHandle) = InitializeAsTaskWithoutSql(taskOptions, options);
 
       var rbCid = Connect(options.Host,
                           options.RbServer,
@@ -315,13 +323,12 @@ namespace Iface.Oik.Tm.Helpers
         throw new Exception("Ошибка при открытии редиректора к SQL");
       }
 
-      return (tmCid, rbCid, rbPort, userInfo, stopEventHandle);
+      return (tmCid, rbCid, rbPort, userInfo, serverFeatures, stopEventHandle);
     }
 
 
-    public static (int tmCid, TmUserInfo userInfo, uint stopEventHandle)
-      InitializeAsTaskWithoutSql(TmOikTaskOptions    taskOptions,
-                                 TmInitializeOptions options)
+    public static (int tmCid, TmUserInfo userInfo, TmServerFeatures serverFeatures, uint stopEventHandle)
+      InitializeAsTaskWithoutSql(TmOikTaskOptions taskOptions, TmInitializeOptions options)
     {
       Native.CfsInitLibrary();
 
@@ -349,13 +356,7 @@ namespace Iface.Oik.Tm.Helpers
         throw new Exception("Нет связи с ТМ-сервером, ошибка " + GetLastError());
       }
 
-      var userInfo = GetUserInfo(tmCid, options.TmServer);
-      if (userInfo == null)
-      {
-        //throw new Exception("Не заданы права пользователя");
-      }
-
-      return (tmCid, userInfo, stopEventHandle);
+      return (tmCid, GetUserInfo(tmCid, options.TmServer), GetTmServerFeatures(tmCid), stopEventHandle);
     }
 
 

@@ -71,21 +71,12 @@ namespace Iface.Oik.Tm.Interfaces
   }
 
 
-  public enum ServerFeature
+  public enum TmServerFeature
   {
-    Seqst       = 0,
-    AlrNew      = 1,
-    Comtrade    = 2,
-    EvLogArch   = 3,
-    SFbIEx      = 4,
-    FbFlags     = 5,
-    Users       = 6,
-    EvlExt      = 7,
-    LogAudit    = 8,
-    ResValEx    = 9,
-    MicroSeries = 10,
-    CfgT        = 120,
-    Cnt         = 127,
+    Microseries    = 0,
+    Comtrade       = 1,
+    ImpulseArchive = 2,
+    TechObjects    = 3,
   }
 
 

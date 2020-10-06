@@ -139,6 +139,23 @@ namespace Iface.Oik.Tm.Native.Interfaces
       NewClient  = 0x2000
     }
 
+    public enum ServerCap
+    {
+      Seqst       = 0,
+      AlrNew      = 1,
+      Comtrade    = 2,
+      EvLogArch   = 3,
+      SFbIEx      = 4,
+      FbFlags     = 5,
+      Users       = 6,
+      EvlExt      = 7,
+      LogAudit    = 8,
+      ResValEx    = 9,
+      MicroSeries = 10,
+      CfgT        = 120,
+      Cnt         = 127,
+    }
+
 
     public enum DriverCall
     {

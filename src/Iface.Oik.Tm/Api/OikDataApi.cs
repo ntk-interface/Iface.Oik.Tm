@@ -14,6 +14,7 @@ namespace Iface.Oik.Tm.Api
     private readonly IOikSqlApi           _sql;
     private readonly ICommonServerService _serverService;
     private          TmUserInfo           _userInfo;
+    private          TmServerFeatures     _serverFeatures;
 
     public TmNativeCallback TmsCallbackDelegate      { get; }
     public TmNativeCallback EmptyTmsCallbackDelegate { get; } = delegate { };
@@ -42,6 +43,12 @@ namespace Iface.Oik.Tm.Api
     {
       _userInfo = userInfo;
       UserInfoUpdated?.Invoke(this, EventArgs.Empty);
+    }
+
+
+    public void SetServerFeatures(TmServerFeatures features)
+    {
+      _serverFeatures = features;
     }
 
 
@@ -248,8 +255,8 @@ namespace Iface.Oik.Tm.Api
         return string.Empty;
       }
     }
-    
-    
+
+
     public async Task<(string user, string password)> GenerateTokenForExternalApp(PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
@@ -465,8 +472,12 @@ namespace Iface.Oik.Tm.Api
 
 
     public async Task UpdateTechObjects(IReadOnlyList<Tob> techObjects,
-                                        PreferApi                   prefer = PreferApi.Auto)
+                                        PreferApi          prefer = PreferApi.Auto)
     {
+      if (!_serverFeatures.AreTechObjectsEnabled)
+      {
+        return;
+      }
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
       {
@@ -484,8 +495,12 @@ namespace Iface.Oik.Tm.Api
 
 
     public async Task<IReadOnlyCollection<Tob>> GetTechObjects(TobFilter filter,
-                                                                        PreferApi          prefer = PreferApi.Auto)
+                                                               PreferApi prefer = PreferApi.Auto)
     {
+      if (!_serverFeatures.AreTechObjectsEnabled)
+      {
+        return null;
+      }
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
       {
@@ -733,6 +748,10 @@ namespace Iface.Oik.Tm.Api
       IReadOnlyList<TmAnalog> analogs,
       PreferApi               prefer = PreferApi.Auto)
     {
+      if (!_serverFeatures.AreMicroSeriesEnabled)
+      {
+        return null;
+      }
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
       {
@@ -798,6 +817,10 @@ namespace Iface.Oik.Tm.Api
       TmAnalogRetroFilter filter,
       PreferApi           prefer = PreferApi.Auto)
     {
+      if (!_serverFeatures.IsImpulseArchiveEnabled)
+      {
+        return null;
+      }
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
       {
@@ -819,6 +842,10 @@ namespace Iface.Oik.Tm.Api
       TmAnalogRetroFilter filter,
       PreferApi           prefer = PreferApi.Auto)
     {
+      if (!_serverFeatures.IsImpulseArchiveEnabled)
+      {
+        return null;
+      }
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
       {
@@ -909,6 +936,10 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<IReadOnlyCollection<TmAlert>> GetAlertsWithAnalogMicroSeries(PreferApi prefer = PreferApi.Auto)
     {
+      if (!_serverFeatures.AreMicroSeriesEnabled)
+      {
+        return await GetAlerts(prefer).ConfigureAwait(false);
+      }
       var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
       {
@@ -1207,6 +1238,10 @@ namespace Iface.Oik.Tm.Api
                                               IReadOnlyDictionary<string, string> properties,
                                               PreferApi                           prefer = PreferApi.Auto)
     {
+      if (!_serverFeatures.AreTechObjectsEnabled)
+      {
+        return;
+      }
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
       {
@@ -1228,6 +1263,10 @@ namespace Iface.Oik.Tm.Api
                                                 IEnumerable<string> properties,
                                                 PreferApi           prefer = PreferApi.Auto)
     {
+      if (!_serverFeatures.AreTechObjectsEnabled)
+      {
+        return;
+      }
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
       {
@@ -1668,6 +1707,10 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<IReadOnlyCollection<string>> GetComtradeDays(PreferApi prefer = PreferApi.Auto)
     {
+      if (!_serverFeatures.IsComtradeEnabled)
+      {
+        return null;
+      }
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
       {
@@ -1687,6 +1730,10 @@ namespace Iface.Oik.Tm.Api
     public async Task<IReadOnlyCollection<string>> GetComtradeFilesByDay(string    day,
                                                                          PreferApi prefer = PreferApi.Auto)
     {
+      if (!_serverFeatures.IsComtradeEnabled)
+      {
+        return null;
+      }
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
       {
@@ -1707,6 +1754,10 @@ namespace Iface.Oik.Tm.Api
                                                  string    localPath,
                                                  PreferApi prefer = PreferApi.Auto)
     {
+      if (!_serverFeatures.IsComtradeEnabled)
+      {
+        return false;
+      }
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
       {
