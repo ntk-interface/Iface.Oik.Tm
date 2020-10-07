@@ -71,15 +71,6 @@ namespace Iface.Oik.Tm.Interfaces
   }
 
 
-  public enum TmServerFeature
-  {
-    Microseries    = 0,
-    Comtrade       = 1,
-    ImpulseArchive = 2,
-    TechObjects    = 3,
-  }
-
-
   public enum TmTopologyState
   {
     Unknown       = 0,

@@ -39,15 +39,11 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public void SetUserInfo(TmUserInfo userInfo)
+    public void SetUserInfoAndServerFeatures(TmUserInfo userInfo, TmServerFeatures features)
     {
       _userInfo = userInfo;
       UserInfoUpdated?.Invoke(this, EventArgs.Empty);
-    }
-
-
-    public void SetServerFeatures(TmServerFeatures features)
-    {
+      
       _serverFeatures = features;
     }
 

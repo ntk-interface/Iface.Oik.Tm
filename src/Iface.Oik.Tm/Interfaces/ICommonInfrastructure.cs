@@ -11,7 +11,7 @@
     int              RbCid          { get; }
     int              RbPort         { get; }
     TmUserInfo       TmUserInfo     { get; }
-    TmServerFeatures ServerFeatures { get; }
+    TmServerFeatures TmServerFeatures { get; }
 
 
     void InitializeTm(int              tmCid,
