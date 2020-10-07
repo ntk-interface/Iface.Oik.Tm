@@ -26,7 +26,7 @@ namespace Iface.Oik.Tm.Interfaces
     event EventHandler<TmAlertEventArgs> TmAlertsChanged;
 
 
-    void SetUserInfo(TmUserInfo userInfo);
+    void SetUserInfoAndServerFeatures(TmUserInfo userInfo, TmServerFeatures features);
 
 
     Task<TmServerInfo> GetServerInfo(PreferApi prefer = PreferApi.Auto);

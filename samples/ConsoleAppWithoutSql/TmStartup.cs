@@ -17,8 +17,9 @@ namespace ConsoleAppWithoutSql
   {
     private const string ApplicationName = "Test-Core";
 
-    private static int        _tmCid;
-    private static TmUserInfo _userInfo;
+    private static int              _tmCid;
+    private static TmUserInfo       _userInfo;
+    private static TmServerFeatures _serverFeatures;
 
     private readonly ICommonInfrastructure _infr;
 
@@ -33,7 +34,7 @@ namespace ConsoleAppWithoutSql
     {
       var commandLineArgs = Environment.GetCommandLineArgs();
 
-      (_tmCid, _userInfo) = Tms.InitializeWithoutSql(new TmInitializeOptions
+      (_tmCid, _userInfo, _serverFeatures) = Tms.InitializeWithoutSql(new TmInitializeOptions
       {
         ApplicationName = ApplicationName,
         TmServer        = commandLineArgs.ElementAtOrDefault(1) ?? "TMS",
@@ -46,7 +47,7 @@ namespace ConsoleAppWithoutSql
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-      _infr.InitializeTmWithoutSql(_tmCid, _userInfo);
+      _infr.InitializeTmWithoutSql(_tmCid, _userInfo, _serverFeatures);
 
       return Task.CompletedTask;
     }

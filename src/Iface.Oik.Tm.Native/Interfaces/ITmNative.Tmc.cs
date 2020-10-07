@@ -62,6 +62,14 @@ namespace Iface.Oik.Tm.Native.Interfaces
     UInt32 TmcConnState(Int32 cid);
 
 
+    UInt32 TmcGetServerCaps(Int32      cid,
+                            ref Byte[] pCaps);
+
+
+    Int32 TmcGetServerFeature(Int32  cid,
+                              UInt32 dwCode);
+
+
     Int16 TmcSystemTime(Int32             cid,
                         ref StringBuilder time,
                         IntPtr            tmStruct);
@@ -238,8 +246,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
                                IntPtr[]              resultList);
 
 
-    Boolean TmcGetAnalogTechParms(Int32                         cid,
-                                  TmNativeDefs.TAdrTm           addr,
+    Boolean TmcGetAnalogTechParms(Int32                             cid,
+                                  TmNativeDefs.TAdrTm               addr,
                                   ref TmNativeDefs.TAnalogTechParms tpr);
 
 
@@ -318,6 +326,11 @@ namespace Iface.Oik.Tm.Native.Interfaces
                              out UInt32       count,
                              TmNativeCallback progress,
                              IntPtr           progressParam);
+
+
+    Boolean TmcAanGetStats(Int32                         cid,
+                           ref TmNativeDefs.TM_AAN_STATS stats,
+                           UInt32                        cbStats);
 
 
     UInt32 String2Utime_(string dateTime);

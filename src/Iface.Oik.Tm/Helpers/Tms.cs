@@ -1,11 +1,9 @@
 using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
-using Iface.Oik.Tm.Native.Utils;
-using Iface.Oik.Tm.Interfaces;
 
 namespace Iface.Oik.Tm.Helpers
 {
@@ -29,7 +27,7 @@ namespace Iface.Oik.Tm.Helpers
                               IntPtr           callbackParameter)
     {
       var tmCid = Native.TmcConnect(host, serverName, applicationName, callback, callbackParameter);
-      
+
       if (!IsConnected(tmCid))
       {
         tmCid = 0;
@@ -62,10 +60,11 @@ namespace Iface.Oik.Tm.Helpers
       {
         Native.TmcSetDgrmFlags(tmCid, (uint) TmNativeDefs.DatagramFlags.NewClient);
       }
-      
-      
+
+
       return tmCid;
     }
+
 
     public static int DeltaConnect(string           host,
                                    string           serverName,
@@ -78,6 +77,7 @@ namespace Iface.Oik.Tm.Helpers
 
       return ConnectExplicit(host, serverName, applicationName, callback, callbackParameter, 1, props, propsValues);
     }
+
 
     public static bool IsConnected(int tmCid)
     {
@@ -168,6 +168,50 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
+    public static TmServerFeatures GetTmServerFeatures(int tmCid)
+    {
+      var capabilitiesBuf = new byte[16];
+      if (Native.TmcGetServerCaps(tmCid, ref capabilitiesBuf) == 0)
+      {
+        return TmServerFeatures.Empty;
+      }
+
+      return new TmServerFeatures(IsCapabilityEnabled(capabilitiesBuf, TmNativeDefs.ServerCap.Comtrade),
+                                  IsCapabilityEnabled(capabilitiesBuf, TmNativeDefs.ServerCap.MicroSeries),
+                                  IsImpulseArchiveEnabled(),
+                                  AreTechObjectsEnabled());
+
+      bool IsCapabilityEnabled(byte[] capabilities, TmNativeDefs.ServerCap capability)
+      {
+        var capabilityByte = (byte) capability;
+        return ((capabilities[capabilityByte / 8] >> (capabilityByte % 8)) & 1) > 0;
+      }
+
+      bool IsImpulseArchiveEnabled()
+      {
+        var stats = new TmNativeDefs.TM_AAN_STATS();
+        return Native.TmcAanGetStats(tmCid, ref stats, 0);
+      }
+
+      bool AreTechObjectsEnabled()
+      {
+        var tobPtr = Native.TmcTechObjEnumValues(tmCid, uint.MaxValue, uint.MaxValue, IntPtr.Zero, out var count);
+        if (tobPtr == IntPtr.Zero)
+        {
+          return false;
+        }
+        Native.TmcFreeMemory(tobPtr);
+        return count > 0;
+      }
+    }
+
+
+    public static int GetLicenseFeature(int tmCid, LicenseFeature feature)
+    {
+      return Native.TmcGetServerFeature(tmCid, (uint) feature);
+    }
+
+
     public static int OpenSqlRedirector(int rbCid)
     {
       return Native.RbcIpgStartRedirector(rbCid, 0);
@@ -216,9 +260,10 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
-    public static (int tmCid, int rbCid, int rbPort, TmUserInfo userInfo) Initialize(TmInitializeOptions options)
+    public static (int tmCid, int rbCid, int rbPort, TmUserInfo userInfo, TmServerFeatures serverFeatures)
+      Initialize(TmInitializeOptions options)
     {
-      var (tmCid, userInfo) = InitializeWithoutSql(options);
+      var (tmCid, userInfo, serverFeatures) = InitializeWithoutSql(options);
 
       var rbCid = Connect(options.Host,
                           options.RbServer,
@@ -236,11 +281,12 @@ namespace Iface.Oik.Tm.Helpers
         throw new Exception("Ошибка при открытии редиректора к SQL");
       }
 
-      return (tmCid, rbCid, rbPort, userInfo);
+      return (tmCid, rbCid, rbPort, userInfo, serverFeatures);
     }
 
 
-    public static (int tmCid, TmUserInfo userInfo) InitializeWithoutSql(TmInitializeOptions options)
+    public static (int tmCid, TmUserInfo userInfo, TmServerFeatures serverFeatures)
+      InitializeWithoutSql(TmInitializeOptions options)
     {
       Native.CfsInitLibrary();
 
@@ -257,21 +303,15 @@ namespace Iface.Oik.Tm.Helpers
         throw new Exception("Нет связи с ТМ-сервером, ошибка " + GetLastError());
       }
 
-      var userInfo = GetUserInfo(tmCid, options.TmServer);
-      if (userInfo == null)
-      {
-        //throw new Exception("Не заданы права пользователя");
-      }
-
-      return (tmCid, userInfo);
+      return (tmCid, GetUserInfo(tmCid, options.TmServer), GetTmServerFeatures(tmCid));
     }
 
 
-    public static (int tmCid, int rbCid, int rbPort, TmUserInfo userInfo, uint stopEventHandle)
-      InitializeAsTask(TmOikTaskOptions    taskOptions,
-                       TmInitializeOptions options)
+    public static (int tmCid, int rbCid, int rbPort, TmUserInfo userInfo, TmServerFeatures serverFeatures, uint
+      stopEventHandle)
+      InitializeAsTask(TmOikTaskOptions taskOptions, TmInitializeOptions options)
     {
-      var (tmCid, userInfo, stopEventHandle) = InitializeAsTaskWithoutSql(taskOptions, options);
+      var (tmCid, userInfo, serverFeatures, stopEventHandle) = InitializeAsTaskWithoutSql(taskOptions, options);
 
       var rbCid = Connect(options.Host,
                           options.RbServer,
@@ -289,13 +329,12 @@ namespace Iface.Oik.Tm.Helpers
         throw new Exception("Ошибка при открытии редиректора к SQL");
       }
 
-      return (tmCid, rbCid, rbPort, userInfo, stopEventHandle);
+      return (tmCid, rbCid, rbPort, userInfo, serverFeatures, stopEventHandle);
     }
 
 
-    public static (int tmCid, TmUserInfo userInfo, uint stopEventHandle)
-      InitializeAsTaskWithoutSql(TmOikTaskOptions    taskOptions,
-                                 TmInitializeOptions options)
+    public static (int tmCid, TmUserInfo userInfo, TmServerFeatures serverFeatures, uint stopEventHandle)
+      InitializeAsTaskWithoutSql(TmOikTaskOptions taskOptions, TmInitializeOptions options)
     {
       Native.CfsInitLibrary();
 
@@ -323,13 +362,7 @@ namespace Iface.Oik.Tm.Helpers
         throw new Exception("Нет связи с ТМ-сервером, ошибка " + GetLastError());
       }
 
-      var userInfo = GetUserInfo(tmCid, options.TmServer);
-      if (userInfo == null)
-      {
-        //throw new Exception("Не заданы права пользователя");
-      }
-
-      return (tmCid, userInfo, stopEventHandle);
+      return (tmCid, GetUserInfo(tmCid, options.TmServer), GetTmServerFeatures(tmCid), stopEventHandle);
     }
 
 

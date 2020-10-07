@@ -139,6 +139,23 @@ namespace Iface.Oik.Tm.Native.Interfaces
       NewClient  = 0x2000
     }
 
+    public enum ServerCap
+    {
+      Seqst       = 0,
+      AlrNew      = 1,
+      Comtrade    = 2,
+      EvLogArch   = 3,
+      SFbIEx      = 4,
+      FbFlags     = 5,
+      Users       = 6,
+      EvlExt      = 7,
+      LogAudit    = 8,
+      ResValEx    = 9,
+      MicroSeries = 10,
+      CfgT        = 120,
+      Cnt         = 127,
+    }
+
 
     public enum DriverCall
     {
@@ -587,6 +604,17 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt16 VAvg;
       public UInt32 VTmFlg;
       public UInt32 series;
+    }
+
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct TM_AAN_STATS
+    {
+      public UInt32 Ok;
+      public UInt32 LastMcMs;
+      public UInt32 LastHcMs;
+      public UInt32 LastDcMs;
+      public UInt32 Megabytes;
     }
 
 

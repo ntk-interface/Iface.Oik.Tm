@@ -17,10 +17,11 @@ namespace AspWebApi
   {
     private const string ApplicationName = "ASP.NET Core";
 
-    private static int        _tmCid;
-    private static int        _rbCid;
-    private static int        _rbPort;
-    private static TmUserInfo _userInfo;
+    private static int              _tmCid;
+    private static int              _rbCid;
+    private static int              _rbPort;
+    private static TmUserInfo       _userInfo;
+    private static TmServerFeatures _serverFeatures;
 
     private readonly ICommonInfrastructure _infr;
 
@@ -35,7 +36,7 @@ namespace AspWebApi
     {
       var commandLineArgs = Environment.GetCommandLineArgs();
 
-      (_tmCid, _rbCid, _rbPort, _userInfo) = Tms.Initialize(new TmInitializeOptions
+      (_tmCid, _rbCid, _rbPort, _userInfo, _serverFeatures) = Tms.Initialize(new TmInitializeOptions
       {
         ApplicationName = ApplicationName,
         TmServer        = commandLineArgs.ElementAtOrDefault(1) ?? "TMS",
@@ -49,7 +50,7 @@ namespace AspWebApi
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-      _infr.InitializeTm(_tmCid, _rbCid, _rbPort, _userInfo);
+      _infr.InitializeTm(_tmCid, _rbCid, _rbPort, _userInfo, _serverFeatures);
 
       return Task.CompletedTask;
     }

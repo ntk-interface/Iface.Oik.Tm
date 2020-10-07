@@ -134,7 +134,7 @@ namespace GuiApp.Shared.ViewModels
       {
         await Task.Run(() =>
         {
-          var (tmCid, rbCid, rbPort, userInfo) = Tms.Initialize(new TmInitializeOptions
+          var (tmCid, rbCid, rbPort, userInfo, serverFeatures) = Tms.Initialize(new TmInitializeOptions
           {
             ApplicationName = "GuiApp",
             Host            = Host,
@@ -143,7 +143,7 @@ namespace GuiApp.Shared.ViewModels
             User            = User,
             Password        = Password,
           });
-          _infr.InitializeTm(tmCid, rbCid, rbPort, userInfo);
+          _infr.InitializeTm(tmCid, rbCid, rbPort, userInfo, serverFeatures);
           _infr.ServerService.StartAsync();
         });
 

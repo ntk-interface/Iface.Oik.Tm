@@ -102,6 +102,20 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public UInt32 TmcGetServerCaps(Int32      cid,
+                                   ref Byte[] pCaps)
+    {
+      return tmcGetServerCaps(cid, pCaps);
+    }
+
+
+    public Int32 TmcGetServerFeature(Int32  cid,
+                                     UInt32 dwCode)
+    {
+      return tmcGetServerFeature(cid, dwCode);
+    }
+
+
     public Int16 TmcSystemTime(Int32             cid,
                                ref StringBuilder time,
                                IntPtr            tmStruct)
@@ -473,6 +487,14 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcAanReadArchive(cid,       tmAddr,   startUnixTime, endUnixTime, step, flags,
                                out count, progress, progressParam);
+    }
+
+
+    public Boolean TmcAanGetStats(Int32                         cid,
+                                  ref TmNativeDefs.TM_AAN_STATS stats,
+                                  UInt32                        cbStats)
+    {
+      return tmcAanGetStats(cid, ref stats, cbStats);
     }
 
 
