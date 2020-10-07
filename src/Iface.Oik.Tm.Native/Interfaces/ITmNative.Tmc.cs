@@ -328,6 +328,11 @@ namespace Iface.Oik.Tm.Native.Interfaces
                              IntPtr           progressParam);
 
 
+    Boolean TmcAanGetStats(Int32                         cid,
+                           ref TmNativeDefs.TM_AAN_STATS stats,
+                           UInt32                        cbStats);
+
+
     UInt32 String2Utime_(string dateTime);
 
 

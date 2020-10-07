@@ -373,16 +373,21 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern IntPtr tmcAanReadArchive(Int32                                                   cid,
-                                                  UInt32                                                  tmAddr,
-                                                  UInt32                                                  startUnixTime,
-                                                  UInt32                                                  endUnixTime,
-                                                  UInt32                                                  step,
-                                                  UInt32                                                  flags,
-                                                  out                                    UInt32           count,
+    public static extern IntPtr tmcAanReadArchive(Int32 cid,
+                                                  UInt32 tmAddr,
+                                                  UInt32 startUnixTime,
+                                                  UInt32 endUnixTime,
+                                                  UInt32 step,
+                                                  UInt32 flags,
+                                                  out                                    UInt32 count,
                                                   [MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback progress,
-                                                  IntPtr
-                                                    progressParam);
+                                                  IntPtr progressParam);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Boolean tmcAanGetStats(Int32                         cid,
+                                                ref TmNativeDefs.TM_AAN_STATS stats,
+                                                UInt32                        cbStats);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]

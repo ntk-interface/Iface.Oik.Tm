@@ -606,6 +606,17 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt32 series;
     }
 
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct TM_AAN_STATS
+    {
+      public UInt32 Ok;
+      public UInt32 LastMcMs;
+      public UInt32 LastHcMs;
+      public UInt32 LastDcMs;
+      public UInt32 Megabytes;
+    }
+
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TMSAnalogMSeries

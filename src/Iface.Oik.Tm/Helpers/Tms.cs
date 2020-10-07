@@ -171,31 +171,37 @@ namespace Iface.Oik.Tm.Helpers
     public static TmServerFeatures GetTmServerFeatures(int tmCid)
     {
       var capabilitiesBuf = new byte[16];
-
       if (Native.TmcGetServerCaps(tmCid, ref capabilitiesBuf) == 0)
       {
         return TmServerFeatures.Empty;
       }
 
-      return new TmServerFeatures(isComtradeEnabled: IsCapabilityEnabled(TmNativeDefs.ServerCap.Comtrade),
-                                  areMicroSeriesEnabled: IsCapabilityEnabled(TmNativeDefs.ServerCap.MicroSeries),
-                                  isImpulseArchiveEnabled: IsImpulseArchiveEnabled(),
-                                  areTechObjectsEnabled: AreTechObjectsEnabled());
+      return new TmServerFeatures(IsCapabilityEnabled(capabilitiesBuf, TmNativeDefs.ServerCap.Comtrade),
+                                  IsCapabilityEnabled(capabilitiesBuf, TmNativeDefs.ServerCap.MicroSeries),
+                                  IsImpulseArchiveEnabled(),
+                                  AreTechObjectsEnabled());
 
-      bool IsCapabilityEnabled(TmNativeDefs.ServerCap capability)
+      bool IsCapabilityEnabled(byte[] capabilities, TmNativeDefs.ServerCap capability)
       {
         var capabilityByte = (byte) capability;
-        return ((capabilitiesBuf[capabilityByte / 8] >> (capabilityByte % 8)) & 1) > 0;
+        return ((capabilities[capabilityByte / 8] >> (capabilityByte % 8)) & 1) > 0;
       }
 
       bool IsImpulseArchiveEnabled()
       {
-        return true;
+        var stats = new TmNativeDefs.TM_AAN_STATS();
+        return Native.TmcAanGetStats(tmCid, ref stats, 0);
       }
 
       bool AreTechObjectsEnabled()
       {
-        return true;
+        var tobPtr = Native.TmcTechObjEnumValues(tmCid, uint.MaxValue, uint.MaxValue, IntPtr.Zero, out var count);
+        if (tobPtr == IntPtr.Zero)
+        {
+          return false;
+        }
+        Native.TmcFreeMemory(tobPtr);
+        return count > 0;
       }
     }
 

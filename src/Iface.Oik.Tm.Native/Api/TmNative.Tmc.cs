@@ -490,6 +490,14 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public Boolean TmcAanGetStats(Int32                         cid,
+                                  ref TmNativeDefs.TM_AAN_STATS stats,
+                                  UInt32                        cbStats)
+    {
+      return tmcAanGetStats(cid, ref stats, cbStats);
+    }
+
+
     public UInt32 String2Utime_(string dateTime)
     {
       return String2Utime(dateTime);
