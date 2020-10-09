@@ -19,6 +19,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<string> GetSystemTimeString();
 
+    Task<(string host, string server)> GetCurrentServerName();
+
     Task<(string user, string password)> GenerateTokenForExternalApp();
 
     Task<IntPtr> GetCfCid();
