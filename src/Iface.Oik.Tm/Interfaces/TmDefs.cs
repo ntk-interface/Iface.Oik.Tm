@@ -216,6 +216,7 @@ namespace Iface.Oik.Tm.Interfaces
   {
     None    = 0,
     Placard = 1,
+    Binding = 2,
   }
 
 

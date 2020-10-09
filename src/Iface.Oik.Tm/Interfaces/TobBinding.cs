@@ -12,7 +12,11 @@ namespace Iface.Oik.Tm.Interfaces
     public string         Name        { get; set; }
     public string         Value       { get; set; }
 
-    public string NameToDisplay => TmTag != null ? TmTag.Name : Name;
+    public string NameToDisplay => TmTag != null
+      ? TmTag.TmAddr.ToString()
+      : ParentTob != null
+        ? ParentTob.NameOrDefault
+        : Name;
 
     public bool IsOperLock => BindingType == TobBindingType.TmOperLock;
   }
