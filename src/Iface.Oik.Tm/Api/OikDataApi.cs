@@ -253,6 +253,24 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<(string host, string server)> GetCurrentServerName(PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.GetCurrentServerName().ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+        return (null, null);
+      }
+    }
+
+
     public async Task<(string user, string password)> GenerateTokenForExternalApp(PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);

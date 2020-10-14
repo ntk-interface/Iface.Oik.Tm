@@ -44,6 +44,9 @@ namespace Iface.Oik.Tm.Interfaces
     Task<string> GetSystemTimeString(PreferApi prefer = PreferApi.Auto);
 
 
+    Task<(string host, string server)> GetCurrentServerName(PreferApi prefer = PreferApi.Auto);
+
+
     Task<(string user, string password)> GenerateTokenForExternalApp(PreferApi prefer = PreferApi.Auto);
 
 

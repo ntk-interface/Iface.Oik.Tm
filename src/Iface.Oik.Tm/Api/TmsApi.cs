@@ -107,6 +107,24 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<(string host, string server)> GetCurrentServerName()
+    {
+      const int bufSize = 255;
+      var       host    = new StringBuilder(bufSize);
+      var       server  = new StringBuilder(bufSize);
+
+      // todo al сейчас всегда приходит 0
+      /*if (!await Task.Run(() => _native.TmcGetCurrentServer(_cid, ref host, bufSize, ref server, bufSize))
+                     .ConfigureAwait(false))
+      {
+        return (null, null);
+      }*/
+      await Task.Run(() => _native.TmcGetCurrentServer(_cid, ref host, bufSize, ref server, bufSize))
+                .ConfigureAwait(false);
+      return (host.ToString(), server.ToString());
+    }
+
+
     public async Task<(string user, string password)> GenerateTokenForExternalApp()
     {
       const int tokenLength = 64;
