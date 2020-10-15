@@ -2,8 +2,8 @@ namespace Iface.Oik.Tm.Interfaces
 {
   public class TmStatusFilter : TmTagFilter
   {
-    public int?                      Status            { get; private set; }
-    public TmS2Flags?                S2Flags           { get; private set; }
+    public int?       Status  { get; set; }
+    public TmS2Flags? S2Flags { get; set; }
 
 
     private TmStatusFilter()
@@ -43,6 +43,28 @@ namespace Iface.Oik.Tm.Interfaces
           break;
       }
       return this;
+    }
+
+
+    public int? GetS2Status()
+    {
+      if (Status == null && S2Flags == TmS2Flags.Break)
+      {
+        return 0b00;
+      }
+      if (Status == 0 && S2Flags == TmS2Flags.None)
+      {
+        return 0b01;
+      }
+      if (Status == 1 && S2Flags == TmS2Flags.None)
+      {
+        return 0b10;
+      }
+      if (Status == null && S2Flags == TmS2Flags.Malfunction)
+      {
+        return 0b11;
+      }
+      return null;
     }
 
 
