@@ -4,13 +4,13 @@ namespace Iface.Oik.Tm.Interfaces
 {
   public class TmAlarmValue : TmAlarm
   {
-    private readonly float _compareValue;
     private readonly bool  _isCompareGreaterThan;
 
+    public float CompareValue { get; }
 
     public override string ThresholdName => (_isCompareGreaterThan ? ">" : "<") +
                                             " "                                +
-                                            TmAnalog.FakeValueWithUnitString(_compareValue);
+                                            TmAnalog.FakeValueWithUnitString(CompareValue);
 
 
     public TmAlarmValue(TmAlarmType type,
@@ -24,7 +24,7 @@ namespace Iface.Oik.Tm.Interfaces
                         short       compareSign)
       : base(type, id, name, importance, isInUse, isActive, tmAnalog)
     {
-      _compareValue         = compareValue;
+      CompareValue         = compareValue;
       _isCompareGreaterThan = (compareSign == 0);
     }
 

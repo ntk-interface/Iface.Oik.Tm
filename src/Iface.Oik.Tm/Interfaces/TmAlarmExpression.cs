@@ -4,10 +4,11 @@ namespace Iface.Oik.Tm.Interfaces
 {
   public class TmAlarmExpression : TmAlarm
   {
-    private readonly string _expression;
-    private readonly bool   _isCompareGreaterThan;
+    private readonly bool _isCompareGreaterThan;
 
-    public override string ThresholdName => $"{(_isCompareGreaterThan ? ">" : "<")} {_expression}";
+    public string Expression { get; }
+
+    public override string ThresholdName => $"{(_isCompareGreaterThan ? ">" : "<")} {Expression}";
 
 
     public TmAlarmExpression(TmAlarmType type,
@@ -21,7 +22,7 @@ namespace Iface.Oik.Tm.Interfaces
                              short       compareSign)
       : base(type, id, name, importance, isInUse, isActive, tmAnalog)
     {
-      _expression           = expression;
+      Expression            = expression;
       _isCompareGreaterThan = (compareSign == 0);
     }
 
