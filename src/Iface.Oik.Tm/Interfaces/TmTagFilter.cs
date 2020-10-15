@@ -4,13 +4,13 @@ namespace Iface.Oik.Tm.Interfaces
 {
   public abstract class TmTagFilter
   {
-    public string                 Name              { get; private set; }
-    public TmFlags                Flags             { get; private set; }
+    public string                 Name              { get; set; }
+    public TmFlags                Flags             { get; set; }
     public List<int>              ClassIdList       { get; }
-    public TmTagFilterTimeOption? ChangeTimeOption  { get; private set; }
-    public int                    ChangeTimeMinutes { get; private set; }
-    public TmTagFilterTimeOption? UpdateTimeOption  { get; private set; }
-    public int                    UpdateTimeMinutes { get; private set; }
+    public TmTagFilterTimeOption? ChangeTimeOption  { get; set; }
+    public int                    ChangeTimeMinutes { get; set; }
+    public TmTagFilterTimeOption? UpdateTimeOption  { get; set; }
+    public int                    UpdateTimeMinutes { get; set; }
 
 
     protected TmTagFilter()
