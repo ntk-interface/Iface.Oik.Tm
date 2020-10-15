@@ -185,6 +185,15 @@ namespace Iface.Oik.Tm.Interfaces
   }
 
 
+  public enum TmAlarmType
+  {
+    Analog     = 84,
+    Value      = 86,
+    Expression = 88,
+    Zonal      = 90,
+  }
+
+
   public enum TmPlacardAction
   {
     [Description("")]           None   = 0,

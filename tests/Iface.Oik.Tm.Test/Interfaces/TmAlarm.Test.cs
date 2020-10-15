@@ -21,7 +21,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
                                        string expected)
       {
         var tmAnalog = new TmAnalog(id, 1, 1) {Unit = unit, Precision = precision};
-        var tmAlarm  = new TmAlarm(1, name, compareValue, compareSign, 0, 1, true, tmAnalog);
+        var tmAlarm  = new TmAlarmValue(TmAlarmType.Value, 1, name, 0, 1, true, tmAnalog, compareValue, compareSign);
 
         var result = tmAlarm.FullName;
 
