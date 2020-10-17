@@ -8,7 +8,6 @@ namespace Iface.Oik.Tm.Interfaces
   {
     void SetCidAndUserInfo(int tmCid, TmUserInfo userInfo);
 
-
     Task<TmServerInfo> GetServerInfo();
 
     Task<int> GetLastTmcError();
@@ -33,34 +32,21 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task SetAnalog(int ch, int rtu, int point, float value);
 
-
     Task UpdateStatus(TmStatus status);
 
-
-    Task UpdateStatusExplicitly(TmStatus status,
-                                bool     getRealTelemetry = false);
-
+    Task UpdateStatusExplicitly(TmStatus status, bool getRealTelemetry = false);
 
     Task UpdateAnalog(TmAnalog analog);
 
-
-    Task UpdateAnalogExplicitly(TmAnalog analog,
-                                bool     getRealTelemetry = false);
-
+    Task UpdateAnalogExplicitly(TmAnalog analog, bool getRealTelemetry = false);
 
     Task UpdateStatuses(IReadOnlyList<TmStatus> statuses);
 
-
-    Task UpdateStatusesExplicitly(IReadOnlyList<TmStatus> statuses,
-                                  bool                    getRealTelemetry = false);
-
+    Task UpdateStatusesExplicitly(IReadOnlyList<TmStatus> statuses, bool getRealTelemetry = false);
 
     Task UpdateAnalogs(IReadOnlyList<TmAnalog> analogs);
 
-
-    Task UpdateAnalogsExplicitly(IReadOnlyList<TmAnalog> analogs,
-                                 bool                    getRealTelemetry = false);
-
+    Task UpdateAnalogsExplicitly(IReadOnlyList<TmAnalog> analogs, bool getRealTelemetry = false);
 
     Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags);
 
@@ -113,15 +99,11 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<bool> RemoveAlert(TmAlert alert);
 
-
     Task<bool> RemoveAlerts(IEnumerable<TmAlert> alerts);
-
 
     Task<IReadOnlyCollection<TmEvent>> GetEventsArchive(TmEventFilter filter);
 
-
     Task<(IReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix);
-
 
     Task<bool> AckTag(TmAddr addr);
 
@@ -135,34 +117,21 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<bool> AckEvent(TmEvent tmEvent);
 
+    Task AddStringToEventLog(string str, TmAddr tmAddr = null);
 
-    Task AddStringToEventLog(string str,
-                             TmAddr tmAddr = null);
+    Task SetTagFlags(TmTag tag, TmFlags flags);
 
+    Task ClearTagFlags(TmTag tag, TmFlags flags);
 
-    Task SetTagFlags(TmTag   tag,
-                     TmFlags flags);
+    Task SetTagsFlags(IEnumerable<TmTag> tmTags, TmFlags flags);
 
+    Task ClearTagsFlags(IEnumerable<TmTag> tmTags, TmFlags flags);
 
-    Task ClearTagFlags(TmTag   tag,
-                       TmFlags flags);
+    Task<bool> SetAnalogManually(TmAnalog tmAnalog, float value);
 
+    Task<bool> SetAnalogTechParameters(TmAnalog analog, TmAnalogTechParameters parameters);
 
-    Task SetTagsFlags(IEnumerable<TmTag> tmTags,
-                      TmFlags            flags);
-
-
-    Task ClearTagsFlags(IEnumerable<TmTag> tmTags,
-                        TmFlags            flags);
-
-
-    Task<bool> SetAnalogManually(TmAnalog tmAnalog,
-                                 float    value);
-
-
-    Task<bool> SetAlarmValue(TmAlarm tmAlarm,
-                             float   value);
-
+    Task<bool> SetAlarmValue(TmAlarm tmAlarm, float value);
 
     Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTelecontrolScript(TmStatus tmStatus);
 
@@ -187,8 +156,7 @@ namespace Iface.Oik.Tm.Interfaces
     Task<TmTelecontrolResult> TeleregulateByValue(TmAnalog analog, float value);
 
 
-    Task<bool> SwitchStatusManually(TmStatus tmStatus,
-                                    bool     alsoBlockManually = false);
+    Task<bool> SwitchStatusManually(TmStatus tmStatus, bool alsoBlockManually = false);
 
 
     Task SetTechObjectProperties(int                                 scheme,
@@ -205,20 +173,15 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task SetStatusNormalOn(TmStatus status);
 
-
     Task SetStatusNormalOff(TmStatus status);
-
 
     Task ClearStatusNormal(TmStatus status);
 
-
     Task<int> GetStatusNormal(TmStatus status);
-
 
     Task<IReadOnlyCollection<string>> GetFilesInDirectory(string path);
 
     Task<bool> DownloadFile(string remotePath, string localPath);
-
 
     Task<IReadOnlyCollection<string>> GetComtradeDays();
 
@@ -226,12 +189,9 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<bool> DownloadComtradeFile(string filename, string localPath);
 
-
     Task SetTagFlagsExplicitly(TmTag tag, TmFlags flags);
 
-
     Task ClearTagFlagsExplicitly(TmTag tag, TmFlags flags);
-
 
     Task StartTmAddrTracer(int channel, int rtu, int point, TmType tmType, TmTraceTypes filterTypes);
 
