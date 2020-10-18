@@ -132,12 +132,14 @@ namespace Iface.Oik.Tm.Dto
   {
     public short  AlarmId    { get; set; }
     public string AlarmName  { get; set; }
-    public float  CmpVal     { get; set; }
-    public short  CmpSign    { get; set; }
     public short  Importance { get; set; }
     public short  InUse      { get; set; }
     public bool   Active     { get; set; }
     public int    Tma        { get; set; }
+    public float  CmpVal     { get; set; }
+    public short  CmpSign    { get; set; }
+    public string Expr       { get; set; }
+    public short  Typ        { get; set; }
   }
 
 
@@ -178,11 +180,11 @@ namespace Iface.Oik.Tm.Dto
     public int       Tma        { get; set; }
     public short?    TmType     { get; set; }
     public short?    ClassId    { get; set; }
-    
+
     public float[]    MsValues { get; set; }
     public DateTime[] MsTimes  { get; set; }
     public short[]    MsSFlags { get; set; }
-    
+
     public float TprMinVal     { get; set; }
     public float TprMaxVal     { get; set; }
     public float TprNominal    { get; set; }

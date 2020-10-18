@@ -1574,6 +1574,36 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<bool> SetAnalogTechParameters(TmAnalog analog, TmAnalogTechParameters parameters)
+    {
+      if (analog == null || parameters == null)
+      {
+        return false;
+      }
+      var tmcAddr = analog.TmAddr.ToAdrTm();
+      var techParams = new TmNativeDefs.TAnalogTechParms
+      {
+        ZoneLim  = new float[TmNativeDefs.TAnalogTechParmsAlarmSize],
+        Reserved = new uint[TmNativeDefs.TAnalogTechParamsReservedSize],
+      };
+      if (!await Task.Run(() => _native.TmcGetAnalogTechParms(_cid, tmcAddr, ref techParams)).ConfigureAwait(false))
+      {
+        return false;
+      }
+      techParams.MinVal  = parameters.Min;
+      techParams.MaxVal  = parameters.Max;
+      techParams.Nominal = parameters.Nominal;
+      if (techParams.AlrPresent > 0)
+      {
+        techParams.ZoneLim[0] = parameters.MinAlarmOrInvalid;
+        techParams.ZoneLim[1] = parameters.MinWarningOrInvalid;
+        techParams.ZoneLim[2] = parameters.MaxWarningOrInvalid;
+        techParams.ZoneLim[3] = parameters.MaxAlarmOrInvalid;
+      }
+      return await Task.Run(() => _native.TmcSetAnalogTechParms(_cid, tmcAddr, techParams)).ConfigureAwait(false);
+    }
+
+
     public async Task<bool> SetAlarmValue(TmAlarm tmAlarm, float value)
     {
       if (tmAlarm.TmAnalog == null) return false;

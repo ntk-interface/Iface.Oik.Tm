@@ -852,7 +852,7 @@ namespace Iface.Oik.Tm.Api
         {
           await sql.OpenAsync().ConfigureAwait(false);
           // сначала запрос списка уставок
-          var alarmsCommandText = @"SELECT alarm_id, alarm_name, cmp_val, cmp_sign, importance, in_use, active, tma
+          var alarmsCommandText = @"SELECT alarm_id, alarm_name, importance, in_use, active, tma, cmp_val, cmp_sign, expr, typ
                                     FROM oik_alarms
                                     WHERE active = TRUE";
           var alarmsDtos = await sql.DbConnection
@@ -896,14 +896,16 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<IReadOnlyCollection<TmAlarm>> GetAnalogAlarms(TmAnalog analog)
     {
-      if (analog == null) return null;
-
+      if (analog == null)
+      {
+        return null;
+      }
       try
       {
         using (var sql = _createOikSqlConnection())
         {
           await sql.OpenAsync().ConfigureAwait(false);
-          var commandText = @"SELECT alarm_id, alarm_name, cmp_val, cmp_sign, importance, in_use, active
+          var commandText = @"SELECT alarm_id, alarm_name, importance, in_use, active, cmp_val, cmp_sign, expr, typ
                               FROM oik_alarms
                               WHERE tma = @Tma";
           var parameters = new {Tma = analog.TmAddr.ToSqlTma()};

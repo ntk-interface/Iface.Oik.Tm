@@ -5,6 +5,8 @@ namespace Iface.Oik.Tm.Interfaces
 {
   public class TmAnalogTechParameters
   {
+    public static readonly float InvalidValue = float.MaxValue;
+
     public float  Min        { get; set; }
     public float  Max        { get; set; }
     public float  Nominal    { get; set; }
@@ -17,23 +19,29 @@ namespace Iface.Oik.Tm.Interfaces
     public bool IsAlarmInUse { get; set; }
 
 
-    public TmAnalogTechParameters(float min,
-                                  float max,
-                                  float nominal,
-                                  float minAlarm,
-                                  float minWarning,
-                                  float maxWarning,
-                                  float maxAlarm,
-                                  bool  hasAlarm,
-                                  bool  isAlarmInUse)
+    public float MinAlarmOrInvalid   => MinAlarm   ?? InvalidValue;
+    public float MinWarningOrInvalid => MinWarning ?? InvalidValue;
+    public float MaxWarningOrInvalid => MaxWarning ?? InvalidValue;
+    public float MaxAlarmOrInvalid   => MaxAlarm   ?? InvalidValue;
+
+
+    public TmAnalogTechParameters(float  min,
+                                  float  max,
+                                  float  nominal,
+                                  float? minAlarm     = null,
+                                  float? minWarning   = null,
+                                  float? maxWarning   = null,
+                                  float? maxAlarm     = null,
+                                  bool   hasAlarm     = false,
+                                  bool   isAlarmInUse = false)
     {
       Min          = min;
       Max          = max;
       Nominal      = nominal;
-      MinAlarm     = NumericUtil.NullIfMaxValue(minAlarm);
-      MinWarning   = NumericUtil.NullIfMaxValue(minWarning);
-      MaxWarning   = NumericUtil.NullIfMaxValue(maxWarning);
-      MaxAlarm     = NumericUtil.NullIfMaxValue(maxAlarm);
+      MinAlarm     = NullIfInvalid(minAlarm);
+      MinWarning   = NullIfInvalid(minWarning);
+      MaxWarning   = NullIfInvalid(maxWarning);
+      MaxAlarm     = NullIfInvalid(maxAlarm);
       HasAlarm     = hasAlarm;
       IsAlarmInUse = isAlarmInUse;
     }
@@ -50,6 +58,17 @@ namespace Iface.Oik.Tm.Interfaces
                                         dto.TprZoneDHigh,
                                         dto.TprAlrPresent,
                                         dto.TprAlrInUse);
+    }
+
+
+    private static float? NullIfInvalid(float? value)
+    {
+      if (value == null ||
+          value.Value.Equals(InvalidValue))
+      {
+        return null;
+      }
+      return value;
     }
   }
 }

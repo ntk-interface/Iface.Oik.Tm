@@ -2,25 +2,21 @@
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public class TmAlarm
+  public abstract class TmAlarm
   {
-    public int      Id                   { get; }
-    public string   Name                 { get; }
-    public float    CompareValue         { get; }
-    public bool     IsCompareGreaterThan { get; }
-    public int      Importance           { get; }
-    public bool     IsInUse              { get; }
-    public bool     IsActive             { get; }
-    public TmAnalog TmAnalog             { get; }
+    public TmAlarmType Type       { get; }
+    public int         Id         { get; }
+    public string      Name       { get; }
+    public int         Importance { get; }
+    public bool        IsInUse    { get; }
+    public bool        IsActive   { get; }
+    public TmAnalog    TmAnalog   { get; }
 
+    public virtual bool IsEditable => false;
 
-    public string ThresholdName => (IsCompareGreaterThan ? ">" : "<") +
-                                   " "                                +
-                                   TmAnalog.FakeValueWithUnitString(CompareValue);
+    public abstract string ThresholdName { get; }
 
-    public string FullName => Name +
-                              " "  +
-                              ThresholdName;
+    public string FullName => $"{Name} {ThresholdName}";
 
 
     public string StateName =>
@@ -31,49 +27,65 @@ namespace Iface.Oik.Tm.Interfaces
         : "Отключена";
 
 
-    public TmAlarm(short    id,
-                   string   name,
-                   float    compareValue,
-                   short    compareSign,
-                   short    importance,
-                   short    isInUse,
-                   bool     isActive,
-                   TmAnalog tmAnalog)
+    public TmAlarm(TmAlarmType type,
+                   short       id,
+                   string      name,
+                   short       importance,
+                   short       isInUse,
+                   bool        isActive,
+                   TmAnalog    tmAnalog)
     {
-      Id                   = id;
-      Name                 = name;
-      CompareValue         = compareValue;
-      IsCompareGreaterThan = (compareSign == 0);
-      Importance           = importance;
-      IsInUse              = (isInUse > 0);
-      IsActive             = isActive;
-      TmAnalog             = tmAnalog;
+      Type       = type;
+      Id         = id;
+      Name       = name;
+      Importance = importance;
+      IsInUse    = (isInUse > 0);
+      IsActive   = isActive;
+      TmAnalog   = tmAnalog;
     }
 
 
     public static TmAlarm CreateFromDto(TmAlarmDto dto)
     {
-      return new TmAlarm(dto.AlarmId,
-                         dto.AlarmName,
-                         dto.CmpVal,
-                         dto.CmpSign,
-                         dto.Importance,
-                         dto.InUse,
-                         dto.Active,
-                         new TmAnalog(TmAddr.CreateFromSqlTma(TmType.Analog, dto.Tma)));
+      switch ((TmAlarmType) dto.Typ)
+      {
+        case TmAlarmType.Value:
+          return TmAlarmValue.CreateTmAlarmValueFromDto(dto);
+
+        case TmAlarmType.Analog:
+          return TmAlarmAnalog.CreateTmAlarmAnalogFromDto(dto);
+
+        case TmAlarmType.Expression:
+          return TmAlarmExpression.CreateTmAlarmExpressionFromDto(dto);
+
+        case TmAlarmType.Zonal:
+          return TmAlarmZonal.CreateTmAlarmZonalFromDto(dto);
+
+        default:
+          return null;
+      }
     }
 
-    
-    public static TmAlarm CreateFromDto(TmAlarmDto dto, TmAnalog analog)
+
+    public static TmAlarm CreateFromDto(TmAlarmDto dto, TmAnalog tmAnalog)
     {
-      return new TmAlarm(dto.AlarmId,
-                         dto.AlarmName,
-                         dto.CmpVal,
-                         dto.CmpSign,
-                         dto.Importance,
-                         dto.InUse,
-                         dto.Active,
-                         analog);
+      switch ((TmAlarmType) dto.Typ)
+      {
+        case TmAlarmType.Value:
+          return TmAlarmValue.CreateTmAlarmValueFromDto(dto, tmAnalog);
+        
+        case TmAlarmType.Expression:
+          return TmAlarmExpression.CreateTmAlarmExpressionFromDto(dto, tmAnalog);
+
+        case TmAlarmType.Analog:
+          return TmAlarmAnalog.CreateTmAlarmAnalogFromDto(dto, tmAnalog);
+
+        case TmAlarmType.Zonal:
+          return TmAlarmZonal.CreateTmAlarmZonalFromDto(dto, tmAnalog);
+
+        default:
+          return null;
+      }
     }
   }
 }

@@ -306,6 +306,11 @@ namespace Iface.Oik.Tm.Interfaces
                                  PreferApi prefer = PreferApi.Auto);
 
 
+    Task<bool> SetAnalogTechParameters(TmAnalog               analog,
+                                       TmAnalogTechParameters parameters,
+                                       PreferApi              prefer = PreferApi.Auto);
+
+
     Task<bool> SetAlarmValue(TmAlarm   tmAlarm,
                              float     value,
                              PreferApi prefer = PreferApi.Auto);
