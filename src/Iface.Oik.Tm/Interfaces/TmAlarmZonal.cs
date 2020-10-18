@@ -6,6 +6,8 @@ namespace Iface.Oik.Tm.Interfaces
   {
     public override string ThresholdName { get; }
 
+    public override bool IsEditable => true;
+
 
     public TmAlarmZonal(TmAlarmType type,
                         short       id,

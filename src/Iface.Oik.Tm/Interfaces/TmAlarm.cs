@@ -12,6 +12,8 @@ namespace Iface.Oik.Tm.Interfaces
     public bool        IsActive   { get; }
     public TmAnalog    TmAnalog   { get; }
 
+    public virtual bool IsEditable => false;
+
     public abstract string ThresholdName { get; }
 
     public string FullName => $"{Name} {ThresholdName}";

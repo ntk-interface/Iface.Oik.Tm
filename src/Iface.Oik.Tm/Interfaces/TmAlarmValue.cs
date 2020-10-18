@@ -12,6 +12,8 @@ namespace Iface.Oik.Tm.Interfaces
                                             " "                                +
                                             TmAnalog.FakeValueWithUnitString(CompareValue);
 
+    public override bool IsEditable => true;
+
 
     public TmAlarmValue(TmAlarmType type,
                         short       id,
