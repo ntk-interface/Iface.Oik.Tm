@@ -1597,9 +1597,6 @@ namespace Iface.Oik.Tm.Api
       {
         return false;
       }
-      Console.WriteLine(techParams.MinVal);
-      Console.WriteLine(techParams.MaxVal);
-      Console.WriteLine(techParams.Nominal);
       techParams.MinVal  = parameters.Min;
       techParams.MaxVal  = parameters.Max;
       techParams.Nominal = parameters.Nominal;
