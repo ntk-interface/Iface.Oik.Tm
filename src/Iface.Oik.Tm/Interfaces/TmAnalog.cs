@@ -379,9 +379,9 @@ namespace Iface.Oik.Tm.Interfaces
 
     public void SetTmcTechParameters(TmNativeDefs.TAnalogTechParms parameters)
     {
-      TechParameters = new TmAnalogTechParameters(parameters.Nominal,
-                                                  parameters.MinVal,
+      TechParameters = new TmAnalogTechParameters(parameters.MinVal,
                                                   parameters.MaxVal,
+                                                  parameters.Nominal,
                                                   parameters.ZoneLim[0],
                                                   parameters.ZoneLim[1],
                                                   parameters.ZoneLim[2],

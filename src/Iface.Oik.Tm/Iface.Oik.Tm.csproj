@@ -11,4 +11,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Iface.Oik.Tm.Native\Iface.Oik.Tm.Native.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <Compile Remove="Interfaces\TmAlertEventArgs.cs" />
+    </ItemGroup>
 </Project>

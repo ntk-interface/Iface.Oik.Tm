@@ -128,6 +128,22 @@ namespace Iface.Oik.Tm.Interfaces
     Any  = 0xFF,
     All  = Imp0 | Imp1 | Imp2 | Imp3
   }
+  
+  
+
+
+  [Flags]
+  public enum TmDatagramFlags
+  {
+    DataSource = TmNativeDefs.DatagramFlags.DataSource,
+    TraceAll   = TmNativeDefs.DatagramFlags.TraceAll,
+    TraceDef   = TmNativeDefs.DatagramFlags.TraceDef,
+    TmNotify   = TmNativeDefs.DatagramFlags.TmNotify,
+    ExtsShowS2 = TmNativeDefs.DatagramFlags.ExtsShowS2,
+    TobChange  = TmNativeDefs.DatagramFlags.TobChange,
+    Calc       = TmNativeDefs.DatagramFlags.Calc,
+    NewClient  = TmNativeDefs.DatagramFlags.NewClient,
+  }
 
 
   public enum TmPrintLevel
