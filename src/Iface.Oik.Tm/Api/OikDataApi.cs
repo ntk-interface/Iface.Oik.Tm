@@ -21,6 +21,7 @@ namespace Iface.Oik.Tm.Api
 
     public event EventHandler                   UserInfoUpdated = delegate { };
     public event EventHandler                   TmEventsAcked   = delegate { };
+    public event EventHandler<TobEventArgs>     TobChanged      = delegate { };
     public event EventHandler<TmAlertEventArgs> TmAlertsChanged = delegate { };
 
     public bool IsTmsAllowed { get; set; } = true;
@@ -43,7 +44,7 @@ namespace Iface.Oik.Tm.Api
     {
       _userInfo = userInfo;
       UserInfoUpdated?.Invoke(this, EventArgs.Empty);
-      
+
       _serverFeatures = features;
     }
 
@@ -71,6 +72,12 @@ namespace Iface.Oik.Tm.Api
       {
         HandleTmsCallbackAlerts(buf.ElementAtOrDefault(4),
                                 buf.ElementAtOrDefault(5));
+      }
+      else if (buf[0] == 'T' &&
+               buf[1] == 'O' &&
+               buf[2] == 'B')
+      {
+        HandleTmsCallbackTob(buf.ElementAtOrDefault(3));
       }
     }
 
@@ -124,6 +131,31 @@ namespace Iface.Oik.Tm.Api
       }
 
       TmAlertsChanged.Invoke(this, eventArgs);
+    }
+
+
+    private void HandleTmsCallbackTob(byte reason)
+    {
+      var eventArgs = new TobEventArgs();
+
+      switch ((char) reason)
+      {
+        case '$':
+          eventArgs.Reason = TobEventReason.Topology;
+          break;
+
+        case '^':
+          eventArgs.Reason = TobEventReason.Placards;
+          break;
+
+        case (char) 0xFF:
+          eventArgs.Reason = TobEventReason.Global;
+          break;
+
+        default:
+          return;
+      }
+      TobChanged.Invoke(this, eventArgs);
     }
 
 
@@ -1584,7 +1616,8 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<bool> SetAnalogTechParameters(TmAnalog analog, TmAnalogTechParameters parameters, PreferApi prefer = PreferApi.Auto)
+    public async Task<bool> SetAnalogTechParameters(TmAnalog  analog, TmAnalogTechParameters parameters,
+                                                    PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
