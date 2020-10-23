@@ -114,7 +114,7 @@ namespace Iface.Oik.Tm.Native.Utils
 
       var marshalBytes = new byte[1];
       
-      const int stringBytesSize = 512;
+      const int stringBytesSize = 1024;
       var       stringBytes     = new byte[stringBytesSize];
       
       var stringCursor = 0;

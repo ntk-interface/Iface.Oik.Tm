@@ -733,12 +733,8 @@ namespace Iface.Oik.Tm.Api
         nativeTobList[i] = techObjects[i].ToNativeTechObj();
       }
 
-      Console.WriteLine("Начинаю обновлять данные с сервера");
-      var sw = Stopwatch.StartNew();
       var tmcTechObjPropsPtr = await Task.Run(() => _native.TmcTechObjReadValues(_cid, nativeTobList, (uint) count))
                                          .ConfigureAwait(false);
-      Console.WriteLine($"Данные с сервера получил за {sw.ElapsedMilliseconds} мс, начинаю разбор");
-      sw.Restart();
       if (tmcTechObjPropsPtr == IntPtr.Zero)
       {
         return;
@@ -759,7 +755,6 @@ namespace Iface.Oik.Tm.Api
             .GetStringListFromDoubleNullTerminatedPointer(tmcTechObjProps.Props,
                                                           1024));
       }
-      Console.WriteLine($"Разобрал данные за {sw.ElapsedMilliseconds} мс");
 
       _native.TmcFreeMemory(tmcTechObjPropsPtr);
     }
