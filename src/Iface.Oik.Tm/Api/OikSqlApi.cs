@@ -420,6 +420,48 @@ namespace Iface.Oik.Tm.Api
         HandleException(ex);
       }
     }
+    
+    
+    public async Task UpdateTechObjectsProperties(IReadOnlyList<Tob> techObjects)
+    {
+      if (techObjects.IsNullOrEmpty())
+      {
+        return;
+      }
+      try
+      {
+        using (var sql = _createOikSqlConnection())
+        {
+          await sql.OpenAsync().ConfigureAwait(false);
+          var commandText = @"SELECT is_voltaged, is_grounded
+                              FROM _tob_test
+                                RIGHT JOIN UNNEST(@SchArray, @ObjArray) WITH ORDINALITY t (sch,obj,i)
+                                  ON tob_scheme = t.sch AND tob_object = t.obj
+                              ORDER BY t.i";
+          var tobSchemes = new int[techObjects.Count];
+          var tobObjects = new int[techObjects.Count];
+          for (var i = 0; i < techObjects.Count; i++)
+          {
+            tobSchemes[i] = (int) techObjects[i].Scheme;
+            tobObjects[i] = (int) techObjects[i].Object;
+          }
+          var parameters = new {SchArray = tobSchemes, ObjArray = tobObjects};
+          var dtos = await sql.DbConnection
+                              .QueryAsync<(bool IsV, bool IsG)>(commandText, parameters)
+                              .ConfigureAwait(false);
+
+          dtos.ForEach((dto, idx) => techObjects[idx].UpdateTopologyState(dto.IsV, dto.IsG));
+        }
+      }
+      catch (NpgsqlException ex)
+      {
+        HandleNpgsqlException(ex);
+      }
+      catch (Exception ex)
+      {
+        HandleException(ex);
+      }
+    }
 
 
     public async Task<IReadOnlyCollection<ITmAnalogRetro[]>> GetAnalogsMicroSeries(IReadOnlyList<TmAnalog> analogs)

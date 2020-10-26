@@ -160,6 +160,24 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
+    public void UpdateTopologyState(bool isVoltaged, bool isGrounded)
+    {
+      IsInit = true;
+      if (isGrounded)
+      {
+        TopologyState = TmTopologyState.IsGrounded;
+      }
+      else if (isVoltaged)
+      {
+        TopologyState = TmTopologyState.IsVoltaged;
+      }
+      else
+      {
+        TopologyState = TmTopologyState.IsNotVoltaged;
+      }
+    }
+
+
     public TmAddr GetTmStatusAddr()
     {
       return TmAddr.TryParse(GetPropertyOrDefault(PropertyTmStatus), out var tmAddr)

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
 namespace Iface.Oik.Tm.Interfaces
@@ -28,6 +27,8 @@ namespace Iface.Oik.Tm.Interfaces
     Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags);
 
     Task UpdateTagPropertiesAndClassData(TmTag tag);
+    
+    Task UpdateTechObjectsProperties(IReadOnlyList<Tob> techObjects);
 
     Task<IReadOnlyCollection<ITmAnalogRetro[]>> GetAnalogsMicroSeries(IReadOnlyList<TmAnalog> analogs);
 

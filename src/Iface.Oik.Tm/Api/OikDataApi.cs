@@ -581,14 +581,14 @@ namespace Iface.Oik.Tm.Api
       {
         return;
       }
-      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
       {
         await _tms.UpdateTechObjectsProperties(techObjects).ConfigureAwait(false);
       }
       else if (api == ApiSelection.Sql)
       {
-        throw new NotImplementedException();
+        await _sql.UpdateTechObjectsProperties(techObjects).ConfigureAwait(false);
       }
       else
       {
