@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -601,7 +602,7 @@ namespace Iface.Oik.Tm.Api
         ZoneLim  = new float[TmNativeDefs.TAnalogTechParmsAlarmSize],
         Reserved = new uint[TmNativeDefs.TAnalogTechParamsReservedSize],
       };
-      if (!_native.TmcGetAnalogTechParms(_cid, tmcAddr, ref techParams))
+      if (!_native.TmcGetAnalogTechParms(_cid, ref tmcAddr, ref techParams))
       {
         return;
       }
@@ -1586,7 +1587,8 @@ namespace Iface.Oik.Tm.Api
         ZoneLim  = new float[TmNativeDefs.TAnalogTechParmsAlarmSize],
         Reserved = new uint[TmNativeDefs.TAnalogTechParamsReservedSize],
       };
-      if (!await Task.Run(() => _native.TmcGetAnalogTechParms(_cid, tmcAddr, ref techParams)).ConfigureAwait(false))
+      if (!await Task.Run(() => _native.TmcGetAnalogTechParms(_cid, ref tmcAddr, ref techParams))
+                     .ConfigureAwait(false))
       {
         return false;
       }
@@ -1600,7 +1602,8 @@ namespace Iface.Oik.Tm.Api
         techParams.ZoneLim[2] = parameters.MaxWarningOrInvalid;
         techParams.ZoneLim[3] = parameters.MaxAlarmOrInvalid;
       }
-      return await Task.Run(() => _native.TmcSetAnalogTechParms(_cid, tmcAddr, techParams)).ConfigureAwait(false);
+      return await Task.Run(() => _native.TmcSetAnalogTechParms(_cid, ref tmcAddr, ref techParams))
+                       .ConfigureAwait(false);
     }
 
 

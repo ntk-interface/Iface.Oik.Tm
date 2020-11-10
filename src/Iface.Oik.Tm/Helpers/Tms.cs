@@ -20,6 +20,12 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
+    public static void RegisterDatagramFlags(int tmCid, TmDatagramFlags flags)
+    {
+      Native.TmcSetDgrmFlags(tmCid, (uint) flags);
+    }
+
+
     public static int Connect(string           host,
                               string           serverName,
                               string           applicationName,
@@ -34,7 +40,7 @@ namespace Iface.Oik.Tm.Helpers
       }
       else
       {
-        Native.TmcSetDgrmFlags(tmCid, (uint) TmNativeDefs.DatagramFlags.NewClient);
+        RegisterDatagramFlags(tmCid, TmDatagramFlags.NewClient);
       }
 
       return tmCid;
@@ -58,7 +64,7 @@ namespace Iface.Oik.Tm.Helpers
       }
       else
       {
-        Native.TmcSetDgrmFlags(tmCid, (uint) TmNativeDefs.DatagramFlags.NewClient);
+        RegisterDatagramFlags(tmCid, TmDatagramFlags.NewClient);
       }
 
 
@@ -195,6 +201,7 @@ namespace Iface.Oik.Tm.Helpers
 
       bool AreTechObjectsEnabled()
       {
+        return true;
         var tobPtr = Native.TmcTechObjEnumValues(tmCid, uint.MaxValue, uint.MaxValue, IntPtr.Zero, out var count);
         if (tobPtr == IntPtr.Zero)
         {
