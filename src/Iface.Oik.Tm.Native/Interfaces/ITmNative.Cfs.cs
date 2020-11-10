@@ -71,6 +71,22 @@ namespace Iface.Oik.Tm.Native.Interfaces
                               UInt32                             maxErrs);
 
 
+    bool CfsFilePut(IntPtr            connId,
+                    string            remoteFileName,
+                    string            localFileName,
+                    UInt32            timeout,
+                    out UInt32        errCode,
+                    ref StringBuilder errString,
+                    UInt32            maxErrs);
+
+
+    bool CfsFileDelete(IntPtr            connId,
+                       string            remoteFileName,
+                       out UInt32        errCode,
+                       ref StringBuilder errString,
+                       UInt32            maxErrs);
+    
+
     bool CfsCheckInstallationIntegrity(IntPtr            connId,
                                        UInt32            kind,
                                        out IntPtr        pSig,
@@ -221,16 +237,33 @@ namespace Iface.Oik.Tm.Native.Interfaces
                           UInt32            maxErrs);
 
 
-    Boolean CfsGetIniString(IntPtr            connId,
-                            string            path,
-                            string            section,
-                            string            key,
-                            string            def,
-                            ref StringBuilder value,
-                            out UInt32        pcbValue,
-                            out UInt32        errCode,
-                            ref StringBuilder errString,
-                            UInt32            maxErrs);
+    bool CfsGetIniString(IntPtr            connId,
+                         string            path,
+                         string            section,
+                         string            key,
+                         string            def,
+                         ref StringBuilder value,
+                         out UInt32        pcbValue,
+                         out UInt32        errCode,
+                         ref StringBuilder errString,
+                         UInt32            maxErrs);
+
+    bool CfsSetIniString(IntPtr            connId,
+                         string            path,
+                         string            section,
+                         string            key,
+                         string            value,
+                         out UInt32        errCode,
+                         ref StringBuilder errString,
+                         UInt32            maxErrs);
+
+
+    bool СfsGetBasePath(IntPtr            connId,
+                        ref StringBuilder path,
+                        UInt32            cbPath,
+                        out UInt32        errCode,
+                        ref StringBuilder errString,
+                        UInt32            maxErrs);
 
 
     void DPrintF(string message);

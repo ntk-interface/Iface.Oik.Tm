@@ -101,6 +101,28 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public bool CfsFilePut(IntPtr            connId,
+                           string            remoteFileName,
+                           string            localFileName,
+                           UInt32            timeout,
+                           out UInt32        errCode,
+                           ref StringBuilder errString,
+                           UInt32            maxErrs)
+    {
+      return cfsFilePut(connId, remoteFileName, localFileName, timeout, out errCode, errString, maxErrs);
+    }
+
+
+    public bool CfsFileDelete(IntPtr            connId,
+                              string            remoteFileName,
+                              out UInt32        errCode,
+                              ref StringBuilder errString,
+                              UInt32            maxErrs)
+    {
+      return cfsFileDelete(connId, remoteFileName, out errCode, errString, maxErrs);
+    }
+    
+
     public IntPtr CfsConnect(string            serverName,
                              out UInt32        errCode,
                              ref StringBuilder errString,
@@ -288,18 +310,31 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public Boolean CfsGetIniString(IntPtr            connId,
-                                   string            path,
-                                   string            section,
-                                   string            key,
-                                   string            def,
-                                   ref StringBuilder value,
-                                   out UInt32        pcbValue,
-                                   out UInt32        errCode,
-                                   ref StringBuilder errString,
-                                   uint              maxErrs)
+    public bool CfsGetIniString(IntPtr            connId,
+                                string            path,
+                                string            section,
+                                string            key,
+                                string            def,
+                                ref StringBuilder value,
+                                out UInt32        pcbValue,
+                                out UInt32        errCode,
+                                ref StringBuilder errString,
+                                uint              maxErrs)
     {
       return cfsGetIniString(connId, path, section, key, def, value, out pcbValue, out errCode, errString, maxErrs);
+    }
+
+
+    public bool CfsSetIniString(IntPtr            connId,
+                                string            path,
+                                string            section,
+                                string            key,
+                                string            value,
+                                out UInt32        errCode,
+                                ref StringBuilder errString,
+                                UInt32            maxErrs)
+    {
+      return cfsSetIniString(connId, path, section, key, value, out errCode, errString, maxErrs);
     }
 
 
@@ -312,6 +347,17 @@ namespace Iface.Oik.Tm.Native.Api
                                               UInt32            maxErrs)
     {
       return cfsCheckInstallationIntegrity(connId, kind, out pSig, out pErrs, out errCode, errString, maxErrs);
+    }
+
+
+    public bool СfsGetBasePath(IntPtr            connId,
+                               ref StringBuilder path,
+                               UInt32            cbPath,
+                               out UInt32        errCode,
+                               ref StringBuilder errString,
+                               UInt32            maxErrs)
+    {
+      return cfsGetBasePath(connId, path, cbPath, out errCode, errString, maxErrs);
     }
 
 

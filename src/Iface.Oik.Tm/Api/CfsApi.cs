@@ -849,8 +849,9 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<TmInstallationInfo> GetTmInstallationInfo()
     {
-      var (isIntact, integrityCheckMessage) = await CheckInstallationIntegrity(TmNativeDefs.CfsIitgk.Exe).ConfigureAwait(false);
-      
+      var (isIntact, integrityCheckMessage) =
+        await CheckInstallationIntegrity(TmNativeDefs.CfsIitgk.Exe).ConfigureAwait(false);
+
       return new TmInstallationInfo(await GetInstallationInfoString("ProductName").ConfigureAwait(false),
                                     await GetInstallationInfoString("Version").ConfigureAwait(false),
                                     await GetInstallationInfoString("BuildTime").ConfigureAwait(false),
@@ -877,7 +878,7 @@ namespace Iface.Oik.Tm.Api
         {
           var fileSection = iniManager.GetPrivateSection(file.Value);
 
-          var dir = fileSection.TryGetValue("dir", out var dirStr) ? dirStr : "";
+          var dir = fileSection.TryGetValue("Dir", out var dirStr) ? dirStr : "";
 
           var fileProps = await GetFileProperties(Path.Combine($"@{dir}", file.Value)).ConfigureAwait(false);
 
@@ -941,29 +942,7 @@ namespace Iface.Oik.Tm.Api
       const string path    = "@@";
       const string section = "IInfo";
 
-      uint      bufSize         = 256;
-      const int errStringLength = 1000;
-
-      var  buf       = new StringBuilder((int) bufSize);
-      var  errString = new StringBuilder(errStringLength);
-      uint errCode   = 0;
-
-      var result = await Task.Run(() => _native.CfsGetIniString(CfId,
-                                                                path, section, key, "",
-                                                                ref buf,
-                                                                out bufSize,
-                                                                out errCode,
-                                                                ref errString,
-                                                                errStringLength))
-                             .ConfigureAwait(false);
-
-      if (!result)
-      {
-        throw new
-          Exception($"Ошибка получения информации о установке сервера. Ключ: {key} Ошибка: {errString} Код: {errCode}");
-      }
-
-      return buf.ToString();
+      return await GetIniString(path, section, key).ConfigureAwait(false);
     }
 
 
@@ -989,7 +968,7 @@ namespace Iface.Oik.Tm.Api
       return fileProps;
     }
 
-    public async Task<(bool,string)> CheckInstallationIntegrity(TmNativeDefs.CfsIitgk kind)
+    public async Task<(bool, string)> CheckInstallationIntegrity(TmNativeDefs.CfsIitgk kind)
     {
       const int errStringLength = 1000;
       var       errString       = new StringBuilder(errStringLength);
@@ -1019,6 +998,254 @@ namespace Iface.Oik.Tm.Api
       _native.CfsFreeMemory(errorsPointer);
 
       return errors.IsNullOrEmpty() ? (true, signature) : (false, errors);
+    }
+
+
+    public async Task<TmLicenseInfo> GetLicenseInfo()
+    {
+      const string path    = "@@";
+      const string section = "FInfo";
+      const uint   bufSize = 1024 * 8;
+
+      var keyDataStrings =
+        (await GetIniString(path, section, bufSize: bufSize).ConfigureAwait(false)).Split(new[] {'\n'},
+          StringSplitOptions.RemoveEmptyEntries);
+
+      var keyDataDictionary = new Dictionary<string, string>();
+      foreach (var keyData in keyDataStrings)
+      {
+        keyDataDictionary.Add(keyData.Split('=').First(),
+                              await GetLicenseKeyDataItemString(keyData).ConfigureAwait(false));
+      }
+
+      var currentLicenseKey = new TmLicenseKey(await GetCurrentLicenseKeyCom().ConfigureAwait(false));
+
+      return new TmLicenseInfo(currentLicenseKey,
+                               await GetAvailableAppKeysList().ConfigureAwait(false),
+                               keyDataDictionary);
+    }
+
+    
+    public async Task SetLicenseKeyCom(TmLicenseKey newLicenseKey)
+    {
+      var path = Path.Combine(await GetBasePath().ConfigureAwait(false),
+                              "Data\\Main\\cfshare.ini");
+      const string section = "IfaceSecKey";
+      const string key     = "COM";
+
+      await SetIniString(path, section, key, newLicenseKey.NativeCom()).ConfigureAwait(false);
+    }
+
+
+    public async Task<IReadOnlyCollection<string>> GetFilesInDirectory(string path)
+    {
+      const uint bufLength       = 8192;
+      const int  errStringLength = 1000;
+      var        buf             = new char[bufLength];
+      var        errString       = new StringBuilder(errStringLength);
+      uint       errCode         = 0;
+
+
+      if (!await Task.Run(() => _native.CfsDirEnum(CfId,
+                                                   path,
+                                                   ref buf,
+                                                   bufLength,
+                                                   out errCode,
+                                                   ref errString,
+                                                   errStringLength))
+                     .ConfigureAwait(false))
+      {
+        Console.WriteLine($"Ошибка при запросе списка файлов: {errCode} - {errString}");
+        return null;
+      }
+
+      return TmNativeUtil.GetStringListFromDoubleNullTerminatedChars(buf);
+    }
+
+
+    public async Task<IReadOnlyCollection<string>> GetInstalledLicenseKeyFiles()
+    {
+      var path = $"{await GetBasePath().ConfigureAwait(false)}*.id";
+
+      return await GetFilesInDirectory(path).ConfigureAwait(false);
+    }
+
+
+    public async Task PutLicenseKeyFile(string filePath)
+    {
+      var remotePath = Path.Combine(await GetBasePath().ConfigureAwait(false),
+                                    Path.GetFileName(filePath));
+
+      await PutFile(filePath, remotePath, 20000).ConfigureAwait(false);
+    }
+
+
+    public async Task DeleteLicenseKeyFile(string fileName)
+    {
+      var remotePath = Path.Combine(await GetBasePath().ConfigureAwait(false), fileName);
+
+      await DeleteFile(remotePath).ConfigureAwait(false);
+    }
+    
+    
+    public async Task PutFile(string localFilePath,
+                              string remoteFilePath,
+                              uint   timeout = 20000)
+    {
+      if (localFilePath.IsNullOrEmpty())
+      {
+        Console.WriteLine("Ошибка: не указан локальный путь до файла");
+        return;
+      }
+      if (remoteFilePath.IsNullOrEmpty())
+      {
+        Console.WriteLine("Ошибка: не указан удалённый путь до файла");
+        return;
+      }
+      
+      const int errStringLength = 1000;
+      var       errString       = new StringBuilder(errStringLength);
+      uint      errCode         = 0;
+
+      if (!await Task.Run(() => _native.CfsFilePut(CfId, remoteFilePath, localFilePath, timeout, out errCode,
+                                                  ref errString, errStringLength)).ConfigureAwait(false))
+      {
+        Console.WriteLine($"Ошибка при отправке файла: {errCode} - {errString}");
+      }
+    }
+
+
+    public async Task DeleteFile(string remoteFilePath)
+    {
+      const int errStringLength = 1000;
+      var       errString       = new StringBuilder(errStringLength);
+      uint      errCode         = 0;
+      
+      if (remoteFilePath.IsNullOrEmpty())
+      {
+        Console.WriteLine("Ошибка: не указан удалённый путь до файла");
+        return;
+      }
+      
+      if (!await Task.Run(() => _native.CfsFileDelete(CfId, remoteFilePath, out errCode, ref errString, errStringLength))
+                    .ConfigureAwait(false))
+      {
+        Console.WriteLine($"Ошибка при удалении файла: {errCode} - {errString}");
+      }
+    }
+
+
+    private async Task<IReadOnlyCollection<string>> GetAvailableAppKeysList()
+    {
+      const string path    = "@@";
+      const string section = "AppKeyList";
+
+      const uint bufSize = 1024;
+
+      return (await GetIniString(path, section, bufSize: bufSize).ConfigureAwait(false)).Split(new[] {';'},
+        StringSplitOptions.RemoveEmptyEntries);
+    }
+
+
+    private async Task<int> GetCurrentLicenseKeyCom()
+    {
+      var path = Path.Combine(await GetBasePath().ConfigureAwait(false),
+                              "Data\\Main\\cfshare.ini");
+      const string section = "IfaceSecKey";
+      const string key     = "COM";
+
+      var currentLicenseKeyCom = await GetIniString(path, section, key, bufSize: 1024).ConfigureAwait(false);
+
+      return currentLicenseKeyCom.IsNullOrEmpty() ? 0 : Convert.ToInt32(currentLicenseKeyCom);
+    }
+
+
+    private async Task<string> GetLicenseKeyDataItemString(string rawItemString)
+    {
+      const string path    = "@@";
+      const string section = "SStr";
+
+      return await GetIniString(path, section, bufSize: 1024, def: rawItemString).ConfigureAwait(false);
+    }
+
+
+    private async Task<string> GetBasePath()
+    {
+      const int basePathStringLength = 1000;
+      var       basePathString       = new StringBuilder(basePathStringLength);
+
+      const int errStringLength = 1000;
+      var       errString       = new StringBuilder(errStringLength);
+      uint      errCode         = 0;
+
+      var result = await Task.Run(() => _native.СfsGetBasePath(CfId,
+                                                               ref basePathString,
+                                                               basePathStringLength,
+                                                               out errCode,
+                                                               ref errString,
+                                                               errStringLength))
+                             .ConfigureAwait(false);
+
+      if (!result)
+      {
+        throw new Exception($"Ошибка получения базового пути сервера сервера: {errString} Код: {errCode}");
+      }
+
+      return basePathString.ToString();
+    }
+
+    private async Task<string> GetIniString(string path,
+                                            string section,
+                                            string key     = "",
+                                            string def     = "",
+                                            uint   bufSize = 256)
+    {
+      var buf = new StringBuilder((int) bufSize);
+
+      const int errStringLength = 1000;
+      var       errString       = new StringBuilder(errStringLength);
+      uint      errCode         = 0;
+
+      var result = await Task.Run(() => _native.CfsGetIniString(CfId,
+                                                                path, section, key, def,
+                                                                ref buf,
+                                                                out bufSize,
+                                                                out errCode,
+                                                                ref errString,
+                                                                errStringLength))
+                             .ConfigureAwait(false);
+
+      if (!result)
+      {
+        throw new
+          Exception($"Ошибка получения ini-строки. \nПуть: {path}\nСекция: {section}\nКлюч: {key}\nОшибка: {errString} Код: {errCode}");
+      }
+
+      return buf.ToString();
+    }
+
+
+    private async Task SetIniString(string path,
+                                    string section,
+                                    string key,
+                                    string value)
+    {
+      const int errStringLength = 1000;
+      var       errString       = new StringBuilder(errStringLength);
+      uint      errCode         = 0;
+
+      var result = await Task.Run(() => _native.CfsSetIniString(CfId,
+                                                                path, section, key, value,
+                                                                out errCode,
+                                                                ref errString,
+                                                                errStringLength))
+                             .ConfigureAwait(false);
+
+      if (!result)
+      {
+        throw new
+          Exception($"Ошибка записи ini-строки. \nПуть: {path}\nСекция: {section}\nКлюч: {key}\nЗначение: {value}\nОшибка: {errString} Код: {errCode}");
+      }
     }
   }
 }

@@ -58,5 +58,31 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task<TmInstallationInfo> GetTmInstallationInfo();
+
+
+    Task<TmLicenseInfo> GetLicenseInfo();
+
+
+    Task SetLicenseKeyCom(TmLicenseKey newLicenseKey);
+
+
+    Task<IReadOnlyCollection<string>> GetFilesInDirectory(string path);
+
+
+    Task PutFile(string localFilePath,
+                 string remoteFilePath,
+                 uint   timeout);
+
+    
+    Task DeleteFile(string remoteFilePath);
+
+
+    Task<IReadOnlyCollection<string>> GetInstalledLicenseKeyFiles();
+
+
+    Task PutLicenseKeyFile(string filePath);
+
+
+    Task DeleteLicenseKeyFile(string fileName);
   }
 }

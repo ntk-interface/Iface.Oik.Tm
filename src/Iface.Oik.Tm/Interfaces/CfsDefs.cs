@@ -74,4 +74,14 @@ namespace Iface.Oik.Tm.Interfaces
     Wait  = -1,
     Error = -2,
   }
+
+  public enum LicenseKeyType
+  {
+    [Description("Неизвестный тип ключа")]  Unknown   = 0,
+    [Description("???")]                    TypeFour  = 4,
+    [Description("Программная лицензия")]   Software  = 5,
+    [Description("Interface USB HID/SSD")]  UsbHidSsd = 6,
+    [Description("Сетевой ключ Interface")] Network   = 7,
+    
+  }
 }

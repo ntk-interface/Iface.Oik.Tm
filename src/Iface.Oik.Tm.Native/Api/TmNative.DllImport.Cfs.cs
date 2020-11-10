@@ -92,6 +92,24 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern bool cfsFilePut(IntPtr                                         connId,
+                                         [MarshalAs(UnmanagedType.LPStr)] string        remoteFileName,
+                                         [MarshalAs(UnmanagedType.LPStr)] string        localFileName,
+                                         UInt32                                         timeout,
+                                         out                              UInt32        errCode,
+                                         [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
+                                         UInt32                                         maxErrs);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern bool cfsFileDelete(IntPtr                                         connId,
+                                            [MarshalAs(UnmanagedType.LPStr)] string        remoteFileName,
+                                            out                              UInt32        errCode,
+                                            [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
+                                            UInt32                                         maxErrs);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern IntPtr cfsConnect([MarshalAs(UnmanagedType.LPStr)] string        serverName,
                                            out                              UInt32        errCode,
                                            [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
@@ -249,25 +267,47 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean cfsGetIniString(IntPtr                                         connId,
-                                                 [MarshalAs(UnmanagedType.LPStr)] string        path,
-                                                 [MarshalAs(UnmanagedType.LPStr)] string        section,
-                                                 [MarshalAs(UnmanagedType.LPStr)] string        key,
-                                                 [MarshalAs(UnmanagedType.LPStr)] string        def,
-                                                 [MarshalAs(UnmanagedType.LPStr)] StringBuilder value,
-                                                 out                              UInt32        pcbValue,
-                                                 out                              UInt32        errCode,
-                                                 [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
-                                                 UInt32                                         maxErrs);
+    public static extern bool cfsGetIniString(IntPtr                                         connId,
+                                              [MarshalAs(UnmanagedType.LPStr)] string        path,
+                                              [MarshalAs(UnmanagedType.LPStr)] string        section,
+                                              [MarshalAs(UnmanagedType.LPStr)] string        key,
+                                              [MarshalAs(UnmanagedType.LPStr)] string        def,
+                                              [MarshalAs(UnmanagedType.LPStr)] StringBuilder value,
+                                              out                              UInt32        pcbValue,
+                                              out                              UInt32        errCode,
+                                              [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
+                                              UInt32                                         maxErrs);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern bool cfsSetIniString(IntPtr                                         connId,
+                                              [MarshalAs(UnmanagedType.LPStr)] string        path,
+                                              [MarshalAs(UnmanagedType.LPStr)] string        section,
+                                              [MarshalAs(UnmanagedType.LPStr)] string        key,
+                                              [MarshalAs(UnmanagedType.LPStr)] string        value,
+                                              out                              UInt32        errCode,
+                                              [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
+                                              UInt32                                         maxErrs);
+
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern bool cfsCheckInstallationIntegrity(IntPtr                                         connId,
                                                             UInt32                                         kind,
-                                                            out IntPtr                                         pSig,
-                                                            out IntPtr                                         pErrs,
+                                                            out                              IntPtr        pSig,
+                                                            out                              IntPtr        pErrs,
                                                             out                              UInt32        errCode,
                                                             [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
                                                             UInt32                                         maxErrs);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern bool cfsGetBasePath(IntPtr                                         connId,
+                                             [MarshalAs(UnmanagedType.LPStr)] StringBuilder path,
+                                             UInt32                                         cbPath,
+                                             out                              UInt32        errCode,
+                                             [MarshalAs(UnmanagedType.LPStr)] StringBuilder errString,
+                                             UInt32                                         maxErrs);
+
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.Cdecl)]
     public static extern Int64 uxgmtime2uxtime(Int64 time);
