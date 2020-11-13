@@ -8,35 +8,22 @@ namespace Iface.Oik.Tm.Interfaces
 {
   public class TmLicenseInfo : TmNotifyPropertyChanged
   {
-    private string _activeKeyId;
-
     private readonly Regex _dataStringRegex = new
       Regex(@".*=.*", RegexOptions.Compiled);
 
-    public LicenseDataItem Error     { get; } = new LicenseDataItem();
-    public LicenseDataItem ErrorAdd1 { get; } = new LicenseDataItem();
-    public LicenseDataItem ErrorAdd2 { get; } = new LicenseDataItem();
-    public TmLicenseKey    ActiveKey { get; }
-
-
-    public List<LicenseKeyType>  AvailableKeysTypes { get; } = new List<LicenseKeyType>();
-    public List<LicenseDataItem> LicenseDataItems   { get; } = new List<LicenseDataItem>();
-
-
-    public string ActiveKeyId => $"Активный ключ {(_activeKeyId.IsNullOrEmpty() ? "???" : _activeKeyId)}";
+    public string                ActiveKeyId      { get; }
+    public LicenseDataItem       Error            { get; } = new LicenseDataItem();
+    public LicenseDataItem       ErrorAdd1        { get; } = new LicenseDataItem();
+    public LicenseDataItem       ErrorAdd2        { get; } = new LicenseDataItem();
+    public TmLicenseKey          ActiveKey        { get; }
+    public List<LicenseDataItem> LicenseDataItems { get; } = new List<LicenseDataItem>();
+    
+    public string ActiveKeyIdString => $"Активный ключ {(ActiveKeyId.IsNullOrEmpty() ? "???" : ActiveKeyId)}";
 
     public TmLicenseInfo(TmLicenseKey                key,
-                         IReadOnlyCollection<string> availableKeysStrings,
                          IDictionary<string, string> licenseKeyDataDictionary)
     {
       ActiveKey = key;
-
-      AvailableKeysTypes.AddRange(availableKeysStrings.Select(x =>
-                                                              {
-                                                                var keyParts = x.Split(new[] {". "},
-                                                                  StringSplitOptions.None);
-                                                                return GetLicenseKeyType(keyParts.First());
-                                                              }));
 
       foreach (var item in licenseKeyDataDictionary)
       {
@@ -48,7 +35,7 @@ namespace Iface.Oik.Tm.Interfaces
         switch (item.Key)
         {
           case ".1":
-            _activeKeyId = value;
+            ActiveKeyId = value;
             break;
           case ".2":
             Error.Name  = name;
@@ -74,23 +61,7 @@ namespace Iface.Oik.Tm.Interfaces
         }
       }
     }
-
-    private static LicenseKeyType GetLicenseKeyType(string typeString)
-    {
-      switch (typeString)
-      {
-        case "4":
-          return LicenseKeyType.TypeFour;
-        case "5":
-          return LicenseKeyType.Software;
-        case "6":
-          return LicenseKeyType.UsbHidSsd;
-        case "7":
-          return LicenseKeyType.Network;
-        default:
-          return LicenseKeyType.Unknown;
-      }
-    }
+    
   }
 
   public class LicenseDataItem

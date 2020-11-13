@@ -63,6 +63,9 @@ namespace Iface.Oik.Tm.Interfaces
     Task<TmLicenseInfo> GetLicenseInfo();
 
 
+    Task<IReadOnlyCollection<LicenseKeyType>> GetAvailableLicenseKeyTypes();
+
+      
     Task SetLicenseKeyCom(TmLicenseKey newLicenseKey);
 
 

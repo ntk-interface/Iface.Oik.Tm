@@ -1020,9 +1020,7 @@ namespace Iface.Oik.Tm.Api
 
       var currentLicenseKey = new TmLicenseKey(await GetCurrentLicenseKeyCom().ConfigureAwait(false));
 
-      return new TmLicenseInfo(currentLicenseKey,
-                               await GetAvailableAppKeysList().ConfigureAwait(false),
-                               keyDataDictionary);
+      return new TmLicenseInfo(currentLicenseKey, keyDataDictionary);
     }
 
     
@@ -1135,15 +1133,43 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    private async Task<IReadOnlyCollection<string>> GetAvailableAppKeysList()
+    public async Task<IReadOnlyCollection<LicenseKeyType>> GetAvailableLicenseKeyTypes()
     {
       const string path    = "@@";
       const string section = "AppKeyList";
 
       const uint bufSize = 1024;
-
-      return (await GetIniString(path, section, bufSize: bufSize).ConfigureAwait(false)).Split(new[] {';'},
+      
+      var typesStrings = (await GetIniString(path, section, bufSize: bufSize).ConfigureAwait(false)).Split(new[] {';'}, 
         StringSplitOptions.RemoveEmptyEntries);
+
+      var licenseKeyTypes = new List<LicenseKeyType>();
+      
+      foreach (var typeString in typesStrings)
+      {
+        var typeNumStr = typeString.Split(new[] {". "}, StringSplitOptions.None).First();
+
+        switch (typeNumStr)
+        {
+          case "4":
+            licenseKeyTypes.Add(LicenseKeyType.TypeFour);
+            break;
+          case "5":
+            licenseKeyTypes.Add(LicenseKeyType.Software);
+            break;
+          case "6":
+            licenseKeyTypes.Add(LicenseKeyType.UsbHidSsd);
+            break;
+          case "7":
+            licenseKeyTypes.Add(LicenseKeyType.Network);
+            break;
+          default:
+            licenseKeyTypes.Add(LicenseKeyType.Unknown);
+            break;
+        }
+      }
+
+      return licenseKeyTypes;
     }
 
 
