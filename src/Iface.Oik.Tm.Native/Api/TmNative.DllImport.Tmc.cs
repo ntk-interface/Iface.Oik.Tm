@@ -570,5 +570,11 @@ namespace Iface.Oik.Tm.Native.Api
                                                    [MarshalAs(UnmanagedType.LPArray, SizeConst = 8)] UInt32[] pDap,
                                                    [MarshalAs(UnmanagedType.LPStr)]                  StringBuilder buf,
                                                    Int32 bufSize);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern Int16 tmcGetServerInfo(Int32                        cid,
+                                                ref TmNativeDefs.TServerInfo info);
+
   }
 }
