@@ -30,7 +30,7 @@ namespace Iface.Oik.Tm.Interfaces
     void SetUserInfoAndServerFeatures(TmUserInfo userInfo, TmServerFeatures features);
 
 
-    Task<TmServerInfo> GetServerInfo(PreferApi prefer = PreferApi.Auto);
+    Task<TmServerComputerInfo> GetServerComputerInfo(PreferApi prefer = PreferApi.Auto);
 
 
     Task<int> GetLastTmcError(PreferApi prefer = PreferApi.Auto);

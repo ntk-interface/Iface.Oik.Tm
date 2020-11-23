@@ -213,12 +213,12 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<TmServerInfo> GetServerInfo(PreferApi prefer = PreferApi.Auto)
+    public async Task<TmServerComputerInfo> GetServerComputerInfo(PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
       {
-        return await _tms.GetServerInfo().ConfigureAwait(false);
+        return await _tms.GetServerComputerInfo().ConfigureAwait(false);
       }
       else if (api == ApiSelection.Sql)
       {

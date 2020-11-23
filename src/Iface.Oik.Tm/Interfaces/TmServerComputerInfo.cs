@@ -2,7 +2,7 @@ using System;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public class TmServerInfo
+  public class TmServerComputerInfo
   {
     public string ComputerName { get; }
 
@@ -22,7 +22,7 @@ namespace Iface.Oik.Tm.Interfaces
     public DateTime StartedAt => DateTime.Now.Subtract(TimeSpan.FromSeconds(UptimeSeconds));
 
 
-    public TmServerInfo(string computerName,
+    public TmServerComputerInfo(string computerName,
                         int    versionMajor,
                         int    versionMinor,
                         int    windowsNtVersionMajor,

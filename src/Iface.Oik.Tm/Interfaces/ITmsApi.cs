@@ -8,7 +8,7 @@ namespace Iface.Oik.Tm.Interfaces
   {
     void SetCidAndUserInfo(int tmCid, TmUserInfo userInfo);
 
-    Task<TmServerInfo> GetServerInfo();
+    Task<TmServerComputerInfo> GetServerComputerInfo();
 
     Task<int> GetLastTmcError();
 
