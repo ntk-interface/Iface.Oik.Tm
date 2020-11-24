@@ -62,7 +62,7 @@ namespace Iface.Oik.Tm.Api
         return null;
       }
 
-      return new TmServerInfo(cis.ComputerName,
+      return new TmServerComputerInfo(cis.ComputerName,
                               (int) cis.CfsVerMaj,
                               (int) cis.CfsVerMin,
                               (int) cis.NtVerMaj,
