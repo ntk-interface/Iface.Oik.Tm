@@ -371,6 +371,39 @@ namespace Iface.Oik.Tm.Helpers
 
       return (tmCid, GetUserInfo(tmCid, options.TmServer), GetTmServerFeatures(tmCid), stopEventHandle);
     }
+    
+    
+    public static (int tmCid, uint stopEventHandle) InitializeAsTaskSimple(TmOikTaskOptions taskOptions, 
+                                                                           TmInitializeOptions options)
+    {
+      Native.CfsInitLibrary();
+
+      var taskArgs = Environment.GetCommandLineArgs();
+      taskArgs[0] = Native.GetOikTaskExecutable(taskArgs[0]);
+
+      uint startEventHandle = 0;
+      uint stopEventHandle  = 0;
+      Native.CfsPmonLocalRegisterProcess(taskArgs.Length,
+                                         taskArgs,
+                                         ref startEventHandle,
+                                         ref stopEventHandle);
+      Native.PlatformSetEvent(startEventHandle);
+
+      SetUserCredentials(options.User,
+                         options.Password);
+
+      var tmCid = Connect(options.Host,
+                          options.TmServer,
+                          options.ApplicationName,
+                          options.TmCallback,
+                          options.TmCallbackParameters);
+      if (tmCid == 0)
+      {
+        throw new Exception("Нет связи с ТМ-сервером, ошибка " + GetLastError());
+      }
+
+      return (tmCid, stopEventHandle);
+    }
 
 
     public static bool StopEventSignalDuringWait(uint handle, uint waitMilliseconds)
