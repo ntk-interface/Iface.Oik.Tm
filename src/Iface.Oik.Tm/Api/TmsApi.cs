@@ -35,7 +35,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<TmServerInfo> GetServerInfo()
+    public async Task<TmServerComputerInfo> GetServerComputerInfo()
     {
       var cfCid = await GetCfCid().ConfigureAwait(false);
       if (cfCid == IntPtr.Zero)
