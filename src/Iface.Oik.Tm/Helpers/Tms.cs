@@ -392,14 +392,14 @@ namespace Iface.Oik.Tm.Helpers
       SetUserCredentials(options.User,
                          options.Password);
 
-      var tmCid = Connect(options.Host,
-                          options.TmServer,
-                          options.ApplicationName,
-                          options.TmCallback,
-                          options.TmCallbackParameters);
+      var tmCid = Native.TmcConnect(options.Host,
+                                    options.TmServer,
+                                    options.ApplicationName,
+                                    options.TmCallback,
+                                    options.TmCallbackParameters);
       if (tmCid == 0)
       {
-        throw new Exception("Нет связи с ТМ-сервером, ошибка " + GetLastError());
+        throw new Exception("Нет связи с ТМ-сервером (cid = 0), ошибка " + GetLastError());
       }
 
       return (tmCid, stopEventHandle);
