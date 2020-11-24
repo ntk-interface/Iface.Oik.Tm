@@ -253,6 +253,20 @@ namespace Iface.Oik.Tm.Native.Interfaces
     }
 
 
+    [Flags]
+    public enum ServerInfoPresenceFlags
+    { 
+      UniqUserCount         = 0x01, 
+      TmValueCount          = 0x02, 
+      ReserveBufFill        = 0x04,
+      ReserveBufMaxFill     = 0x08,
+      TmTotValCnt           = 0x10,
+      ReserveSentAsyncBytes = 0x20,
+      ExtValCount           = 0x40,
+      ReserveBufferSize     = 0x80
+    }
+    
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TAdrTm
     {
@@ -847,6 +861,40 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
       [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 16)]
       public string UserName;
+    }
+    
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct TServerInfo
+    {
+      [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
+      public string Description;
+
+      public UInt32 DwType;
+      public UInt32 DwHeapUsage;
+      public UInt32 DwWSMin;
+      public UInt32 DwWSMax;
+
+      public UInt32 HandleCount;
+      public UInt32 StartTime;
+      public UInt32 ConfChangeTime;
+      public UInt32 ThreadCount;
+
+      public UInt32 UserCount;
+      public UInt32 LogonCount;
+
+      public UInt32 PresenceFlags;
+      
+      public UInt32 UniqUserCount;
+      public UInt32 TmValueCount;
+
+      public UInt32 ReserveBufFill;
+      public UInt32 ReserveBufMaxFill;
+      public UInt32 TmTotValCnt;
+      public UInt32 ReserveSentAsyncBytes;
+
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 92)]
+      public byte[] Reserverd;
     }
 
     public const Int16  RealTelemetryFlag     = unchecked((short) 0x8000);
