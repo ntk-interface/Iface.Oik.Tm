@@ -892,9 +892,14 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt32 ReserveBufMaxFill;
       public UInt32 TmTotValCnt;
       public UInt32 ReserveSentAsyncBytes;
+      public UInt32 TmExtValueCnt;
+      public UInt32 DtmxLastCommit;
+      public UInt32 DtmxBufFill;
+      public UInt32 AnRW;
+      public UInt32 ReserveBufSize;
 
-      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 92)]
-      public byte[] Reserverd;
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 72)]
+      public byte[] Reserved;
     }
 
     public const Int16  RealTelemetryFlag     = unchecked((short) 0x8000);

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Interfaces;
@@ -63,12 +64,12 @@ namespace Iface.Oik.Tm.Api
       }
 
       return new TmServerComputerInfo(cis.ComputerName,
-                              (int) cis.CfsVerMaj,
-                              (int) cis.CfsVerMin,
-                              (int) cis.NtVerMaj,
-                              (int) cis.NtVerMin,
-                              (int) cis.NtBuild,
-                              (long) cis.Uptime);
+                                      (int) cis.CfsVerMaj,
+                                      (int) cis.CfsVerMin,
+                                      (int) cis.NtVerMaj,
+                                      (int) cis.NtVerMin,
+                                      (int) cis.NtBuild,
+                                      (long) cis.Uptime);
     }
 
 
@@ -173,6 +174,7 @@ namespace Iface.Oik.Tm.Api
       {
         return new[] {Array.Empty<ITmAnalogRetro>()};
       }
+
       var count      = analogs.Count;
       var addrList   = new TmNativeDefs.TAdrTm[count];
       var bufPtrList = new IntPtr[count];
@@ -274,14 +276,16 @@ namespace Iface.Oik.Tm.Api
 
       uint count = 0;
       var tmcImpulseArchivePtr = await Task.Run(() => _native.TmcAanReadArchive(_cid,
-                                                                                analog.TmAddr.ToIntegerWithoutPadding(),
-                                                                                (uint) _native.UxGmTime2UxTime(
-                                                                                  startTime),
-                                                                                (uint) _native.UxGmTime2UxTime(endTime),
-                                                                                step,
-                                                                                queryFlags,
-                                                                                out count,
-                                                                                null, IntPtr.Zero))
+                                                                                  analog.TmAddr
+                                                                                    .ToIntegerWithoutPadding(),
+                                                                                  (uint) _native.UxGmTime2UxTime(
+                                                                                   startTime),
+                                                                                  (uint) _native
+                                                                                    .UxGmTime2UxTime(endTime),
+                                                                                  step,
+                                                                                  queryFlags,
+                                                                                  out count,
+                                                                                  null, IntPtr.Zero))
                                            .ConfigureAwait(false);
       if (tmcImpulseArchivePtr == IntPtr.Zero)
       {
@@ -330,14 +334,16 @@ namespace Iface.Oik.Tm.Api
 
       uint count = 0;
       var tmcImpulseArchivePtr = await Task.Run(() => _native.TmcAanReadArchive(_cid,
-                                                                                analog.TmAddr.ToIntegerWithoutPadding(),
-                                                                                (uint) _native.UxGmTime2UxTime(
-                                                                                  startTime),
-                                                                                (uint) _native.UxGmTime2UxTime(endTime),
-                                                                                (uint) step,
-                                                                                queryFlags,
-                                                                                out count,
-                                                                                null, IntPtr.Zero))
+                                                                                  analog.TmAddr
+                                                                                    .ToIntegerWithoutPadding(),
+                                                                                  (uint) _native.UxGmTime2UxTime(
+                                                                                   startTime),
+                                                                                  (uint) _native
+                                                                                    .UxGmTime2UxTime(endTime),
+                                                                                  (uint) step,
+                                                                                  queryFlags,
+                                                                                  out count,
+                                                                                  null, IntPtr.Zero))
                                            .ConfigureAwait(false);
       if (tmcImpulseArchivePtr == IntPtr.Zero)
       {
@@ -481,28 +487,28 @@ namespace Iface.Oik.Tm.Api
       if (tags.IsNullOrEmpty()) return;
 
       var taskProperties = Task.Run(() =>
-      {
-        foreach (var tag in tags)
-        {
-          UpdateTagPropertiesSynchronously(tag);
-        }
-      });
+                                    {
+                                      foreach (var tag in tags)
+                                      {
+                                        UpdateTagPropertiesSynchronously(tag);
+                                      }
+                                    });
 
       var taskClassData = Task.Run(() => // TODO попробовать через один запрос завернуть, возможны проблемы с маршалом
-      {
-        foreach (var tag in tags)
-        {
-          UpdateTagClassDataSynchronously(tag);
-        }
-      });
+                                   {
+                                     foreach (var tag in tags)
+                                     {
+                                       UpdateTagClassDataSynchronously(tag);
+                                     }
+                                   });
 
       var taskAnalogTechParameters = Task.Run(() =>
-      {
-        foreach (var tag in tags)
-        {
-          UpdateAnalogTechParametersSynchronously(tag);
-        }
-      });
+                                              {
+                                                foreach (var tag in tags)
+                                                {
+                                                  UpdateAnalogTechParametersSynchronously(tag);
+                                                }
+                                              });
 
       await Task.WhenAll(taskProperties, taskClassData, taskAnalogTechParameters)
                 .ConfigureAwait(false);
@@ -596,6 +602,7 @@ namespace Iface.Oik.Tm.Api
       {
         return;
       }
+
       var tmcAddr = tag.TmAddr.ToAdrTm();
       var techParams = new TmNativeDefs.TAnalogTechParms
       {
@@ -606,6 +613,7 @@ namespace Iface.Oik.Tm.Api
       {
         return;
       }
+
       tmAnalog.SetTmcTechParameters(techParams);
     }
 
@@ -637,28 +645,28 @@ namespace Iface.Oik.Tm.Api
         var tmClassFlags = 0;
         tmcClassDataStr?.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries)
                        .ForEach(property =>
-                       {
-                         var kvp = property.Split('=');
-                         if (kvp.Length != 2)
-                         {
-                           return;
-                         }
+                                {
+                                  var kvp = property.Split('=');
+                                  if (kvp.Length != 2)
+                                  {
+                                    return;
+                                  }
 
-                         if (kvp[0] == "ClassNumber")
-                         {
-                           int.TryParse(kvp[1], out tmClassId);
-                         }
+                                  if (kvp[0] == "ClassNumber")
+                                  {
+                                    int.TryParse(kvp[1], out tmClassId);
+                                  }
 
-                         if (kvp[0] == "ClassName")
-                         {
-                           tmClassName = kvp[1];
-                         }
+                                  if (kvp[0] == "ClassName")
+                                  {
+                                    tmClassName = kvp[1];
+                                  }
 
-                         if (kvp[0] == "ClassFlags")
-                         {
-                           int.TryParse(kvp[1], NumberStyles.HexNumber, null, out tmClassFlags);
-                         }
-                       });
+                                  if (kvp[0] == "ClassFlags")
+                                  {
+                                    int.TryParse(kvp[1], NumberStyles.HexNumber, null, out tmClassFlags);
+                                  }
+                                });
         if (tmClassId != 0)
         {
           tmClasses.Add(new TmClassStatus(tmClassId, tmClassName, tmClassFlags));
@@ -694,23 +702,23 @@ namespace Iface.Oik.Tm.Api
         var tmClassName        = "";
         tmcClassDataStr?.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries)
                        .ForEach(property =>
-                       {
-                         var kvp = property.Split('=');
-                         if (kvp.Length != 2)
-                         {
-                           return;
-                         }
+                                {
+                                  var kvp = property.Split('=');
+                                  if (kvp.Length != 2)
+                                  {
+                                    return;
+                                  }
 
-                         if (kvp[0] == "ClassNumber")
-                         {
-                           int.TryParse(kvp[1], out tmClassId);
-                         }
+                                  if (kvp[0] == "ClassNumber")
+                                  {
+                                    int.TryParse(kvp[1], out tmClassId);
+                                  }
 
-                         if (kvp[0] == "ClassName")
-                         {
-                           tmClassName = kvp[1];
-                         }
-                       });
+                                  if (kvp[0] == "ClassName")
+                                  {
+                                    tmClassName = kvp[1];
+                                  }
+                                });
         if (tmClassId != 0)
         {
           tmAnalogs.Add(new TmClassAnalog(tmClassId, tmClassName));
@@ -751,9 +759,9 @@ namespace Iface.Oik.Tm.Api
         }
 
         techObjects[i].SetPropertiesFromTmc(
-          TmNativeUtil
-            .GetStringListFromDoubleNullTerminatedPointer(tmcTechObjProps.Props,
-                                                          1024));
+                                            TmNativeUtil
+                                              .GetStringListFromDoubleNullTerminatedPointer(tmcTechObjProps.Props,
+                                                1024));
       }
 
       _native.TmcFreeMemory(tmcTechObjPropsPtr);
@@ -765,10 +773,10 @@ namespace Iface.Oik.Tm.Api
       uint count            = 0;
       var  filterProperties = TmNativeUtil.GetDoubleNullTerminatedPointerFromStringList(filter?.Properties);
       var tmcTechObjPropsPtr = await Task.Run(() => _native.TmcTechObjEnumValues(_cid,
-                                                                                 filter?.Scheme ?? uint.MaxValue,
-                                                                                 filter?.Type   ?? uint.MaxValue,
-                                                                                 filterProperties,
-                                                                                 out count))
+                                                filter?.Scheme ?? uint.MaxValue,
+                                                filter?.Type   ?? uint.MaxValue,
+                                                filterProperties,
+                                                out count))
                                          .ConfigureAwait(false);
       if (tmcTechObjPropsPtr == IntPtr.Zero)
       {
@@ -788,9 +796,10 @@ namespace Iface.Oik.Tm.Api
 
         var tob = new Tob(tmcTechObjProps.Scheme, tmcTechObjProps.Type, tmcTechObjProps.Object);
         tob.SetPropertiesFromTmc(TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(tmcTechObjProps.Props,
-                                                                                           1024));
+                                   1024));
         tobs.Add(tob);
       }
+
       _native.TmcFreeMemory(tmcTechObjPropsPtr);
 
       return tobs;
@@ -864,11 +873,11 @@ namespace Iface.Oik.Tm.Api
       (await GetLastTmcErrorText().ConfigureAwait(false))
         ?.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries)
         .ForEach(condition =>
-        {
-          var isConditionMet = condition[0] == '1';
-          var text           = condition.Substring(1);
-          conditions.Add(new TmControlScriptCondition(isConditionMet, text));
-        });
+                 {
+                   var isConditionMet = condition[0] == '1';
+                   var text           = condition.Substring(1);
+                   conditions.Add(new TmControlScriptCondition(isConditionMet, text));
+                 });
 
       return (scriptResult == 1, conditions);
     }
@@ -1118,8 +1127,8 @@ namespace Iface.Oik.Tm.Api
       }
 
       var eventLogAddr = (tmAddr != null)
-        ? (tmAddr.ToInteger() + 0x0001_0001) & 0xFFFF_0000
-        : 0;
+                           ? (tmAddr.ToInteger() + 0x0001_0001) & 0xFFFF_0000
+                           : 0;
       await Task.Run(() => _native.TmcEvlogPutStrBin(_cid,
                                                      0,
                                                      0,
@@ -1127,8 +1136,8 @@ namespace Iface.Oik.Tm.Api
                                                      eventLogAddr,
                                                      str,
                                                      TmNativeUtil.GetFixedBytesWithTrailingZero(_userInfo?.Name,
-                                                                                                16,
-                                                                                                "windows-1251"),
+                                                       16,
+                                                       "windows-1251"),
                                                      16))
                 .ConfigureAwait(false);
     }
@@ -1425,11 +1434,11 @@ namespace Iface.Oik.Tm.Api
         Props  = propsPtr,
       };
       await Task.Run(() =>
-      {
-        _native.TmcTechObjBeginUpdate(_cid);
-        _native.TmcTechObjWriteValues(_cid, new[] {tmcProps}, 1);
-        _native.TmcTechObjEndUpdate(_cid);
-      }).ConfigureAwait(false);
+                     {
+                       _native.TmcTechObjBeginUpdate(_cid);
+                       _native.TmcTechObjWriteValues(_cid, new[] {tmcProps}, 1);
+                       _native.TmcTechObjEndUpdate(_cid);
+                     }).ConfigureAwait(false);
 
       Marshal.FreeHGlobal(propsPtr);
     }
@@ -1454,11 +1463,11 @@ namespace Iface.Oik.Tm.Api
         Props  = propsPtr,
       };
       await Task.Run(() =>
-      {
-        _native.TmcTechObjBeginUpdate(_cid);
-        _native.TmcTechObjWriteValues(_cid, new[] {tmcProps}, 1);
-        _native.TmcTechObjEndUpdate(_cid);
-      }).ConfigureAwait(false);
+                     {
+                       _native.TmcTechObjBeginUpdate(_cid);
+                       _native.TmcTechObjWriteValues(_cid, new[] {tmcProps}, 1);
+                       _native.TmcTechObjEndUpdate(_cid);
+                     }).ConfigureAwait(false);
 
       Marshal.FreeHGlobal(propsPtr);
     }
@@ -1581,6 +1590,7 @@ namespace Iface.Oik.Tm.Api
       {
         return false;
       }
+
       var tmcAddr = analog.TmAddr.ToAdrTm();
       var techParams = new TmNativeDefs.TAnalogTechParms
       {
@@ -1592,6 +1602,7 @@ namespace Iface.Oik.Tm.Api
       {
         return false;
       }
+
       techParams.MinVal  = parameters.Min;
       techParams.MaxVal  = parameters.Max;
       techParams.Nominal = parameters.Nominal;
@@ -1602,6 +1613,7 @@ namespace Iface.Oik.Tm.Api
         techParams.ZoneLim[2] = parameters.MaxWarningOrInvalid;
         techParams.ZoneLim[3] = parameters.MaxAlarmOrInvalid;
       }
+
       return await Task.Run(() => _native.TmcSetAnalogTechParms(_cid, ref tmcAddr, ref techParams))
                        .ConfigureAwait(false);
     }
@@ -1612,16 +1624,16 @@ namespace Iface.Oik.Tm.Api
       if (tmAlarm.TmAnalog == null) return false;
 
       await Task.Run(() =>
-      {
-        // получение структуры уставки
-        var (ch, rtu, point) = tmAlarm.TmAnalog.TmAddr.GetTupleShort();
-        var nativeAlarm = new TmNativeDefs.TAlarm();
-        _native.TmcPeekAlarm(_cid, ch, rtu, point, (short) tmAlarm.Id, ref nativeAlarm);
+                     {
+                       // получение структуры уставки
+                       var (ch, rtu, point) = tmAlarm.TmAnalog.TmAddr.GetTupleShort();
+                       var nativeAlarm = new TmNativeDefs.TAlarm();
+                       _native.TmcPeekAlarm(_cid, ch, rtu, point, (short) tmAlarm.Id, ref nativeAlarm);
 
-        // установка нового значения
-        nativeAlarm.Value = value;
-        _native.TmcPokeAlarm(_cid, ch, rtu, point, (short) tmAlarm.Id, ref nativeAlarm);
-      }).ConfigureAwait(false);
+                       // установка нового значения
+                       nativeAlarm.Value = value;
+                       _native.TmcPokeAlarm(_cid, ch, rtu, point, (short) tmAlarm.Id, ref nativeAlarm);
+                     }).ConfigureAwait(false);
 
       // регистрируем событие
       var message = $"Изменена уставка \"{tmAlarm.Name}\" на \"{tmAlarm.TmAnalog.Name}\"" +
@@ -1732,18 +1744,18 @@ namespace Iface.Oik.Tm.Api
       var result = new List<TmChannel>();
 
       await Task.Run(() =>
-      {
-        var itemsIndexes = new ushort[255];
-        var count = _native.TmcEnumObjects(_cid, (ushort) TmNativeDefs.TmDataTypes.Channel, 255,
-                                           ref itemsIndexes, 0, 0, 0);
+                     {
+                       var itemsIndexes = new ushort[255];
+                       var count = _native.TmcEnumObjects(_cid, (ushort) TmNativeDefs.TmDataTypes.Channel, 255,
+                                                          ref itemsIndexes, 0, 0, 0);
 
-        for (int i = 0; i < count; i++)
-        {
-          var channelId = itemsIndexes[i];
-          result.Add(new TmChannel(channelId,
-                                   GetChannelNameSync(channelId)));
-        }
-      }).ConfigureAwait(false);
+                       for (int i = 0; i < count; i++)
+                       {
+                         var channelId = itemsIndexes[i];
+                         result.Add(new TmChannel(channelId,
+                                                  GetChannelNameSync(channelId)));
+                       }
+                     }).ConfigureAwait(false);
 
       return result;
     }
@@ -1756,19 +1768,19 @@ namespace Iface.Oik.Tm.Api
       var result = new List<TmRtu>();
 
       await Task.Run(() =>
-      {
-        var itemsIndexes = new ushort[255];
-        var count = _native.TmcEnumObjects(_cid, (ushort) TmNativeDefs.TmDataTypes.Rtu, 255,
-                                           ref itemsIndexes, (short) channelId, 0, 0);
+                     {
+                       var itemsIndexes = new ushort[255];
+                       var count = _native.TmcEnumObjects(_cid, (ushort) TmNativeDefs.TmDataTypes.Rtu, 255,
+                                                          ref itemsIndexes, (short) channelId, 0, 0);
 
-        for (int i = 0; i < count; i++)
-        {
-          var rtuId = itemsIndexes[i];
-          result.Add(new TmRtu(channelId,
-                               rtuId,
-                               GetRtuNameSync(channelId, rtuId)));
-        }
-      }).ConfigureAwait(false);
+                       for (int i = 0; i < count; i++)
+                       {
+                         var rtuId = itemsIndexes[i];
+                         result.Add(new TmRtu(channelId,
+                                              rtuId,
+                                              GetRtuNameSync(channelId, rtuId)));
+                       }
+                     }).ConfigureAwait(false);
 
       return result;
     }
@@ -1949,11 +1961,11 @@ namespace Iface.Oik.Tm.Api
       }
 
       var filterTypes = (filter.Types != TmEventTypes.None)
-        ? filter.Types
-        : TmEventTypes.Any;
+                          ? filter.Types
+                          : TmEventTypes.Any;
       var filterImportances = (filter.Importances != TmEventImportances.None)
-        ? filter.Importances
-        : TmEventImportances.Any;
+                                ? filter.Importances
+                                : TmEventImportances.Any;
 
       var startTime = _native.UxGmTime2UxTime(DateUtil.GetUtcTimestampFromDateTime(filter.StartTime.Value));
       var endTime   = _native.UxGmTime2UxTime(DateUtil.GetUtcTimestampFromDateTime(filter.EndTime.Value));
@@ -1965,7 +1977,7 @@ namespace Iface.Oik.Tm.Api
       while (true)
       {
         var (eventsBatchList, lastElix) = await GetEventsBatch(elix, filterTypes, startTime, endTime, cache)
-          .ConfigureAwait(false);
+                                            .ConfigureAwait(false);
 
         if (eventsBatchList.IsNullOrEmpty())
         {
@@ -2000,7 +2012,7 @@ namespace Iface.Oik.Tm.Api
                                                                     0,
                                                                     0xFFFFFFFF,
                                                                     cache)
-          .ConfigureAwait(false);
+                                                 .ConfigureAwait(false);
         if (eventsBatchList.IsNullOrEmpty())
         {
           break;
@@ -2044,206 +2056,264 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<TmServerInfo> GetServerInfo()
+    {
+      var info = new TmNativeDefs.TServerInfo();
+
+      var result = await Task.Run(() => _native.TmcGetServerInfo(_cid, ref info)).ConfigureAwait(false);
+
+      if (result != TmNativeDefs.Success)
+      {
+        Console.WriteLine(await GetLastTmcErrorText().ConfigureAwait(false));
+        return null;
+      }
+
+      var (host, server) = await GetCurrentServerName().ConfigureAwait(false);
+      return new TmServerInfo($"{host}\\{server}", info);
+    }
+
+
+    public async Task<IReadOnlyCollection<TmServerThread>> GetServerThreads()
+    {
+      var threadsPtr = await Task.Run(() => _native.TmcGetServerThreads(_cid)).ConfigureAwait(false);
+
+      if (threadsPtr == IntPtr.Zero)
+      {
+        Console.WriteLine($"Ошибка при получении списка потоков сервера: {GetLastTmcErrorText().ConfigureAwait(false)}");
+        return null;
+      }
+
+      var threadList = TmNativeUtil.GetUnknownLengthStringListFromDoubleNullTerminatedPointer(threadsPtr).Select(x =>
+                          {
+                            var regex =
+                              new Regex(@"([0-9]*), (.*?) • ([-+]?[0-9]*) s • ([-+]?[0-9]*\.?[0-9]+) s");
+                            var mc       = regex.Match(x);
+                            var id       = int.Parse(mc.Groups[1].Value);
+                            var name     = mc.Groups[2].Value;
+                            var upTime   = int.Parse(mc.Groups[3].Value);
+                            var workTime = float.Parse(mc.Groups[4].Value, CultureInfo.InvariantCulture);
+                            return new TmServerThread(id, name, upTime, workTime);
+                          })
+                          .ToList();
+      
+      _native.CfsFreeMemory(threadsPtr);
+      
+      return threadList;
+    }
+
+
+    public async Task<TmAccessRights> GetAccessRights()
+    {
+      uint access = 0;
+
+      await Task.Run(() => _native.TmcGetGrantedAccess(_cid, out access)).ConfigureAwait(false);
+
+      return (TmAccessRights) access;
+    }
+    
+
     private async Task<(IReadOnlyList<TmEvent>, TmNativeDefs.TTMSElix)> GetEventsBatch(TmNativeDefs.TTMSElix elix,
-                                                                                       TmEventTypes          type,
-                                                                                       long                  startTime,
-                                                                                       long                  endTime,
-                                                                                       Dictionary<string, TmTag>
-                                                                                         tmTagsCache)
+      TmEventTypes                                                                                           type,
+      long                                                                                                   startTime,
+      long                                                                                                   endTime,
+      Dictionary<string, TmTag>
+        tmTagsCache)
     {
       var lastElix   = elix;
       var eventsList = new List<TmEvent>();
       await Task.Run(() =>
-                {
-                  var tmcEventsElixPtr = _native.TmcEventLogByElix(_cid,
-                                                                   ref lastElix,
-                                                                   (ushort) type,
-                                                                   (uint) startTime,
-                                                                   (uint) endTime);
+                     {
+                       var tmcEventsElixPtr = _native.TmcEventLogByElix(_cid,
+                                                                        ref lastElix,
+                                                                        (ushort) type,
+                                                                        (uint) startTime,
+                                                                        (uint) endTime);
 
-                  var i = 0;
+                       var i = 0;
 
-                  if (tmcEventsElixPtr == IntPtr.Zero) return;
-                  var currentPtr = tmcEventsElixPtr;
+                       if (tmcEventsElixPtr == IntPtr.Zero) return;
+                       var currentPtr = tmcEventsElixPtr;
 
-                  while (currentPtr != IntPtr.Zero)
-                  {
-                    const int bufSize      = 1000;
-                    var       addDataBytes = new byte[bufSize];
+                       while (currentPtr != IntPtr.Zero)
+                       {
+                         const int bufSize      = 1000;
+                         var       addDataBytes = new byte[bufSize];
 
-                    var tmcEventElix = Marshal.PtrToStructure<TmNativeDefs.TEventElix>(currentPtr);
+                         var tmcEventElix = Marshal.PtrToStructure<TmNativeDefs.TEventElix>(currentPtr);
 
-                    _native.TmcEventGetAdditionalRecData((uint) i, ref addDataBytes, bufSize);
-                    var addData = TmNativeUtil.GetEventAddData(addDataBytes);
+                         _native.TmcEventGetAdditionalRecData((uint) i, ref addDataBytes, bufSize);
+                         var addData = TmNativeUtil.GetEventAddData(addDataBytes);
 
 
-                    TmEvent tmEvent;
-                    switch ((TmEventTypes) tmcEventElix.Event.Id)
-                    {
-                      case TmEventTypes.StatusChange:
-                        var statusTmAddr = new TmAddr(TmType.Status,
-                                                      tmcEventElix.Event.Ch,
-                                                      tmcEventElix.Event.Rtu,
-                                                      tmcEventElix.Event.Point);
-                        var status = GetAndCacheUpdatedTmTagSynchronously(statusTmAddr, tmTagsCache);
-
-                        if (tmcEventElix.EventSize >= TmNativeDefs.ExtendedStatusChangedEventSize)
-                        {
-                          var statusDataEx = TmNativeUtil.GetStatusDataExFromTEvent(tmcEventElix.Event);
-                          tmEvent = TmEvent.CreateStatusChangeExtendedEvent(
-                            tmcEventElix, addData, (TmStatus) status, statusDataEx);
-                        }
-                        else
-                        {
-                          var statusData = TmNativeUtil.GetStatusDataFromTEvent(tmcEventElix.Event);
-                          tmEvent = TmEvent.CreateStatusChangeEvent(tmcEventElix, addData, (TmStatus) status,
-                                                                    statusData);
-                        }
-
-                        break;
-
-                      case TmEventTypes.Alarm:
-                        var alarmSourceTmAddr = new TmAddr(TmType.Analog,
+                         TmEvent tmEvent;
+                         switch ((TmEventTypes) tmcEventElix.Event.Id)
+                         {
+                           case TmEventTypes.StatusChange:
+                             var statusTmAddr = new TmAddr(TmType.Status,
                                                            tmcEventElix.Event.Ch,
                                                            tmcEventElix.Event.Rtu,
                                                            tmcEventElix.Event.Point);
+                             var status = GetAndCacheUpdatedTmTagSynchronously(statusTmAddr, tmTagsCache);
 
-                        var alarmData = TmNativeUtil.GetAlarmDataFromTEvent(tmcEventElix.Event);
-                        var alarmTypeName = GetExtendedObjectName(alarmSourceTmAddr,
-                                                                  alarmData.AlarmID,
-                                                                  TmNativeDefs.TmDataTypes.AnalogAlarm);
+                             if (tmcEventElix.EventSize >= TmNativeDefs.ExtendedStatusChangedEventSize)
+                             {
+                               var statusDataEx = TmNativeUtil.GetStatusDataExFromTEvent(tmcEventElix.Event);
+                               tmEvent = TmEvent.CreateStatusChangeExtendedEvent(
+                                tmcEventElix, addData, (TmStatus) status, statusDataEx);
+                             }
+                             else
+                             {
+                               var statusData = TmNativeUtil.GetStatusDataFromTEvent(tmcEventElix.Event);
+                               tmEvent = TmEvent.CreateStatusChangeEvent(tmcEventElix, addData, (TmStatus) status,
+                                                                         statusData);
+                             }
 
-                        var alarmSourceAnalog = GetAndCacheUpdatedTmTagSynchronously(alarmSourceTmAddr, tmTagsCache);
+                             break;
 
-                        tmEvent = TmEvent.CreateAlarmTmEvent(tmcEventElix,
-                                                             addData,
-                                                             alarmTypeName,
-                                                             (TmAnalog) alarmSourceAnalog,
-                                                             alarmData);
-                        break;
+                           case TmEventTypes.Alarm:
+                             var alarmSourceTmAddr = new TmAddr(TmType.Analog,
+                                                                tmcEventElix.Event.Ch,
+                                                                tmcEventElix.Event.Rtu,
+                                                                tmcEventElix.Event.Point);
 
-                      case TmEventTypes.Control:
-                        var controlStatusTmAddr = new TmAddr(TmType.Status,
-                                                             tmcEventElix.Event.Ch,
-                                                             tmcEventElix.Event.Rtu,
-                                                             tmcEventElix.Event.Point);
+                             var alarmData = TmNativeUtil.GetAlarmDataFromTEvent(tmcEventElix.Event);
+                             var alarmTypeName = GetExtendedObjectName(alarmSourceTmAddr,
+                                                                       alarmData.AlarmID,
+                                                                       TmNativeDefs.TmDataTypes.AnalogAlarm);
 
-                        var controlData = TmNativeUtil.GetControlDataFromTEvent(tmcEventElix.Event);
+                             var alarmSourceAnalog =
+                               GetAndCacheUpdatedTmTagSynchronously(alarmSourceTmAddr, tmTagsCache);
 
-                        var controlStatus = GetAndCacheUpdatedTmTagSynchronously(controlStatusTmAddr, tmTagsCache);
+                             tmEvent = TmEvent.CreateAlarmTmEvent(tmcEventElix,
+                                                                  addData,
+                                                                  alarmTypeName,
+                                                                  (TmAnalog) alarmSourceAnalog,
+                                                                  alarmData);
+                             break;
 
-                        tmEvent = TmEvent.CreateControlEvent(tmcEventElix,
-                                                             addData,
-                                                             (TmStatus) controlStatus,
-                                                             controlData);
-                        break;
+                           case TmEventTypes.Control:
+                             var controlStatusTmAddr = new TmAddr(TmType.Status,
+                                                                  tmcEventElix.Event.Ch,
+                                                                  tmcEventElix.Event.Rtu,
+                                                                  tmcEventElix.Event.Point);
 
-                      case TmEventTypes.Acknowledge:
-                        var ackData       = TmNativeUtil.GetAcknowledgeDataFromTEvent(tmcEventElix.Event);
-                        var ackTargetName = "";
-                        if (tmcEventElix.Event.Point != 0)
-                        {
-                          var ackTargetTmAddr = new TmAddr(((TmNativeDefs.TmDataTypes) ackData.TmType).ToTmType(),
-                                                           tmcEventElix.Event.Ch,
-                                                           tmcEventElix.Event.Rtu,
-                                                           tmcEventElix.Event.Point);
-                          ackTargetName = GetObjectName(ackTargetTmAddr);
-                        }
+                             var controlData = TmNativeUtil.GetControlDataFromTEvent(tmcEventElix.Event);
 
-                        tmEvent = TmEvent.CreateAcknowledgeEvent(tmcEventElix, addData, ackTargetName, ackData);
-                        break;
+                             var controlStatus = GetAndCacheUpdatedTmTagSynchronously(controlStatusTmAddr, tmTagsCache);
 
-                      case TmEventTypes.ManualStatusSet:
-                        var setStatusTmAddr = new TmAddr(TmType.Status,
-                                                         tmcEventElix.Event.Ch,
-                                                         tmcEventElix.Event.Rtu,
-                                                         tmcEventElix.Event.Point);
-                        var setStatusData = TmNativeUtil.GetControlDataFromTEvent(tmcEventElix.Event);
+                             tmEvent = TmEvent.CreateControlEvent(tmcEventElix,
+                                                                  addData,
+                                                                  (TmStatus) controlStatus,
+                                                                  controlData);
+                             break;
 
-                        var setStatus = GetAndCacheUpdatedTmTagSynchronously(setStatusTmAddr, tmTagsCache);
+                           case TmEventTypes.Acknowledge:
+                             var ackData       = TmNativeUtil.GetAcknowledgeDataFromTEvent(tmcEventElix.Event);
+                             var ackTargetName = "";
+                             if (tmcEventElix.Event.Point != 0)
+                             {
+                               var ackTargetTmAddr = new TmAddr(((TmNativeDefs.TmDataTypes) ackData.TmType).ToTmType(),
+                                                                tmcEventElix.Event.Ch,
+                                                                tmcEventElix.Event.Rtu,
+                                                                tmcEventElix.Event.Point);
+                               ackTargetName = GetObjectName(ackTargetTmAddr);
+                             }
 
-                        tmEvent = TmEvent.CreateManualStatusSetEvent(tmcEventElix,
-                                                                     addData,
-                                                                     (TmStatus) setStatus,
-                                                                     setStatusData);
-                        break;
+                             tmEvent = TmEvent.CreateAcknowledgeEvent(tmcEventElix, addData, ackTargetName, ackData);
+                             break;
 
-                      case TmEventTypes.ManualAnalogSet:
-                        var setAnalogTmAddr = new TmAddr(TmType.Analog,
-                                                         tmcEventElix.Event.Ch,
-                                                         tmcEventElix.Event.Rtu,
-                                                         tmcEventElix.Event.Point);
+                           case TmEventTypes.ManualStatusSet:
+                             var setStatusTmAddr = new TmAddr(TmType.Status,
+                                                              tmcEventElix.Event.Ch,
+                                                              tmcEventElix.Event.Rtu,
+                                                              tmcEventElix.Event.Point);
+                             var setStatusData = TmNativeUtil.GetControlDataFromTEvent(tmcEventElix.Event);
 
-                        var setAnalogData = TmNativeUtil.GetAnalogSetDataFromTEvent(tmcEventElix.Event);
+                             var setStatus = GetAndCacheUpdatedTmTagSynchronously(setStatusTmAddr, tmTagsCache);
 
-                        var setAnalog = GetAndCacheUpdatedTmTagSynchronously(setAnalogTmAddr, tmTagsCache);
+                             tmEvent = TmEvent.CreateManualStatusSetEvent(tmcEventElix,
+                                                                          addData,
+                                                                          (TmStatus) setStatus,
+                                                                          setStatusData);
+                             break;
 
-                        tmEvent = TmEvent.CreateManualAnalogSetEvent(tmcEventElix, addData,
-                                                                     (TmAnalog) setAnalog,
-                                                                     setAnalogData);
-                        break;
+                           case TmEventTypes.ManualAnalogSet:
+                             var setAnalogTmAddr = new TmAddr(TmType.Analog,
+                                                              tmcEventElix.Event.Ch,
+                                                              tmcEventElix.Event.Rtu,
+                                                              tmcEventElix.Event.Point);
 
-                      case TmEventTypes.Extended:
-                        var strBinData = TmNativeUtil.GetStrBinData(tmcEventElix.Event);
-                        tmEvent = TmEvent.CreateExtendedEvent(tmcEventElix, addData, strBinData);
-                        break;
+                             var setAnalogData = TmNativeUtil.GetAnalogSetDataFromTEvent(tmcEventElix.Event);
 
-                      case TmEventTypes.FlagsChange:
-                        var flagsChangeData       = TmNativeUtil.GetFlagsChangeData(tmcEventElix.Event);
-                        var flagsChangeSourceType = (TmNativeDefs.TmDataTypes) flagsChangeData.TmType;
+                             var setAnalog = GetAndCacheUpdatedTmTagSynchronously(setAnalogTmAddr, tmTagsCache);
 
-                        var flagsChangeSourceTmAddr = new TmAddr(flagsChangeSourceType.ToTmType(),
-                                                                 tmcEventElix.Event.Ch,
-                                                                 tmcEventElix.Event.Rtu,
-                                                                 tmcEventElix.Event.Point);
+                             tmEvent = TmEvent.CreateManualAnalogSetEvent(tmcEventElix, addData,
+                                                                          (TmAnalog) setAnalog,
+                                                                          setAnalogData);
+                             break;
 
-                        if (flagsChangeSourceType == TmNativeDefs.TmDataTypes.Status)
-                        {
-                          var flagsChangeDataStatus = TmNativeUtil.GetFlagsChangeDataStatus(tmcEventElix.Event);
+                           case TmEventTypes.Extended:
+                             var strBinData = TmNativeUtil.GetStrBinData(tmcEventElix.Event);
+                             tmEvent = TmEvent.CreateExtendedEvent(tmcEventElix, addData, strBinData);
+                             break;
 
-                          var flagsChangeSourceStatus =
-                            GetAndCacheUpdatedTmTagSynchronously(flagsChangeSourceTmAddr, tmTagsCache);
+                           case TmEventTypes.FlagsChange:
+                             var flagsChangeData       = TmNativeUtil.GetFlagsChangeData(tmcEventElix.Event);
+                             var flagsChangeSourceType = (TmNativeDefs.TmDataTypes) flagsChangeData.TmType;
 
-                          tmEvent = TmEvent.CreateStatusFlagsChangeEvent(tmcEventElix,
-                                                                         addData,
-                                                                         (TmStatus) flagsChangeSourceStatus,
-                                                                         flagsChangeDataStatus);
-                        }
-                        else if (flagsChangeSourceType == TmNativeDefs.TmDataTypes.Analog)
-                        {
-                          var flagsChangeDataAnalog = TmNativeUtil.GetFlagsChangeDataAnalog(tmcEventElix.Event);
+                             var flagsChangeSourceTmAddr = new TmAddr(flagsChangeSourceType.ToTmType(),
+                                                                      tmcEventElix.Event.Ch,
+                                                                      tmcEventElix.Event.Rtu,
+                                                                      tmcEventElix.Event.Point);
 
-                          var flagsChangeSourceAnalog =
-                            GetAndCacheUpdatedTmTagSynchronously(flagsChangeSourceTmAddr, tmTagsCache);
+                             if (flagsChangeSourceType == TmNativeDefs.TmDataTypes.Status)
+                             {
+                               var flagsChangeDataStatus = TmNativeUtil.GetFlagsChangeDataStatus(tmcEventElix.Event);
 
-                          tmEvent = TmEvent.CreateAnalogFlagsChangeEvent(tmcEventElix,
-                                                                         addData,
-                                                                         (TmAnalog) flagsChangeSourceAnalog,
-                                                                         flagsChangeDataAnalog);
-                        }
-                        else
-                        {
-                          var sourceAccumName = GetObjectName(flagsChangeSourceTmAddr);
-                          tmEvent = TmEvent.CreateAccumFlagsChangeEvent(tmcEventElix,
-                                                                        addData,
-                                                                        sourceAccumName,
-                                                                        flagsChangeData);
-                        }
-                        break;
+                               var flagsChangeSourceStatus =
+                                 GetAndCacheUpdatedTmTagSynchronously(flagsChangeSourceTmAddr, tmTagsCache);
 
-                      default:
-                        tmEvent = TmEvent.CreateFromTEventElix(tmcEventElix, addData, "???");
-                        break;
-                    }
+                               tmEvent = TmEvent.CreateStatusFlagsChangeEvent(tmcEventElix,
+                                                                              addData,
+                                                                              (TmStatus) flagsChangeSourceStatus,
+                                                                              flagsChangeDataStatus);
+                             }
+                             else if (flagsChangeSourceType == TmNativeDefs.TmDataTypes.Analog)
+                             {
+                               var flagsChangeDataAnalog = TmNativeUtil.GetFlagsChangeDataAnalog(tmcEventElix.Event);
 
-                    eventsList.Add(tmEvent);
+                               var flagsChangeSourceAnalog =
+                                 GetAndCacheUpdatedTmTagSynchronously(flagsChangeSourceTmAddr, tmTagsCache);
 
-                    currentPtr = tmcEventElix.Next;
-                    i++;
-                  }
+                               tmEvent = TmEvent.CreateAnalogFlagsChangeEvent(tmcEventElix,
+                                                                              addData,
+                                                                              (TmAnalog) flagsChangeSourceAnalog,
+                                                                              flagsChangeDataAnalog);
+                             }
+                             else
+                             {
+                               var sourceAccumName = GetObjectName(flagsChangeSourceTmAddr);
+                               tmEvent = TmEvent.CreateAccumFlagsChangeEvent(tmcEventElix,
+                                                                             addData,
+                                                                             sourceAccumName,
+                                                                             flagsChangeData);
+                             }
 
-                  _native.TmcFreeMemory(tmcEventsElixPtr);
-                })
+                             break;
+
+                           default:
+                             tmEvent = TmEvent.CreateFromTEventElix(tmcEventElix, addData, "???");
+                             break;
+                         }
+
+                         eventsList.Add(tmEvent);
+
+                         currentPtr = tmcEventElix.Next;
+                         i++;
+                       }
+
+                       _native.TmcFreeMemory(tmcEventsElixPtr);
+                     })
                 .ConfigureAwait(false);
 
       return (eventsList, lastElix);
@@ -2376,6 +2446,7 @@ namespace Iface.Oik.Tm.Api
         newTag = new TmAnalog(tagTmAddr);
         UpdateAnalogSynchronously((TmAnalog) newTag);
       }
+
       UpdateTagPropertiesAndClassDataSynchronously(newTag);
 
       cache.Add(tagTmAddr.ToString(), newTag);
