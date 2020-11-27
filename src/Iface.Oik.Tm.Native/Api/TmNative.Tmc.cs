@@ -628,6 +628,29 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public Int16 TmcSetRetransInfoEx(Int32                             cid,
+                                     UInt16                             count,
+                                     ref TmNativeDefs.TRetransInfo      ri,
+                                     ref TmNativeDefs.TRetransInfoReply rir)
+    {
+      return tmcSetRetransInfoEx(cid, count, ref ri, ref rir);
+    }
+    
+    
+    public Int16 TmcSetRetransInfo(Int32                              cid,
+                                     UInt16                             count,
+                                     ref TmNativeDefs.TRetransInfo      ri)
+    {
+      return tmcSetRetransInfo(cid, count, ref ri);
+    }
+
+
+    public Int16 TmcClrRetransInfo(Int32 cid)
+    {
+      return tmcClrRetransInfo(cid);
+    }
+
+
     public bool TmcDntGetConfig(Int32 cid, string fileName)
     {
       return tmcDntGetConfig(cid, fileName);

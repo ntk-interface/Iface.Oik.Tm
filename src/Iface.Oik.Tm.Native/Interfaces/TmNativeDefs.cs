@@ -896,6 +896,26 @@ namespace Iface.Oik.Tm.Native.Interfaces
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 92)]
       public byte[] Reserverd;
     }
+    
+    
+    public struct TRetransInfo
+    {
+      public UInt32 Id;
+      public UInt16 Type;
+      public TAdrTm AdrTm;
+    }
+    
+    
+    public struct TRetransInfoReply
+    {
+      public Byte   Ok;
+      public Byte   PresenceFlags;
+      public UInt16 Group;
+      public UInt16 Class;
+
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
+      public byte[] Reserved2;
+    }
 
     public const Int16  RealTelemetryFlag     = unchecked((short) 0x8000);
     public const UInt32 ExtendedDataSignature = 0xEEAAEE00;

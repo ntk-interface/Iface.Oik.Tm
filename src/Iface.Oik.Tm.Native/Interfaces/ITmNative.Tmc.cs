@@ -418,6 +418,20 @@ namespace Iface.Oik.Tm.Native.Interfaces
                        UInt32[]         pPropValues);
 
 
+    Int16 TmcSetRetransInfo(Int32                         cid,
+                            UInt16                        count,
+                            ref TmNativeDefs.TRetransInfo ri);
+
+
+    Int16 TmcSetRetransInfoEx(Int32                              cid,
+                              UInt16                             count,
+                              ref TmNativeDefs.TRetransInfo      ri,
+                              ref TmNativeDefs.TRetransInfoReply rir);
+
+
+    Int16 TmcClrRetransInfo(Int32 cid);
+    
+
     Boolean TmcDntGetConfig(Int32  cid,
                             string fileName);
 
