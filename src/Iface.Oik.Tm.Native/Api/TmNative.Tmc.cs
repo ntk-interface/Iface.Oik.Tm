@@ -22,6 +22,12 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public void TmcUpdateConnection(Int32 cid)
+    {
+      tmcUpdateConnection(cid);
+    }
+    
+    
     public Boolean TmcGetCurrentServer(Int32             cid,
                                        ref StringBuilder machine,
                                        UInt32            cbMachine,

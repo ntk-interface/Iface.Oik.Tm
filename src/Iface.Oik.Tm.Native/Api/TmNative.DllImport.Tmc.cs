@@ -20,6 +20,10 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern void tmcUpdateConnection(Int32 cid);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Boolean tmcGetCurrentServer(Int32                                          cid,
                                                      [MarshalAs(UnmanagedType.LPStr)] StringBuilder machine,
                                                      UInt32                                         cbMachine,

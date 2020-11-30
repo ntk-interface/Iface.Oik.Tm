@@ -15,6 +15,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
     void TmcDisconnect(Int32 cid);
 
 
+    void TmcUpdateConnection(Int32 cid);
+    
+
     void TmcFreeMemory(IntPtr memory);
 
 
