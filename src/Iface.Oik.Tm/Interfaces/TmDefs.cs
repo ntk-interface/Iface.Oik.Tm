@@ -329,4 +329,51 @@ namespace Iface.Oik.Tm.Interfaces
     In      = TmNativeDefs.TmsTraceFlags.In,
     Out     = TmNativeDefs.TmsTraceFlags.Out,
   }
+
+
+  [Flags]
+  public enum TmAccessRights : uint
+  {
+    [Description("Чтение телепараметров")]
+    None = 0x00_00_00_00,
+    
+    [Description("Безусловный доступ")]
+    FullAccess = 0xFF_FF_FF_FF,
+    
+    [Description("Чтение телепараметров")]
+    ReadTmValues     = 0x00_00_00_01,
+    
+    [Description("Изменение ТС")]
+    ChangeStatuses   = 0x00_00_00_02,
+    
+    [Description("Изменение ТИТ")]
+    ChangeAnalogs    = 0x00_00_00_04,
+    
+    [Description("Изменение ТИИ")]
+    ChangeAccums     = 0x00_00_00_08,
+    
+    [Description("Телеуправление")]
+    Telecontrol      = 0x00_00_00_10,
+    
+    [Description("Просмотр ретроспектив")]
+    ViewRetro        = 0x00_00_00_20,
+    
+    [Description("Просмотр журнала событий")]
+    ViewEventLog     = 0x00_00_00_40,
+    
+    [Description("Изменение уставок")]
+    ChangeAlarms     = 0x00_00_00_80,
+    
+    [Description("Источник телеметрии")]
+    DataSource       = 0x00_00_01_00,
+    
+    [Description("Доступ к аппаратуре")]
+    HardwareAccess   = 0x00_00_02_00,
+    
+    [Description("Изменение техобъектов")]
+    TechObjectChange = 0x00_00_04_00,
+    
+    [Description("Резервное копирование")]
+    ReserveCopy      = 0x00_00_08_00,
+  }
 }

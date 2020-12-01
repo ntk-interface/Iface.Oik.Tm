@@ -492,9 +492,9 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Int32 tmcConnectEx(string                                                  server,
-                                            string                                                  pipe,
-                                            string                                                  user,
+    public static extern Int32 tmcConnectEx(string server,
+                                            string pipe,
+                                            string user,
                                             [MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback callback,
                                             IntPtr                                                  callbackParameter,
                                             UInt32                                                  cbProps,
@@ -588,8 +588,14 @@ namespace Iface.Oik.Tm.Native.Api
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern Int16 tmcGetServerInfo(Int32                        cid,
                                                 ref TmNativeDefs.TServerInfo info);
+    
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern IntPtr tmcGetServerThreads(Int32 cid);
 
-
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern bool tmcGetGrantedAccess(Int32      cid, 
+                                                  out UInt32 pAccess);
+    
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcSetRetransInfoEx(Int32                              cid,
                                                    UInt16                             count,

@@ -37,7 +37,7 @@ namespace Iface.Oik.Tm.Native.Utils
       {
         return Array.Empty<string>();
       }
-      
+
       var s          = new string(chars);
       int doubleNull = s.IndexOf("\0\0", StringComparison.Ordinal);
       if (doubleNull != -1)
@@ -55,7 +55,7 @@ namespace Iface.Oik.Tm.Native.Utils
       {
         return Array.Empty<string>();
       }
-      
+
       int doubleNull = 0;
       for (var i = 1; i < bytes.Length; i++)
       {
@@ -81,7 +81,7 @@ namespace Iface.Oik.Tm.Native.Utils
       {
         return Array.Empty<byte>();
       }
-      
+
       var bytes  = new byte[maxSize];
       var cursor = 0;
 
@@ -103,20 +103,20 @@ namespace Iface.Oik.Tm.Native.Utils
 
 
     public static IReadOnlyCollection<string> GetStringListFromDoubleNullTerminatedPointer(IntPtr ptr,
-                                                                                           int    maxSize)
+      int                                                                                         maxSize)
     {
       if (ptr == IntPtr.Zero)
       {
         return Array.Empty<string>();
       }
-      
+
       var result = new List<string>();
 
       var marshalBytes = new byte[1];
-      
+
       const int stringBytesSize = 1024;
       var       stringBytes     = new byte[stringBytesSize];
-      
+
       var stringCursor = 0;
       var isNullFound  = false;
       for (var i = 0; i < maxSize; i++)
@@ -153,7 +153,7 @@ namespace Iface.Oik.Tm.Native.Utils
         return IntPtr.Zero;
       }
 
-      var byteList = new List<byte>(); 
+      var byteList = new List<byte>();
       foreach (var item in list)
       {
         var bytes = Encoding.GetEncoding(1251)
@@ -161,8 +161,9 @@ namespace Iface.Oik.Tm.Native.Utils
         byteList.AddRange(bytes);
         byteList.Add(0);
       }
+
       byteList.Add(0);
-      
+
       var handle = GCHandle.Alloc(byteList.ToArray(), GCHandleType.Pinned);
       var ptr    = handle.AddrOfPinnedObject();
       handle.Free();
@@ -195,8 +196,8 @@ namespace Iface.Oik.Tm.Native.Utils
 
       return FromBytes<TmNativeDefs.StatusData>(tEvent.Data);
     }
-    
-    
+
+
     public static TmNativeDefs.StatusDataEx GetStatusDataExFromTEvent(TmNativeDefs.TEvent tEvent)
     {
       if (tEvent.Data == null)
@@ -272,8 +273,8 @@ namespace Iface.Oik.Tm.Native.Utils
 
       return FromBytes<TmNativeDefs.FlagsChangeData>(tEvent.Data);
     }
-    
-    
+
+
     public static TmNativeDefs.FlagsChangeDataStatus GetFlagsChangeDataStatus(TmNativeDefs.TEvent tEvent)
     {
       if (tEvent.Data == null)
@@ -283,8 +284,8 @@ namespace Iface.Oik.Tm.Native.Utils
 
       return FromBytes<TmNativeDefs.FlagsChangeDataStatus>(tEvent.Data);
     }
-    
-    
+
+
     public static TmNativeDefs.FlagsChangeDataAnalog GetFlagsChangeDataAnalog(TmNativeDefs.TEvent tEvent)
     {
       if (tEvent.Data == null)
@@ -341,7 +342,7 @@ namespace Iface.Oik.Tm.Native.Utils
                      .FirstOrDefault()?
                      .Trim('\n');
     }
-    
+
     public static string GetStringWithUnknownLengthFromIntPtr(IntPtr ptr)
     {
       const int bufferStep = 512;
@@ -368,6 +369,59 @@ namespace Iface.Oik.Tm.Native.Utils
                      .GetString(stringBuf)
                      .Trim('\0');
     }
+
+
+    public static IReadOnlyCollection<string> GetUnknownLengthStringListFromDoubleNullTerminatedPointer(IntPtr ptr)
+    {
+      const int bufferStep = 512;
+      var       bufSize    = bufferStep;
+      
+      if (ptr == IntPtr.Zero)
+      {
+        return Array.Empty<string>();
+      }
+
+      var result = new List<string>();
+
+      var marshalBytes = new byte[1];
+      
+      var stringBytes = new byte[bufSize];
+
+      var stringCursor = 0;
+      var isNullFound  = false;
+      for (var i = 0; i < bufSize; i++)
+      {
+        Marshal.Copy(new IntPtr(ptr.ToInt64() + i), marshalBytes, 0, 1);
+        if (marshalBytes[0] == 0)
+        {
+          if (isNullFound) // второй ноль - выходим
+          {
+            break;
+          }
+
+          result.Add(Encoding.GetEncoding(1251)
+                             .GetString(stringBytes)
+                             .Trim('\0'));
+          Array.Clear(stringBytes, 0, bufSize);
+          stringCursor = 0;
+          isNullFound  = true;
+          continue;
+        }
+
+        stringBytes[stringCursor++] = marshalBytes[0];
+        isNullFound                 = false;
+        
+        if (i != bufSize - 1) continue;
+        
+        bufSize                     += bufferStep;
+        var oldStrBuffer = stringBytes;
+        stringBytes = new byte[bufSize];
+        Array.Copy(oldStrBuffer, stringBytes, oldStrBuffer.Length);
+      }
+
+      return result;
+    }
+
 
     private static T FromBytes<T>(byte[] bytes) where T : struct
     {

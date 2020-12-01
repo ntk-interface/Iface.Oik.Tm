@@ -496,5 +496,16 @@ namespace Iface.Oik.Tm.Native.Interfaces
                               UInt32[]          pDap,
                               ref StringBuilder buf,
                               Int32             bufSize);
+
+
+    Int16 TmcGetServerInfo(Int32                        cid,
+                           ref TmNativeDefs.TServerInfo info);
+
+
+    IntPtr TmcGetServerThreads(Int32 cid);
+
+
+    bool TmcGetGrantedAccess(Int32      cid,
+                             out UInt32 pAccess);
   }
 }

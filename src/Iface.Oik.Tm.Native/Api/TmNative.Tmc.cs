@@ -382,7 +382,7 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    
+
     public Boolean TmcGetAnalogTechParms(Int32                             cid,
                                          ref TmNativeDefs.TAdrTm           addr,
                                          ref TmNativeDefs.TAnalogTechParms tpr)
@@ -757,5 +757,25 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcDntGetPortStats(cid, pDap, buf, bufSize);
     }
-  }
+
+
+    public Int16 TmcGetServerInfo(Int32                        cid,
+                                  ref TmNativeDefs.TServerInfo info)
+    {
+      return tmcGetServerInfo(cid, ref info);
+    }
+
+
+    public IntPtr TmcGetServerThreads(Int32 cid)
+    {
+      return tmcGetServerThreads(cid);
+    }
+
+
+    public bool TmcGetGrantedAccess(Int32      cid,
+                                    out UInt32 pAccess)
+    {
+      return tmcGetGrantedAccess(cid, out pAccess);
+    }
+}
 }

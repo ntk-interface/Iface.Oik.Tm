@@ -196,5 +196,13 @@ namespace Iface.Oik.Tm.Interfaces
     Task StartTmAddrTracer(int channel, int rtu, int point, TmType tmType, TmTraceTypes filterTypes);
 
     Task StopTmAddrTracer(int channel, int rtu, int point, TmType tmType);
+
+    
+    
+    Task<TmServerInfo>                GetServerInfo();
+    
+    Task<IReadOnlyCollection<TmServerThread>> GetServerThreads();
+
+    Task<TmAccessRights> GetAccessRights();
   }
 }
