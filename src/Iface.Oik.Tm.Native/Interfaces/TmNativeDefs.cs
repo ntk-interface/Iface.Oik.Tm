@@ -319,6 +319,20 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
       public byte Format; // вынесли формат отдельно
     }
+    
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct TAccumPoint
+    {
+      public Single Value;
+      public Single Load;
+      public Int16  Flags;
+      
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 7)]
+      public byte[] Unit; // в tmconn 8, в последнем байте формат
+
+      public byte Format; // вынесли формат отдельно
+    }
 
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
