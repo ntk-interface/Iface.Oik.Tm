@@ -103,6 +103,18 @@ namespace Iface.Oik.Tm.Native.Api
                                                 UInt32                               usid,
                                                 [In, Out] ref TmNativeDefs.TUserInfo userInfo);
 
+    
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern Boolean tmcGetUserInfoEx(Int32                                                   cid,
+                                                  UInt32                                                  userId,
+                                                  [In, Out] ref                    TmNativeDefs.TUserInfo userInfo,
+                                                  [MarshalAs(UnmanagedType.LPStr)] StringBuilder          appxBuf,
+                                                  uint                                                    cbAppx);
+    
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern IntPtr tmcGetUserList(Int32 cid);
+
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcStatus(Int32 cid,

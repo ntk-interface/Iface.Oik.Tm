@@ -81,8 +81,18 @@ namespace Iface.Oik.Tm.Native.Interfaces
     Boolean TmcGetUserInfo(Int32                      cid,
                            UInt32                     usid,
                            ref TmNativeDefs.TUserInfo userInfo);
-
-
+    
+    
+    Boolean TmcGetUserInfoEx(Int32             cid,
+                             UInt32            userId, 
+                             ref TmNativeDefs.TUserInfo userInfo,
+                             ref StringBuilder appxBuf,
+                             uint              cbAppx);
+    
+    
+    IntPtr TmcGetUserList(Int32 cid);
+    
+    
     Int16 TmcStatus(Int32 cid,
                     Int16 ch,
                     Int16 rtu,
@@ -505,7 +515,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
     IntPtr TmcGetServerThreads(Int32 cid);
 
 
-    bool TmcGetGrantedAccess(Int32      cid,
+    Boolean TmcGetGrantedAccess(Int32      cid,
                              out UInt32 pAccess);
   }
 }
