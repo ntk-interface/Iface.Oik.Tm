@@ -11,6 +11,10 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     void CfsSetUser(string user,
                     string password);
+    
+    
+    void CfsSetUserForThread(string user, 
+                             string password);
 
 
     UInt32 CfsGetExtendedUserData(IntPtr cfCid,

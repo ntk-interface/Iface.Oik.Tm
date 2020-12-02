@@ -15,6 +15,11 @@ namespace Iface.Oik.Tm.Native.Api
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern void cfsSetUser([MarshalAs(UnmanagedType.LPStr)] string name,
                                          [MarshalAs(UnmanagedType.LPStr)] string pwd);
+    
+    
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern void cfsSetUserForThread([MarshalAs(UnmanagedType.LPStr)] string name, 
+                                                  [MarshalAs(UnmanagedType.LPStr)] string pwd);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]

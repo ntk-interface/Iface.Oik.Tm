@@ -19,6 +19,13 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public void CfsSetUserForThread(string user,
+                                    string password)
+    {
+      cfsSetUserForThread(user, password);
+    }
+
+
     public UInt32 CfsGetExtendedUserData(IntPtr cfCid,
                                          string serverType,
                                          string serverName,
