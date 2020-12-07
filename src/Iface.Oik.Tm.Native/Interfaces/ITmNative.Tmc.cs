@@ -139,7 +139,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
     Boolean TmcAlertListRemove(Int32                       cid,
                                TmNativeDefs.TAlertListId[] listIds);
 
-    Int16 tmcSetValues(Int32                       cid,
+    Int16 TmcSetValues(Int32                       cid,
                        UInt32                      count,
                        TmNativeDefs.TValueAndFlags values);
 
