@@ -186,15 +186,15 @@ namespace Iface.Oik.Tm.Native.Api
 
     
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Int16 tmcSetValues(Int32                                   cid,
-                                            UInt32                                  count,
-                                            [In] TmNativeDefs.TValueAndFlags values);
+    public static extern Int16 tmcSetValues(Int32                              cid,
+                                            UInt32                             count,
+                                            [In] TmNativeDefs.TValueAndFlags[] values);
     
     
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Int16 tmcSetValues(Int32                            cid,
-                                            UInt32                           count,
-                                            [In] TmNativeDefs.TValueAndFlagsUnion values);
+    public static extern Int16 tmcSetValues(Int32                                   cid,
+                                            UInt32                                  count,
+                                            [In] TmNativeDefs.TValueAndFlagsUnion[] values);
     
     
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]

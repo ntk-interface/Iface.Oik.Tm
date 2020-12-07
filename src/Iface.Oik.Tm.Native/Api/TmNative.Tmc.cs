@@ -224,7 +224,7 @@ namespace Iface.Oik.Tm.Native.Api
 
     public Int16 TmcSetValues(Int32                       cid,
                               UInt32                      count,
-                              TmNativeDefs.TValueAndFlags values)
+                              TmNativeDefs.TValueAndFlags[] values)
     {
       return tmcSetValues(cid, count, values);
     }
@@ -232,7 +232,7 @@ namespace Iface.Oik.Tm.Native.Api
 
     public Int16 TmcSetValuesUnion(Int32                            cid,
                                    UInt32                           count,
-                                   TmNativeDefs.TValueAndFlagsUnion values)
+                                   TmNativeDefs.TValueAndFlagsUnion[] values)
     {
       return tmcSetValues(cid, count, values);
     }
