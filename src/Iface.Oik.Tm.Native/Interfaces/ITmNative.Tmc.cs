@@ -16,7 +16,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
     void TmcUpdateConnection(Int32 cid);
-    
+
 
     void TmcFreeMemory(IntPtr memory);
 
@@ -139,6 +139,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
     Boolean TmcAlertListRemove(Int32                       cid,
                                TmNativeDefs.TAlertListId[] listIds);
 
+    Int16 tmcSetValues(Int32                       cid,
+                       UInt32                      count,
+                       TmNativeDefs.TValueAndFlags values);
 
     Int16 TmcSetTimedValues(Int32                              cid,
                             UInt32                             count,
@@ -433,7 +436,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
     Int16 TmcClrRetransInfo(Int32 cid);
-    
+
 
     Boolean TmcDntGetConfig(Int32  cid,
                             string fileName);

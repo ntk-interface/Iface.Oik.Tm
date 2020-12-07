@@ -26,8 +26,8 @@ namespace Iface.Oik.Tm.Native.Api
     {
       tmcUpdateConnection(cid);
     }
-    
-    
+
+
     public Boolean TmcGetCurrentServer(Int32             cid,
                                        ref StringBuilder machine,
                                        UInt32            cbMachine,
@@ -222,6 +222,14 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public Int16 TmcSetValues(Int32                       cid,
+                              UInt32                      count,
+                              TmNativeDefs.TValueAndFlags values)
+    {
+      return tmcSetValues(cid, count, values);
+    }
+
+
     public Int16 TmcSetTimedValues(Int32                              cid,
                                    UInt32                             count,
                                    TmNativeDefs.TTimedValueAndFlags[] values)
@@ -380,7 +388,6 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcAnalogMicroSeries(cid, cnt, addrList, resultList);
     }
-
 
 
     public Boolean TmcGetAnalogTechParms(Int32                             cid,
@@ -634,18 +641,18 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public Int16 TmcSetRetransInfoEx(Int32                             cid,
+    public Int16 TmcSetRetransInfoEx(Int32                              cid,
                                      UInt16                             count,
                                      ref TmNativeDefs.TRetransInfo      ri,
                                      ref TmNativeDefs.TRetransInfoReply rir)
     {
       return tmcSetRetransInfoEx(cid, count, ref ri, ref rir);
     }
-    
-    
-    public Int16 TmcSetRetransInfo(Int32                              cid,
-                                     UInt16                             count,
-                                     ref TmNativeDefs.TRetransInfo      ri)
+
+
+    public Int16 TmcSetRetransInfo(Int32                         cid,
+                                   UInt16                        count,
+                                   ref TmNativeDefs.TRetransInfo ri)
     {
       return tmcSetRetransInfo(cid, count, ref ri);
     }
@@ -777,5 +784,5 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcGetGrantedAccess(cid, out pAccess);
     }
-}
+  }
 }

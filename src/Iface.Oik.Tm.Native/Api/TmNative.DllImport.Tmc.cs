@@ -184,6 +184,12 @@ namespace Iface.Oik.Tm.Native.Api
     public static extern Boolean tmcAlertListRemove(Int32                                 cid,
                                                     [In, Out] TmNativeDefs.TAlertListId[] listIds);
 
+    
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int16 tmcSetValues(Int32                                   cid,
+                                            UInt32                                  count,
+                                            [In] TmNativeDefs.TValueAndFlags values);
+    
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcSetTimedValues(Int32                                   cid,
