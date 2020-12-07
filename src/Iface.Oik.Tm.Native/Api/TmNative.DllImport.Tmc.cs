@@ -184,19 +184,19 @@ namespace Iface.Oik.Tm.Native.Api
     public static extern Boolean tmcAlertListRemove(Int32                                 cid,
                                                     [In, Out] TmNativeDefs.TAlertListId[] listIds);
 
-    
+
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcSetValues(Int32                              cid,
                                             UInt32                             count,
                                             [In] TmNativeDefs.TValueAndFlags[] values);
-    
-    
+
+
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcSetValues(Int32                                   cid,
                                             UInt32                                  count,
                                             [In] TmNativeDefs.TValueAndFlagsUnion[] values);
-    
-    
+
+
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcSetTimedValues(Int32                                   cid,
                                                  UInt32                                  count,
@@ -373,6 +373,22 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int16 tmcSetAccumFlags(Int32 cid,
+                                                Int16 ch,
+                                                Int16 rtu,
+                                                Int16 point,
+                                                Int16 flags);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int16 tmcClrAccumFlags(Int32 cid,
+                                                Int16 ch,
+                                                Int16 rtu,
+                                                Int16 point,
+                                                Int16 flags);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcPeekAlarm(Int32                   cid,
                                             Int16                   ch,
                                             Int16                   rtu,
@@ -504,9 +520,9 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Int32 tmcConnectEx(string server,
-                                            string pipe,
-                                            string user,
+    public static extern Int32 tmcConnectEx(string                                                  server,
+                                            string                                                  pipe,
+                                            string                                                  user,
                                             [MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback callback,
                                             IntPtr                                                  callbackParameter,
                                             UInt32                                                  cbProps,
@@ -600,14 +616,14 @@ namespace Iface.Oik.Tm.Native.Api
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern Int16 tmcGetServerInfo(Int32                        cid,
                                                 ref TmNativeDefs.TServerInfo info);
-    
+
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern IntPtr tmcGetServerThreads(Int32 cid);
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern bool tmcGetGrantedAccess(Int32      cid, 
+    public static extern bool tmcGetGrantedAccess(Int32      cid,
                                                   out UInt32 pAccess);
-    
+
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcSetRetransInfoEx(Int32                              cid,
                                                    UInt16                             count,

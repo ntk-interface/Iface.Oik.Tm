@@ -473,6 +473,24 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcClrAnalogFlags(cid, ch, rtu, point, flags);
     }
+    
+    
+    public Int16 TmcSetAccumFlags(Int32 cid,
+                                   Int16 ch, Int16 rtu, Int16 point,
+                                   Int16 flags)
+    {
+      return tmcSetAccumFlags(cid, ch, rtu, point, flags);
+    }
+
+
+    public Int16 TmcClrAccumFlags(Int32 cid,
+                                   Int16 ch,
+                                   Int16 rtu,
+                                   Int16 point,
+                                   Int16 flags)
+    {
+      return tmcClrAccumFlags(cid, ch, rtu, point, flags);
+    }
 
 
     public Int16 TmcPeekAlarm(Int32                   cid,

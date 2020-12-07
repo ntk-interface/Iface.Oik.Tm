@@ -142,11 +142,11 @@ namespace Iface.Oik.Tm.Native.Interfaces
     Int16 TmcSetValues(Int32                         cid,
                        UInt32                        count,
                        TmNativeDefs.TValueAndFlags[] values);
-    
-    
-    Int16 TmcSetValuesUnion(Int32                         cid,
-                       UInt32                             count,
-                       TmNativeDefs.TValueAndFlagsUnion[] values);
+
+
+    Int16 TmcSetValuesUnion(Int32                              cid,
+                            UInt32                             count,
+                            TmNativeDefs.TValueAndFlagsUnion[] values);
 
     Int16 TmcSetTimedValues(Int32                              cid,
                             UInt32                             count,
@@ -310,6 +310,20 @@ namespace Iface.Oik.Tm.Native.Interfaces
                             Int16 rtu,
                             Int16 point,
                             Int16 flags);
+
+
+    Int16 TmcSetAccumFlags(Int32 cid,
+                           Int16 ch,
+                           Int16 rtu,
+                           Int16 point,
+                           Int16 flags);
+
+
+    Int16 TmcClrAccumFlags(Int32 cid,
+                           Int16 ch,
+                           Int16 rtu,
+                           Int16 point,
+                           Int16 flags);
 
 
     Int16 TmcPeekAlarm(Int32                   cid,
