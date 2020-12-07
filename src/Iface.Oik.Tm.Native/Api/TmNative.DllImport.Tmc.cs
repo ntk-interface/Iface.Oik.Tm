@@ -190,7 +190,13 @@ namespace Iface.Oik.Tm.Native.Api
                                             UInt32                                  count,
                                             [In] TmNativeDefs.TValueAndFlags values);
     
-
+    
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int16 tmcSetValues(Int32                            cid,
+                                            UInt32                           count,
+                                            [In] TmNativeDefs.TValueAndFlagsUnion values);
+    
+    
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcSetTimedValues(Int32                                   cid,
                                                  UInt32                                  count,

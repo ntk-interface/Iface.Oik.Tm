@@ -582,7 +582,30 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public Byte   Bits;
       public UInt32 Value; // тут в библиотеке union от Byte до UInt32 и float
     }
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
+    public struct TValueAndFlagsUnion
+    {
+      public TAdrTm Adr;
+      public Byte   Type; // см. VfType
+      public Byte   Flags;
+      public Byte   Bits;
+      public TValueUnion Value;
+    }
 
+
+    [StructLayout(LayoutKind.Explicit, CharSet = CharSet.Ansi)]
+    public struct TValueUnion
+    {
+      [FieldOffset(0)] public byte   Uchar;
+      [FieldOffset(0)] public char   Schar;
+      [FieldOffset(0)] public UInt16 Ushort;
+      [FieldOffset(0)] public Int16  Sshort;
+      [FieldOffset(0)] public UInt32 Ulong;
+      [FieldOffset(0)] public Int32  Slong;
+      [FieldOffset(0)] public Single Flt;
+    }
+    
 
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct TTimedValueAndFlags
