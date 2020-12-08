@@ -204,5 +204,12 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<TmServerThread>> GetServerThreads();
 
     Task<TmAccessRights> GetAccessRights();
+
+    
+    Task<IReadOnlyCollection<TmUserInfo>> GetUsersInfo();
+
+    Task<TmUserInfo> GetUserInfo(uint userId);
+
+    Task<TmUserInfo> GetExtendedUserInfo(int userId);
   }
 }

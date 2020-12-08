@@ -138,6 +138,22 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public Boolean TmcGetUserInfoEx(Int32                      cid,
+                                    UInt32                     userId,
+                                    ref TmNativeDefs.TUserInfo userInfo,
+                                    ref StringBuilder          appxBuf,
+                                    uint                       cbAppx)
+    {
+      return tmcGetUserInfoEx(cid, userId, ref userInfo, appxBuf, cbAppx);
+    }
+    
+
+    public IntPtr TmcGetUserList(Int32 cid)
+    {
+      return tmcGetUserList(cid);
+    }
+
+
     public Int16 TmcStatus(Int32 cid,
                            Int16 ch,
                            Int16 rtu,
@@ -805,7 +821,7 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public bool TmcGetGrantedAccess(Int32      cid,
+    public Boolean TmcGetGrantedAccess(Int32      cid,
                                     out UInt32 pAccess)
     {
       return tmcGetGrantedAccess(cid, out pAccess);

@@ -736,7 +736,10 @@ namespace Iface.Oik.Tm.Native.Interfaces
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
       public byte[] UserCategory;
 
-      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
+      public byte[] OldUserName;
+
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
       public byte[] Reserved;
     }
 

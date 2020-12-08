@@ -2110,6 +2110,73 @@ namespace Iface.Oik.Tm.Api
 
       return (TmAccessRights) access;
     }
+
+
+    public async Task<IReadOnlyCollection<TmUserInfo>> GetUsersInfo()
+    {
+      var usersIdPtr = await Task.Run(() => _native.TmcGetUserList(_cid)).ConfigureAwait(false);
+      
+      var tmUsersInfo = new List<TmUserInfo>();
+      
+      if (usersIdPtr == IntPtr.Zero)
+      {
+        Console.WriteLine("Ошибка получения списка пользователей ТМС");
+        return tmUsersInfo;
+      }
+
+      var ptrWithOffset = usersIdPtr;
+      
+      while (true)
+      {
+        var id = Marshal.PtrToStructure<uint>(ptrWithOffset);
+        if (id == 0)
+        {
+          break;
+        }
+
+        var user = await GetUserInfo(id).ConfigureAwait(false);
+
+        if (user != null)
+        {
+          tmUsersInfo.Add(user);
+        }
+
+        ptrWithOffset = IntPtr.Add(ptrWithOffset, sizeof(uint));
+      }
+
+      return tmUsersInfo;
+    }
+
+
+    public async Task<TmUserInfo> GetUserInfo(uint userId)
+    {
+      var tUserInfo = new TmNativeDefs.TUserInfo();
+
+      if (await Task.Run(() => _native.TmcGetUserInfo(_cid, userId, ref tUserInfo)).ConfigureAwait(false))
+      {
+        return new TmUserInfo((int) userId, tUserInfo, string.Empty);
+      }
+      
+      Console.WriteLine($"Ошибка получения информации о пользователе с ID {userId}");
+      return null;
+
+    }
+
+
+    public async Task<TmUserInfo> GetExtendedUserInfo(int userId)
+    {
+      const int bufSize          = 1000;
+      var       extendedInfoBuff = new StringBuilder(bufSize);
+      var       tUserInfo        = new TmNativeDefs.TUserInfo();
+      
+      if (await Task.Run(() => _native.TmcGetUserInfoEx(_cid, (uint) userId, ref tUserInfo, ref extendedInfoBuff, bufSize)).ConfigureAwait(false))
+      {
+        return new TmUserInfo(userId, tUserInfo, extendedInfoBuff.ToString());
+      }
+      
+      Console.WriteLine($"Ошибка получения расширенной информации о пользователе с ID {userId}");
+      return null;
+    }
     
 
     private async Task<(IReadOnlyList<TmEvent>, TmNativeDefs.TTMSElix)> GetEventsBatch(TmNativeDefs.TTMSElix elix,
