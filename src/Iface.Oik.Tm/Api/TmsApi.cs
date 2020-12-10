@@ -2177,6 +2177,40 @@ namespace Iface.Oik.Tm.Api
       Console.WriteLine($"Ошибка получения расширенной информации о пользователе с ID {userId}");
       return null;
     }
+
+
+    public async Task<IReadOnlyCollection<TmStatus>> GetPresentAps()
+    {
+      var apsTAdrTmListPointer = await Task.Run(() => _native.TmcTakeAPS(_cid)).ConfigureAwait(false);
+
+      if (apsTAdrTmListPointer == IntPtr.Zero)
+      {
+        Console.WriteLine("Ошибка получения списка взведённых АПС");
+        return null;
+      }
+
+      
+      var currentPointer = apsTAdrTmListPointer;
+      var apsList        = new List<TmStatus>();
+
+      while (true)
+      {
+        var apsTAdrTm = Marshal.PtrToStructure<TmNativeDefs.TAdrTm>(currentPointer);
+        
+        if (apsTAdrTm.Point == 0) break;
+
+        var aps = new TmStatus(apsTAdrTm.Ch, apsTAdrTm.RTU, apsTAdrTm.Point);
+        await UpdateStatus(aps).ConfigureAwait(false);
+        await UpdateTagPropertiesAndClassData(aps).ConfigureAwait(false);
+        apsList.Add(aps);
+        
+        currentPointer = IntPtr.Add(currentPointer,  Marshal.SizeOf(typeof(TmNativeDefs.TAdrTm)));
+      }
+      
+      _native.TmcFreeMemory(apsTAdrTmListPointer);
+
+      return apsList;
+    }
     
 
     private async Task<(IReadOnlyList<TmEvent>, TmNativeDefs.TTMSElix)> GetEventsBatch(TmNativeDefs.TTMSElix elix,

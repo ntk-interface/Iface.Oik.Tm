@@ -826,5 +826,11 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcGetGrantedAccess(cid, out pAccess);
     }
+
+
+    public IntPtr TmcTakeAPS(Int32 cid)
+    {
+      return tmcTakeAPS(cid);
+    }
   }
 }

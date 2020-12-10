@@ -211,5 +211,8 @@ namespace Iface.Oik.Tm.Interfaces
     Task<TmUserInfo> GetUserInfo(uint userId);
 
     Task<TmUserInfo> GetExtendedUserInfo(int userId);
+
+
+    Task<IReadOnlyCollection<TmStatus>> GetPresentAps();
   }
 }

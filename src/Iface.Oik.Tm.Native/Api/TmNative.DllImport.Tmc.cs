@@ -651,5 +651,9 @@ namespace Iface.Oik.Tm.Native.Api
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcClrRetransInfo(Int32 cid);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern IntPtr tmcTakeAPS(Int32 cid);
   }
 }

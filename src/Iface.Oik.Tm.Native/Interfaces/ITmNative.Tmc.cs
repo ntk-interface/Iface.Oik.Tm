@@ -539,5 +539,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     Boolean TmcGetGrantedAccess(Int32      cid,
                              out UInt32 pAccess);
+
+
+    IntPtr TmcTakeAPS(Int32 cid);
   }
 }
