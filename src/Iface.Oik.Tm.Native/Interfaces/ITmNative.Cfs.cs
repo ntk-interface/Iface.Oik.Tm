@@ -26,8 +26,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     bool CfsPmonLocalRegisterProcess(Int32      argc,
                                      string[]   argv,
-                                     ref UInt32 phStartEvt,
-                                     ref UInt32 phStopEvt);
+                                     ref IntPtr phStartEvt,
+                                     ref IntPtr phStopEvt);
 
 
     bool StracAllocServer(ref TmNativeDefs.TraceItemStorage tis,

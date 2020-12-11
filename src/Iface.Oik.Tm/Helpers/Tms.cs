@@ -314,7 +314,7 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
-    public static (int tmCid, int rbCid, int rbPort, TmUserInfo userInfo, TmServerFeatures serverFeatures, uint
+    public static (int tmCid, int rbCid, int rbPort, TmUserInfo userInfo, TmServerFeatures serverFeatures, IntPtr
       stopEventHandle)
       InitializeAsTask(TmOikTaskOptions taskOptions, TmInitializeOptions options)
     {
@@ -340,7 +340,7 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
-    public static (int tmCid, TmUserInfo userInfo, TmServerFeatures serverFeatures, uint stopEventHandle)
+    public static (int tmCid, TmUserInfo userInfo, TmServerFeatures serverFeatures, IntPtr stopEventHandle)
       InitializeAsTaskWithoutSql(TmOikTaskOptions taskOptions, TmInitializeOptions options)
     {
       Native.CfsInitLibrary();
@@ -348,8 +348,8 @@ namespace Iface.Oik.Tm.Helpers
       var taskArgs = Environment.GetCommandLineArgs();
       taskArgs[0] = Native.GetOikTaskExecutable(taskArgs[0]);
 
-      uint startEventHandle = 0;
-      uint stopEventHandle  = 0;
+      var startEventHandle = new IntPtr();
+      var stopEventHandle  = new IntPtr();
       Native.CfsPmonLocalRegisterProcess(taskArgs.Length,
                                          taskArgs,
                                          ref startEventHandle,
@@ -373,7 +373,7 @@ namespace Iface.Oik.Tm.Helpers
     }
     
     
-    public static (int tmCid, uint stopEventHandle) InitializeAsTaskSimple(TmOikTaskOptions taskOptions, 
+    public static (int tmCid, IntPtr stopEventHandle) InitializeAsTaskSimple(TmOikTaskOptions taskOptions, 
                                                                            TmInitializeOptions options)
     {
       Native.CfsInitLibrary();
@@ -381,8 +381,8 @@ namespace Iface.Oik.Tm.Helpers
       var taskArgs = Environment.GetCommandLineArgs();
       taskArgs[0] = Native.GetOikTaskExecutable(taskArgs[0]);
 
-      uint startEventHandle = 0;
-      uint stopEventHandle  = 0;
+      var startEventHandle = new IntPtr();
+      var stopEventHandle  = new IntPtr();
       Native.CfsPmonLocalRegisterProcess(taskArgs.Length,
                                          taskArgs,
                                          ref startEventHandle,
@@ -406,7 +406,7 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
-    public static bool StopEventSignalDuringWait(uint handle, uint waitMilliseconds)
+    public static bool StopEventSignalDuringWait(IntPtr handle, uint waitMilliseconds)
     {
       return Native.PlatformWaitForSingleObject(handle, waitMilliseconds) == 0;
     }

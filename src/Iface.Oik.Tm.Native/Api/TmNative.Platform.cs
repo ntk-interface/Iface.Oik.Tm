@@ -22,7 +22,7 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public bool PlatformSetEvent(UInt32 hEvent)
+    public bool PlatformSetEvent(IntPtr hEvent)
     {
       return (PlatformUtil.IsWindows)
         ? SetEventWindows(hEvent)
@@ -30,7 +30,7 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public UInt32 PlatformWaitForSingleObject(UInt32 hHandle,
+    public UInt32 PlatformWaitForSingleObject(IntPtr hHandle,
                                               UInt32 dwMilliseconds)
     {
       return (PlatformUtil.IsWindows)

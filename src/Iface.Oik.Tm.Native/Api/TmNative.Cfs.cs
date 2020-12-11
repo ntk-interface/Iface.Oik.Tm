@@ -38,8 +38,8 @@ namespace Iface.Oik.Tm.Native.Api
 
     public bool CfsPmonLocalRegisterProcess(Int32      argc,
                                             string[]   argv,
-                                            ref UInt32 phStartEvt,
-                                            ref UInt32 phStopEvt)
+                                            ref IntPtr phStartEvt,
+                                            ref IntPtr phStopEvt)
     {
       return cfsPmonLocalRegisterProcess(argc, argv, ref phStartEvt, ref phStopEvt);
     }

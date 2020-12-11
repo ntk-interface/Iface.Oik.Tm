@@ -40,8 +40,8 @@ namespace Iface.Oik.Tm.Native.Api
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern bool cfsPmonLocalRegisterProcess(Int32              argc,
                                                           [In, Out] string[] argv,
-                                                          ref       UInt32   phStartEvt,
-                                                          ref       UInt32   phStopEvt);
+                                                          ref       IntPtr   phStartEvt,
+                                                          ref       IntPtr   phStopEvt);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]

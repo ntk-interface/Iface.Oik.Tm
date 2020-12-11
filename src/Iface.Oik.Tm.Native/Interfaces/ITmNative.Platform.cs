@@ -7,10 +7,10 @@ namespace Iface.Oik.Tm.Native.Interfaces
     string GetOikTaskExecutable(string origin);
 
 
-    bool PlatformSetEvent(UInt32 hEvent);
+    bool PlatformSetEvent(IntPtr hEvent);
 
 
-    UInt32 PlatformWaitForSingleObject(UInt32 hHandle,
+    UInt32 PlatformWaitForSingleObject(IntPtr hHandle,
                                        UInt32 dwMilliseconds);
   }
 }
