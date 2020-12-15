@@ -17,22 +17,22 @@ namespace Iface.Oik.Tm.Native.Api
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern IntPtr cftNodeGetName(IntPtr                                         id,
-                                               [MarshalAs(UnmanagedType.LPStr)] StringBuilder buf,
+                                               [In, Out] byte[] buf,
                                                UInt32                                         count);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr cftNPropEnum(IntPtr                                         id,
-                                             Int32                                          idx,
-                                             [MarshalAs(UnmanagedType.LPStr)] StringBuilder buf,
-                                             UInt32                                         count);
+    public static extern IntPtr cftNPropEnum(IntPtr           id,
+                                             Int32            idx,
+                                             [In, Out] byte[] buf,
+                                             UInt32           count);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr cftNPropGetText(IntPtr                                         id,
-                                                [MarshalAs(UnmanagedType.LPStr)] string        name,
-                                                [MarshalAs(UnmanagedType.LPStr)] StringBuilder buf,
-                                                UInt32                                         count);
+    public static extern IntPtr cftNPropGetText(IntPtr                                  id,
+                                                [MarshalAs(UnmanagedType.LPStr)] string name,
+                                                [In, Out]                        byte[] buf,
+                                                UInt32                                  count);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]

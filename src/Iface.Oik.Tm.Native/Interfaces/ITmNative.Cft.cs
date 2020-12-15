@@ -12,21 +12,21 @@ namespace Iface.Oik.Tm.Native.Interfaces
                        Int32  count);
 
     
-    IntPtr CftNodeGetName(IntPtr            id,
-                          ref StringBuilder buf,
-                          UInt32            count);
+    IntPtr CftNodeGetName(IntPtr     id,
+                          ref byte[] buf,
+                          uint       count);
 
     
-    IntPtr CftNPropEnum(IntPtr            id, 
-                        Int32             idx, 
-                        ref StringBuilder buf, 
-                        UInt32            count);
+    IntPtr CftNPropEnum(IntPtr     id,
+                        int        idx,
+                        ref byte[] buf,
+                        uint       count);
 
     
-    IntPtr CftNPropGetText(IntPtr            id, 
-                           string            name, 
-                           ref StringBuilder buf, 
-                           UInt32            count);
+    IntPtr CftNPropGetText(IntPtr     id,
+                           string     name,
+                           ref byte[] buf,
+                           uint       count);
 
     
     IntPtr CftNodeNewTree();

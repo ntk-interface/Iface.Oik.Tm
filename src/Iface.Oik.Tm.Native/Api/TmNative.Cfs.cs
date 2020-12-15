@@ -64,78 +64,78 @@ namespace Iface.Oik.Tm.Native.Api
 
     public bool CfsGetComputerInfo(IntPtr                         cfCid,
                                    ref TmNativeDefs.ComputerInfoS cis,
-                                   out UInt32                     errCode,
-                                   ref StringBuilder              errString,
-                                   UInt32                         maxErrs)
+                                   out uint                       errCode,
+                                   ref byte[]                     errBuf,
+                                   uint                           maxErrs)
     {
-      return cfsGetComputerInfo(cfCid, ref cis, out errCode, errString, maxErrs);
+      return cfsGetComputerInfo(cfCid, ref cis, out errCode, errBuf, maxErrs);
     }
 
 
-    public bool CfsDirEnum(IntPtr            cfCid,
-                           string            path,
-                           ref char[]        buf,
-                           uint              bufLength,
-                           out uint          errCode,
-                           ref StringBuilder errString,
-                           uint              maxErrs)
+    public bool CfsDirEnum(IntPtr     cfCid,
+                           string     path,
+                           ref char[] buf,
+                           uint       bufLength,
+                           out uint   errCode,
+                           ref byte[] errBuf,
+                           uint       maxErrs)
     {
-      return cfsDirEnum(cfCid, path, buf, bufLength, out errCode, errString, maxErrs);
+      return cfsDirEnum(cfCid, path, buf, bufLength, out errCode, errBuf, maxErrs);
     }
 
 
-    public bool CfsFileGet(IntPtr            cfCid,
-                           string            remotePath,
-                           string            localPath,
-                           UInt32            timeout,
-                           IntPtr            fileTime,
-                           out UInt32        errCode,
-                           ref StringBuilder errString,
-                           UInt32            maxErrs)
+    public bool CfsFileGet(IntPtr     cfCid,
+                           string     remotePath,
+                           string     localPath,
+                           uint       timeout,
+                           IntPtr     fileTime,
+                           out uint   errCode,
+                           ref byte[] errBuf,
+                           uint       maxErrs)
     {
-      return cfsFileGet(cfCid, remotePath, localPath, timeout, fileTime, out errCode, errString, maxErrs);
+      return cfsFileGet(cfCid, remotePath, localPath, timeout, fileTime, out errCode, errBuf, maxErrs);
     }
 
 
     public bool CfsFileGetPropreties(IntPtr                             cfCid,
                                      string                             fileName,
                                      ref TmNativeDefs.CfsFileProperties pProps,
-                                     out UInt32                         errCode,
-                                     ref StringBuilder                  errString,
-                                     UInt32                             maxErrs)
+                                     out uint                           errCode,
+                                     ref byte[]                         errBuf,
+                                     uint                               maxErrs)
     {
-      return cfsFileGetPropreties(cfCid, fileName, ref pProps, out errCode, errString, maxErrs);
+      return cfsFileGetPropreties(cfCid, fileName, ref pProps, out errCode, errBuf, maxErrs);
     }
 
 
-    public bool CfsFilePut(IntPtr            connId,
-                           string            remoteFileName,
-                           string            localFileName,
-                           UInt32            timeout,
-                           out UInt32        errCode,
-                           ref StringBuilder errString,
-                           UInt32            maxErrs)
+    public bool CfsFilePut(IntPtr     connId,
+                           string     remoteFileName,
+                           string     localFileName,
+                           uint       timeout,
+                           out uint   errCode,
+                           ref byte[] errBuf,
+                           uint       maxErrs)
     {
-      return cfsFilePut(connId, remoteFileName, localFileName, timeout, out errCode, errString, maxErrs);
+      return cfsFilePut(connId, remoteFileName, localFileName, timeout, out errCode, errBuf, maxErrs);
     }
 
 
-    public bool CfsFileDelete(IntPtr            connId,
-                              string            remoteFileName,
-                              out UInt32        errCode,
-                              ref StringBuilder errString,
-                              UInt32            maxErrs)
+    public bool CfsFileDelete(IntPtr     connId,
+                              string     remoteFileName,
+                              out uint   errCode,
+                              ref byte[] errBuf,
+                              uint       maxErrs)
     {
-      return cfsFileDelete(connId, remoteFileName, out errCode, errString, maxErrs);
+      return cfsFileDelete(connId, remoteFileName, out errCode, errBuf, maxErrs);
     }
     
 
-    public IntPtr CfsConnect(string            serverName,
-                             out UInt32        errCode,
-                             ref StringBuilder errString,
-                             UInt32            maxErrs)
+    public IntPtr CfsConnect(string     serverName,
+                             out uint   errCode,
+                             ref byte[] errBuf,
+                             uint       maxErrs)
     {
-      return cfsConnect(serverName, out errCode, errString, maxErrs);
+      return cfsConnect(serverName, out errCode, errBuf, maxErrs);
     }
 
 
@@ -148,26 +148,26 @@ namespace Iface.Oik.Tm.Native.Api
     public IntPtr CfsConfFileOpenCid(IntPtr                    connId,
                                      string                    serverName,
                                      string                    fileName,
-                                     UInt32                    timeout,
+                                     uint                      timeout,
                                      ref TmNativeDefs.FileTime fileTime,
-                                     out UInt32                errCode,
-                                     ref StringBuilder         errString,
-                                     UInt32                    maxErrs)
+                                     out uint                  errCode,
+                                     ref byte[]                errBuf,
+                                     uint                      maxErrs)
     {
-      return cfsConfFileOpenCid(connId, serverName, fileName, timeout, ref fileTime, out errCode, errString, maxErrs);
+      return cfsConfFileOpenCid(connId, serverName, fileName, timeout, ref fileTime, out errCode, errBuf, maxErrs);
     }
 
 
     public bool CfsConfFileSaveAs(IntPtr                    treeHandle,
                                   string                    serverName,
                                   string                    remoteFileName,
-                                  UInt32                    timeout,
+                                  uint                      timeout,
                                   ref TmNativeDefs.FileTime fileTime,
-                                  out UInt32                errCode,
-                                  ref StringBuilder         errString,
-                                  UInt32                    maxErrs)
+                                  out uint                  errCode,
+                                  ref byte[]                errBuf,
+                                  uint                      maxErrs)
     {
-      return cfsConfFileSaveAs(treeHandle, serverName, remoteFileName, timeout, ref fileTime, out errCode, errString,
+      return cfsConfFileSaveAs(treeHandle, serverName, remoteFileName, timeout, ref fileTime, out errCode, errBuf,
                                maxErrs);
     }
 
@@ -190,88 +190,88 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public IntPtr CfsTraceEnumServers(IntPtr            connId,
-                                      out UInt32        errCode,
-                                      ref StringBuilder errString,
-                                      UInt32            maxErrs)
+    public IntPtr CfsTraceEnumServers(IntPtr     connId,
+                                      out uint   errCode,
+                                      ref byte[] errBuf,
+                                      uint       maxErrs)
     {
-      return cfsTraceEnumServers(connId, out errCode, errString, maxErrs);
+      return cfsTraceEnumServers(connId, out errCode, errBuf, maxErrs);
     }
 
 
     public bool CfsTraceGetServerData(IntPtr                       connId,
                                       string                       serverId,
                                       ref TmNativeDefs.IfaceServer ifaceServer,
-                                      out UInt32                   errCode,
-                                      ref StringBuilder            errString,
-                                      UInt32                       maxErrs)
+                                      out uint                     errCode,
+                                      ref byte[]                   errBuf,
+                                      uint                         maxErrs)
     {
-      return cfsTraceGetServerData(connId, serverId, ref ifaceServer, out errCode, errString, maxErrs);
+      return cfsTraceGetServerData(connId, serverId, ref ifaceServer, out errCode, errBuf, maxErrs);
     }
 
 
-    public IntPtr CfsTraceEnumUsers(IntPtr            connId,
-                                    out UInt32        errCode,
-                                    ref StringBuilder errString,
-                                    UInt32            maxErrs)
+    public IntPtr CfsTraceEnumUsers(IntPtr     connId,
+                                    out uint   errCode,
+                                    ref byte[] errBuf,
+                                    uint       maxErrs)
     {
-      return cfsTraceEnumUsers(connId, out errCode, errString, maxErrs);
+      return cfsTraceEnumUsers(connId, out errCode, errBuf, maxErrs);
     }
 
 
     public bool CfsTraceGetUserData(IntPtr                     connId,
                                     string                     userId,
                                     ref TmNativeDefs.IfaceUser ifaceServer,
-                                    out UInt32                 errCode,
-                                    ref StringBuilder          errString,
-                                    UInt32                     maxErrs)
+                                    out uint                   errCode,
+                                    ref byte[]                 errBuf,
+                                    uint                       maxErrs)
     {
-      return cfsTraceGetUserData(connId, userId, ref ifaceServer, out errCode, errString, maxErrs);
+      return cfsTraceGetUserData(connId, userId, ref ifaceServer, out errCode, errBuf, maxErrs);
     }
 
 
-    public bool CfsTraceStopProcess(IntPtr connId, UInt32 processId, out UInt32 errCode, ref StringBuilder errString,
-                                    UInt32 maxErrs)
+    public bool CfsTraceStopProcess(IntPtr connId, uint processId, out uint errCode, ref byte[] errBuf,
+                                    uint   maxErrs)
     {
-      return cfsTraceStopProcess(connId, processId, out errCode, errString, maxErrs);
+      return cfsTraceStopProcess(connId, processId, out errCode, errBuf, maxErrs);
     }
 
 
-    public bool CfsTraceRestartProcess(IntPtr connId, UInt32 processId, out UInt32 errCode, ref StringBuilder errString,
-                                       UInt32 maxErrs)
+    public bool CfsTraceRestartProcess(IntPtr connId, uint processId, out uint errCode, ref byte[] errBuf,
+                                       uint   maxErrs)
     {
-      return cfsTraceRestartProcess(connId, processId, out errCode, errString, maxErrs);
+      return cfsTraceRestartProcess(connId, processId, out errCode, errBuf, maxErrs);
     }
 
 
-    public bool CfsTraceBeginTraceEx(IntPtr            connId,
-                                     UInt32            processId,
-                                     UInt32            threadId,
-                                     bool              debug,
-                                     UInt32            pause,
-                                     out uint          errCode,
-                                     ref StringBuilder errString,
-                                     UInt32            maxErrs)
+    public bool CfsTraceBeginTraceEx(IntPtr     connId,
+                                     uint       processId,
+                                     uint       threadId,
+                                     bool       debug,
+                                     uint       pause,
+                                     out uint   errCode,
+                                     ref byte[] errBuf,
+                                     uint       maxErrs)
     {
-      return cfsTraceBeginTraceEx(connId, processId, threadId, debug, pause, out errCode, errString, maxErrs);
+      return cfsTraceBeginTraceEx(connId, processId, threadId, debug, pause, out errCode, errBuf, maxErrs);
     }
 
 
-    public bool CfsTraceEndTrace(IntPtr            connId,
-                                 out UInt32        errCode,
-                                 ref StringBuilder errString,
-                                 UInt32            maxErrs)
+    public bool CfsTraceEndTrace(IntPtr     connId,
+                                 out uint   errCode,
+                                 ref byte[] errBuf,
+                                 uint       maxErrs)
     {
-      return cfsTraceEndTrace(connId, out errCode, errString, maxErrs);
+      return cfsTraceEndTrace(connId, out errCode, errBuf, maxErrs);
     }
 
 
-    public IntPtr CfsTraceGetMessage(IntPtr            connId,
-                                     out UInt32        errCode,
-                                     ref StringBuilder errString,
-                                     UInt32            maxErrs)
+    public IntPtr CfsTraceGetMessage(IntPtr     connId,
+                                     out uint   errCode,
+                                     ref byte[] errBuf,
+                                     uint       maxErrs)
     {
-      return cfsTraceGetMessage(connId, out errCode, errString, maxErrs);
+      return cfsTraceGetMessage(connId, out errCode, errBuf, maxErrs);
     }
 
 
@@ -281,90 +281,90 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public bool CfsIfpcGetLogonToken(IntPtr            cfCid,
-                                     ref StringBuilder tokUname,
-                                     ref StringBuilder tokToken,
-                                     out UInt32        errCode,
-                                     ref StringBuilder errString,
-                                     UInt32            maxErrs)
+    public bool CfsIfpcGetLogonToken(IntPtr     cfCid,
+                                     ref byte[] tokUname,
+                                     ref byte[] tokToken,
+                                     out uint   errCode,
+                                     ref byte[] errBuf,
+                                     uint       maxErrs)
     {
-      return cfsIfpcGetLogonToken(cfCid, tokUname, tokToken, out errCode, errString, maxErrs);
+      return cfsIfpcGetLogonToken(cfCid, tokUname, tokToken, out errCode, errBuf, maxErrs);
     }
 
 
-    public bool CfsLogOpen(IntPtr connId, out UInt32 errCode, ref StringBuilder errString, UInt32 maxErrs)
+    public bool CfsLogOpen(IntPtr connId, out uint errCode, ref byte[] errBuf, uint maxErrs)
     {
-      return cfsLogOpen(connId, out errCode, errString, maxErrs);
+      return cfsLogOpen(connId, out errCode, errBuf, maxErrs);
     }
 
 
-    public bool CfsLogClose(IntPtr connId, out UInt32 errCode, ref StringBuilder errString, UInt32 maxErrs)
+    public bool CfsLogClose(IntPtr connId, out uint errCode, ref byte[] errBuf, uint maxErrs)
     {
-      return cfsLogClose(connId, out errCode, errString, maxErrs);
+      return cfsLogClose(connId, out errCode, errBuf, maxErrs);
     }
 
 
-    public IntPtr CfsLogGetRecord(IntPtr connId, bool fFirst, out UInt32 errCode, ref StringBuilder errString,
-                                  UInt32 maxErrs)
+    public IntPtr CfsLogGetRecord(IntPtr connId, bool fFirst, out uint errCode, ref byte[] errBuf,
+                                  uint   maxErrs)
     {
-      return cfsLogGetRecord(connId, fFirst, out errCode, errString, maxErrs);
+      return cfsLogGetRecord(connId, fFirst, out errCode, errBuf, maxErrs);
     }
 
 
-    public IntPtr CfsEnumThreads(IntPtr connId, out UInt32 errCode, ref StringBuilder errString, UInt32 maxErrs)
+    public IntPtr CfsEnumThreads(IntPtr connId, out uint errCode, ref byte[] errBuf, uint maxErrs)
     {
-      return cfsEnumThreads(connId, out errCode, errString, maxErrs);
+      return cfsEnumThreads(connId, out errCode, errBuf, maxErrs);
     }
 
 
-    public bool CfsGetIniString(IntPtr            connId,
-                                string            path,
-                                string            section,
-                                string            key,
-                                string            def,
-                                ref StringBuilder value,
-                                out UInt32        pcbValue,
-                                out UInt32        errCode,
-                                ref StringBuilder errString,
-                                uint              maxErrs)
+    public bool CfsGetIniString(IntPtr     connId,
+                                string     path,
+                                string     section,
+                                string     key,
+                                string     def,
+                                ref byte[] value,
+                                out uint   pcbValue,
+                                out uint   errCode,
+                                ref byte[] errBuf,
+                                uint       maxErrs)
     {
-      return cfsGetIniString(connId, path, section, key, def, value, out pcbValue, out errCode, errString, maxErrs);
+      return cfsGetIniString(connId, path, section, key, def, value, out pcbValue, out errCode, errBuf, maxErrs);
     }
 
 
-    public bool CfsSetIniString(IntPtr            connId,
-                                string            path,
-                                string            section,
-                                string            key,
-                                string            value,
-                                out UInt32        errCode,
-                                ref StringBuilder errString,
-                                UInt32            maxErrs)
+    public bool CfsSetIniString(IntPtr     connId,
+                                string     path,
+                                string     section,
+                                string     key,
+                                string     value,
+                                out uint   errCode,
+                                ref byte[] errBuf,
+                                uint       maxErrs)
     {
-      return cfsSetIniString(connId, path, section, key, value, out errCode, errString, maxErrs);
+      return cfsSetIniString(connId, path, section, key, value, out errCode, errBuf, maxErrs);
     }
 
 
-    public bool CfsCheckInstallationIntegrity(IntPtr            connId,
-                                              UInt32            kind,
-                                              out IntPtr        pSig,
-                                              out IntPtr        pErrs,
-                                              out UInt32        errCode,
-                                              ref StringBuilder errString,
-                                              UInt32            maxErrs)
+    public bool CfsCheckInstallationIntegrity(IntPtr     connId,
+                                              uint       kind,
+                                              out IntPtr pSig,
+                                              out IntPtr pErrs,
+                                              out uint   errCode,
+                                              ref byte[] errBuf,
+                                              uint       maxErrs)
     {
-      return cfsCheckInstallationIntegrity(connId, kind, out pSig, out pErrs, out errCode, errString, maxErrs);
+      return cfsCheckInstallationIntegrity(connId, kind, out pSig, out pErrs, out errCode, errBuf, maxErrs);
     }
 
 
-    public bool СfsGetBasePath(IntPtr            connId,
-                               ref StringBuilder path,
-                               UInt32            cbPath,
-                               out UInt32        errCode,
-                               ref StringBuilder errString,
-                               UInt32            maxErrs)
+    public bool СfsGetBasePath(IntPtr     connId,
+                               ref byte[] path,
+                               uint       cbPath,
+                               out uint   errCode,
+                               ref byte[] errBuf,
+                               uint       maxErrs)
     {
-      return cfsGetBasePath(connId, path, cbPath, out errCode, errString, maxErrs);
+      return cfsGetBasePath(connId, path, cbPath, out errCode, errBuf, maxErrs);
     }
 
 
@@ -392,13 +392,13 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public IntPtr LfParseMessage(IntPtr            stringPtrToParse,
-                                 ref StringBuilder time,
-                                 ref StringBuilder date,
-                                 ref StringBuilder name,
-                                 ref StringBuilder type,
-                                 ref StringBuilder msgType,
-                                 ref StringBuilder thid)
+    public IntPtr LfParseMessage(IntPtr     stringPtrToParse,
+                                 ref byte[] time,
+                                 ref byte[] date,
+                                 ref byte[] name,
+                                 ref byte[] type,
+                                 ref byte[] msgType,
+                                 ref byte[] thid)
     {
       return lf_ParseMessage(stringPtrToParse, time, date, name, type, msgType, thid);
     }

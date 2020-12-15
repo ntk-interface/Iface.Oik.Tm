@@ -36,13 +36,13 @@ namespace Iface.Oik.Tm.Interfaces
                       string additionalParametersString)
     {
       Id                   = id;
-      Name                 = EncodingUtil.Win1251BytesToUft8(tUserInfo.UserName);
-      NtName               = EncodingUtil.Win1251BytesToUft8(tUserInfo.NtUserName);
-      AuthorizationName    = EncodingUtil.Win1251BytesToUft8(tUserInfo.OldUserName);
-      Comment              = EncodingUtil.Win1251BytesToUft8(tUserInfo.UserComment);
+      Name                 = EncodingUtil.Win1251BytesToUtf8(tUserInfo.UserName);
+      NtName               = EncodingUtil.Win1251BytesToUtf8(tUserInfo.NtUserName);
+      AuthorizationName    = EncodingUtil.Win1251BytesToUtf8(tUserInfo.OldUserName);
+      Comment              = EncodingUtil.Win1251BytesToUtf8(tUserInfo.UserComment);
       AccessFlags          = (TmSecurityAccessFlags) tUserInfo.AccessMask;
       ConnectionTime       = DateUtil.GetDateTimeFromTimestampWithEpochCheck(tUserInfo.ConnectTime);
-      Category             = EncodingUtil.Win1251BytesToUft8(tUserInfo.UserCategory);
+      Category             = EncodingUtil.Win1251BytesToUtf8(tUserInfo.UserCategory);
       AdditionalParametersString = additionalParametersString;
     }
 

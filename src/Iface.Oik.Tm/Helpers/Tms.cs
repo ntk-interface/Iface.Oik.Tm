@@ -4,6 +4,7 @@ using System.Text;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Helpers
 {
@@ -94,9 +95,9 @@ namespace Iface.Oik.Tm.Helpers
 
     public static string GetSystemTimeString(int tmCid)
     {
-      var tmcTime = new StringBuilder(80);
+      var tmcTime = new byte[80];
       Native.TmcSystemTime(tmCid, ref tmcTime, IntPtr.Zero);
-      return tmcTime.ToString();
+      return EncodingUtil.Win1251BytesToUtf8(tmcTime);
     }
 
 

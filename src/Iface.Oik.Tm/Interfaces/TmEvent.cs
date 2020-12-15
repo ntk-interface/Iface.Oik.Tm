@@ -426,7 +426,7 @@ namespace Iface.Oik.Tm.Interfaces
                                                                     statusDataEx.Class, statusDataEx.ExtSig, statusDataEx.FixUT, 
                                                                     statusDataEx.FixMS, statusDataEx.S2, statusDataEx.Flags, statusDataEx.OldFlags);
 
-      statusChangeExtendedEvent.Username = EncodingUtil.Win1251BytesToUft8(statusDataEx.UserName);
+      statusChangeExtendedEvent.Username = EncodingUtil.Win1251BytesToUtf8(statusDataEx.UserName);
       return statusChangeExtendedEvent;
     }
 
@@ -531,7 +531,7 @@ namespace Iface.Oik.Tm.Interfaces
                                                     TmType.Status, 
                                                     flagsChangeDataStatus.OldFlags, 
                                                     flagsChangeDataStatus.NewFlags,
-                                                    EncodingUtil.Win1251BytesToUft8(flagsChangeDataStatus.UserName));
+                                                    EncodingUtil.Win1251BytesToUtf8(flagsChangeDataStatus.UserName));
       
       flagsChangeEvent.TypeString = $"Изм. флагов {(sourceStatus.ClassName.IsNullOrEmpty() ? $"{(sourceStatus.IsAps ? "АПС" : "ТС")}" : sourceStatus.ClassName)}";
 
@@ -551,7 +551,7 @@ namespace Iface.Oik.Tm.Interfaces
                                                     TmType.Analog, 
                                                     flagsChangeDataAnalog.OldFlags, 
                                                     flagsChangeDataAnalog.NewFlags,
-                                                    EncodingUtil.Win1251BytesToUft8(flagsChangeDataAnalog.UserName));
+                                                    EncodingUtil.Win1251BytesToUtf8(flagsChangeDataAnalog.UserName));
 
       flagsChangeEvent.TypeString = "Изм. флагов ТИ";
 

@@ -12,5 +12,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     UInt32 PlatformWaitForSingleObject(IntPtr hHandle,
                                        UInt32 dwMilliseconds);
+
+    string PlatformWin1251BytesToUtf8(byte[] inputBuffer);
   }
 }

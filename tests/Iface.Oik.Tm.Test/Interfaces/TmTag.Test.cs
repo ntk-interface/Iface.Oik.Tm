@@ -59,7 +59,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       [Theory, TmAutoFakeItEasyData]
       public void ReturnsNameField(TmStatus status)
       {
-        var sb = new StringBuilder("Name=Выключатель");
+        var sb = "Name=Выключатель";
         status.SetTmcObjectProperties(sb);
 
         status.Name.Should().Be("Выключатель");
@@ -82,7 +82,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       [Theory, TmAutoFakeItEasyData]
       public void ReturnsTrueForTmStatus(TmStatus status)
       {
-        status.SetTmcObjectProperties(new StringBuilder("Provider=123"));
+        status.SetTmcObjectProperties("Provider=123");
 
         status.HasTmProvider.Should().BeTrue();
       }
@@ -92,7 +92,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       [TmInlineAutoFakeItEasyData("Dummy=123")]
       public void ReturnsFalseForTmStatus(string properties, TmStatus status)
       {
-        status.SetTmcObjectProperties(new StringBuilder(properties));
+        status.SetTmcObjectProperties(properties);
 
         status.HasTmProvider.Should().BeFalse();
       }
@@ -100,7 +100,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       [Theory, TmAutoFakeItEasyData]
       public void ReturnsTrueForTmAnalog(TmAnalog analog)
       {
-        analog.SetTmcObjectProperties(new StringBuilder("Provider=123"));
+        analog.SetTmcObjectProperties("Provider=123");
 
         analog.HasTmProvider.Should().BeTrue();
       }
@@ -110,7 +110,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       [TmInlineAutoFakeItEasyData("Dummy=123")]
       public void ReturnsFalseForTmAnalog(string properties, TmAnalog analog)
       {
-        analog.SetTmcObjectProperties(new StringBuilder(properties));
+        analog.SetTmcObjectProperties(properties);
 
         analog.HasTmProvider.Should().BeFalse();
       }
@@ -183,7 +183,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       [Theory, TmAutoFakeItEasyData]
       public void SetsCorrectValuesToStatus(TmStatus status)
       {
-        var sb = new StringBuilder("Key1=Value1\r\nKey2=0\r\nName=Выключатель");
+        var sb = "Key1=Value1\r\nKey2=0\r\nName=Выключатель";
 
         status.SetTmcObjectProperties(sb);
 
@@ -205,7 +205,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       public void SetsCorrectImportanceToStatus(short    importance,
                                                 TmStatus status)
       {
-        var sb = new StringBuilder($"Importance={importance}");
+        var sb = $"Importance={importance}";
 
         status.SetTmcObjectProperties(sb);
 
@@ -221,7 +221,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       public void SetsCorrectNormalStatusToStatus(short    normalStatus, short expectedNormalStatus,
                                                   TmStatus status)
       {
-        var sb = new StringBuilder($"Normal={normalStatus}");
+        var sb = $"Normal={normalStatus}";
 
         status.SetTmcObjectProperties(sb);
 
@@ -232,7 +232,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       [Theory, TmAutoFakeItEasyData]
       public void SetsCorrectValuesToAnalog(TmAnalog analog)
       {
-        var sb = new StringBuilder("Key1=Value1\r\nKey2=0\r\nName=Мощность\r\nUnits=МВт");
+        var sb = "Key1=Value1\r\nKey2=0\r\nName=Мощность\r\nUnits=МВт";
 
         analog.SetTmcObjectProperties(sb);
 
@@ -254,7 +254,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       public void SetsCorrectFormatToAnalog(string   format, byte expectedWidth, byte expectedPrecision,
                                             TmAnalog analog)
       {
-        var sb = new StringBuilder($"Format={format}");
+        var sb = $"Format={format}";
 
         analog.SetTmcObjectProperties(sb);
 
@@ -270,7 +270,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       public void SetsCorrectTeleregulationToAnalog(string   code, TmTeleregulation expectedTeleregulation,
                                                     TmAnalog analog)
       {
-        var sb = new StringBuilder($"FBFlagsC={code}");
+        var sb = $"FBFlagsC={code}";
 
         analog.SetTmcObjectProperties(sb);
 
@@ -281,7 +281,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       [Theory, TmAutoFakeItEasyData]
       public void SetsCorrectDuplicateKeys(TmStatus status)
       {
-        var sb = new StringBuilder("A=1\r\nA=2\r\nA=3");
+        var sb = "A=1\r\nA=2\r\nA=3";
         
         status.SetTmcObjectProperties(sb);
 

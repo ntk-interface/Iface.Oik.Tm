@@ -19,11 +19,11 @@ namespace Iface.Oik.Tm.Utils
       if (src == null) return null;
       
       var win1251 = Encoding.GetEncoding(1251);
-      return Win1251BytesToUft8(win1251.GetBytes(src));
+      return Win1251BytesToUtf8(win1251.GetBytes(src));
     }
     
 
-    public static string Win1251BytesToUft8(byte[] src)
+    public static string Win1251BytesToUtf8(byte[] src)
     {
       if (src == null) return null;
       

@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 using Iface.Oik.Tm.Native.Utils;
 
 namespace Iface.Oik.Tm.Native.Api
@@ -36,6 +37,15 @@ namespace Iface.Oik.Tm.Native.Api
       return (PlatformUtil.IsWindows)
         ? WaitForSingleObjectWindows(hHandle, dwMilliseconds)
         : WaitForSingleObjectLinux(hHandle, dwMilliseconds);
+    }
+
+    public string PlatformWin1251BytesToUtf8(byte[] inputBuffer)
+    {
+      var buffer = new byte[inputBuffer.Length * 3 + 1];
+
+      var result = xmlMBToUTF8(inputBuffer, buffer, (uint) buffer.Length);
+
+      return result ? Encoding.UTF8.GetString(buffer).Trim('\0') : string.Empty;
     }
   }
 }

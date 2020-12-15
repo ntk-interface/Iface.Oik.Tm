@@ -4,6 +4,7 @@ using System.Text;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Helpers
 {
@@ -28,18 +29,18 @@ namespace Iface.Oik.Tm.Helpers
     public static (IntPtr cfId, string errString, int errorCode) ConnectToCfs(string host)
     {
       const int errStringLength = 1000;
-      var       errString       = new StringBuilder(errStringLength);
+      var       errBuf       = new byte[errStringLength];
       uint      errCode         = 0;
 
       var cfId = 
-        Native.CfsConnect(host, out errCode, ref errString, errStringLength);
+        Native.CfsConnect(host, out errCode, ref errBuf, errStringLength);
 
       if (cfId == IntPtr.Zero)
       {
-        Console.WriteLine($"Ошибка соединения с мастер-сервисом: {errCode} - {errString}");
+        Console.WriteLine($"Ошибка соединения с мастер-сервисом: {errCode} - {EncodingUtil.Win1251BytesToUtf8(errBuf)}");
       }
 
-      return (cfId, errString.ToString(), Convert.ToInt32(errCode));
+      return (cfId, EncodingUtil.Win1251BytesToUtf8(errBuf), Convert.ToInt32(errCode));
     }
 
     public static (IntPtr, CfsDefs.InitializeConnectionResult) InitializeConnection(CfsOptions options)

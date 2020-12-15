@@ -24,11 +24,11 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Boolean tmcGetCurrentServer(Int32                                          cid,
-                                                     [MarshalAs(UnmanagedType.LPStr)] StringBuilder machine,
-                                                     UInt32                                         cbMachine,
-                                                     [MarshalAs(UnmanagedType.LPStr)] StringBuilder pipe,
-                                                     UInt32                                         cbPipe);
+    public static extern Boolean tmcGetCurrentServer(Int32            cid,
+                                                     [In, Out] byte[] machineBuf,
+                                                     UInt32           cbMachine,
+                                                     [In, Out] byte[] pipeBuf,
+                                                     UInt32           cbPipe);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -93,9 +93,9 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Int16 tmcSystemTime(Int32                                          cid,
-                                             [MarshalAs(UnmanagedType.LPStr)] StringBuilder time,
-                                             [In]                             IntPtr        tmStruct); // TODO test ref
+    public static extern Int16 tmcSystemTime(Int32            cid,
+                                             [In, Out] byte[] time,
+                                             [In]      IntPtr tmStruct); // TODO test ref
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -103,14 +103,14 @@ namespace Iface.Oik.Tm.Native.Api
                                                 UInt32                               usid,
                                                 [In, Out] ref TmNativeDefs.TUserInfo userInfo);
 
-    
+
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean tmcGetUserInfoEx(Int32                                                   cid,
-                                                  UInt32                                                  userId,
-                                                  [In, Out] ref                    TmNativeDefs.TUserInfo userInfo,
-                                                  [MarshalAs(UnmanagedType.LPStr)] StringBuilder          appxBuf,
-                                                  uint                                                    cbAppx);
-    
+    public static extern Boolean tmcGetUserInfoEx(Int32                                cid,
+                                                  UInt32                               userId,
+                                                  [In, Out] ref TmNativeDefs.TUserInfo userInfo,
+                                                  [In, Out]     byte[]                 appxBuf,
+                                                  uint                                 cbAppx);
+
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern IntPtr tmcGetUserList(Int32 cid);
@@ -286,7 +286,7 @@ namespace Iface.Oik.Tm.Native.Api
                                                       Int16                                          ch,
                                                       Int16                                          rtu,
                                                       Int16                                          point,
-                                                      [MarshalAs(UnmanagedType.LPStr)] StringBuilder buf,
+                                                      [In,Out] byte[] buf,
                                                       Int32                                          bufSize);
 
 
@@ -450,25 +450,25 @@ namespace Iface.Oik.Tm.Native.Api
                                              Int16              point);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Byte tmcGetObjectName(Int32                                          cid,
-                                               UInt16                                         objectType,
-                                               Int16                                          ch,
-                                               Int16                                          rtu,
-                                               Int16                                          point,
-                                               [MarshalAs(UnmanagedType.LPStr)] StringBuilder buf,
-                                               Int32                                          bufSize);
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern Byte tmcGetObjectName(Int32            cid,
+                                               UInt16           objectType,
+                                               Int16            ch,
+                                               Int16            rtu,
+                                               Int16            point,
+                                               [In, Out] byte[] buf,
+                                               Int32            bufSize);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Byte tmcGetObjectNameEx(Int32                                          cid,
-                                                 UInt16                                         objectType,
-                                                 Int16                                          ch,
-                                                 Int16                                          rtu,
-                                                 Int16                                          point,
-                                                 Int16                                          subObjectId,
-                                                 [MarshalAs(UnmanagedType.LPStr)] StringBuilder buf,
-                                                 Int32                                          bufSize);
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern Byte tmcGetObjectNameEx(Int32            cid,
+                                                 UInt16           objectType,
+                                                 Int16            ch,
+                                                 Int16            rtu,
+                                                 Int16            point,
+                                                 Int16            subObjectId,
+                                                 [In, Out] byte[] buf,
+                                                 Int32            bufSize);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -574,7 +574,7 @@ namespace Iface.Oik.Tm.Native.Api
                                                      Int16                                          ch,
                                                      Int16                                          rtu,
                                                      Int16                                          point,
-                                                     [MarshalAs(UnmanagedType.LPStr)] StringBuilder buf,
+                                                     [In, Out] byte[] buf,
                                                      Int32                                          bufSize);
 
 
@@ -621,7 +621,7 @@ namespace Iface.Oik.Tm.Native.Api
     public static extern UInt32 tmcDntGetPortStats(Int32 cid,
                                                    [MarshalAs(UnmanagedType.LPArray, SizeConst = 8)]
                                                    UInt32[] pDap,
-                                                   [MarshalAs(UnmanagedType.LPStr)] StringBuilder buf,
+                                                   [In, Out] byte[] buf,
                                                    Int32                                          bufSize);
 
 

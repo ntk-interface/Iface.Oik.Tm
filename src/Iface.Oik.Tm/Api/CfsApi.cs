@@ -44,7 +44,7 @@ namespace Iface.Oik.Tm.Api
     {
       var       fileTime        = new TmNativeDefs.FileTime();
       const int errStringLength = 1000;
-      var       errString       = new StringBuilder(errStringLength);
+      var       errBuf       = new byte[errStringLength];
       uint      errCode         = 0;
 
 
@@ -54,12 +54,12 @@ namespace Iface.Oik.Tm.Api
                                                                        30000 | TmNativeDefs.FailIfNoConnect,
                                                                        ref fileTime,
                                                                        out errCode,
-                                                                       ref errString,
+                                                                       ref errBuf,
                                                                        errStringLength))
                                  .ConfigureAwait(false);
 
       if (msTreeRoot == IntPtr.Zero)
-        throw new Exception($"Ошибка получения конфигурации мастер-сервиса: {errString} Код: {errCode}");
+        throw new Exception($"Ошибка получения конфигурации мастер-сервиса: {EncodingUtil.Win1251BytesToUtf8(errBuf)} Код: {errCode}");
 
       return (msTreeRoot, GetDateTimeFromCustomFileTime(fileTime));
     }
@@ -69,7 +69,7 @@ namespace Iface.Oik.Tm.Api
     {
       var       fileTime        = new TmNativeDefs.FileTime();
       const int errStringLength = 1000;
-      var       errString       = new StringBuilder(errStringLength);
+      var       errBuf       = new byte[errStringLength];
       uint      errCode         = 0;
 
       return await Task.Run(() => _native.CfsConfFileSaveAs(treeHandle,
@@ -78,7 +78,7 @@ namespace Iface.Oik.Tm.Api
                                                             30000 | TmNativeDefs.FailIfNoConnect,
                                                             ref fileTime,
                                                             out errCode,
-                                                            ref errString,
+                                                            ref errBuf,
                                                             errStringLength))
                        .ConfigureAwait(false);
     }
@@ -122,14 +122,14 @@ namespace Iface.Oik.Tm.Api
 
     private async Task<string> GetNodeName(IntPtr nodeHandle)
     {
-      const int nameStringLength = 200;
-      var       nameString       = new StringBuilder(nameStringLength);
+      const int nameBufLength = 200;
+      var       nameBuf       = new byte[nameBufLength];
 
       await Task.Run(() =>
-                       _native.CftNodeGetName(nodeHandle, ref nameString, nameStringLength))
+                       _native.CftNodeGetName(nodeHandle, ref nameBuf, nameBufLength))
                 .ConfigureAwait(false);
 
-      return nameString.ToString();
+      return EncodingUtil.Win1251BytesToUtf8(nameBuf);
     }
 
 
@@ -156,28 +156,28 @@ namespace Iface.Oik.Tm.Api
 
     private async Task<string> GetPropName(IntPtr nodeHandle, int idx)
     {
-      const int nameStringLength = 200;
-      var       nameString       = new StringBuilder(nameStringLength);
+      const int nameBufLength = 200;
+      var       nameBuf       = new byte[nameBufLength];
 
       await Task.Run(() =>
-                       _native.CftNPropEnum(nodeHandle, idx, ref nameString, nameStringLength))
+                       _native.CftNPropEnum(nodeHandle, idx, ref nameBuf, nameBufLength))
                 .ConfigureAwait(false);
 
-      return nameString.ToString();
+      return EncodingUtil.Win1251BytesToUtf8(nameBuf);
     }
 
 
     private async Task<string> GetPropValue(IntPtr nodeHandle, string propName)
     {
-      const int valueStringLength = 200;
-      var       valueString       = new StringBuilder(valueStringLength);
+      const int valueBufLength = 200;
+      var       valueBuf       = new byte[valueBufLength];
 
       await Task.Run(() =>
-                       _native.CftNPropGetText(nodeHandle, propName, ref valueString,
-                                               valueStringLength))
+                       _native.CftNPropGetText(nodeHandle, propName, ref valueBuf,
+                                               valueBufLength))
                 .ConfigureAwait(false);
 
-      return valueString.ToString();
+      return EncodingUtil.Win1251BytesToUtf8(valueBuf);
     }
 
 
@@ -559,12 +559,12 @@ namespace Iface.Oik.Tm.Api
     private async Task<IReadOnlyCollection<string>> GetIfaceServerId()
     {
       const int errStringLength = 1000;
-      var       errString       = new StringBuilder(errStringLength);
+      var       errBuf       = new byte[errStringLength];
       uint      errCode         = 0;
 
       var serversIdsPointer = await Task.Run(() => _native.CfsTraceEnumServers(CfId,
                                                                                out errCode,
-                                                                               ref errString,
+                                                                               ref errBuf,
                                                                                errStringLength))
                                         .ConfigureAwait(false);
 
@@ -579,7 +579,7 @@ namespace Iface.Oik.Tm.Api
     private async Task<TmNativeDefs.IfaceServer> GetIfaceServerData(string serverId)
     {
       const int errStringLength = 1000;
-      var       errString       = new StringBuilder(errStringLength);
+      var       errBuf       = new byte[errStringLength];
       uint      errCode         = 0;
       var       ifaceServer     = new TmNativeDefs.IfaceServer();
 
@@ -588,7 +588,7 @@ namespace Iface.Oik.Tm.Api
                                                          ref
                                                          ifaceServer,
                                                          out errCode,
-                                                         ref errString,
+                                                         ref errBuf,
                                                          errStringLength))
                 .ConfigureAwait(false);
 
@@ -613,13 +613,13 @@ namespace Iface.Oik.Tm.Api
 
     private async Task<IReadOnlyCollection<string>> GetIfaceUsersIds()
     {
-      const int errStringLength = 1000;
-      var       errString       = new StringBuilder(errStringLength);
+      const int errBufLength = 1000;
+      var       errBuf       = new byte[errBufLength];
       uint      errCode         = 0;
 
       var usersIdsPointer = await Task.Run(() => _native.CfsTraceEnumUsers(CfId,
                                                                            out errCode,
-                                                                           ref errString,
+                                                                           ref errBuf,
                                                                            errCode))
                                       .ConfigureAwait(false);
 
@@ -632,8 +632,8 @@ namespace Iface.Oik.Tm.Api
 
     private async Task<TmNativeDefs.IfaceUser> GetIfaceUserData(string userId)
     {
-      const int errStringLength = 1000;
-      var       errString       = new StringBuilder(errStringLength);
+      const int errBufLength = 1000;
+      var       errBuf       = new byte[errBufLength];
       uint      errCode         = 0;
       var       ifaceUser       = new TmNativeDefs.IfaceUser();
 
@@ -642,8 +642,8 @@ namespace Iface.Oik.Tm.Api
                                                        ref
                                                        ifaceUser,
                                                        out errCode,
-                                                       ref errString,
-                                                       errStringLength))
+                                                       ref errBuf,
+                                                       errBufLength))
                 .ConfigureAwait(false);
 
       return ifaceUser;
@@ -676,18 +676,18 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<IReadOnlyCollection<TmServerThread>> GetTmServersThreads()
     {
-      const int errStringLength = 1000;
+      const int errBufLength = 1000;
       const int bufSize         = 8192;
-      var       errString       = new StringBuilder(errStringLength);
+      var       errBuf       = new byte[errBufLength];
       uint      errCode         = 0;
 
       var threadPtr =
-        await Task.Run(() => _native.CfsEnumThreads(CfId, out errCode, ref errString, errCode))
+        await Task.Run(() => _native.CfsEnumThreads(CfId, out errCode, ref errBuf, errCode))
                   .ConfigureAwait(false);
 
       if (threadPtr == IntPtr.Zero)
       {
-        throw new Exception($"Ошибка получения потоков сервера: {errString} Код: {errCode}");
+        throw new Exception($"Ошибка получения потоков сервера: {EncodingUtil.Win1251BytesToUtf8(errBuf)} Код: {errCode}");
       }
 
       var threadsStringLists =
@@ -714,8 +714,8 @@ namespace Iface.Oik.Tm.Api
 
     public async Task RegisterTmServerTracer(ITmServerTraceable traceTarget, bool debug, int pause)
     {
-      const int errStringLength = 1000;
-      var       errString       = new StringBuilder(errStringLength);
+      const int errBufLength = 1000;
+      var       errBuf       = new byte[errBufLength];
       uint      errCode         = 0;
 
       var result = await Task.Run(() => _native.CfsTraceBeginTraceEx(CfId,
@@ -723,8 +723,8 @@ namespace Iface.Oik.Tm.Api
                                                                      traceTarget.ThreadId, debug,
                                                                      (uint) pause,
                                                                      out errCode,
-                                                                     ref errString,
-                                                                     errStringLength))
+                                                                     ref errBuf,
+                                                                     errBufLength))
                              .ConfigureAwait(false);
       Console.WriteLine($"Register result: {result}");
     }
@@ -732,11 +732,11 @@ namespace Iface.Oik.Tm.Api
 
     public async Task StopTmServerTrace()
     {
-      const int errStringLength = 1000;
-      var       errString       = new StringBuilder(errStringLength);
+      const int errBufLength = 1000;
+      var       errBuf       = new byte[errBufLength];
       uint      errCode         = 0;
 
-      var result = await Task.Run(() => _native.CfsTraceEndTrace(CfId, out errCode, ref errString, errStringLength))
+      var result = await Task.Run(() => _native.CfsTraceEndTrace(CfId, out errCode, ref errBuf, errBufLength))
                              .ConfigureAwait(false);
       Console.WriteLine($"Stop result: {result}");
     }
@@ -744,20 +744,20 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<IReadOnlyCollection<TmServerLogRecord>> TraceTmServerLogRecords()
     {
-      const int errStringLength = 1000;
-      var       errString       = new StringBuilder(errStringLength);
+      const int errBufLength = 1000;
+      var       errBuf       = new byte[errBufLength];
       uint      errCode         = 0;
 
       var logRecordPtr = await Task.Run(() => _native.CfsTraceGetMessage(CfId, out errCode,
-                                                                         ref errString,
-                                                                         errStringLength))
+                                                                         ref errBuf,
+                                                                         errBufLength))
                                    .ConfigureAwait(false);
 
       if (logRecordPtr == IntPtr.Zero) return null;
 
       if (errCode != 0)
       {
-        throw new Exception($"Ошибка трассировки: {errString} Код: {errCode} CfId:{CfId}");
+        throw new Exception($"Ошибка трассировки: {EncodingUtil.Win1251BytesToUtf8(errBuf)} Код: {errCode} CfId:{CfId}");
       }
 
       var cfsLogRecords = ParseCfsServerLogRecordPointer(logRecordPtr, 5120);
@@ -771,48 +771,48 @@ namespace Iface.Oik.Tm.Api
 
     private async Task OpenTmServerLog()
     {
-      const int errStringLength = 1000;
-      var       errString       = new StringBuilder(errStringLength);
+      const int errBufLength = 1000;
+      var       errBuf       = new byte[errBufLength];
       uint      errCode         = 0;
 
       var result = await Task.Run(() => _native.CfsLogOpen(CfId,
                                                            out errCode,
-                                                           ref errString,
-                                                           errStringLength))
+                                                           ref errBuf,
+                                                           errBufLength))
                              .ConfigureAwait(false);
       if (!result)
       {
-        throw new Exception($"Ошибка получения журнала сервера: {errString} Код: {errCode}");
+        throw new Exception($"Ошибка получения журнала сервера: {EncodingUtil.Win1251BytesToUtf8(errBuf)} Код: {errCode}");
       }
     }
 
 
     private async Task CloseTmServerLog()
     {
-      const int errStringLength = 1000;
-      var       errString       = new StringBuilder(errStringLength);
+      const int errBufLength = 1000;
+      var       errBuf       = new byte[errBufLength];
       uint      errCode         = 0;
 
       var result = await Task.Run(() => _native.CfsLogClose(CfId,
                                                             out errCode,
-                                                            ref errString,
-                                                            errStringLength))
+                                                            ref errBuf,
+                                                            errBufLength))
                              .ConfigureAwait(false);
       if (!result)
       {
-        throw new Exception($"Ошибка получения журнала сервера: {errString} Код: {errCode}");
+        throw new Exception($"Ошибка получения журнала сервера: {EncodingUtil.Win1251BytesToUtf8(errBuf)} Код: {errCode}");
       }
     }
 
 
     private async Task<TmServerLogRecord> GetTmServersLogRecord(bool isFirst = false)
     {
-      const int errStringLength = 1000;
-      var       errString       = new StringBuilder(errStringLength);
+      const int errBufLength = 1000;
+      var       errBuf       = new byte[errBufLength];
       uint      errCode         = 0;
 
       var logRecordPtr =
-        await Task.Run(() => _native.CfsLogGetRecord(CfId, isFirst, out errCode, ref errString, errCode))
+        await Task.Run(() => _native.CfsLogGetRecord(CfId, isFirst, out errCode, ref errBuf, errCode))
                   .ConfigureAwait(false);
 
       if (logRecordPtr == IntPtr.Zero) return null;
@@ -909,8 +909,8 @@ namespace Iface.Oik.Tm.Api
     private async Task<bool> GetDispServIniFile(string localPath)
     {
       const string remotePath     = "@dispserv.ini";
-      const int    errStringLenth = 512;
-      var          errString      = new StringBuilder(errStringLenth);
+      const int    errBufLength = 512;
+      var          errBuf      = new byte[errBufLength];
       uint         errCode        = 0;
 
       if (!await Task.Run(() => _native.CfsFileGet(CfId,
@@ -919,11 +919,11 @@ namespace Iface.Oik.Tm.Api
                                                    30000 | TmNativeDefs.FailIfNoConnect,
                                                    IntPtr.Zero,
                                                    out errCode,
-                                                   ref errString,
-                                                   errStringLenth))
+                                                   ref errBuf,
+                                                   errBufLength))
                      .ConfigureAwait(false))
       {
-        Console.WriteLine($"Ошибка при скачивании файла: {errCode} - {errString}");
+        Console.WriteLine($"Ошибка при скачивании файла: {errCode} - {EncodingUtil.Win1251BytesToUtf8(errBuf)}");
         return false;
       }
 
@@ -948,8 +948,8 @@ namespace Iface.Oik.Tm.Api
 
     private async Task<TmNativeDefs.CfsFileProperties?> GetFileProperties(string filePath)
     {
-      const int errStringLength = 1000;
-      var       errString       = new StringBuilder(errStringLength);
+      const int errBufLength = 1000;
+      var       errBuf       = new byte[errBufLength];
       uint      errCode         = 0;
       var       fileProps       = new TmNativeDefs.CfsFileProperties();
 
@@ -958,8 +958,8 @@ namespace Iface.Oik.Tm.Api
                                                           filePath,
                                                           ref fileProps,
                                                           out errCode,
-                                                          ref errString,
-                                                          errStringLength))
+                                                          ref errBuf,
+                                                          errBufLength))
                   .ConfigureAwait(false);
 
 
@@ -970,8 +970,8 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<(bool, string)> CheckInstallationIntegrity(TmNativeDefs.CfsIitgk kind)
     {
-      const int errStringLength = 1000;
-      var       errString       = new StringBuilder(errStringLength);
+      const int errBufLength = 1000;
+      var       errBuf       = new byte[errBufLength];
       uint      errCode         = 0;
 
       var signaturePointer = new IntPtr();
@@ -983,13 +983,13 @@ namespace Iface.Oik.Tm.Api
                                                                    out signaturePointer,
                                                                    out errorsPointer,
                                                                    out errCode,
-                                                                   ref errString,
-                                                                   errStringLength))
+                                                                   ref errBuf,
+                                                                   errBufLength))
                   .ConfigureAwait(false);
 
       if (!result)
       {
-        throw new Exception($"Ошибка проверки целостности сервера: {errString} Код: {errCode}");
+        throw new Exception($"Ошибка проверки целостности сервера: {EncodingUtil.Win1251BytesToUtf8(errBuf)} Код: {errCode}");
       }
 
       var signature = $"Корневая сигнатура:{TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(signaturePointer)}";
@@ -1038,9 +1038,9 @@ namespace Iface.Oik.Tm.Api
     public async Task<IReadOnlyCollection<string>> GetFilesInDirectory(string path)
     {
       const uint bufLength       = 8192;
-      const int  errStringLength = 1000;
+      const int  errBufLength = 1000;
       var        buf             = new char[bufLength];
-      var        errString       = new StringBuilder(errStringLength);
+      var        errBuf       = new byte[errBufLength];
       uint       errCode         = 0;
 
 
@@ -1049,11 +1049,11 @@ namespace Iface.Oik.Tm.Api
                                                    ref buf,
                                                    bufLength,
                                                    out errCode,
-                                                   ref errString,
-                                                   errStringLength))
+                                                   ref errBuf,
+                                                   errBufLength))
                      .ConfigureAwait(false))
       {
-        Console.WriteLine($"Ошибка при запросе списка файлов: {errCode} - {errString}");
+        Console.WriteLine($"Ошибка при запросе списка файлов: {errCode} - {EncodingUtil.Win1251BytesToUtf8(errBuf)}");
         return null;
       }
 
@@ -1101,22 +1101,22 @@ namespace Iface.Oik.Tm.Api
         return;
       }
       
-      const int errStringLength = 1000;
-      var       errString       = new StringBuilder(errStringLength);
+      const int errBufLength = 1000;
+      var       errBuf       = new byte[errBufLength];
       uint      errCode         = 0;
 
       if (!await Task.Run(() => _native.CfsFilePut(CfId, remoteFilePath, localFilePath, timeout, out errCode,
-                                                  ref errString, errStringLength)).ConfigureAwait(false))
+                                                  ref errBuf, errBufLength)).ConfigureAwait(false))
       {
-        Console.WriteLine($"Ошибка при отправке файла: {errCode} - {errString}");
+        Console.WriteLine($"Ошибка при отправке файла: {errCode} - {EncodingUtil.Win1251BytesToUtf8(errBuf)}");
       }
     }
 
 
     public async Task DeleteFile(string remoteFilePath)
     {
-      const int errStringLength = 1000;
-      var       errString       = new StringBuilder(errStringLength);
+      const int errBufLength = 1000;
+      var       errBuf       = new byte[errBufLength];
       uint      errCode         = 0;
       
       if (remoteFilePath.IsNullOrEmpty())
@@ -1125,10 +1125,10 @@ namespace Iface.Oik.Tm.Api
         return;
       }
       
-      if (!await Task.Run(() => _native.CfsFileDelete(CfId, remoteFilePath, out errCode, ref errString, errStringLength))
+      if (!await Task.Run(() => _native.CfsFileDelete(CfId, remoteFilePath, out errCode, ref errBuf, errBufLength))
                     .ConfigureAwait(false))
       {
-        Console.WriteLine($"Ошибка при удалении файла: {errCode} - {errString}");
+        Console.WriteLine($"Ошибка при удалении файла: {errCode} - {EncodingUtil.Win1251BytesToUtf8(errBuf)}");
       }
     }
 
@@ -1197,27 +1197,27 @@ namespace Iface.Oik.Tm.Api
 
     private async Task<string> GetBasePath()
     {
-      const int basePathStringLength = 1000;
-      var       basePathString       = new StringBuilder(basePathStringLength);
+      const int basePathBufLength = 1000;
+      var       basePathBuf       = new byte[basePathBufLength];
 
-      const int errStringLength = 1000;
-      var       errString       = new StringBuilder(errStringLength);
+      const int errBufLength = 1000;
+      var       errBuf       = new byte[errBufLength];
       uint      errCode         = 0;
 
       var result = await Task.Run(() => _native.СfsGetBasePath(CfId,
-                                                               ref basePathString,
-                                                               basePathStringLength,
+                                                               ref basePathBuf,
+                                                               basePathBufLength,
                                                                out errCode,
-                                                               ref errString,
-                                                               errStringLength))
+                                                               ref errBuf,
+                                                               errBufLength))
                              .ConfigureAwait(false);
 
       if (!result)
       {
-        throw new Exception($"Ошибка получения базового пути сервера сервера: {errString} Код: {errCode}");
+        throw new Exception($"Ошибка получения базового пути сервера сервера: {EncodingUtil.Win1251BytesToUtf8(errBuf)} Код: {errCode}");
       }
 
-      return basePathString.ToString();
+      return EncodingUtil.Win1251BytesToUtf8(basePathBuf);
     }
 
     private async Task<string> GetIniString(string path,
@@ -1226,10 +1226,10 @@ namespace Iface.Oik.Tm.Api
                                             string def     = "",
                                             uint   bufSize = 256)
     {
-      var buf = new StringBuilder((int) bufSize);
+      var buf = new byte[bufSize];
 
-      const int errStringLength = 1000;
-      var       errString       = new StringBuilder(errStringLength);
+      const int errBufLength = 1000;
+      var       errBuf       = new byte[errBufLength];
       uint      errCode         = 0;
 
       var result = await Task.Run(() => _native.CfsGetIniString(CfId,
@@ -1237,14 +1237,14 @@ namespace Iface.Oik.Tm.Api
                                                                 ref buf,
                                                                 out bufSize,
                                                                 out errCode,
-                                                                ref errString,
-                                                                errStringLength))
+                                                                ref errBuf,
+                                                                errBufLength))
                              .ConfigureAwait(false);
 
       if (!result)
       {
         throw new
-          Exception($"Ошибка получения ini-строки. \nПуть: {path}\nСекция: {section}\nКлюч: {key}\nОшибка: {errString} Код: {errCode}");
+          Exception($"Ошибка получения ini-строки. \nПуть: {path}\nСекция: {section}\nКлюч: {key}\nОшибка: {EncodingUtil.Win1251BytesToUtf8(errBuf)} Код: {errCode}");
       }
 
       return buf.ToString();
@@ -1256,21 +1256,21 @@ namespace Iface.Oik.Tm.Api
                                     string key,
                                     string value)
     {
-      const int errStringLength = 1000;
-      var       errString       = new StringBuilder(errStringLength);
+      const int errBufLength = 1000;
+      var       errBuf       = new byte[errBufLength];
       uint      errCode         = 0;
 
       var result = await Task.Run(() => _native.CfsSetIniString(CfId,
                                                                 path, section, key, value,
                                                                 out errCode,
-                                                                ref errString,
-                                                                errStringLength))
+                                                                ref errBuf,
+                                                                errBufLength))
                              .ConfigureAwait(false);
 
       if (!result)
       {
         throw new
-          Exception($"Ошибка записи ini-строки. \nПуть: {path}\nСекция: {section}\nКлюч: {key}\nЗначение: {value}\nОшибка: {errString} Код: {errCode}");
+          Exception($"Ошибка записи ini-строки. \nПуть: {path}\nСекция: {section}\nКлюч: {key}\nЗначение: {value}\nОшибка: {EncodingUtil.Win1251BytesToUtf8(errBuf)} Код: {errCode}");
       }
     }
   }
