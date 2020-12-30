@@ -220,20 +220,23 @@ namespace Iface.Oik.Tm.Interfaces
 
   public enum TobBindingType
   {
-    None                                                 = -1,
-    [Description("УСТАРЕЛО")]          DeprecatedTmTag   = 0,
-    [Description("ТЕХ данные")]        TechParam         = 1,
-    [Description("ТЕХ документ")]      DocumentTech      = 2,
-    [Description("ОБР документ")]      DocumentOperLock  = 3,
-    [Description("Осн. сигнал")]       MainTmStatus      = 4,
-    [Description("Осн. измерение")]    MainTmAnalog      = 5,
-    [Description("Ссылка на элемент")] ParentTob         = 6,
-    [Description("ОБР")]               TmOperLock        = 7,
-    [Description("ИЗМ")]               TmMeasurement     = 8,
-    [Description("ОМП")]               TmDamageLocation  = 9,
-    [Description("ТЕХ")]               TmTechParam       = 10,
-    [Description("РЗА")]               TmRelayProtection = 11,
-    [Description("РЕЖ")]               TmRegime          = 12,
+    None                                                                  = -1,
+    [Description("УСТАРЕЛО")]                     DeprecatedTmTag         = 0,
+    [Description("ТЕХ данные")]                   TechParam               = 1,
+    [Description("ТЕХ документ")]                 DocumentTech            = 2,
+    [Description("ОБР документ")]                 DocumentOperLock        = 3,
+    [Description("Осн. сигнал")]                  MainTmStatus            = 4,
+    [Description("Осн. измерение")]               MainTmAnalog            = 5,
+    [Description("Ссылка на элемент")]            ParentTob               = 6,
+    [Description("ОБР")]                          TmOperLock              = 7,
+    [Description("ИЗМ")]                          TmMeasurement           = 8,
+    [Description("ОМП")]                          TmDamageLocation        = 9,
+    [Description("ТЕХ")]                          TmTechParam             = 10,
+    [Description("РЗА")]                          TmRelayProtection       = 11,
+    [Description("РЕЖ")]                          TmRegime                = 12,
+    [Description("РЗА документ")]                 DocumentRelayProtection = 13,
+    [Description("Документ - контекстное меню")]  DocumentForContextMenu  = 14,
+    [Description("Документ - левая кнопка мыши")] DocumentForClick        = 15,
   }
 
 
