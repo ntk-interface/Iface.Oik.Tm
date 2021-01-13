@@ -22,6 +22,13 @@ namespace Iface.Oik.Tm.Utils
     };
 
 
+    public static int GetRetrospectivePreferredStep(DateTime startTime, DateTime endTime)
+    {
+      return GetRetrospectivePreferredStep(DateUtil.GetUtcTimestampFromDateTime(startTime),
+                                           DateUtil.GetUtcTimestampFromDateTime(endTime));
+    }
+
+
     public static int GetRetrospectivePreferredStep(long startTime, long endTime) // todo переписать, ничего не понятно
     {
       if (endTime <= startTime)

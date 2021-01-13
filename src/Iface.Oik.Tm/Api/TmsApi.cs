@@ -252,7 +252,7 @@ namespace Iface.Oik.Tm.Api
         return null;
       }
 
-      var step = filter.Step ?? TmUtil.GetRetrospectivePreferredStep(startTime, endTime);
+      var step = filter.Step;
 
       int pointsCount = (int) ((endTime - startTime) / step) + 1;
 
@@ -330,7 +330,7 @@ namespace Iface.Oik.Tm.Api
                                       TmNativeDefs.ImpulseArchiveQueryFlags.Min |
                                       TmNativeDefs.ImpulseArchiveQueryFlags.Max);
 
-      var step = filter.Step ?? TmUtil.GetRetrospectivePreferredStep(startTime, endTime);
+      var step = filter.Step;
 
       uint count = 0;
       var tmcImpulseArchivePtr = await Task.Run(() => _native.TmcAanReadArchive(_cid,

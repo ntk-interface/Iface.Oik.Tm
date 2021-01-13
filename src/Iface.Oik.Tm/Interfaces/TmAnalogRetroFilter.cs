@@ -7,14 +7,22 @@ namespace Iface.Oik.Tm.Interfaces
   {
     public DateTime StartTime { get; }
     public DateTime EndTime   { get; }
-    public int?     Step      { get; }
+    public int      Step      { get; }
 
 
     public TmAnalogRetroFilter(DateTime startTime, DateTime endTime, int? step = null)
     {
       StartTime = startTime;
       EndTime   = endTime;
-      Step      = step;
+
+      if (step > 0)
+      {
+        Step = step.Value;
+      }
+      else
+      {
+        Step = TmUtil.GetRetrospectivePreferredStep(startTime, endTime);
+      }
     }
 
 
