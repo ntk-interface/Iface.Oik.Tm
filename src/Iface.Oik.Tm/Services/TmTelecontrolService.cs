@@ -88,5 +88,50 @@ namespace Iface.Oik.Tm.Services
       }
       return await _api.TelecontrolExplicitly(tmStatus, explicitNewStatus).ConfigureAwait(false);
     }
+    
+    
+    public TmTeleregulateValidationResult Validate(TmAnalog tmAnalog)
+    {
+      if (!tmAnalog.HasTeleregulation)
+      {
+        return TmTeleregulateValidationResult.AnalogHasNoTeleregulation;
+      }
+      if (!_infr.TmUserInfo.HasAccess(TmUserPermissions.Telecontrol))
+      {
+        return TmTeleregulateValidationResult.Forbidden;
+      }
+      if (tmAnalog.IsUnreliable ||
+          tmAnalog.IsInvalid    ||
+          tmAnalog.IsManuallyBlocked)
+      {
+        return TmTeleregulateValidationResult.AnalogIsUnreliable;
+      }
+
+      return TmTeleregulateValidationResult.Ok;
+    }
+
+
+    public async Task<TmTelecontrolResult> TeleregulateByStepUp(TmAnalog analog)
+    {
+      return await _api.TeleregulateByStepUp(analog).ConfigureAwait(false);
+    }
+
+
+    public async Task<TmTelecontrolResult> TeleregulateByStepDown(TmAnalog analog)
+    {
+      return await _api.TeleregulateByStepDown(analog).ConfigureAwait(false);
+    }
+
+
+    public async Task<TmTelecontrolResult> TeleregulateByCode(TmAnalog analog, int code)
+    {
+      return await _api.TeleregulateByCode(analog, code).ConfigureAwait(false);
+    }
+
+
+    public async Task<TmTelecontrolResult> TeleregulateByValue(TmAnalog analog, float value)
+    {
+      return await _api.TeleregulateByValue(analog, value).ConfigureAwait(false);
+    }
   }
 }

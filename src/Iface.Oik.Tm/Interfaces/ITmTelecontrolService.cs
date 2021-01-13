@@ -20,6 +20,16 @@ namespace Iface.Oik.Tm.Interfaces
     Task<TmTelecontrolResult> ExecuteExplicitly(TmStatus tmStatus,
                                                 int      explicitNewStatus,
                                                 bool     overrideScript = false);
+    
+    
+    TmTeleregulateValidationResult Validate(TmAnalog tmAnalog);
 
+    Task<TmTelecontrolResult> TeleregulateByStepUp(TmAnalog analog);
+
+    Task<TmTelecontrolResult> TeleregulateByStepDown(TmAnalog analog);
+
+    Task<TmTelecontrolResult> TeleregulateByCode(TmAnalog analog, int code);
+
+    Task<TmTelecontrolResult> TeleregulateByValue(TmAnalog analog, float value);
   }
 }
