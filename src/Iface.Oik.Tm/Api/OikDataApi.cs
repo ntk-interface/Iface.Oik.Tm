@@ -913,7 +913,7 @@ namespace Iface.Oik.Tm.Api
       var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
       {
-        throw new NotImplementedException();
+        return await _tms.GetPresentAps().ConfigureAwait(false);
       }
       else if (api == ApiSelection.Sql)
       {
