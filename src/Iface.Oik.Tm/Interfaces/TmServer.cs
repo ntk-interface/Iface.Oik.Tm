@@ -41,8 +41,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     public static TmServer CreateFromIfaceServer(TmNativeDefs.IfaceServer ifaceServer)
     {
-      var name    = EncodingUtil.Win1251BytesToUft8(ifaceServer.Name);
-      var comment = EncodingUtil.Win1251BytesToUft8(ifaceServer.Comment);
+      var name    = EncodingUtil.Win1251BytesToUtf8(ifaceServer.Name);
+      var comment = EncodingUtil.Win1251BytesToUtf8(ifaceServer.Comment);
 
       var tmServer = new TmServer((name, comment, ifaceServer.Signature, ifaceServer.Unique).ToTuple().GetHashCode())
                      {

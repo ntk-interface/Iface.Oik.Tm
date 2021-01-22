@@ -32,8 +32,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     public static TmUser CreateFromIfaceUser(TmNativeDefs.IfaceUser ifaceUser)
     {
-      var name    = EncodingUtil.Win1251BytesToUft8(ifaceUser.Name);
-      var comment = EncodingUtil.Win1251BytesToUft8(ifaceUser.Comment);
+      var name    = EncodingUtil.Win1251BytesToUtf8(ifaceUser.Name);
+      var comment = EncodingUtil.Win1251BytesToUtf8(ifaceUser.Comment);
 
       var tmUser = new TmUser((name, comment, ifaceUser.Signature, ifaceUser.Unique).ToTuple().GetHashCode())
                    {

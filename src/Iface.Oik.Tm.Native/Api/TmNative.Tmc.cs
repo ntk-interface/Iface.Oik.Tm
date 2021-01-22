@@ -28,13 +28,13 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public Boolean TmcGetCurrentServer(Int32             cid,
-                                       ref StringBuilder machine,
-                                       UInt32            cbMachine,
-                                       ref StringBuilder pipe,
-                                       UInt32            cbPipe)
+    public bool TmcGetCurrentServer(int        cid,
+                                    ref byte[] machineBuf,
+                                    uint       cbMachine,
+                                    ref byte[] pipeBuf,
+                                    uint       cbPipe)
     {
-      return tmcGetCurrentServer(cid, machine, cbMachine, pipe, cbPipe);
+      return tmcGetCurrentServer(cid, machineBuf, cbMachine, pipeBuf, cbPipe);
     }
 
 
@@ -122,11 +122,11 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public Int16 TmcSystemTime(Int32             cid,
-                               ref StringBuilder time,
-                               IntPtr            tmStruct)
+    public short TmcSystemTime(int        cid,
+                               ref byte[] timeBuf,
+                               IntPtr     tmStruct)
     {
-      return tmcSystemTime(cid, time, tmStruct);
+      return tmcSystemTime(cid, timeBuf, tmStruct);
     }
 
 
@@ -138,11 +138,11 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public Boolean TmcGetUserInfoEx(Int32                      cid,
-                                    UInt32                     userId,
-                                    ref TmNativeDefs.TUserInfo userInfo,
-                                    ref StringBuilder          appxBuf,
-                                    uint                       cbAppx)
+    public bool TmcGetUserInfoEx(int                        cid,
+                                 uint                       userId,
+                                 ref TmNativeDefs.TUserInfo userInfo,
+                                 ref byte[]                 appxBuf,
+                                 uint                       cbAppx)
     {
       return tmcGetUserInfoEx(cid, userId, ref userInfo, appxBuf, cbAppx);
     }
@@ -363,13 +363,13 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public Int16 TmcGetObjectProperties(Int32             cid,
-                                        UInt16            objectType,
-                                        Int16             ch,
-                                        Int16             rtu,
-                                        Int16             point,
-                                        ref StringBuilder buf,
-                                        Int32             bufSize)
+    public short TmcGetObjectProperties(int        cid,
+                                        ushort     objectType,
+                                        short      ch,
+                                        short      rtu,
+                                        short      point,
+                                        ref byte[] buf,
+                                        int        bufSize)
     {
       return tmcGetObjectProperties(cid, objectType, ch, rtu, point, buf, bufSize);
     }
@@ -572,24 +572,24 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public Int16 TmcGetObjectName(Int32             cid,
-                                  UInt16            objectType,
-                                  Int16             ch,
-                                  Int16             rtu,
-                                  Int16             point,
-                                  ref StringBuilder buf,
-                                  Int32             bufSize)
+    public Int16 TmcGetObjectName(Int32      cid,
+                                  UInt16     objectType,
+                                  Int16      ch,
+                                  Int16      rtu,
+                                  Int16      point,
+                                  ref byte[] buf,
+                                  Int32      bufSize)
     {
       return tmcGetObjectName(cid, objectType, ch, rtu, point, buf, bufSize);
     }
 
 
-    public short TmcGetObjectNameEx(int               cid,
-                                    ushort            objectType,
-                                    short             ch,    short rtu,
-                                    short             point, short subObjectId,
-                                    ref StringBuilder buf,
-                                    int               bufSize)
+    public short TmcGetObjectNameEx(int        cid,
+                                    ushort     objectType,
+                                    short      ch,    short rtu,
+                                    short      point, short subObjectId,
+                                    ref byte[] buf,
+                                    int        bufSize)
     {
       return tmcGetObjectNameEx(cid, objectType, ch, rtu, point, subObjectId, buf, bufSize);
     }
@@ -736,13 +736,13 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public Boolean TmcDntGetObjectName(Int32             cid,
-                                       UInt16            objectType,
-                                       Int16             ch,
-                                       Int16             rtu,
-                                       Int16             point,
-                                       ref StringBuilder buf,
-                                       Int32             bufSize)
+    public bool TmcDntGetObjectName(int        cid,
+                                    ushort     objectType,
+                                    short      ch,
+                                    short      rtu,
+                                    short      point,
+                                    ref byte[] buf,
+                                    int        bufSize)
     {
       return tmcDntGetObjectName(cid, objectType, ch, rtu, point, buf, bufSize);
     }
@@ -799,10 +799,10 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public UInt32 TmcDntGetPortStats(Int32             cid,
-                                     UInt32[]          pDap,
-                                     ref StringBuilder buf,
-                                     Int32             bufSize)
+    public uint TmcDntGetPortStats(int        cid,
+                                   uint[]     pDap,
+                                   ref byte[] buf,
+                                   int        bufSize)
     {
       return tmcDntGetPortStats(cid, pDap, buf, bufSize);
     }

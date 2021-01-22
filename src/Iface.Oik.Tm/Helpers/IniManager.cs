@@ -35,7 +35,7 @@ namespace Iface.Oik.Tm.Helpers
       } while (buf[buf.Length - 2] != 0 && bufSize < BufSizeLimit);
 
 
-      return EncodingUtil.Win1251BytesToUft8(buf);
+      return EncodingUtil.Win1251BytesToUtf8(buf);
     }
 
 
@@ -55,7 +55,7 @@ namespace Iface.Oik.Tm.Helpers
       var significantBytes = new byte[returnSize];
       Array.Copy(buf, significantBytes, returnSize);
       
-      return EncodingUtil.Win1251BytesToUft8(significantBytes)
+      return EncodingUtil.Win1251BytesToUtf8(significantBytes)
                          .Split(new[] {'\0'}, StringSplitOptions.RemoveEmptyEntries)
                          .Select(x => x.Split('='))
                          .ToDictionary(x => x[0], x => x[1]);

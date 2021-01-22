@@ -16,25 +16,25 @@ namespace Iface.Oik.Tm.Native.Api
       cftNodeFreeTree(id);
     }
 
-    public IntPtr CftNodeGetName(IntPtr            id,
-                                 ref StringBuilder buf,
-                                 UInt32            count)
+    public IntPtr CftNodeGetName(IntPtr     id,
+                                 ref byte[] buf,
+                                 uint       count)
     {
       return cftNodeGetName(id, buf, count);
     }
 
-    public IntPtr CftNPropEnum(IntPtr            id,
-                               Int32             idx,
-                               ref StringBuilder buf,
-                               uint              count)
+    public IntPtr CftNPropEnum(IntPtr     id,
+                               int        idx,
+                               ref byte[] buf,
+                               uint       count)
     {
       return cftNPropEnum(id, idx, buf, count);
     }
 
-    public IntPtr CftNPropGetText(IntPtr            id,
-                                  string            name,
-                                  ref StringBuilder buf,
-                                  uint              count)
+    public IntPtr CftNPropGetText(IntPtr     id,
+                                  string     name,
+                                  ref byte[] buf,
+                                  uint       count)
     {
       return cftNPropGetText(id, name, buf, count);
     }

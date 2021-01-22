@@ -490,7 +490,7 @@ namespace Iface.Oik.Tm.Api
     {
       if (tmAddr == null || tmAddr.Type == TmType.Unknown) return "";
       const int bufSize = 1024;
-      var       buf     = new StringBuilder(bufSize);
+      var       buf     = new byte[bufSize];
 
       await Task.Run(() => _native.TmcDntGetObjectName(_cid,
                                                        (ushort) tmAddr.Type.ToNativeType(),
@@ -500,13 +500,13 @@ namespace Iface.Oik.Tm.Api
                                                        ref buf,
                                                        bufSize))
                 .ConfigureAwait(false);
-      return buf.ToString();
+      return EncodingUtil.Win1251BytesToUtf8(buf);
     }
 
     private async Task UpdateDeltaComponentPortStats(DeltaComponent component)
     {
       const int bufLength = 1024;
-      var       buf       = new StringBuilder(bufLength);
+      var       buf       = new byte[bufLength];
 
       var result = await Task.Run(() =>
                                     _native.TmcDntGetPortStats(_cid,
@@ -515,9 +515,11 @@ namespace Iface.Oik.Tm.Api
                                                                bufLength))
                              .ConfigureAwait(false);
 
-      if (result == 0 || buf.ToString().IsNullOrEmpty()) return;
+      var portStatsString = EncodingUtil.Win1251BytesToUtf8(buf);
+      
+      if (result == 0 || portStatsString.IsNullOrEmpty()) return;
 
-      var (ticks, statusCount, analogCount, accumCount, messagesCount) = ParsePortStatsString(buf.ToString());
+      var (ticks, statusCount, analogCount, accumCount, messagesCount) = ParsePortStatsString(portStatsString);
 
       if (component.InitialPerformanceStats == null)
       {

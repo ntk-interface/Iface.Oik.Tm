@@ -21,11 +21,11 @@ namespace Iface.Oik.Tm.Native.Interfaces
     void TmcFreeMemory(IntPtr memory);
 
 
-    Boolean TmcGetCurrentServer(Int32             cid,
-                                ref StringBuilder machine,
-                                UInt32            cbMachine,
-                                ref StringBuilder pipe,
-                                UInt32            cbPipe);
+    bool TmcGetCurrentServer(int        cid,
+                             ref byte[] machineBuf,
+                             uint       cbMachine,
+                             ref byte[] pipeBuf,
+                             uint       cbPipe);
 
 
     UInt32 TmcGetLastError();
@@ -73,9 +73,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
                               UInt32 dwCode);
 
 
-    Int16 TmcSystemTime(Int32             cid,
-                        ref StringBuilder time,
-                        IntPtr            tmStruct);
+    short TmcSystemTime(int        cid,
+                        ref byte[] timeBuf,
+                        IntPtr     tmStruct);
 
 
     Boolean TmcGetUserInfo(Int32                      cid,
@@ -83,11 +83,11 @@ namespace Iface.Oik.Tm.Native.Interfaces
                            ref TmNativeDefs.TUserInfo userInfo);
     
     
-    Boolean TmcGetUserInfoEx(Int32             cid,
-                             UInt32            userId, 
-                             ref TmNativeDefs.TUserInfo userInfo,
-                             ref StringBuilder appxBuf,
-                             uint              cbAppx);
+    bool TmcGetUserInfoEx(int                        cid,
+                          uint                       userId,
+                          ref TmNativeDefs.TUserInfo userInfo,
+                          ref byte[]                 appxBuf,
+                          uint                       cbAppx);
     
     
     IntPtr TmcGetUserList(Int32 cid);
@@ -231,13 +231,13 @@ namespace Iface.Oik.Tm.Native.Interfaces
                          TmNativeDefs.TAnalogPoint[] analogs);
 
 
-    Int16 TmcGetObjectProperties(Int32             cid,
-                                 UInt16            objectType,
-                                 Int16             ch,
-                                 Int16             rtu,
-                                 Int16             point,
-                                 ref StringBuilder buf,
-                                 Int32             bufSize);
+    short TmcGetObjectProperties(int        cid,
+                                 ushort     objectType,
+                                 short      ch,
+                                 short      rtu,
+                                 short      point,
+                                 ref byte[] buf,
+                                 int        bufSize);
 
 
     IntPtr TmcGetStatusClassData(Int32                 cid,
@@ -380,23 +380,23 @@ namespace Iface.Oik.Tm.Native.Interfaces
                         Int16        point);
 
 
-    Int16 TmcGetObjectName(Int32             cid,
-                           UInt16            objectType,
-                           Int16             ch,
-                           Int16             rtu,
-                           Int16             point,
-                           ref StringBuilder buf,
-                           Int32             bufSize);
+    Int16 TmcGetObjectName(Int32      cid,
+                           UInt16     objectType,
+                           Int16      ch,
+                           Int16      rtu,
+                           Int16      point,
+                           ref byte[] buf,
+                           Int32      bufSize);
+    
 
-
-    Int16 TmcGetObjectNameEx(Int32             cid,
-                             UInt16            objectType,
-                             Int16             ch,
-                             Int16             rtu,
-                             Int16             point,
-                             Int16             subObjectId,
-                             ref StringBuilder buf,
-                             Int32             bufSize);
+    short TmcGetObjectNameEx(int        cid,
+                             ushort     objectType,
+                             short      ch,
+                             short      rtu,
+                             short      point,
+                             short      subObjectId,
+                             ref byte[] buf,
+                             int        bufSize);
 
 
     IntPtr TmcTechObjReadValues(Int32                   cid,
@@ -485,13 +485,13 @@ namespace Iface.Oik.Tm.Native.Interfaces
     void TmcDntCloseItem(IntPtr componentItemsPtr);
 
 
-    Boolean TmcDntGetObjectName(Int32             cid,
-                                UInt16            objectType,
-                                Int16             ch,
-                                Int16             rtu,
-                                Int16             point,
-                                ref StringBuilder buf,
-                                Int32             bufSize);
+    bool TmcDntGetObjectName(int        cid,
+                             ushort     objectType,
+                             short      ch,
+                             short      rtu,
+                             short      point,
+                             ref byte[] buf,
+                             int        bufSize);
 
 
     Boolean TmcDntRegisterUser(Int32 cid);
@@ -524,10 +524,10 @@ namespace Iface.Oik.Tm.Native.Interfaces
                              UInt32     pDataSize);
 
 
-    UInt32 TmcDntGetPortStats(Int32             cid,
-                              UInt32[]          pDap,
-                              ref StringBuilder buf,
-                              Int32             bufSize);
+    uint TmcDntGetPortStats(int        cid,
+                            uint[]     pDap,
+                            ref byte[] buf,
+                            int        bufSize);
 
 
     Int16 TmcGetServerInfo(Int32                        cid,

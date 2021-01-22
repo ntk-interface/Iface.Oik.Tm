@@ -156,12 +156,12 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void SetTmcObjectProperties(StringBuilder tmcObjectProperties)
+    public void SetTmcObjectProperties(string tmcObjectPropertiesString)
     {
       Properties    = new Dictionary<string, string>();
       HasTmProvider = false;
       
-      var props = tmcObjectProperties.ToString().Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
+      var props = tmcObjectPropertiesString.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
       foreach (var prop in props)
       {
         var kvp = prop.Split('=');

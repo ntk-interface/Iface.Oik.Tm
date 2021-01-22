@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 using Iface.Oik.Tm.Native.Utils;
 
 namespace Iface.Oik.Tm.Native.Api
@@ -22,7 +23,7 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public bool PlatformSetEvent(UInt32 hEvent)
+    public bool PlatformSetEvent(IntPtr hEvent)
     {
       return (PlatformUtil.IsWindows)
         ? SetEventWindows(hEvent)
@@ -30,12 +31,21 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public UInt32 PlatformWaitForSingleObject(UInt32 hHandle,
+    public UInt32 PlatformWaitForSingleObject(IntPtr hHandle,
                                               UInt32 dwMilliseconds)
     {
       return (PlatformUtil.IsWindows)
         ? WaitForSingleObjectWindows(hHandle, dwMilliseconds)
         : WaitForSingleObjectLinux(hHandle, dwMilliseconds);
+    }
+
+    public string PlatformWin1251BytesToUtf8(byte[] inputBuffer)
+    {
+      var buffer = new byte[inputBuffer.Length * 3 + 1];
+
+      var result = xmlMBToUTF8(inputBuffer, buffer, (uint) buffer.Length);
+
+      return result ? Encoding.UTF8.GetString(buffer).Trim('\0') : string.Empty;
     }
   }
 }
