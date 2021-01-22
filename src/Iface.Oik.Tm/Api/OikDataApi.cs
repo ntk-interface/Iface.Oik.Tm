@@ -1113,8 +1113,8 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<(bool isSuccess, string result)> GetExpressionResult(
-      string expression, PreferApi prefer = PreferApi.Auto)
+    public async Task<(bool isSuccess, float result)> GetExpressionResult(string expression, 
+                                                                          PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
@@ -1127,7 +1127,7 @@ namespace Iface.Oik.Tm.Api
       }
       else
       {
-        return (false, string.Empty);
+        return (false, 0);
       }
     }
 

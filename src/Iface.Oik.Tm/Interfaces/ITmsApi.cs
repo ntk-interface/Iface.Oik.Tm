@@ -58,7 +58,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<TmEventElix> GetCurrentEventsElix();
 
-    Task<(bool isSuccess, string result)> GetExpressionResult(string expression);
+    Task<(bool isSuccess, float result)> GetExpressionResult(string expression);
 
     Task<IReadOnlyCollection<TmChannel>> GetTmTreeChannels();
 

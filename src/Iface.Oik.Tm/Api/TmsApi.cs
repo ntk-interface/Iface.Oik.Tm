@@ -1739,15 +1739,20 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<(bool isSuccess, string result)> GetExpressionResult(string expression)
+    public async Task<(bool isSuccess, float result)> GetExpressionResult(string expression)
     {
       const int bufSize = 1024;
       
       var       buf     = new byte[bufSize];
-      var result = await Task.Run(() => _native.TmcEvaluateExpression(_cid, expression, buf, bufSize))
+      await Task.Run(() => _native.TmcEvaluateExpression(_cid, expression, buf, bufSize))
                              .ConfigureAwait(false);
       
-      return (result == TmNativeDefs.Success, EncodingUtil.Win1251BytesToUtf8(buf));
+      return float.TryParse(EncodingUtil.Win1251BytesToUtf8(buf), 
+                            NumberStyles.Any, 
+                            CultureInfo.InvariantCulture, 
+                            out var value) 
+        ? (true, value) 
+        : (false, 0);
     }
 
 
