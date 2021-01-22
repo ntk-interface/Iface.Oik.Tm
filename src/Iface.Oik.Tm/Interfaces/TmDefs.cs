@@ -257,6 +257,15 @@ namespace Iface.Oik.Tm.Interfaces
   }
 
 
+  public enum TmTeleregulateValidationResult
+  {
+    Ok                        = 0,
+    AnalogHasNoTeleregulation = 1,
+    Forbidden                 = 2,
+    AnalogIsUnreliable        = 3,
+  }
+
+
   public enum TmTelecontrolResult
   {
     Success                                                                                                = 1,
