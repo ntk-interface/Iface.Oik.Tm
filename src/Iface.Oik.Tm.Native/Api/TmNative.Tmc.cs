@@ -238,6 +238,12 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public Int16 TmcEvaluateExpression(int cid, string expr, byte[] res, uint cbBytes)
+    {
+      return tmcEvaluateExpression(cid, expr, res, cbBytes);
+    }
+
+
     public Int16 TmcSetValues(Int32                       cid,
                               UInt32                      count,
                               TmNativeDefs.TValueAndFlags[] values)

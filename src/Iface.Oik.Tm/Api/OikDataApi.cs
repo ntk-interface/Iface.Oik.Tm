@@ -1113,6 +1113,25 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<(bool isSuccess, string result)> GetExpressionResult(
+      string expression, PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.GetExpressionResult(expression).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+        return (false, string.Empty);
+      }
+    }
+
+
     public async Task<bool> HasPresentAps(PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);

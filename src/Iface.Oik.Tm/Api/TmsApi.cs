@@ -1739,6 +1739,18 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<(bool isSuccess, string result)> GetExpressionResult(string expression)
+    {
+      const int bufSize = 1024;
+      
+      var       buf     = new byte[bufSize];
+      var result = await Task.Run(() => _native.TmcEvaluateExpression(_cid, expression, buf, bufSize))
+                             .ConfigureAwait(false);
+      
+      return (result == TmNativeDefs.Success, EncodingUtil.Win1251BytesToUtf8(buf));
+    }
+
+
     public async Task<IReadOnlyCollection<TmChannel>> GetTmTreeChannels()
     {
       var result = new List<TmChannel>();

@@ -58,6 +58,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<TmEventElix> GetCurrentEventsElix();
 
+    Task<(bool isSuccess, string result)> GetExpressionResult(string expression);
+
     Task<IReadOnlyCollection<TmChannel>> GetTmTreeChannels();
 
     Task<IReadOnlyCollection<TmRtu>> GetTmTreeRtus(int channelId);
@@ -197,15 +199,14 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task StopTmAddrTracer(int channel, int rtu, int point, TmType tmType);
 
-    
-    
-    Task<TmServerInfo>                GetServerInfo();
-    
+
+    Task<TmServerInfo> GetServerInfo();
+
     Task<IReadOnlyCollection<TmServerThread>> GetServerThreads();
 
     Task<TmAccessRights> GetAccessRights();
 
-    
+
     Task<IReadOnlyCollection<TmUserInfo>> GetUsersInfo();
 
     Task<TmUserInfo> GetUserInfo(uint userId);

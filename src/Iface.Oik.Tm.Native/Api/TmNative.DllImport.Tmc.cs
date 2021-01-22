@@ -334,6 +334,13 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int16 tmcEvaluateExpression(Int32                                   cid,
+                                                     [MarshalAs(UnmanagedType.LPStr)] string expr,
+                                                     [In,Out]                         byte[] res,
+                                                     UInt32                                  cbBytes);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcSetStatus(Int32                                   cid,
                                             Int16                                   ch,
                                             Int16                                   rtu,
