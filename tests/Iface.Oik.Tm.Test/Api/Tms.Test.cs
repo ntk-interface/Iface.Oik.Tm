@@ -560,7 +560,7 @@ namespace Iface.Oik.Tm.Test.Api
            'I', 't', 'e', 'm', '1', '\0',
            'I', 't', 'e', 'm', '2', '\0', '\0',
            'T', 'r', 'a', 's', 'h'
-         }, A.Dummy<uint>(), A.Dummy<StringBuilder>());
+         }, A.Dummy<uint>(), A.Dummy<byte[]>());
 
         var result = await tms.GetFilesInDirectory(A.Dummy<string>());
 
