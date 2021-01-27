@@ -1247,7 +1247,7 @@ namespace Iface.Oik.Tm.Api
           Exception($"Ошибка получения ini-строки. \nПуть: {path}\nСекция: {section}\nКлюч: {key}\nОшибка: {EncodingUtil.Win1251BytesToUtf8(errBuf)} Код: {errCode}");
       }
 
-      return buf.ToString();
+      return EncodingUtil.Win1251BytesToUtf8(buf);
     }
 
 
