@@ -1617,12 +1617,13 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<bool> SetAnalogManually(TmAnalog  analog,
                                               float     value,
-                                              PreferApi prefer = PreferApi.Auto)
+                                              bool      alsoBlockManually = false,
+                                              PreferApi prefer            = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
       {
-        return await _tms.SetAnalogManually(analog, value).ConfigureAwait(false);
+        return await _tms.SetAnalogManually(analog, value, alsoBlockManually).ConfigureAwait(false);
       }
       else if (api == ApiSelection.Sql)
       {

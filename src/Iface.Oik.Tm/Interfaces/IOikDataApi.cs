@@ -308,7 +308,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<bool> SetAnalogManually(TmAnalog  analog,
                                  float     value,
-                                 PreferApi prefer = PreferApi.Auto);
+                                 bool      alsoBlockManually = false,
+                                 PreferApi prefer            = PreferApi.Auto);
 
 
     Task<bool> SetAnalogTechParameters(TmAnalog               analog,

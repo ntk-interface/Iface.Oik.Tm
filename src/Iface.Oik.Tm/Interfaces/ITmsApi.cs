@@ -129,7 +129,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task ClearTagsFlags(IEnumerable<TmTag> tmTags, TmFlags flags);
 
-    Task<bool> SetAnalogManually(TmAnalog tmAnalog, float value);
+    Task<bool> SetAnalogManually(TmAnalog tmAnalog, float value, bool alsoBlockManually = false);
 
     Task<bool> SetAnalogTechParameters(TmAnalog analog, TmAnalogTechParameters parameters);
 

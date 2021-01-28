@@ -1532,12 +1532,19 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<bool> SetAnalogManually(TmAnalog tmAnalog, float value)
+    public async Task<bool> SetAnalogManually(TmAnalog tmAnalog, float value, bool alsoBlockManually = false)
     {
       if (tmAnalog == null) return false;
 
       // установка нового значения
       var uintValue = BitConverter.ToUInt32(BitConverter.GetBytes(value), 0); // функция требует значение DWORD
+      
+      byte flags = (byte) TmNativeDefs.Flags.ManuallySet;
+      if (alsoBlockManually)
+      {
+        flags += (byte) TmNativeDefs.Flags.UnreliableManu;
+      }
+      
       await Task.Run(() => _native.TmcSetTimedValues(_cid,
                                                      1,
                                                      new[]
@@ -1550,7 +1557,7 @@ namespace Iface.Oik.Tm.Api
                                                            Type = (byte) TmNativeDefs.VfType.AnalogFloat +
                                                                   (byte) TmNativeDefs.VfType.FlagSet     +
                                                                   (byte) TmNativeDefs.VfType.AlwaysSetValue,
-                                                           Flags = (byte) TmFlags.ManuallySet,
+                                                           Flags = flags,
                                                            Bits  = 32,
                                                            Value = uintValue,
                                                          },
