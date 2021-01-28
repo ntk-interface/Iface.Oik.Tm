@@ -21,6 +21,13 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
+    public static void SetUserCredentialsForThread(string user,
+                                                   string password)
+    {
+      Native.CfsSetUserForThread(user, password);
+    }
+
+
     public static void RegisterDatagramFlags(int tmCid, TmDatagramFlags flags)
     {
       Native.TmcSetDgrmFlags(tmCid, (uint) flags);

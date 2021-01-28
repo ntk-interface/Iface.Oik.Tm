@@ -215,6 +215,10 @@ namespace Iface.Oik.Tm.Interfaces
                                                       PreferApi      prefer = PreferApi.Auto);
 
 
+    Task<string> GetExpressionResult(string    expression,
+                                     PreferApi prefer = PreferApi.Auto);
+
+
     Task<bool> HasPresentAps(PreferApi prefer = PreferApi.Auto);
 
     Task<bool> HasPresentAlarms(PreferApi prefer = PreferApi.Auto);
