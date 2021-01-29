@@ -132,6 +132,16 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
+    public static bool IsServerInPassiveMode(int tmCid)
+    {
+      var info = new TmNativeDefs.TServerInfo();
+
+      Native.TmcGetServerInfo(tmCid, ref info);
+
+      return info.Description?.Contains("passive") == true;
+    }
+
+
     public static TmSecurityAccessFlags GetSecurityAccessFlags(int tmCid)
     {
       if (Native.RbcGetSecurity(tmCid, out var isAdmin, out var accessFlags) == 0)
