@@ -156,6 +156,24 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
+    public static TmTag CreateFromTmcCommonPoint(TmNativeDefs.TCommonPoint commonPoint)
+    {
+      switch (((TmNativeDefs.TmDataTypes) commonPoint.Type).ToTmType())
+      {
+        case TmType.Accum:
+          return TmAccum.CreateFromTmcCommonPointEx(commonPoint);
+        
+        case TmType.Analog:
+          return TmAnalog.CreateFromTmcCommonPointEx(commonPoint);;
+        
+        case TmType.Status:
+          return TmStatus.CreateFromTmcCommonPointEx(commonPoint);
+        default:
+          return null;
+      }
+    }
+
+
     public void SetTmcObjectProperties(string tmcObjectPropertiesString)
     {
       Properties    = new Dictionary<string, string>();
