@@ -172,6 +172,18 @@ namespace Iface.Oik.Tm.Interfaces
   }
 
 
+  [Flags]
+  public enum TmCommonPointFlags : byte
+  {
+    None                    = 0, 
+    GetWithName             = TmNativeDefs.TmCpf.Name, 
+    GetWhenAllFlagsAreValid = TmNativeDefs.TmCpf.AllFlags, 
+    GetStatusWithValue0     = TmNativeDefs.TmCpf.St0, 
+    GetStatusWithValue1     = TmNativeDefs.TmCpf.St1, 
+    SkipReserved            = TmNativeDefs.TmCpf.SkipRes,
+  }
+
+
   public enum TmUserPermissions
   {
     ReadScheme                  = 0,

@@ -214,5 +214,10 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task<IReadOnlyCollection<TmStatus>> GetPresentAps();
+
+
+    Task<IReadOnlyCollection<TmTag>> GetTagsByFlags(TmType             tmType,
+                                                    TmFlags            tmFlags,
+                                                    TmCommonPointFlags filterFlags);
   }
 }

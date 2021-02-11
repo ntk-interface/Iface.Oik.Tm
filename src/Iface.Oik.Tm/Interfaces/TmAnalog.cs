@@ -497,5 +497,36 @@ namespace Iface.Oik.Tm.Interfaces
       UpdateWithDto(dto.MapToTmAnalogDto());
       UpdatePropertiesWithDto(dto.MapToTmAnalogPropertiesDto());
     }
+    
+    
+    public static TmAnalog CreateFromTmcCommonPointEx(TmNativeDefs.TCommonPoint tmcCommonPoint)
+    {
+      var tmAnalog = new TmAnalog(tmcCommonPoint.Ch, tmcCommonPoint.RTU, tmcCommonPoint.Point);
+      
+      TmNativeDefs.TAnalogPoint tmcAnalogPoint;
+      try
+      {
+        tmcAnalogPoint = TmNativeUtil.GetAnalogPointFromCommonPoint(tmcCommonPoint);
+      }
+      catch (ArgumentException)
+      {
+        return tmAnalog;
+      }
+      
+      tmAnalog.IsInit = (tmcCommonPoint.TM_Flags != 0xFFFF);
+      tmAnalog.Value  = tmcAnalogPoint.AsFloat;
+      tmAnalog.Code   = tmcAnalogPoint.AsCode;
+      tmAnalog.Flags  = (TmFlags) tmcAnalogPoint.Flags;
+      tmAnalog.ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(tmcCommonPoint.tm_local_ut,
+                                                                            tmcCommonPoint.tm_local_ms);
+      tmAnalog.Width     = (byte) (tmcAnalogPoint.Format & 0x0F);
+      tmAnalog.Precision = (byte) (tmcAnalogPoint.Format >> 4);
+
+      tmAnalog.Unit = EncodingUtil.Cp866BytesToUtf8String(tmcAnalogPoint.Unit);
+
+      tmAnalog.Name = tmcCommonPoint.name;
+
+      return tmAnalog;
+    }
   }
 }

@@ -569,5 +569,16 @@ namespace Iface.Oik.Tm.Interfaces
       UpdateWithDto(dto.MapToTmStatusDto());
       UpdatePropertiesWithDto(dto.MapToTmStatusPropertiesDto());
     }
+
+
+    public static TmStatus CreateFromTmcCommonPointEx(TmNativeDefs.TCommonPoint tmcCommonPoint)
+    {
+      var tmStatus = new TmStatus(tmcCommonPoint.Ch, tmcCommonPoint.RTU, tmcCommonPoint.Point);
+      
+      tmStatus.FromTmcCommonPoint(tmcCommonPoint);
+      tmStatus.Name = tmcCommonPoint.name;
+
+      return tmStatus;
+    }
   }
 }
