@@ -9,7 +9,7 @@ namespace Iface.Oik.Tm.Interfaces
   public class TmAccum : TmTag
   {
     public static readonly string InvalidValueString = "???";
-    
+
     private float   _value;
     private float   _load;
     private TmFlags _flags     = TmFlags.Invalid;
@@ -21,31 +21,31 @@ namespace Iface.Oik.Tm.Interfaces
       get => _value;
       set => SetPropertyValue(ref _value, value);
     }
-    
+
     public float Load
     {
       get => _load;
       set => SetPropertyValue(ref _load, value);
     }
-    
+
     public TmFlags Flags
     {
       get => _flags;
       set => SetPropertyValueAndRefresh(ref _flags, value);
     }
-    
+
     public byte Precision
     {
       get => _precision;
       set => SetPropertyValueAndRefresh(ref _precision, value);
     }
-    
+
     public string Unit
     {
       get => _unit;
       set => SetPropertyValueAndRefresh(ref _unit, value);
     }
-    
+
     public bool IsUnreliable      => Flags.HasFlag(TmFlags.Unreliable);
     public bool IsInvalid         => Flags.HasFlag(TmFlags.Invalid);
     public bool IsManuallyBlocked => Flags.HasFlag(TmFlags.ManuallyBlocked);
@@ -54,7 +54,7 @@ namespace Iface.Oik.Tm.Interfaces
     public bool IsResChannel      => Flags.HasFlag(TmFlags.ResChannel);
     public bool IsUnacked         => Flags.HasFlag(TmFlags.Unacked);
     public bool IsTmStreaming     => Flags.HasFlag(TmFlags.TmStreaming);
-    
+
     public string ValueString => (IsInit)
                                    ? Value.ToString("0." + new string('0', Precision))
                                    : InvalidValueString;
@@ -63,15 +63,15 @@ namespace Iface.Oik.Tm.Interfaces
     public string ValueWithUnitString => (IsInit)
                                            ? ValueString + " " + Unit
                                            : InvalidValueString;
-    
+
     public string LoadString => (IsInit)
-                                   ? Load.ToString("0." + new string('0', Precision))
-                                   : InvalidValueString;
+                                  ? Load.ToString("0." + new string('0', Precision))
+                                  : InvalidValueString;
 
 
     public string LoadWithUnitString => (IsInit)
-                                           ? LoadString + " " + Unit
-                                           : InvalidValueString;
+                                          ? LoadString + " " + Unit
+                                          : InvalidValueString;
 
     public override string ValueToDisplay => ValueWithUnitString;
     public          string LoadToDisplay  => LoadWithUnitString;
@@ -81,46 +81,51 @@ namespace Iface.Oik.Tm.Interfaces
       get
       {
         var flagsToDisplay = new List<string>();
-        
+
         if (IsUnreliable)
         {
           flagsToDisplay.Add("Неактуальное значение (NT)");
         }
+
         if (IsInvalid)
         {
           flagsToDisplay.Add("Недействительное значение (IV)");
         }
+
         if (IsResChannel)
         {
           flagsToDisplay.Add("Взят с резерва");
         }
+
         if (IsRequested)
         {
           flagsToDisplay.Add("Идет опрос");
         }
+
         if (IsManuallyBlocked)
         {
           flagsToDisplay.Add("Заблокировано оператором");
         }
+
         if (IsManuallySet)
         {
           flagsToDisplay.Add("Установлено вручную");
         }
-        
+
         return flagsToDisplay;
       }
     }
 
-    public TmAccum(int ch, int rtu, int point) 
+    public TmAccum(int ch, int rtu, int point)
       : base(TmType.Accum, ch, rtu, point)
     {
     }
 
-    public TmAccum(TmAddr addr) 
+    public TmAccum(TmAddr addr)
       : base(addr)
     {
     }
-    
+
     public override int GetHashCode()
     {
       return base.GetHashCode();
@@ -147,6 +152,7 @@ namespace Iface.Oik.Tm.Interfaces
 
       return TmAddr == comparison.TmAddr    &&
              Value.Equals(comparison.Value) &&
+             Load.Equals(comparison.Load)   &&
              Flags == comparison.Flags;
     }
 
@@ -166,14 +172,14 @@ namespace Iface.Oik.Tm.Interfaces
     {
       return !(left == right);
     }
-    
-    
+
+
     public bool HasFlag(TmFlags flags)
     {
       return Flags.HasFlag(flags);
     }
-    
-    
+
+
     public void FromTmcCommonPoint(TmNativeDefs.TCommonPoint tmcCommonPoint)
     {
       TmNativeDefs.TAccumPoint tmcAccumPoint;
@@ -198,7 +204,7 @@ namespace Iface.Oik.Tm.Interfaces
     public static TmAccum CreateFromTmcCommonPointEx(TmNativeDefs.TCommonPoint tmcCommonPoint)
     {
       var tmAccum = new TmAccum(tmcCommonPoint.Ch, tmcCommonPoint.RTU, tmcCommonPoint.Point);
-      
+
       TmNativeDefs.TAccumPoint tmcAccumPoint;
       try
       {
@@ -212,14 +218,14 @@ namespace Iface.Oik.Tm.Interfaces
       tmAccum.IsInit = tmcCommonPoint.TM_Flags != 0xFFFF;
       tmAccum.Value  = tmcAccumPoint.Value;
       tmAccum.Load   = tmcAccumPoint.Load;
-      tmAccum.Flags   = (TmFlags) tmcAccumPoint.Flags;
+      tmAccum.Flags  = (TmFlags) tmcAccumPoint.Flags;
       tmAccum.ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(tmcCommonPoint.tm_local_ut,
-                                                                          tmcCommonPoint.tm_local_ms);
+                                                                           tmcCommonPoint.tm_local_ms);
       tmAccum.Precision = (byte) (tmcAccumPoint.Format >> 4);
       tmAccum.Unit      = EncodingUtil.Cp866BytesToUtf8String(tmcAccumPoint.Unit);
 
       tmAccum.Name = tmcCommonPoint.name;
-      
+
       return tmAccum;
     }
   }
