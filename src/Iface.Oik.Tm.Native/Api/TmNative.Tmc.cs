@@ -363,9 +363,11 @@ namespace Iface.Oik.Tm.Native.Api
     public void TmcAnalogByList(Int32                       cid,
                                 UInt16                      count,
                                 TmNativeDefs.TAdrTm[]       addr,
-                                TmNativeDefs.TAnalogPoint[] analogs)
+                                TmNativeDefs.TAnalogPoint[] analogs,
+                                UInt32 time,
+                                UInt16 retroNum)
     {
-      tmcAnalogByList(cid, count, addr, analogs);
+      tmcAnalogByList(cid, count, addr, analogs, time, retroNum);
     }
 
 
