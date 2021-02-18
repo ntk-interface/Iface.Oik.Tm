@@ -32,6 +32,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task SetAnalog(int ch, int rtu, int point, float value);
 
+    Task UpdateTag(TmTag tag);
+    
     Task UpdateStatus(TmStatus status);
 
     Task UpdateStatusExplicitly(TmStatus status, bool getRealTelemetry = false);
@@ -226,5 +228,9 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<TmTag>> GetTagsByFlags(TmType             tmType,
                                                     TmFlags            tmFlags,
                                                     TmCommonPointFlags filterFlags);
+
+
+    Task<IReadOnlyCollection<TmTag>> GetTagsByNamePattern(TmType tmType,
+                                                          string pattern);
   }
 }

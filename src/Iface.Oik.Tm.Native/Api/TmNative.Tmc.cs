@@ -146,7 +146,7 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcGetUserInfoEx(cid, userId, ref userInfo, appxBuf, cbAppx);
     }
-    
+
 
     public IntPtr TmcGetUserList(Int32 cid)
     {
@@ -244,16 +244,16 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public Int16 TmcSetValues(Int32                       cid,
-                              UInt32                      count,
+    public Int16 TmcSetValues(Int32                         cid,
+                              UInt32                        count,
                               TmNativeDefs.TValueAndFlags[] values)
     {
       return tmcSetValues(cid, count, values);
     }
 
 
-    public Int16 TmcSetValuesUnion(Int32                            cid,
-                                   UInt32                           count,
+    public Int16 TmcSetValuesUnion(Int32                              cid,
+                                   UInt32                             count,
                                    TmNativeDefs.TValueAndFlagsUnion[] values)
     {
       return tmcSetValues(cid, count, values);
@@ -497,21 +497,21 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcClrAnalogFlags(cid, ch, rtu, point, flags);
     }
-    
-    
+
+
     public Int16 TmcSetAccumFlags(Int32 cid,
-                                   Int16 ch, Int16 rtu, Int16 point,
-                                   Int16 flags)
+                                  Int16 ch, Int16 rtu, Int16 point,
+                                  Int16 flags)
     {
       return tmcSetAccumFlags(cid, ch, rtu, point, flags);
     }
 
 
     public Int16 TmcClrAccumFlags(Int32 cid,
-                                   Int16 ch,
-                                   Int16 rtu,
-                                   Int16 point,
-                                   Int16 flags)
+                                  Int16 ch,
+                                  Int16 rtu,
+                                  Int16 point,
+                                  Int16 flags)
     {
       return tmcClrAccumFlags(cid, ch, rtu, point, flags);
     }
@@ -830,7 +830,7 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     public Boolean TmcGetGrantedAccess(Int32      cid,
-                                    out UInt32 pAccess)
+                                       out UInt32 pAccess)
     {
       return tmcGetGrantedAccess(cid, out pAccess);
     }
@@ -839,6 +839,15 @@ namespace Iface.Oik.Tm.Native.Api
     public IntPtr TmcTakeAPS(Int32 cid)
     {
       return tmcTakeAPS(cid);
+    }
+
+
+    public IntPtr TmcTextSearch(Int32      cid,
+                                UInt16     type,
+                                string     text,
+                                out UInt32 pCount)
+    {
+      return tmcTextSearch(cid, type, text, out pCount);
     }
   }
 }

@@ -550,5 +550,11 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
     IntPtr TmcTakeAPS(Int32 cid);
+
+
+    IntPtr TmcTextSearch(Int32      cid,
+                         UInt16     type,
+                         string     text,
+                         out UInt32 pCount);
   }
 }
