@@ -662,5 +662,12 @@ namespace Iface.Oik.Tm.Native.Api
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern IntPtr tmcTakeAPS(Int32 cid);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern IntPtr tmcTextSearch(Int32                                   cid,
+                                              UInt16                                  type,
+                                              [MarshalAs(UnmanagedType.LPStr)] string text,
+                                              out                              UInt32 pCount);
   }
 }

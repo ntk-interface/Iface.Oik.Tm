@@ -392,6 +392,23 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task UpdateTag(TmTag tag)
+    {
+      switch (tag)
+      {
+        case TmAccum accum:
+          await UpdateAccum(accum).ConfigureAwait(false);
+          break;
+        case TmAnalog analog:
+          await UpdateAnalog(analog).ConfigureAwait(false);
+          break;
+        case TmStatus status:
+          await UpdateStatus(status).ConfigureAwait(false);
+          break;
+      }
+    }
+
+
     public async Task UpdateStatus(TmStatus status)
     {
       await UpdateStatuses(new List<TmStatus> {status}).ConfigureAwait(false);
@@ -415,6 +432,12 @@ namespace Iface.Oik.Tm.Api
       await UpdateAnalogsExplicitly(new List<TmAnalog> {analog}, getRealTelemetry).ConfigureAwait(false);
     }
 
+
+    public async Task UpdateAccum(TmAccum accum)
+    {
+      await UpdateAccums(new List<TmAccum> {accum}).ConfigureAwait(false);
+    }
+    
 
     public async Task UpdateStatuses(IReadOnlyList<TmStatus> statuses)
     {
@@ -479,6 +502,12 @@ namespace Iface.Oik.Tm.Api
       {
         analogs[i].FromTAnalogPoint(analogPointsList[i]);
       }
+    }
+
+
+    public async Task UpdateAccums(IReadOnlyList<TmAccum> accums)
+    {
+      await Task.Run(() => UpdateAccumsSynchronously(accums)).ConfigureAwait(false);
     }
 
 
@@ -1538,13 +1567,13 @@ namespace Iface.Oik.Tm.Api
 
       // установка нового значения
       var uintValue = BitConverter.ToUInt32(BitConverter.GetBytes(value), 0); // функция требует значение DWORD
-      
+
       byte flags = (byte) TmNativeDefs.Flags.ManuallySet;
       if (alsoBlockManually)
       {
         flags += (byte) TmNativeDefs.Flags.UnreliableManu;
       }
-      
+
       await Task.Run(() => _native.TmcSetTimedValues(_cid,
                                                      1,
                                                      new[]
@@ -1749,11 +1778,11 @@ namespace Iface.Oik.Tm.Api
     public async Task<string> GetExpressionResult(string expression)
     {
       const int bufSize = 1024;
-      
-      var       buf     = new byte[bufSize];
+
+      var buf = new byte[bufSize];
       await Task.Run(() => _native.TmcEvaluateExpression(_cid, expression, buf, bufSize))
-                             .ConfigureAwait(false);
-      
+                .ConfigureAwait(false);
+
       return EncodingUtil.Win1251BytesToUtf8(buf);
     }
 
@@ -1917,7 +1946,7 @@ namespace Iface.Oik.Tm.Api
       var buf = new byte[1024];
       _native.TmcGetObjectName(_cid, (ushort) TmNativeDefs.TmDataTypes.Rtu, (short) channelId, (short) rtuId, 0,
                                ref buf, 1024);
-      
+
       return EncodingUtil.Win1251BytesToUtf8(buf);
     }
 
@@ -2104,20 +2133,21 @@ namespace Iface.Oik.Tm.Api
       }
 
       var threadList = TmNativeUtil.GetUnknownLengthStringListFromDoubleNullTerminatedPointer(threadsPtr).Select(x =>
-                          {
-                            var regex =
-                              new Regex(@"([0-9]*), (.*?) • ([-+]?[0-9]*) s • ([-+]?[0-9]*\.?[0-9]+) s");
-                            var mc       = regex.Match(x);
-                            var id       = int.Parse(mc.Groups[1].Value);
-                            var name     = mc.Groups[2].Value;
-                            var upTime   = int.Parse(mc.Groups[3].Value);
-                            var workTime = float.Parse(mc.Groups[4].Value, CultureInfo.InvariantCulture);
-                            return new TmServerThread(id, name, upTime, workTime);
-                          })
-                          .ToList();
-      
+                                   {
+                                     var regex =
+                                       new Regex(@"([0-9]*), (.*?) • ([-+]?[0-9]*) s • ([-+]?[0-9]*\.?[0-9]+) s");
+                                     var mc     = regex.Match(x);
+                                     var id     = int.Parse(mc.Groups[1].Value);
+                                     var name   = mc.Groups[2].Value;
+                                     var upTime = int.Parse(mc.Groups[3].Value);
+                                     var workTime =
+                                       float.Parse(mc.Groups[4].Value, CultureInfo.InvariantCulture);
+                                     return new TmServerThread(id, name, upTime, workTime);
+                                   })
+                                   .ToList();
+
       _native.CfsFreeMemory(threadsPtr);
-      
+
       return threadList;
     }
 
@@ -2135,9 +2165,9 @@ namespace Iface.Oik.Tm.Api
     public async Task<IReadOnlyCollection<TmUserInfo>> GetUsersInfo()
     {
       var usersIdPtr = await Task.Run(() => _native.TmcGetUserList(_cid)).ConfigureAwait(false);
-      
+
       var tmUsersInfo = new List<TmUserInfo>();
-      
+
       if (usersIdPtr == IntPtr.Zero)
       {
         Console.WriteLine("Ошибка получения списка пользователей ТМС");
@@ -2145,7 +2175,7 @@ namespace Iface.Oik.Tm.Api
       }
 
       var ptrWithOffset = usersIdPtr;
-      
+
       while (true)
       {
         var id = Marshal.PtrToStructure<uint>(ptrWithOffset);
@@ -2176,7 +2206,7 @@ namespace Iface.Oik.Tm.Api
       {
         return new TmUserInfo((int) userId, tUserInfo, string.Empty);
       }
-      
+
       Console.WriteLine($"Ошибка получения информации о пользователе с ID {userId}");
       return null;
 
@@ -2188,12 +2218,13 @@ namespace Iface.Oik.Tm.Api
       const int bufSize          = 1000;
       var       extendedInfoBuff = new byte[bufSize];
       var       tUserInfo        = new TmNativeDefs.TUserInfo();
-      
-      if (await Task.Run(() => _native.TmcGetUserInfoEx(_cid, (uint) userId, ref tUserInfo, ref extendedInfoBuff, bufSize)).ConfigureAwait(false))
+
+      if (await Task.Run(() => _native.TmcGetUserInfoEx(_cid, (uint) userId, ref tUserInfo, ref extendedInfoBuff,
+                                                        bufSize)).ConfigureAwait(false))
       {
         return new TmUserInfo(userId, tUserInfo, EncodingUtil.Win1251BytesToUtf8(extendedInfoBuff));
       }
-      
+
       Console.WriteLine($"Ошибка получения расширенной информации о пользователе с ID {userId}");
       return null;
     }
@@ -2209,24 +2240,24 @@ namespace Iface.Oik.Tm.Api
         return null;
       }
 
-      
+
       var currentPointer = apsTAdrTmListPointer;
       var apsList        = new List<TmStatus>();
 
       while (true)
       {
         var apsTAdrTm = Marshal.PtrToStructure<TmNativeDefs.TAdrTm>(currentPointer);
-        
+
         if (apsTAdrTm.Point == 0) break;
 
         var aps = new TmStatus(apsTAdrTm.Ch, apsTAdrTm.RTU, apsTAdrTm.Point);
         await UpdateStatus(aps).ConfigureAwait(false);
         await UpdateTagPropertiesAndClassData(aps).ConfigureAwait(false);
         apsList.Add(aps);
-        
-        currentPointer = IntPtr.Add(currentPointer,  Marshal.SizeOf(typeof(TmNativeDefs.TAdrTm)));
+
+        currentPointer = IntPtr.Add(currentPointer, Marshal.SizeOf(typeof(TmNativeDefs.TAdrTm)));
       }
-      
+
       _native.TmcFreeMemory(apsTAdrTmListPointer);
 
       return apsList;
@@ -2238,22 +2269,22 @@ namespace Iface.Oik.Tm.Api
                                                                  TmCommonPointFlags filterFlags)
     {
       uint count = 0;
-      
-      var tmcCommonPointsPtr = await Task.Run(() => _native.TmcGetValuesByFlagMask(_cid, 
-                                                (ushort) tmType.ToNativeType(), 
-                                                (uint) tmFlags, 
+
+      var tmcCommonPointsPtr = await Task.Run(() => _native.TmcGetValuesByFlagMask(_cid,
+                                                (ushort) tmType.ToNativeType(),
+                                                (uint) tmFlags,
                                                 (byte) filterFlags,
                                                 out count))
                                          .ConfigureAwait(false);
-      
+
       if (tmcCommonPointsPtr == IntPtr.Zero)
       {
         return null;
       }
-      
+
       var tagsList   = new List<TmTag>();
       var structSize = Marshal.SizeOf(typeof(TmNativeDefs.TCommonPoint));
-      
+
       for (var i = 0; i < count; i++)
       {
         var currentPtr     = new IntPtr(tmcCommonPointsPtr.ToInt64() + i * structSize);
@@ -2265,13 +2296,77 @@ namespace Iface.Oik.Tm.Api
         {
           continue;
         }
-        
+
         tagsList.Add(tag);
       }
-      
+
       _native.TmcFreeMemory(tmcCommonPointsPtr);
-      
+
       return tagsList;
+    }
+
+
+    public async Task<IReadOnlyCollection<TmTag>> GetTagsByNamePattern(TmType tmType,
+                                                                       string pattern)
+    {
+      if (pattern.IsNullOrEmpty())
+      {
+        return Array.Empty<TmTag>();
+      }
+
+      uint count = 0;
+      var tagTAdrTmListPointer = await Task.Run(() => _native.TmcTextSearch(_cid,
+                                                                            (ushort) tmType.ToNativeType(),
+                                                                            pattern,
+                                                                            out count))
+                                           .ConfigureAwait(false);
+
+      if (tagTAdrTmListPointer == IntPtr.Zero)
+      {
+        Console.WriteLine("Ошибка получения списка тэгов по имени");
+        return Array.Empty<TmTag>();
+      }
+
+      var tags           = new List<TmTag>();
+      var currentPointer = tagTAdrTmListPointer;
+
+      for (var i = 0; i < count; i++)
+      {
+        var tAdrTm = Marshal.PtrToStructure<TmNativeDefs.TAdrTm>(currentPointer);
+
+        if (tAdrTm.Point == 0) continue;
+
+        TmTag tag;
+
+        switch (tmType)
+        {
+          case TmType.Accum:
+            tag = new TmAccum(tAdrTm.Ch, tAdrTm.RTU, tAdrTm.Point);
+            break;
+          case TmType.Analog:
+            tag = new TmAnalog(tAdrTm.Ch, tAdrTm.RTU, tAdrTm.Point);
+            break;
+          case TmType.Status:
+            tag = new TmStatus(tAdrTm.Ch, tAdrTm.RTU, tAdrTm.Point);
+            break;
+          default:
+            tag = null;
+            break;
+        }
+
+        if (tag != null)
+        {
+          await UpdateTag(tag).ConfigureAwait(false);
+          await UpdateTagPropertiesAndClassData(tag).ConfigureAwait(false);
+          tags.Add(tag);
+        }
+
+        currentPointer = IntPtr.Add(currentPointer, Marshal.SizeOf(typeof(TmNativeDefs.TAdrTm)));
+      }
+
+      _native.TmcFreeMemory(tagTAdrTmListPointer);
+      
+      return tags;
     }
 
 
@@ -2495,7 +2590,7 @@ namespace Iface.Oik.Tm.Api
                                (short) tmAddr.Point,
                                ref buf,
                                bufSize);
-      
+
       return EncodingUtil.Win1251BytesToUtf8(buf);
     }
 
@@ -2515,7 +2610,7 @@ namespace Iface.Oik.Tm.Api
                                  (short) subItemId,
                                  ref buf,
                                  bufSize);
-      
+
       return EncodingUtil.Win1251BytesToUtf8(buf);
     }
 
@@ -2592,6 +2687,44 @@ namespace Iface.Oik.Tm.Api
         analogs[i].FromTmcCommonPoint(tmcCommonPoint);
       }
 
+      _native.TmcFreeMemory(tmcCommonPointsPtr);
+    }
+
+
+    private void UpdateAccumSynchronously(TmAccum accum)
+    {
+      UpdateAccumsSynchronously(new List<TmAccum> {accum});
+    }
+    
+    
+    private void UpdateAccumsSynchronously(IReadOnlyList<TmAccum> accums)
+    {
+      if (accums.IsNullOrEmpty()) return;
+      
+      var count       = accums.Count;
+      var tmcAddrList = new TmNativeDefs.TAdrTm[count];
+      
+      for (var i = 0; i < count; i++)
+      {
+        tmcAddrList[i] = accums[i].TmAddr.ToAdrTm();
+      }
+      
+      var tmcCommonPointsPtr = _native.TmcTmValuesByListEx(_cid, (ushort) TmNativeDefs.TmDataTypes.Accum, 0,
+                                                           (uint) count,
+                                                           tmcAddrList);
+      if (tmcCommonPointsPtr == IntPtr.Zero)
+      {
+        return;
+      }
+      
+      var structSize = Marshal.SizeOf(typeof(TmNativeDefs.TCommonPoint));
+      for (var i = 0; i < count; i++)
+      {
+        var currentPtr     = new IntPtr(tmcCommonPointsPtr.ToInt64() + i * structSize);
+        var tmcCommonPoint = Marshal.PtrToStructure<TmNativeDefs.TCommonPoint>(currentPtr);
+        accums[i].FromTmcCommonPoint(tmcCommonPoint);
+      }
+      
       _native.TmcFreeMemory(tmcCommonPointsPtr);
     }
 
