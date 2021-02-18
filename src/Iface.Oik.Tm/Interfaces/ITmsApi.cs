@@ -38,7 +38,10 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task UpdateAnalog(TmAnalog analog);
 
-    Task UpdateAnalogExplicitly(TmAnalog analog, bool getRealTelemetry = false);
+    Task UpdateAnalogExplicitly(TmAnalog analog,
+                                uint     time             = 0,
+                                ushort   retroNum         = 0,
+                                bool     getRealTelemetry = false);
 
     Task UpdateStatuses(IReadOnlyList<TmStatus> statuses);
 
@@ -46,7 +49,10 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task UpdateAnalogs(IReadOnlyList<TmAnalog> analogs);
 
-    Task UpdateAnalogsExplicitly(IReadOnlyList<TmAnalog> analogs, bool getRealTelemetry = false);
+    Task UpdateAnalogsExplicitly(IReadOnlyList<TmAnalog> analogs,
+                                 uint                    time             = 0,
+                                 ushort                  retroNum         = 0,
+                                 bool                    getRealTelemetry = false);
 
     Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags);
 
@@ -139,8 +145,8 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTelecontrolScriptExplicitly(TmStatus tmStatus,
-                                                                                                 int
-                                                                                                   explicitNewStatus);
+      int
+        explicitNewStatus);
 
 
     Task OverrideTelecontrolScript();

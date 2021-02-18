@@ -410,9 +410,9 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task UpdateAnalogExplicitly(TmAnalog analog, bool getRealTelemetry)
+    public async Task UpdateAnalogExplicitly(TmAnalog analog, uint time, ushort retroNum, bool getRealTelemetry)
     {
-      await UpdateAnalogsExplicitly(new List<TmAnalog> {analog}, getRealTelemetry).ConfigureAwait(false);
+      await UpdateAnalogsExplicitly(new List<TmAnalog> {analog}, time, retroNum, getRealTelemetry).ConfigureAwait(false);
     }
 
 
@@ -455,7 +455,10 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task UpdateAnalogsExplicitly(IReadOnlyList<TmAnalog> analogs, bool getRealTelemetry = false)
+    public async Task UpdateAnalogsExplicitly(IReadOnlyList<TmAnalog> analogs, 
+                                              uint time, 
+                                              ushort retroNum,
+                                              bool getRealTelemetry = false)
     {
       if (analogs.IsNullOrEmpty()) return;
 
@@ -472,9 +475,9 @@ namespace Iface.Oik.Tm.Api
         }
       }
 
-      await Task.Run(() => _native.TmcAnalogByList(_cid, (ushort) count, tmcAddrList, analogPointsList))
+      await Task.Run(() => _native.TmcAnalogByList(_cid, (ushort) count, tmcAddrList, analogPointsList, time, retroNum))
                 .ConfigureAwait(false);
-
+      
       for (var i = 0; i < count; i++)
       {
         analogs[i].FromTAnalogPoint(analogPointsList[i]);

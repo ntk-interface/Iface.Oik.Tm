@@ -81,18 +81,18 @@ namespace Iface.Oik.Tm.Native.Interfaces
     Boolean TmcGetUserInfo(Int32                      cid,
                            UInt32                     usid,
                            ref TmNativeDefs.TUserInfo userInfo);
-    
-    
+
+
     bool TmcGetUserInfoEx(int                        cid,
                           uint                       userId,
                           ref TmNativeDefs.TUserInfo userInfo,
                           ref byte[]                 appxBuf,
                           uint                       cbAppx);
-    
-    
+
+
     IntPtr TmcGetUserList(Int32 cid);
-    
-    
+
+
     Int16 TmcStatus(Int32 cid,
                     Int16 ch,
                     Int16 rtu,
@@ -234,7 +234,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
     void TmcAnalogByList(Int32                       cid,
                          UInt16                      count,
                          TmNativeDefs.TAdrTm[]       addr,
-                         TmNativeDefs.TAnalogPoint[] analogs);
+                         TmNativeDefs.TAnalogPoint[] analogs,
+                         UInt32                      time,
+                         UInt16                      retroNum);
 
 
     short TmcGetObjectProperties(int        cid,
@@ -393,7 +395,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
                            Int16      point,
                            ref byte[] buf,
                            Int32      bufSize);
-    
+
 
     short TmcGetObjectNameEx(int        cid,
                              ushort     objectType,
@@ -544,7 +546,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
     Boolean TmcGetGrantedAccess(Int32      cid,
-                             out UInt32 pAccess);
+                                out UInt32 pAccess);
 
 
     IntPtr TmcTakeAPS(Int32 cid);

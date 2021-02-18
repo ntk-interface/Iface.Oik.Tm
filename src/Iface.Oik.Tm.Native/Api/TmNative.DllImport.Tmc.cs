@@ -143,7 +143,9 @@ namespace Iface.Oik.Tm.Native.Api
     public static extern void tmcAnalogByList(Int32                                 cid,
                                               UInt16                                count,
                                               [In]      TmNativeDefs.TAdrTm[]       addr,
-                                              [In, Out] TmNativeDefs.TAnalogPoint[] analog);
+                                              [In, Out] TmNativeDefs.TAnalogPoint[] analog,
+                                              UInt32                                time,
+                                              UInt16                                retroNum);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -281,13 +283,13 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Int16 tmcGetObjectProperties(Int32                                          cid,
-                                                      UInt16                                         objectType,
-                                                      Int16                                          ch,
-                                                      Int16                                          rtu,
-                                                      Int16                                          point,
-                                                      [In,Out] byte[] buf,
-                                                      Int32                                          bufSize);
+    public static extern Int16 tmcGetObjectProperties(Int32            cid,
+                                                      UInt16           objectType,
+                                                      Int16            ch,
+                                                      Int16            rtu,
+                                                      Int16            point,
+                                                      [In, Out] byte[] buf,
+                                                      Int32            bufSize);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -336,7 +338,7 @@ namespace Iface.Oik.Tm.Native.Api
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcEvaluateExpression(Int32                                   cid,
                                                      [MarshalAs(UnmanagedType.LPStr)] string expr,
-                                                     [In,Out]                         byte[] res,
+                                                     [In, Out]                        byte[] res,
                                                      UInt32                                  cbBytes);
 
 
@@ -576,13 +578,13 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean tmcDntGetObjectName(Int32                                          cid,
-                                                     UInt16                                         objectType,
-                                                     Int16                                          ch,
-                                                     Int16                                          rtu,
-                                                     Int16                                          point,
+    public static extern Boolean tmcDntGetObjectName(Int32            cid,
+                                                     UInt16           objectType,
+                                                     Int16            ch,
+                                                     Int16            rtu,
+                                                     Int16            point,
                                                      [In, Out] byte[] buf,
-                                                     Int32                                          bufSize);
+                                                     Int32            bufSize);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -629,7 +631,7 @@ namespace Iface.Oik.Tm.Native.Api
                                                    [MarshalAs(UnmanagedType.LPArray, SizeConst = 8)]
                                                    UInt32[] pDap,
                                                    [In, Out] byte[] buf,
-                                                   Int32                                          bufSize);
+                                                   Int32            bufSize);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
