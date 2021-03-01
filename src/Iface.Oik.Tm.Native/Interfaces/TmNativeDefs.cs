@@ -961,6 +961,38 @@ namespace Iface.Oik.Tm.Native.Interfaces
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
       public byte[] Reserved2;
     }
+    
+    
+    public struct TRetroInfoEx
+    {
+      public UInt16 Type;
+
+      [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+      public string Name;
+
+      [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 30)]
+      public string Description;
+
+      public UInt32 Period;
+      public UInt32 Capacity;
+      public UInt32 Start;
+      public UInt32 Stop;
+      public UInt32 RecCount;
+      public UInt32 Flags;
+      public byte   Version;
+      public char   ActiveFile;
+
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2)]
+      public byte[] BRes;
+
+      public UInt32 AppendTicks;
+      public UInt32 SizeMb;
+      public UInt32 LastRecSize;
+      public UInt32 MaxMb;
+      
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 9)]
+      public UInt32[] Reserved;
+    }
 
     public const Int16  RealTelemetryFlag     = unchecked((short) 0x8000);
     public const UInt32 ExtendedDataSignature = 0xEEAAEE00;

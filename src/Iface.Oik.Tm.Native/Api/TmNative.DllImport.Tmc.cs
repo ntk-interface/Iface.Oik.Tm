@@ -130,8 +130,19 @@ namespace Iface.Oik.Tm.Native.Api
                                           Int16                                   point,
                                           [MarshalAs(UnmanagedType.LPStr)] string dateTime,
                                           Int16                                   retroNum);
-
-
+    
+    
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int16 tmcAnalogFull(Int32                                                      cid,
+                                             Int16                                                      ch,
+                                             Int16                                                      rtu,
+                                             Int16                                                      point,
+                                             [In, Out] ref                     TmNativeDefs.TAnalogPoint analogPoint,
+                                             [MarshalAs(UnmanagedType.LPStr)] string                    dateTime,
+                                             Int16                                                      retroNum);
+    
+    
+    
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern void tmcStatusByList(Int32                                 cid,
                                               UInt16                                count,
@@ -671,5 +682,11 @@ namespace Iface.Oik.Tm.Native.Api
                                               UInt16                                  type,
                                               [MarshalAs(UnmanagedType.LPStr)] string text,
                                               out                              UInt32 pCount);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern Int16 tmcRetroInfoEx(Int32 cid, 
+                                              UInt16 id, 
+                                              ref TmNativeDefs.TRetroInfoEx info);
   }
 }

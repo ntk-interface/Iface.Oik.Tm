@@ -173,6 +173,17 @@ namespace Iface.Oik.Tm.Native.Api
       return tmcAnalog(cid, ch, rtu, point, dateTime, retroNum);
     }
 
+    public Int16 TmcAnalogFull(Int32                         cid,
+                               Int16                         ch,
+                               Int16                         rtu,
+                               Int16                         point,
+                               ref TmNativeDefs.TAnalogPoint analogPoint,
+                               string                        dateTime,
+                               Int16                         retroNum)
+    {
+      return tmcAnalogFull(cid, ch, rtu, point, ref analogPoint, dateTime, retroNum);
+    }
+    
 
     public IntPtr TmcTmValuesByListEx(Int32                 cid,
                                       UInt16                tmType,
@@ -848,6 +859,13 @@ namespace Iface.Oik.Tm.Native.Api
                                 out UInt32 pCount)
     {
       return tmcTextSearch(cid, type, text, out pCount);
+    }
+
+    public Int16 TmcRetroInfoEx(Int32                         cid, 
+                                UInt16                        id, 
+                                ref TmNativeDefs.TRetroInfoEx info)
+    {
+      return tmcRetroInfoEx(cid, id, ref info);
     }
   }
 }

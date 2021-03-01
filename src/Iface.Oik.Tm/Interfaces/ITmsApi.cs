@@ -99,6 +99,12 @@ namespace Iface.Oik.Tm.Interfaces
                                                              int                 retroNum = 0);
 
 
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetroEx(TmAnalog            analog,
+                                                               TmAnalogRetroFilter filter,
+                                                               int                 retroNum         = 0,
+                                                               bool                getRealTelemetry = false);
+
+
     Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveInstant(TmAnalog            analog,
                                                                        TmAnalogRetroFilter filter);
 
@@ -232,5 +238,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<IReadOnlyCollection<TmTag>> GetTagsByNamePattern(TmType tmType,
                                                           string pattern);
+
+
+    Task<IReadOnlyCollection<TmRetroInfo>> GetRetrosInfo(TmType tmType);
   }
 }

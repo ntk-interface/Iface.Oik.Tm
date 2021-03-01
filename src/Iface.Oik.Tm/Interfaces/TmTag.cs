@@ -150,6 +150,8 @@ namespace Iface.Oik.Tm.Interfaces
           return new TmAnalog(addr);
         case TmType.Status:
           return new TmStatus(addr);
+        case TmType.Accum:
+          return new TmAccum(addr);
         default:
           return null;
       }

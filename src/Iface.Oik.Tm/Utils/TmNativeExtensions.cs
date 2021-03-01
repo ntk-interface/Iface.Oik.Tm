@@ -25,6 +25,12 @@ namespace Iface.Oik.Tm.Utils
           return TmType.AnalogGroup;
         case TmNativeDefs.TmDataTypes.AccumGroup:
           return TmType.AccumGroup;
+        case TmNativeDefs.TmDataTypes.RetroStatus:
+          return TmType.RetroStatus;
+        case TmNativeDefs.TmDataTypes.RetroAnalog:
+          return TmType.RetroAnalog;
+        case TmNativeDefs.TmDataTypes.RetroAccum:
+          return TmType.RetroAccum;
         default:
           return TmType.Unknown;
       }
