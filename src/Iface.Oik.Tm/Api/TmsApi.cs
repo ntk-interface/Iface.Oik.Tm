@@ -241,6 +241,49 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetroEx(TmAnalog            analog,
+                                                                            TmAnalogRetroFilter filter,
+                                                                            int                 retroNum = 0,
+                                                                            bool getRealTelemetry = false)
+    {
+      if (filter.StartTime >= filter.EndTime)
+      {
+        return null;
+      }
+
+      var (ch, rtu, point) = analog.TmAddr.GetTupleShort();
+
+      var tmcAnalogPoint = new TmNativeDefs.TAnalogPoint();
+      var analogRetros         = new List<ITmAnalogRetro>();
+
+      var currentTime = filter.StartTime;
+      
+      while (currentTime <= filter.EndTime)
+      {
+        var time = currentTime;
+        var result = await Task.Run(() => _native.TmcAnalogFull(_cid, 
+                                                   getRealTelemetry ? (short) (ch + TmNativeDefs.RealTelemetryFlag) : ch, 
+                                                   rtu, 
+                                                   point,
+                                                   ref tmcAnalogPoint, 
+                                                   time.ToString("dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture), 
+                                                   (short)retroNum))
+                  .ConfigureAwait(false);
+        
+        currentTime = currentTime.AddSeconds(filter.Step);
+
+        if (result != TmNativeDefs.Success)
+        {
+          continue;
+        }
+        
+        analogRetros.Add(new TmAnalogRetro(tmcAnalogPoint.AsFloat, tmcAnalogPoint.Flags, _native.UxGmTime2UxTime(DateUtil.GetUtcTimestampFromDateTime(time))));
+      }
+
+      return analogRetros;
+    }
+    
+
     public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAnalog            analog,
                                                                           TmAnalogRetroFilter filter,
                                                                           int                 retroNum = 0)
@@ -2372,6 +2415,29 @@ namespace Iface.Oik.Tm.Api
       return tags;
     }
 
+    public async Task<IReadOnlyCollection<TmRetroInfo>> GetRetrosInfo(TmType tmType)
+    {
+      var retrosInfo = new List<TmRetroInfo>();
+      
+      await Task.Run(() =>
+                     {
+                       var itemsIndexes = new ushort[64];
+                       var count = _native.TmcEnumObjects(_cid, (ushort) tmType.ToNativeType(), 64,
+                                                          ref itemsIndexes, 0, 0, 0);
+
+                       for (var i = 0; i < count; i++)
+                       {
+                         var info = new TmNativeDefs.TRetroInfoEx();
+                         if (_native.TmcRetroInfoEx(_cid, itemsIndexes[i], ref info) == TmNativeDefs.Success)
+                         {
+                           retrosInfo.Add(TmRetroInfo.CreateFromTRetroInfoEx(info));
+                         }
+                       }
+                     })
+                .ConfigureAwait(false);
+
+      return retrosInfo;
+    }
 
     private async Task<(IReadOnlyList<TmEvent>, TmNativeDefs.TTMSElix)> GetEventsBatch(TmNativeDefs.TTMSElix elix,
       TmEventTypes                                                                                           type,

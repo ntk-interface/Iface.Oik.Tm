@@ -14,7 +14,10 @@ namespace Iface.Oik.Tm.Interfaces
     Rtu         = 5,
     StatusGroup = 11,
     AnalogGroup = 12,
-    AccumGroup  = 13
+    AccumGroup  = 13,
+    RetroStatus = 21,
+    RetroAnalog = 22,
+    RetroAccum  = 23,
   }
 
 

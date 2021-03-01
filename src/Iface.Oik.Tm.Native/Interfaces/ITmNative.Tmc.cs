@@ -107,6 +107,15 @@ namespace Iface.Oik.Tm.Native.Interfaces
                      Int16  retroNum);
 
 
+    Int16 TmcAnalogFull(Int32                         cid,
+                        Int16                         ch,
+                        Int16                         rtu,
+                        Int16                         point,
+                        ref TmNativeDefs.TAnalogPoint analogPoint,
+                        string                        dateTime,
+                        Int16                         retroNum);
+
+
     IntPtr TmcTmValuesByListEx(Int32                 cid,
                                UInt16                tmType,
                                Byte                  qFlags,
@@ -556,5 +565,10 @@ namespace Iface.Oik.Tm.Native.Interfaces
                          UInt16     type,
                          string     text,
                          out UInt32 pCount);
+
+
+    Int16 TmcRetroInfoEx(Int32                         cid, 
+                         UInt16                        id,
+                         ref TmNativeDefs.TRetroInfoEx info);
   }
 }
