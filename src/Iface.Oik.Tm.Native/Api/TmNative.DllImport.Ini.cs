@@ -43,5 +43,13 @@ namespace Iface.Oik.Tm.Native.Api
                                                 [MarshalAs(UnmanagedType.LPStr)]   string section,
                                                 [MarshalAs(UnmanagedType.LPArray)] byte[] buf,
                                                 UInt32                                    bufSize);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern UInt32 ini_ReadStruct(IntPtr                                    filePointer,
+                                               [MarshalAs(UnmanagedType.LPStr)]   string section,
+                                               [MarshalAs(UnmanagedType.LPStr)]   string key,
+                                               [MarshalAs(UnmanagedType.LPArray)] byte[] buf,
+                                               UInt32                                    bufSize);
   }
 }
