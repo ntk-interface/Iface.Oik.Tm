@@ -41,24 +41,42 @@ namespace Iface.Oik.Tm.Helpers
 
     public Dictionary<string, string> GetPrivateSection(string section)
     {
-      
-      uint   bufSize = 0;
-      uint   returnSize;
-      byte[] buf;
-      do
+      var  buf = new byte[BuffSizeStep];
+
+      var returnSize = _native.IniReadSection(_filePointer, section, buf, BuffSizeStep);
+
+      if (buf.Length < returnSize)
       {
-        bufSize += BuffSizeStep;
-        buf     =  new byte[bufSize];
-        returnSize = _native.IniReadSection(_filePointer, section, buf, bufSize);
-      } while (buf[buf.Length - 3] != 0 && bufSize < BufSizeLimit);
+        buf = new byte[returnSize];
+        _native.IniReadSection(_filePointer, section, buf, returnSize);
+      }
       
       var significantBytes = new byte[returnSize];
       Array.Copy(buf, significantBytes, returnSize);
-      
+
       return EncodingUtil.Win1251BytesToUtf8(significantBytes)
                          .Split(new[] {'\0'}, StringSplitOptions.RemoveEmptyEntries)
                          .Select(x => x.Split('='))
                          .ToDictionary(x => x[0], x => x[1]);
+    }
+
+
+    public byte[] GetStruct(string section, string key, uint bufSize = 1024)
+    {
+      var  buf = new byte[bufSize];
+
+      var returnSize = _native.IniReadStruct(_filePointer, section, key, buf, bufSize);
+      
+      if (buf.Length < returnSize)
+      {
+        buf = new byte[returnSize];
+        _native.IniReadSection(_filePointer, section, buf, returnSize);
+      }
+      
+      var significantBytes = new byte[returnSize];
+      Array.Copy(buf, significantBytes, returnSize);
+
+      return significantBytes;
     }
 
 
