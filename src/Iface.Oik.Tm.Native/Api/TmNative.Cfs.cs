@@ -402,5 +402,14 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return lf_ParseMessage(stringPtrToParse, time, date, name, type, msgType, thid);
     }
+
+
+    public Int32 CfsLzDecompress(IntPtr inBuffer,
+                                 UInt32     inLength,
+                                 IntPtr     outBuffPtr,
+                                 ref UInt32 outLength)
+    {
+      return cfslzDecompress(inBuffer, inLength, outBuffPtr, ref outLength);
+    }
   }
 }
