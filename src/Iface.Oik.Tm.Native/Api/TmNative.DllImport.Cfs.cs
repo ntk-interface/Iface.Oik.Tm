@@ -355,5 +355,12 @@ namespace Iface.Oik.Tm.Native.Api
                                                 [In, Out] byte[] sType,
                                                 [In, Out] byte[] sMsgType,
                                                 [In, Out] byte[] sThid);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int32 cfslzDecompress(IntPtr inBuffer,
+                                               UInt32                                         inLength,
+                                               IntPtr                                         outBuffPtr,
+                                               [In, Out] ref UInt32                           outLength);
   }
 }
