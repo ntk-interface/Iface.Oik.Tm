@@ -35,5 +35,10 @@ namespace Iface.Oik.Tm.Native.Interfaces
                           string section,
                           byte[] buf,
                           UInt32 bufSize);
+    UInt32 IniReadStruct(IntPtr filePointer,
+                          string section,
+                          string key,
+                          byte[] buf,
+                          UInt32 bufSize);
   }
 }

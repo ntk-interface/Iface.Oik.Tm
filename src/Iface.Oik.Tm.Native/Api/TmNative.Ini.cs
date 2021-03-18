@@ -50,5 +50,15 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return ini_ReadSection(filePointer, section, buf, bufSize);
     }
+
+
+    public UInt32 IniReadStruct(IntPtr filePointer,
+                                string section,
+                                string key,
+                                byte[] buf,
+                                UInt32 bufSize)
+    {
+      return ini_ReadStruct(filePointer, section, key, buf, bufSize);
+    }
   }
 }
