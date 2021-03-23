@@ -12,6 +12,7 @@ namespace Iface.Oik.Tm.Interfaces
     public DateTime Time  { get; }
 
     public bool IsValid => Flags >= 0 && 
+                           !Flags.HasFlag(TmFlags.Unreliable) &&
                            !Value.Equals(float.MaxValue) && 
                            !_invalidFlags;
 
