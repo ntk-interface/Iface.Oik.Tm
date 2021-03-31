@@ -13,6 +13,10 @@ namespace Iface.Oik.Tm.Native.Api
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
     public static extern IntPtr cftNodeEnum(IntPtr id, Int32 idx);
+    
+    
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
+    public static extern IntPtr cftNodeEnumAll(IntPtr id, Int32 idx);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
@@ -53,5 +57,9 @@ namespace Iface.Oik.Tm.Native.Api
     public static extern bool cftNPropSet(IntPtr                                  id,
                                           [MarshalAs(UnmanagedType.LPStr)] string propName,
                                           [MarshalAs(UnmanagedType.LPStr)] string propText);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
+    public static extern bool cftNodeIsEnabled(IntPtr id);
   }
 }
