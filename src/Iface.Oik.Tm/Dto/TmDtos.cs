@@ -161,6 +161,8 @@ namespace Iface.Oik.Tm.Dto
     public short?    ClassId      { get; set; }
     public DateTime? AckTime      { get; set; }
     public string    AckUser      { get; set; }
+    public bool?     AlarmActive  { get; set; }
+    public float?    VVal         { get; set; }
   }
 
 

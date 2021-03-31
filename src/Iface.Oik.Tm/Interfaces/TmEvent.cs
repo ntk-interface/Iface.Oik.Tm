@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 using Iface.Oik.Tm.Dto;
@@ -72,6 +71,10 @@ namespace Iface.Oik.Tm.Interfaces
     public bool               HasTmAnalog     => TmAddrType == TmType.Analog;
     public bool               IsAcked         => AckTime    != null; // TODO
 
+    public float? AlarmInitialValue => Type == TmEventTypes.Alarm && Reference != null
+      ? (float?) Reference
+      : null;
+
 
     public TmEvent(int hashCode)
     {
@@ -95,6 +98,8 @@ namespace Iface.Oik.Tm.Interfaces
                            dto.TmTypeName,
                            dto.TmType,
                            dto.ClassId,
+                           dto.AlarmActive,
+                           dto.VVal,
                            dto.AckTime,
                            dto.AckUser);
     }
@@ -114,22 +119,29 @@ namespace Iface.Oik.Tm.Interfaces
                                         string    tmTypeString,
                                         short?    tmAddrNativeType,
                                         short?    classId,
+                                        bool?     isAlarmActive,
+                                        float?    alarmInitialValue,
                                         DateTime? ackTime,
                                         string    ackUser)
     {
       var eventType = (TmEventTypes) type;
 
-      var eventTypeString = (eventType == TmEventTypes.StatusChange    ||
-                             eventType == TmEventTypes.ManualStatusSet ||
-                             eventType == TmEventTypes.Alarm)
-                              ? tmTypeString
-                              : typeString;
+      var eventTypeString = eventType == TmEventTypes.StatusChange    ||
+                            eventType == TmEventTypes.ManualStatusSet ||
+                            eventType == TmEventTypes.Alarm
+        ? tmTypeString
+        : typeString;
 
-      var eventText = (eventType == TmEventTypes.Extended)
-                        ? text
-                        : name;
+      var eventText = eventType == TmEventTypes.Extended
+        ? text
+        : name;
 
-      var tmEvent = new TmEvent(elixBytes != null ? BitConverter.ToInt32(elixBytes, 8) : 0)
+      var reference = eventType     == TmEventTypes.Alarm && 
+                      isAlarmActive == true
+        ? alarmInitialValue
+        : null;
+
+        var tmEvent = new TmEvent(elixBytes != null ? BitConverter.ToInt32(elixBytes, 8) : 0)
                     {
                       Time                 = time.NullIfEpoch(),
                       Text                 = eventText,
@@ -143,6 +155,7 @@ namespace Iface.Oik.Tm.Interfaces
                       TmAddrComplexInteger = (uint) tmAddrComplexInteger,
                       AckTime              = ackTime.NullIfEpoch(),
                       AckUser              = ackUser,
+                      Reference            = reference,
                     };
 
       if (elixBytes != null)
@@ -184,10 +197,17 @@ namespace Iface.Oik.Tm.Interfaces
 
       alarmEvent.TypeString         = alarmTypeName;
       alarmEvent.ExplicitTypeString = "Уставка";
-      
-      alarmEvent.StateString         = data.State == 0 ? "Снята" : "Взведена";
-      alarmEvent.ExplicitStateString = data.State == 0 ? $"{data.Val} - Снята" : $"{data.Val} - Взведена";
 
+      if (data.State > 0)
+      {
+        alarmEvent.StateString = "Взведена";
+        alarmEvent.Reference   = data.Val;
+      }
+      else
+      {
+        alarmEvent.StateString = "Снята";
+      }
+      alarmEvent.ExplicitStateString = $"{data.Val} - {alarmEvent.StateString}";
 
       return alarmEvent;
     }
