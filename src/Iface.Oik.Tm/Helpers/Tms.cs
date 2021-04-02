@@ -285,6 +285,12 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
+    public static long GetServerPseudoUnixTimestamp(long unixTimestamp)
+    {
+      return Native.UxGmTime2UxTime(unixTimestamp);
+    }
+
+
     public static (int tmCid, int rbCid, int rbPort, TmUserInfo userInfo, TmServerFeatures serverFeatures)
       Initialize(TmInitializeOptions options)
     {
