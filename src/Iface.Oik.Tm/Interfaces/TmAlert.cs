@@ -21,6 +21,7 @@ namespace Iface.Oik.Tm.Interfaces
     public float     CurrentValue       { get; }
     public int       TmClassId          { get; }
     public TmAddr    TmAddr             { get; }
+    public object    Reference          { get; }
 
     public List<ITmAnalogRetro> MicroSeries { get; }
 
@@ -35,6 +36,10 @@ namespace Iface.Oik.Tm.Interfaces
     public bool HasTmStatus => TmAddr.Type == TmType.Status;
     public bool HasTmAnalog => TmAddr.Type == TmType.Analog;
 
+    public float? AlarmInitialValue => HasTmAnalog && Reference != null
+      ? (float?) Reference
+      : null;
+
 
     public TmAlert(byte[]                 id,
                    int                    importance,
@@ -47,6 +52,7 @@ namespace Iface.Oik.Tm.Interfaces
                    string                 currentValueString,
                    DateTime?              currentValueTime,
                    float                  currentValue,
+                   float?                 initialValue,
                    int                    tmClassId,
                    TmAddr                 tmAddr,
                    ITmAnalogRetro[]       microSeries,
@@ -66,7 +72,16 @@ namespace Iface.Oik.Tm.Interfaces
       TmClassId            = tmClassId;
       TmAddr               = tmAddr;
       MicroSeries          = microSeries.ToList();
-      AnalogTechParameters = (tmAddr.Type == TmType.Analog) ? analogTechParameters : null;
+
+      if (tmAddr.Type == TmType.Analog)
+      {
+        AnalogTechParameters = analogTechParameters;
+      }
+      
+      if (tmAddr.Type == TmType.Analog && initialValue != null)
+      {
+        Reference = initialValue.Value;
+      }
     }
 
 
@@ -83,6 +98,7 @@ namespace Iface.Oik.Tm.Interfaces
                          dto.ValueText.Trim(),
                          dto.CurTime,
                          dto.CurValue,
+                         dto.ActValue,
                          dto.ClassId ?? 0,
                          TmAddr.CreateFromSqlTmaAndTmaType((ushort) (dto.TmType ?? 0), dto.Tma),
                          dto.MapToTmAnalogMicroSeriesDto().MapToITmAnalogRetroArray(),
