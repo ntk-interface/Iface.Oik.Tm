@@ -252,6 +252,7 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("РЗА документ")]                 DocumentRelayProtection = 13,
     [Description("Документ - контекстное меню")]  DocumentForContextMenu  = 14,
     [Description("Документ - левая кнопка мыши")] DocumentForClick        = 15,
+    [Description("ДЕБЛОК")]                       TmEmergencyDelock       = 16,
   }
 
 

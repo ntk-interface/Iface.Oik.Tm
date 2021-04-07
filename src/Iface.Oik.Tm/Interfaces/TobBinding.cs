@@ -18,6 +18,7 @@ namespace Iface.Oik.Tm.Interfaces
         ? ParentTob.NameOrDefault
         : Name;
 
-    public bool IsOperLock => BindingType == TobBindingType.TmOperLock;
+    public bool IsOperLock        => BindingType == TobBindingType.TmOperLock;
+    public bool IsEmergencyDelock => BindingType == TobBindingType.TmEmergencyDelock;
   }
 }
