@@ -27,7 +27,7 @@ namespace Iface.Oik.Tm.Interfaces
       {
         Name = info.Name,
         Description = info.Description,
-        Period = info.Capacity,
+        Period = info.Period,
         Capacity = info.Capacity,
         StartTime = DateUtil.GetDateTimeFromTimestamp(info.Start),
         EndTime = DateUtil.GetDateTimeFromTimestamp(info.Stop),

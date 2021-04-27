@@ -153,6 +153,9 @@ namespace Iface.Oik.Tm.Interfaces
     Task<string> GetRtuName(int       channelId,
                             int       rtuId,
                             PreferApi prefer = PreferApi.Auto);
+    
+    
+    Task<IReadOnlyCollection<TmRetroInfo>> GetRetrosInfo(TmType tmType, PreferApi prefer = PreferApi.Auto);
 
 
     Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAnalog  analog,
