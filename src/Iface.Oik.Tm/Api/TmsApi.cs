@@ -885,8 +885,16 @@ namespace Iface.Oik.Tm.Api
     {
       if (alert == null) return false;
 
+      return await RemoveAlert(alert.Id).ConfigureAwait(false);
+    }
+
+
+    public async Task<bool> RemoveAlert(byte[] alertId)
+    {
+      if (alertId.IsNullOrEmpty()) return false;
+
       return await Task.Run(() => _native.TmcAlertListRemove(_cid,
-                                                             new[] {new TmNativeDefs.TAlertListId {IData = alert.Id}}))
+                                                             new[] {new TmNativeDefs.TAlertListId {IData = alertId}}))
                        .ConfigureAwait(false);
     }
 

@@ -114,6 +114,8 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task<bool> RemoveAlert(TmAlert alert);
+    
+    Task<bool> RemoveAlert(byte[] alertId);
 
     Task<bool> RemoveAlerts(IEnumerable<TmAlert> alerts);
 

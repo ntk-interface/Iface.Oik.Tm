@@ -200,6 +200,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<bool> RemoveAlert(TmAlert alert, PreferApi prefer = PreferApi.Auto);
 
+    Task<bool> RemoveAlert(byte[] alertId, PreferApi prefer = PreferApi.Auto);
+
     Task<bool> RemoveAlerts(IEnumerable<TmAlert> alerts, PreferApi api = PreferApi.Auto);
 
 
