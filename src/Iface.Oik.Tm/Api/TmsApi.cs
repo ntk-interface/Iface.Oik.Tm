@@ -87,7 +87,7 @@ namespace Iface.Oik.Tm.Api
                 .ConfigureAwait(false);
 
       var singleBufPtr = Marshal.PtrToStructure<IntPtr>(bufPtr); // массив строк, а не просто строка
-      var str          = Marshal.PtrToStringAnsi(singleBufPtr);
+      var str          = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(singleBufPtr);
       _native.TmcFreeMemory(singleBufPtr);
 
       return str;
@@ -658,7 +658,7 @@ namespace Iface.Oik.Tm.Api
       }
 
       var singleClassDataPtr = Marshal.PtrToStructure<IntPtr>(classDataPtr); // у нас массив строк, а не просто строка
-      var str                = Marshal.PtrToStringAnsi(singleClassDataPtr);
+      var str                = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(singleClassDataPtr);
       _native.TmcFreeMemory(classDataPtr);
 
       tag.SetTmcClassData(str);
@@ -713,7 +713,7 @@ namespace Iface.Oik.Tm.Api
         }
 
         var singleClassDataPtr = Marshal.PtrToStructure<IntPtr>(classDataPtr); // у нас массив строк, а не просто строка
-        var tmcClassDataStr    = Marshal.PtrToStringAnsi(singleClassDataPtr);
+        var tmcClassDataStr    = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(singleClassDataPtr);
 
         var tmClassId    = 0;
         var tmClassName  = "";
@@ -772,7 +772,7 @@ namespace Iface.Oik.Tm.Api
         }
 
         var singleClassDataPtr = Marshal.PtrToStructure<IntPtr>(classDataPtr); // у нас массив строк, а не просто строка
-        var tmcClassDataStr    = Marshal.PtrToStringAnsi(singleClassDataPtr);
+        var tmcClassDataStr    = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(singleClassDataPtr);
         var tmClassId          = 0;
         var tmClassName        = "";
         tmcClassDataStr?.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries)
