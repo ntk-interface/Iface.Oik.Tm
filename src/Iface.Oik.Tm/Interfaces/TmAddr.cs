@@ -431,6 +431,12 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
+    public long ToSqlFullTma()
+    {
+      return ((long) Type.ToNativeType() << 32) + ToSqlTma();
+    }
+
+
     public string ToSqlTmaStr()
     {
       var str = ToString();
