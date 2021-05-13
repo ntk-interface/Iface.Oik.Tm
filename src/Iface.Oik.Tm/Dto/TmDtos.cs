@@ -180,6 +180,8 @@ namespace Iface.Oik.Tm.Dto
     public DateTime? CurTime    { get; set; }
     public float     CurValue   { get; set; }
     public float?    ActValue   { get; set; }
+    public DateTime? AckTime    { get; set; }
+    public string    AckUser    { get; set; }
     public int       Tma        { get; set; }
     public short?    TmType     { get; set; }
     public short?    ClassId    { get; set; }

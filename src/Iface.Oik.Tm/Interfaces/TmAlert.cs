@@ -21,6 +21,8 @@ namespace Iface.Oik.Tm.Interfaces
     public float     CurrentValue       { get; }
     public int       TmClassId          { get; }
     public TmAddr    TmAddr             { get; }
+    public DateTime? AckTime            { get; }
+    public string    AckUser            { get; }
     public object    Reference          { get; }
 
     public List<ITmAnalogRetro> MicroSeries { get; }
@@ -53,31 +55,35 @@ namespace Iface.Oik.Tm.Interfaces
                    DateTime?              currentValueTime,
                    float                  currentValue,
                    float?                 initialValue,
+                   DateTime?              ackTime,
+                   string                 ackUser,
                    int                    tmClassId,
                    TmAddr                 tmAddr,
                    ITmAnalogRetro[]       microSeries,
                    TmAnalogTechParameters analogTechParameters)
     {
-      Id                   = id;
-      Importance           = importance;
-      IsActive             = isActive;
-      IsUnacked            = isUnacked;
-      OnTime               = onTime;
-      OffTime              = offTime;
-      Type                 = type;
-      Name                 = name;
-      CurrentValueString   = currentValueString;
-      CurrentValueTime     = currentValueTime;
-      CurrentValue         = currentValue;
-      TmClassId            = tmClassId;
-      TmAddr               = tmAddr;
-      MicroSeries          = microSeries.ToList();
+      Id                 = id;
+      Importance         = importance;
+      IsActive           = isActive;
+      IsUnacked          = isUnacked;
+      OnTime             = onTime;
+      OffTime            = offTime;
+      Type               = type;
+      Name               = name;
+      CurrentValueString = currentValueString;
+      CurrentValueTime   = currentValueTime;
+      CurrentValue       = currentValue;
+      AckTime            = ackTime;
+      AckUser            = ackUser;
+      TmClassId          = tmClassId;
+      TmAddr             = tmAddr;
+      MicroSeries        = microSeries.ToList();
 
       if (tmAddr.Type == TmType.Analog)
       {
         AnalogTechParameters = analogTechParameters;
       }
-      
+
       if (tmAddr.Type == TmType.Analog && initialValue != null)
       {
         Reference = initialValue.Value;
@@ -99,6 +105,8 @@ namespace Iface.Oik.Tm.Interfaces
                          dto.CurTime,
                          dto.CurValue,
                          dto.ActValue,
+                         dto.AckTime,
+                         dto.AckUser,
                          dto.ClassId ?? 0,
                          TmAddr.CreateFromSqlTmaAndTmaType((ushort) (dto.TmType ?? 0), dto.Tma),
                          dto.MapToTmAnalogMicroSeriesDto().MapToITmAnalogRetroArray(),
