@@ -20,6 +20,10 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern UInt32 tmcIsConnected(Int32 cid);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern void tmcUpdateConnection(Int32 cid);
 
 

@@ -21,7 +21,7 @@ namespace Iface.Oik.Tm.Helpers
     public bool IsConnected
     {
       get => _isConnected;
-      private set
+      protected set
       {
         if (_isConnected == value) return;
         _isConnected = value;

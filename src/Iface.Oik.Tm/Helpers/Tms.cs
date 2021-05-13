@@ -93,6 +93,13 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
+    public static bool IsConnectedSimple(int tmCid)
+    {
+      return tmCid != 0 &&
+             Native.TmcIsConnected(tmCid) > 0;
+    }
+
+
     public static bool IsConnected(int tmCid)
     {
       return tmCid != 0 &&

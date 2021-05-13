@@ -22,6 +22,12 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public UInt32 TmcIsConnected(Int32 cid)
+    {
+      return tmcIsConnected(cid);
+    }
+
+
     public void TmcUpdateConnection(Int32 cid)
     {
       tmcUpdateConnection(cid);
