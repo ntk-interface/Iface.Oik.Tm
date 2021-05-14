@@ -1249,7 +1249,7 @@ namespace Iface.Oik.Tm.Api
       var whereEventImportances      = GetWhereEventImportances(filter);
       var whereEventTmStatusClassIds = GetWhereEventTmStatusClassIds(filter);
       var whereEventChannelsAndRtus  = GetWhereEventChannelsAndRtus(filter);
-      var joinEventTmAddr            = GetJoinEventTmAddr(filter);
+      var whereEventTmAddr           = GetWhereEventTmAddr(filter);
 
       try
       {
@@ -1263,8 +1263,7 @@ namespace Iface.Oik.Tm.Api
                                 tma, tma_str, tm_type_name, tm_type, class_id, v_val, alarm_active,
                                 ack_time, ack_user
             FROM oik_event_log
-            {joinEventTmAddr}
-            WHERE 1=1 {whereBeg}{whereEnd}{whereEventTypes}{whereEventImportances}{whereEventTmStatusClassIds}{whereEventChannelsAndRtus}
+            WHERE 1=1 {whereBeg}{whereEnd}{whereEventTypes}{whereEventImportances}{whereEventTmStatusClassIds}{whereEventTmAddr}{whereEventChannelsAndRtus}
             ORDER BY update_time";
 
           var parameters = new DynamicParameters();
@@ -1284,18 +1283,9 @@ namespace Iface.Oik.Tm.Api
           {
             parameters.Add("@Importances", filter.Importances, DbType.Int16);
           }
-          if (!joinEventTmAddr.IsNullOrEmpty())
+          if (!whereEventTmAddr.IsNullOrEmpty())
           {
-            var count       = filter.TmAddrList.Count;
-            var tmaArray    = new int[count];
-            var tmTypeArray = new int[count];
-            for (var i = 0; i < count; i++)
-            {
-              tmaArray[i]    = filter.TmAddrList[i].ToSqlTma();
-              tmTypeArray[i] = filter.TmAddrList[i].GetSqlTmaType();
-            }
-            parameters.Add("@TmaArray",    tmaArray);
-            parameters.Add("@TmTypeArray", tmTypeArray);
+            parameters.Add("@FullTmaArray", filter.TmAddrList.Select(addr => addr.ToSqlFullTma()).ToArray());
           }
 
           var dtos = await sql.DbConnection
@@ -1362,18 +1352,11 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    private static string GetJoinEventTmAddr(TmEventFilter filter)
+    private static string GetWhereEventTmAddr(TmEventFilter filter)
     {
       if (filter.TmAddrList.IsNullOrEmpty()) return "";
 
-      return @"RIGHT JOIN UNNEST(@TmaArray, @TmTypeArray) 
-               x (x_tma, x_tm_type) 
-               ON tma = x.x_tma AND tm_type = x.x_tm_type";
-
-      var tmaList = filter.TmAddrList
-                          .Select(tmAddr => $"(tma = {tmAddr.ToSqlTma()} AND tm_type = {tmAddr.GetSqlTmaType()})");
-
-      return " AND (" + string.Join(" OR ", tmaList) + ")";
+      return " AND fulltma = ANY(@FullTmaArray)";
     }
 
 
