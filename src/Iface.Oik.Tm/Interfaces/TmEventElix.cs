@@ -4,8 +4,8 @@ namespace Iface.Oik.Tm.Interfaces
 {
   public class TmEventElix : IComparable<TmEventElix>
   {
-    public ulong R { get; }
-    public ulong M { get; }
+    public ulong R { get; } // reserved
+    public ulong M { get; } // main
 
 
     public TmEventElix(ulong r, ulong m)
@@ -60,8 +60,8 @@ namespace Iface.Oik.Tm.Interfaces
         return true;
       }
 
-      return R == comparison.R &&
-             M == comparison.M;
+      return M == comparison.M &&
+             R == comparison.R;
     }
 
 
@@ -83,17 +83,17 @@ namespace Iface.Oik.Tm.Interfaces
 
     public int CompareTo(TmEventElix other)
     {
-      if (R == other.R &&
-          M == other.M)
+      if (M == other.M &&
+          R == other.R)
       {
         return 0;
       }
-      if (R > other.R)
+      if (M > other.M)
       {
         return 1;
       }
-      if (R == other.R &&
-          M > other.M)
+      if (M == other.M &&
+          R > other.R)
       {
         return 1;
       }

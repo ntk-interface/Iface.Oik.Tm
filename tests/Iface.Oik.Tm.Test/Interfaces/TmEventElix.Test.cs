@@ -269,7 +269,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       [InlineData(4, 10, 5, 10, -1)]
       [InlineData(5, 11, 5, 10, +1)]
       [InlineData(5, 9,  5, 10, -1)]
-      [InlineData(6, 9,  5, 10, +1)]
+      [InlineData(6, 9,  5, 10, -1)]
       public void ReturnsCorrectValues(uint r1, uint m1, uint r2, uint m2, int expected)
       {
         var elix1 = new TmEventElix(r1, m1);

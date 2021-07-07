@@ -8,6 +8,7 @@ namespace Iface.Oik.Tm.Interfaces
   public interface ICommonOikSqlConnection : IDisposable
   {
     string           Label        { get; set; }
+    bool             IsDebugMode  { get; set; }
     NpgsqlConnection DbConnection { get; }
     bool             IsOpen       { get; }
 

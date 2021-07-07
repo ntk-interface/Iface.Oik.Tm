@@ -1410,7 +1410,8 @@ namespace Iface.Oik.Tm.Api
       {
         using (var sql = _createOikSqlConnection())
         {
-          sql.Label = "CurrEvents";
+          sql.Label       = "CurrEvents";
+          sql.IsDebugMode = true;
           await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT elix, update_time, 
                                 rec_text, name, rec_state_text, rec_type, rec_type_name, user_name, importance, 

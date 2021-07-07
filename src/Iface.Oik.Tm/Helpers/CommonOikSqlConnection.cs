@@ -13,6 +13,7 @@ namespace Iface.Oik.Tm.Helpers
     private readonly string _connectionString;
 
     public string           Label        { get; set; }
+    public bool             IsDebugMode  { get; set; }
     public NpgsqlConnection DbConnection { get; private set; }
 
     public bool IsOpen => DbConnection?.State == ConnectionState.Open;
