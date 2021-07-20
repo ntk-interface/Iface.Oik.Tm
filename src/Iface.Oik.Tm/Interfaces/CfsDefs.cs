@@ -63,6 +63,11 @@ namespace Iface.Oik.Tm.Interfaces
     ScadaSec    = 25,
     TotParms    = 26,
     Version     = 27,
+    LocalClient = 28,
+    Spodes      = 29,
+    Client10    = 30,
+    WebClient10 = 31,
+    Client      = 32,
     LicNum      = 1024,
   }
 
