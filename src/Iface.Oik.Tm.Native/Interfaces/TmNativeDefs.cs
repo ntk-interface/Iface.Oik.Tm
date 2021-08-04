@@ -358,8 +358,20 @@ namespace Iface.Oik.Tm.Native.Interfaces
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2048)]
       public byte[] Data;
     }
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
+    public struct TEventHeader
+    {
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 24)]
+      public byte[] DateTime; // время события в формате ДД.ММ.ГГГГ ЧЧ:ММ:СС.cc
 
-
+      public UInt16 Imp; // уровень важности
+      public UInt16 Id;  // тип события
+      public UInt16 Ch;
+      public UInt16 Rtu;
+      public UInt16 Point;
+    }
+    
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TTMSElix
     {
@@ -375,6 +387,14 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public TTMSElix Elix;
       public UInt32   EventSize;
       public TEvent   Event;
+    }
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct TEventElixHeader
+    {
+      public IntPtr   Next;
+      public TTMSElix Elix;
+      public UInt32   EventSize;
     }
 
 

@@ -433,6 +433,40 @@ namespace Iface.Oik.Tm.Native.Utils
       return result;
     }
 
+    public static TmNativeDefs.TEventElix EventElixFromIntPtr(IntPtr pTEventElix)
+    {
+      var tEventOffset = Marshal.SizeOf<TmNativeDefs.TEventElixHeader>();
+      var eventHeaderSize  = Marshal.SizeOf<TmNativeDefs.TEventHeader>();
+      var dataOffset   = tEventOffset + eventHeaderSize;
+
+      var header = Marshal.PtrToStructure<TmNativeDefs.TEventElixHeader>(pTEventElix);
+
+      var dataSize = (int)(header.EventSize - eventHeaderSize);
+      
+      var eventHeader = Marshal.PtrToStructure<TmNativeDefs.TEventHeader>(IntPtr.Add(pTEventElix, tEventOffset));
+      
+      var dataBuf = new byte[dataSize];
+      
+      Marshal.Copy(IntPtr.Add(pTEventElix, dataOffset), dataBuf, 0, dataSize);
+      
+      return new TmNativeDefs.TEventElix
+      {
+        Next      = header.Next,
+        Elix      = header.Elix,
+        EventSize = header.EventSize,
+        Event = new TmNativeDefs.TEvent
+        {
+          Ch       = eventHeader.Ch,
+          Data     = dataBuf,
+          DateTime = eventHeader.DateTime,
+          Id       = eventHeader.Id,
+          Imp      = eventHeader.Imp,
+          Point    = eventHeader.Point,
+          Rtu      = eventHeader.Rtu
+        }
+      };
+    } 
+
 
     private static T FromBytes<T>(byte[] bytes) where T : struct
     {
