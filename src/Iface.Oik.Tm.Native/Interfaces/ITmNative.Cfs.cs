@@ -270,6 +270,21 @@ namespace Iface.Oik.Tm.Native.Interfaces
                         uint       maxErrs);
 
 
+    bool CfsIfpcNewUserSystemAvaliable(IntPtr     connId,
+                                       out uint   flags,
+                                       out uint   errCode,
+                                       ref byte[] errBuf,
+                                       uint       maxErrs);
+
+
+    bool CfsIfpcSetUserPwd(IntPtr     connId,
+                          string     username,
+                          string     password,
+                          out uint   errCode,
+                          ref byte[] errBuf,
+                          uint       maxErrs);
+
+
     void DPrintF(string message);
     void MPrintF(string message);
     void EPrintF(string message);
