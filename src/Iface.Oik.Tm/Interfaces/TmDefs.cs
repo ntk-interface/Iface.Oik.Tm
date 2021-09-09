@@ -307,6 +307,15 @@ namespace Iface.Oik.Tm.Interfaces
   }
 
 
+  public enum TmPasswordNeedsChangeResult
+  {
+    Ok = 0,
+    NeedsChange = 1,
+    NeedsChangeByAdmin = 2,
+    Error = 3,
+  }
+
+
   public enum TmServerLogRecordTypes
   {
     [Description("???")]   Undefined = -1,

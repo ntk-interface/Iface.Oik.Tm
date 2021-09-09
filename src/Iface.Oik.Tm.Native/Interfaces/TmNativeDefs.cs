@@ -265,6 +265,20 @@ namespace Iface.Oik.Tm.Native.Interfaces
       ExtValCount           = 0x40,
       ReserveBufferSize     = 0x80
     }
+
+
+    [Flags]
+    public enum NewUserSystem
+    {
+      Available           = 0x0001,
+      Certificate         = 0x0002,
+      SpecialUser         = 0x0004,
+      OwnUser             = 0x0008,
+      ChangePassword      = 0x0100,
+      SecurityLog         = 0x0200,
+      UserTemplates       = 0x0400,
+      AdminChangePassword = 0x0800,
+    }
     
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

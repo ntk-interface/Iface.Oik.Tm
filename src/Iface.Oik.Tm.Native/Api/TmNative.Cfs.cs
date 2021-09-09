@@ -368,6 +368,27 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public bool CfsIfpcNewUserSystemAvaliable(IntPtr     connId,
+                                              out UInt32 flags,
+                                              out uint   errCode,
+                                              ref byte[] errBuf,
+                                              uint       maxErrs)
+    {
+      return cfsIfpcNewUserSystemAvaliable(connId, out flags, out errCode, errBuf, maxErrs);
+    }
+
+
+    public bool CfsIfpcSetUserPwd(IntPtr     connId,
+                                  string     username,
+                                  string     password,
+                                  out uint   errCode,
+                                  ref byte[] errBuf,
+                                  uint       maxErrs)
+    {
+      return cfsIfpcSetUserPwd(connId, username, password, out errCode, errBuf, maxErrs);
+    }
+
+
     public Int64 UxGmTime2UxTime(Int64 time)
     {
       return uxgmtime2uxtime(time);

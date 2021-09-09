@@ -149,6 +149,61 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
+    public static TmPasswordNeedsChangeResult CheckIfPasswordNeedsChange(int tmCid)
+    {
+      var cfCid = Native.TmcGetCfsHandle(tmCid);
+      if (cfCid == IntPtr.Zero)
+      {
+        return TmPasswordNeedsChangeResult.Error;
+      }
+      
+      const int errStringLength = 1000;
+      var       errString       = new byte[errStringLength];
+      uint      errCode         = 0;
+
+      Native.CfsIfpcNewUserSystemAvaliable(cfCid, out var nusFlags, out errCode, ref errString, errStringLength);
+      var flags = (TmNativeDefs.NewUserSystem) nusFlags;
+
+      if (flags.HasFlag(TmNativeDefs.NewUserSystem.AdminChangePassword))
+      {
+        return TmPasswordNeedsChangeResult.NeedsChangeByAdmin;
+      }
+      if (flags.HasFlag(TmNativeDefs.NewUserSystem.ChangePassword))
+      {
+        return TmPasswordNeedsChangeResult.NeedsChange;
+      }
+      return TmPasswordNeedsChangeResult.Ok;
+    }
+
+
+    public static (bool, string) ChangeUserPassword(int tmCid, string username, string password)
+    {
+      var cfCid = Native.TmcGetCfsHandle(tmCid);
+      if (cfCid == IntPtr.Zero)
+      {
+        return (false, "Ошибка получения идентификатора пользователя");
+      }
+      
+      const int errStringLength = 1000;
+      var       errString       = new byte[errStringLength];
+      uint      errCode         = 0;
+
+      if (!username.StartsWith("*")) // сервер требует в начале имени звездочку
+      {
+        username = "*" + username;
+      }
+
+      if (Native.CfsIfpcSetUserPwd(cfCid, username, password, out errCode, ref errString, errStringLength))
+      {
+        return (true, string.Empty);
+      }
+      else
+      {
+        return (false, EncodingUtil.Win1251BytesToUtf8(errString));
+      }
+    }
+
+
     public static TmSecurityAccessFlags GetSecurityAccessFlags(int tmCid)
     {
       if (Native.RbcGetSecurity(tmCid, out var isAdmin, out var accessFlags) == 0)
