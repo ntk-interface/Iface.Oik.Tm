@@ -181,12 +181,17 @@ namespace Iface.Oik.Tm.Helpers
       var cfCid = Native.TmcGetCfsHandle(tmCid);
       if (cfCid == IntPtr.Zero)
       {
-        return (false, "CID");
+        return (false, "Ошибка получения идентификатора пользователя");
       }
       
       const int errStringLength = 1000;
       var       errString       = new byte[errStringLength];
       uint      errCode         = 0;
+
+      if (!username.StartsWith("*")) // сервер требует в начале имени звездочку
+      {
+        username = "*" + username;
+      }
 
       if (Native.CfsIfpcSetUserPwd(cfCid, username, password, out errCode, ref errString, errStringLength))
       {
