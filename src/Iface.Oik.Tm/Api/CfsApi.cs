@@ -1220,6 +1220,9 @@ namespace Iface.Oik.Tm.Api
       return EncodingUtil.Win1251BytesToUtf8(basePathBuf);
     }
 
+    /* TODO // path = @@
+			// section = LinkedServer
+			// key = TMS (или др.) */
     private async Task<string> GetIniString(string path,
                                             string section,
                                             string key     = "",
