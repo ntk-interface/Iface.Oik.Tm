@@ -163,11 +163,11 @@ namespace Iface.Oik.Tm.Helpers
         return TmPasswordNeedsChangeResult.Error;
       }
 
-      const int errStringLength = 1000;
-      var       errString       = new byte[errStringLength];
-      uint      errCode         = 0;
+      const int errBufLength = 1000;
+      var       errBuf       = new byte[errBufLength];
+      uint      errCode      = 0;
 
-      Native.CfsIfpcNewUserSystemAvaliable(cfCid, out var nusFlags, out errCode, ref errString, errStringLength);
+      Native.CfsIfpcNewUserSystemAvaliable(cfCid, out var nusFlags, out errCode, ref errBuf, errBufLength);
       var flags = (TmNativeDefs.NewUserSystem)nusFlags;
 
       if (flags.HasFlag(TmNativeDefs.NewUserSystem.AdminChangePassword))
@@ -190,23 +190,54 @@ namespace Iface.Oik.Tm.Helpers
         return (false, "Ошибка получения идентификатора пользователя");
       }
 
-      const int errStringLength = 1000;
-      var       errString       = new byte[errStringLength];
-      uint      errCode         = 0;
+      const int errBufLength = 1000;
+      var       errBuf       = new byte[errBufLength];
+      uint      errCode      = 0;
 
       if (!username.StartsWith("*")) // сервер требует в начале имени звездочку
       {
         username = "*" + username;
       }
 
-      if (Native.CfsIfpcSetUserPwd(cfCid, username, password, out errCode, ref errString, errStringLength))
+      if (Native.CfsIfpcSetUserPwd(cfCid, username, password, out errCode, ref errBuf, errBufLength))
       {
         return (true, string.Empty);
       }
       else
       {
-        return (false, EncodingUtil.Win1251BytesToUtf8(errString));
+        return (false, EncodingUtil.Win1251BytesToUtf8(errBuf));
       }
+    }
+
+
+    public static string GetLinkedRbServerName(int tmCid, string tmServerName)
+    {
+      var cfCid = Native.TmcGetCfsHandle(tmCid);
+      if (cfCid == IntPtr.Zero)
+      {
+        return string.Empty;
+      }
+      var       bufSize      = 255u;
+      var       buf          = new byte[bufSize];
+      const int errBufLength = 1000;
+      var       errBuf       = new byte[errBufLength];
+      uint      errCode      = 0;
+
+      var result = Native.CfsGetIniString(cfCid,
+                                          "@@",
+                                          "LinkedServer",
+                                          tmServerName,
+                                          string.Empty,
+                                          ref buf,
+                                          out bufSize,
+                                          out errCode,
+                                          ref errBuf,
+                                          errBufLength);
+      if (!result)
+      {
+        return string.Empty;
+      }
+      return EncodingUtil.Win1251BytesToUtf8(buf);
     }
 
 
