@@ -269,6 +269,11 @@ namespace Iface.Oik.Tm.Native.Interfaces
                         ref byte[] errBuf,
                         uint       maxErrs);
 
+    IntPtr CfsEnumTimezones(IntPtr     connId,
+                            out UInt32 errCode,
+                            ref byte[] errBuf,
+                            UInt32     maxErrs);
+
 
     bool CfsIfpcNewUserSystemAvaliable(IntPtr     connId,
                                        out uint   flags,
