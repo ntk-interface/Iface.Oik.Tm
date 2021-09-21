@@ -314,6 +314,13 @@ namespace Iface.Oik.Tm.Native.Api
                                              UInt32           maxErrs);
 
 
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern IntPtr cfsEnumTimezones(IntPtr           connId,
+                                                 out       UInt32 errCode,
+                                                 [In, Out] byte[] errBuf,
+                                                 UInt32           maxErrs);
+
+
     [DllImport(Cfshare, CallingConvention = CallingConvention.Cdecl)]
     public static extern Int64 uxgmtime2uxtime(Int64 time);
 

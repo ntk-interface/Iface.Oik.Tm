@@ -366,6 +366,15 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return cfsGetBasePath(connId, path, cbPath, out errCode, errBuf, maxErrs);
     }
+    
+    
+    public IntPtr CfsEnumTimezones(IntPtr     connId,
+                                        out UInt32 errCode,
+                                        ref byte[] errBuf,
+                                        UInt32     maxErrs)
+    {
+      return cfsEnumTimezones(connId, out errCode, errBuf, maxErrs);
+    }
 
 
     public Int64 UxGmTime2UxTime(Int64 time)
