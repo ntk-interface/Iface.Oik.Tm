@@ -400,33 +400,44 @@ namespace Iface.Oik.Tm.Api
       var result = new List<ITmAnalogRetro>();
       try
       {
-        float minValue   = 0;
-        float maxValue   = 0;
-        var   structSize = Marshal.SizeOf(typeof(TmNativeDefs.TMAAN_ARCH_VALUE));
+        var avgValue        = 0f;
+        var minValue        = 0f;
+        var maxValue        = 0f;
+        var internalCounter = 0;
+        var structSize      = Marshal.SizeOf(typeof(TmNativeDefs.TMAAN_ARCH_VALUE));
         for (var i = 0; i < count; i++)
         {
           var currentPtr             = new IntPtr(tmcImpulseArchivePtr.ToInt64() + i * structSize);
           var tmcImpulseArchivePoint = Marshal.PtrToStructure<TmNativeDefs.TMAAN_ARCH_VALUE>(currentPtr);
           switch ((TmNativeDefs.ImpulseArchiveFlags) tmcImpulseArchivePoint.Tag)
           {
+            case TmNativeDefs.ImpulseArchiveFlags.Avg:
+              avgValue = tmcImpulseArchivePoint.Value;
+              internalCounter++;
+              break;
+            
             case TmNativeDefs.ImpulseArchiveFlags.Max:
               maxValue = tmcImpulseArchivePoint.Value;
+              internalCounter++;
               break;
 
             case TmNativeDefs.ImpulseArchiveFlags.Min:
               minValue = tmcImpulseArchivePoint.Value;
+              internalCounter++;
               break;
-
-            case TmNativeDefs.ImpulseArchiveFlags.Avg:
-              float avgValue = tmcImpulseArchivePoint.Value;
-              var point = new TmAnalogImpulseArchiveAverage(avgValue, minValue, maxValue,
-                                                            tmcImpulseArchivePoint.Flags,
-                                                            tmcImpulseArchivePoint.Ut + (uint) step, // прошлый пер.
-                                                            tmcImpulseArchivePoint.Ms);
-              minValue = 0;
-              maxValue = 0;
-              result.Add(point);
-              break;
+          }
+          if (internalCounter == 3)
+          {
+            result.Add(new TmAnalogImpulseArchiveAverage(avgValue, 
+                                                         minValue, 
+                                                         maxValue,
+                                                         tmcImpulseArchivePoint.Flags,
+                                                         tmcImpulseArchivePoint.Ut + (uint) step, // прошлый период
+                                                         tmcImpulseArchivePoint.Ms));
+            internalCounter = 0;
+            minValue        = 0;
+            maxValue        = 0;
+            avgValue        = 0;
           }
         }
       }
