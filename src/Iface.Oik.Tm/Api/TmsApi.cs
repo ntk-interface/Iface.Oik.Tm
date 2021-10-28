@@ -400,6 +400,7 @@ namespace Iface.Oik.Tm.Api
       var result = new List<ITmAnalogRetro>();
       try
       {
+        var avgTime         = 0u;
         var avgValue        = 0f;
         var minValue        = 0f;
         var maxValue        = 0f;
@@ -413,6 +414,7 @@ namespace Iface.Oik.Tm.Api
           {
             case TmNativeDefs.ImpulseArchiveFlags.Avg:
               avgValue = tmcImpulseArchivePoint.Value;
+              avgTime  = tmcImpulseArchivePoint.Ut;
               internalCounter++;
               break;
             
@@ -432,7 +434,7 @@ namespace Iface.Oik.Tm.Api
                                                          minValue, 
                                                          maxValue,
                                                          tmcImpulseArchivePoint.Flags,
-                                                         tmcImpulseArchivePoint.Ut + (uint) step, // прошлый период
+                                                         avgTime + (uint) step, // прошлый период
                                                          tmcImpulseArchivePoint.Ms));
             internalCounter = 0;
             minValue        = 0;
