@@ -173,9 +173,9 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<TmTelecontrolResult> TeleregulateByValue(TmAnalog analog, float value);
 
-
     Task<bool> SwitchStatusManually(TmStatus tmStatus, bool alsoBlockManually = false);
-
+    
+    Task SetTechObjectsProperties(IReadOnlyCollection<Tob> tobs);
 
     Task SetTechObjectProperties(int                                 scheme,
                                  int                                 type,

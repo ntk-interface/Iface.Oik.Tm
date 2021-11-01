@@ -351,6 +351,10 @@ namespace Iface.Oik.Tm.Interfaces
     Task AddStringToEventLog(string    str,
                              TmAddr    tmAddr = null,
                              PreferApi prefer = PreferApi.Auto);
+    
+    
+    Task SetTechObjectsProperties(IReadOnlyCollection<Tob> tobs,
+                                  PreferApi                prefer = PreferApi.Auto);
 
 
     Task SetTechObjectProperties(int                                 scheme,

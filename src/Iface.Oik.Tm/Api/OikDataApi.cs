@@ -1334,6 +1334,28 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task SetTechObjectsProperties(IReadOnlyCollection<Tob> tobs,
+                                               PreferApi                prefer = PreferApi.Auto)
+    {
+      if (!_serverFeatures.AreTechObjectsEnabled)
+      {
+        return;
+      }
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        await _tms.SetTechObjectsProperties(tobs).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+      }
+    }
+
+
     public async Task SetTechObjectProperties(int                                 scheme,
                                               int                                 type,
                                               int                                 obj,

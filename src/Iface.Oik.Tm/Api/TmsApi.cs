@@ -1545,6 +1545,42 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+
+    public async Task SetTechObjectsProperties(IReadOnlyCollection<Tob> tobs)
+    {
+      var tmcProps = new List<TmNativeDefs.TTechObjProps>(tobs.Count);
+
+      foreach (var tob in tobs)
+      {
+        var propsList  = tob.Properties.Select(p => $"{p.Key}={p.Value}");
+        var propsBytes = TmNativeUtil.GetDoubleNullTerminatedBytesFromStringList(propsList);
+        var propsPtr   = Marshal.AllocHGlobal(propsBytes.Length);
+        Marshal.Copy(propsBytes, 0, propsPtr, propsBytes.Length);
+        
+        tmcProps.Add(new TmNativeDefs.TTechObjProps
+        {
+          TobFlg = (byte) TmNativeDefs.TofWr.Addt,
+          Scheme = tob.Scheme,
+          Type   = tob.Type,
+          Object = tob.Object,
+          Props  = propsPtr,
+        });
+      }
+      
+      await Task.Run(() =>
+      {
+        _native.TmcTechObjBeginUpdate(_cid);
+        _native.TmcTechObjWriteValues(_cid, tmcProps.ToArray(), (uint) tmcProps.Count);
+        _native.TmcTechObjEndUpdate(_cid);
+      }).ConfigureAwait(false);
+
+      foreach (var tmcProp in tmcProps)
+      {
+        Marshal.FreeHGlobal(tmcProp.Props);
+      }
+    }
+
+
     public async Task ClearTechObjectProperties(int                 scheme,
                                                 int                 type,
                                                 int                 obj,
