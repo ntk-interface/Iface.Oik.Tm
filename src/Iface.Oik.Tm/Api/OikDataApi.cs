@@ -1150,6 +1150,26 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<IReadOnlyCollection<TmTag>> GetTagsByGroup(TmType    tmType,
+                                                                 string    groupName,
+                                                                 PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.GetTagsByGroup(tmType, groupName).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+        return null;
+      }
+    }
+
+
     public async Task<string> GetExpressionResult(string    expression,
                                                   PreferApi prefer = PreferApi.Auto)
     {

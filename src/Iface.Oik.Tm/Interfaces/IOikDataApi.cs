@@ -218,6 +218,11 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<IReadOnlyCollection<TmAnalog>> LookupAnalogs(TmAnalogFilter filter,
                                                       PreferApi      prefer = PreferApi.Auto);
+    
+    
+    Task<IReadOnlyCollection<TmTag>> GetTagsByGroup(TmType    tmType,
+                                                    string    groupName,
+                                                    PreferApi prefer = PreferApi.Auto);
 
 
     Task<string> GetExpressionResult(string    expression,

@@ -211,6 +211,19 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public IntPtr TmcGetValuesEx(Int32      cid,
+                                 UInt16     tmType,
+                                 UInt32     tmFlagsSet,
+                                 UInt32     tmFlagsClr,
+                                 Byte       qFlags,
+                                 string     groupName,
+                                 UInt32     dwUt,
+                                 out UInt32 pCount)
+    {
+      return tmcGetValuesEx(cid, tmType, tmFlagsSet, tmFlagsClr, qFlags, groupName, dwUt, out pCount);
+    }
+
+
     public Int16 TmcRegEvent(Int32               cid,
                              TmNativeDefs.TEvent tmEvent)
     {

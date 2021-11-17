@@ -180,6 +180,17 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern IntPtr tmcGetValuesEx(Int32                                   cid,
+                                               UInt16                                  tmType,
+                                               UInt32                                  tmFlagsSet,
+                                               UInt32                                  tmFlagsClr,
+                                               Byte                                    qFlags,
+                                               [MarshalAs(UnmanagedType.LPStr)] string groupName,
+                                               UInt32                                  dwUt,
+                                               out UInt32                              pCount);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Boolean tmcGetCurrentElix(Int32                               cid,
                                                    [In, Out] ref TmNativeDefs.TTMSElix elix);
 
