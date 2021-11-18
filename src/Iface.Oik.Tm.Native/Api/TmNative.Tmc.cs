@@ -63,6 +63,14 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public IntPtr TmcGetKnownxCfgPath(Int32  cid,
+                                      string appTag,
+                                      UInt32 index)
+    {
+      return tmcGetKnownxCfgPath(cid, appTag, index);
+    }
+
+
     public UInt32 TmcSetDgrmFlags(Int32  cid,
                                   UInt32 flags)
     {

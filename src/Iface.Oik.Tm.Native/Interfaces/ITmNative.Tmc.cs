@@ -36,6 +36,11 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     Int32 TmcGetLastErrorText(Int32  cid,
                               IntPtr buf);
+    
+    
+    IntPtr TmcGetKnownxCfgPath(Int32  cid,
+                               string appTag,
+                               UInt32 index);
 
 
     UInt32 TmcSetDgrmFlags(Int32  cid,

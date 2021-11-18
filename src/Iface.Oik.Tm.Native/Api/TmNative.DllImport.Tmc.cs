@@ -78,6 +78,12 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern IntPtr tmcGetKnownxCfgPath(Int32                                   cid,
+                                                    [MarshalAs(UnmanagedType.LPStr)] string appTag,
+                                                    UInt32                                  index);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern UInt32 tmcReconnectCount(Int32 cid);
 
 

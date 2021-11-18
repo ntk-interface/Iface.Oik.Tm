@@ -1,9 +1,11 @@
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Helpers
@@ -387,6 +389,42 @@ namespace Iface.Oik.Tm.Helpers
     public static long GetServerPseudoUnixTimestamp(long unixTimestamp)
     {
       return Native.UxGmTime2UxTime(unixTimestamp);
+    }
+
+
+    public static bool TryDownloadTaskConfiguration(int tmCid, string applicationName, int idx, out string path)
+    {
+      path = string.Empty;
+
+      var remotePathPtr = Native.TmcGetKnownxCfgPath(tmCid, applicationName, (uint)idx);
+      if (remotePathPtr == IntPtr.Zero)
+      {
+        return false;
+      }
+      var remotePath = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(remotePathPtr);
+
+      var cfCid = Native.TmcGetCfsHandle(tmCid);
+      if (cfCid == IntPtr.Zero)
+      {
+        return false;
+      }
+
+      var localPath = Path.Combine(Path.GetTempPath(), Path.GetFileName(remotePath));
+
+      const int errStringLength = 1000;
+      var       errString       = new byte[errStringLength];
+      uint      errCode         = 0;
+
+      if (!Native.CfsFileGet(cfCid, remotePath, localPath, 30000, IntPtr.Zero,
+                             out errCode, ref errString, errStringLength))
+      {
+        return false;
+      }
+      
+      Native.TmcFreeMemory(remotePathPtr);
+
+      path = localPath;
+      return true;
     }
 
 
