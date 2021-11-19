@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using Iface.Oik.Tm.Interfaces;
@@ -420,7 +421,7 @@ namespace Iface.Oik.Tm.Helpers
       {
         return false;
       }
-      
+
       Native.TmcFreeMemory(remotePathPtr);
 
       path = localPath;
@@ -602,6 +603,80 @@ namespace Iface.Oik.Tm.Helpers
     {
       Disconnect(tmCid);
     }
+
+
+    public static TmCommandLineConfiguration ParseTmCommandLineArguments()
+    {
+      var config = new TmCommandLineConfiguration();
+
+      var commandLineArguments = Environment.GetCommandLineArgs();
+      if (commandLineArguments.Length < 2)
+      {
+        return config;
+      }
+
+      config.TmServer = FixServerName(commandLineArguments.ElementAt(1));
+
+      foreach (var arg in commandLineArguments.Skip(2))
+      {
+        var parts = arg.Split('=');
+        if (parts.Length < 2)
+        {
+          continue;
+        }
+        switch (parts[0].TrimStart('/', '-').ToLowerInvariant())
+        {
+          case "cfg":
+            config.ConfigPath = FixConfigPath(parts[1].Replace('`', ' '));
+            break;
+
+          case "idx":
+            if (int.TryParse(parts[1], out var configIndex))
+            {
+              config.ConfigIndex = configIndex;
+            }
+            break;
+
+          case "host":
+          case "h":
+          case "mach":
+            config.Host = parts[1];
+            break;
+
+          case "tm":
+            config.TmServer = parts[1];
+            break;
+
+          case "rb":
+            config.RbServer = parts[1];
+            break;
+
+          case "user":
+          case "u":
+            config.User = parts[1];
+            break;
+
+          case "password":
+          case "p":
+          case "pwd":
+            config.Password = parts[1];
+            break;
+        }
+      }
+      return config;
+
+      string FixServerName(string source)
+      {
+        return (source.Contains('$')) // может добавляться номер экземпляра после доллара
+          ? source.Split('$')[0]
+          : source;
+      }
+
+      string FixConfigPath(string source)
+      {
+        return source.Replace('`', ' '); // пробелы в пути передаются как тильда
+      }
+    }
   }
 
 
@@ -622,5 +697,17 @@ namespace Iface.Oik.Tm.Helpers
   {
     public string TraceName    { get; set; }
     public string TraceComment { get; set; }
+  }
+
+
+  public class TmCommandLineConfiguration
+  {
+    public string Host        { get; set; } = ".";
+    public string TmServer    { get; set; } = "TMS";
+    public string RbServer    { get; set; } = "RBS";
+    public string User        { get; set; } = "";
+    public string Password    { get; set; } = "";
+    public string ConfigPath  { get; set; } = "";
+    public int    ConfigIndex { get; set; } = 0;
   }
 }

@@ -305,6 +305,16 @@ namespace Iface.Oik.Tm.Interfaces
                        TmFlags   flags,
                        PreferApi prefer = PreferApi.Auto);
 
+    
+    Task SetTagFlagsExplicitly(TmTag     tag, 
+                               TmFlags   flags,
+                               PreferApi prefer = PreferApi.Auto);
+    
+
+    Task ClearTagFlagsExplicitly(TmTag     tag, 
+                                 TmFlags   flags,
+                                 PreferApi prefer = PreferApi.Auto);
+
 
     Task SetTagsFlags(IEnumerable<TmTag> tags,
                       TmFlags            flags,

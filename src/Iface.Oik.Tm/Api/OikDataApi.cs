@@ -1792,6 +1792,44 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task SetTagFlagsExplicitly(TmTag     tag,
+                                  TmFlags   flags,
+                                  PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        await _tms.SetTagFlagsExplicitly(tag, flags).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+      }
+    }
+
+
+    public async Task ClearTagFlagsExplicitly(TmTag     tag,
+                                    TmFlags   flags,
+                                    PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        await _tms.ClearTagFlagsExplicitly(tag, flags).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+      }
+    }
+
+
     public async Task SetTagsFlags(IEnumerable<TmTag> tags,
                                    TmFlags            flags,
                                    PreferApi          prefer = PreferApi.Auto)
