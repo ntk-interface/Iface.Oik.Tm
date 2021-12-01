@@ -2371,6 +2371,48 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<IReadOnlyCollection<TmTag>> GetTagsByGroup(TmType tmType,
+                                                                 string groupName)
+    {
+      uint count = 0;
+
+      var tmcCommonPointsPtr = await Task.Run(() => _native.TmcGetValuesEx(_cid,
+                                                                           (ushort) tmType.ToNativeType(),
+                                                                           0,
+                                                                           0,
+                                                                           0,
+                                                                           groupName,
+                                                                           0,
+                                                                           out count))
+                                         .ConfigureAwait(false);
+
+      if (tmcCommonPointsPtr == IntPtr.Zero)
+      {
+        return Array.Empty<TmTag>();
+      }
+
+      var tagsList   = new List<TmTag>();
+      var structSize = Marshal.SizeOf(typeof(TmNativeDefs.TCommonPoint));
+
+      for (var i = 0; i < count; i++)
+      {
+        var currentPtr     = new IntPtr(tmcCommonPointsPtr.ToInt64() + i * structSize);
+        var tmcCommonPoint = Marshal.PtrToStructure<TmNativeDefs.TCommonPoint>(currentPtr);
+
+        var tag = TmTag.CreateFromTmcCommonPoint(tmcCommonPoint);
+        if (tag == null)
+        {
+          continue;
+        }
+        tagsList.Add(tag);
+      }
+
+      _native.TmcFreeMemory(tmcCommonPointsPtr);
+
+      return tagsList;
+    }
+
+
     public async Task<IReadOnlyCollection<TmTag>> GetTagsByFlags(TmType             tmType,
                                                                  TmFlags            tmFlags,
                                                                  TmCommonPointFlags filterFlags)

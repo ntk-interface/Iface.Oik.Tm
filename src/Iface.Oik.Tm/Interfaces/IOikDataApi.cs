@@ -218,6 +218,11 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<IReadOnlyCollection<TmAnalog>> LookupAnalogs(TmAnalogFilter filter,
                                                       PreferApi      prefer = PreferApi.Auto);
+    
+    
+    Task<IReadOnlyCollection<TmTag>> GetTagsByGroup(TmType    tmType,
+                                                    string    groupName,
+                                                    PreferApi prefer = PreferApi.Auto);
 
 
     Task<string> GetExpressionResult(string    expression,
@@ -299,6 +304,16 @@ namespace Iface.Oik.Tm.Interfaces
     Task ClearTagFlags(TmTag     tag,
                        TmFlags   flags,
                        PreferApi prefer = PreferApi.Auto);
+
+    
+    Task SetTagFlagsExplicitly(TmTag     tag, 
+                               TmFlags   flags,
+                               PreferApi prefer = PreferApi.Auto);
+    
+
+    Task ClearTagFlagsExplicitly(TmTag     tag, 
+                                 TmFlags   flags,
+                                 PreferApi prefer = PreferApi.Auto);
 
 
     Task SetTagsFlags(IEnumerable<TmTag> tags,

@@ -36,6 +36,11 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     Int32 TmcGetLastErrorText(Int32  cid,
                               IntPtr buf);
+    
+    
+    IntPtr TmcGetKnownxCfgPath(Int32  cid,
+                               string appTag,
+                               UInt32 index);
 
 
     UInt32 TmcSetDgrmFlags(Int32  cid,
@@ -131,6 +136,26 @@ namespace Iface.Oik.Tm.Native.Interfaces
                                   uint     tmFlags,
                                   byte     qFlags,
                                   out uint pCount);
+
+
+    IntPtr TmcGetValuesEx(Int32      cid,
+                          UInt16     tmType,
+                          UInt32     tmFlagsSet,
+                          UInt32     tmFlagsClr,
+                          Byte       qFlags,
+                          string     groupName,
+                          UInt32     dwUt,
+                          out UInt32 pCount);
+
+
+    IntPtr TmcRetroGetNamedAnalogGrpFull(Int32      cid,
+                                         string     groupName,
+                                         UInt32     qryFlags,
+                                         UInt32     dwUt,
+                                         UInt32     dwStepBack,
+                                         UInt32     dwStepCnt,
+                                         IntPtr     pAddrs,
+                                         out UInt32 pAddrCount);
 
 
     Int16 TmcRegEvent(Int32               cid,

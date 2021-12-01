@@ -1150,6 +1150,26 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<IReadOnlyCollection<TmTag>> GetTagsByGroup(TmType    tmType,
+                                                                 string    groupName,
+                                                                 PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.GetTagsByGroup(tmType, groupName).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+        return null;
+      }
+    }
+
+
     public async Task<string> GetExpressionResult(string    expression,
                                                   PreferApi prefer = PreferApi.Auto)
     {
@@ -1761,6 +1781,44 @@ namespace Iface.Oik.Tm.Api
       if (api == ApiSelection.Tms)
       {
         await _tms.ClearTagFlags(tag, flags).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+      }
+    }
+
+
+    public async Task SetTagFlagsExplicitly(TmTag     tag,
+                                  TmFlags   flags,
+                                  PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        await _tms.SetTagFlagsExplicitly(tag, flags).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+      }
+    }
+
+
+    public async Task ClearTagFlagsExplicitly(TmTag     tag,
+                                    TmFlags   flags,
+                                    PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        await _tms.ClearTagFlagsExplicitly(tag, flags).ConfigureAwait(false);
       }
       else if (api == ApiSelection.Sql)
       {

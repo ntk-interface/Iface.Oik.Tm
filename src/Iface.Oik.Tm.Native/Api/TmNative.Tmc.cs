@@ -63,6 +63,14 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public IntPtr TmcGetKnownxCfgPath(Int32  cid,
+                                      string appTag,
+                                      UInt32 index)
+    {
+      return tmcGetKnownxCfgPath(cid, appTag, index);
+    }
+
+
     public UInt32 TmcSetDgrmFlags(Int32  cid,
                                   UInt32 flags)
     {
@@ -179,6 +187,7 @@ namespace Iface.Oik.Tm.Native.Api
       return tmcAnalog(cid, ch, rtu, point, dateTime, retroNum);
     }
 
+
     public Int16 TmcAnalogFull(Int32                         cid,
                                Int16                         ch,
                                Int16                         rtu,
@@ -189,7 +198,7 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcAnalogFull(cid, ch, rtu, point, ref analogPoint, dateTime, retroNum);
     }
-    
+
 
     public IntPtr TmcTmValuesByListEx(Int32                 cid,
                                       UInt16                tmType,
@@ -208,6 +217,33 @@ namespace Iface.Oik.Tm.Native.Api
                                          out UInt32 pCount)
     {
       return tmcGetValuesByFlagMask(cid, tmType, tmFlags, qFlags, out pCount);
+    }
+
+
+    public IntPtr TmcGetValuesEx(Int32      cid,
+                                 UInt16     tmType,
+                                 UInt32     tmFlagsSet,
+                                 UInt32     tmFlagsClr,
+                                 Byte       qFlags,
+                                 string     groupName,
+                                 UInt32     dwUt,
+                                 out UInt32 pCount)
+    {
+      return tmcGetValuesEx(cid, tmType, tmFlagsSet, tmFlagsClr, qFlags, groupName, dwUt, out pCount);
+    }
+
+
+    public IntPtr TmcRetroGetNamedAnalogGrpFull(Int32      cid,
+                                                string     groupName,
+                                                UInt32     qryFlags,
+                                                UInt32     dwUt,
+                                                UInt32     dwStepBack,
+                                                UInt32     dwStepCnt,
+                                                IntPtr     pAddrs,
+                                                out UInt32 pAddrCount)
+    {
+      return tmcRetroGetNamedAnalogGrpFull(cid, groupName, qryFlags, dwUt, dwStepBack, dwStepCnt, pAddrs,
+                                           out pAddrCount);
     }
 
 
@@ -381,8 +417,8 @@ namespace Iface.Oik.Tm.Native.Api
                                 UInt16                      count,
                                 TmNativeDefs.TAdrTm[]       addr,
                                 TmNativeDefs.TAnalogPoint[] analogs,
-                                UInt32 time,
-                                UInt16 retroNum)
+                                UInt32                      time,
+                                UInt16                      retroNum)
     {
       tmcAnalogByList(cid, count, addr, analogs, time, retroNum);
     }
@@ -867,8 +903,9 @@ namespace Iface.Oik.Tm.Native.Api
       return tmcTextSearch(cid, type, text, out pCount);
     }
 
-    public Int16 TmcRetroInfoEx(Int32                         cid, 
-                                UInt16                        id, 
+
+    public Int16 TmcRetroInfoEx(Int32                         cid,
+                                UInt16                        id,
                                 ref TmNativeDefs.TRetroInfoEx info)
     {
       return tmcRetroInfoEx(cid, id, ref info);

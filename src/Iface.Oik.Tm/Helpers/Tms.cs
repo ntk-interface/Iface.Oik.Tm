@@ -1,9 +1,12 @@
 using System;
+using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Helpers
@@ -390,6 +393,42 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
+    public static bool TryDownloadTaskConfiguration(int tmCid, string applicationName, int idx, out string path)
+    {
+      path = string.Empty;
+
+      var remotePathPtr = Native.TmcGetKnownxCfgPath(tmCid, applicationName, (uint)idx);
+      if (remotePathPtr == IntPtr.Zero)
+      {
+        return false;
+      }
+      var remotePath = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(remotePathPtr);
+
+      var cfCid = Native.TmcGetCfsHandle(tmCid);
+      if (cfCid == IntPtr.Zero)
+      {
+        return false;
+      }
+
+      var localPath = Path.Combine(Path.GetTempPath(), Path.GetFileName(remotePath));
+
+      const int errStringLength = 1000;
+      var       errString       = new byte[errStringLength];
+      uint      errCode         = 0;
+
+      if (!Native.CfsFileGet(cfCid, remotePath, localPath, 30000, IntPtr.Zero,
+                             out errCode, ref errString, errStringLength))
+      {
+        return false;
+      }
+
+      Native.TmcFreeMemory(remotePathPtr);
+
+      path = localPath;
+      return true;
+    }
+
+
     public static (int tmCid, int rbCid, int rbPort, TmUserInfo userInfo, TmServerFeatures serverFeatures)
       Initialize(TmInitializeOptions options)
     {
@@ -564,6 +603,80 @@ namespace Iface.Oik.Tm.Helpers
     {
       Disconnect(tmCid);
     }
+
+
+    public static TmCommandLineConfiguration ParseTmCommandLineArguments()
+    {
+      var config = new TmCommandLineConfiguration();
+
+      var commandLineArguments = Environment.GetCommandLineArgs();
+      if (commandLineArguments.Length < 2)
+      {
+        return config;
+      }
+
+      config.TmServer = FixServerName(commandLineArguments.ElementAt(1));
+
+      foreach (var arg in commandLineArguments.Skip(2))
+      {
+        var parts = arg.Split('=');
+        if (parts.Length < 2)
+        {
+          continue;
+        }
+        switch (parts[0].TrimStart('/', '-').ToLowerInvariant())
+        {
+          case "cfg":
+            config.ConfigPath = FixConfigPath(parts[1].Replace('`', ' '));
+            break;
+
+          case "idx":
+            if (int.TryParse(parts[1], out var configIndex))
+            {
+              config.ConfigIndex = configIndex;
+            }
+            break;
+
+          case "host":
+          case "h":
+          case "mach":
+            config.Host = parts[1];
+            break;
+
+          case "tm":
+            config.TmServer = parts[1];
+            break;
+
+          case "rb":
+            config.RbServer = parts[1];
+            break;
+
+          case "user":
+          case "u":
+            config.User = parts[1];
+            break;
+
+          case "password":
+          case "p":
+          case "pwd":
+            config.Password = parts[1];
+            break;
+        }
+      }
+      return config;
+
+      string FixServerName(string source)
+      {
+        return (source.Contains('$')) // может добавляться номер экземпляра после доллара
+          ? source.Split('$')[0]
+          : source;
+      }
+
+      string FixConfigPath(string source)
+      {
+        return source.Replace('`', ' '); // пробелы в пути передаются как тильда
+      }
+    }
   }
 
 
@@ -584,5 +697,17 @@ namespace Iface.Oik.Tm.Helpers
   {
     public string TraceName    { get; set; }
     public string TraceComment { get; set; }
+  }
+
+
+  public class TmCommandLineConfiguration
+  {
+    public string Host        { get; set; } = ".";
+    public string TmServer    { get; set; } = "TMS";
+    public string RbServer    { get; set; } = "RBS";
+    public string User        { get; set; } = "";
+    public string Password    { get; set; } = "";
+    public string ConfigPath  { get; set; } = "";
+    public int    ConfigIndex { get; set; } = 0;
   }
 }
