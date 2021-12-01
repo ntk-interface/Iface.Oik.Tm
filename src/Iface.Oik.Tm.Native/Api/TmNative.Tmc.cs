@@ -56,6 +56,12 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public IntPtr TmcDecodeTcError(UInt16 status)
+    {
+      return tmcDecodeTcError(status);
+    }
+
+
     public Int32 TmcGetLastErrorText(Int32  cid,
                                      IntPtr buf)
     {

@@ -148,6 +148,17 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
+    public static string GetTelecontrolResultDescription(TmTelecontrolResult result)
+    {
+      var descriptionPtr = Native.TmcDecodeTcError((ushort)result);
+      if (descriptionPtr == IntPtr.Zero)
+      {
+        return string.Empty;
+      }
+      return TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(descriptionPtr);
+    }
+
+
     public static bool IsServerInPassiveMode(int tmCid)
     {
       var info = new TmNativeDefs.TServerInfo();

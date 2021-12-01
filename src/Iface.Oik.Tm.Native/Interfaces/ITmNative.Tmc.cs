@@ -36,6 +36,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     Int32 TmcGetLastErrorText(Int32  cid,
                               IntPtr buf);
+
+
+    IntPtr TmcDecodeTcError(UInt16 status);
     
     
     IntPtr TmcGetKnownxCfgPath(Int32  cid,

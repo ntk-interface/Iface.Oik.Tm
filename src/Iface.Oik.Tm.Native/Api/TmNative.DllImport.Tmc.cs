@@ -78,6 +78,10 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern IntPtr tmcDecodeTcError(UInt16 status);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern IntPtr tmcGetKnownxCfgPath(Int32                                   cid,
                                                     [MarshalAs(UnmanagedType.LPStr)] string appTag,
                                                     UInt32                                  index);
