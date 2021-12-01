@@ -148,6 +148,16 @@ namespace Iface.Oik.Tm.Native.Interfaces
                           out UInt32 pCount);
 
 
+    IntPtr TmcRetroGetNamedAnalogGrpFull(Int32      cid,
+                                         string     groupName,
+                                         UInt32     qryFlags,
+                                         UInt32     dwUt,
+                                         UInt32     dwStepBack,
+                                         UInt32     dwStepCnt,
+                                         IntPtr     pAddrs,
+                                         out UInt32 pAddrCount);
+
+
     Int16 TmcRegEvent(Int32               cid,
                       TmNativeDefs.TEvent tmEvent);
 

@@ -197,6 +197,17 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern IntPtr tmcRetroGetNamedAnalogGrpFull(Int32                                   cid,
+                                                              [MarshalAs(UnmanagedType.LPStr)] string groupName,
+                                                              UInt32                                  qryFlags,
+                                                              UInt32                                  dwUt,
+                                                              UInt32                                  dwStepBack,
+                                                              UInt32                                  dwStepCnt,
+                                                              IntPtr                                  pAddrs,
+                                                              out UInt32                              pAddrCount);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Boolean tmcGetCurrentElix(Int32                               cid,
                                                    [In, Out] ref TmNativeDefs.TTMSElix elix);
 
