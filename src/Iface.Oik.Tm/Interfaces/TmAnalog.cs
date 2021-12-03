@@ -76,6 +76,7 @@ namespace Iface.Oik.Tm.Interfaces
     public bool IsManuallySet     => Flags.HasFlag(TmFlags.ManuallySet);
     public bool IsRequested       => Flags.HasFlag(TmFlags.Requested);
     public bool IsResChannel      => Flags.HasFlag(TmFlags.ResChannel);
+    public bool IsAbnormal        => Flags.HasFlag(TmFlags.Abnormal);
     public bool HasTeleregulation => Flags.HasFlag(TmFlags.HasTeleregulation);
     public bool IsUnacked         => Flags.HasFlag(TmFlags.Unacked);
     public bool HasAlarm          => Flags.HasFlag(TmFlags.HasAlarm);
