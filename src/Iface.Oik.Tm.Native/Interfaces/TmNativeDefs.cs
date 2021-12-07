@@ -166,6 +166,32 @@ namespace Iface.Oik.Tm.Native.Interfaces
       AckAnalog   = 0x0021,
       AckAccum    = 0x0022
     }
+    
+    
+    public enum EventLogExtendedKind
+    {
+      StrBin = 0x100,
+      Model  = 0x200
+    }
+    
+
+    public enum EventLogExtendedSources
+    {
+      Server     = 0,
+      Comtrade   = 1,
+      Omp        = 2,
+      AutoSect   = 3,
+      I850       = 50,
+      BlackBox   = 90,
+      Iec101     = 101,
+      Aura       = 102,
+      Iec103     = 103,
+      Spa        = 105,
+      Modbus     = 106,
+      Dnp3       = 107,
+      Dlms       = 108,
+      TmaRelated = 109
+    }
 
 
     [Flags]

@@ -247,5 +247,24 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task<IReadOnlyCollection<TmRetroInfo>> GetRetrosInfo(TmType tmType);
+    
+    Task AddTmaRelatedStringToEventLog(DateTime?          time,
+                                       TmEventImportances importances,
+                                       string             message,
+                                       TmAddr             tmAddr);
+
+    Task AddStringToEventLogEx(DateTime?                 time,
+                               TmEventImportances        importances,
+                               TmEventLogExtendedSources source,
+                               string                    message,
+                               string                    binaryString = "",
+                               TmAddr                    tmAddr       = null);
+
+    Task AddStrBinToEventLog(DateTime?                 time,
+                             TmEventImportances        importances,
+                             TmEventLogExtendedSources source,
+                             string                    message,
+                             byte[]                    binary = null,
+                             TmAddr                    tmAddr = null);
   }
 }
