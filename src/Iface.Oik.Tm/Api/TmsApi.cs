@@ -2541,6 +2541,95 @@ namespace Iface.Oik.Tm.Api
 
       return retrosInfo;
     }
+    
+    
+    public async Task AddTmaRelatedStringToEventLog(DateTime?          time,
+                                                    TmEventImportances importances,
+                                                    string             message,
+                                                    TmAddr             tmAddr)
+    {
+      var binStr = $"pt={tmAddr.Point};t={(uint)tmAddr.Type.ToNativeType()}";
+
+      var bin = TmNativeUtil.GetFixedBytesWithTrailingZero(binStr, binStr.Length + 1,
+                                                           "windows-1251");
+      await AddStrBinToEventLog(time,
+                                importances,
+                                TmEventLogExtendedSources.TmaRelated,
+                                message,
+                                bin,
+                                tmAddr).ConfigureAwait(false);
+    }
+
+    public async Task AddStringToEventLogEx(DateTime?                 time,
+                                      TmEventImportances        importances,
+                                      TmEventLogExtendedSources source,
+                                      string                    message,
+                                      string                    binaryString = "",
+                                      TmAddr                    tmAddr = null)
+    {
+      var bin = binaryString.IsNullOrEmpty()
+                  ? Array.Empty<byte>()
+                  : TmNativeUtil.GetFixedBytesWithTrailingZero(binaryString,
+                                                               binaryString.Length + 1,
+                                                               "windows-1251");
+
+      await AddStrBinToEventLog(time, importances, source, message, bin, tmAddr).ConfigureAwait(false);
+    }
+
+
+    public async Task AddStrBinToEventLog(DateTime?                 time,
+                                          TmEventImportances        importances,
+                                          TmEventLogExtendedSources source,
+                                          string                    message,
+                                          byte[]                    binary = null,
+                                          TmAddr                    tmAddr = null)
+    {
+      byte importance;
+      switch (importances)
+      {
+        case TmEventImportances.Imp0:
+          importance = 0;
+          break;
+        case TmEventImportances.Imp1:
+          importance = 1;
+          break;
+        case TmEventImportances.Imp2:
+          importance = 2;
+          break;
+        case TmEventImportances.Imp3:
+          importance = 3;
+          break;
+        default:
+          throw new Exception("Важность не поддерживается");
+      }
+
+      var sourceLongTag = tmAddr != null
+                            ? (tmAddr.ToInteger() + 0x0001_0001) & 0xFFFF_0000
+                            : 0;
+
+      sourceLongTag |= (uint) source;
+
+      var unixTime = time == null
+                       ? 0
+                       : _native.UxGmTime2UxTime(DateUtil.GetUtcTimestampFromDateTime(time.Value));
+
+      var unixTimeMs = unixTime % 1000 / 10;
+
+      var binaryPayload = binary ?? Array.Empty<byte>();
+
+      await Task.Run(() =>
+                     {
+                       _native.TmcEvlogPutStrBin(_cid,
+                                                 (uint) unixTime,
+                                                 (byte) unixTimeMs,
+                                                 importance,
+                                                 sourceLongTag,
+                                                 message,
+                                                 binaryPayload,
+                                                 (uint) binaryPayload.Length);
+                     }).ConfigureAwait(false);
+    }
+    
 
     private async Task<(IReadOnlyList<TmEvent>, TmNativeDefs.TTMSElix)> GetEventsBatch(TmNativeDefs.TTMSElix elix,
       TmEventTypes                                                                                           type,

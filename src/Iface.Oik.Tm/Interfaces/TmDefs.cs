@@ -415,4 +415,22 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Резервное копирование")]
     ReserveCopy      = 0x00_00_08_00,
   }
+  
+  public enum TmEventLogExtendedSources
+  {
+    Server     = TmNativeDefs.EventLogExtendedSources.Server,
+    Comtrade   = TmNativeDefs.EventLogExtendedSources.Comtrade,
+    Omp        = TmNativeDefs.EventLogExtendedSources.Omp,
+    AutoSect   = TmNativeDefs.EventLogExtendedSources.AutoSect,
+    I850       = TmNativeDefs.EventLogExtendedSources.I850,
+    BlackBox   = TmNativeDefs.EventLogExtendedSources.BlackBox,
+    Iec101     = TmNativeDefs.EventLogExtendedSources.Iec101,
+    Aura       = TmNativeDefs.EventLogExtendedSources.Aura,
+    Iec103     = TmNativeDefs.EventLogExtendedSources.Iec103,
+    Spa        = TmNativeDefs.EventLogExtendedSources.Spa,
+    Modbus     = TmNativeDefs.EventLogExtendedSources.Modbus,
+    Dnp3       = TmNativeDefs.EventLogExtendedSources.Dnp3,
+    Dlms       = TmNativeDefs.EventLogExtendedSources.Dlms,
+    TmaRelated = TmNativeDefs.EventLogExtendedSources.TmaRelated
+  }
 }
