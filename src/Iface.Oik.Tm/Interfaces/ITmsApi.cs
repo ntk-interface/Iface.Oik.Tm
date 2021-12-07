@@ -135,7 +135,28 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<bool> AckEvent(TmEvent tmEvent);
 
-    Task AddStringToEventLog(string str, TmAddr tmAddr = null);
+    Task AddStringToEventLog(string    str, 
+                             TmAddr    tmAddr = null,
+                             DateTime? time   = null);
+    
+    Task AddTmaRelatedStringToEventLog(string             message,
+                                       TmAddr             tmAddr,
+                                       TmEventImportances importances = TmEventImportances.Imp0,
+                                       DateTime?          time        = null);
+
+    Task AddStringToEventLogEx(DateTime?                 time,
+                               TmEventImportances        importances,
+                               TmEventLogExtendedSources source,
+                               string                    message,
+                               string                    binaryString = "",
+                               TmAddr                    tmAddr       = null);
+
+    Task AddStrBinToEventLog(DateTime?                 time,
+                             TmEventImportances        importances,
+                             TmEventLogExtendedSources source,
+                             string                    message,
+                             byte[]                    binary = null,
+                             TmAddr                    tmAddr = null);
 
     Task SetTagFlags(TmTag tag, TmFlags flags);
 
@@ -247,24 +268,5 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task<IReadOnlyCollection<TmRetroInfo>> GetRetrosInfo(TmType tmType);
-    
-    Task AddTmaRelatedStringToEventLog(DateTime?          time,
-                                       TmEventImportances importances,
-                                       string             message,
-                                       TmAddr             tmAddr);
-
-    Task AddStringToEventLogEx(DateTime?                 time,
-                               TmEventImportances        importances,
-                               TmEventLogExtendedSources source,
-                               string                    message,
-                               string                    binaryString = "",
-                               TmAddr                    tmAddr       = null);
-
-    Task AddStrBinToEventLog(DateTime?                 time,
-                             TmEventImportances        importances,
-                             TmEventLogExtendedSources source,
-                             string                    message,
-                             byte[]                    binary = null,
-                             TmAddr                    tmAddr = null);
   }
 }

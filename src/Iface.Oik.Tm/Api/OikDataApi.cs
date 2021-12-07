@@ -1337,12 +1337,57 @@ namespace Iface.Oik.Tm.Api
 
     public async Task AddStringToEventLog(string    str,
                                           TmAddr    tmAddr = null,
+                                          DateTime? time = null,
                                           PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
       {
-        await _tms.AddStringToEventLog(str, tmAddr).ConfigureAwait(false);
+        await _tms.AddStringToEventLog(str, tmAddr, time).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+      }
+    }
+
+
+    public async Task AddStringToEventLogEx(DateTime?                 time,
+                                            TmEventImportances        importances,
+                                            TmEventLogExtendedSources source,
+                                            string                    message,
+                                            string                    binString = "",
+                                            TmAddr                    tmAddr       = null,
+                                            PreferApi                 prefer       = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        await _tms.AddStringToEventLogEx(time, importances, source, message, binString, tmAddr).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+      }
+    }
+
+
+    public async Task AddTmaRelatedStringToEventLog(string             message,
+                                                    TmAddr             tmAddr,
+                                                    TmEventImportances importances = TmEventImportances.Imp0,
+                                                    DateTime?          time        = null,
+                                                    PreferApi          prefer      = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        await _tms.AddTmaRelatedStringToEventLog(message, tmAddr, importances, time).ConfigureAwait(false);
       }
       else if (api == ApiSelection.Sql)
       {

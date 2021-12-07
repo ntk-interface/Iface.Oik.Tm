@@ -365,7 +365,22 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task AddStringToEventLog(string    str,
                              TmAddr    tmAddr = null,
+                             DateTime? time   = null,
                              PreferApi prefer = PreferApi.Auto);
+    
+    Task AddTmaRelatedStringToEventLog(string             message,
+                                       TmAddr             tmAddr,
+                                       TmEventImportances importances = TmEventImportances.Imp0,
+                                       DateTime?          time        = null,
+                                       PreferApi          prefer      = PreferApi.Auto);
+
+    Task AddStringToEventLogEx(DateTime?                 time,
+                               TmEventImportances        importances,
+                               TmEventLogExtendedSources source,
+                               string                    message,
+                               string                    binString = "",
+                               TmAddr                    tmAddr    = null,
+                               PreferApi                 prefer    = PreferApi.Auto);
     
     
     Task SetTechObjectsProperties(IReadOnlyCollection<Tob> tobs,
