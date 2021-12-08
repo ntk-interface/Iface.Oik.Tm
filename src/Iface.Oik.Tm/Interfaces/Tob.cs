@@ -62,6 +62,34 @@ namespace Iface.Oik.Tm.Interfaces
         ? ((ModusElement) (Type)).GetDescription()
         : DefaultName;
 
+    
+    public bool? IsVoltaged
+    {
+      get
+      {
+        var voltagedProperty = GetPropertyOrDefault(PropertyIsVoltaged);
+        if (voltagedProperty == null)
+        {
+          return null;
+        }
+        return (voltagedProperty == "1");
+      }
+    }
+    
+    
+    public bool? IsGrounded
+    {
+      get
+      {
+        var groundedProperty = GetPropertyOrDefault(PropertyIsGrounded);
+        if (groundedProperty == null)
+        {
+          return null;
+        }
+        return (groundedProperty == "1");
+      }
+    }
+
 
     public Tob(uint scheme, ushort type, uint obj, string name = null)
     {
