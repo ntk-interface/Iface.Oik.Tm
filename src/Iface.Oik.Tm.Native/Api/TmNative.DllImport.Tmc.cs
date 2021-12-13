@@ -340,6 +340,16 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int16 tmcSetObjectProperties(Int32            cid,
+                                                      UInt16           objectType,
+                                                      Int16            ch,
+                                                      Int16            rtu,
+                                                      Int16            point,
+                                                      [In, Out] byte[] propList,
+                                                      out UInt32       pMask);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern IntPtr tmcGetStatusClassData(Int32                      cid,
                                                       UInt32                     count, // max 128
                                                       [In] TmNativeDefs.TAdrTm[] statuses);

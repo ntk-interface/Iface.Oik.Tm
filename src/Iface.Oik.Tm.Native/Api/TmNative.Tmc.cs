@@ -442,6 +442,18 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public Int16 TmcSetObjectProperties(Int32      cid,
+                                        UInt16     objectType,
+                                        Int16      ch,
+                                        Int16      rtu,
+                                        Int16      point,
+                                        Byte[]     propList,
+                                        out UInt32 pMask)
+    {
+      return tmcSetObjectProperties(cid, objectType, ch, rtu, point, propList, out pMask);
+    }
+
+
     public IntPtr TmcGetStatusClassData(Int32                 cid,
                                         UInt32                count,
                                         TmNativeDefs.TAdrTm[] statuses)
