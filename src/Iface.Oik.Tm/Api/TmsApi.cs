@@ -2498,6 +2498,32 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<bool> BlockTagEventsTemporarily(TmTag tmTag, int minutesToBlock)
+    {
+      if (tmTag == null)
+      {
+        return false;
+      }
+      
+      var (ch, rtu, point) = tmTag.TmAddr.GetTupleShort();
+      var propsBytes  = TmNativeUtil.GetDoubleNullTerminatedBytesFromStringList(new[]
+      {
+        $"EvUnblkTime={DateTime.Now.AddMinutes(minutesToBlock):yyyy.MM.dd HH:mm:00}"
+      });
+      var propsChanged = 0u;
+      var result = await Task.Run(() => _native.TmcSetObjectProperties(_cid, 
+                                                                       tmTag.NativeType, 
+                                                                       ch, 
+                                                                       rtu, 
+                                                                       point, 
+                                                                       propsBytes,
+                                                                       out propsChanged))
+                             .ConfigureAwait(false);
+
+      return result > 0 && propsChanged > 0;
+    }
+
+
     public async Task<IReadOnlyCollection<TmTag>> GetTagsByFlags(TmType             tmType,
                                                                  TmFlags            tmFlags,
                                                                  TmCommonPointFlags filterFlags)
