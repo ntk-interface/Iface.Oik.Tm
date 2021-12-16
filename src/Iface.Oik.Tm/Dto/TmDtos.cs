@@ -202,6 +202,17 @@ namespace Iface.Oik.Tm.Dto
   }
 
 
+  public class TmTagWithBlockedEventsDto
+  {
+    public short    TmType    { get; set; }
+    public short    Ch        { get; set; }
+    public short    Rtu       { get; set; }
+    public short    Point     { get; set; }
+    public string   Name      { get; set; }
+    public DateTime UnblkTime { get; set; }
+  }
+
+
   public class TmAnalogMicroSeriesDto
   {
     public float[]    MsValues { get; set; }

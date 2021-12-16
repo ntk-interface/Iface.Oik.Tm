@@ -17,6 +17,7 @@ namespace Iface.Oik.Tm.Interfaces
     private string                     _name;
     private byte?                      _classId;
     private bool                       _hasTmProvider;
+    private DateTime?                  _eventBlockTime;
     private Dictionary<string, string> _classData;
     private Dictionary<string, string> _properties;
 
@@ -26,6 +27,7 @@ namespace Iface.Oik.Tm.Interfaces
       set => SetPropertyValueAndRefresh(ref _isInit, value);
     }
 
+    
     public DateTime? ChangeTime
     {
       get => _changeTime;
@@ -49,6 +51,12 @@ namespace Iface.Oik.Tm.Interfaces
     {
       get => _hasTmProvider;
       protected set => SetPropertyValueAndRefresh(ref _hasTmProvider, value);
+    }
+
+    public DateTime? EventBlockTime
+    {
+      get => _eventBlockTime;
+      set => SetPropertyValueAndRefresh(ref _eventBlockTime, value);
     }
 
     public Dictionary<string, string> ClassData
@@ -178,8 +186,9 @@ namespace Iface.Oik.Tm.Interfaces
 
     public void SetTmcObjectProperties(string tmcObjectPropertiesString)
     {
-      Properties    = new Dictionary<string, string>();
-      HasTmProvider = false;
+      Properties     = new Dictionary<string, string>();
+      HasTmProvider  = false;
+      EventBlockTime = null;
       
       var props = tmcObjectPropertiesString.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
       foreach (var prop in props)
@@ -206,6 +215,10 @@ namespace Iface.Oik.Tm.Interfaces
       {
         HasTmProvider = true;
       }
+      if (key == "EvUnblkTime" && !string.IsNullOrEmpty(value))
+      {
+        EventBlockTime = DateUtil.GetDateTimeFromReversedTmString(value);
+      }
     }
 
 
@@ -221,6 +234,13 @@ namespace Iface.Oik.Tm.Interfaces
           ClassData.Add(kvp[0], kvp[1]);
         }
       }
+    }
+
+
+    public void SetBlockedEventsData(string name, DateTime time)
+    {
+      Name           = name;
+      EventBlockTime = time;
     }
   }
 }

@@ -65,6 +65,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<IReadOnlyCollection<TmAnalog>> LookupAnalogs(TmAnalogFilter filter);
 
+    Task<IReadOnlyCollection<TmTag>> GetTagsWithBlockedEvents();
+
     Task<bool> UpdateAckedEventsIfAny(IReadOnlyList<TmEvent> tmEvents);
 
     Task<bool> HasPresentAps();

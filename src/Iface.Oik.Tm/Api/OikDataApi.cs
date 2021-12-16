@@ -1170,6 +1170,24 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<IReadOnlyCollection<TmTag>> GetTagsWithBlockedEvents(PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
+      if (api == ApiSelection.Tms)
+      {
+        throw new NotImplementedException();
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        return await _sql.GetTagsWithBlockedEvents().ConfigureAwait(false);
+      }
+      else
+      {
+        return null;
+      }
+    }
+
+
     public async Task<bool> BlockTagEventsTemporarily(TmTag     tmTag,
                                                       int       minutesToBlock,
                                                       PreferApi prefer = PreferApi.Auto)
