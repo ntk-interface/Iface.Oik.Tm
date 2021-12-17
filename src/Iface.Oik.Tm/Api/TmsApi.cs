@@ -2524,6 +2524,30 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task UnblockTagEvents(TmTag tmTag)
+    {
+      if (tmTag == null)
+      {
+        return;
+      }
+
+      var (ch, rtu, point) = tmTag.TmAddr.GetTupleShort();
+      var propsBytes = TmNativeUtil.GetDoubleNullTerminatedBytesFromStringList(new[]
+      {
+        $"EvUnblkTime="
+      });
+      await Task.Run(() => _native.TmcSetObjectProperties(_cid,
+                                                          tmTag.NativeType,
+                                                          ch,
+                                                          rtu,
+                                                          point,
+                                                          propsBytes,
+                                                          out _))
+                .ConfigureAwait(false);
+    }
+
+
+
     public async Task<IReadOnlyCollection<TmTag>> GetTagsByFlags(TmType             tmType,
                                                                  TmFlags            tmFlags,
                                                                  TmCommonPointFlags filterFlags)

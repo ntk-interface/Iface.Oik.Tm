@@ -1186,7 +1186,9 @@ namespace Iface.Oik.Tm.Api
         {
           await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT unblktime, name, tm_type, ch, rtu, point
-                              FROM oik_event_blocks";
+                              FROM oik_event_blocks
+                              WHERE unblktime > NOW()
+                              ORDER BY unblktime DESC";
           var dtos = await sql.DbConnection
                               .QueryAsync<TmTagWithBlockedEventsDto>(commandText)
                               .ConfigureAwait(false);

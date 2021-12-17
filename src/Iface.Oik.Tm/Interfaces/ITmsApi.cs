@@ -262,6 +262,9 @@ namespace Iface.Oik.Tm.Interfaces
                                          int   minutesToBlock);
 
 
+    Task UnblockTagEvents(TmTag tmTag);
+
+
     Task<IReadOnlyCollection<TmTag>> GetTagsByFlags(TmType             tmType,
                                                     TmFlags            tmFlags,
                                                     TmCommonPointFlags filterFlags);
