@@ -318,7 +318,7 @@ namespace Iface.Oik.Tm.Interfaces
         return false;
       }
 
-      var addrParts = s.Trim().Split(':', ',', ' ');
+      var addrParts = s.Trim().Split(':', ',', '.', ' ');
       if (addrParts.Length == 4) // в SQL возвращается в формате #TC:20:1:1
       {
         addrParts = new[] {addrParts[0] + addrParts[1], addrParts[2], addrParts[3]};
