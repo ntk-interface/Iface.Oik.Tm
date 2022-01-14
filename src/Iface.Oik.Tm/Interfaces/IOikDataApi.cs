@@ -225,6 +225,18 @@ namespace Iface.Oik.Tm.Interfaces
                                                     PreferApi prefer = PreferApi.Auto);
 
 
+    Task<IReadOnlyCollection<TmTag>> GetTagsWithBlockedEvents(PreferApi prefer = PreferApi.Auto);
+
+
+    Task<bool> BlockTagEventsTemporarily(TmTag     tmTag,
+                                         int       minutesToBlock,
+                                         PreferApi prefer = PreferApi.Auto);
+
+
+    Task UnblockTagEvents(TmTag     tmTag,
+                          PreferApi prefer = PreferApi.Auto);
+
+
     Task<string> GetExpressionResult(string    expression,
                                      PreferApi prefer = PreferApi.Auto);
 

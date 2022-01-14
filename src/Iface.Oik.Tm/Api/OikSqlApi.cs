@@ -1178,6 +1178,38 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<IReadOnlyCollection<TmTag>> GetTagsWithBlockedEvents()
+    {
+      try
+      {
+        using (var sql = _createOikSqlConnection())
+        {
+          await sql.OpenAsync().ConfigureAwait(false);
+          var commandText = @"SELECT unblktime, name, tm_type, ch, rtu, point
+                              FROM oik_event_blocks
+                              WHERE unblktime > NOW()
+                              ORDER BY unblktime DESC";
+          var dtos = await sql.DbConnection
+                              .QueryAsync<TmTagWithBlockedEventsDto>(commandText)
+                              .ConfigureAwait(false);
+          
+          return dtos.Select(dto => dto.MapToTmTag())
+                     .ToList();
+        }
+      }
+      catch (NpgsqlException ex)
+      {
+        HandleNpgsqlException(ex);
+        return null;
+      }
+      catch (Exception ex)
+      {
+        HandleException(ex);
+        return null;
+      }
+    }
+
+
     public async Task<bool> HasPresentAps()
     {
       try

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Iface.Oik.Tm.Interfaces;
+using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Dto
@@ -139,6 +140,24 @@ namespace Iface.Oik.Tm.Dto
                 .Select((value, idx) => new TmAnalogMicroSeries(value, dto.MsSFlags[idx], dto.MsTimes[idx]))
                 .Cast<ITmAnalogRetro>()
                 .ToArray();
+    }
+
+
+    public static TmTag MapToTmTag(this TmTagWithBlockedEventsDto dto)
+    {
+      switch ((TmNativeDefs.TmDataTypes) (ushort) dto.TmType)
+      {
+        case TmNativeDefs.TmDataTypes.Status:
+          var tmStatus = new TmStatus(dto.Ch, dto.Rtu, dto.Point);
+          tmStatus.SetBlockedEventsData(dto.Name, dto.UnblkTime);
+          return tmStatus;
+        
+        default:
+          var tmAnalog = new TmAnalog(dto.Ch, dto.Rtu, dto.Point);
+          tmAnalog.SetBlockedEventsData(dto.Name, dto.UnblkTime);
+          return tmAnalog;
+        
+      }
     }
   }
 }

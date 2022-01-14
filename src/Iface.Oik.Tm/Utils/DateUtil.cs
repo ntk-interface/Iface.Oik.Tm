@@ -35,6 +35,12 @@ namespace Iface.Oik.Tm.Utils
     }
 
 
+    public static DateTime? GetDateTimeFromReversedTmString(string s)
+    {
+      return GetDateTimeFromTmStringByFormat(s, "yyyy.MM.dd HH:mm:ss");
+    }
+
+
     public static DateTime GetDateTimeFromTimestamp(long timestamp, int milliseconds = 0)
     {
       return Epoch.AddSeconds(timestamp).AddMilliseconds(milliseconds);

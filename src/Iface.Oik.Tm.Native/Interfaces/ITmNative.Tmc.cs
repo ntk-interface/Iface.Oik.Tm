@@ -288,6 +288,15 @@ namespace Iface.Oik.Tm.Native.Interfaces
                                  int        bufSize);
 
 
+    short TmcSetObjectProperties(Int32      cid,
+                                 UInt16     objectType,
+                                 Int16      ch,
+                                 Int16      rtu,
+                                 Int16      point,
+                                 Byte[]     propList,
+                                 out UInt32 pMask);
+
+
     IntPtr TmcGetStatusClassData(Int32                 cid,
                                  UInt32                count,
                                  TmNativeDefs.TAdrTm[] statuses);
