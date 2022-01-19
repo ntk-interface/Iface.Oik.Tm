@@ -132,20 +132,37 @@ namespace Iface.Oik.Tm.Interfaces
         ? tmTypeString
         : typeString;
 
-      var eventText = eventType == TmEventTypes.Extended
-        ? text
-        : name;
-
       var reference = eventType     == TmEventTypes.Alarm && 
                       isAlarmActive == true
         ? alarmInitialValue
         : null;
 
-        var tmEvent = new TmEvent(elixBytes != null ? BitConverter.ToInt32(elixBytes, 8) : 0)
+      string eventText;
+      string eventStateString;
+      if (eventType == TmEventTypes.Extended)
+      {
+        if (string.IsNullOrEmpty(name))
+        {
+          eventText        = text;
+          eventStateString = stateString?.Trim();
+        }
+        else
+        {
+          eventText        = name;
+          eventStateString = text;
+        }
+      }
+      else
+      {
+        eventText        = name;
+        eventStateString = stateString?.Trim();
+      }
+
+      var tmEvent = new TmEvent(elixBytes != null ? BitConverter.ToInt32(elixBytes, 8) : 0)
                     {
                       Time                 = time.NullIfEpoch(),
                       Text                 = eventText,
-                      StateString          = stateString?.Trim(),
+                      StateString          = eventStateString,
                       Type                 = eventType,
                       TypeString           = eventTypeString,
                       Username             = username,

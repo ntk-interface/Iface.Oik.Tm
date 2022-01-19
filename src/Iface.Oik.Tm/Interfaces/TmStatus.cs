@@ -224,6 +224,18 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
+    public string FakeStateString(short fakeState)
+    {
+      return FakeStateString((int) fakeState);
+    }
+
+
+    public string FakeStateString(int fakeState)
+    {
+      return GetClassCaption(fakeState == 0 ? ClassCaption.Off : ClassCaption.On);
+    }
+
+
     public TmStatus(int ch, int rtu, int point)
       : base(TmType.Status, ch, rtu, point)
     {
