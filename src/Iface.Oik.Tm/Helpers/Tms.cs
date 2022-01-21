@@ -184,7 +184,8 @@ namespace Iface.Oik.Tm.Helpers
       Native.CfsIfpcNewUserSystemAvaliable(cfCid, out var nusFlags, out errCode, ref errBuf, errBufLength);
       var flags = (TmNativeDefs.NewUserSystem)nusFlags;
 
-      if (flags.HasFlag(TmNativeDefs.NewUserSystem.AdminChangePassword))
+      if (flags.HasFlag(TmNativeDefs.NewUserSystem.ChangePassword) && 
+          flags.HasFlag(TmNativeDefs.NewUserSystem.AdminChangePassword))
       {
         return TmPasswordNeedsChangeResult.NeedsChangeByAdmin;
       }
