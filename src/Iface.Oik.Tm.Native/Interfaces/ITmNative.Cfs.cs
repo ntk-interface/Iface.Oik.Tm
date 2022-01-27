@@ -11,9 +11,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     void CfsSetUser(string user,
                     string password);
-    
-    
-    void CfsSetUserForThread(string user, 
+
+
+    void CfsSetUserForThread(string user,
                              string password);
 
 
@@ -89,7 +89,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
                        out uint   errCode,
                        ref byte[] errString,
                        uint       maxErrs);
-    
+
 
     bool CfsCheckInstallationIntegrity(IntPtr     connId,
                                        uint       kind,
@@ -269,6 +269,11 @@ namespace Iface.Oik.Tm.Native.Interfaces
                         ref byte[] errBuf,
                         uint       maxErrs);
 
+    IntPtr CfsEnumTimezones(IntPtr     connId,
+                            out UInt32 errCode,
+                            ref byte[] errBuf,
+                            UInt32     maxErrs);
+
 
     bool CfsIfpcNewUserSystemAvaliable(IntPtr     connId,
                                        out uint   flags,
@@ -297,5 +302,11 @@ namespace Iface.Oik.Tm.Native.Interfaces
                           ref byte[] type,
                           ref byte[] msgType,
                           ref byte[] thid);
+
+
+    Int32 CfsLzDecompress(IntPtr     inBuffer,
+                          UInt32     inLength,
+                          IntPtr     outBuffPtr,
+                          ref UInt32 outLength);
   }
 }

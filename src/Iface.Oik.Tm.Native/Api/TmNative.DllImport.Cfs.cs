@@ -315,6 +315,13 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern IntPtr cfsEnumTimezones(IntPtr           connId,
+                                                 out       UInt32 errCode,
+                                                 [In, Out] byte[] errBuf,
+                                                 UInt32           maxErrs);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern bool cfsIfpcNewUserSystemAvaliable(IntPtr           connId,
                                                             out       UInt32 flags,
                                                             out       UInt32 errCode,
@@ -355,5 +362,12 @@ namespace Iface.Oik.Tm.Native.Api
                                                 [In, Out] byte[] sType,
                                                 [In, Out] byte[] sMsgType,
                                                 [In, Out] byte[] sThid);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int32 cfslzDecompress(IntPtr inBuffer,
+                                               UInt32                                         inLength,
+                                               IntPtr                                         outBuffPtr,
+                                               [In, Out] ref UInt32                           outLength);
   }
 }

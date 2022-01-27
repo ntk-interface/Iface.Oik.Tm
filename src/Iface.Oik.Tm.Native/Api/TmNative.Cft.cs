@@ -10,6 +10,14 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return cftNodeEnum(id, count);
     }
+    
+    
+    public IntPtr CftNodeEnumAll(IntPtr id,
+                                 Int32  count)
+    {
+      return cftNodeEnumAll(id, count);
+    }
+    
 
     public void CftNodeFreeTree(IntPtr id)
     {
@@ -61,6 +69,11 @@ namespace Iface.Oik.Tm.Native.Api
                             string propText)
     {
       return cftNPropSet(id, propName, propText);
+    }
+
+    public bool CftNodeIsEnabled(IntPtr id)
+    {
+      return cftNodeIsEnabled(id);
     }
   }
 }

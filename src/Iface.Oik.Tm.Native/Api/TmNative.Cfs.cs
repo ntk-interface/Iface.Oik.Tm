@@ -366,6 +366,15 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return cfsGetBasePath(connId, path, cbPath, out errCode, errBuf, maxErrs);
     }
+    
+    
+    public IntPtr CfsEnumTimezones(IntPtr     connId,
+                                        out UInt32 errCode,
+                                        ref byte[] errBuf,
+                                        UInt32     maxErrs)
+    {
+      return cfsEnumTimezones(connId, out errCode, errBuf, maxErrs);
+    }
 
 
     public bool CfsIfpcNewUserSystemAvaliable(IntPtr     connId,
@@ -422,6 +431,15 @@ namespace Iface.Oik.Tm.Native.Api
                                  ref byte[] thid)
     {
       return lf_ParseMessage(stringPtrToParse, time, date, name, type, msgType, thid);
+    }
+
+
+    public Int32 CfsLzDecompress(IntPtr inBuffer,
+                                 UInt32     inLength,
+                                 IntPtr     outBuffPtr,
+                                 ref UInt32 outLength)
+    {
+      return cfslzDecompress(inBuffer, inLength, outBuffPtr, ref outLength);
     }
   }
 }
