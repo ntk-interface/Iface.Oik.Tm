@@ -50,5 +50,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
     bool CftNodeIsEnabled(IntPtr id);
+
+
+    void CftNodeEnable(IntPtr id, 
+                       Boolean enable);
   }
 }

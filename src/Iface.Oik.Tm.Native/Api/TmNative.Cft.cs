@@ -75,5 +75,11 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return cftNodeIsEnabled(id);
     }
+
+    public void CftNodeEnable(IntPtr id, 
+                              Boolean enable)
+    {
+      cftNodeEnable(id, enable);
+    }
   }
 }
