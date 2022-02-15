@@ -255,6 +255,8 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("ДЕБЛОК")]                               TmEmergencyDelock       = 16,
     [Description("Запуск программы - контекстное меню")]  ProcessForContextMenu   = 17,
     [Description("Запуск программы - левая кнопка мыши")] ProcessForClick         = 18,
+    [Description("ПЗ ОБР")]                               TmGroundOperLock        = 19,
+    [Description("ПЗ ОБР документ")]                      DocumentGroundOperLock  = 20,
   }
 
 
