@@ -8,7 +8,11 @@ namespace Iface.Oik.Tm.Native.Api
   {
     public bool CfsInitLibrary(string baseDir = null, string extArg = null)
     {
+#if x86
+      return false;
+#else
       return cfsInitLibrary(baseDir, extArg);
+#endif
     }
 
 
