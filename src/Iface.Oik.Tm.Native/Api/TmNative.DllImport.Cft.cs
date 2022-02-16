@@ -61,5 +61,10 @@ namespace Iface.Oik.Tm.Native.Api
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
     public static extern bool cftNodeIsEnabled(IntPtr id);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
+    public static extern void cftNodeEnable(IntPtr id,
+                                            bool   enable);
   }
 }
