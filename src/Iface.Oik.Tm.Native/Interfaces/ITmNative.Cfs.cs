@@ -283,11 +283,11 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
     bool CfsIfpcSetUserPwd(IntPtr     connId,
-                          string     username,
-                          string     password,
-                          out uint   errCode,
-                          ref byte[] errBuf,
-                          uint       maxErrs);
+                           string     username,
+                           string     password,
+                           out uint   errCode,
+                           ref byte[] errBuf,
+                           uint       maxErrs);
 
 
     void DPrintF(string message);
@@ -308,5 +308,18 @@ namespace Iface.Oik.Tm.Native.Interfaces
                           UInt32     inLength,
                           IntPtr     outBuffPtr,
                           ref UInt32 outLength);
+
+
+    Boolean CfsNodeFileSave(IntPtr     treeHandle,
+                            string     fileName,
+                            out UInt32 errCode,
+                            ref byte[] errBuf,
+                            uint       maxErrs);
+
+
+    IntPtr CfsNodeFileLoad(string     fileName,
+                           out UInt32 errCode,
+                           ref byte[] errBuf,
+                           UInt32     maxErrs);
   }
 }
