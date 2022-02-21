@@ -132,7 +132,7 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return cfsFileDelete(connId, remoteFileName, out errCode, errBuf, maxErrs);
     }
-    
+
 
     public IntPtr CfsConnect(string     serverName,
                              out uint   errCode,
@@ -370,12 +370,12 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return cfsGetBasePath(connId, path, cbPath, out errCode, errBuf, maxErrs);
     }
-    
-    
+
+
     public IntPtr CfsEnumTimezones(IntPtr     connId,
-                                        out UInt32 errCode,
-                                        ref byte[] errBuf,
-                                        UInt32     maxErrs)
+                                   out UInt32 errCode,
+                                   ref byte[] errBuf,
+                                   UInt32     maxErrs)
     {
       return cfsEnumTimezones(connId, out errCode, errBuf, maxErrs);
     }
@@ -438,12 +438,31 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public Int32 CfsLzDecompress(IntPtr inBuffer,
+    public Int32 CfsLzDecompress(IntPtr     inBuffer,
                                  UInt32     inLength,
                                  IntPtr     outBuffPtr,
                                  ref UInt32 outLength)
     {
       return cfslzDecompress(inBuffer, inLength, outBuffPtr, ref outLength);
+    }
+
+
+    public Boolean CfsNodeFileSave(IntPtr     treeHandle,
+                                   string     fileName,
+                                   out UInt32 errCode,
+                                   ref byte[] errBuf,
+                                   UInt32     maxErrs)
+    {
+      return cfsNodeFileSave(treeHandle, fileName, out errCode, errBuf, maxErrs);
+    }
+
+
+    public IntPtr CfsNodeFileLoad(string     fileName,
+                                  out UInt32 errCode,
+                                  ref byte[] errBuf,
+                                  UInt32     maxErrs)
+    {
+      return cfsNodeFileLoad(fileName, out errCode, errBuf, maxErrs);
     }
   }
 }
