@@ -19,6 +19,7 @@ namespace Iface.Oik.Tm.Api
     public TmNativeCallback TmsCallbackDelegate      { get; }
     public TmNativeCallback EmptyTmsCallbackDelegate { get; } = delegate { };
 
+    public event EventHandler                   TmStatusChanged = delegate { };
     public event EventHandler                   UserInfoUpdated = delegate { };
     public event EventHandler                   TmEventsAcked   = delegate { };
     public event EventHandler<TobEventArgs>     TobChanged      = delegate { };
@@ -59,9 +60,14 @@ namespace Iface.Oik.Tm.Api
 
     private void HandleTmsCallback(byte[] buf)
     {
-      if (buf[0] == 'E' &&
-          buf[1] == 'L' &&
-          buf[2] == 'A')
+      if (buf[0] == 'T' &&
+          buf[1] == 'S')
+      {
+        HandleTmsCallbackTmStatusChanged();
+      }
+      else if (buf[0] == 'E' &&
+               buf[1] == 'L' &&
+               buf[2] == 'A')
       {
         HandleTmsCallbackEventsAcked();
       }
@@ -79,6 +85,12 @@ namespace Iface.Oik.Tm.Api
       {
         HandleTmsCallbackTob(buf.ElementAtOrDefault(3));
       }
+    }
+
+
+    private void HandleTmsCallbackTmStatusChanged()
+    {
+      TmStatusChanged.Invoke(this, EventArgs.Empty);
     }
 
 

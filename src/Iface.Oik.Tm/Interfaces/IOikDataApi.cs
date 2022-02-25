@@ -21,6 +21,7 @@ namespace Iface.Oik.Tm.Interfaces
     TmNativeCallback TmsCallbackDelegate      { get; }
     TmNativeCallback EmptyTmsCallbackDelegate { get; }
 
+    event EventHandler                   TmStatusChanged;
     event EventHandler                   UserInfoUpdated;
     event EventHandler                   TmEventsAcked;
     event EventHandler<TobEventArgs>     TobChanged;
