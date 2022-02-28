@@ -464,5 +464,17 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return cfsNodeFileLoad(fileName, out errCode, errBuf, maxErrs);
     }
+    
+    
+    public IntPtr CfsConfFileOpen(string                    serverName,
+                                     string                    fileName,
+                                     uint                      timeout,
+                                     ref TmNativeDefs.FileTime fileTime,
+                                     out uint                  errCode,
+                                     ref byte[]                errBuf,
+                                     uint                      maxErrs)
+    {
+      return cfsConfFileOpen(serverName, fileName, timeout, ref fileTime, out errCode, errBuf, maxErrs);
+    }
   }
 }

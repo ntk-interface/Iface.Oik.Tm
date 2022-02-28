@@ -384,5 +384,15 @@ namespace Iface.Oik.Tm.Native.Api
                                                 out                              UInt32 errCode,
                                                 [In, Out]                        byte[] errBuf,
                                                 UInt32                                  maxErrs);
+    
+    
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern IntPtr cfsConfFileOpen([MarshalAs(UnmanagedType.LPStr)] string serverName,
+                                                [MarshalAs(UnmanagedType.LPStr)] string fileName,
+                                                UInt32                                  timeout,
+                                                [In, Out] ref TmNativeDefs.FileTime     fileTime,
+                                                out           UInt32                    errCode,
+                                                [In, Out]     byte[]                    errBuf,
+                                                UInt32                                  maxErrs);
   }
 }
