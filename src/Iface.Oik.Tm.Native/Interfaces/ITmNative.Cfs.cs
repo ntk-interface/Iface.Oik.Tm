@@ -321,5 +321,14 @@ namespace Iface.Oik.Tm.Native.Interfaces
                            out UInt32 errCode,
                            ref byte[] errBuf,
                            UInt32     maxErrs);
+    
+    
+    IntPtr CfsConfFileOpen(string                    serverName,
+                           string                    fileName,
+                           uint                      timeout,
+                           ref TmNativeDefs.FileTime fileTime,
+                           out uint                  errCode,
+                           ref byte[]                errString,
+                           uint                      maxErrs);
   }
 }
