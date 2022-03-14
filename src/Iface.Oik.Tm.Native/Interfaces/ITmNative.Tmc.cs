@@ -110,6 +110,21 @@ namespace Iface.Oik.Tm.Native.Interfaces
                     Int16 point);
 
 
+    Int16 TmcStatusFull(Int32                         cid,
+                        Int16                         ch,
+                        Int16                         rtu,
+                        Int16                         point,
+                        ref TmNativeDefs.TStatusPoint statusPoint);
+
+
+    Int16 TmcStatusFullEx(Int32                         cid,
+                          Int16                         ch,
+                          Int16                         rtu,
+                          Int16                         point,
+                          ref TmNativeDefs.TStatusPoint statusPoint,
+                          UInt32                        time);
+
+
     Single TmcAnalog(Int32  cid,
                      Int16  ch,
                      Int16  rtu,

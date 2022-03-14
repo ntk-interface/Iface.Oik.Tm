@@ -57,6 +57,13 @@ namespace Iface.Oik.Tm.Interfaces
                         int       point,
                         PreferApi prefer = PreferApi.Auto);
 
+    
+    Task<int> GetStatusFromRetro(int       ch, 
+                                 int       rtu, 
+                                 int       point, 
+                                 DateTime  time,
+                                 PreferApi prefer = PreferApi.Auto);
+
 
     Task SetStatus(int       ch,
                    int       rtu,
@@ -69,6 +76,14 @@ namespace Iface.Oik.Tm.Interfaces
                           int       rtu,
                           int       point,
                           PreferApi prefer = PreferApi.Auto);
+
+    
+    Task<float> GetAnalogFromRetro(int       ch, 
+                                   int       rtu, 
+                                   int       point, 
+                                   DateTime  time, 
+                                   int       retroNum = 0,
+                                   PreferApi prefer   = PreferApi.Auto);
 
 
     Task SetAnalog(int       ch,

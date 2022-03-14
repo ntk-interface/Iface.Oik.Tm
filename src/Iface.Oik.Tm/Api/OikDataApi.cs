@@ -354,6 +354,28 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<int> GetStatusFromRetro(int       ch,
+                                              int       rtu,
+                                              int       point,
+                                              DateTime  time,
+                                              PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.GetStatusFromRetro(ch, rtu, point, time).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+        return -1;
+      }
+    }
+
+
     public async Task SetStatus(int       ch,
                                 int       rtu,
                                 int       point,
@@ -388,6 +410,29 @@ namespace Iface.Oik.Tm.Api
       else if (api == ApiSelection.Sql)
       {
         return await _sql.GetAnalog(ch, rtu, point).ConfigureAwait(false);
+      }
+      else
+      {
+        return -1;
+      }
+    }
+
+
+    public async Task<float> GetAnalogFromRetro(int       ch,
+                                                int       rtu,
+                                                int       point,
+                                                DateTime  time,
+                                                int       retroNum = 0,
+                                                PreferApi prefer   = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.GetAnalogFromRetro(ch, rtu, point, time, retroNum).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
       }
       else
       {

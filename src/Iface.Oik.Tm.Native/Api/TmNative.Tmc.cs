@@ -183,6 +183,27 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public Int16 TmcStatusFull(Int32                         cid,
+                               Int16                         ch,
+                               Int16                         rtu,
+                               Int16                         point,
+                               ref TmNativeDefs.TStatusPoint statusPoint)
+    {
+      return tmcStatusFull(cid, ch, rtu, point, ref statusPoint);
+    }
+
+
+    public Int16 TmcStatusFullEx(Int32                         cid,
+                                 Int16                         ch,
+                                 Int16                         rtu,
+                                 Int16                         point,
+                                 ref TmNativeDefs.TStatusPoint statusPoint,
+                                 UInt32                        time)
+    {
+      return tmcStatusFullEx(cid, ch, rtu, point, ref statusPoint, time);
+    }
+
+
     public Single TmcAnalog(Int32  cid,
                             Int16  ch,
                             Int16  rtu,
