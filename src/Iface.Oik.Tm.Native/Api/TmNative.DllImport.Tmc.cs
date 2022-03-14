@@ -147,6 +147,23 @@ namespace Iface.Oik.Tm.Native.Api
     
     
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int16 tmcStatusFull(Int32                                                      cid,
+                                             Int16                                                      ch,
+                                             Int16                                                      rtu,
+                                             Int16                                                      point,
+                                             [In, Out] ref                    TmNativeDefs.TStatusPoint statusPoint);
+    
+    
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int16 tmcStatusFullEx(Int32                                   cid,
+                                               Int16                                   ch,
+                                               Int16                                   rtu,
+                                               Int16                                   point,
+                                               [In, Out] ref TmNativeDefs.TStatusPoint statusPoint,
+                                               UInt32                                  time);
+    
+    
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcAnalogFull(Int32                                                      cid,
                                              Int16                                                      ch,
                                              Int16                                                      rtu,

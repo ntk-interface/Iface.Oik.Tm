@@ -161,10 +161,46 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<int> GetStatusFromRetro(int ch, int rtu, int point, DateTime time)
+    {
+      var utcTime       = DateUtil.GetUtcTimestampFromDateTime(time);
+      var serverUtcTime = _native.UxGmTime2UxTime(utcTime);
+      
+      var statusPoint = new TmNativeDefs.TStatusPoint();
+      
+      await Task.Run(() => _native.TmcStatusFullEx(_cid, 
+                                                   (short)ch, 
+                                                   (short)rtu, 
+                                                   (short)point,
+                                                   ref statusPoint, 
+                                                   (uint) serverUtcTime))
+                .ConfigureAwait(false);
+
+      return statusPoint.Status;
+    }
+
+
     public async Task<float> GetAnalog(int ch, int rtu, int point)
     {
       return await Task.Run(() => _native.TmcAnalog(_cid, (short)ch, (short)rtu, (short)point, null, 0))
                        .ConfigureAwait(false);
+    }
+
+
+    public async Task<float> GetAnalogFromRetro(int ch, int rtu, int point, DateTime time, int retroNum = 0)
+    {
+      var analogPoint = new TmNativeDefs.TAnalogPoint();
+      
+      await Task.Run(() => _native.TmcAnalogFull(_cid,
+                                                 (short) ch,
+                                                 (short) rtu,
+                                                 (short) point,
+                                                 ref analogPoint,
+                                                 time.ToTmString(),
+                                                 (short)retroNum))
+                .ConfigureAwait(false);
+
+      return analogPoint.AsFloat;
     }
 
 
