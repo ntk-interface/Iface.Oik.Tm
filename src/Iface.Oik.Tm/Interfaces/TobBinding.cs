@@ -21,5 +21,7 @@ namespace Iface.Oik.Tm.Interfaces
     public bool IsOperLock        => BindingType == TobBindingType.TmOperLock;
     public bool IsGroundOperLock  => BindingType == TobBindingType.TmGroundOperLock;
     public bool IsEmergencyDelock => BindingType == TobBindingType.TmEmergencyDelock;
+
+    public override string ToString() => NameToDisplay;
   }
 }
