@@ -11,6 +11,7 @@ namespace Iface.Oik.Tm.Interfaces
     public Tob            ParentTob   { get; set; }
     public string         Name        { get; set; }
     public string         Value       { get; set; }
+    public int            OrderIx     { get; set; }
 
     public string NameToDisplay => TmTag != null
       ? TmTag.TmAddr.ToString()
