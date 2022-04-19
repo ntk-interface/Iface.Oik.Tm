@@ -81,9 +81,8 @@ namespace OikTask
 
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
-      _infr.TerminateTm();
-
       Tms.TerminateWithoutSql(_tmCid);
+      _infr.TerminateTm();
 
       Tms.PrintMessage("Задача будет закрыта");
 

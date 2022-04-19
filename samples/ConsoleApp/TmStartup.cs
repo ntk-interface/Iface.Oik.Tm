@@ -58,9 +58,8 @@ namespace ConsoleApp
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
-      _infr.TerminateTm();
-
       Tms.Terminate(_tmCid, _rbCid);
+      _infr.TerminateTm();
 
       return Task.CompletedTask;
     }

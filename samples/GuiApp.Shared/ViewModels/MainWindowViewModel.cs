@@ -162,8 +162,9 @@ namespace GuiApp.Shared.ViewModels
     private void Disconnect()
     {
       _infr.ServerService.StopAsync();
-      _infr.TerminateTm();
+      
       Tms.Terminate(_infr.TmCid, _infr.RbCid);
+      _infr.TerminateTm();
 
       IsConnected = false;
       AddToLog("Соединение разорвано");

@@ -55,10 +55,9 @@ namespace ConsoleAppWithoutSql
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
-      _infr.TerminateTm();
-      
       Tms.TerminateWithoutSql(_tmCid);
-      
+      _infr.TerminateTm();
+
       return Task.CompletedTask;
     }
   }
