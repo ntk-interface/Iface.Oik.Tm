@@ -126,7 +126,7 @@ namespace Iface.Oik.Tm.Helpers
 
     public static DateTime? GetSystemTime(int tmCid)
     {
-      return DateTime.TryParse(GetSystemTimeString(tmCid), out var time) ? (DateTime?)time : null;
+      return DateUtil.GetDateTimeFromTmString(GetSystemTimeString(tmCid));
     }
 
 
