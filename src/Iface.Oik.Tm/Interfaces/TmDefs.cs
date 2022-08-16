@@ -259,6 +259,7 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("ПЗ ОБР документ")]                               DocumentGroundOperLock   = 20,
     [Description("Документ - левая кнопка (в новой вкладке)")]     DocumentForClickNewTab   = 21,
     [Description("Документ - левая кнопка (во всплывающем окне)")] DocumentForClickOverview = 22,
+    [Description("Переход на другой элемент")]                     Hyperlink                = 23,
   }
 
 
