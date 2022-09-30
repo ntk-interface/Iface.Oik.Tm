@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Iface.Oik.Tm.Dto;
 
 namespace Iface.Oik.Tm.Interfaces
 {
@@ -279,5 +280,14 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task<IReadOnlyCollection<TmRetroInfo>> GetRetrosInfo(TmType tmType);
+
+
+    Task<bool> MqttSubscribeAsync(MqttSubscriptionTopic subscriptionTopic);
+
+    Task<bool> MqttUnsubscribeAsync(MqttSubscriptionTopic subscriptionTopic);
+
+    Task<bool> MqttPublishBytesAsync(MqttPublishTopic topic, byte[] data);
+
+    MqttMessageDto MqttParseDatagram(byte[] datagram);
   }
 }

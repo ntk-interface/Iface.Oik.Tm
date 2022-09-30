@@ -144,16 +144,16 @@ namespace Iface.Oik.Tm.Native.Api
                                           Int16                                   point,
                                           [MarshalAs(UnmanagedType.LPStr)] string dateTime,
                                           Int16                                   retroNum);
-    
-    
+
+
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Int16 tmcStatusFull(Int32                                                      cid,
-                                             Int16                                                      ch,
-                                             Int16                                                      rtu,
-                                             Int16                                                      point,
-                                             [In, Out] ref                    TmNativeDefs.TStatusPoint statusPoint);
-    
-    
+    public static extern Int16 tmcStatusFull(Int32                                   cid,
+                                             Int16                                   ch,
+                                             Int16                                   rtu,
+                                             Int16                                   point,
+                                             [In, Out] ref TmNativeDefs.TStatusPoint statusPoint);
+
+
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcStatusFullEx(Int32                                   cid,
                                                Int16                                   ch,
@@ -161,19 +161,18 @@ namespace Iface.Oik.Tm.Native.Api
                                                Int16                                   point,
                                                [In, Out] ref TmNativeDefs.TStatusPoint statusPoint,
                                                UInt32                                  time);
-    
-    
+
+
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcAnalogFull(Int32                                                      cid,
                                              Int16                                                      ch,
                                              Int16                                                      rtu,
                                              Int16                                                      point,
-                                             [In, Out] ref                     TmNativeDefs.TAnalogPoint analogPoint,
+                                             [In, Out] ref                    TmNativeDefs.TAnalogPoint analogPoint,
                                              [MarshalAs(UnmanagedType.LPStr)] string                    dateTime,
                                              Int16                                                      retroNum);
-    
-    
-    
+
+
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern void tmcStatusByList(Int32                                 cid,
                                               UInt16                                count,
@@ -363,7 +362,7 @@ namespace Iface.Oik.Tm.Native.Api
                                                       Int16            rtu,
                                                       Int16            point,
                                                       [In, Out] byte[] propList,
-                                                      out UInt32       pMask);
+                                                      out       UInt32 pMask);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -748,8 +747,43 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Int16 tmcRetroInfoEx(Int32 cid, 
-                                              UInt16 id, 
+    public static extern Int16 tmcRetroInfoEx(Int32                         cid,
+                                              UInt16                        id,
                                               ref TmNativeDefs.TRetroInfoEx info);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern Boolean tmcPubPublish(Int32                                   cid,
+                                               [MarshalAs(UnmanagedType.LPStr)] string topic,
+                                               UInt32                                  lifeTimeSec,
+                                               Byte                                    qos,
+                                               Byte[]                                  data,
+                                               UInt32                                  cbData);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern Boolean tmcPubSubscribe(Int32                                   cid,
+                                                 [MarshalAs(UnmanagedType.LPStr)] string topic,
+                                                 Int32                                   subscriptionId,
+                                                 Byte                                    qos);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern Boolean tmcPubUnsubscribe(Int32                                   cid,
+                                                   [MarshalAs(UnmanagedType.LPStr)] string topic,
+                                                   Int32                                   subscriptionId);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern Boolean tmcPubParseDatagram([MarshalAs(UnmanagedType.LPArray)] [In] Byte[] diagram, //in
+                                                     UInt32 diagramSize, //in
+                                                     [In, Out] IntPtr pTag, //out
+                                                     [In, Out] IntPtr ppdata, //out
+                                                     out       UInt32 dataSize, //out
+                                                     out       UInt32 subId, //out
+                                                     out       Byte qos, //out
+                                                     out       Boolean retained, //out, can be NULL
+                                                     out       Byte pubFlg //out, can be NULL
+    );
   }
 }

@@ -949,5 +949,32 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcRetroInfoEx(cid, id, ref info);
     }
+
+
+    public Boolean TmcPubPublish(Int32  cid,
+                                 string topic,
+                                 UInt32 lifeTimeSec,
+                                 Byte   qos,
+                                 Byte[] data,
+                                 UInt32 cbData)
+    {
+      return tmcPubPublish(cid, topic, lifeTimeSec, qos, data, cbData);
+    }
+    
+    
+    public Boolean TmcPubSubscribe(Int32  cid,
+                                   string topic,
+                                   Int32  subscriptionId,
+                                   Byte   qos)
+    {
+      return tmcPubSubscribe(cid, topic, subscriptionId, qos);
+    }
+
+    public Boolean TmcPubUnsubscribe(Int32  cid, 
+                                     string topic, 
+                                     Int32  subscriptionId)
+    {
+      return tmcPubUnsubscribe(cid, topic, subscriptionId);
+    }
   }
 }

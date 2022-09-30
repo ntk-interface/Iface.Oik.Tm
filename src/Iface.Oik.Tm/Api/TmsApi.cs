@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Iface.Oik.Tm.Dto;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
@@ -2714,6 +2715,79 @@ namespace Iface.Oik.Tm.Api
       return retrosInfo;
     }
 
+
+    public async Task<bool> MqttSubscribeAsync(MqttSubscriptionTopic subscriptionTopic)
+    {
+      return await Task.Run(() =>
+                              _native.TmcPubSubscribe(_cid,
+                                                      subscriptionTopic.Topic, 
+                                                      subscriptionTopic.SubscriptionId,
+                                                      (byte)subscriptionTopic.QoS)).ConfigureAwait(false);
+    }
+
+
+    public async Task<bool> MqttUnsubscribeAsync(MqttSubscriptionTopic subscriptionTopic)
+    {
+      return await Task.Run(() => 
+                              _native.TmcPubUnsubscribe(_cid, 
+                                                        subscriptionTopic.Topic, 
+                                                        subscriptionTopic.SubscriptionId)).ConfigureAwait(false);
+    }
+    
+
+    public async Task<bool> MqttPublishStringAsync(MqttPublishTopic topic, string str)
+    {
+      return await MqttPublishBytesAsync(topic, str.To1251Bytes()).ConfigureAwait(false);
+    }
+    
+    
+    public async Task<bool> MqttPublishBytesAsync(MqttPublishTopic topic, byte[] data)
+    {
+      return await Task.Run(() => 
+                              _native.TmcPubPublish(_cid, 
+                                                    topic.Topic, 
+                                                    topic.LifetimeSec, 
+                                                    (byte)topic.QoS, 
+                                                    data, 
+                                                    (uint)data.Length)).ConfigureAwait(false);
+    }
+
+
+    public MqttMessageDto MqttParseDatagram(byte[] datagram)
+    {
+
+      var (infoList, payload) = TmNativeUtil.SplitMqttMessageDatagram(datagram);
+      var dto = new MqttMessageDto();
+
+      foreach (var pair in infoList)
+      {
+        switch (pair.Key)
+        {
+          case "tag":
+            dto.Topic = pair.Value;
+            break;
+          case "subsid":
+            dto.SubscriptionId = int.Parse(pair.Value);
+            break;
+          case "qos":
+            dto.QoS = (MqttQoS)byte.Parse(pair.Value);
+            break;
+          case "r":
+            dto.Retain = int.Parse(pair.Value) == 1;
+            break;
+          case "pf":
+            /// Pub flags
+            break;
+        }
+      }
+
+      dto.Payload = payload;
+      
+      return dto;
+    }
+
+    
+    
 
     private async Task<(IReadOnlyList<TmEvent>, TmNativeDefs.TTMSElix)> GetEventsBatch(TmNativeDefs.TTMSElix elix,
                                                                                        TmEventTypes          type,

@@ -39,8 +39,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
     IntPtr TmcDecodeTcError(UInt16 status);
-    
-    
+
+
     IntPtr TmcGetKnownxCfgPath(Int32  cid,
                                string appTag,
                                UInt32 index);
@@ -622,8 +622,27 @@ namespace Iface.Oik.Tm.Native.Interfaces
                          out UInt32 pCount);
 
 
-    Int16 TmcRetroInfoEx(Int32                         cid, 
+    Int16 TmcRetroInfoEx(Int32                         cid,
                          UInt16                        id,
                          ref TmNativeDefs.TRetroInfoEx info);
+
+
+    Boolean TmcPubSubscribe(Int32  cid,
+                            string topic,
+                            Int32  subscriptionId,
+                            Byte   qos);
+
+    Boolean TmcPubUnsubscribe(Int32  cid,
+                              string topic,
+                              Int32  subscriptionId);
+
+
+    Boolean TmcPubPublish(Int32  cid,
+                          string topic,
+                          UInt32 lifeTimeSec,
+                          Byte   qos,
+                          Byte[] data,
+                          UInt32 cbData);
+    
   }
 }
