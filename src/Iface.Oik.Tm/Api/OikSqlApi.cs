@@ -440,10 +440,12 @@ namespace Iface.Oik.Tm.Api
                               ORDER BY t.i";
           var parameters = new {IdsArray = techObjects.Select(tob => tob.CimGuid).ToArray()};
           var topologyStatuses = await sql.DbConnection
-                              .QueryAsync<int>(commandText, parameters)
+                              .QueryAsync<int?>(commandText, parameters)
                               .ConfigureAwait(false);
-
-          topologyStatuses.ForEach((status, idx) => techObjects[idx].UpdateTopologyStatus((CimTopologyStatus)status));
+          topologyStatuses.ForEach((status, idx) =>
+          {
+            techObjects[idx].UpdateTopologyStatus((CimTopologyStatus)(status ?? 0));
+          });
         }
       }
       catch (NpgsqlException ex)
