@@ -433,24 +433,17 @@ namespace Iface.Oik.Tm.Api
         using (var sql = _createOikSqlConnection())
         {
           await sql.OpenAsync().ConfigureAwait(false);
-          var commandText = @"SELECT is_voltaged, is_grounded
-                              FROM _tob_test
-                                RIGHT JOIN UNNEST(@SchArray, @ObjArray) WITH ORDINALITY t (sch,obj,i)
-                                  ON tob_scheme = t.sch AND tob_object = t.obj
+          var commandText = @"SELECT status
+                              FROM cim_topology
+                                RIGHT JOIN UNNEST(@IdsArray) WITH ORDINALITY t (id,i)
+                                  ON cim_topology.id = t.id
                               ORDER BY t.i";
-          var tobSchemes = new int[techObjects.Count];
-          var tobObjects = new int[techObjects.Count];
-          for (var i = 0; i < techObjects.Count; i++)
-          {
-            tobSchemes[i] = (int) techObjects[i].Scheme;
-            tobObjects[i] = (int) techObjects[i].Object;
-          }
-          var parameters = new {SchArray = tobSchemes, ObjArray = tobObjects};
-          var dtos = await sql.DbConnection
-                              .QueryAsync<(bool IsV, bool IsG)>(commandText, parameters)
+          var parameters = new {IdsArray = techObjects.Select(tob => tob.CimGuid).ToArray()};
+          var topologyStatuses = await sql.DbConnection
+                              .QueryAsync<int>(commandText, parameters)
                               .ConfigureAwait(false);
 
-          dtos.ForEach((dto, idx) => techObjects[idx].UpdateTopologyState(dto.IsV, dto.IsG));
+          topologyStatuses.ForEach((status, idx) => techObjects[idx].UpdateTopologyStatus((CimTopologyStatus)status));
         }
       }
       catch (NpgsqlException ex)
