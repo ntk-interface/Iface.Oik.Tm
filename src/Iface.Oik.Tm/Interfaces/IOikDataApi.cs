@@ -26,6 +26,7 @@ namespace Iface.Oik.Tm.Interfaces
     event EventHandler                   TmEventsAcked;
     event EventHandler<TobEventArgs>     TobChanged;
     event EventHandler<TmAlertEventArgs> TmAlertsChanged;
+    event EventHandler<MqttMessage>      MqttMessageReceived;
 
 
     void SetUserInfoAndServerFeatures(TmUserInfo userInfo, TmServerFeatures features);

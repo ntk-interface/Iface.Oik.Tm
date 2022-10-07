@@ -439,12 +439,4 @@ namespace Iface.Oik.Tm.Interfaces
     Dlms       = TmNativeDefs.EventLogExtendedSources.Dlms,
     TmaRelated = TmNativeDefs.EventLogExtendedSources.TmaRelated
   }
-
-
-  public enum MqttQoS : byte
-  {
-    AtMostOnce  = TmNativeDefs.PublicationQoS.AtMostOnce,
-    AtLeastOnce = TmNativeDefs.PublicationQoS.AtLeastOnce,
-    ExactlyOnce = TmNativeDefs.PublicationQoS.ExactlyOnce
-  }
 }

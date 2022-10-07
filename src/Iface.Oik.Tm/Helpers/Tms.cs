@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using Iface.Oik.Tm.Dto;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
@@ -614,6 +615,38 @@ namespace Iface.Oik.Tm.Helpers
     public static void TerminateWithoutSql(int tmCid)
     {
       Disconnect(tmCid);
+    }
+    
+    
+    public static MqttMessage ParseMqttDatagram(byte[] datagram)
+    {
+      var result = new MqttMessage();
+      
+      var (infoList, payload) = TmNativeUtil.SplitMqttMessageDatagram(datagram);
+
+      result.Payload = payload;
+      foreach (var pair in infoList)
+      {
+        switch (pair.Key)
+        {
+          case "tag":
+            result.Topic = pair.Value;
+            break;
+          case "subsid":
+            result.SubscriptionId = int.Parse(pair.Value);
+            break;
+          case "qos":
+            result.QoS = (MqttQoS)byte.Parse(pair.Value);
+            break;
+          case "r":
+            result.Retain = int.Parse(pair.Value) == 1;
+            break;
+          case "pf":
+            // Pub flags
+            break;
+        }
+      }
+      return result;
     }
 
 

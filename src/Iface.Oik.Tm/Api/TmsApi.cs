@@ -2716,78 +2716,42 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<bool> MqttSubscribeAsync(MqttSubscriptionTopic subscriptionTopic)
+    public async Task<bool> MqttSubscribeAsync(MqttSubscriptionTopic topic)
     {
-      return await Task.Run(() =>
-                              _native.TmcPubSubscribe(_cid,
-                                                      subscriptionTopic.Topic, 
-                                                      subscriptionTopic.SubscriptionId,
-                                                      (byte)subscriptionTopic.QoS)).ConfigureAwait(false);
+      return await Task.Run(() => _native.TmcPubSubscribe(_cid,
+                                                          topic.Topic, 
+                                                          topic.SubscriptionId,
+                                                          (byte)topic.QoS))
+                       .ConfigureAwait(false);
     }
 
 
-    public async Task<bool> MqttUnsubscribeAsync(MqttSubscriptionTopic subscriptionTopic)
+    public async Task<bool> MqttUnsubscribeAsync(MqttSubscriptionTopic topic)
     {
-      return await Task.Run(() => 
-                              _native.TmcPubUnsubscribe(_cid, 
-                                                        subscriptionTopic.Topic, 
-                                                        subscriptionTopic.SubscriptionId)).ConfigureAwait(false);
+      return await Task.Run(() => _native.TmcPubUnsubscribe(_cid, 
+                                                            topic.Topic, 
+                                                            topic.SubscriptionId))
+                       .ConfigureAwait(false);
     }
     
 
-    public async Task<bool> MqttPublishStringAsync(MqttPublishTopic topic, string str)
+    public async Task<bool> MqttPublishAsync(MqttPublishTopic topic, string payload)
     {
-      return await MqttPublishBytesAsync(topic, str.To1251Bytes()).ConfigureAwait(false);
+      return await MqttPublishAsync(topic, EncodingUtil.Utf8ToWin1251Bytes(payload)).ConfigureAwait(false);
     }
     
     
-    public async Task<bool> MqttPublishBytesAsync(MqttPublishTopic topic, byte[] data)
+    public async Task<bool> MqttPublishAsync(MqttPublishTopic topic, byte[] payload)
     {
-      return await Task.Run(() => 
-                              _native.TmcPubPublish(_cid, 
-                                                    topic.Topic, 
-                                                    topic.LifetimeSec, 
-                                                    (byte)topic.QoS, 
-                                                    data, 
-                                                    (uint)data.Length)).ConfigureAwait(false);
+      return await Task.Run(() => _native.TmcPubPublish(_cid, 
+                                                        topic.Topic, 
+                                                        topic.LifetimeSec, 
+                                                        (byte)topic.QoS, 
+                                                        payload, 
+                                                        (uint)payload.Length))
+                       .ConfigureAwait(false);
     }
 
-
-    public MqttMessageDto MqttParseDatagram(byte[] datagram)
-    {
-
-      var (infoList, payload) = TmNativeUtil.SplitMqttMessageDatagram(datagram);
-      var dto = new MqttMessageDto();
-
-      foreach (var pair in infoList)
-      {
-        switch (pair.Key)
-        {
-          case "tag":
-            dto.Topic = pair.Value;
-            break;
-          case "subsid":
-            dto.SubscriptionId = int.Parse(pair.Value);
-            break;
-          case "qos":
-            dto.QoS = (MqttQoS)byte.Parse(pair.Value);
-            break;
-          case "r":
-            dto.Retain = int.Parse(pair.Value) == 1;
-            break;
-          case "pf":
-            /// Pub flags
-            break;
-        }
-      }
-
-      dto.Payload = payload;
-      
-      return dto;
-    }
-
-    
-    
 
     private async Task<(IReadOnlyList<TmEvent>, TmNativeDefs.TTMSElix)> GetEventsBatch(TmNativeDefs.TTMSElix elix,
                                                                                        TmEventTypes          type,

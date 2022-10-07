@@ -282,12 +282,12 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<TmRetroInfo>> GetRetrosInfo(TmType tmType);
 
 
-    Task<bool> MqttSubscribeAsync(MqttSubscriptionTopic subscriptionTopic);
+    Task<bool> MqttSubscribeAsync(MqttSubscriptionTopic topic);
 
-    Task<bool> MqttUnsubscribeAsync(MqttSubscriptionTopic subscriptionTopic);
+    Task<bool> MqttUnsubscribeAsync(MqttSubscriptionTopic topic);
 
-    Task<bool> MqttPublishBytesAsync(MqttPublishTopic topic, byte[] data);
-
-    MqttMessageDto MqttParseDatagram(byte[] datagram);
+    Task<bool> MqttPublishAsync(MqttPublishTopic topic, byte[] payload);
+    
+    Task<bool> MqttPublishAsync(MqttPublishTopic topic, string payload);
   }
 }

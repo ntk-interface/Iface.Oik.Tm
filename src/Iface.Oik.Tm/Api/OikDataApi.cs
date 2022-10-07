@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Interfaces;
 
@@ -19,11 +20,12 @@ namespace Iface.Oik.Tm.Api
     public TmNativeCallback TmsCallbackDelegate      { get; }
     public TmNativeCallback EmptyTmsCallbackDelegate { get; } = delegate { };
 
-    public event EventHandler                   TmStatusChanged = delegate { };
-    public event EventHandler                   UserInfoUpdated = delegate { };
-    public event EventHandler                   TmEventsAcked   = delegate { };
-    public event EventHandler<TobEventArgs>     TobChanged      = delegate { };
-    public event EventHandler<TmAlertEventArgs> TmAlertsChanged = delegate { };
+    public event EventHandler                   TmStatusChanged     = delegate { };
+    public event EventHandler                   UserInfoUpdated     = delegate { };
+    public event EventHandler                   TmEventsAcked       = delegate { };
+    public event EventHandler<TobEventArgs>     TobChanged          = delegate { };
+    public event EventHandler<TmAlertEventArgs> TmAlertsChanged     = delegate { };
+    public event EventHandler<MqttMessage>      MqttMessageReceived = delegate { };
 
     public bool IsTmsAllowed { get; set; } = true;
     public bool IsSqlAllowed { get; set; } = true;
@@ -84,6 +86,11 @@ namespace Iface.Oik.Tm.Api
                buf[2] == 'B')
       {
         HandleTmsCallbackTob(buf.ElementAtOrDefault(3));
+      }
+      else if (buf[0] == 'p' &&
+               buf[1] == 'o')
+      {
+        HandleTmsCallbackMqtt(buf);
       }
     }
 
@@ -168,6 +175,12 @@ namespace Iface.Oik.Tm.Api
           return;
       }
       TobChanged.Invoke(this, eventArgs);
+    }
+
+
+    private void HandleTmsCallbackMqtt(byte[] datagram)
+    {
+      MqttMessageReceived.Invoke(this, Tms.ParseMqttDatagram(datagram));
     }
 
 
