@@ -7,20 +7,20 @@ namespace Iface.Oik.Tm.Interfaces
     Unknown = 0,
 
     // EquipmentContainer
-    Substation = 1,
+    Substation   = 1,
     VoltageLevel = 2,
-    Bay = 3,
-    Line = 4,
+    Bay          = 3,
+    Line         = 4,
 
     //
-    Name = 10,
-    NameType = 11,
-    BaseVoltage = 12,
-    Voltage = 13,
-    UnitSymbol = 14,
-    UnitMultiplier = 15,
-    ConnectivityNode = 16,
-    Terminal = 17,
+    Name                = 10,
+    NameType            = 11,
+    BaseVoltage         = 12,
+    Voltage             = 13,
+    UnitSymbol          = 14,
+    UnitMultiplier      = 15,
+    ConnectivityNode    = 16,
+    Terminal            = 17,
     PowerTransformerEnd = 20,
 
     // Conducting Equipment
@@ -61,7 +61,7 @@ namespace Iface.Oik.Tm.Interfaces
     SynchronousMachine,
     AsynchronousMachine,
     FrequencyConverter,
-    Switch, // abstract?
+    Switch,          // abstract?
     ProtectedSwitch, // abstract?
     Recloser,
     LoadBreakSwitch,
@@ -77,7 +77,7 @@ namespace Iface.Oik.Tm.Interfaces
     CsConverter,
     VsConverter,
     Clamp,
-    GroundSwitch, // [me:], no [cim:] !!!
+    GroundSwitch,           // [me:], no [cim:] !!!
     FuseSwitchDisconnector, // [me:], no [cim:] !!!
 
     // Auxiliary Equipment
@@ -108,7 +108,9 @@ namespace Iface.Oik.Tm.Interfaces
 
   public enum CimSchemeItemType
   {
-    GeneralGenerator = 65010,
+    GroundDisconnector = 54,    // заземляющий нож (источник земли)
+    ShortCircuitor     = 398,   // короткозамыкатель (источник земли)
+    GeneralGenerator   = 65010, // генератор на генеральной схеме (источник напряжения)
   }
 
 
@@ -125,7 +127,8 @@ namespace Iface.Oik.Tm.Interfaces
     TransformerEnd   = 9,
     ConnectivityNode = 10,
   }
-  
+
+
   [Flags]
   public enum CimTopologyStatus : byte
   {
