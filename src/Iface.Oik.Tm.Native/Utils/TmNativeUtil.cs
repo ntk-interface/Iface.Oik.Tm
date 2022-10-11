@@ -40,7 +40,7 @@ namespace Iface.Oik.Tm.Native.Utils
 
       return FromBytes<TmNativeDefs.TAccumPoint>(commonPoint.Data);
     }
-    
+
 
     public static string[] GetStringListFromDoubleNullTerminatedChars(char[] chars)
     {
@@ -56,7 +56,7 @@ namespace Iface.Oik.Tm.Native.Utils
         s = s.Remove(doubleNull);
       }
 
-      return s.Split(new[] {'\0'}, StringSplitOptions.RemoveEmptyEntries);
+      return s.Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
     }
 
 
@@ -81,7 +81,54 @@ namespace Iface.Oik.Tm.Native.Utils
       Array.Copy(bytes, significantBytes, doubleNull);
       return Encoding.GetEncoding(1251)
                      .GetString(significantBytes)
-                     .Split(new[] {'\0'}, StringSplitOptions.RemoveEmptyEntries);
+                     .Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
+    }
+
+    public static (IEnumerable<KeyValuePair<string, string>>, byte[]) SplitMqttMessageDatagram(byte[] datagram)
+    {
+      if (datagram == null || datagram[0] != 'p' && datagram[1] != 'o')
+      {
+        return (Array.Empty<KeyValuePair<string, string>>(), Array.Empty<byte>());
+      }
+      
+      var doubleNull = 0;
+      for (var i = 3; i < datagram.Length; i++)
+      {
+        if (datagram[i] != 0 || datagram[i - 1] != 0) continue;
+        doubleNull = i - 1;
+        break;
+      }
+      
+      var infoBytes    = new byte[doubleNull];
+      Array.Copy(datagram, 2, infoBytes, 0, doubleNull);
+      var infoDictionary = Encoding.GetEncoding(1251)
+                         .GetString(infoBytes)
+                         .Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries)
+                         .Select(x =>
+                                 {
+                                   var item = x.Split('=');
+                                   return new KeyValuePair<string, string>(item[0], item[1]);
+                                 });
+
+      byte[] payloadBytes;
+      var    payloadIndex = doubleNull + 2;
+      
+      if (payloadIndex > datagram.Length)
+      {
+        payloadBytes = Array.Empty<byte>();
+      }
+      else
+      {
+        var payloadLength = datagram.Length - payloadIndex;
+        payloadBytes = new byte[payloadLength];
+        Array.Copy(datagram, 
+                   payloadIndex, 
+                   payloadBytes, 
+                   0, 
+                   payloadLength);
+      }
+
+      return (infoDictionary, payloadBytes);
     }
 
 
@@ -349,7 +396,7 @@ namespace Iface.Oik.Tm.Native.Utils
     {
       return Encoding.GetEncoding(1251)
                      .GetString(bytes)
-                     .Split(new[] {'\0'})
+                     .Split(new[] { '\0' })
                      .FirstOrDefault()?
                      .Trim('\n');
     }
@@ -386,7 +433,7 @@ namespace Iface.Oik.Tm.Native.Utils
     {
       const int bufferStep = 512;
       var       bufSize    = bufferStep;
-      
+
       if (ptr == IntPtr.Zero)
       {
         return Array.Empty<string>();
@@ -395,7 +442,7 @@ namespace Iface.Oik.Tm.Native.Utils
       var result = new List<string>();
 
       var marshalBytes = new byte[1];
-      
+
       var stringBytes = new byte[bufSize];
 
       var stringCursor = 0;
@@ -421,10 +468,10 @@ namespace Iface.Oik.Tm.Native.Utils
 
         stringBytes[stringCursor++] = marshalBytes[0];
         isNullFound                 = false;
-        
+
         if (i != bufSize - 1) continue;
-        
-        bufSize                     += bufferStep;
+
+        bufSize += bufferStep;
         var oldStrBuffer = stringBytes;
         stringBytes = new byte[bufSize];
         Array.Copy(oldStrBuffer, stringBytes, oldStrBuffer.Length);
@@ -435,20 +482,20 @@ namespace Iface.Oik.Tm.Native.Utils
 
     public static TmNativeDefs.TEventElix EventElixFromIntPtr(IntPtr pTEventElix)
     {
-      var tEventOffset = Marshal.SizeOf<TmNativeDefs.TEventElixHeader>();
-      var eventHeaderSize  = Marshal.SizeOf<TmNativeDefs.TEventHeader>();
-      var dataOffset   = tEventOffset + eventHeaderSize;
+      var tEventOffset    = Marshal.SizeOf<TmNativeDefs.TEventElixHeader>();
+      var eventHeaderSize = Marshal.SizeOf<TmNativeDefs.TEventHeader>();
+      var dataOffset      = tEventOffset + eventHeaderSize;
 
       var header = Marshal.PtrToStructure<TmNativeDefs.TEventElixHeader>(pTEventElix);
 
       var dataSize = (int)(header.EventSize - eventHeaderSize);
-      
+
       var eventHeader = Marshal.PtrToStructure<TmNativeDefs.TEventHeader>(IntPtr.Add(pTEventElix, tEventOffset));
-      
+
       var dataBuf = new byte[dataSize];
-      
+
       Marshal.Copy(IntPtr.Add(pTEventElix, dataOffset), dataBuf, 0, dataSize);
-      
+
       return new TmNativeDefs.TEventElix
       {
         Next      = header.Next,
@@ -465,7 +512,7 @@ namespace Iface.Oik.Tm.Native.Utils
           Rtu      = eventHeader.Rtu
         }
       };
-    } 
+    }
 
 
     private static T FromBytes<T>(byte[] bytes) where T : struct

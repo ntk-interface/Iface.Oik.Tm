@@ -420,6 +420,43 @@ namespace Iface.Oik.Tm.Api
         HandleException(ex);
       }
     }
+    
+    
+    public async Task UpdateTechObjectsProperties(IReadOnlyList<Tob> techObjects)
+    {
+      if (techObjects.IsNullOrEmpty())
+      {
+        return;
+      }
+      try
+      {
+        using (var sql = _createOikSqlConnection())
+        {
+          await sql.OpenAsync().ConfigureAwait(false);
+          var commandText = @"SELECT status
+                              FROM cim_topology
+                                RIGHT JOIN UNNEST(@IdsArray) WITH ORDINALITY t (id,i)
+                                  ON cim_topology.id = t.id
+                              ORDER BY t.i";
+          var parameters = new {IdsArray = techObjects.Select(tob => tob.CimGuid).ToArray()};
+          var topologyStatuses = await sql.DbConnection
+                              .QueryAsync<int?>(commandText, parameters)
+                              .ConfigureAwait(false);
+          topologyStatuses.ForEach((status, idx) =>
+          {
+            techObjects[idx].UpdateTopologyStatus((CimTopologyStatus)(status ?? 0));
+          });
+        }
+      }
+      catch (NpgsqlException ex)
+      {
+        HandleNpgsqlException(ex);
+      }
+      catch (Exception ex)
+      {
+        HandleException(ex);
+      }
+    }
 
 
     public async Task<IReadOnlyCollection<ITmAnalogRetro[]>> GetAnalogsMicroSeries(IReadOnlyList<TmAnalog> analogs)

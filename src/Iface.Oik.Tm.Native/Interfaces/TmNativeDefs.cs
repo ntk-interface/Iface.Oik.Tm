@@ -306,6 +306,14 @@ namespace Iface.Oik.Tm.Native.Interfaces
       AdminChangePassword = 0x0800,
     }
     
+    
+    public enum PublicationQoS
+    {
+      AtMostOnce  = 0x00,
+      AtLeastOnce = 0x01,
+      ExactlyOnce = 0x02
+    }
+    
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TAdrTm

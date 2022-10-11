@@ -91,6 +91,9 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
+    public Guid CimGuid => GuidUtil.EncodeCimEquipment((int) Scheme, (int) Object);
+
+
     public Tob(uint scheme, ushort type, uint obj, string name = null)
     {
       Scheme        = scheme;
@@ -157,6 +160,24 @@ namespace Iface.Oik.Tm.Interfaces
         return TmTopologyState.IsVoltaged;
       }
       return TmTopologyState.IsNotVoltaged;
+    }
+
+
+    public void UpdateTopologyStatus(CimTopologyStatus status)
+    {
+      IsInit = true;
+      if (status.HasFlag(CimTopologyStatus.IsGrounded))
+      {
+        TopologyState = TmTopologyState.IsGrounded;
+      }
+      else if (status.HasFlag(CimTopologyStatus.IsVoltaged))
+      {
+        TopologyState = TmTopologyState.IsVoltaged;
+      }
+      else
+      {
+        TopologyState = TmTopologyState.IsNotVoltaged;
+      }
     }
 
 

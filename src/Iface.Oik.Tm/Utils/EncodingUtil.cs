@@ -32,6 +32,15 @@ namespace Iface.Oik.Tm.Utils
       return utf8.GetString(Encoding.Convert(cp1251, utf8, src)).Trim('\0');
     }
     
+
+    public static byte[] Utf8ToWin1251Bytes(string src)
+    {
+      if (src == null) return null;
+
+      var win1251 = Encoding.GetEncoding(1251);
+      return win1251.GetBytes(src);
+    }
+    
     
     public static string Cp866ToUtf8(string src)
     {
