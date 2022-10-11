@@ -1,5 +1,7 @@
 using System;
+using System.ComponentModel;
 using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
@@ -46,6 +48,12 @@ namespace Iface.Oik.Tm.Interfaces
       SubscriptionId = subscriptionId;
       QoS            = qos;
     }
+
+
+    public MqttSubscriptionTopic(MqttKnownTopic knownTopic)
+      : this(knownTopic.GetDescription(), (int)knownTopic)
+    {
+    }
   }
 
 
@@ -78,5 +86,18 @@ namespace Iface.Oik.Tm.Interfaces
       QoS         = qos;
       LifetimeSec = lifetimeSec;
     }
+
+
+    public MqttPublishTopic(MqttKnownTopic knownTopic)
+      : this(knownTopic.GetDescription())
+    {
+    }
+  }
+
+
+  public enum MqttKnownTopic
+  {
+    [Description("Model/Topology/Change/All")]  TopologyChangeAll  = 100,
+    [Description("Model/Topology/Change/Some")] TopologyChangeSome = 101,
   }
 }

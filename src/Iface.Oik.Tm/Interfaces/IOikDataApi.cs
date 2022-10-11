@@ -451,10 +451,14 @@ namespace Iface.Oik.Tm.Interfaces
                                     PreferApi prefer = PreferApi.Auto);
     
     Task<bool> MqttSubscribe(MqttSubscriptionTopic topic, PreferApi prefer = PreferApi.Auto);
+    
+    Task<bool> MqttSubscribe(MqttKnownTopic topic, PreferApi prefer = PreferApi.Auto);
 
     Task<bool> MqttUnsubscribe(MqttSubscriptionTopic topic, PreferApi prefer = PreferApi.Auto);
+
+    Task<bool> MqttUnsubscribe(MqttKnownTopic topic, PreferApi prefer = PreferApi.Auto);
     
-    Task<bool> MqttPublish(string topic, string payload, PreferApi prefer = PreferApi.Auto);
+    Task<bool> MqttPublish(MqttKnownTopic topic, string payload = "", PreferApi prefer = PreferApi.Auto);
 
     Task<bool> MqttPublish(MqttPublishTopic topic, byte[] payload, PreferApi prefer = PreferApi.Auto);
     

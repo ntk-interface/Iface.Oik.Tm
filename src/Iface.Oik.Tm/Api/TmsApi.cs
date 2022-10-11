@@ -3110,6 +3110,12 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<bool> MqttSubscribe(MqttKnownTopic topic)
+    {
+      return await MqttSubscribe(new MqttSubscriptionTopic(topic)).ConfigureAwait(false);
+    }
+
+
     public async Task<bool> MqttUnsubscribe(MqttSubscriptionTopic topic)
     {
       return await Task.Run(() => _native.TmcPubUnsubscribe(_cid, 
@@ -3117,17 +3123,28 @@ namespace Iface.Oik.Tm.Api
                                                             (uint)topic.SubscriptionId))
                        .ConfigureAwait(false);
     }
+
+
+    public async Task<bool> MqttUnsubscribe(MqttKnownTopic topic)
+    {
+      return await MqttUnsubscribe(new MqttSubscriptionTopic(topic)).ConfigureAwait(false);
+    }
     
 
-    public async Task<bool> MqttPublish(string topic, string payload)
+    public async Task<bool> MqttPublish(MqttKnownTopic topic, string payload = "")
     {
-      return await MqttPublish(new MqttPublishTopic(topic), payload).ConfigureAwait(false);
+      return await MqttPublish(new MqttPublishTopic(topic),
+                               string.IsNullOrWhiteSpace(payload)
+                                 ? Array.Empty<byte>()
+                                 : EncodingUtil.Utf8ToWin1251Bytes(payload))
+        .ConfigureAwait(false);
     }
     
 
     public async Task<bool> MqttPublish(MqttPublishTopic topic, string payload)
     {
-      return await MqttPublish(topic, EncodingUtil.Utf8ToWin1251Bytes(payload)).ConfigureAwait(false);
+      return await MqttPublish(topic, EncodingUtil.Utf8ToWin1251Bytes(payload))
+        .ConfigureAwait(false);
     }
     
     

@@ -293,10 +293,14 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task<bool> MqttSubscribe(MqttSubscriptionTopic topic);
+    
+    Task<bool> MqttSubscribe(MqttKnownTopic topic);
 
     Task<bool> MqttUnsubscribe(MqttSubscriptionTopic topic);
 
-    Task<bool> MqttPublish(string topic, string payload);
+    Task<bool> MqttUnsubscribe(MqttKnownTopic topic);
+
+    Task<bool> MqttPublish(MqttKnownTopic topic, string payload = "");
 
     Task<bool> MqttPublish(MqttPublishTopic topic, byte[] payload);
 
