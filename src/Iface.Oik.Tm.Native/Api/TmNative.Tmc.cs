@@ -964,7 +964,7 @@ namespace Iface.Oik.Tm.Native.Api
     
     public Boolean TmcPubSubscribe(Int32  cid,
                                    string topic,
-                                   Int32  subscriptionId,
+                                   UInt32  subscriptionId,
                                    Byte   qos)
     {
       return tmcPubSubscribe(cid, topic, subscriptionId, qos);
@@ -972,7 +972,7 @@ namespace Iface.Oik.Tm.Native.Api
 
     public Boolean TmcPubUnsubscribe(Int32  cid, 
                                      string topic, 
-                                     Int32  subscriptionId)
+                                     UInt32  subscriptionId)
     {
       return tmcPubUnsubscribe(cid, topic, subscriptionId);
     }

@@ -629,12 +629,12 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     Boolean TmcPubSubscribe(Int32  cid,
                             string topic,
-                            Int32  subscriptionId,
+                            UInt32 subscriptionId,
                             Byte   qos);
 
     Boolean TmcPubUnsubscribe(Int32  cid,
                               string topic,
-                              Int32  subscriptionId);
+                              UInt32 subscriptionId);
 
 
     Boolean TmcPubPublish(Int32  cid,

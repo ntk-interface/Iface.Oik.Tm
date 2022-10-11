@@ -3104,7 +3104,7 @@ namespace Iface.Oik.Tm.Api
     {
       return await Task.Run(() => _native.TmcPubSubscribe(_cid,
                                                           topic.Topic, 
-                                                          topic.SubscriptionId,
+                                                          (uint)topic.SubscriptionId,
                                                           (byte)topic.QoS))
                        .ConfigureAwait(false);
     }
@@ -3114,7 +3114,7 @@ namespace Iface.Oik.Tm.Api
     {
       return await Task.Run(() => _native.TmcPubUnsubscribe(_cid, 
                                                             topic.Topic, 
-                                                            topic.SubscriptionId))
+                                                            (uint)topic.SubscriptionId))
                        .ConfigureAwait(false);
     }
     

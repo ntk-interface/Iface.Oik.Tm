@@ -764,14 +764,14 @@ namespace Iface.Oik.Tm.Native.Api
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern Boolean tmcPubSubscribe(Int32                                   cid,
                                                  [MarshalAs(UnmanagedType.LPStr)] string topic,
-                                                 Int32                                   subscriptionId,
+                                                 UInt32                                  subscriptionId,
                                                  Byte                                    qos);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern Boolean tmcPubUnsubscribe(Int32                                   cid,
                                                    [MarshalAs(UnmanagedType.LPStr)] string topic,
-                                                   Int32                                   subscriptionId);
+                                                   UInt32                                  subscriptionId);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
