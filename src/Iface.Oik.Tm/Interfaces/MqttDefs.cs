@@ -58,7 +58,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     public MqttPublishTopic(string  topic,
                             MqttQoS qos         = MqttQoS.AtMostOnce,
-                            uint    lifetimeSec = 60)
+                            uint    lifetimeSec = 0)
     {
       if (string.IsNullOrEmpty(topic))
       {

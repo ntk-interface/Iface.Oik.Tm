@@ -38,17 +38,19 @@ namespace Iface.Oik.Tm.Interfaces
     Task SetAnalog(int ch, int rtu, int point, float value);
 
     Task UpdateTag(TmTag tag);
-    
+
     Task UpdateStatus(TmStatus status);
 
     Task UpdateStatusExplicitly(TmStatus status, bool getRealTelemetry = false);
 
     Task UpdateAnalog(TmAnalog analog);
 
+
     Task UpdateAnalogExplicitly(TmAnalog analog,
                                 uint     time             = 0,
                                 ushort   retroNum         = 0,
                                 bool     getRealTelemetry = false);
+
 
     Task UpdateStatuses(IReadOnlyList<TmStatus> statuses);
 
@@ -56,10 +58,12 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task UpdateAnalogs(IReadOnlyList<TmAnalog> analogs);
 
+
     Task UpdateAnalogsExplicitly(IReadOnlyList<TmAnalog> analogs,
                                  uint                    time             = 0,
                                  ushort                  retroNum         = 0,
                                  bool                    getRealTelemetry = false);
+
 
     Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags);
 
@@ -119,7 +123,7 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task<bool> RemoveAlert(TmAlert alert);
-    
+
     Task<bool> RemoveAlert(byte[] alertId);
 
     Task<bool> RemoveAlerts(IEnumerable<TmAlert> alerts);
@@ -140,14 +144,17 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<bool> AckEvent(TmEvent tmEvent);
 
-    Task AddStringToEventLog(string    str, 
+
+    Task AddStringToEventLog(string    str,
                              TmAddr    tmAddr = null,
                              DateTime? time   = null);
-    
+
+
     Task AddTmaRelatedStringToEventLog(string             message,
                                        TmAddr             tmAddr,
                                        TmEventImportances importances = TmEventImportances.Imp0,
                                        DateTime?          time        = null);
+
 
     Task AddStringToEventLogEx(DateTime?                 time,
                                TmEventImportances        importances,
@@ -156,12 +163,14 @@ namespace Iface.Oik.Tm.Interfaces
                                string                    binaryString = "",
                                TmAddr                    tmAddr       = null);
 
+
     Task AddStrBinToEventLog(DateTime?                 time,
                              TmEventImportances        importances,
                              TmEventLogExtendedSources source,
                              string                    message,
                              byte[]                    binary = null,
                              TmAddr                    tmAddr = null);
+
 
     Task SetTagFlags(TmTag tag, TmFlags flags);
 
@@ -181,8 +190,8 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTelecontrolScriptExplicitly(TmStatus tmStatus,
-      int
-        explicitNewStatus);
+                                                                                                 int
+                                                                                                   explicitNewStatus);
 
 
     Task OverrideTelecontrolScript();
@@ -200,8 +209,9 @@ namespace Iface.Oik.Tm.Interfaces
     Task<TmTelecontrolResult> TeleregulateByValue(TmAnalog analog, float value);
 
     Task<bool> SwitchStatusManually(TmStatus tmStatus, bool alsoBlockManually = false);
-    
+
     Task SetTechObjectsProperties(IReadOnlyCollection<Tob> tobs);
+
 
     Task SetTechObjectProperties(int                                 scheme,
                                  int                                 type,
@@ -282,12 +292,14 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<TmRetroInfo>> GetRetrosInfo(TmType tmType);
 
 
-    Task<bool> MqttSubscribeAsync(MqttSubscriptionTopic topic);
+    Task<bool> MqttSubscribe(MqttSubscriptionTopic topic);
 
-    Task<bool> MqttUnsubscribeAsync(MqttSubscriptionTopic topic);
+    Task<bool> MqttUnsubscribe(MqttSubscriptionTopic topic);
 
-    Task<bool> MqttPublishAsync(MqttPublishTopic topic, byte[] payload);
-    
-    Task<bool> MqttPublishAsync(MqttPublishTopic topic, string payload);
+    Task<bool> MqttPublish(string topic, string payload);
+
+    Task<bool> MqttPublish(MqttPublishTopic topic, byte[] payload);
+
+    Task<bool> MqttPublish(MqttPublishTopic topic, string payload);
   }
 }

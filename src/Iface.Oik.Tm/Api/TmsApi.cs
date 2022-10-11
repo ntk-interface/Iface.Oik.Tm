@@ -2716,43 +2716,6 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<bool> MqttSubscribeAsync(MqttSubscriptionTopic topic)
-    {
-      return await Task.Run(() => _native.TmcPubSubscribe(_cid,
-                                                          topic.Topic, 
-                                                          topic.SubscriptionId,
-                                                          (byte)topic.QoS))
-                       .ConfigureAwait(false);
-    }
-
-
-    public async Task<bool> MqttUnsubscribeAsync(MqttSubscriptionTopic topic)
-    {
-      return await Task.Run(() => _native.TmcPubUnsubscribe(_cid, 
-                                                            topic.Topic, 
-                                                            topic.SubscriptionId))
-                       .ConfigureAwait(false);
-    }
-    
-
-    public async Task<bool> MqttPublishAsync(MqttPublishTopic topic, string payload)
-    {
-      return await MqttPublishAsync(topic, EncodingUtil.Utf8ToWin1251Bytes(payload)).ConfigureAwait(false);
-    }
-    
-    
-    public async Task<bool> MqttPublishAsync(MqttPublishTopic topic, byte[] payload)
-    {
-      return await Task.Run(() => _native.TmcPubPublish(_cid, 
-                                                        topic.Topic, 
-                                                        topic.LifetimeSec, 
-                                                        (byte)topic.QoS, 
-                                                        payload, 
-                                                        (uint)payload.Length))
-                       .ConfigureAwait(false);
-    }
-
-
     private async Task<(IReadOnlyList<TmEvent>, TmNativeDefs.TTMSElix)> GetEventsBatch(TmNativeDefs.TTMSElix elix,
                                                                                        TmEventTypes          type,
                                                                                        long                  startTime,
@@ -3134,6 +3097,49 @@ namespace Iface.Oik.Tm.Api
       cache.Add(tagTmAddr.ToString(), newTag);
 
       return newTag;
+    }
+
+
+    public async Task<bool> MqttSubscribe(MqttSubscriptionTopic topic)
+    {
+      return await Task.Run(() => _native.TmcPubSubscribe(_cid,
+                                                          topic.Topic, 
+                                                          topic.SubscriptionId,
+                                                          (byte)topic.QoS))
+                       .ConfigureAwait(false);
+    }
+
+
+    public async Task<bool> MqttUnsubscribe(MqttSubscriptionTopic topic)
+    {
+      return await Task.Run(() => _native.TmcPubUnsubscribe(_cid, 
+                                                            topic.Topic, 
+                                                            topic.SubscriptionId))
+                       .ConfigureAwait(false);
+    }
+    
+
+    public async Task<bool> MqttPublish(string topic, string payload)
+    {
+      return await MqttPublish(new MqttPublishTopic(topic), payload).ConfigureAwait(false);
+    }
+    
+
+    public async Task<bool> MqttPublish(MqttPublishTopic topic, string payload)
+    {
+      return await MqttPublish(topic, EncodingUtil.Utf8ToWin1251Bytes(payload)).ConfigureAwait(false);
+    }
+    
+    
+    public async Task<bool> MqttPublish(MqttPublishTopic topic, byte[] payload)
+    {
+      return await Task.Run(() => _native.TmcPubPublish(_cid, 
+                                                        topic.Topic, 
+                                                        topic.LifetimeSec, 
+                                                        (byte)topic.QoS, 
+                                                        payload, 
+                                                        (uint)payload.Length))
+                       .ConfigureAwait(false);
     }
   }
 }

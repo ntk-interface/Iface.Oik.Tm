@@ -449,5 +449,15 @@ namespace Iface.Oik.Tm.Interfaces
     Task<bool> DownloadComtradeFile(string    filename,
                                     string    localPath,
                                     PreferApi prefer = PreferApi.Auto);
+    
+    Task<bool> MqttSubscribe(MqttSubscriptionTopic topic, PreferApi prefer = PreferApi.Auto);
+
+    Task<bool> MqttUnsubscribe(MqttSubscriptionTopic topic, PreferApi prefer = PreferApi.Auto);
+    
+    Task<bool> MqttPublish(string topic, string payload, PreferApi prefer = PreferApi.Auto);
+
+    Task<bool> MqttPublish(MqttPublishTopic topic, byte[] payload, PreferApi prefer = PreferApi.Auto);
+    
+    Task<bool> MqttPublish(MqttPublishTopic topic, string payload, PreferApi prefer = PreferApi.Auto);
   }
 }
