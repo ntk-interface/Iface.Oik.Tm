@@ -5,6 +5,17 @@ using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
+  public enum MqttKnownTopic
+  {
+    [Description("Model/Change/All")]           ModelChangeAll     = 100,
+    [Description("Model/Topology/Change/All")]  TopologyChangeAll  = 110,
+    [Description("Model/Topology/Change/Some")] TopologyChangeSome = 111,
+    [Description("Model/Placard/Add")]          PlacardAdd         = 120,
+    [Description("Model/Placard/Edit")]         PlacardEdit        = 121,
+    [Description("Model/Placard/Remove")]       PlacardRemove      = 122,
+  }
+  
+  
   public enum MqttQoS : byte
   {
     AtMostOnce  = TmNativeDefs.PublicationQoS.AtMostOnce,
@@ -92,12 +103,5 @@ namespace Iface.Oik.Tm.Interfaces
       : this(knownTopic.GetDescription())
     {
     }
-  }
-
-
-  public enum MqttKnownTopic
-  {
-    [Description("Model/Topology/Change/All")]  TopologyChangeAll  = 100,
-    [Description("Model/Topology/Change/Some")] TopologyChangeSome = 101,
   }
 }
