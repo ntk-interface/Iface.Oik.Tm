@@ -971,7 +971,7 @@ namespace Iface.Oik.Tm.Api
       }
     }
 
-
+        
     public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(
       TmAnalog            analog,
       TmAnalogRetroFilter filter,
@@ -996,7 +996,29 @@ namespace Iface.Oik.Tm.Api
       }
     }
 
-
+    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveSlices(
+        TmAnalog analog,
+        TmAnalogRetroFilter filter,
+        PreferApi prefer = PreferApi.Auto)
+        {
+            if (!_serverFeatures.IsImpulseArchiveEnabled)
+            {
+                return null;
+            }
+            var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+            if (api == ApiSelection.Tms)
+            {
+                return await _tms.GetImpulseArchiveSlices(analog, filter).ConfigureAwait(false);
+            }
+            else if (api == ApiSelection.Sql)
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                return null;
+            }
+        }
     public async Task<IReadOnlyCollection<TmStatus>> GetPresentAps(PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);

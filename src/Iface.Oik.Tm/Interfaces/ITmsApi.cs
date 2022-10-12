@@ -121,7 +121,8 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(TmAnalog            analog,
                                                                        TmAnalogRetroFilter filter);
 
-
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveSlices(TmAnalog analog,
+                                                                              TmAnalogRetroFilter filter);
     Task<bool> RemoveAlert(TmAlert alert);
 
     Task<bool> RemoveAlert(byte[] alertId);

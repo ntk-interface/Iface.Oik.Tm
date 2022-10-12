@@ -197,8 +197,11 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(TmAnalog            analog,
                                                                        TmAnalogRetroFilter filter,
                                                                        PreferApi           prefer = PreferApi.Auto);
+    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveSlices(TmAnalog analog,
+                                                                           TmAnalogRetroFilter filter,
+                                                                           PreferApi prefer = PreferApi.Auto);
 
-
+        
     Task<IReadOnlyCollection<ITmAnalogRetro[]>> GetAnalogsMicroSeries(IReadOnlyList<TmAnalog> analogs,
                                                                       PreferApi               prefer = PreferApi.Auto);
 
