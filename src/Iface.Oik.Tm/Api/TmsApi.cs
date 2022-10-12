@@ -757,7 +757,7 @@ namespace Iface.Oik.Tm.Api
         RTU = -1,
       };
 
-      for (var i = 1; i <= 50; i++)
+      for (var i = 1; i < 128; i++)
       {
         tmcAddr.Point = (short)i;
         var classDataPtr = await Task.Run(() => _native.TmcGetStatusClassData(_cid, 1, new[] { tmcAddr }))
@@ -816,7 +816,7 @@ namespace Iface.Oik.Tm.Api
         RTU = -1,
       };
 
-      for (var i = 1; i <= 50; i++)
+      for (var i = 1; i < 128; i++)
       {
         tmcAddr.Point = (short)i;
         var classDataPtr = await Task.Run(() => _native.TmcGetAnalogClassData(_cid, 1, new[] { tmcAddr }))
