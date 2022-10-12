@@ -212,7 +212,7 @@ namespace Iface.Oik.Tm.Interfaces
     ReadAllSchemeCatalogs       = 48,
     Ack                         = 49,
     OverrideControlScript       = 50,
-    EditGlobalSettings          = 53,
+    EditGlobalClientSettings    = 53,
     NotExists                   = 1000,
   }
 
