@@ -616,6 +616,22 @@ namespace Iface.Oik.Tm.Helpers
     {
       Disconnect(tmCid);
     }
+
+
+    public static void MqttPublish(int tmCid, MqttKnownTopic knownTopic, string payload = "")
+    {
+      var topic = new MqttPublishTopic(knownTopic);
+      var payloadBytes = string.IsNullOrWhiteSpace(payload) 
+        ? Array.Empty<byte>() 
+        : EncodingUtil.Utf8ToWin1251Bytes(payload);
+
+      Native.TmcPubPublish(tmCid,
+                           topic.Topic,
+                           topic.LifetimeSec,
+                           (byte)topic.QoS,
+                           payloadBytes,
+                           (uint)payloadBytes.Length);
+    }
     
     
     public static MqttMessage ParseMqttDatagram(byte[] datagram)
