@@ -356,7 +356,7 @@ namespace Iface.Oik.Tm.Api
       }
 
       const uint queryFlags = (uint)(TmNativeDefs.ImpulseArchiveQueryFlags.Mom);
-      const uint step       = 1;
+      const uint step       = 1;            
 
       uint count = 0;
       var tmcImpulseArchivePtr = await Task.Run(() => _native.TmcAanReadArchive(_cid,
@@ -488,8 +488,65 @@ namespace Iface.Oik.Tm.Api
       return result;
     }
 
+    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveSlices(
+      TmAnalog analog,
+      TmAnalogRetroFilter filter)
+        {
+            var startTime = DateUtil.GetUtcTimestampFromDateTime(filter.StartTime);
+            var endTime = DateUtil.GetUtcTimestampFromDateTime(filter.EndTime);
+            if (endTime <= startTime) 
+            {
+                return null;
+            }
 
-    public async Task UpdateTag(TmTag tag)
+            const uint queryFlags = (uint)(TmNativeDefs.ImpulseArchiveQueryFlags.Avg |
+                                           TmNativeDefs.ImpulseArchiveQueryFlags.Min |
+                                           TmNativeDefs.ImpulseArchiveQueryFlags.Max);
+
+            var step = - filter.Step;
+
+            uint count = 0;
+            var tmcImpulseArchivePtr = await Task.Run(() => _native.TmcAanReadArchive(_cid,
+                                                                                      analog.TmAddr
+                                                                                            .ToIntegerWithoutPadding(),
+                                                                                      (uint)_native.UxGmTime2UxTime(
+                                                                                        startTime),
+                                                                                      (uint)_native
+                                                                                        .UxGmTime2UxTime(endTime),
+                                                                                      (uint)step,
+                                                                                      queryFlags,
+                                                                                      out count,
+                                                                                      null, IntPtr.Zero))
+                                                 .ConfigureAwait(false);
+            if (tmcImpulseArchivePtr == IntPtr.Zero)
+            {
+                return null;
+            }
+
+            var result = new List<ITmAnalogRetro>();
+            try
+            {
+                var structSize = Marshal.SizeOf(typeof(TmNativeDefs.TMAAN_ARCH_VALUE));
+                for (var i = 0; i < count; i++)
+                {
+                    var currentPtr = new IntPtr(tmcImpulseArchivePtr.ToInt64() + i * structSize);
+                    var tmcImpulseArchivePoint = Marshal.PtrToStructure<TmNativeDefs.TMAAN_ARCH_VALUE>(currentPtr);
+                    result.Add(new TmAnalogImpulseArchiveInstant(tmcImpulseArchivePoint.Value,
+                                                                 tmcImpulseArchivePoint.Flags,
+                                                                 tmcImpulseArchivePoint.Ut,
+                                                                 tmcImpulseArchivePoint.Ms));
+                }
+            }
+            finally
+            {
+                _native.TmcFreeMemory(tmcImpulseArchivePtr);
+            }
+
+            return result;
+        }
+
+
+        public async Task UpdateTag(TmTag tag)
     {
       switch (tag)
       {
