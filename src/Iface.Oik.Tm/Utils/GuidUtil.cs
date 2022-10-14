@@ -22,5 +22,27 @@ namespace Iface.Oik.Tm.Utils
 
       return new Guid(bytes);
     }
+
+
+    public static bool TryDecodeCimEquipment(Guid id, out int schemeId, out int objectId)
+    {
+      return TryDecode(CimGuidScope.Equipment, id, out schemeId, out objectId, out _);
+    }
+
+
+    private static bool TryDecode(CimGuidScope scope, Guid id, out int value1, out int value2, out int value3)
+    {
+      value1 = value2 = value3 = 0;
+
+      var bytes = id.ToByteArray();
+      if (bytes[0] != (byte)scope)
+      {
+        return false;
+      }
+      value1 = BitConverter.ToInt32(bytes, 1);
+      value2 = BitConverter.ToInt32(bytes, 5);
+      value3 = BitConverter.ToInt32(bytes, 9);
+      return true;
+    }
   }
 }
