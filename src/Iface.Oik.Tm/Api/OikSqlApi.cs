@@ -434,9 +434,9 @@ namespace Iface.Oik.Tm.Api
         {
           await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT status
-                              FROM cim_topology
+                              FROM oik_cim_topology
                                 RIGHT JOIN UNNEST(@IdsArray) WITH ORDINALITY t (id,i)
-                                  ON cim_topology.id = t.id
+                                  ON oik_cim_topology.id = t.id
                               ORDER BY t.i";
           var parameters = new {IdsArray = techObjects.Select(tob => tob.CimGuid).ToArray()};
           var topologyStatuses = await sql.DbConnection
