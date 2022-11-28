@@ -433,7 +433,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     public long ToSqlFullTma()
     {
-      return ((long) Type.ToNativeType() << 32) + ToSqlTma();
+      return ((long) Type.ToNativeType() << 32) + ToIntegerWithoutPadding();
     }
 
 
