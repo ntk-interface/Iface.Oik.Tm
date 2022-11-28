@@ -378,6 +378,14 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
+    public void FromDatagram(byte[] buf)
+    {
+      IsInit = true;
+      Value  = BitConverter.ToSingle(buf, 14);
+      Flags  = (TmFlags)BitConverter.ToInt16(buf, 18);
+    }
+
+
     public void SetTmcTechParameters(TmNativeDefs.TAnalogTechParms parameters)
     {
       TechParameters = new TmAnalogTechParameters(parameters.MinVal,

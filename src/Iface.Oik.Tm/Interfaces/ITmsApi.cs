@@ -292,7 +292,6 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<IReadOnlyCollection<TmRetroInfo>> GetRetrosInfo(TmType tmType);
 
-
     Task<bool> MqttSubscribe(MqttSubscriptionTopic topic);
     
     Task<bool> MqttSubscribe(MqttKnownTopic topic);

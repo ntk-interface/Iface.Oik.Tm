@@ -431,6 +431,15 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
+    public void FromDatagram(byte[] buf)
+    {
+      IsInit  = true;
+      Status  = (short)(buf[14] & 1);
+      Flags   = (TmFlags)BitConverter.ToInt16(buf,   18);
+      S2Flags = (TmS2Flags)BitConverter.ToUInt16(buf, 16);
+    }
+
+
     public void UpdateWithDto(TmStatusDto dto)
     {
       if (dto == null) return;
