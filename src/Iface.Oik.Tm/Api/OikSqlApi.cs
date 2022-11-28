@@ -1364,7 +1364,7 @@ namespace Iface.Oik.Tm.Api
           dtos.ForEach((dto, idx) =>
           {
               var tmEvent = TmEvent.CreateFromDto(dto);
-              tmEvent.Num = idx;
+              tmEvent.Num = idx + 1;
               events.Add(tmEvent);
           });
         }
