@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -140,6 +141,12 @@ namespace Iface.Oik.Tm.Helpers
     public static uint GetReconnectCount(int tmCid)
     {
       return Native.TmcReconnectCount(tmCid);
+    }
+
+
+    public static void UpdateConnection(int tmCid)
+    {
+      Native.TmcUpdateConnection(tmCid);
     }
 
 
@@ -615,6 +622,36 @@ namespace Iface.Oik.Tm.Helpers
     public static void TerminateWithoutSql(int tmCid)
     {
       Disconnect(tmCid);
+    }
+
+
+    public static void ClearRelay(int tmCid)
+    {
+      Native.TmcClrRetransInfo(tmCid);
+    }
+
+
+    public static void SubscribeToRelay(int tmCid, IReadOnlyList<TmAddr> tmAddrList)
+    {
+      const int maxSize = 128;
+      
+      var totalCount = tmAddrList.Count;
+      for (var i = 0; i < totalCount; i += maxSize)
+      {
+        var batchCount  = Math.Min(totalCount - i, maxSize);
+        
+        var ri = new TmNativeDefs.TRetransInfo[batchCount];
+        for (var j = 0; j < batchCount; j++)
+        {
+          ri[j] = new TmNativeDefs.TRetransInfo
+          {
+            Id    = (uint)(i + j + 1),
+            AdrTm = tmAddrList[i + j].ToAdrTm(),
+            Type  = (ushort)tmAddrList[i + j].Type.ToNativeType(),
+          };
+        }
+        Native.TmcSetRetransInfo(tmCid, (ushort)batchCount, ri);
+      }
     }
 
 

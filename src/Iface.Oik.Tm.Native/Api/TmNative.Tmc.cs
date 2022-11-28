@@ -785,18 +785,18 @@ namespace Iface.Oik.Tm.Native.Api
 
     public Int16 TmcSetRetransInfoEx(Int32                              cid,
                                      UInt16                             count,
-                                     ref TmNativeDefs.TRetransInfo      ri,
-                                     ref TmNativeDefs.TRetransInfoReply rir)
+                                     TmNativeDefs.TRetransInfo[]      ri,
+                                     TmNativeDefs.TRetransInfoReply[] rir)
     {
-      return tmcSetRetransInfoEx(cid, count, ref ri, ref rir);
+      return tmcSetRetransInfoEx(cid, count, ri, rir);
     }
 
 
-    public Int16 TmcSetRetransInfo(Int32                         cid,
-                                   UInt16                        count,
-                                   ref TmNativeDefs.TRetransInfo ri)
+    public Int16 TmcSetRetransInfo(Int32                       cid,
+                                   UInt16                      count,
+                                   TmNativeDefs.TRetransInfo[] ri)
     {
-      return tmcSetRetransInfo(cid, count, ref ri);
+      return tmcSetRetransInfo(cid, count, ri);
     }
 
 

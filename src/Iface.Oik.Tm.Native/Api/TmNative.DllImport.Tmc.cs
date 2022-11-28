@@ -719,16 +719,16 @@ namespace Iface.Oik.Tm.Native.Api
                                                   out UInt32 pAccess);
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Int16 tmcSetRetransInfoEx(Int32                              cid,
-                                                   UInt16                             count,
-                                                   ref TmNativeDefs.TRetransInfo      ri,
-                                                   ref TmNativeDefs.TRetransInfoReply rir);
+    public static extern Int16 tmcSetRetransInfoEx(Int32                                  cid,
+                                                   UInt16                                 count,
+                                                   [In]  TmNativeDefs.TRetransInfo[]      ri,
+                                                   [Out] TmNativeDefs.TRetransInfoReply[] rir);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Int16 tmcSetRetransInfo(Int32                         cid,
-                                                 UInt16                        count,
-                                                 ref TmNativeDefs.TRetransInfo ri);
+    public static extern Int16 tmcSetRetransInfo(Int32                            cid,
+                                                 UInt16                           count,
+                                                 [In] TmNativeDefs.TRetransInfo[] ri);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
