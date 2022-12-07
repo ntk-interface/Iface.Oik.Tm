@@ -104,35 +104,33 @@ namespace Iface.Oik.Tm.Interfaces
   [Flags]
   public enum TmEventTypes : ushort
   {
-    None            = 0,
-    StatusChange    = TmNativeDefs.EventTypes.StatusChange,
-    Alarm           = TmNativeDefs.EventTypes.Alarm,
-    Control         = TmNativeDefs.EventTypes.Control,
-    Acknowledge     = TmNativeDefs.EventTypes.Acknowledge,
-    ManualStatusSet = TmNativeDefs.EventTypes.ManualStatusSet,
-    ManualAnalogSet = TmNativeDefs.EventTypes.ManualAnalogSet,
-    FlagsChange     = TmNativeDefs.EventTypes.FlagsChange,
-    Res2            = TmNativeDefs.EventTypes.Res2,
-    ExtLink         = TmNativeDefs.EventTypes.ExtLink,     // Служебное значение - не использовать!
-    ExtFileLink     = TmNativeDefs.EventTypes.ExtFileLink, // Служебное значение - не использовать!
-    Extended        = TmNativeDefs.EventTypes.Extended,    // Расширенный формат
-    Any             = 0xFFFF,
+    None                                                     = 0,
+    [Description("Телесигналы")]             StatusChange    = TmNativeDefs.EventTypes.StatusChange,
+    [Description("Выход ТИ за уставки")]     Alarm           = TmNativeDefs.EventTypes.Alarm,
+    [Description("Телеуправление")]          Control         = TmNativeDefs.EventTypes.Control,
+    [Description("Квитирование оператором")] Acknowledge     = TmNativeDefs.EventTypes.Acknowledge,
+    [Description("Ручная установка ТС")]     ManualStatusSet = TmNativeDefs.EventTypes.ManualStatusSet,
+    [Description("Ручная уставовка ТИ")]     ManualAnalogSet = TmNativeDefs.EventTypes.ManualAnalogSet,
+    FlagsChange                                              = TmNativeDefs.EventTypes.FlagsChange,
+    Res2                                                     = TmNativeDefs.EventTypes.Res2,
+    [Description("Текстовые сообщения")] ExtLink             = TmNativeDefs.EventTypes.ExtLink, // Не использовать!
+    ExtFileLink                                              = TmNativeDefs.EventTypes.ExtFileLink, // Не использовать!
+    [Description("Текстовые сообщения")] Extended            = TmNativeDefs.EventTypes.Extended, // Расширенный формат
+    Any                                                      = 0xFFFF,
   }
 
 
   [Flags]
   public enum TmEventImportances
   {
-    None = 0,
-    Imp0 = 1,
-    Imp1 = 2,
-    Imp2 = 4,
-    Imp3 = 8,
-    Any  = 0xFF,
-    All  = Imp0 | Imp1 | Imp2 | Imp3
+    None                                         = 0,
+    [Description("Оперативного состояния")] Imp0 = 1,
+    [Description("Предупредительные 2")]    Imp1 = 2,
+    [Description("Предупредительные 1")]    Imp2 = 4,
+    [Description("Аварийные")]              Imp3 = 8,
+    Any                                          = 0xFF,
+    All                                          = Imp0 | Imp1 | Imp2 | Imp3
   }
-  
-  
 
 
   [Flags]
@@ -178,11 +176,11 @@ namespace Iface.Oik.Tm.Interfaces
   [Flags]
   public enum TmCommonPointFlags : byte
   {
-    None                    = 0, 
-    GetWithName             = TmNativeDefs.TmCpf.Name, 
-    GetWhenAllFlagsAreValid = TmNativeDefs.TmCpf.AllFlags, 
-    GetStatusWithValue0     = TmNativeDefs.TmCpf.St0, 
-    GetStatusWithValue1     = TmNativeDefs.TmCpf.St1, 
+    None                    = 0,
+    GetWithName             = TmNativeDefs.TmCpf.Name,
+    GetWhenAllFlagsAreValid = TmNativeDefs.TmCpf.AllFlags,
+    GetStatusWithValue0     = TmNativeDefs.TmCpf.St0,
+    GetStatusWithValue1     = TmNativeDefs.TmCpf.St1,
     SkipReserved            = TmNativeDefs.TmCpf.SkipRes,
   }
 
@@ -317,10 +315,10 @@ namespace Iface.Oik.Tm.Interfaces
 
   public enum TmPasswordNeedsChangeResult
   {
-    Ok = 0,
-    NeedsChange = 1,
+    Ok                 = 0,
+    NeedsChange        = 1,
     NeedsChangeByAdmin = 2,
-    Error = 3,
+    Error              = 3,
   }
 
 
@@ -379,49 +377,36 @@ namespace Iface.Oik.Tm.Interfaces
   [Flags]
   public enum TmAccessRights : uint
   {
-    [Description("Чтение телепараметров")]
-    None = 0x00_00_00_00,
-    
-    [Description("Безусловный доступ")]
-    FullAccess = 0xFF_FF_FF_FF,
-    
-    [Description("Чтение телепараметров")]
-    ReadTmValues     = 0x00_00_00_01,
-    
-    [Description("Изменение ТС")]
-    ChangeStatuses   = 0x00_00_00_02,
-    
-    [Description("Изменение ТИТ")]
-    ChangeAnalogs    = 0x00_00_00_04,
-    
-    [Description("Изменение ТИИ")]
-    ChangeAccums     = 0x00_00_00_08,
-    
-    [Description("Телеуправление")]
-    Telecontrol      = 0x00_00_00_10,
-    
-    [Description("Просмотр ретроспектив")]
-    ViewRetro        = 0x00_00_00_20,
-    
-    [Description("Просмотр журнала событий")]
-    ViewEventLog     = 0x00_00_00_40,
-    
-    [Description("Изменение уставок")]
-    ChangeAlarms     = 0x00_00_00_80,
-    
-    [Description("Источник телеметрии")]
-    DataSource       = 0x00_00_01_00,
-    
-    [Description("Доступ к аппаратуре")]
-    HardwareAccess   = 0x00_00_02_00,
-    
-    [Description("Изменение техобъектов")]
-    TechObjectChange = 0x00_00_04_00,
-    
-    [Description("Резервное копирование")]
-    ReserveCopy      = 0x00_00_08_00,
+    [Description("Чтение телепараметров")] None = 0x00_00_00_00,
+
+    [Description("Безусловный доступ")] FullAccess = 0xFF_FF_FF_FF,
+
+    [Description("Чтение телепараметров")] ReadTmValues = 0x00_00_00_01,
+
+    [Description("Изменение ТС")] ChangeStatuses = 0x00_00_00_02,
+
+    [Description("Изменение ТИТ")] ChangeAnalogs = 0x00_00_00_04,
+
+    [Description("Изменение ТИИ")] ChangeAccums = 0x00_00_00_08,
+
+    [Description("Телеуправление")] Telecontrol = 0x00_00_00_10,
+
+    [Description("Просмотр ретроспектив")] ViewRetro = 0x00_00_00_20,
+
+    [Description("Просмотр журнала событий")] ViewEventLog = 0x00_00_00_40,
+
+    [Description("Изменение уставок")] ChangeAlarms = 0x00_00_00_80,
+
+    [Description("Источник телеметрии")] DataSource = 0x00_00_01_00,
+
+    [Description("Доступ к аппаратуре")] HardwareAccess = 0x00_00_02_00,
+
+    [Description("Изменение техобъектов")] TechObjectChange = 0x00_00_04_00,
+
+    [Description("Резервное копирование")] ReserveCopy = 0x00_00_08_00,
   }
-  
+
+
   public enum TmEventLogExtendedSources
   {
     Server     = TmNativeDefs.EventLogExtendedSources.Server,
