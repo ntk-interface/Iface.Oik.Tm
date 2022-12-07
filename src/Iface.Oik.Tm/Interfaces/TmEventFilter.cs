@@ -230,5 +230,82 @@ namespace Iface.Oik.Tm.Interfaces
       }
       return TmStatusClassIdList.Contains(id);
     }
+
+
+    public override string ToString()
+    {
+      if (!StartTime.HasValue || !EndTime.HasValue)
+      {
+        return string.Empty;
+      }
+      var result               = $"от {StartTime.Value.ToTmString()} до {EndTime.Value.ToTmString()}";
+      var advancedFilterString = GetAdvancedFilterString();
+      
+      return !string.IsNullOrEmpty(advancedFilterString)
+        ? $"{result}, фильтр выборки: {advancedFilterString}"
+        : result;
+    }
+
+
+    public string GetAdvancedFilterString()
+    {
+      var filters = new List<string>();
+
+      if (Types != 0 && Types != TmEventTypes.Any)
+      {
+        var selectedTypes = Enum.GetValues(typeof(TmEventTypes))
+                                .Cast<TmEventTypes>()
+                                .Where(type => type > 0 && Types.HasFlag(type))
+                                .Select(type => $"= \"{type.GetDescription()}\"");
+        filters.Add($"(Тип {string.Join(" ИЛИ ", selectedTypes)})");
+      }
+      if (Importances != 0 && Importances != TmEventImportances.Any)
+      {
+        var selectedImportances = Enum.GetValues(typeof(TmEventImportances))
+                                      .Cast<TmEventImportances>()
+                                      .Where(imp => imp > 0 && Importances.HasFlag(imp))
+                                      .Select(imp => $"= \"{imp.GetDescription()}\"");
+        filters.Add($"(Важн. {string.Join(" ИЛИ ", selectedImportances)})");
+      }
+      if (!TmStatusClassIdList.IsNullOrEmpty())
+      {
+        filters.Add($"(Классы ТС содержатся в [{string.Join(",", TmStatusClassIdList)}])");
+      }
+      if (!ChannelAndRtuCollection.IsNullOrEmpty())
+      {
+        var channels = new List<string>();
+        var rtus     = new List<string>();
+        foreach (var chAndRtu in ChannelAndRtuCollection)
+        {
+          var channelId = chAndRtu.Key;
+          var rtuList   = chAndRtu.Value;
+          if (rtuList == null)
+          {
+            channels.Add(channelId.ToString());
+          }
+          else
+          {
+            foreach (var rtuId in rtuList)
+            {
+              rtus.Add($"{channelId}:{rtuId}");
+            }
+          }
+        }
+        if (channels.Count > 0)
+        {
+          filters.Add($"(Каналы содержатся в [{string.Join(",", channels)}])");
+        }
+        if (rtus.Count > 0)
+        {
+          filters.Add($"(КП содержатся в [{string.Join(",", rtus)}])");
+        }
+      }
+      if (!TmAddrList.IsNullOrEmpty())
+      {
+        filters.Add($"(ТМ-адреса содержатся в [{string.Join(",", TmAddrList)}])");
+      }
+
+      return string.Join(" И ", filters);
+    }
   }
 }
