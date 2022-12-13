@@ -643,6 +643,14 @@ namespace Iface.Oik.Tm.Native.Interfaces
                           Byte   qos,
                           Byte[] data,
                           UInt32 cbData);
-    
+
+
+    Boolean TmcPubAck(Int32  cid,
+                      string topic,
+                      UInt32 subscriptionId,
+                      Byte   qos,
+                      UInt32 userId,
+                      Byte[] ackData,
+                      UInt32 cbAckData);
   }
 }

@@ -783,8 +783,8 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public Int16 TmcSetRetransInfoEx(Int32                              cid,
-                                     UInt16                             count,
+    public Int16 TmcSetRetransInfoEx(Int32                            cid,
+                                     UInt16                           count,
                                      TmNativeDefs.TRetransInfo[]      ri,
                                      TmNativeDefs.TRetransInfoReply[] rir)
     {
@@ -960,21 +960,32 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcPubPublish(cid, topic, lifeTimeSec, qos, data, cbData);
     }
-    
-    
+
+
     public Boolean TmcPubSubscribe(Int32  cid,
                                    string topic,
-                                   UInt32  subscriptionId,
+                                   UInt32 subscriptionId,
                                    Byte   qos)
     {
       return tmcPubSubscribe(cid, topic, subscriptionId, qos);
     }
 
-    public Boolean TmcPubUnsubscribe(Int32  cid, 
-                                     string topic, 
-                                     UInt32  subscriptionId)
+    public Boolean TmcPubUnsubscribe(Int32  cid,
+                                     string topic,
+                                     UInt32 subscriptionId)
     {
       return tmcPubUnsubscribe(cid, topic, subscriptionId);
+    }
+
+    public Boolean TmcPubAck(Int32  cid, 
+                             string topic, 
+                             UInt32 subscriptionId, 
+                             Byte qos, 
+                             UInt32 userId, 
+                             Byte[] ackData,
+                             UInt32 cbAckData)
+    {
+      return tmcPubAck(cid, topic, subscriptionId, qos, userId, ackData, cbAckData);
     }
   }
 }

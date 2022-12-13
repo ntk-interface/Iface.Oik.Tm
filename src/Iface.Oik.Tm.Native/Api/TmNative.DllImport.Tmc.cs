@@ -775,6 +775,16 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern Boolean tmcPubAck(Int32                                   cid,
+                                           [MarshalAs(UnmanagedType.LPStr)] string topic,
+                                           UInt32                                  subscriptionId,
+                                           Byte                                    qos,
+                                           UInt32                                  userId,
+                                           Byte[]                                  ackData,
+                                           UInt32                                  cbAckData);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern Boolean tmcPubParseDatagram([MarshalAs(UnmanagedType.LPArray)] [In] Byte[] diagram, //in
                                                      UInt32 diagramSize, //in
                                                      [In, Out] IntPtr pTag, //out
