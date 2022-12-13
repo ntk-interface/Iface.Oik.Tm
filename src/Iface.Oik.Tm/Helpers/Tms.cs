@@ -697,6 +697,9 @@ namespace Iface.Oik.Tm.Helpers
           case "pf":
             // Pub flags
             break;
+          case "usid":
+            result.UserId = uint.Parse(pair.Value);
+            break;
         }
       }
       return result;
