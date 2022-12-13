@@ -697,12 +697,24 @@ namespace Iface.Oik.Tm.Helpers
           case "pf":
             // Pub flags
             break;
+          case "usid":
+            result.UserId = uint.Parse(pair.Value);
+            break;
         }
       }
       return result;
     }
 
-
+    public static bool AckMqttPublications(int tmCid, MqttMessage message)
+    {
+      return Native.TmcPubAck(tmCid, message.Topic,
+                              (uint)message.SubscriptionId,
+                              (byte)message.QoS,
+                              message.UserId,
+                              message.Payload,
+                              (uint)message.Payload.Length);
+    }
+    
     public static TmCommandLineConfiguration ParseTmCommandLineArguments()
     {
       var config = new TmCommandLineConfiguration();

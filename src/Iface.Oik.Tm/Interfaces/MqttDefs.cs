@@ -31,6 +31,7 @@ namespace Iface.Oik.Tm.Interfaces
     public MqttQoS QoS            { get; set; }
     public bool    Retain         { get; set; }
     public int     SubscriptionId { get; set; }
+    public uint    UserId         { get; set; }
   }
 
 
