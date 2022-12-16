@@ -15,12 +15,17 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Model/Placard/Remove")]       PlacardRemove      = 122,
   }
   
-  
+  [Flags]
   public enum MqttQoS : byte
   {
-    AtMostOnce  = TmNativeDefs.PublicationQoS.AtMostOnce,
-    AtLeastOnce = TmNativeDefs.PublicationQoS.AtLeastOnce,
-    ExactlyOnce = TmNativeDefs.PublicationQoS.ExactlyOnce
+    AtMostOnce    = TmNativeDefs.PublicationQoS.AtMostOnce,
+    AtLeastOnce   = TmNativeDefs.PublicationQoS.AtLeastOnce,
+    ExactlyOnce   = TmNativeDefs.PublicationQoS.ExactlyOnce,
+    NoLocal       = TmNativeDefs.PublicationQoS.NoLocal,
+    RetainAsPub   = TmNativeDefs.PublicationQoS.RetainAsPub,
+    RetainFirst   = TmNativeDefs.PublicationQoS.RetainFirst,
+    RetainNo      = TmNativeDefs.PublicationQoS.RetainNo,
+    RetainDefault = TmNativeDefs.PublicationQoS.RetainDefault
   }
 
 

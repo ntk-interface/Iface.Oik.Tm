@@ -166,14 +166,14 @@ namespace Iface.Oik.Tm.Native.Interfaces
       AckAnalog   = 0x0021,
       AckAccum    = 0x0022
     }
-    
-    
+
+
     public enum EventLogExtendedKind
     {
       StrBin = 0x100,
       Model  = 0x200
     }
-    
+
 
     public enum EventLogExtendedSources
     {
@@ -281,9 +281,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     [Flags]
     public enum ServerInfoPresenceFlags
-    { 
-      UniqUserCount         = 0x01, 
-      TmValueCount          = 0x02, 
+    {
+      UniqUserCount         = 0x01,
+      TmValueCount          = 0x02,
       ReserveBufFill        = 0x04,
       ReserveBufMaxFill     = 0x08,
       TmTotValCnt           = 0x10,
@@ -305,15 +305,21 @@ namespace Iface.Oik.Tm.Native.Interfaces
       UserTemplates       = 0x0400,
       AdminChangePassword = 0x0800,
     }
-    
-    
+
+
+    [Flags]
     public enum PublicationQoS
     {
-      AtMostOnce  = 0x00,
-      AtLeastOnce = 0x01,
-      ExactlyOnce = 0x02
+      AtMostOnce    = 0x00,
+      AtLeastOnce   = 0x01,
+      ExactlyOnce   = 0x02,
+      NoLocal       = 0x04,
+      RetainAsPub   = 0x08,
+      RetainFirst   = 0x10,
+      RetainNo      = 0x20,
+      RetainDefault = 0x00
     }
-    
+
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TAdrTm
@@ -367,15 +373,15 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
       public byte Format; // вынесли формат отдельно
     }
-    
-    
+
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TAccumPoint
     {
       public Single Value;
       public Single Load;
       public Int16  Flags;
-      
+
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 7)]
       public byte[] Unit; // в tmconn 8, в последнем байте формат
 
@@ -406,7 +412,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2048)]
       public byte[] Data;
     }
-    
+
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct TEventHeader
     {
@@ -419,7 +425,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt16 Rtu;
       public UInt16 Point;
     }
-    
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TTMSElix
     {
@@ -436,7 +442,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt32   EventSize;
       public TEvent   Event;
     }
-    
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TEventElixHeader
     {
@@ -650,14 +656,14 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public Byte   Bits;
       public UInt32 Value; // тут в библиотеке union от Byte до UInt32 и float
     }
-    
+
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct TValueAndFlagsUnion
     {
-      public TAdrTm Adr;
-      public Byte   Type; // см. VfType
-      public Byte   Flags;
-      public Byte   Bits;
+      public TAdrTm      Adr;
+      public Byte        Type; // см. VfType
+      public Byte        Flags;
+      public Byte        Bits;
       public TValueUnion Value;
     }
 
@@ -673,7 +679,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       [FieldOffset(0)] public Int32  Slong;
       [FieldOffset(0)] public Single Flt;
     }
-    
+
 
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct TTimedValueAndFlags
@@ -725,7 +731,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt32 series;
     }
 
-    
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TM_AAN_STATS
     {
@@ -755,8 +761,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt32 Ut;
       public Byte   SFlg; // 1 - present, 2 - unreliable
     }
-    
-    
+
+
     public const int TAnalogTechParmsAlarmSize     = 4;
     public const int TAnalogTechParamsReservedSize = 64 - 8;
 
@@ -771,10 +777,10 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public Byte   AlrInUse;
       public Byte   AlrId;
       public Byte   Reserved1;
-      
+
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = TAnalogTechParmsAlarmSize)]
       public Single[] ZoneLim;
-      
+
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = TAnalogTechParamsReservedSize)]
       public UInt32[] Reserved;
     }
@@ -970,8 +976,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
       [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 16)]
       public string UserName;
     }
-    
-    
+
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TServerInfo
     {
@@ -992,7 +998,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt32 LogonCount;
 
       public UInt32 PresenceFlags;
-      
+
       public UInt32 UniqUserCount;
       public UInt32 TmValueCount;
 
@@ -1009,16 +1015,16 @@ namespace Iface.Oik.Tm.Native.Interfaces
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 72)]
       public byte[] Reserved;
     }
-    
-    
+
+
     public struct TRetransInfo
     {
       public UInt32 Id;
       public UInt16 Type;
       public TAdrTm AdrTm;
     }
-    
-    
+
+
     public struct TRetransInfoReply
     {
       public Byte   Ok;
@@ -1029,8 +1035,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
       public byte[] Reserved2;
     }
-    
-    
+
+
     public struct TRetroInfoEx
     {
       public UInt16 Type;
@@ -1057,12 +1063,12 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt32 SizeMb;
       public UInt32 LastRecSize;
       public UInt32 MaxMb;
-      
+
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 9)]
       public UInt32[] Reserved;
     }
 
-    public const Int16  RealTelemetryFlag     = unchecked((short) 0x8000);
+    public const Int16  RealTelemetryFlag     = unchecked((short)0x8000);
     public const UInt32 ExtendedDataSignature = 0xEEAAEE00;
 
     public const UInt32 ExtendedStatusChangedEventSize = 76;
