@@ -17,13 +17,16 @@ namespace Iface.Oik.Tm.Interfaces
 
     // channelNum -> { null(весь канал) | коллекция rtuNum }
     public Dictionary<int, HashSet<int>> ChannelAndRtuCollection { get; set; }
+    
+    public int OutputLimit { get; set; }
 
 
     public bool IsBasicOnly => (Types       == 0 || Types       == TmEventTypes.Any)                   &&
                                (Importances == 0 || Importances == TmEventImportances.Any)             &&
                                TmAddrList.Count == 0                                                   &&
                                (TmStatusClassIdList     == null || TmStatusClassIdList.Count     == 0) &&
-                               (ChannelAndRtuCollection == null || ChannelAndRtuCollection.Count == 0);
+                               (ChannelAndRtuCollection == null || ChannelAndRtuCollection.Count == 0) &&
+                               OutputLimit == 0;
 
 
     public bool IsAdvanced => !IsBasicOnly;
@@ -303,6 +306,10 @@ namespace Iface.Oik.Tm.Interfaces
       if (!TmAddrList.IsNullOrEmpty())
       {
         filters.Add($"(ТМ-адреса содержатся в [{string.Join(",", TmAddrList)}])");
+      }
+      if (OutputLimit > 0)
+      {
+        filters.Add($"(Лимит событий = {OutputLimit})");
       }
 
       return string.Join(" И ", filters);
