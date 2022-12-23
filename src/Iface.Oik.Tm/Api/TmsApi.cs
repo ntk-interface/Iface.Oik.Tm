@@ -2290,7 +2290,7 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<IReadOnlyCollection<TmEvent>> GetEventsArchive(TmEventFilter filter) // TODO unit test
     {
-      if (filter.StartTime == null || filter.EndTime == null)
+      if (filter.StartTime == null)
       {
         throw new Exception("Не задано время начала и конца архива событий");
       }
@@ -2303,7 +2303,8 @@ namespace Iface.Oik.Tm.Api
         : TmEventImportances.Any;
 
       var startTime = _native.UxGmTime2UxTime(DateUtil.GetUtcTimestampFromDateTime(filter.StartTime.Value));
-      var endTime   = _native.UxGmTime2UxTime(DateUtil.GetUtcTimestampFromDateTime(filter.EndTime.Value));
+      var endTime   = _native.UxGmTime2UxTime(DateUtil.GetUtcTimestampFromDateTime(filter.EndTime ?? 
+                                                                                   DateTime.Now.AddDays(1)));
 
       var events = new List<TmEvent>();
       var elix   = new TmNativeDefs.TTMSElix();
@@ -2320,6 +2321,12 @@ namespace Iface.Oik.Tm.Api
         }
 
         events.AddRange(eventsBatchList.Where(e => filterImportances.HasFlag(e.ImportanceFlag)));
+        if (filter.OutputLimit > 0 &&
+            events.Count > filter.OutputLimit)
+        {
+          events.RemoveRange(filter.OutputLimit, events.Count - filter.OutputLimit);
+          break;
+        }
         elix = lastElix;
       }
 

@@ -1319,6 +1319,7 @@ namespace Iface.Oik.Tm.Api
       var whereEventTmStatusClassIds = GetWhereEventTmStatusClassIds(filter);
       var whereEventChannelsAndRtus  = GetWhereEventChannelsAndRtus(filter);
       var whereEventTmAddr           = GetWhereEventTmAddr(filter);
+      var limit                      = GetEventsOutputLimit(filter);
 
       try
       {
@@ -1333,7 +1334,8 @@ namespace Iface.Oik.Tm.Api
                                 ack_time, ack_user
             FROM oik_event_log
             WHERE 1=1 {whereBeg}{whereEnd}{whereEventTypes}{whereEventImportances}{whereEventTmStatusClassIds}{whereEventTmAddr}{whereEventChannelsAndRtus}
-            ORDER BY update_time";
+            ORDER BY update_time
+            {limit}";
 
           var parameters = new DynamicParameters();
           if (!whereBeg.IsNullOrEmpty())
@@ -1466,6 +1468,14 @@ namespace Iface.Oik.Tm.Api
       if (!filter.StartTime.HasValue) return "";
 
       return " AND update_time >= @StartTime";
+    }
+
+
+    private static string GetEventsOutputLimit(TmEventFilter filter)
+    {
+      if (filter.OutputLimit <= 0) return "";
+
+      return $" LIMIT {filter.OutputLimit}";
     }
 
 
