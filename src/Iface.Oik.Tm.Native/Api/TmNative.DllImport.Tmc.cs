@@ -795,5 +795,10 @@ namespace Iface.Oik.Tm.Native.Api
                                                      out       Boolean retained, //out, can be NULL
                                                      out       Byte pubFlg //out, can be NULL
     );
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern Boolean tmcGetConnectErrorText(Int32            cid,
+                                                        [In, Out] byte[] buf,
+                                                        UInt32            bufSize);
   }
 }

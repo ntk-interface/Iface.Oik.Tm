@@ -987,5 +987,10 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcPubAck(cid, topic, subscriptionId, qos, userId, ackData, cbAckData);
     }
+
+    public Boolean TmcGetConnectErrorText(Int32 cid, ref byte[] buf, UInt32 bufSize)
+    {
+      return tmcGetConnectErrorText(cid, buf, bufSize);
+    }
   }
 }

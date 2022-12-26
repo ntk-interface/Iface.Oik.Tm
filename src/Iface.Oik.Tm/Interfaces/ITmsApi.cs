@@ -305,5 +305,7 @@ namespace Iface.Oik.Tm.Interfaces
     Task<bool> MqttPublish(MqttPublishTopic topic, byte[] payload);
 
     Task<bool> MqttPublish(MqttPublishTopic topic, string payload);
+
+    string GetConnectionErrorText();
   }
 }

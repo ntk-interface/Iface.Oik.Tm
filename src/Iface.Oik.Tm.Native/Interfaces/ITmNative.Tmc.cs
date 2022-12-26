@@ -652,5 +652,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
                       UInt32 userId,
                       Byte[] ackData,
                       UInt32 cbAckData);
+
+    Boolean TmcGetConnectErrorText(Int32      cid,
+                                   ref byte[] buf,
+                                   UInt32  bufSize);
   }
 }
