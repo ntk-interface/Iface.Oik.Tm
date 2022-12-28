@@ -15,6 +15,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<string> GetLastTmcErrorText();
 
+    string GetConnectionErrorText();
+
     Task<DateTime?> GetSystemTime();
 
     Task<string> GetSystemTimeString();
@@ -305,7 +307,5 @@ namespace Iface.Oik.Tm.Interfaces
     Task<bool> MqttPublish(MqttPublishTopic topic, byte[] payload);
 
     Task<bool> MqttPublish(MqttPublishTopic topic, string payload);
-
-    string GetConnectionErrorText();
   }
 }

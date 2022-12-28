@@ -95,6 +95,17 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public string GetConnectionErrorText()
+    {
+      const uint bufSize = 256;
+      var        buf     = new byte[bufSize];
+
+      var result = _native.TmcGetConnectErrorText(_cid, ref buf, bufSize);
+
+      return result ? EncodingUtil.Win1251BytesToUtf8(buf) : "Неизвестная ошибка";
+    }
+
+
     public async Task<DateTime?> GetSystemTime()
     {
       return DateUtil.GetDateTimeFromTmString(await GetSystemTimeString().ConfigureAwait(false));
@@ -3221,17 +3232,6 @@ namespace Iface.Oik.Tm.Api
                                                         payload, 
                                                         (uint)payload.Length))
                        .ConfigureAwait(false);
-    }
-
-
-    public string GetConnectionErrorText()
-    {
-      const uint bufSize = 256;
-      var        buf     = new byte[bufSize];
-
-      var result = _native.TmcGetConnectErrorText(_cid, ref buf, bufSize);
-
-      return result ? EncodingUtil.Win1251BytesToUtf8(buf) : "Неизвестная ошибка";
     }
   }
 }

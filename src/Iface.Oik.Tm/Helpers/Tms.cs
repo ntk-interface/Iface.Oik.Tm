@@ -156,6 +156,17 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
+    public static string GetConnectionErrorText(int tmCid)
+    {
+      const uint bufSize = 256;
+      var        buf     = new byte[bufSize];
+
+      var result = Native.TmcGetConnectErrorText(tmCid, ref buf, bufSize);
+
+      return result ? EncodingUtil.Win1251BytesToUtf8(buf) : "Неизвестная ошибка";
+    }
+
+
     public static string GetTelecontrolResultDescription(TmTelecontrolResult result)
     {
       var descriptionPtr = Native.TmcDecodeTcError((ushort)result);
