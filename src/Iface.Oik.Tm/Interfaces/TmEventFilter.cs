@@ -166,7 +166,7 @@ namespace Iface.Oik.Tm.Interfaces
 
       if (ev.TmAddrType       == TmType.Status &&
           TmStatusClassIdList != null          &&
-          TmStatusClassIdList.Any(classId => ev.TmClassId != classId))
+          TmStatusClassIdList.All(classId => ev.TmClassId != classId))
       {
         return false;
       }
