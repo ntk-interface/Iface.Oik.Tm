@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OikTask", "samples\OikTask\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspWebApi", "samples\AspWebApi\AspWebApi.csproj", "{485A5D09-7B58-4D3A-8453-7D6604217728}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleConsoleAppWithoutSql", "samples\SimpleConsoleAppWithoutSql\SimpleConsoleAppWithoutSql.csproj", "{980559DE-DE7A-4217-8681-874FC04009AE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -62,6 +64,10 @@ Global
 		{485A5D09-7B58-4D3A-8453-7D6604217728}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{485A5D09-7B58-4D3A-8453-7D6604217728}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{485A5D09-7B58-4D3A-8453-7D6604217728}.Release|Any CPU.Build.0 = Release|Any CPU
+		{980559DE-DE7A-4217-8681-874FC04009AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{980559DE-DE7A-4217-8681-874FC04009AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{980559DE-DE7A-4217-8681-874FC04009AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{980559DE-DE7A-4217-8681-874FC04009AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{6226E8FF-8D50-4768-AE00-99C0BCFFF7BF} = {11CB35E4-7D9B-4F2B-9C14-7EE676BC9D3E}

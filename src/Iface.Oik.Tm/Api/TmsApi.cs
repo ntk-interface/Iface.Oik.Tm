@@ -228,8 +228,7 @@ namespace Iface.Oik.Tm.Api
       var bufPtrList = new IntPtr[count];
       for (var i = 0; i < count; i++)
       {
-        addrList[i]   = analogs[i].TmAddr.ToAdrTm();
-        bufPtrList[i] = Marshal.AllocHGlobal(1024);
+        addrList[i] = analogs[i].TmAddr.ToAdrTm();
       }
 
       var fetchResult = await Task.Run(() => _native.TmcAnalogMicroSeries(_cid, (uint)count, addrList, bufPtrList))
