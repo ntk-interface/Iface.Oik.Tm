@@ -343,15 +343,18 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public static extern void e_printf([MarshalAs(UnmanagedType.LPStr)] string format);
+    public static extern void e_printf([MarshalAs(UnmanagedType.LPStr)] string format,
+                                       [MarshalAs(UnmanagedType.LPStr)] string message);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public static extern void m_printf([MarshalAs(UnmanagedType.LPStr)] string format);
+    public static extern void m_printf([MarshalAs(UnmanagedType.LPStr)] string format,
+                                       [MarshalAs(UnmanagedType.LPStr)] string message);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public static extern void d_printf([MarshalAs(UnmanagedType.LPStr)] string format);
+    public static extern void d_printf([MarshalAs(UnmanagedType.LPStr)] string format,
+                                       [MarshalAs(UnmanagedType.LPStr)] string message);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]

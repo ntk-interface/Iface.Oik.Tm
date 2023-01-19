@@ -410,19 +410,19 @@ namespace Iface.Oik.Tm.Native.Api
 
     public void DPrintF(string message)
     {
-      d_printf(message);
+      d_printf("%s", message);
     }
 
 
     public void MPrintF(string message)
     {
-      m_printf(message);
+      m_printf("%s", message);
     }
 
 
     public void EPrintF(string message)
     {
-      e_printf(message);
+      e_printf("%s", message);
     }
 
 
