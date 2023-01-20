@@ -279,6 +279,11 @@ namespace Iface.Oik.Tm.Native.Api
                                                  UInt32                                  count,
                                                  [In] TmNativeDefs.TTimedValueAndFlags[] values);
 
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int16 tmcSetTimedValues(Int32                                        cid,
+                                                 UInt32                                       count,
+                                                 [In] TmNativeDefs.TTimedValueAndFlagsUnion[] values);
+    
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int32 tmcExecuteControlScript(Int32 cid,

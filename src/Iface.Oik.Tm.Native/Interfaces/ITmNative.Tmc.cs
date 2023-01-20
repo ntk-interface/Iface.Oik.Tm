@@ -223,6 +223,10 @@ namespace Iface.Oik.Tm.Native.Interfaces
                             UInt32                             count,
                             TmNativeDefs.TTimedValueAndFlags[] values);
 
+    Int16 TmcSetTimedValuesUnion(Int32                                   cid,
+                                 UInt32                                  count,
+                                 TmNativeDefs.TTimedValueAndFlagsUnion[] values);
+
 
     Int32 TmcExecuteControlScript(Int32 cid,
                                   Int16 ch,

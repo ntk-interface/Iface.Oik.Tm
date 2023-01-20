@@ -688,6 +688,14 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public TMXTime        Xt;
     }
 
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
+    public struct TTimedValueAndFlagsUnion
+    {
+      public TValueAndFlagsUnion Vf;
+      public TMXTime             Xt;
+    }
+
 
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct TAlertListId

@@ -348,6 +348,14 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public Int16 TmcSetTimedValuesUnion(Int32 cid,
+                                        UInt32 count, 
+                                        TmNativeDefs.TTimedValueAndFlagsUnion[] values)
+    {
+      return tmcSetTimedValues(cid, count, values);
+    }
+    
+
     public Int32 TmcExecuteControlScript(Int32 cid,
                                          Int16 ch,
                                          Int16 rtu,
