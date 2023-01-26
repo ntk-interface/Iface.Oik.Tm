@@ -2,7 +2,7 @@
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public class TmEventElix : IComparable<TmEventElix>
+  public class TmEventElix : IComparable, IComparable<TmEventElix>
   {
     public ulong R { get; } // reserved
     public ulong M { get; } // main
@@ -104,6 +104,16 @@ namespace Iface.Oik.Tm.Interfaces
     public override string ToString()
     {
       return $"{M}.{R}";
+    }
+
+    public int CompareTo(object obj)
+    {
+      if (!(obj is TmEventElix tmEventElix))
+      {
+        throw new ArgumentException($"Argument must be of {nameof(TmEventElix)} type");
+      }
+
+      return CompareTo(tmEventElix);
     }
   }
 }
