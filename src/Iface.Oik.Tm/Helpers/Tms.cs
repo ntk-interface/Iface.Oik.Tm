@@ -32,6 +32,12 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
+    public static void ClearUserCredentials()
+    {
+      Native.CfsSetUser(string.Empty, string.Empty);
+    }
+
+
     public static void SetUserCredentialsForThread(string user,
                                                    string password)
     {
@@ -49,13 +55,17 @@ namespace Iface.Oik.Tm.Helpers
                               string           serverName,
                               string           applicationName,
                               TmNativeCallback callback,
-                              IntPtr           callbackParameter)
+                              IntPtr           callbackParameter,
+                              bool             returnCidAnyway = false)
     {
       var tmCid = Native.TmcConnect(host, serverName, applicationName, callback, callbackParameter);
 
       if (!IsConnected(tmCid))
       {
-        tmCid = 0;
+        if (!returnCidAnyway)
+        {
+          tmCid = 0;
+        }
       }
       else
       {
@@ -73,13 +83,17 @@ namespace Iface.Oik.Tm.Helpers
                                       IntPtr           callbackParameter,
                                       int              propsCount,
                                       uint[]           props,
-                                      uint[]           propsValues)
+                                      uint[]           propsValues,
+                                      bool             returnCidAnyway = false)
     {
       var tmCid = Native.TmcConnectEx(host, serverName, applicationName, callback,
                                       callbackParameter, (uint)propsCount, props, propsValues);
       if (!IsConnected(tmCid))
       {
-        tmCid = 0;
+        if (!returnCidAnyway)
+        {
+          tmCid = 0;
+        }
       }
       else
       {
