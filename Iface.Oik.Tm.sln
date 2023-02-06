@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Iface.Oik.Tm.Test", "tests\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Iface.Oik.Tm.Native.Test", "tests\Iface.Oik.Tm.Native.Test\Iface.Oik.Tm.Native.Test.csproj", "{4F79CC89-F48B-4CBC-8489-0FB4D31393F8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Iface.Oik.Tm.IntegrationTest", "tests\Iface.Oik.Tm.IntegrationTest\Iface.Oik.Tm.IntegrationTest.csproj", "{89EA069C-0961-4ACE-9CBD-D4E3D320A122}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,9 +34,14 @@ Global
 		{4F79CC89-F48B-4CBC-8489-0FB4D31393F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F79CC89-F48B-4CBC-8489-0FB4D31393F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F79CC89-F48B-4CBC-8489-0FB4D31393F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89EA069C-0961-4ACE-9CBD-D4E3D320A122}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89EA069C-0961-4ACE-9CBD-D4E3D320A122}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89EA069C-0961-4ACE-9CBD-D4E3D320A122}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89EA069C-0961-4ACE-9CBD-D4E3D320A122}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{502B0C0E-A101-4FF4-B092-3C638497F9EB} = {40C2845F-EF66-4FD9-A28D-88B4024EB29C}
 		{4F79CC89-F48B-4CBC-8489-0FB4D31393F8} = {40C2845F-EF66-4FD9-A28D-88B4024EB29C}
+		{89EA069C-0961-4ACE-9CBD-D4E3D320A122} = {40C2845F-EF66-4FD9-A28D-88B4024EB29C}
 	EndGlobalSection
 EndGlobal
