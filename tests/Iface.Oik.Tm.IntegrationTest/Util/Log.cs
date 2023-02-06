@@ -17,11 +17,11 @@ public static class Log
   {
     if (isOk)
     {
-      Console.WriteLine($"{message}     OK");
+      Console.WriteLine($"{message,-100} OK");
     }
     else
     {
-      Console.WriteLine($"{message}     ERROR");
+      Console.WriteLine($"{message,-100} ERROR");
       _totalErrorsCount++;
     }
   }
