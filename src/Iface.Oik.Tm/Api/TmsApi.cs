@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Iface.Oik.Tm.Dto;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
@@ -732,7 +729,7 @@ namespace Iface.Oik.Tm.Api
 
     private async Task UpdateTagProperties(TmTag tag)
     {
-      await Task.Run(() => UpdateTagPropertiesSynchronously(tag)).ConfigureAwait(true);
+      await Task.Run(() => UpdateTagPropertiesSynchronously(tag)).ConfigureAwait(false);
     }
 
 
@@ -753,7 +750,7 @@ namespace Iface.Oik.Tm.Api
 
     private async Task UpdateTagClassData(TmTag tag)
     {
-      await Task.Run(() => UpdateTagClassDataSynchronously(tag)).ConfigureAwait(true);
+      await Task.Run(() => UpdateTagClassDataSynchronously(tag)).ConfigureAwait(false);
     }
 
 
@@ -789,7 +786,7 @@ namespace Iface.Oik.Tm.Api
 
     private async Task UpdateAnalogTechParameters(TmTag tag)
     {
-      await Task.Run(() => UpdateAnalogTechParametersSynchronously(tag)).ConfigureAwait(true);
+      await Task.Run(() => UpdateAnalogTechParametersSynchronously(tag)).ConfigureAwait(false);
     }
 
 
