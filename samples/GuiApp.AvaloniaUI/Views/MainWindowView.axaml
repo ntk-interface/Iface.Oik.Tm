@@ -1,15 +1,21 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:GuiApp.Shared.ViewModels;assembly=GuiApp.Shared"
         x:Class="GuiApp.AvaloniaUI.Views.MainWindowView"
         Title="Avalonia UI пример"
-        Width="800"
-        Height="600">
+        Width="1000"
+        Height="800">
+    
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+    
     <Grid ColumnDefinitions="Auto,*">
         <Grid Grid.Row="0"
               Grid.Column="0"
               RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto"
-              ColumnDefinitions="100,100"
-              Margin="10">
+              ColumnDefinitions="120,120"
+              Margin="8">
             <TextBlock Grid.Row="0"
                        Grid.Column="0"
                        Text="Хост:"
@@ -17,7 +23,7 @@
             <TextBox Grid.Row="0"
                      Grid.Column="1"
                      Text="{Binding Host}"
-                     Margin="5,0,0,10" />
+                     Margin="8,0,0,8" />
 
             <TextBlock Grid.Row="1"
                        Grid.Column="0"
@@ -26,7 +32,7 @@
             <TextBox Grid.Row="1"
                      Grid.Column="1"
                      Text="{Binding TmServer}"
-                     Margin="5,0,0,10" />
+                     Margin="8,0,0,8" />
 
             <TextBlock Grid.Row="2"
                        Grid.Column="0"
@@ -35,7 +41,7 @@
             <TextBox Grid.Row="2"
                      Grid.Column="1"
                      Text="{Binding RbServer}"
-                     Margin="5,0,0,10" />
+                     Margin="8,0,0,8" />
 
             <TextBlock Grid.Row="3"
                        Grid.Column="0"
@@ -44,7 +50,7 @@
             <TextBox Grid.Row="3"
                      Grid.Column="1"
                      Text="{Binding User}"
-                     Margin="5,0,0,10" />
+                     Margin="8,0,0,8" />
 
             <TextBlock Grid.Row="4"
                        Grid.Column="0"
@@ -53,7 +59,7 @@
             <TextBox Grid.Row="4"
                      Grid.Column="1"
                      Text="{Binding Password}"
-                     Margin="5,0,0,10" />
+                     Margin="8,0,0,8" />
 
             <Button Grid.Row="5"
                     Grid.Column="0"
@@ -61,64 +67,64 @@
                     Content="Соединиться"
                     Command="{Binding Connect}"
                     IsVisible="{Binding !IsConnected}"
-                    Margin="10" />
+                    Margin="8" />
 
             <StackPanel Grid.Row="6"
                         Grid.Column="0"
                         Grid.ColumnSpan="2"
-                        Margin="10"
+                        Margin="8"
                         IsVisible="{Binding IsConnected}">
                 <Button Content="Отсоединиться"
                         Command="{Binding Disconnect}" />
 
                 <Button Content="Время на сервере"
                         Command="{Binding GetServerTime}"
-                        Margin="0,20,0,0" />
+                        Margin="0,16,0,0" />
 
                 <Button Content="Активные АПС"
                         Command="{Binding GetPresentAps}"
-                        Margin="0,10,0,0" />
+                        Margin="0,8,0,0" />
 
                 <Button Content="Активные уставки"
                         Command="{Binding GetPresentAlarms}"
-                        Margin="0,10,0,0" />
+                        Margin="0,8,0,0" />
 
                 <StackPanel Orientation="Horizontal"
-                            Margin="0,20,0,0">
+                            Margin="0,16,0,0">
                     <TextBox Text="{Binding Channel}"
                              Width="40"
-                             Margin="10,0,10,0" />
+                             Margin="8,0,8,0" />
                     <TextBox Text="{Binding Rtu}"
                              Width="40"
-                             Margin="10,0,10,0" />
+                             Margin="8,0,8,0" />
                     <TextBox Text="{Binding Point}"
                              Width="40"
-                             Margin="10,0,10,0" />
+                             Margin="8,0,8,0" />
                 </StackPanel>
 
                 <Button Content="Состояние сигнала"
                         Command="{Binding GetStatus}"
-                        Margin="0,10,0,0" />
+                        Margin="0,8,0,0" />
 
                 <Button Content="Значение измерения"
                         Command="{Binding GetAnalog}"
-                        Margin="0,10,0,0" />
+                        Margin="0,8,0,0" />
 
                 <Button Content="Очистить лог"
                         Command="{Binding ClearLog}"
-                        Margin="0,20,0,0" />
+                        Margin="0,16,0,0" />
             </StackPanel>
         </Grid>
 
         <ListBox Grid.Row="0"
                  Grid.Column="1"
                  Items="{Binding Log}"
-                 Margin="10">
+                 Margin="8">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{Binding Time, StringFormat=\{0:hh:mm:ss\}}"
-                                   Margin="0,0,10,0"
+                                   Margin="0,0,8,0"
                                    Opacity=".38" />
                         <TextBlock Text="{Binding Message}" />
                     </StackPanel>

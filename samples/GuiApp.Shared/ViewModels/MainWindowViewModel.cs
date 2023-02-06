@@ -101,6 +101,11 @@ namespace GuiApp.Shared.ViewModels
     public event EventHandler AddedToLog = delegate { };
 
 
+    // пустой конструктор для Avalonia UI
+    public MainWindowViewModel()
+    {
+    }
+
     public MainWindowViewModel(ICommonInfrastructure infr,
                          IOikDataApi           api)
     {

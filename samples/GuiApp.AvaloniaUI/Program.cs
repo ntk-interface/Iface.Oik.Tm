@@ -1,13 +1,21 @@
-﻿using Avalonia;
+﻿using System;
+using System.Text;
+using Avalonia;
 
-namespace GuiApp.AvaloniaUI
+namespace GuiApp.AvaloniaUI;
+
+class Program
 {
-  class Program
+  [STAThread]
+  public static void Main(string[] args)
   {
-    public static void Main(string[] args) => BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+    Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // требуется для работы с кодировкой Win-1251
 
-
-    public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure<App>()
-                                                             .UsePlatformDetect();
+    BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
   }
+
+
+  public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure<App>()
+                                                           .UsePlatformDetect()
+                                                           .LogToTrace();
 }
