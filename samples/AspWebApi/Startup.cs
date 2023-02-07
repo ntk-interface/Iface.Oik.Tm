@@ -1,4 +1,4 @@
-using AutoMapper;
+using AspWebApi.Model;
 using Iface.Oik.Tm.Api;
 using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
@@ -17,7 +17,7 @@ namespace AspWebApi
     {
       services.AddControllers();
       
-      services.AddAutoMapper(typeof(MapperProfile));
+      services.AddAutoMapper(typeof(MapProfile));
 
       // регистрация зависимостей ОИК
       services.AddSingleton<ITmNative, TmNative>();
@@ -40,7 +40,6 @@ namespace AspWebApi
       {
         app.UseDeveloperExceptionPage();
       }
-
       app.UseStatusCodePages();
       app.UseRouting();
       app.UseEndpoints(endpoints => endpoints.MapControllers());

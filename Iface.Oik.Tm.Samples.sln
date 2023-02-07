@@ -22,6 +22,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspWebApi", "samples\AspWeb
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleConsoleAppWithoutSql", "samples\SimpleConsoleAppWithoutSql\SimpleConsoleAppWithoutSql.csproj", "{980559DE-DE7A-4217-8681-874FC04009AE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspMinimalWebApiTask", "samples\AspMinimalWebApiTask\AspMinimalWebApiTask.csproj", "{2176D90E-A610-49B3-B979-BBF7C583C9DA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,6 +70,10 @@ Global
 		{980559DE-DE7A-4217-8681-874FC04009AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{980559DE-DE7A-4217-8681-874FC04009AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{980559DE-DE7A-4217-8681-874FC04009AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2176D90E-A610-49B3-B979-BBF7C583C9DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2176D90E-A610-49B3-B979-BBF7C583C9DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2176D90E-A610-49B3-B979-BBF7C583C9DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2176D90E-A610-49B3-B979-BBF7C583C9DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{6226E8FF-8D50-4768-AE00-99C0BCFFF7BF} = {11CB35E4-7D9B-4F2B-9C14-7EE676BC9D3E}
