@@ -1,12 +1,11 @@
-using AspWebApi.Model;
 using AutoMapper;
 using Iface.Oik.Tm.Interfaces;
 
-namespace AspWebApi
+namespace AspWebApi.Model
 {
-  public class MapperProfile : Profile
+  public class MapProfile : Profile
   {
-    public MapperProfile()
+    public MapProfile()
     {
       CreateMap<TmStatus, TmStatusDto>();
       CreateMap<TmAnalog, TmAnalogDto>();

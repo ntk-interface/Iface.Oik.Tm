@@ -4,10 +4,10 @@ namespace AspWebApi.Model
 {
   public class TmAlarmDto
   {
-    public TmAnalogDto TmAnalog { get; set; }
+    public TmAnalogDto? TmAnalog { get; set; }
 
     [JsonPropertyName("n")]
-    public string Name { get; set; }
+    public string Name { get; set; } = "";
 
     [JsonPropertyName("cmpV")]
     public float CompareValue { get; set; }
@@ -25,6 +25,6 @@ namespace AspWebApi.Model
     public bool IsActive { get; set; }
 
     [JsonPropertyName("fullN")]
-    public string FullName { get; set; }
+    public string FullName { get; set; } = "";
   }
 }

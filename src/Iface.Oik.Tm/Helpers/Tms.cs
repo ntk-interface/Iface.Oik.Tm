@@ -177,11 +177,11 @@ namespace Iface.Oik.Tm.Helpers
 
       var result = Native.TmcGetConnectErrorText(tmCid, ref buf, bufSize);
 
-      return result ? EncodingUtil.Win1251BytesToUtf8(buf) : "Неизвестная ошибка";
+      return result ? EncodingUtil.Win1251BytesToUtf8(buf).Trim() : "Неизвестная ошибка";
     }
 
 
-    public static string GetTelecontrolResultDescription(TmTelecontrolResult result)
+    public static string GetTelecontrolResultDescription(TmTelecontrolResult result) // TODO integration test
     {
       var descriptionPtr = Native.TmcDecodeTcError((ushort)result);
       if (descriptionPtr == IntPtr.Zero)
@@ -339,7 +339,7 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
-    public static TmServerFeatures GetTmServerFeatures(int tmCid)
+    public static TmServerFeatures GetTmServerFeatures(int tmCid) // TODO integration test
     {
       var capabilitiesBuf = new byte[16];
       if (Native.TmcGetServerCaps(tmCid, ref capabilitiesBuf) == 0)
@@ -378,7 +378,7 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
-    public static int GetLicenseFeature(int tmCid, LicenseFeature feature)
+    public static int GetLicenseFeature(int tmCid, LicenseFeature feature) // TODO integration test
     {
       return Native.TmcGetServerFeature(tmCid, (uint)feature);
     }

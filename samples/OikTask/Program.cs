@@ -14,27 +14,28 @@ namespace OikTask
   {
     public static void Main(string[] args)
     {
-      // требуется для работы с кодировкой Win-1251
-      Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+      Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // требуется для работы с кодировкой Win-1251
       
-      // устанавливаем соединение с сервером ОИК
-      try
+      var app = CreateHostBuilder(args).Build();
+      using (var scope = app.Services.CreateScope())
       {
-        TmStartup.Connect();
-      }
-      catch (Exception ex)
-      {
-        Tms.PrintError(ex.Message);
-        Environment.Exit(-1);
+        try
+        {
+          scope.ServiceProvider.GetRequiredService<TmStartup>().TryConnect();
+        }
+        catch (Exception ex)
+        {
+          Tms.PrintError(ex.Message);
+          Environment.Exit(-1);
+        }
       }
       
-      // .NET Generic Host
-      CreateHostBuilder(args).Build().Run();
+      app.Run();
     }
 
     public static IHostBuilder CreateHostBuilder(string[] args) =>
       Host.CreateDefaultBuilder(args)
-          .ConfigureServices((hostContext, services) =>
+          .ConfigureServices((_, services) =>
           {
             // регистрация сервисов ОИК
             services.AddSingleton<ITmNative, TmNative>();
@@ -44,9 +45,10 @@ namespace OikTask
             services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
             services.AddSingleton<ServerService>();
             services.AddSingleton<ICommonServerService>(provider => provider.GetService<ServerService>());
+            services.AddSingleton<TmStartup>();
             
             // регистрация фоновых служб
-            services.AddHostedService<TmStartup>();
+            services.AddSingleton<IHostedService>(provider => provider.GetService<TmStartup>());
             services.AddSingleton<IHostedService>(provider => provider.GetService<ServerService>());
             services.AddHostedService<Worker>();
           });

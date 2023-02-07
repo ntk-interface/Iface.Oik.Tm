@@ -6,7 +6,7 @@ using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
 using Microsoft.Extensions.Hosting;
 
-namespace OikTask
+namespace AspWebApiTask
 {
   public class ServerService : CommonServerService, IHostedService
   {
@@ -15,17 +15,19 @@ namespace OikTask
 
   public class TmStartup : BackgroundService
   {
-    private const string ApplicationName = "OikTask";
-    private const string TraceName       = "OikTaskName";
-    private const string TraceComment    = "<OikTaskComment>";
+    private const string ApplicationName = "ASP.NET Api";
+    private const string TraceName       = "ASP.NET Api";
+    private const string TraceComment    = "<Asp.Net.Api>";
 
     private int              _tmCid;
-    private TmUserInfo       _userInfo;
+    private int              _rbCid;
+    private int              _rbPort;
+    private TmUserInfo?      _userInfo;
     private TmServerFeatures _serverFeatures;
     private IntPtr           _stopEventHandle;
 
-    private readonly IHostApplicationLifetime _applicationLifetime;
     private readonly ICommonInfrastructure    _infr;
+    private readonly IHostApplicationLifetime _applicationLifetime;
 
 
     public TmStartup(ICommonInfrastructure infr, IHostApplicationLifetime applicationLifetime)
@@ -39,27 +41,28 @@ namespace OikTask
     {
       var commandLineArgs = Environment.GetCommandLineArgs();
 
-      (_tmCid, _userInfo, _serverFeatures, _stopEventHandle) =
-        Tms.InitializeAsTaskWithoutSql(new TmOikTaskOptions
-                                       {
-                                         TraceName    = TraceName,
-                                         TraceComment = TraceComment,
-                                       },
-                                       new TmInitializeOptions
-                                       {
-                                         ApplicationName = ApplicationName,
-                                         TmServer        = commandLineArgs.ElementAtOrDefault(1) ?? "TMS",
-                                         Host            = commandLineArgs.ElementAtOrDefault(2) ?? ".",
-                                         User            = commandLineArgs.ElementAtOrDefault(3) ?? "",
-                                         Password        = commandLineArgs.ElementAtOrDefault(4) ?? "",
-                                       });
+      (_tmCid, _rbCid, _rbPort, _userInfo, _serverFeatures, _stopEventHandle) = Tms.InitializeAsTask(
+        new TmOikTaskOptions
+        {
+          TraceName    = TraceName,
+          TraceComment = TraceComment,
+        },
+        new TmInitializeOptions
+        {
+          ApplicationName = ApplicationName,
+          TmServer        = commandLineArgs.ElementAtOrDefault(1) ?? "TMS",
+          RbServer        = commandLineArgs.ElementAtOrDefault(2) ?? "RBS",
+          Host            = commandLineArgs.ElementAtOrDefault(3) ?? ".",
+          User            = commandLineArgs.ElementAtOrDefault(4) ?? "",
+          Password        = commandLineArgs.ElementAtOrDefault(5) ?? "",
+        });
     }
 
 
     public override Task StartAsync(CancellationToken cancellationToken)
     {
-      _infr.InitializeTmWithoutSql(_tmCid, _userInfo, _serverFeatures);
-
+      _infr.InitializeTm(_tmCid, _rbCid, _rbPort, _userInfo, _serverFeatures);
+      
       Tms.PrintMessage("Соединение с сервером установлено");
 
       return base.StartAsync(cancellationToken);
@@ -82,7 +85,7 @@ namespace OikTask
 
     public override Task StopAsync(CancellationToken cancellationToken)
     {
-      Tms.TerminateWithoutSql(_tmCid);
+      Tms.Terminate(_tmCid, _rbCid);
       _infr.TerminateTm();
 
       Tms.PrintMessage("Задача будет закрыта");

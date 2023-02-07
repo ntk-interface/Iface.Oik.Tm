@@ -1,4 +1,4 @@
-using AutoMapper;
+using AspWebApi.Model;
 using Iface.Oik.Tm.Api;
 using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace AspWebApi
+namespace AspWebApiTask
 {
   public class Startup
   {
@@ -17,7 +17,7 @@ namespace AspWebApi
     {
       services.AddControllers();
       
-      services.AddAutoMapper(typeof(MapperProfile));
+      services.AddAutoMapper(typeof(MapProfile));
 
       // регистрация зависимостей ОИК
       services.AddSingleton<ITmNative, TmNative>();
@@ -26,11 +26,12 @@ namespace AspWebApi
       services.AddSingleton<IOikDataApi, OikDataApi>();
       services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
       services.AddSingleton<ServerService>();
-      services.AddSingleton<ICommonServerService>(provider => provider.GetService<ServerService>());
+      services.AddSingleton<ICommonServerService>(provider => provider.GetRequiredService<ServerService>());
+      services.AddSingleton<TmStartup>();
       
       // регистрация фоновых служб
-      services.AddHostedService<TmStartup>();
-      services.AddSingleton<IHostedService>(provider => provider.GetService<ServerService>());
+      services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<TmStartup>());
+      services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<ServerService>());
     }
 
 
@@ -40,7 +41,6 @@ namespace AspWebApi
       {
         app.UseDeveloperExceptionPage();
       }
-
       app.UseStatusCodePages();
       app.UseRouting();
       app.UseEndpoints(endpoints => endpoints.MapControllers());
