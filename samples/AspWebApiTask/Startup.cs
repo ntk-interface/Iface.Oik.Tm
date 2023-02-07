@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace AspWebApi
+namespace AspWebApiTask
 {
   public class Startup
   {
@@ -26,11 +26,11 @@ namespace AspWebApi
       services.AddSingleton<IOikDataApi, OikDataApi>();
       services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
       services.AddSingleton<ServerService>();
-      services.AddSingleton<ICommonServerService>(provider => provider.GetService<ServerService>());
+      services.AddSingleton<ICommonServerService>(provider => provider.GetRequiredService<ServerService>());
       
       // регистрация фоновых служб
       services.AddHostedService<TmStartup>();
-      services.AddSingleton<IHostedService>(provider => provider.GetService<ServerService>());
+      services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<ServerService>());
     }
 
 

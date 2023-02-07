@@ -18,7 +18,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GuiApp.AvaloniaUI", "sample
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OikTask", "samples\OikTask\OikTask.csproj", "{6EF0F74C-9F3B-44C8-AF79-33A410587D9A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspWebApi", "samples\AspWebApi\AspWebApi.csproj", "{485A5D09-7B58-4D3A-8453-7D6604217728}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspWebApiTask", "samples\AspWebApiTask\AspWebApiTask.csproj", "{485A5D09-7B58-4D3A-8453-7D6604217728}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleConsoleAppWithoutSql", "samples\SimpleConsoleAppWithoutSql\SimpleConsoleAppWithoutSql.csproj", "{980559DE-DE7A-4217-8681-874FC04009AE}"
 EndProject

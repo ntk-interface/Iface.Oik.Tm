@@ -5,17 +5,17 @@ using AutoMapper;
 using Iface.Oik.Tm.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AspWebApi.Controllers
+namespace AspWebApiTask.Controllers
 {
-  [Route("api/aps")]
+  [Route("api/alarms")]
   [ApiController]
-  public class ApsController : Controller
+  public class AlarmsController : Controller
   {
     private readonly IOikDataApi _api;
     private readonly IMapper     _mapper;
 
 
-    public ApsController(IOikDataApi api, IMapper mapper)
+    public AlarmsController(IOikDataApi api, IMapper mapper)
     {
       _api    = api;
       _mapper = mapper;
@@ -25,9 +25,9 @@ namespace AspWebApi.Controllers
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-      var statuses = await _api.GetPresentAps();
-
-      return Ok(_mapper.Map<IEnumerable<TmStatusDto>>(statuses));
+      var alarms = await _api.GetPresentAlarms();
+      
+      return Ok(_mapper.Map<IEnumerable<TmAlarmDto>>(alarms));
     }
   }
 }

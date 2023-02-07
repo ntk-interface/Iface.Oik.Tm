@@ -3,7 +3,7 @@ using Iface.Oik.Tm.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AspWebApi.Controllers
+namespace AspWebApiTask.Controllers
 {
   [Route("api/time")]
   [ApiController]

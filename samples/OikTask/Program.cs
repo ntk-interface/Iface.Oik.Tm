@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using Iface.Oik.Tm.Api;
 using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
@@ -14,27 +13,14 @@ namespace OikTask
   {
     public static void Main(string[] args)
     {
-      // требуется для работы с кодировкой Win-1251
-      Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+      Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // требуется для работы с кодировкой Win-1251
       
-      // устанавливаем соединение с сервером ОИК
-      try
-      {
-        TmStartup.Connect();
-      }
-      catch (Exception ex)
-      {
-        Tms.PrintError(ex.Message);
-        Environment.Exit(-1);
-      }
-      
-      // .NET Generic Host
       CreateHostBuilder(args).Build().Run();
     }
 
     public static IHostBuilder CreateHostBuilder(string[] args) =>
       Host.CreateDefaultBuilder(args)
-          .ConfigureServices((hostContext, services) =>
+          .ConfigureServices((_, services) =>
           {
             // регистрация сервисов ОИК
             services.AddSingleton<ITmNative, TmNative>();

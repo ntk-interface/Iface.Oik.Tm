@@ -1,5 +1,10 @@
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
+using Microsoft.Extensions.Hosting;
 
 namespace AspMinimalWebApiTask;
 
@@ -21,8 +26,8 @@ public class TmStartup : BackgroundService
   private static TmServerFeatures _serverFeatures;
   private static IntPtr           _stopEventHandle;
 
-  private readonly IHostApplicationLifetime _applicationLifetime;
   private readonly ICommonInfrastructure    _infr;
+  private readonly IHostApplicationLifetime _applicationLifetime;
 
 
   public TmStartup(ICommonInfrastructure infr, IHostApplicationLifetime applicationLifetime)
@@ -82,13 +87,13 @@ public class TmStartup : BackgroundService
   }
 
 
-  public override async Task StopAsync(CancellationToken cancellationToken)
+  public override Task StopAsync(CancellationToken cancellationToken)
   {
     Tms.Terminate(_tmCid, _rbCid);
     _infr.TerminateTm();
 
     Tms.PrintMessage("Задача будет закрыта");
 
-    await base.StopAsync(cancellationToken);
+    return base.StopAsync(cancellationToken);
   }
 }
