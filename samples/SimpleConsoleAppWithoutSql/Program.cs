@@ -40,7 +40,7 @@ try
   {
     Console.WriteLine(await api.GetSystemTimeString());
     
-    await Task.Delay(1000).ConfigureAwait(false);
+    await Task.Delay(1000);
   }
 }
 catch (Exception ex)

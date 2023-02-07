@@ -7,23 +7,29 @@ public static class Log
   private static int _totalErrorsCount;
 
 
-  public static void Message(string message)
-  {
-    Console.WriteLine(message);
-  }
-
-
   public static void Condition(bool isOk, string message)
   {
     if (isOk)
     {
-      Console.WriteLine($"{message,-100} OK");
+      Message(message, "OK");
     }
     else
     {
-      Console.WriteLine($"{message,-100} ERROR");
-      _totalErrorsCount++;
+      Error(message);
     }
+  }
+
+
+  public static void Message(string message, string state = "")
+  {
+    Console.WriteLine($"{message,-64} {state}");
+  }
+
+
+  public static void Error(string message, string state = "ERROR")
+  {
+    Console.WriteLine($"{message,-64} {state}");
+    _totalErrorsCount++;
   }
 
 

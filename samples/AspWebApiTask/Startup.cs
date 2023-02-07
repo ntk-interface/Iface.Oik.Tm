@@ -27,9 +27,10 @@ namespace AspWebApiTask
       services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
       services.AddSingleton<ServerService>();
       services.AddSingleton<ICommonServerService>(provider => provider.GetRequiredService<ServerService>());
+      services.AddSingleton<TmStartup>();
       
       // регистрация фоновых служб
-      services.AddHostedService<TmStartup>();
+      services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<TmStartup>());
       services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<ServerService>());
     }
 

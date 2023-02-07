@@ -1,6 +1,8 @@
+using System;
 using System.Text;
-using AspWebApi;
+using Iface.Oik.Tm.Helpers;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace AspWebApiTask
@@ -11,7 +13,21 @@ namespace AspWebApiTask
     {
       Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // требуется для работы с кодировкой Win-1251
       
-      CreateHostBuilder(args).Build().Run();
+      var app = CreateHostBuilder(args).Build();
+      using (var scope = app.Services.CreateScope())
+      {
+        try
+        {
+          scope.ServiceProvider.GetRequiredService<TmStartup>().TryConnect();
+        }
+        catch (Exception ex)
+        {
+          Tms.PrintError(ex.Message);
+          Environment.Exit(-1);
+        }
+      }
+      
+      app.Run();
     }
 
 

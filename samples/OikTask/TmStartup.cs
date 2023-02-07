@@ -19,10 +19,10 @@ namespace OikTask
     private const string TraceName       = "OikTaskName";
     private const string TraceComment    = "<OikTaskComment>";
 
-    private static int              _tmCid;
-    private static TmUserInfo       _userInfo;
-    private static TmServerFeatures _serverFeatures;
-    private static IntPtr           _stopEventHandle;
+    private int              _tmCid;
+    private TmUserInfo       _userInfo;
+    private TmServerFeatures _serverFeatures;
+    private IntPtr           _stopEventHandle;
 
     private readonly IHostApplicationLifetime _applicationLifetime;
     private readonly ICommonInfrastructure    _infr;
@@ -35,38 +35,34 @@ namespace OikTask
     }
 
 
+    public void TryConnect()
+    {
+      var commandLineArgs = Environment.GetCommandLineArgs();
+
+      (_tmCid, _userInfo, _serverFeatures, _stopEventHandle) =
+        Tms.InitializeAsTaskWithoutSql(new TmOikTaskOptions
+                                       {
+                                         TraceName    = TraceName,
+                                         TraceComment = TraceComment,
+                                       },
+                                       new TmInitializeOptions
+                                       {
+                                         ApplicationName = ApplicationName,
+                                         TmServer        = commandLineArgs.ElementAtOrDefault(1) ?? "TMS",
+                                         Host            = commandLineArgs.ElementAtOrDefault(2) ?? ".",
+                                         User            = commandLineArgs.ElementAtOrDefault(3) ?? "",
+                                         Password        = commandLineArgs.ElementAtOrDefault(4) ?? "",
+                                       });
+    }
+
+
     public override Task StartAsync(CancellationToken cancellationToken)
     {
-      try
-      {
-        var commandLineArgs = Environment.GetCommandLineArgs();
+      _infr.InitializeTmWithoutSql(_tmCid, _userInfo, _serverFeatures);
 
-        (_tmCid, _userInfo, _serverFeatures, _stopEventHandle) =
-          Tms.InitializeAsTaskWithoutSql(new TmOikTaskOptions
-                                         {
-                                           TraceName    = TraceName,
-                                           TraceComment = TraceComment,
-                                         },
-                                         new TmInitializeOptions
-                                         {
-                                           ApplicationName = ApplicationName,
-                                           TmServer        = commandLineArgs.ElementAtOrDefault(1) ?? "TMS",
-                                           Host            = commandLineArgs.ElementAtOrDefault(2) ?? ".",
-                                           User            = commandLineArgs.ElementAtOrDefault(3) ?? "",
-                                           Password        = commandLineArgs.ElementAtOrDefault(4) ?? "",
-                                         });
-        
-        Tms.PrintMessage("Соединение с сервером установлено");
-        
-        _infr.InitializeTmWithoutSql(_tmCid, _userInfo, _serverFeatures);
-        
-        return base.StartAsync(cancellationToken);
-      }
-      catch (Exception ex)
-      {
-        Tms.PrintError(ex.Message);
-        return Task.FromException(ex);
-      }
+      Tms.PrintMessage("Соединение с сервером установлено");
+
+      return base.StartAsync(cancellationToken);
     }
 
 

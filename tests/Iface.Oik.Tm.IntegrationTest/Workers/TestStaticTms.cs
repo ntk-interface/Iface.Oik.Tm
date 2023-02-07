@@ -22,18 +22,18 @@ public static class TestStaticTms
     Tms.SetUserCredentials(username, "totally not a password");
     var cid1 = Tms.Connect(host, tmServer, CommonUtil.TaskName, null, IntPtr.Zero, returnCidAnyway: true);
     Log.Condition(!Tms.IsConnectedSimple(cid1),
-                        $"Test connect with incorrect password fail {Tms.GetConnectionErrorText(cid1)}");
+                        $"TM connect invalid password {Tms.GetConnectionErrorText(cid1)}");
     Tms.Disconnect(cid1);
 
     Tms.SetUserCredentials(username, password);
     var cid2 = Tms.Connect(host, tmServer, CommonUtil.TaskName, null, IntPtr.Zero, returnCidAnyway: true);
-    Log.Condition(Tms.IsConnectedSimple(cid2), "Test connect succeed");
+    Log.Condition(Tms.IsConnectedSimple(cid2), "TM connect valid password");
     Tms.Disconnect(cid2);
 
     Tms.SetUserCredentials(username, "totally not a password again");
     var cid3 = Tms.Connect(host, tmServer, CommonUtil.TaskName, null, IntPtr.Zero, returnCidAnyway: true);
     Log.Condition(!Tms.IsConnectedSimple(cid3),
-                        $"Test connect with incorrect password fail {Tms.GetConnectionErrorText(cid3)}");
+                        $"TM connect invalid password again {Tms.GetConnectionErrorText(cid3)}");
     Tms.Disconnect(cid3);
 
     Tms.ClearUserCredentials();

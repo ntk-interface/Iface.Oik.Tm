@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,11 +26,24 @@ builder.Services.AddSingleton<IOikDataApi, OikDataApi>();
 builder.Services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
 builder.Services.AddSingleton<ServerService>();
 builder.Services.AddSingleton<ICommonServerService>(provider => provider.GetRequiredService<ServerService>());
+builder.Services.AddSingleton<TmStartup>();
 // регистрация фоновых служб
-builder.Services.AddHostedService<TmStartup>();
+builder.Services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<TmStartup>());
 builder.Services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<ServerService>());
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+  try
+  {
+    scope.ServiceProvider.GetRequiredService<TmStartup>().TryConnect();
+  }
+  catch (Exception ex)
+  {
+    Tms.PrintError(ex.Message);
+    Environment.Exit(-1);
+  }
+}
 
 app.MapGet("/",
            () => "Hello World!");

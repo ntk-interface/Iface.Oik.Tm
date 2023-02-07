@@ -19,12 +19,12 @@ namespace AspWebApiTask
     private const string TraceName       = "ASP.NET Api";
     private const string TraceComment    = "<Asp.Net.Api>";
 
-    private static int              _tmCid;
-    private static int              _rbCid;
-    private static int              _rbPort;
-    private static TmUserInfo?      _userInfo;
-    private static TmServerFeatures _serverFeatures;
-    private static IntPtr           _stopEventHandle;
+    private int              _tmCid;
+    private int              _rbCid;
+    private int              _rbPort;
+    private TmUserInfo?      _userInfo;
+    private TmServerFeatures _serverFeatures;
+    private IntPtr           _stopEventHandle;
 
     private readonly ICommonInfrastructure    _infr;
     private readonly IHostApplicationLifetime _applicationLifetime;
@@ -37,39 +37,35 @@ namespace AspWebApiTask
     }
 
 
-    public override Task StartAsync(CancellationToken cancellationToken)
+    public void TryConnect()
     {
       var commandLineArgs = Environment.GetCommandLineArgs();
 
-      try
-      {
-        (_tmCid, _rbCid, _rbPort, _userInfo, _serverFeatures, _stopEventHandle) = Tms.InitializeAsTask(
-          new TmOikTaskOptions
-          {
-            TraceName    = TraceName,
-            TraceComment = TraceComment,
-          },
-          new TmInitializeOptions
-          {
-            ApplicationName = ApplicationName,
-            TmServer        = commandLineArgs.ElementAtOrDefault(1) ?? "TMS",
-            RbServer        = commandLineArgs.ElementAtOrDefault(2) ?? "RBS",
-            Host            = commandLineArgs.ElementAtOrDefault(3) ?? ".",
-            User            = commandLineArgs.ElementAtOrDefault(4) ?? "",
-            Password        = commandLineArgs.ElementAtOrDefault(5) ?? "",
-          });
+      (_tmCid, _rbCid, _rbPort, _userInfo, _serverFeatures, _stopEventHandle) = Tms.InitializeAsTask(
+        new TmOikTaskOptions
+        {
+          TraceName    = TraceName,
+          TraceComment = TraceComment,
+        },
+        new TmInitializeOptions
+        {
+          ApplicationName = ApplicationName,
+          TmServer        = commandLineArgs.ElementAtOrDefault(1) ?? "TMS",
+          RbServer        = commandLineArgs.ElementAtOrDefault(2) ?? "RBS",
+          Host            = commandLineArgs.ElementAtOrDefault(3) ?? ".",
+          User            = commandLineArgs.ElementAtOrDefault(4) ?? "",
+          Password        = commandLineArgs.ElementAtOrDefault(5) ?? "",
+        });
+    }
 
-        Tms.PrintMessage("Соединение с сервером установлено");
 
-        _infr.InitializeTm(_tmCid, _rbCid, _rbPort, _userInfo, _serverFeatures);
+    public override Task StartAsync(CancellationToken cancellationToken)
+    {
+      _infr.InitializeTm(_tmCid, _rbCid, _rbPort, _userInfo, _serverFeatures);
+      
+      Tms.PrintMessage("Соединение с сервером установлено");
 
-        return base.StartAsync(cancellationToken);
-      }
-      catch (Exception ex)
-      {
-        Tms.PrintError(ex.Message);
-        return Task.FromException(ex);
-      }
+      return base.StartAsync(cancellationToken);
     }
 
 

@@ -14,11 +14,11 @@ public class ServerService : CommonServerService, IHostedService
 
 public class TmStartup : IHostedService
 {
-  private static int              _tmCid;
-  private static int              _rbCid;
-  private static int              _rbPort;
-  private static TmUserInfo?      _userInfo;
-  private static TmServerFeatures _serverFeatures;
+  private int              _tmCid;
+  private int              _rbCid;
+  private int              _rbPort;
+  private TmUserInfo?      _userInfo;
+  private TmServerFeatures _serverFeatures;
 
   private readonly ICommonInfrastructure _infr;
 
@@ -29,7 +29,7 @@ public class TmStartup : IHostedService
   }
 
 
-  public Task StartAsync(CancellationToken cancellationToken)
+  public void TryConnect()
   {
     var (host, tmServer, rbServer, username, password) = CommonUtil.ParseCommandLineArgs();
 
@@ -42,6 +42,11 @@ public class TmStartup : IHostedService
       User            = username,
       Password        = password,
     });
+  }
+
+
+  public Task StartAsync(CancellationToken cancellationToken)
+  {
     _infr.InitializeTm(_tmCid, _rbCid, _rbPort, _userInfo, _serverFeatures);
 
     return Task.CompletedTask;

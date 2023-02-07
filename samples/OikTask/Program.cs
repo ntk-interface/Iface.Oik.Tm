@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using Iface.Oik.Tm.Api;
 using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
@@ -15,7 +16,21 @@ namespace OikTask
     {
       Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // требуется для работы с кодировкой Win-1251
       
-      CreateHostBuilder(args).Build().Run();
+      var app = CreateHostBuilder(args).Build();
+      using (var scope = app.Services.CreateScope())
+      {
+        try
+        {
+          scope.ServiceProvider.GetRequiredService<TmStartup>().TryConnect();
+        }
+        catch (Exception ex)
+        {
+          Tms.PrintError(ex.Message);
+          Environment.Exit(-1);
+        }
+      }
+      
+      app.Run();
     }
 
     public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -30,9 +45,10 @@ namespace OikTask
             services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
             services.AddSingleton<ServerService>();
             services.AddSingleton<ICommonServerService>(provider => provider.GetService<ServerService>());
+            services.AddSingleton<TmStartup>();
             
             // регистрация фоновых служб
-            services.AddHostedService<TmStartup>();
+            services.AddSingleton<IHostedService>(provider => provider.GetService<TmStartup>());
             services.AddSingleton<IHostedService>(provider => provider.GetService<ServerService>());
             services.AddHostedService<Worker>();
           });
