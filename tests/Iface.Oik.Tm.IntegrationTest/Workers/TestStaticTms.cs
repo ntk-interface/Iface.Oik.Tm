@@ -60,6 +60,7 @@ public static class TestStaticTms
     TestSecurity(tmCid);
     TestUserInfo(tmCid, tmServer);
     TestLicenseFeature(tmCid);
+    TestTmServerFeatures(tmCid);
 
     Tms.Disconnect(tmCid);
     Tms.ClearUserCredentials();
@@ -126,5 +127,24 @@ public static class TestStaticTms
   {
     var hasClient10 = Tms.GetLicenseFeature(tmCid, LicenseFeature.Client10) == 1;
     Log.Condition(hasClient10, $"Get Licence Feature");
+  }
+  
+  private static void TestTmServerFeatures(int tmCid)
+  {
+    try
+    {
+      var serverFeatures = Tms.GetTmServerFeatures(tmCid);
+      Log.Condition(serverFeatures.AreMicroSeriesEnabled, "Server features");
+      Log.Message($"Comtrade:{serverFeatures.IsComtradeEnabled}");
+      Log.Message($"MicroSeries: {serverFeatures.AreMicroSeriesEnabled}");
+      Log.Message($"ImpArchive: {serverFeatures.IsImpulseArchiveEnabled}");
+      Log.Message($"TOB: {serverFeatures.AreTechObjectsEnabled}");
+    }
+    catch (Exception)
+    {
+      
+      Log.Error($"{nameof(Tms.GetTmServerFeatures)} failed");
+    }
+    
   }
 }

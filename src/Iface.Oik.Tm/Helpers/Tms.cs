@@ -339,7 +339,7 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
-    public static TmServerFeatures GetTmServerFeatures(int tmCid) // TODO integration test
+    public static TmServerFeatures GetTmServerFeatures(int tmCid)
     {
       var capabilitiesBuf = new byte[16];
       if (Native.TmcGetServerCaps(tmCid, ref capabilitiesBuf) == 0)
@@ -378,7 +378,7 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
-    public static int GetLicenseFeature(int tmCid, LicenseFeature feature) // TODO integration test
+    public static int GetLicenseFeature(int tmCid, LicenseFeature feature)
     {
       return Native.TmcGetServerFeature(tmCid, (uint)feature);
     }
