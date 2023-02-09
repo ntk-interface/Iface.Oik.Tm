@@ -35,6 +35,12 @@ public static class TestStaticTms
     Log.Condition(!Tms.IsConnectedSimple(cid3),
                         $"TM connect invalid password again {Tms.GetConnectionErrorText(cid3)}");
     Tms.Disconnect(cid3);
+    
+    Tms.SetUserCredentials(username, password);
+    var cid4 = Tms.DeltaConnect(host, tmServer, CommonUtil.TaskName, null, IntPtr.Zero);
+    Log.Condition(Tms.IsConnectedSimple(cid4), "Delta connection established");
+    
+    Tms.Disconnect(cid4);
 
     Tms.ClearUserCredentials();
   }
