@@ -59,6 +59,7 @@ public static class TestStaticTms
     TestLinkedRbServer(tmCid, tmServer);
     TestSecurity(tmCid);
     TestUserInfo(tmCid, tmServer);
+    TestLicenseFeature(tmCid);
 
     Tms.Disconnect(tmCid);
     Tms.ClearUserCredentials();
@@ -119,5 +120,11 @@ public static class TestStaticTms
     
     Tms.Disconnect(rbCid);
     Tms.ClearUserCredentials();
+  }
+
+  private static void TestLicenseFeature(int tmCid)
+  {
+    var hasClient10 = Tms.GetLicenseFeature(tmCid, LicenseFeature.Client10) == 1;
+    Log.Condition(hasClient10, $"Get Licence Feature");
   }
 }
