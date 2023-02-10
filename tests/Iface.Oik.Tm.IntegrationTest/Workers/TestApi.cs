@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -53,6 +54,7 @@ public class TestApi : IHostedService
     Log.Message("=====");
 
     await TestTmStatus();
+    await TestTmAnalog();
   }
 
 
@@ -117,8 +119,10 @@ public class TestApi : IHostedService
     analogs.Take(3).ForEach(an => Log.Message($"#TT{channelId}:{rtuId}:{an.TmAddr.Point} {an.Name}"));
   }
 
+  
   private async Task TestTmStatus()
   {
+    Log.Message("TmStatus tests");
     var tmStatus1 = new TmStatus(169, 1, 1);
     var tmStatus2 = new TmStatus(169, 1, 2);
 
@@ -183,5 +187,62 @@ public class TestApi : IHostedService
     await _api.UpdateStatus(tmStatus1);
     Log.Condition(tmStatus1 is {IsManuallyBlocked: false, IsManuallySet: false}, 
                   $"{tmStatus1.TmAddr} manually blocked and manually set cleared");
+  }
+
+
+  public async Task TestTmAnalog()
+  {
+    Log.Message("TmAnalog tests");
+    var tmAnalog1 = new TmAnalog(169, 1, 1);
+    var tmAnalog2 = new TmAnalog(169, 1, 2);
+    
+    var tmAnalogs = new List<TmAnalog> {tmAnalog1, tmAnalog2};
+
+    await _api.SetAnalog(tmAnalog1.TmAddr.Ch, tmAnalog1.TmAddr.Rtu, tmAnalog1.TmAddr.Point, 6.9f);
+    var newAnalogVal = await _api.GetAnalog(tmAnalog1.TmAddr.Ch, tmAnalog1.TmAddr.Rtu, tmAnalog1.TmAddr.Point);
+    Log.Condition(newAnalogVal == 6.9f, $"{tmAnalog1.TmAddr} is {newAnalogVal}");
+    
+    await _api.SetAnalog(tmAnalog1.TmAddr.Ch, tmAnalog1.TmAddr.Rtu, tmAnalog1.TmAddr.Point, 0);
+    newAnalogVal = await _api.GetAnalog(tmAnalog1.TmAddr.Ch, tmAnalog1.TmAddr.Rtu, tmAnalog1.TmAddr.Point);
+    Log.Condition(newAnalogVal == 0, $"{tmAnalog1.TmAddr} is {newAnalogVal}");
+
+    Log.Message("Set ManuallyBlocked Flag");
+    await _api.SetTagFlags(tmAnalog1, TmFlags.ManuallySet);
+    await _api.UpdateAnalog(tmAnalog1);
+    Log.Condition(tmAnalog1.HasFlag(TmFlags.ManuallySet), $"{tmAnalog1.TmAddr} flags: {tmAnalog1.Flags}");
+    
+    Log.Message("Clear ManuallyBlocked Flag");
+    await _api.ClearTagFlags(tmAnalog1, TmFlags.ManuallyBlocked);
+    await _api.UpdateAnalog(tmAnalog1);
+    Log.Condition(!tmAnalog1.HasFlag(TmFlags.ManuallyBlocked), $"{tmAnalog1.TmAddr} flags: {tmAnalog1.Flags}");
+    
+    Log.Message("Set ManuallyBlocked Flag by list");
+    await _api.SetTagsFlags(tmAnalogs, TmFlags.ManuallyBlocked);
+    await _api.UpdateAnalogs(tmAnalogs);
+    foreach (var tmAnalog in tmAnalogs)
+    {
+      Log.Condition(tmAnalog.HasFlag(TmFlags.ManuallyBlocked), $"{tmAnalog.TmAddr} flags: {tmAnalog.Flags}");
+    }
+    
+    Log.Message("Clear ManuallyBlocked Flag by list");
+    await _api.ClearTagsFlags(tmAnalogs, TmFlags.ManuallyBlocked);
+    await _api.UpdateAnalogs(tmAnalogs);
+    foreach (var tmAnalog in tmAnalogs)
+    {
+      Log.Condition(!tmAnalog.HasFlag(TmFlags.ManuallyBlocked), $"{tmAnalog.TmAddr} flags: {tmAnalog.Flags}");
+    }
+    
+    await _api.SetAnalogManually(tmAnalog1, 0, true);
+    newAnalogVal = await _api.GetAnalog(tmAnalog1.TmAddr.Ch, tmAnalog1.TmAddr.Rtu, tmAnalog1.TmAddr.Point);
+    Log.Condition(newAnalogVal == 0, $"{tmAnalog1.TmAddr} switched manually. Value: {tmAnalog1}");
+
+    await _api.UpdateAnalog(tmAnalog1);
+    Log.Condition(tmAnalog1.IsManuallySet,     $"{tmAnalog1.TmAddr} is manually set");
+    Log.Condition(tmAnalog1.IsManuallyBlocked, $"{tmAnalog1.TmAddr} is manually blocked");
+
+    await _api.ClearTagFlags(tmAnalog1, TmFlags.ManuallyBlocked | TmFlags.ManuallySet);
+    await _api.UpdateAnalog(tmAnalog1);
+    Log.Condition(tmAnalog1 is {IsManuallyBlocked: false, IsManuallySet: false}, 
+                  $"{tmAnalog1.TmAddr} manually blocked and manually set cleared");
   }
 }
