@@ -35,6 +35,12 @@ public static class TestStaticTms
     Log.Condition(!Tms.IsConnectedSimple(cid3),
                         $"TM connect invalid password again {Tms.GetConnectionErrorText(cid3)}");
     Tms.Disconnect(cid3);
+    
+    Tms.SetUserCredentials(username, password);
+    var cid4 = Tms.DeltaConnect(host, tmServer, CommonUtil.TaskName, null, IntPtr.Zero);
+    Log.Condition(Tms.IsConnectedSimple(cid4), "Delta connection established");
+    
+    Tms.Disconnect(cid4);
 
     Tms.ClearUserCredentials();
   }
@@ -53,6 +59,8 @@ public static class TestStaticTms
     TestLinkedRbServer(tmCid, tmServer);
     TestSecurity(tmCid);
     TestUserInfo(tmCid, tmServer);
+    TestLicenseFeature(tmCid);
+    TestTmServerFeatures(tmCid);
 
     Tms.Disconnect(tmCid);
     Tms.ClearUserCredentials();
@@ -113,5 +121,30 @@ public static class TestStaticTms
     
     Tms.Disconnect(rbCid);
     Tms.ClearUserCredentials();
+  }
+
+  private static void TestLicenseFeature(int tmCid)
+  {
+    var hasClient10 = Tms.GetLicenseFeature(tmCid, LicenseFeature.Client10) == 1;
+    Log.Condition(hasClient10, $"Get Licence Feature");
+  }
+  
+  private static void TestTmServerFeatures(int tmCid)
+  {
+    try
+    {
+      var serverFeatures = Tms.GetTmServerFeatures(tmCid);
+      Log.Condition(serverFeatures.AreMicroSeriesEnabled, "Server features");
+      Log.Message($"Comtrade:{serverFeatures.IsComtradeEnabled}");
+      Log.Message($"MicroSeries: {serverFeatures.AreMicroSeriesEnabled}");
+      Log.Message($"ImpArchive: {serverFeatures.IsImpulseArchiveEnabled}");
+      Log.Message($"TOB: {serverFeatures.AreTechObjectsEnabled}");
+    }
+    catch (Exception)
+    {
+      
+      Log.Error($"{nameof(Tms.GetTmServerFeatures)} failed");
+    }
+    
   }
 }
