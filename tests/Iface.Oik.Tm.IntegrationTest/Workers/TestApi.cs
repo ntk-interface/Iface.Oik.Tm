@@ -55,6 +55,9 @@ public class TestApi : IHostedService
 
     await TestTmStatus();
     await TestTmAnalog();
+    Log.Message("=====");
+
+    await TestAck();
   }
 
 
@@ -244,5 +247,20 @@ public class TestApi : IHostedService
     await _api.UpdateAnalog(tmAnalog1);
     Log.Condition(tmAnalog1 is {IsManuallyBlocked: false, IsManuallySet: false}, 
                   $"{tmAnalog1.TmAddr} manually blocked and manually set cleared");
+  }
+
+  public async Task TestAck()
+  {
+    Log.Message("Ack tests");
+    var tmStatus  = new TmStatus(169, 1, 1);
+    var tmAnalog = new TmAnalog(169, 1, 1);
+    
+    await _api.SetStatus(tmStatus.TmAddr.Ch, tmStatus.TmAddr.Rtu, tmStatus.TmAddr.Point, 1);
+    Log.Condition(await _api.AckStatus(tmStatus), $"{tmStatus.TmAddr} acked");
+    await _api.SetStatus(tmStatus.TmAddr.Ch, tmStatus.TmAddr.Rtu, tmStatus.TmAddr.Point, 0);
+
+    await _api.SetAnalog(tmAnalog.TmAddr.Ch, tmAnalog.TmAddr.Rtu, tmAnalog.TmAddr.Point, 6.9f);
+    Log.Condition(await _api.AckAnalog(tmAnalog), $"{tmAnalog.TmAddr} acked");
+    await _api.SetAnalog(tmAnalog.TmAddr.Ch, tmAnalog.TmAddr.Rtu, tmAnalog.TmAddr.Point, 0);
   }
 }
