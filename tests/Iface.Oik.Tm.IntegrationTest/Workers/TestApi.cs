@@ -58,6 +58,9 @@ public class TestApi : IHostedService
     Log.Message("=====");
 
     await TestAck();
+    Log.Message("=====");
+
+    await TestMqtt();
   }
 
 
@@ -193,7 +196,7 @@ public class TestApi : IHostedService
   }
 
 
-  public async Task TestTmAnalog()
+  private async Task TestTmAnalog()
   {
     Log.Message("TmAnalog tests");
     var tmAnalog1 = new TmAnalog(169, 1, 1);
@@ -249,7 +252,7 @@ public class TestApi : IHostedService
                   $"{tmAnalog1.TmAddr} manually blocked and manually set cleared");
   }
 
-  public async Task TestAck()
+  private async Task TestAck()
   {
     Log.Message("Ack tests");
     var tmStatus  = new TmStatus(169, 1, 1);
@@ -262,5 +265,23 @@ public class TestApi : IHostedService
     await _api.SetAnalog(tmAnalog.TmAddr.Ch, tmAnalog.TmAddr.Rtu, tmAnalog.TmAddr.Point, 6.9f);
     Log.Condition(await _api.AckAnalog(tmAnalog), $"{tmAnalog.TmAddr} acked");
     await _api.SetAnalog(tmAnalog.TmAddr.Ch, tmAnalog.TmAddr.Rtu, tmAnalog.TmAddr.Point, 0);
+  }
+
+  private async Task TestMqtt()
+  {
+    Log.Message("MQTT tests");
+    var subscriptionTopic = new MqttSubscriptionTopic("Test", 1);
+    var publishTopic      = new MqttPublishTopic("Test", MqttQoS.ExactlyOnce, 1);
+    var payload            = "Test Payload";
+    
+    Log.Condition(await _api.MqttSubscribe(subscriptionTopic), $"MqttSubscribe: Topic - {subscriptionTopic.Topic}");
+    
+    Log.Condition(await _api.MqttPublish(publishTopic, payload), 
+                  $"MqttPublish string: Topic - {publishTopic.Topic}, Payload - {payload}");
+    
+    Log.Condition(await _api.MqttPublish(publishTopic, payload.To1251Bytes()), 
+                  $"MqttPublish bytes: Topic - {publishTopic.Topic}, Payload - {payload} as bytes");
+    
+    Log.Condition(await _api.MqttUnsubscribe(subscriptionTopic), $"MqttUnsubscribe: Topic - {subscriptionTopic.Topic}");
   }
 }
