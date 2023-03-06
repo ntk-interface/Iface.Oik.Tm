@@ -7,8 +7,9 @@ namespace Iface.Oik.Tm.Interfaces
 {
   public enum MqttKnownTopic
   {
-    [Description("$User/Login")]  UserLogin  = 10,
-    [Description("$User/Logout")] UserLogout = 11,
+    [Description("User/Login")]          UserLogin         = 10,
+    [Description("User/Logout")]         UserLogout        = 11,
+    [Description("User/CustomMessage")]  UserCustomMessage = 12,
 
     [Description("Model/Change/All")]                    ModelChangeAll       = 100,
     [Description("Model/Topology/Change/All")]           TopologyChangeAll    = 110,
@@ -19,11 +20,21 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Model/Placard/PortableGround/Permit")] PortableGroundPermit = 123,
     [Description("Model/Placard/PortableGround/Forbid")] PortableGroundForbid = 124,
 
-    [Description("TmEvent/Add")]    TmEventAdd    = 200,
-    [Description("TmEvent/Ack")]    TmEventAck    = 201,
-    [Description("TmAlert/Add")]    TmAlertAdd    = 250,
-    [Description("TmAlert/Remove")] TmAlertRemove = 251,
-    [Description("TmAlert/Ack")]    TmAlertAck    = 252,
+    [Description("TmEvent/Add")]       TmEventAdd       = 200,
+    [Description("TmEvent/Ack")]       TmEventAck       = 201,
+    [Description("UserActionLog/Add")] UserActionLogAdd = 202,
+    [Description("UserActionLog/Ack")] UserActionLogAck = 203,
+    [Description("TmAlert/Add")]       TmAlertAdd       = 250,
+    [Description("TmAlert/Remove")]    TmAlertRemove    = 251,
+    [Description("TmAlert/Ack")]       TmAlertAck       = 252,
+
+    [Description("Document/Create")]          DocumentCreate          = 301,
+    [Description("Document/UpdateContent")]   DocumentUpdateContent   = 302,
+    [Description("Document/Rename")]          DocumentRename          = 303,
+    [Description("Document/UpdateOwnership")] DocumentUpdateOwnership = 304,
+    [Description("Document/AddTag")]          DocumentAddTag          = 305,
+    [Description("Document/RemoveTag")]       DocumentRemoveTag       = 306,
+    [Description("Document/Delete")]          DocumentDelete          = 307,
   }
 
 
