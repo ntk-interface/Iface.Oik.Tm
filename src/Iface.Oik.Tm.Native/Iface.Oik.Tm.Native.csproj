@@ -8,7 +8,8 @@
     <PropertyGroup Condition="'$(Platform)' == 'x86'">
         <DefineConstants>x86</DefineConstants>
     </PropertyGroup>
-    <ItemGroup Condition="'$(Platform)' == 'x86'">
+    
+	<ItemGroup Condition="'$(Platform)' == 'x86'">
         <None Include="..\..\lib\cfshare.dll" CopyToOutputDirectory="PreserveNewest" />
         <None Include="..\..\lib\tmconn.dll" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
@@ -16,8 +17,8 @@
         <None Include="..\..\lib\libif_cfs.so" CopyToOutputDirectory="PreserveNewest" />
         <None Include="..\..\lib\libif_cfs.dll" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
+	
 	<ItemGroup>
 		<Content Include="runtimes\**" PackagePath="runtimes" Visible="false" />
-		<None Include="runtimes\**" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 </Project>
