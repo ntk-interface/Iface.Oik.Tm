@@ -180,74 +180,75 @@ namespace Iface.Oik.Tm.Api
             return EncodingUtil.Win1251BytesToUtf8(valueBuf);
         }
 
-
-        private static CfTreeNode GetNode(string nodeName,
+		private static string GetValueOrDefault(IReadOnlyDictionary<string, string> dic, string key, string defaultVal = "")
+		{
+			return dic.TryGetValue(key, out string val)	? val : defaultVal;
+		}
+		private static CfTreeNode GetNode(string nodeName,
                                           IReadOnlyDictionary<string, string> properties,
                                           CfTreeNode parent)
         {
-            if (nodeName == "Master")
+			string ProgName = GetValueOrDefault(properties, CfTreeConsts.ProgName);
+			string PipeName = GetValueOrDefault(properties, CfTreeConsts.PipeName);
+			bool NoStart = GetValueOrDefault(properties, CfTreeConsts.NoStart) == "1";
+
+			if (nodeName == "Master")
             {
-                return new MasterNode(properties.ContainsKey("LogFileSize") ? int.Parse(properties["LogFileSize"]) : 0x80000,
-                                      properties.ContainsKey("Отмена запуска") && properties["Отмена запуска"] == "1",
-                                      properties.ContainsKey("Рабочий каталог") ? properties["Рабочий каталог"] : "");
+				return new MasterNode(ProgName, 
+                                      int.Parse(GetValueOrDefault(properties, CfTreeConsts.LogFileSize, "0x80000")),
+									  NoStart,
+									  GetValueOrDefault(properties, CfTreeConsts.WorkDir));
             }
 
-            if (!properties.ContainsKey("ProgName"))
-                throw new Exception("Ошибка чтения конфигурации");
-            var progName = properties["ProgName"];
-
-            switch (progName)
+			switch (ProgName)
             {
-                case "pcsrv":
+                case CfTreeConsts.pcsrv:
                     {
-                        return new TmsNode(properties["ProgName"],
-                                           parent,
-                                           properties.ContainsKey("PipeName") ? properties["PipeName"] : "",
-                                           properties.ContainsKey("Отмена запуска") && properties["Отмена запуска"] == "1",
-                                           !properties.ContainsKey("Пассивный режим") || properties["Пассивный режим"] == "1");
+                        return new TmsNode(ProgName, parent, PipeName, NoStart,
+                                           !(GetValueOrDefault(properties, CfTreeConsts.PassiveMode) == "1"));
                     }
-                case "rbsrv":
+                case CfTreeConsts.rbsrv:
                     {
-                        return new RbsNode(properties["ProgName"],
-                                           parent,
-                                           properties.ContainsKey("PipeName") ? properties["PipeName"] : "",
-                                           properties.ContainsKey("Отмена запуска") && properties["Отмена запуска"] == "1");
+                        return new RbsNode(ProgName, parent, PipeName, NoStart);
                     }
-                case "delta_pc":
+                case CfTreeConsts.delta:
+				case CfTreeConsts.delta_old:
+					{
+                        return new DeltaNode(ProgName,parent,PipeName,NoStart);
+                    }
+                case CfTreeConsts.tmcalc:
+				case CfTreeConsts.tmcalc_old:
+					{
+						return new TmCalcNode(ProgName,parent,PipeName,NoStart);
+                    }
+				case CfTreeConsts.ext_task:
+				case CfTreeConsts.ext_task_old:
+					{
+                        return new ExternalTaskNode(ProgName, parent, PipeName, NoStart,
+													GetValueOrDefault(properties, CfTreeConsts.TaskPath),
+													GetValueOrDefault(properties, CfTreeConsts.TaskArguments),
+													GetValueOrDefault(properties, CfTreeConsts.ConfFilePath)
+												   );
+                    }
+                case CfTreeConsts.toposrv:
+					{
+                        return new ElectricTopologyNode(ProgName,parent,PipeName,NoStart);
+                    }
+                case CfTreeConsts.gensrv:
                     {
-                        return new DeltaNode(properties["ProgName"],
-                                             parent,
-                                             properties.ContainsKey("PipeName") ? properties["PipeName"] : "",
-                                             properties.ContainsKey("Отмена запуска") && properties["Отмена запуска"] == "1");
-                    }
-                case "tmcalc_pc":
-                    {
-                        return new TmCalcNode(properties["ProgName"],
-                                              parent,
-                                              properties.ContainsKey("PipeName") ? properties["PipeName"] : "",
-                                              properties.ContainsKey("Отмена запуска") && properties["Отмена запуска"] == "1");
-                    }
-                case "_ext_pc":
-                    {
-                        return new ExternalTaskNode(properties["ProgName"], parent,
-                                                    properties.ContainsKey("PipeName") ? properties["PipeName"] : "",
-                                                    properties.ContainsKey("Отмена запуска") && properties["Отмена запуска"] == "1",
-                                                    properties.ContainsKey("Args") ? properties["Args"] : "",
-                                                    properties.ContainsKey("Аргументы") ? properties["Аргументы"] : "",
-                                                    properties.ContainsKey("Конф. файл") ? properties["Конф. файл"] : ""
-                                                   );
-                    }
-                case "ElectricTopology":
-                    {
-                        return new ElectricTopologyNode(properties["ProgName"],
-                                                        parent,
-                                                        properties.ContainsKey("PipeName") ? properties["PipeName"] : "",
-                                                        properties.ContainsKey("Отмена запуска") &&
-                                                        properties["Отмена запуска"] == "1");
-                    }
+                        string t = GetValueOrDefault(properties, CfTreeConsts.TaskPath).Trim();
+
+						if (t.Equals("tmserv.dll"))
+						    return new TmsNode(ProgName+" "+t,parent,PipeName,NoStart,
+										       !(GetValueOrDefault(properties, CfTreeConsts.PassiveMode) == "1"));
+                        else
+						if (t.Equals("rbase.dll"))
+						    return new RbsNode(ProgName + " " + t, parent,PipeName,NoStart);
+                        else
+					        return new CfTreeNode(ProgName, parent);
+					}
                 default:
-                    return new CfTreeNode(progName,
-                                          parent);
+                    return new CfTreeNode(ProgName, parent);
             }
         }
 
@@ -256,7 +257,6 @@ namespace Iface.Oik.Tm.Api
         {
             _native.CftNodeFreeTree(handle);
         }
-
 
         public async Task<IntPtr> CreateNewMasterServiceTree(IEnumerable<CfTreeNode> tree)
         {
@@ -295,7 +295,7 @@ namespace Iface.Oik.Tm.Api
 
         private async Task<bool> CreateNodeProperties(IntPtr nodeHandle, CfTreeNode node)
         {
-            if (!await CreateNodePropertyAsync(nodeHandle, "ProgName", node.ProgName)
+            if (!await CreateNodePropertyAsync(nodeHandle, CfTreeConsts.ProgName, node.ProgName)
                    .ConfigureAwait(false))
                 return false;
 
@@ -344,7 +344,7 @@ namespace Iface.Oik.Tm.Api
             var props = (MasterNodeProperties)node.Properties;
 
             if (!await CreateNodePropertyAsync(nodeHandle,
-                                               "Размер лог-файла",
+											   CfTreeConsts.LogFileSize,
                                                props.LogFileSize.ToString())
                    .ConfigureAwait(false))
             {
@@ -352,7 +352,7 @@ namespace Iface.Oik.Tm.Api
             }
 
             if (!await CreateNodePropertyAsync(nodeHandle,
-                                               "Отмена запуска",
+											   CfTreeConsts.NoStart,
                                                Convert.ToInt32(props.NoStart).ToString())
                    .ConfigureAwait(false))
             {
@@ -361,7 +361,7 @@ namespace Iface.Oik.Tm.Api
 
 
             if (!await CreateNodePropertyAsync(nodeHandle,
-                                               "Рабочий каталог",
+											   CfTreeConsts.WorkDir,
                                                props.WorkDir)
                    .ConfigureAwait(false))
             {
@@ -377,7 +377,7 @@ namespace Iface.Oik.Tm.Api
             var props = (ChildNodeProperties)node.Properties;
 
             if (!await CreateNodePropertyAsync(nodeHandle,
-                                               "PipeName",
+											   CfTreeConsts.PipeName,
                                                props.PipeName)
                    .ConfigureAwait(false))
             {
@@ -385,7 +385,7 @@ namespace Iface.Oik.Tm.Api
             }
 
             if (!await CreateNodePropertyAsync(nodeHandle,
-                                               "Отмена запуска",
+											  CfTreeConsts.NoStart,
                                                Convert.ToInt32(props.NoStart).ToString())
                    .ConfigureAwait(false))
             {
@@ -408,7 +408,7 @@ namespace Iface.Oik.Tm.Api
             }
 
             if (!await CreateNodePropertyAsync(nodeHandle,
-                                               "Пассивный режим",
+											   CfTreeConsts.PassiveMode,
                                                Convert.ToInt32(props.PassiveMode).ToString())
                    .ConfigureAwait(false))
             {
@@ -429,7 +429,7 @@ namespace Iface.Oik.Tm.Api
             }
 
             if (!await CreateNodePropertyAsync(nodeHandle,
-                                               "Программа",
+											   CfTreeConsts.TaskPath,
                                                props.TaskPath)
                    .ConfigureAwait(false))
             {
@@ -437,7 +437,7 @@ namespace Iface.Oik.Tm.Api
             }
 
             if (!await CreateNodePropertyAsync(nodeHandle,
-                                               "Программа",
+											   CfTreeConsts.TaskArguments,
                                                props.TaskArguments)
                    .ConfigureAwait(false))
             {
@@ -445,7 +445,7 @@ namespace Iface.Oik.Tm.Api
             }
 
             if (!await CreateNodePropertyAsync(nodeHandle,
-                                               "Программа",
+											   CfTreeConsts.ConfFilePath,
                                                props.ConfigurationFilePath)
                    .ConfigureAwait(false))
             {
