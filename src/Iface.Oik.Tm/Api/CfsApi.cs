@@ -232,7 +232,7 @@ namespace Iface.Oik.Tm.Api
                         return new ExternalTaskNode(properties["ProgName"], parent,
                                                     properties.ContainsKey("PipeName") ? properties["PipeName"] : "",
                                                     properties.ContainsKey("Отмена запуска") && properties["Отмена запуска"] == "1",
-                                                    properties.ContainsKey("Программа") ? properties["Программа"] : "",
+                                                    properties.ContainsKey("Args") ? properties["Args"] : "",
                                                     properties.ContainsKey("Аргументы") ? properties["Аргументы"] : "",
                                                     properties.ContainsKey("Конф. файл") ? properties["Конф. файл"] : ""
                                                    );
