@@ -4,29 +4,28 @@ using System.Collections.Generic;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-	public class CfTreeNode
+	public class MSTreeNode
 	{
-		public ICollection<CfTreeNode> Children { get; set; }
+		public ICollection<MSTreeNode> Children { get; set; }
 		public string ProgName { get; }
-		public IMsNodeProperties Properties { get; protected set; }
-		public CfTreeNode Parent { get; }
+		public MSTreeNodeProperties Properties { get; protected set; }
+		public MSTreeNode Parent { get; }
 
-
-		public CfTreeNode()
+		public MSTreeNode()
 		{
-			Children = new List<CfTreeNode>();
+			Children = new List<MSTreeNode>();
 		}
 
-		public CfTreeNode(string progName,
-						  CfTreeNode parent = null)
+		public MSTreeNode(string progName,
+						  MSTreeNode parent = null)
 		{
 			ProgName = progName;
 			Parent = parent;
-			Children = new List<CfTreeNode>();
+			Children = new List<MSTreeNode>();
 		}
 	}
 
-	public class MasterNode : CfTreeNode
+	public class MasterNode : MSTreeNode
 	{
 		public MasterNode(string progName,
 						  int logFileSize,
@@ -43,10 +42,10 @@ namespace Iface.Oik.Tm.Interfaces
 		}
 	}
 
-	public class TmsNode : CfTreeNode
+	public class TmsNode : MSTreeNode
 	{
 		public TmsNode(string progName,
-					   CfTreeNode parent,
+					   MSTreeNode parent,
 					   string pipeName,
 					   bool noStart = false,
 					   bool passiveMode = false)
@@ -61,10 +60,10 @@ namespace Iface.Oik.Tm.Interfaces
 		}
 	}
 
-	public class RbsNode : CfTreeNode
+	public class RbsNode : MSTreeNode
 	{
 		public RbsNode(string progName,
-					   CfTreeNode parent,
+					   MSTreeNode parent,
 					   string pipeName,
 					   bool noStart = false)
 		  : base(progName, parent)
@@ -77,10 +76,10 @@ namespace Iface.Oik.Tm.Interfaces
 		}
 	}
 
-	public class DeltaNode : CfTreeNode
+	public class DeltaNode : MSTreeNode
 	{
 		public DeltaNode(string progName,
-						 CfTreeNode parent,
+						 MSTreeNode parent,
 						 string pipeName,
 						 bool noStart = false)
 		  : base(progName, parent)
@@ -93,10 +92,10 @@ namespace Iface.Oik.Tm.Interfaces
 		}
 	}
 
-	public class TmCalcNode : CfTreeNode
+	public class TmCalcNode : MSTreeNode
 	{
 		public TmCalcNode(string progName,
-						  CfTreeNode parent,
+						  MSTreeNode parent,
 						  string pipeName,
 						  bool noStart = false)
 		  : base(progName, parent)
@@ -109,10 +108,10 @@ namespace Iface.Oik.Tm.Interfaces
 		}
 	}
 
-	public class ExternalTaskNode : CfTreeNode
+	public class ExternalTaskNode : MSTreeNode
 	{
 		public ExternalTaskNode(string progName,
-								CfTreeNode parent,
+								MSTreeNode parent,
 								string pipeName,
 								bool noStart = false,
 								string taskPath = "",
@@ -131,10 +130,10 @@ namespace Iface.Oik.Tm.Interfaces
 		}
 	}
 
-	public class ElectricTopologyNode : CfTreeNode
+	public class ElectricTopologyNode : MSTreeNode
 	{
 		public ElectricTopologyNode(string progName,
-									CfTreeNode parent,
+									MSTreeNode parent,
 									string pipeName,
 									bool noStart = false)
 		  : base(progName, parent)
@@ -146,22 +145,20 @@ namespace Iface.Oik.Tm.Interfaces
 			};
 		}
 	}
-
-	public interface IMsNodeProperties
+	public class MSTreeNodeProperties
 	{
+		public bool NoStart { get; set; }
 	}
 
-	public class MasterNodeProperties : IMsNodeProperties
+	public class MasterNodeProperties : MSTreeNodeProperties
 	{
 		public int LogFileSize { get; set; }
-		public bool NoStart { get; set; }
 		public string WorkDir { get; set; }
 	}
 
-	public class ChildNodeProperties : IMsNodeProperties
+	public class ChildNodeProperties : MSTreeNodeProperties
 	{
 		public string PipeName { get; set; }
-		public bool NoStart { get; set; }
 	}
 
 	public class TmsNodeProperties : ChildNodeProperties
@@ -175,7 +172,7 @@ namespace Iface.Oik.Tm.Interfaces
 		public string TaskArguments { get; set; }
 		public string ConfigurationFilePath { get; set; }
 	}
-	public static class CfTreeConsts
+	public static class MSTreeConsts
 	{
 		public const string LogFileSize = "LogFileSize";
 		public const string NoStart = "Отмена запуска";

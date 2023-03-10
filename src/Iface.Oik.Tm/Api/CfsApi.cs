@@ -90,16 +90,16 @@ namespace Iface.Oik.Tm.Api
         }
 
 
-        public async Task<List<CfTreeNode>> GetMasterServiceTree(IntPtr rootHandle)
+        public async Task<List<MSTreeNode>> GetMasterServiceTree(IntPtr rootHandle)
         {
             return await GetNodeChildren(rootHandle)
                      .ConfigureAwait(false);
         }
 
 
-        private async Task<List<CfTreeNode>> GetNodeChildren(IntPtr parentHandle, CfTreeNode parent = null)
+        private async Task<List<MSTreeNode>> GetNodeChildren(IntPtr parentHandle, MSTreeNode parent = null)
         {
-            var children = new List<CfTreeNode>();
+            var children = new List<MSTreeNode>();
 
             for (var i = 0; ; i++)
             {
@@ -184,71 +184,71 @@ namespace Iface.Oik.Tm.Api
 		{
 			return dic.TryGetValue(key, out string val)	? val : defaultVal;
 		}
-		private static CfTreeNode GetNode(string nodeName,
+		private static MSTreeNode GetNode(string nodeName,
                                           IReadOnlyDictionary<string, string> properties,
-                                          CfTreeNode parent)
+                                          MSTreeNode parent)
         {
-			string ProgName = GetValueOrDefault(properties, CfTreeConsts.ProgName);
-			string PipeName = GetValueOrDefault(properties, CfTreeConsts.PipeName);
-			bool NoStart = GetValueOrDefault(properties, CfTreeConsts.NoStart) == "1";
+			string ProgName = GetValueOrDefault(properties, MSTreeConsts.ProgName);
+			string PipeName = GetValueOrDefault(properties, MSTreeConsts.PipeName);
+			bool NoStart = GetValueOrDefault(properties, MSTreeConsts.NoStart) == "1";
 
 			if (nodeName == "Master")
             {
 				return new MasterNode(ProgName, 
-                                      int.Parse(GetValueOrDefault(properties, CfTreeConsts.LogFileSize, "0x80000")),
+                                      int.Parse(GetValueOrDefault(properties, MSTreeConsts.LogFileSize, "0x80000")),
 									  NoStart,
-									  GetValueOrDefault(properties, CfTreeConsts.WorkDir));
+									  GetValueOrDefault(properties, MSTreeConsts.WorkDir));
             }
 
 			switch (ProgName)
             {
-                case CfTreeConsts.pcsrv:
+                case MSTreeConsts.pcsrv:
                     {
                         return new TmsNode(ProgName, parent, PipeName, NoStart,
-                                           !(GetValueOrDefault(properties, CfTreeConsts.PassiveMode) == "1"));
+                                           !(GetValueOrDefault(properties, MSTreeConsts.PassiveMode) == "1"));
                     }
-                case CfTreeConsts.rbsrv:
+                case MSTreeConsts.rbsrv:
                     {
                         return new RbsNode(ProgName, parent, PipeName, NoStart);
                     }
-                case CfTreeConsts.delta:
-				case CfTreeConsts.delta_old:
+                case MSTreeConsts.delta:
+				case MSTreeConsts.delta_old:
 					{
                         return new DeltaNode(ProgName,parent,PipeName,NoStart);
                     }
-                case CfTreeConsts.tmcalc:
-				case CfTreeConsts.tmcalc_old:
+                case MSTreeConsts.tmcalc:
+				case MSTreeConsts.tmcalc_old:
 					{
 						return new TmCalcNode(ProgName,parent,PipeName,NoStart);
                     }
-				case CfTreeConsts.ext_task:
-				case CfTreeConsts.ext_task_old:
+				case MSTreeConsts.ext_task:
+				case MSTreeConsts.ext_task_old:
 					{
                         return new ExternalTaskNode(ProgName, parent, PipeName, NoStart,
-													GetValueOrDefault(properties, CfTreeConsts.TaskPath),
-													GetValueOrDefault(properties, CfTreeConsts.TaskArguments),
-													GetValueOrDefault(properties, CfTreeConsts.ConfFilePath)
+													GetValueOrDefault(properties, MSTreeConsts.TaskPath),
+													GetValueOrDefault(properties, MSTreeConsts.TaskArguments),
+													GetValueOrDefault(properties, MSTreeConsts.ConfFilePath)
 												   );
                     }
-                case CfTreeConsts.toposrv:
+                case MSTreeConsts.toposrv:
 					{
                         return new ElectricTopologyNode(ProgName,parent,PipeName,NoStart);
                     }
-                case CfTreeConsts.gensrv:
+                case MSTreeConsts.gensrv:
                     {
-                        string t = GetValueOrDefault(properties, CfTreeConsts.TaskPath).Trim();
+                        string t = GetValueOrDefault(properties, MSTreeConsts.TaskPath).Trim();
 
 						if (t.Equals("tmserv.dll"))
 						    return new TmsNode(ProgName+" "+t,parent,PipeName,NoStart,
-										       !(GetValueOrDefault(properties, CfTreeConsts.PassiveMode) == "1"));
+										       !(GetValueOrDefault(properties, MSTreeConsts.PassiveMode) == "1"));
                         else
 						if (t.Equals("rbase.dll"))
 						    return new RbsNode(ProgName + " " + t, parent,PipeName,NoStart);
                         else
-					        return new CfTreeNode(ProgName, parent);
+					        return new MSTreeNode(ProgName, parent);
 					}
                 default:
-                    return new CfTreeNode(ProgName, parent);
+                    return new MSTreeNode(ProgName, parent);
             }
         }
 
@@ -258,7 +258,7 @@ namespace Iface.Oik.Tm.Api
             _native.CftNodeFreeTree(handle);
         }
 
-        public async Task<IntPtr> CreateNewMasterServiceTree(IEnumerable<CfTreeNode> tree)
+        public async Task<IntPtr> CreateNewMasterServiceTree(IEnumerable<MSTreeNode> tree)
         {
             var newTreeHandle = await Task.Run(() => _native.CftNodeNewTree())
                                           .ConfigureAwait(false);
@@ -274,7 +274,7 @@ namespace Iface.Oik.Tm.Api
         }
 
 
-        private async Task CreateNode(IntPtr parentNodeHandle, CfTreeNode node, int tagId = -1)
+        private async Task CreateNode(IntPtr parentNodeHandle, MSTreeNode node, int tagId = -1)
         {
             var tag = tagId == -1 ? "Master" : $"#{tagId:X3}";
             var nodeHandle = await Task.Run(() => _native.CftNodeInsertDown(parentNodeHandle, tag))
@@ -293,9 +293,9 @@ namespace Iface.Oik.Tm.Api
         }
 
 
-        private async Task<bool> CreateNodeProperties(IntPtr nodeHandle, CfTreeNode node)
+        private async Task<bool> CreateNodeProperties(IntPtr nodeHandle, MSTreeNode node)
         {
-            if (!await CreateNodePropertyAsync(nodeHandle, CfTreeConsts.ProgName, node.ProgName)
+            if (!await CreateNodePropertyAsync(nodeHandle, MSTreeConsts.ProgName, node.ProgName)
                    .ConfigureAwait(false))
                 return false;
 
@@ -339,12 +339,12 @@ namespace Iface.Oik.Tm.Api
         }
 
 
-        private async Task<bool> CreateMasterNodeProperties(IntPtr nodeHandle, CfTreeNode node)
+        private async Task<bool> CreateMasterNodeProperties(IntPtr nodeHandle, MSTreeNode node)
         {
             var props = (MasterNodeProperties)node.Properties;
 
             if (!await CreateNodePropertyAsync(nodeHandle,
-											   CfTreeConsts.LogFileSize,
+											   MSTreeConsts.LogFileSize,
                                                props.LogFileSize.ToString())
                    .ConfigureAwait(false))
             {
@@ -352,7 +352,7 @@ namespace Iface.Oik.Tm.Api
             }
 
             if (!await CreateNodePropertyAsync(nodeHandle,
-											   CfTreeConsts.NoStart,
+											   MSTreeConsts.NoStart,
                                                Convert.ToInt32(props.NoStart).ToString())
                    .ConfigureAwait(false))
             {
@@ -361,7 +361,7 @@ namespace Iface.Oik.Tm.Api
 
 
             if (!await CreateNodePropertyAsync(nodeHandle,
-											   CfTreeConsts.WorkDir,
+											   MSTreeConsts.WorkDir,
                                                props.WorkDir)
                    .ConfigureAwait(false))
             {
@@ -372,12 +372,12 @@ namespace Iface.Oik.Tm.Api
         }
 
 
-        private async Task<bool> CreateChildNodeProperties(IntPtr nodeHandle, CfTreeNode node)
+        private async Task<bool> CreateChildNodeProperties(IntPtr nodeHandle, MSTreeNode node)
         {
             var props = (ChildNodeProperties)node.Properties;
 
             if (!await CreateNodePropertyAsync(nodeHandle,
-											   CfTreeConsts.PipeName,
+											   MSTreeConsts.PipeName,
                                                props.PipeName)
                    .ConfigureAwait(false))
             {
@@ -385,7 +385,7 @@ namespace Iface.Oik.Tm.Api
             }
 
             if (!await CreateNodePropertyAsync(nodeHandle,
-											  CfTreeConsts.NoStart,
+											  MSTreeConsts.NoStart,
                                                Convert.ToInt32(props.NoStart).ToString())
                    .ConfigureAwait(false))
             {
@@ -397,7 +397,7 @@ namespace Iface.Oik.Tm.Api
         }
 
 
-        private async Task<bool> CreateTmsNodeProperties(IntPtr nodeHandle, CfTreeNode node)
+        private async Task<bool> CreateTmsNodeProperties(IntPtr nodeHandle, MSTreeNode node)
         {
             var props = (TmsNodeProperties)node.Properties;
 
@@ -408,7 +408,7 @@ namespace Iface.Oik.Tm.Api
             }
 
             if (!await CreateNodePropertyAsync(nodeHandle,
-											   CfTreeConsts.PassiveMode,
+											   MSTreeConsts.PassiveMode,
                                                Convert.ToInt32(props.PassiveMode).ToString())
                    .ConfigureAwait(false))
             {
@@ -419,7 +419,7 @@ namespace Iface.Oik.Tm.Api
         }
 
 
-        private async Task<bool> CreateExternalTaskNodeProperties(IntPtr nodeHandle, CfTreeNode node)
+        private async Task<bool> CreateExternalTaskNodeProperties(IntPtr nodeHandle, MSTreeNode node)
         {
             var props = (ExternalTaskNodeProperties)node.Properties;
 
@@ -429,7 +429,7 @@ namespace Iface.Oik.Tm.Api
             }
 
             if (!await CreateNodePropertyAsync(nodeHandle,
-											   CfTreeConsts.TaskPath,
+											   MSTreeConsts.TaskPath,
                                                props.TaskPath)
                    .ConfigureAwait(false))
             {
@@ -437,7 +437,7 @@ namespace Iface.Oik.Tm.Api
             }
 
             if (!await CreateNodePropertyAsync(nodeHandle,
-											   CfTreeConsts.TaskArguments,
+											   MSTreeConsts.TaskArguments,
                                                props.TaskArguments)
                    .ConfigureAwait(false))
             {
@@ -445,7 +445,7 @@ namespace Iface.Oik.Tm.Api
             }
 
             if (!await CreateNodePropertyAsync(nodeHandle,
-											   CfTreeConsts.ConfFilePath,
+											   MSTreeConsts.ConfFilePath,
                                                props.ConfigurationFilePath)
                    .ConfigureAwait(false))
             {

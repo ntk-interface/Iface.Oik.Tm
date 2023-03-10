@@ -334,7 +334,7 @@ namespace Iface.Oik.Tm.Interfaces
 
   public enum LicenseErrorCodes
   {
-    [Description("Неизвестная ошибка при проверке клбча защиты!")]                               Unknown       = -1,
+    [Description("Неизвестная ошибка при проверке ключа защиты!")]                               Unknown       = -1,
     [Description("Не задан порт ключа защиты!")]                                                 NoComm        = 0,
     [Description("Невозможно открыть порт ключа защиты!")]                                       CannotOpenCom = 1,
     [Description("Ключ защиты не обнаружен!")]                                                   NoIButton     = 2,

@@ -15,10 +15,10 @@ namespace Iface.Oik.Tm.Interfaces
     Task<bool> SaveMasterServiceConfiguration(IntPtr treeHandle, string serverName);
 
     
-    Task<List<CfTreeNode>> GetMasterServiceTree(IntPtr rootHandle);
+    Task<List<MSTreeNode>> GetMasterServiceTree(IntPtr rootHandle);
 
     
-    Task<IntPtr> CreateNewMasterServiceTree(IEnumerable<CfTreeNode> tree);
+    Task<IntPtr> CreateNewMasterServiceTree(IEnumerable<MSTreeNode> tree);
 
     
     void FreeMasterServiceConfigurationHandle(IntPtr handle);
