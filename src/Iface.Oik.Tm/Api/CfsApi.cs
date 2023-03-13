@@ -732,13 +732,26 @@ namespace Iface.Oik.Tm.Api
 
             foreach (var threadString in threadsStringLists)
             {
-                var regex = new Regex(@"([0-9]*), (.*?) • ([-+]?[0-9]*) s • ([-+]?[0-9]*\.?[0-9]+) s");
-                var mc = regex.Match(threadString);
-                var id = int.Parse(mc.Groups[1].Value);
-                var name = mc.Groups[2].Value;
-                var upTime = int.Parse(mc.Groups[3].Value);
-                var workTime = float.Parse(mc.Groups[4].Value, CultureInfo.InvariantCulture);
-                tmServerThreadsList.Add(new TmServerThread(id, name, upTime, workTime));
+                // 13.03.2023 переделал на Split для совместимости с серверами 2.x
+                //var regex = new Regex(@"([0-9]*),(.*?) • ([-+]?[0-9]*) s • ([-+]?[0-9]*\.?[0-9]+) s");
+                //var mc = regex.Match(threadString);
+                //var id = int.Parse(mc.Groups[1].Value);
+                //var name = mc.Groups[2].Value;
+                //var upTime = int.Parse(mc.Groups[3].Value);
+                //var workTime = float.Parse(mc.Groups[4].Value, CultureInfo.InvariantCulture);
+                var tokens = threadString.Split(',');
+                if (tokens.Length > 1)
+                {
+                    int.TryParse(tokens[0], out int id);
+                    var tokens2 = tokens[1].Split('•');
+                    if (tokens2.Length > 2)
+                    {
+                        var name = tokens2[0].Trim();
+                        int.TryParse(tokens2[1].Replace('s', ' ').Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out int upTime);
+						float.TryParse(tokens2[2].Replace('s', ' ').Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out float workTime);
+						tmServerThreadsList.Add(new TmServerThread(id, name.Trim(), upTime, workTime));
+                    }
+                }
             }
 
             return tmServerThreadsList;
