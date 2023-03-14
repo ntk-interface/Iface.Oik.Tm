@@ -1088,8 +1088,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
     public const byte   MasterServiceStatusCommand = 0;
     public const byte   StartMasterServiceCommand  = 1;
     public const byte   StopMasterServiceCommand   = 2;
+	public const string DefaultHotStanbyConfFile   = "reserve.cfg";
 
-    public enum CfsIitgk : UInt32
+		public enum CfsIitgk : UInt32
     {
       Avail = 0,
       Exe   = 1,

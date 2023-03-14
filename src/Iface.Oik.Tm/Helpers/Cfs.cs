@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using Iface.Oik.Tm.Interfaces;
@@ -8,106 +9,108 @@ using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Helpers
 {
-  public static class Cfs
-  {
+	public static class Cfs
+	{
 
-    public const string ServerTypeTms = "tms$";
-    
-    public static readonly ITmNative Native = new TmNative();
-    
-    public static void InitializeCfsLibrary()
-    {
-      Native.CfsInitLibrary();
-    }
-    
-    public static void SetUserCredentials(string user,
-                                          string password)
-    {
-      Native.CfsSetUser(user, password);
-    }
+		public const string ServerTypeTms = "tms$";
 
-    public static (IntPtr cfId, string errString, int errorCode) ConnectToCfs(string host)
-    {
-      const int errStringLength = 1000;
-      var       errBuf       = new byte[errStringLength];
-      uint      errCode         = 0;
+		public static readonly ITmNative Native = new TmNative();
 
-      var cfId = 
-        Native.CfsConnect(host, out errCode, ref errBuf, errStringLength);
+		public static void InitializeCfsLibrary()
+		{
+			Native.CfsInitLibrary();
+		}
 
-      if (cfId == IntPtr.Zero)
-      {
-        Console.WriteLine($"Ошибка соединения с мастер-сервисом: {errCode} - {EncodingUtil.Win1251BytesToUtf8(errBuf)}");
-      }
+		public static void SetUserCredentials(string user,
+											  string password)
+		{
+			Native.CfsSetUser(user, password);
+		}
 
-      return (cfId, EncodingUtil.Win1251BytesToUtf8(errBuf), Convert.ToInt32(errCode));
-    }
+		public static (IntPtr cfId, string errString, int errorCode) ConnectToCfs(string host)
+		{
+			const int errStringLength = 1000;
+			var errBuf = new byte[errStringLength];
 
-    public static (IntPtr, CfsDefs.InitializeConnectionResult) InitializeConnection(CfsOptions options)
-    {
-      SetUserCredentials(options.User, options.Password);
+			var cfId =
+			  Native.CfsConnect(host, out uint errCode, ref errBuf, errStringLength);
 
-      var (cfsCid, errString, errorCode) = ConnectToCfs(options.Host);
-      
-      switch (errorCode)
-      {
-        case 0:
-          return (cfsCid, CfsDefs.InitializeConnectionResult.Ok);
-        case 87:
-          Console.WriteLine("Соединение не установлено. " + errString);
-          return (cfsCid, CfsDefs.InitializeConnectionResult.InvalidLoginOrPassword);
-        default:
-          Console.WriteLine("Соединение не установлено. " + errString);
-          return (cfsCid,  CfsDefs.InitializeConnectionResult.NonSpecifiedError);
-      }
+			if (cfId == IntPtr.Zero)
+			{
+				Console.WriteLine($"Ошибка соединения с мастер-сервисом: {errCode} - {EncodingUtil.Win1251BytesToUtf8(errBuf)}");
+			}
 
-      
-    }
-    
-    public static bool IsConnected(IntPtr cfsCid)
-    {
-      return cfsCid != IntPtr.Zero;
-    }
+			return (cfId, EncodingUtil.Win1251BytesToUtf8(errBuf), Convert.ToInt32(errCode));
+		}
 
-    public class CfsOptions
-    {
-      public string Host      { get; set; }
-      public string User      { get; set; }
-      public string Password { get; set; }
-    }
-    
-    // todo надо ли вообще здесь такую реализацию
-    public static TmUserInfo GetUserInfo(IntPtr cfCid,
-                                         string serverName, 
-                                         string serverType)
-    {
-      var nativeUserInfoSize = Marshal.SizeOf(typeof(TmNativeDefs.TExtendedUserInfo));
-      var nativeUserInfoPtr  = Marshal.AllocHGlobal(nativeUserInfoSize);
-      
-      var fetchResult = Native.CfsGetExtendedUserData(cfCid,
-                                                      serverType,
-                                                      serverName,
-                                                      nativeUserInfoPtr,
-                                                      (uint) nativeUserInfoSize);
-      if (fetchResult == 0)
-      {
-        return null;
-      }
+		public static (IntPtr, CfsDefs.InitializeConnectionResult) InitializeConnection(CfsOptions options)
+		{
+			SetUserCredentials(options.User, options.Password);
 
-      var nativeUserInfo = Marshal.PtrToStructure<TmNativeDefs.TExtendedUserInfo>(nativeUserInfoPtr);
+			var (cfsCid, errString, errorCode) = ConnectToCfs(options.Host);
 
-      return new TmUserInfo(nativeUserInfo.UserId,
-                            Encoding.GetEncoding(1251).GetString(nativeUserInfo.UserName).Trim('\0'),
-                            string.Empty, // todo надо ли сделать получать категорию
-                            Encoding.GetEncoding(1251).GetString(nativeUserInfo.KeyId).Trim('\0'),
-                            nativeUserInfo.Group,
-                            nativeUserInfo.Rights);
-    }
+			switch (errorCode)
+			{
+				case 0:
+					return (cfsCid, CfsDefs.InitializeConnectionResult.Ok);
+				case 87:
+					Console.WriteLine("Соединение не установлено. " + errString);
+					return (cfsCid, CfsDefs.InitializeConnectionResult.InvalidLoginOrPassword);
+				default:
+					Console.WriteLine("Соединение не установлено. " + errString);
+					return (cfsCid, CfsDefs.InitializeConnectionResult.NonSpecifiedError);
+			}
+		}
 
+		public static bool IsConnected(IntPtr cfsCid)
+		{
+			return cfsCid != IntPtr.Zero;
+		}
 
-    public static void CloseCfsConnection(IntPtr cfId)
-    {
-      Native.CfsDisconnect(cfId);
-    }
-  }
+		public class CfsOptions
+		{
+			public string Host { get; set; }
+			public string User { get; set; }
+			public string Password { get; set; }
+		}
+
+		// todo надо ли вообще здесь такую реализацию
+		public static TmUserInfo GetUserInfo(IntPtr cfCid,
+											 string serverName,
+											 string serverType)
+		{
+			var nativeUserInfoSize = Marshal.SizeOf(typeof(TmNativeDefs.TExtendedUserInfo));
+			var nativeUserInfoPtr = Marshal.AllocHGlobal(nativeUserInfoSize);
+
+			var fetchResult = Native.CfsGetExtendedUserData(cfCid,
+															serverType,
+															serverName,
+															nativeUserInfoPtr,
+															(uint)nativeUserInfoSize);
+			if (fetchResult == 0)
+			{
+				return null;
+			}
+
+			var nativeUserInfo = Marshal.PtrToStructure<TmNativeDefs.TExtendedUserInfo>(nativeUserInfoPtr);
+
+			return new TmUserInfo(nativeUserInfo.UserId,
+								  Encoding.GetEncoding(1251).GetString(nativeUserInfo.UserName).Trim('\0'),
+								  string.Empty, // todo надо ли сделать получать категорию
+								  Encoding.GetEncoding(1251).GetString(nativeUserInfo.KeyId).Trim('\0'),
+								  nativeUserInfo.Group,
+								  nativeUserInfo.Rights);
+		}
+
+		public static void CloseCfsConnection(IntPtr cfId)
+		{
+			Native.CfsDisconnect(cfId);
+		}
+
+		// Пока задесь, потому что применяется в CfsApi. Но может быть надо оформить более глобально как Extension для словаря
+		public static string GetValueOrDefault(IDictionary<string, string> dic, string key, string defaultVal = "")
+		{
+			return dic.TryGetValue(key, out string val) ? val : defaultVal;
+		}
+	}
 }

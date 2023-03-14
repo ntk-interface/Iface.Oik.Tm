@@ -15,7 +15,7 @@ namespace Iface.Oik.Tm.Interfaces
     Task<bool> SaveMasterServiceConfiguration(IntPtr treeHandle, string serverName);
 
     
-    Task<List<MSTreeNode>> GetMasterServiceTree(IntPtr rootHandle);
+    Task<List<CfTreeNode>> GetCfTree(IntPtr rootHandle);
 
     
     Task<IntPtr> CreateNewMasterServiceTree(IEnumerable<MSTreeNode> tree);
