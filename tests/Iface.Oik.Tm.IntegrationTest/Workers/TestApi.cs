@@ -49,6 +49,9 @@ public class TestApi : IHostedService
 
     await TestRetros();
     Log.Message("=====");
+
+    await TestClasses();
+    Log.Message("=====");
     
     await TestTmTree();
     Log.Message("=====");
@@ -101,6 +104,18 @@ public class TestApi : IHostedService
     retros.ForEach(r => Log.Message($"Retro {r.Name}"));
     
     // TODO проверить получение измерений из ретро
+  }
+
+
+  private async Task TestClasses()
+  {
+    var statusesClasses = await _api.GetStatusesClasses();
+    Log.Condition(statusesClasses.Count > 0, $"Statuses classes count: {statusesClasses.Count}");
+    statusesClasses.ForEach(cl => Log.Message($"Status Class #{cl.Id} - {cl.Name}"));
+    
+    var analogsClasses = await _api.GetAnalogsClasses();
+    Log.Condition(analogsClasses.Count > 0, $"Analogs classes count: {analogsClasses.Count}");
+    analogsClasses.ForEach(cl => Log.Message($"Analog Class #{cl.Id} - {cl.Name}"));
   }
 
 
