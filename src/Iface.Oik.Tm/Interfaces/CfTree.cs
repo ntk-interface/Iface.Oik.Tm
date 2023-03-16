@@ -15,20 +15,20 @@ namespace Iface.Oik.Tm.Interfaces
 		public List<CfTreeNode> Children { get; set; }
 		public CfTreeNode()
 		{
-			Children = new List<CfTreeNode>();
+			//Children = new List<CfTreeNode>();
 		}
 		public CfTreeNode(string nodeName, CfTreeNode parent = null)
 		{
 			Name = nodeName;
 			Parent = parent;
-			Children = new List<CfTreeNode>();
+			//Children = new List<CfTreeNode>();
 		}
 	}
 	public class MSTreeNode
 	{
 		public string ProgName { get; }
 		public MSTreeNode Parent { get; }
-		public List<MSTreeNode> Children { get; set; } = new List<MSTreeNode>();
+		public List<MSTreeNode> Children { get; set; } 
 		public MSTreeNodeProperties Properties { get; protected set; }
 		public MSTreeNode(CfTreeNode cft_node, MSTreeNode parent = null)
 		{
@@ -102,10 +102,16 @@ namespace Iface.Oik.Tm.Interfaces
 			{
 				p.PipeName = pipeName;
 			}
-			foreach (var child in cft_node.Children)
+			if (cft_node.Children != null && cft_node.Children.Count > 0)
 			{
-				Children.Add(new MSTreeNode(child, this));
+				Children = new List<MSTreeNode>();
+				foreach (var child in cft_node.Children)
+				{
+					Children.Add(new MSTreeNode(child, this));
+				}
 			}
+			else
+				Children = null;
 		}
 	}
 
@@ -171,7 +177,7 @@ namespace Iface.Oik.Tm.Interfaces
 		public const string TaskPath = "Args";
 		public const string TaskArguments = "Аргументы";
 		public const string ConfFilePath = "Конф. файл";
-		public const string ifpcore = "ifpcore";
+		public const string portcore = "portcore";
 		public const string master = "_master_.exe";
 		public const string pcsrv = "pcsrv";
 		public const string rbsrv = "rbsrv";
