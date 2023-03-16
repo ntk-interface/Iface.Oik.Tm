@@ -31,28 +31,43 @@ namespace Iface.Oik.Tm.Dto
 
   public class MqttDocumentDto
   {
+    public Guid   Id        { get; set; }
+    public int    DocType   { get; set; }
     public int    Ownership { get; set; }
     public string Name      { get; set; }
   }
 
 
-  public class MqttPlacardAddedDto
+  public class MqttDocumentWithNewNameDto : MqttDocumentDto
+  {
+    public string NewName { get; set; }
+  }
+
+
+  public class MqttDocumentWithTagDto : MqttDocumentDto
+  {
+    public string Tag { get; set; }
+  }
+
+
+  public abstract class MqttPlacardDto
   {
     public Guid   Id          { get; set; }
     public int    TypeId      { get; set; }
     public string TypeName    { get; set; }
     public Guid   EquipmentId { get; set; }
+  }
+
+
+  public class MqttPlacardAddedDto : MqttPlacardDto
+  {
     public int?   Index       { get; set; }
     public string Comment     { get; set; }
   }
 
 
-  public class MqttPlacardEditedDto
+  public class MqttPlacardEditedDto : MqttPlacardDto
   {
-    public Guid     Id          { get; set; }
-    public int      TypeId      { get; set; }
-    public string   TypeName    { get; set; }
-    public Guid     EquipmentId { get; set; }
     public DateTime CreatedTime { get; set; }
     public int?     Index       { get; set; }
     public string   Comment     { get; set; }
@@ -61,12 +76,8 @@ namespace Iface.Oik.Tm.Dto
   }
 
 
-  public class MqttPlacardRemovedDto
+  public class MqttPlacardRemovedDto : MqttPlacardDto
   {
-    public Guid     Id          { get; set; }
-    public int      TypeId      { get; set; }
-    public string   TypeName    { get; set; }
-    public Guid     EquipmentId { get; set; }
     public DateTime CreatedTime { get; set; }
   }
 
