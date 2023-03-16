@@ -107,10 +107,5 @@ namespace Iface.Oik.Tm.Helpers
 			Native.CfsDisconnect(cfId);
 		}
 
-		// Пока задесь, потому что применяется в CfsApi. Но может быть надо оформить более глобально как Extension для словаря
-		public static string GetValueOrDefault(IDictionary<string, string> dic, string key, string defaultVal = "")
-		{
-			return dic.TryGetValue(key, out string val) ? val : defaultVal;
-		}
 	}
 }

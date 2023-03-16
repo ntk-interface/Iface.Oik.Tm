@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
 using Iface.Oik.Tm.Helpers;
+using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
@@ -10,8 +11,8 @@ namespace Iface.Oik.Tm.Interfaces
 	{
 		public string Name { get; }
 		public CfTreeNode Parent { get; }
-		public IDictionary<string, string> CfProperties { get; set; }
-		public ICollection<CfTreeNode> Children { get; set; }
+		public Dictionary<string, string> CfProperties { get; set; }
+		public List<CfTreeNode> Children { get; set; }
 		public CfTreeNode()
 		{
 			Children = new List<CfTreeNode>();
@@ -27,76 +28,81 @@ namespace Iface.Oik.Tm.Interfaces
 	{
 		public string ProgName { get; }
 		public MSTreeNode Parent { get; }
-		public ICollection<MSTreeNode> Children { get; set; } = new List<MSTreeNode>();
+		public List<MSTreeNode> Children { get; set; } = new List<MSTreeNode>();
 		public MSTreeNodeProperties Properties { get; protected set; }
 		public MSTreeNode(CfTreeNode cft_node, MSTreeNode parent = null)
 		{
 			Parent = parent;
-			ProgName = Cfs.GetValueOrDefault(cft_node.CfProperties, MSTreeConsts.ProgName);
-			string pipeName = Cfs.GetValueOrDefault(cft_node.CfProperties, MSTreeConsts.PipeName);
-			bool noStart = Cfs.GetValueOrDefault(cft_node.CfProperties, MSTreeConsts.NoStart) == "1";
+			ProgName = cft_node.CfProperties.GetValueOrDefault( MSTreeConsts.ProgName, String.Empty);
+			string pipeName = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.PipeName, String.Empty);
+			bool noStart = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.NoStart, "0").Equals("1");
 
-			Properties = new MSTreeNodeProperties();
+			Properties = null;
 			if (cft_node.Name == "Master")
 			{
 				Properties = new MasterNodeProperties
 				{
-					LogFileSize = int.Parse(Cfs.GetValueOrDefault(cft_node.CfProperties, MSTreeConsts.LogFileSize, "0x80000")),
-					WorkDir = Cfs.GetValueOrDefault(cft_node.CfProperties, MSTreeConsts.WorkDir)
+					LogFileSize = int.Parse(cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.LogFileSize, "0x80000")),
+					WorkDir = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.WorkDir, String.Empty)
 				};
 			}
-			switch (ProgName)
+			else
 			{
-				case MSTreeConsts.pcsrv:
-					Properties = new NewTmsNodeProperties
-					{
-						// Пассивный режим только для TMS под Ifpcore
-						PassiveMode = !(Cfs.GetValueOrDefault(cft_node.CfProperties, MSTreeConsts.PassiveMode) == "1"),
-					};
-					break;
-				case MSTreeConsts.rbsrv:
-					Properties = new RbsNodeProperties();
-					break;
-				case MSTreeConsts.delta:
-				case MSTreeConsts.delta_old:
-				case MSTreeConsts.tmcalc:
-				case MSTreeConsts.tmcalc_old:
-				case MSTreeConsts.toposrv:
-					Properties = new ChildNodeProperties();
-					break;
-				case MSTreeConsts.ext_task:
-				case MSTreeConsts.ext_task_old:
-					Properties = new ExternalTaskNodeProperties
-					{
-						TaskPath = Cfs.GetValueOrDefault(cft_node.CfProperties, MSTreeConsts.TaskPath),
-						TaskArguments = Cfs.GetValueOrDefault(cft_node.CfProperties, MSTreeConsts.TaskArguments),
-						ConfigurationFilePath = Cfs.GetValueOrDefault(cft_node.CfProperties, MSTreeConsts.ConfFilePath)
-					};
-					break;
-				case MSTreeConsts.gensrv:
-					string t = Cfs.GetValueOrDefault(cft_node.CfProperties, MSTreeConsts.TaskPath).Trim();
+				switch (ProgName)
+				{
+					case MSTreeConsts.pcsrv:
+						Properties = new NewTmsNodeProperties
+						{
+							// Пассивный режим только для TMS под Ifpcore
+							PassiveMode = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.PassiveMode, "1").Equals("1"),
+						};
+						break;
+					case MSTreeConsts.rbsrv:
+						Properties = new RbsNodeProperties();
+						break;
+					case MSTreeConsts.delta:
+					case MSTreeConsts.delta_old:
+					case MSTreeConsts.tmcalc:
+					case MSTreeConsts.tmcalc_old:
+					case MSTreeConsts.toposrv:
+						Properties = new ChildNodeProperties();
+						break;
+					case MSTreeConsts.ext_task:
+					case MSTreeConsts.ext_task_old:
+						Properties = new ExternalTaskNodeProperties
+						{
+							TaskPath = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.TaskPath, String.Empty),
+							TaskArguments = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.TaskArguments, String.Empty),
+							ConfigurationFilePath = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.ConfFilePath, String.Empty)
+						};
+						break;
+					case MSTreeConsts.gensrv:
+						string t = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.TaskPath, String.Empty).Trim();
 
-					if (t.Equals("tmserv.dll"))
-					{
-						ProgName = t;
-						Properties = new ReservedNodeProperties();
-					}
-					else
-					{
-						if (t.Equals("rbase.dll"))
+						if (t.Equals("tmserv.dll"))
 						{
 							ProgName = t;
 							Properties = new ReservedNodeProperties();
 						}
-					}
-					break;
+						else
+						{
+							if (t.Equals("rbase.dll"))
+							{
+								ProgName = t;
+								Properties = new ReservedNodeProperties();
+							}
+						}
+						break;
+				}
 			}
+			if (Properties == null)
+				Properties = new MSTreeNodeProperties();
 			Properties.NoStart = noStart;
-			if(Properties is ChildNodeProperties p)
+			if (Properties is ChildNodeProperties p)
 			{
 				p.PipeName = pipeName;
 			}
-			foreach(var child in cft_node.Children)
+			foreach (var child in cft_node.Children)
 			{
 				Children.Add(new MSTreeNode(child, this));
 			}
@@ -122,13 +128,13 @@ namespace Iface.Oik.Tm.Interfaces
 	}
 	public class RbsNodeProperties : ReservedNodeProperties
 	{
-		public string PublicDocumentsPath { get; set; }
-		public string PostgresBin { get; set; }
-		public string PostgresData { get; set; }
+		public string DOC_Path { get; set; }
+		public string BinPath { get; set; }
+		public string DataPath { get; set; }
 		public short PostgresPort { get; set; }
-		public string RbaseData { get; set; }
-		public string JournalsConnString { get; set; }
-		public string DataLoggerConnString { get; set; }
+		public string RBF_Directory { get; set; }
+		public string JournalSQLCS { get; set; }
+		public string DTMX_SQLCS { get; set; }
 	}
 	public class ExternalTaskNodeProperties : ChildNodeProperties
 	{
@@ -138,13 +144,13 @@ namespace Iface.Oik.Tm.Interfaces
 	}
 	public class ReservedNodeProperties : ChildNodeProperties
 	{
-		public ReserveRoles Role { get; set; } = ReserveRoles.None;
+		public ReserveRoles Type { get; set; } = ReserveRoles.None;
 		public string BindAddr { get; set; } = "";
 		public string Addr { get; set; } = "";
 		public short Port { get; set; }
 		public short BPort { get; set; }
-		public int DisconnectTimeout { get; set; }
-		public int ReactivationTimeout { get; set; }
+		public short AbortTO { get; set; }
+		public short RetakeTO { get; set; }
 		public bool CopyConfig { get; set; }
 		public bool StopInactive { get; set; }
 	}
@@ -166,6 +172,7 @@ namespace Iface.Oik.Tm.Interfaces
 		public const string TaskArguments = "Аргументы";
 		public const string ConfFilePath = "Конф. файл";
 		public const string ifpcore = "ifpcore";
+		public const string master = "_master_.exe";
 		public const string pcsrv = "pcsrv";
 		public const string rbsrv = "rbsrv";
 		public const string pcsrv_old = "tmserv.dll";

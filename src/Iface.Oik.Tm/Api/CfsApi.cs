@@ -62,6 +62,83 @@ namespace Iface.Oik.Tm.Api
         {
             return await OpenConfigurationTree(TmNativeDefs.DefaultMasterConfFile).ConfigureAwait(false);
 		}
+		public async Task<(MSTreeNode, DateTime)> LoadFullMSTree()
+		{
+			var (handle, time) = await OpenConfigurationTree(TmNativeDefs.DefaultMasterConfFile).ConfigureAwait(false);
+			var tree = await GetCfTree(handle).ConfigureAwait(false);
+			FreeConfigurationTreeHandle(handle);
+			// считаем что дерево мастер-сервиса всегда начинается с одного элемента
+			MSTreeNode msRoot = new MSTreeNode(tree.First());
+
+			var (res_handle, _) = await OpenConfigurationTree(TmNativeDefs.DefaultHotStanbyConfFile).ConfigureAwait(false);
+			var res_tree = await GetCfTree(res_handle).ConfigureAwait(false);
+			FreeConfigurationTreeHandle(res_handle);
+
+			// перебираем элементы на втором уровне после мастер-сервиса
+			foreach (var node in msRoot.Children)
+			{
+				// ищем резервирование
+				if (node.Properties is ReservedNodeProperties rn_p)
+				{
+					foreach (var item in res_tree)
+					{
+						var tokens = item.Name.Split(':');
+						if ((tokens.Length == 2) && tokens[1].Equals(rn_p.PipeName))
+						{// нашли правильный сервер по PipeName, заполняем параметры резервирования
+							short s;
+							if (short.TryParse(item.CfProperties.GetValueOrDefault(nameof(rn_p.Type), "0"), out s))
+							{
+								switch (s)
+								{
+									case 0: rn_p.Type = ReserveRoles.None; break;
+									case 1: rn_p.Type = ReserveRoles.Master; break;
+									case 2: rn_p.Type = ReserveRoles.Standby; break;
+								}
+							}
+							rn_p.BindAddr = item.CfProperties.GetValueOrDefault(nameof(rn_p.BindAddr),"0");
+							rn_p.Addr = item.CfProperties.GetValueOrDefault(nameof(rn_p.Addr),"0");
+							if (short.TryParse(item.CfProperties.GetValueOrDefault(nameof(rn_p.Port), "0"), out s))
+								rn_p.Port = s;
+							if (short.TryParse(item.CfProperties.GetValueOrDefault(nameof(rn_p.BPort), "0"), out s))
+								rn_p.BPort = s;
+							if (short.TryParse(item.CfProperties.GetValueOrDefault(nameof(rn_p.AbortTO), "20"), out s))
+								rn_p.AbortTO = s;
+							if (short.TryParse(item.CfProperties.GetValueOrDefault(nameof(rn_p.RetakeTO), "20"), out s))
+								rn_p.RetakeTO = s;
+							rn_p.CopyConfig = item.CfProperties.GetValueOrDefault(nameof(rn_p.CopyConfig), "0").Equals("1");
+							rn_p.StopInactive = item.CfProperties.GetValueOrDefault(nameof(rn_p.StopInactive), "1").Equals("1");
+							break;
+						}
+					}
+				}
+				// ищем сервера БД
+				if (node.Properties is RbsNodeProperties rbs_p)
+				{
+					if (node.ProgName.Equals(MSTreeConsts.rbsrv) || node.ProgName.Equals(MSTreeConsts.rbsrv_old))
+					{
+						//< Parameters RBF_Directory = "xx" />
+						//< ClientParms DOC_Path = "xx" JournalSQLCS = "xx" DTMX_SQLCS = "xx" />
+						//< PGParms BinPath = "xx" DataPath = "xx" />
+						var (rbs_handle, _) = await OpenConfigurationTree($"RB_SERVER\\{rbs_p.PipeName}\\server.cfg").ConfigureAwait(false);
+						var rbs_tree = await GetCfTree(rbs_handle).ConfigureAwait(false);
+						FreeConfigurationTreeHandle(rbs_handle);
+						if (rbs_tree != null)
+						{
+							foreach (var item in rbs_tree)
+							{
+								rbs_p.DOC_Path = item.CfProperties.GetValueOrDefault(nameof(rbs_p.DOC_Path), "");
+								rbs_p.BinPath = item.CfProperties.GetValueOrDefault(nameof(rbs_p.BinPath), "");
+								rbs_p.DataPath = item.CfProperties.GetValueOrDefault(nameof(rbs_p.DataPath),"");
+								rbs_p.RBF_Directory = item.CfProperties.GetValueOrDefault(nameof(rbs_p.RBF_Directory), "");
+								rbs_p.JournalSQLCS = item.CfProperties.GetValueOrDefault(nameof(rbs_p.JournalSQLCS), "");
+								rbs_p.DTMX_SQLCS = item.CfProperties.GetValueOrDefault(nameof(rbs_p.DTMX_SQLCS), "");
+							}
+						}
+					}
+				}
+			}
+			return (msRoot, time);
+		}
 		public async Task<bool> SaveMasterServiceConfiguration(IntPtr treeHandle, string serverName)
         {
             var fileTime = new TmNativeDefs.FileTime();

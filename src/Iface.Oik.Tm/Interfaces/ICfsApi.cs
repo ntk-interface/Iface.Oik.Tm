@@ -1,91 +1,92 @@
+using Iface.Oik.Tm.Native.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public interface ICfsApi
-  {
-    void SetCfIdAndHost(IntPtr cfId, string host);
+	public interface ICfsApi
+	{
+		void SetCfIdAndHost(IntPtr cfId, string host);
 
-    
-    Task<(IntPtr, DateTime)> OpenMasterServiceConfiguration();
+		Task<(IntPtr, DateTime)> OpenConfigurationTree(string FileName);
 
-    
-    Task<bool> SaveMasterServiceConfiguration(IntPtr treeHandle, string serverName);
+		Task<(IntPtr, DateTime)> OpenMasterServiceConfiguration();
+		Task<(MSTreeNode, DateTime)> LoadFullMSTree();
+		Task<bool> SaveMasterServiceConfiguration(IntPtr treeHandle, string serverName);
 
-    
-    Task<List<CfTreeNode>> GetCfTree(IntPtr rootHandle);
+		Task<List<CfTreeNode>> GetCfTree(IntPtr rootHandle);
 
-    
-    Task<IntPtr> CreateNewMasterServiceTree(IEnumerable<MSTreeNode> tree);
+		Task<IntPtr> CreateNewMasterServiceTree(IEnumerable<MSTreeNode> tree);
 
-    
-    void FreeMasterServiceConfigurationHandle(IntPtr handle);
+		void FreeConfigurationTreeHandle(IntPtr handle);
 
-    
-    Task<CfsDefs.SoftwareTypes> GetSoftwareType();
-
-    
-    Task<CfsDefs.MasterServiceStatus> MasterServiceStatus();
-
-    
-    Task StartMasterService();
-
-    
-    Task StopMasterService();
-
-    
-    Task<bool> IsConnected();
+		void FreeMasterServiceConfigurationHandle(IntPtr handle);
 
 
-    Task<IReadOnlyCollection<TmServer>> GetTmServersTree();
-    
-    
-    Task<IReadOnlyCollection<TmServerLogRecord>> GetTmServersLog();
-    
-    
-    Task<IReadOnlyCollection<TmServerThread>> GetTmServersThreads();
-    
 
-    Task RegisterTmServerTracer(ITmServerTraceable traceTarget, bool debug, int pause);
-
-    
-    Task StopTmServerTrace();
-    
-
-    Task<IReadOnlyCollection<TmServerLogRecord>> TraceTmServerLogRecords();
+		Task<CfsDefs.SoftwareTypes> GetSoftwareType();
 
 
-    Task<TmInstallationInfo> GetTmInstallationInfo();
+		Task<CfsDefs.MasterServiceStatus> MasterServiceStatus();
 
 
-    Task<TmLicenseInfo> GetLicenseInfo();
+		Task StartMasterService();
 
 
-    Task<IReadOnlyCollection<LicenseKeyType>> GetAvailableLicenseKeyTypes();
-
-      
-    Task SetLicenseKeyCom(TmLicenseKey newLicenseKey);
+		Task StopMasterService();
 
 
-    Task<IReadOnlyCollection<string>> GetFilesInDirectory(string path);
+		Task<bool> IsConnected();
 
 
-    Task PutFile(string localFilePath,
-                 string remoteFilePath,
-                 uint   timeout);
-
-    
-    Task DeleteFile(string remoteFilePath);
+		Task<IReadOnlyCollection<TmServer>> GetTmServersTree();
 
 
-    Task<IReadOnlyCollection<string>> GetInstalledLicenseKeyFiles();
+		Task<IReadOnlyCollection<TmServerLogRecord>> GetTmServersLog();
 
 
-    Task PutLicenseKeyFile(string filePath);
+		Task<IReadOnlyCollection<TmServerThread>> GetTmServersThreads();
 
 
-    Task DeleteLicenseKeyFile(string fileName);
-  }
+		Task RegisterTmServerTracer(ITmServerTraceable traceTarget, bool debug, int pause);
+
+
+		Task StopTmServerTrace();
+
+
+		Task<IReadOnlyCollection<TmServerLogRecord>> TraceTmServerLogRecords();
+
+
+		Task<TmInstallationInfo> GetTmInstallationInfo();
+
+
+		Task<TmLicenseInfo> GetLicenseInfo();
+
+
+		Task<IReadOnlyCollection<LicenseKeyType>> GetAvailableLicenseKeyTypes();
+
+
+		Task SetLicenseKeyCom(TmLicenseKey newLicenseKey);
+
+
+		Task<IReadOnlyCollection<string>> GetFilesInDirectory(string path);
+
+
+		Task PutFile(string localFilePath,
+					 string remoteFilePath,
+					 uint timeout);
+
+
+		Task DeleteFile(string remoteFilePath);
+
+
+		Task<IReadOnlyCollection<string>> GetInstalledLicenseKeyFiles();
+
+
+		Task PutLicenseKeyFile(string filePath);
+
+
+		Task DeleteLicenseKeyFile(string fileName);
+	}
 }
