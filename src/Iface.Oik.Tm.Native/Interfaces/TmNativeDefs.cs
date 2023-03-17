@@ -688,7 +688,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public TMXTime        Xt;
     }
 
-    
+
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct TTimedValueAndFlagsUnion
     {
@@ -1088,9 +1088,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
     public const byte   MasterServiceStatusCommand = 0;
     public const byte   StartMasterServiceCommand  = 1;
     public const byte   StopMasterServiceCommand   = 2;
-	public const string DefaultHotStanbyConfFile   = "reserve.cfg";
+    public const string DefaultHotStanbyConfFile   = "reserve.cfg";
 
-		public enum CfsIitgk : UInt32
+    public enum CfsIitgk : UInt32
     {
       Avail = 0,
       Exe   = 1,
@@ -1126,6 +1126,35 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 12)]
       public UInt32[] Reserved;
+    }
+
+
+    public enum SLogTag
+    {
+      Type            = '\x1',
+      Body            = '\x2',
+      User            = '\x3',
+      Time            = '\x4',
+      Index           = '\x5',
+      Source          = '\x6',
+      ThreadId        = '\x7',
+      SessionId       = '\x8',
+      FileIndex       = '\x9',
+      InformationType = '\xa'
+    }
+
+
+    public enum SLogType : UInt32
+    {
+      Security      = 0,
+      Administrator = 1
+    }
+
+
+    public enum SLogDirection : UInt32
+    {
+      FromStart = 0x00_00_00_00,
+      FromEnd   = 0x7f_ff_ff_ff
     }
 
     #endregion

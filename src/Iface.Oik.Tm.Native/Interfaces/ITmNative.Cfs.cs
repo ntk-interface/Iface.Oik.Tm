@@ -321,8 +321,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
                            out UInt32 errCode,
                            ref byte[] errBuf,
                            UInt32     maxErrs);
-    
-    
+
+
     IntPtr CfsConfFileOpen(string                    serverName,
                            string                    fileName,
                            uint                      timeout,
@@ -330,5 +330,28 @@ namespace Iface.Oik.Tm.Native.Interfaces
                            out uint                  errCode,
                            ref byte[]                errString,
                            uint                      maxErrs);
+
+
+    ulong СfsSLogOpen(IntPtr     connId,
+                      uint       logType,
+                      uint       fileStartIndex,
+                      uint       direction,
+                      out uint   errCode,
+                      ref byte[] errBuf,
+                      uint       maxErrs);
+
+
+    IntPtr CfsSLogReadRecords(IntPtr     connId,
+                              ulong      sLogHandle,
+                              out uint   errCode,
+                              ref byte[] errBuf,
+                              uint       maxErrs);
+
+
+    bool СfsSLogClose(IntPtr     connId,
+                      ulong      sLogHandle,
+                      out uint   errCode,
+                      ref byte[] errBuf,
+                      uint       maxErrs);
   }
 }

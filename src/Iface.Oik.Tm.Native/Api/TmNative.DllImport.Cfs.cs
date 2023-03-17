@@ -387,8 +387,8 @@ namespace Iface.Oik.Tm.Native.Api
                                                 out                              UInt32 errCode,
                                                 [In, Out]                        byte[] errBuf,
                                                 UInt32                                  maxErrs);
-    
-    
+
+
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern IntPtr cfsConfFileOpen([MarshalAs(UnmanagedType.LPStr)] string serverName,
                                                 [MarshalAs(UnmanagedType.LPStr)] string fileName,
@@ -397,5 +397,31 @@ namespace Iface.Oik.Tm.Native.Api
                                                 out           UInt32                    errCode,
                                                 [In, Out]     byte[]                    errBuf,
                                                 UInt32                                  maxErrs);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern UInt64 cfsSlogOpen(IntPtr           connId,
+                                            UInt32           logType,
+                                            UInt32           fileStartIndex,
+                                            UInt32           direction,
+                                            out       UInt32 errCode,
+                                            [In, Out] byte[] errBuf,
+                                            UInt32           maxErrs);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+    public static extern IntPtr cfsSlogReadRecords(IntPtr           connId,
+                                                   UInt64           sLogHandle,
+                                                   out       UInt32 errCode,
+                                                   [In, Out] byte[] errBuf,
+                                                   UInt32           maxErrs);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern Boolean cfsSlogClose(IntPtr           connId,
+                                              UInt64           sLogHandle,
+                                              out       UInt32 errCode,
+                                              [In, Out] byte[] errBuf,
+                                              UInt32           maxErrs);
   }
 }
