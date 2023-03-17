@@ -9,7 +9,7 @@ namespace Iface.Oik.Tm.Interfaces
 	{
 		void SetCfIdAndHost(IntPtr cfId, string host);
 
-		Task<(IntPtr, DateTime)> OpenConfigurationTree(string FileName);
+		Task<(IntPtr, DateTime)> OpenConfigurationTree(string fileName);
 
 		Task<(IntPtr, DateTime)> OpenMasterServiceConfiguration();
 		Task<(MSTreeNode, DateTime)> LoadFullMSTree();
@@ -44,6 +44,9 @@ namespace Iface.Oik.Tm.Interfaces
 
 
 		Task<IReadOnlyCollection<TmServerLogRecord>> GetTmServersLog();
+
+
+		Task<IReadOnlyCollection<TmServerLogRecord>> GetTmServersLog(int maxRecords, DateTime? startTime, DateTime? endTime);
 
 
 		Task<IReadOnlyCollection<TmServerThread>> GetTmServersThreads();
