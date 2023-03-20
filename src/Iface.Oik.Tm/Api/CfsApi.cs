@@ -1296,8 +1296,8 @@ namespace Iface.Oik.Tm.Api
         {
             return await GetSecurityLog(0,
                                         readDirection,
-                                        readDirection == SLogReadDirection.FromEnd ? SLogIndex.Last : SLogIndex.First,
-                                        null, null).ConfigureAwait(false);
+                                        readDirection == SLogReadDirection.FromEnd ? SLogIndex.Last : SLogIndex.First)
+                       .ConfigureAwait(false);
         }
         
         
@@ -1305,27 +1305,27 @@ namespace Iface.Oik.Tm.Api
         {
             return await GetAdministratorLog(0,
                                         readDirection,
-                                        readDirection == SLogReadDirection.FromEnd ? SLogIndex.Last : SLogIndex.First,
-                                        null, null).ConfigureAwait(false);
+                                        readDirection == SLogReadDirection.FromEnd ? SLogIndex.Last : SLogIndex.First)
+                       .ConfigureAwait(false);
         }
         
         
-        public async Task<IReadOnlyCollection<SLogRecord>> GetSecurityLog(int               maxRecords,
-                                                                          SLogReadDirection readDirection,
-                                                                          uint      startIndex,
-                                                                          DateTime? startTime,
-                                                                          DateTime? endTime)
+        public async Task<IReadOnlyCollection<SLogRecord>> GetSecurityLog(int maxRecords,
+                                                                          SLogReadDirection readDirection = SLogReadDirection.FromEnd, 
+                                                                          uint              startIndex = SLogIndex.Last,
+                                                                          DateTime?         startTime = null, 
+                                                                          DateTime?         endTime = null )
         {
             return await GetSLog(SLogType.Security, readDirection, startIndex, maxRecords, startTime, endTime)
                        .ConfigureAwait(false);
         }
         
         
-        public async Task<IReadOnlyCollection<SLogRecord>> GetAdministratorLog(int               maxRecords,
-                                                                          SLogReadDirection readDirection,
-                                                                          uint              startIndex,
-                                                                          DateTime?         startTime,
-                                                                          DateTime?         endTime)
+        public async Task<IReadOnlyCollection<SLogRecord>> GetAdministratorLog(int maxRecords,
+                                                                               SLogReadDirection readDirection = SLogReadDirection.FromEnd, 
+                                                                               uint              startIndex = SLogIndex.Last,
+                                                                               DateTime?         startTime = null, 
+                                                                               DateTime?         endTime = null )
         {
             return await GetSLog(SLogType.Administrator, readDirection, startIndex, maxRecords, startTime, endTime)
                        .ConfigureAwait(false);
@@ -1345,9 +1345,9 @@ namespace Iface.Oik.Tm.Api
             
             while (true)
             {
-                var logPart = await ReadSLogRecordsBatch(logHandle, readDirection,startTime, endTime).ConfigureAwait(false);
+                var (logPart, shouldContinue) = await ReadSLogRecordsBatch(logHandle, readDirection,startTime, endTime).ConfigureAwait(false);
 
-                if (logPart.IsNullOrEmpty())
+                if (logPart.IsNullOrEmpty() && !shouldContinue)
                 {
                     break;
                 }
@@ -1393,7 +1393,7 @@ namespace Iface.Oik.Tm.Api
         }
 
 
-        public async Task<IReadOnlyCollection<SLogRecord>> ReadSLogRecordsBatch(ulong             sLogHandle, 
+        public async Task<(IReadOnlyCollection<SLogRecord> logPart, bool shouldContinue)> ReadSLogRecordsBatch(ulong             sLogHandle, 
                                                                            SLogReadDirection readDirection,
                                                                            DateTime?         startTime, 
                                                                            DateTime?         endTime)
@@ -1411,11 +1411,12 @@ namespace Iface.Oik.Tm.Api
 
             if (strPtr == IntPtr.Zero)
             {
-                return null;
+                return (null, false);
             }
 
-            var startTimeUtc = startTime.HasValue ? TimeZoneInfo.ConvertTimeToUtc(startTime.Value) : (DateTime?)null;
-            var endTimeUtc   = endTime.HasValue ? TimeZoneInfo.ConvertTimeToUtc(endTime.Value) : (DateTime?)null;
+            var shouldContinue = false;
+            var startTimeUtc   = startTime.HasValue ? TimeZoneInfo.ConvertTimeToUtc(startTime.Value) : (DateTime?)null;
+            var endTimeUtc     = endTime.HasValue ? TimeZoneInfo.ConvertTimeToUtc(endTime.Value) : (DateTime?)null;
             
             var logPart = new List<SLogRecord>();
             var nextPtr = strPtr;
@@ -1434,20 +1435,27 @@ namespace Iface.Oik.Tm.Api
                 
                 nextPtr = IntPtr.Add(nextPtr, index + 1);
 
-                if ((startTimeUtc.HasValue || endTimeUtc.HasValue) && !record.DateTime.HasValue)
-                {
+                if ((startTimeUtc.HasValue || endTimeUtc.HasValue) && !record.DateTime.HasValue) {
+                    shouldContinue = true;
                     continue;
                 }
                 
                 if (readDirection == SLogReadDirection.FromStart)
                 {
+                    if(record.DateTime >= startTimeUtc)
+                    {
+                        var a = 1;
+                    }
+                    
                     if (startTimeUtc.HasValue && record.DateTime < startTimeUtc)
                     {
+                        shouldContinue = true;
                         continue;
                     }
                     
                     if (endTimeUtc.HasValue && record.DateTime > endTimeUtc)
                     {
+                        shouldContinue = false;
                         break;
                     }
                 }
@@ -1455,17 +1463,17 @@ namespace Iface.Oik.Tm.Api
                 {
                     if (endTimeUtc.HasValue && record.DateTime > endTimeUtc)
                     {
+                        shouldContinue = true;
                         continue;
                     }
 
                     if (startTimeUtc.HasValue && record.DateTime < startTimeUtc)
                     {
+                        shouldContinue = false;
                         break;
                     }
                 }
                 
-                
-
                 logPart.Add(record);
                 
             } while (!TmNativeUtil.PointerValueIsNull(nextPtr));
@@ -1473,7 +1481,7 @@ namespace Iface.Oik.Tm.Api
             
             _native.CfsFreeMemory(strPtr);
             
-            return logPart;
+            return (logPart, shouldContinue);
         }
         
         

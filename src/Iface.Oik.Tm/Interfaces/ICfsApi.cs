@@ -100,16 +100,16 @@ namespace Iface.Oik.Tm.Interfaces
 
 
 		Task<IReadOnlyCollection<SLogRecord>> GetSecurityLog(int               maxRecords,
-		                                                     SLogReadDirection readDirection,
-		                                                     uint              startIndex,
-		                                                     DateTime?         startTime,
-		                                                     DateTime?         endTime);
+		                                                     SLogReadDirection readDirection = SLogReadDirection.FromEnd, 
+		                                                     uint              startIndex    = SLogIndex.Last,
+		                                                     DateTime?         startTime     = null, 
+		                                                     DateTime?         endTime       = null);
 
 
-		Task<IReadOnlyCollection<SLogRecord>> GetAdministratorLog(int               maxRecords,
-		                                                          SLogReadDirection readDirection,
-		                                                          uint              startIndex,
-		                                                          DateTime?         startTime,
-		                                                          DateTime?         endTime);
+		Task<IReadOnlyCollection<SLogRecord>> GetAdministratorLog(int maxRecords,
+		                                                          SLogReadDirection readDirection = SLogReadDirection.FromEnd, 
+		                                                          uint              startIndex = SLogIndex.Last,
+		                                                          DateTime?         startTime = null, 
+		                                                          DateTime?         endTime = null);
 	}
 }
