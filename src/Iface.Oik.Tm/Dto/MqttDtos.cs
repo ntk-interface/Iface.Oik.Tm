@@ -87,4 +87,33 @@ namespace Iface.Oik.Tm.Dto
     public Guid EquipmentId { get; set; }
     public bool IsPermitted { get; set; }
   }
+
+
+  public class MqttBindingDto
+  {
+    public Guid           Id            { get; set; }
+    public TobBindingType BindingType   { get; set; }
+    public Guid           EquipmentId   { get; set; }
+    public string         Name          { get; set; }
+    public string         Value         { get; set; }
+    public string         NameToDisplay { get; set; }
+  }
+
+
+  public class MqttBindingWithNewNameDto : MqttBindingDto
+  {
+    public string NewName { get; set; }
+  }
+
+
+  public class MqttBindingWithNewTypeDto : MqttBindingDto
+  {
+    public TobBindingType NewBindingType { get; set; }
+  }
+
+
+  public class MqttBindingWithNewTmAddrDto : MqttBindingDto
+  {
+    public string NewTmAddrString { get; set; }
+  }
 }
