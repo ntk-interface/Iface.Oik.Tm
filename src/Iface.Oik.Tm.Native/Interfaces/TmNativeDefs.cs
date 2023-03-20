@@ -1129,32 +1129,24 @@ namespace Iface.Oik.Tm.Native.Interfaces
     }
 
 
-    public enum SLogTag
+    public static class SLogTag
     {
-      Type            = '\x1',
-      Body            = '\x2',
-      User            = '\x3',
-      Time            = '\x4',
-      Index           = '\x5',
-      Source          = '\x6',
-      ThreadId        = '\x7',
-      SessionId       = '\x8',
-      FileIndex       = '\x9',
-      InformationType = '\xa'
+      public const char Type            = '\x1',
+                        Body            = '\x2',
+                        User            = '\x3',
+                        Time            = '\x4',
+                        Index           = '\x5',
+                        Source          = '\x6',
+                        ThreadId        = '\x7',
+                        SessionId       = '\x8',
+                        FileIndex       = '\x9',
+                        InformationType = '\xa';
     }
-
-
+    
     public enum SLogType : UInt32
     {
       Security      = 0,
       Administrator = 1
-    }
-
-
-    public enum SLogDirection : UInt32
-    {
-      FromStart = 0x00_00_00_00,
-      FromEnd   = 0x7f_ff_ff_ff
     }
 
     #endregion

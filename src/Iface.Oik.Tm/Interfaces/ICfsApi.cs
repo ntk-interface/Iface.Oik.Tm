@@ -91,5 +91,25 @@ namespace Iface.Oik.Tm.Interfaces
 
 
 		Task DeleteLicenseKeyFile(string fileName);
+
+
+		Task<IReadOnlyCollection<SLogRecord>> GetSecurityLogFull(SLogReadDirection readDirection = SLogReadDirection.FromEnd);
+
+
+		Task<IReadOnlyCollection<SLogRecord>> GetAdministratorLogFull(SLogReadDirection readDirection = SLogReadDirection.FromEnd);
+
+
+		Task<IReadOnlyCollection<SLogRecord>> GetSecurityLog(int               maxRecords,
+		                                                     SLogReadDirection readDirection,
+		                                                     uint              startIndex,
+		                                                     DateTime?         startTime,
+		                                                     DateTime?         endTime);
+
+
+		Task<IReadOnlyCollection<SLogRecord>> GetAdministratorLog(int               maxRecords,
+		                                                          SLogReadDirection readDirection,
+		                                                          uint              startIndex,
+		                                                          DateTime?         startTime,
+		                                                          DateTime?         endTime);
 	}
 }

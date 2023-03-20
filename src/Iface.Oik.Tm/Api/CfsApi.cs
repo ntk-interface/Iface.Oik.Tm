@@ -1290,5 +1290,205 @@ namespace Iface.Oik.Tm.Api
                   Exception($"Ошибка записи ini-строки. \nПуть: {path}\nСекция: {section}\nКлюч: {key}\nЗначение: {value}\nОшибка: {EncodingUtil.Win1251BytesToUtf8(errBuf)} Код: {errCode}");
             }
         }
+
+
+        public async Task<IReadOnlyCollection<SLogRecord>> GetSecurityLogFull(SLogReadDirection readDirection = SLogReadDirection.FromEnd)
+        {
+            return await GetSecurityLog(0,
+                                        readDirection,
+                                        readDirection == SLogReadDirection.FromEnd ? SLogIndex.Last : SLogIndex.First,
+                                        null, null).ConfigureAwait(false);
+        }
+        
+        
+        public async Task<IReadOnlyCollection<SLogRecord>> GetAdministratorLogFull(SLogReadDirection readDirection = SLogReadDirection.FromEnd)
+        {
+            return await GetAdministratorLog(0,
+                                        readDirection,
+                                        readDirection == SLogReadDirection.FromEnd ? SLogIndex.Last : SLogIndex.First,
+                                        null, null).ConfigureAwait(false);
+        }
+        
+        
+        public async Task<IReadOnlyCollection<SLogRecord>> GetSecurityLog(int               maxRecords,
+                                                                          SLogReadDirection readDirection,
+                                                                          uint      startIndex,
+                                                                          DateTime? startTime,
+                                                                          DateTime? endTime)
+        {
+            return await GetSLog(SLogType.Security, readDirection, startIndex, maxRecords, startTime, endTime)
+                       .ConfigureAwait(false);
+        }
+        
+        
+        public async Task<IReadOnlyCollection<SLogRecord>> GetAdministratorLog(int               maxRecords,
+                                                                          SLogReadDirection readDirection,
+                                                                          uint              startIndex,
+                                                                          DateTime?         startTime,
+                                                                          DateTime?         endTime)
+        {
+            return await GetSLog(SLogType.Administrator, readDirection, startIndex, maxRecords, startTime, endTime)
+                       .ConfigureAwait(false);
+        }
+        
+
+        public async Task<IReadOnlyCollection<SLogRecord>> GetSLog(SLogType          logType,
+                                                                   SLogReadDirection readDirection, 
+                                                                   uint              startIndex, 
+                                                                   int               maxRecords, 
+                                                                   DateTime?         startTime, 
+                                                                   DateTime?         endTime)
+        {
+            var logHandle = await OpenSLog(logType, readDirection, startIndex).ConfigureAwait(false);
+
+            var log = new List<SLogRecord>();
+            
+            while (true)
+            {
+                var logPart = await ReadSLogRecordsBatch(logHandle, readDirection,startTime, endTime).ConfigureAwait(false);
+
+                if (logPart.IsNullOrEmpty())
+                {
+                    break;
+                }
+
+                log.AddRange(logPart);
+
+                if (maxRecords > 0 && log.Count >= maxRecords)
+                {
+                    break;
+                }
+                
+                
+            }
+
+            await CloseSLog(logHandle).ConfigureAwait(false);
+            
+            return maxRecords > 0 ? log.Take(maxRecords).ToList() : log;
+        }
+        
+        
+        public async Task<ulong> OpenSLog(SLogType logType, 
+                                          SLogReadDirection direction,
+                                          uint startIndex)
+        {
+            const int errBufLength = 1000;
+            var       errBuf       = new byte[errBufLength];
+            uint      errCode      = 0;
+
+            var sLogHandle = await Task.Run(() => _native.СfsSLogOpen(CfId, 
+                                                                  (uint) logType, 
+                                                                  startIndex, 
+                                                                  (uint) direction, 
+                                                                  out errCode, 
+                                                                  ref errBuf, 
+                                                                  errBufLength)).ConfigureAwait(false);
+
+            if (sLogHandle == 0)
+            {
+                throw new Exception($"Ошибка открытия журнала безопасности. \nТип: ${logType}\nОшибка: {EncodingUtil.Win1251BytesToUtf8(errBuf)} Код: {errCode}");
+            }
+
+            return sLogHandle;
+        }
+
+
+        public async Task<IReadOnlyCollection<SLogRecord>> ReadSLogRecordsBatch(ulong             sLogHandle, 
+                                                                           SLogReadDirection readDirection,
+                                                                           DateTime?         startTime, 
+                                                                           DateTime?         endTime)
+        {
+            const int errBufLength = 1000;
+            var       errBuf       = new byte[errBufLength];
+            uint      errCode      = 0;
+            
+
+            var strPtr = await Task.Run(() => _native.CfsSLogReadRecords(CfId, 
+                                                                         sLogHandle, 
+                                                                         out errCode, 
+                                                                         ref errBuf, 
+                                                                         errBufLength)).ConfigureAwait(false);
+
+            if (strPtr == IntPtr.Zero)
+            {
+                return null;
+            }
+
+            var startTimeUtc = startTime.HasValue ? TimeZoneInfo.ConvertTimeToUtc(startTime.Value) : (DateTime?)null;
+            var endTimeUtc   = endTime.HasValue ? TimeZoneInfo.ConvertTimeToUtc(endTime.Value) : (DateTime?)null;
+            
+            var logPart = new List<SLogRecord>();
+            var nextPtr = strPtr;
+
+            do
+            {
+                var index   = TmNativeUtil.GetDoubleNullTerminatorIndexFromPointer(nextPtr);
+                var strings = TmNativeUtil.GetUnknownLengthStringListFromDoubleNullTerminatedPointer(nextPtr);
+
+                if (!strings.Any())
+                {
+                    break;
+                }
+
+                var record = SLogRecord.CreateFromStringsList(strings);
+                
+                nextPtr = IntPtr.Add(nextPtr, index + 1);
+
+                if ((startTimeUtc.HasValue || endTimeUtc.HasValue) && !record.DateTime.HasValue)
+                {
+                    continue;
+                }
+                
+                if (readDirection == SLogReadDirection.FromStart)
+                {
+                    if (startTimeUtc.HasValue && record.DateTime < startTimeUtc)
+                    {
+                        continue;
+                    }
+                    
+                    if (endTimeUtc.HasValue && record.DateTime > endTimeUtc)
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    if (endTimeUtc.HasValue && record.DateTime > endTimeUtc)
+                    {
+                        continue;
+                    }
+
+                    if (startTimeUtc.HasValue && record.DateTime < startTimeUtc)
+                    {
+                        break;
+                    }
+                }
+                
+                
+
+                logPart.Add(record);
+                
+            } while (!TmNativeUtil.PointerValueIsNull(nextPtr));
+            
+            
+            _native.CfsFreeMemory(strPtr);
+            
+            return logPart;
+        }
+        
+        
+        public async Task<bool> CloseSLog(ulong sLogHandle)
+        {
+            const int errBufLength = 1000;
+            var       errBuf       = new byte[errBufLength];
+            uint      errCode      = 0;
+
+            return await Task.Run(() => _native.СfsSLogClose(CfId, 
+                                                             sLogHandle,
+                                                             out errCode, 
+                                                             ref errBuf, 
+                                                             errBufLength)).ConfigureAwait(false);
+        }
+        
     }
 }

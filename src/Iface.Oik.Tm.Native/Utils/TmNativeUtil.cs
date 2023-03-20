@@ -90,7 +90,7 @@ namespace Iface.Oik.Tm.Native.Utils
       {
         return (Array.Empty<KeyValuePair<string, string>>(), Array.Empty<byte>());
       }
-      
+
       var doubleNull = 0;
       for (var i = 3; i < datagram.Length; i++)
       {
@@ -98,21 +98,21 @@ namespace Iface.Oik.Tm.Native.Utils
         doubleNull = i - 1;
         break;
       }
-      
-      var infoBytes    = new byte[doubleNull];
+
+      var infoBytes = new byte[doubleNull];
       Array.Copy(datagram, 2, infoBytes, 0, doubleNull);
       var infoDictionary = Encoding.GetEncoding(1251)
-                         .GetString(infoBytes)
-                         .Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries)
-                         .Select(x =>
-                                 {
-                                   var item = x.Split('=');
-                                   return new KeyValuePair<string, string>(item[0], item[1]);
-                                 });
+                                   .GetString(infoBytes)
+                                   .Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries)
+                                   .Select(x =>
+                                           {
+                                             var item = x.Split('=');
+                                             return new KeyValuePair<string, string>(item[0], item[1]);
+                                           });
 
       byte[] payloadBytes;
       var    payloadIndex = doubleNull + 2;
-      
+
       if (payloadIndex > datagram.Length)
       {
         payloadBytes = Array.Empty<byte>();
@@ -121,10 +121,10 @@ namespace Iface.Oik.Tm.Native.Utils
       {
         var payloadLength = datagram.Length - payloadIndex;
         payloadBytes = new byte[payloadLength];
-        Array.Copy(datagram, 
-                   payloadIndex, 
-                   payloadBytes, 
-                   0, 
+        Array.Copy(datagram,
+                   payloadIndex,
+                   payloadBytes,
+                   0,
                    payloadLength);
       }
 
@@ -479,6 +479,69 @@ namespace Iface.Oik.Tm.Native.Utils
 
       return result;
     }
+
+
+    public static bool PointerValueIsNull(IntPtr ptr)
+    {
+      if (ptr == IntPtr.Zero)
+      {
+        throw new ArgumentException("Нулевой указатель");
+      }
+      
+      var marshalBytes = new byte[1];
+      
+      Marshal.Copy(ptr, marshalBytes, 0, 1);
+
+      return marshalBytes[0] == 0;
+    }
+    
+    
+    public static int GetDoubleNullTerminatorIndexFromPointer(IntPtr ptr)
+    {
+      const int bufferStep  = 512;
+      const int bufferLimit = 2048;
+      var       bufSize     = bufferStep;
+
+      var result = -1;
+
+      if (ptr == IntPtr.Zero)
+      {
+        return result;
+      }
+
+      var marshalBytes = new byte[1];
+
+      var isNullFound = false;
+      for (var i = 0; i < bufSize; i++)
+      {
+        if (i >= bufferLimit)
+        {
+          break;
+        }
+        
+        Marshal.Copy(new IntPtr(ptr.ToInt64() + i), marshalBytes, 0, 1);
+        if (marshalBytes[0] == 0)
+        {
+          if (isNullFound) // второй ноль - выходим
+          {
+            result = i;
+            break;
+          }
+
+          isNullFound = true;
+          continue;
+        }
+
+        isNullFound = false;
+
+        if (i != bufSize - 1) continue;
+
+        bufSize += bufferStep;
+      }
+
+      return result;
+    }
+
 
     public static TmNativeDefs.TEventElix EventElixFromIntPtr(IntPtr pTEventElix)
     {
