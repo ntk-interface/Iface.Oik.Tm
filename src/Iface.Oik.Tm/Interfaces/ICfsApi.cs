@@ -9,7 +9,7 @@ namespace Iface.Oik.Tm.Interfaces
 	{
 		void SetCfIdAndHost(IntPtr cfId, string host);
 
-		Task<(IntPtr, DateTime)> OpenConfigurationTree(string FileName);
+		Task<(IntPtr, DateTime)> OpenConfigurationTree(string fileName);
 
 		Task<(IntPtr, DateTime)> OpenMasterServiceConfiguration();
 		Task<(MSTreeNode, DateTime)> LoadFullMSTree();
@@ -44,6 +44,9 @@ namespace Iface.Oik.Tm.Interfaces
 
 
 		Task<IReadOnlyCollection<TmServerLogRecord>> GetTmServersLog();
+
+
+		Task<IReadOnlyCollection<TmServerLogRecord>> GetTmServersLog(int maxRecords, DateTime? startTime, DateTime? endTime);
 
 
 		Task<IReadOnlyCollection<TmServerThread>> GetTmServersThreads();
@@ -88,5 +91,25 @@ namespace Iface.Oik.Tm.Interfaces
 
 
 		Task DeleteLicenseKeyFile(string fileName);
+
+
+		Task<IReadOnlyCollection<SLogRecord>> GetSecurityLogFull(SLogReadDirection readDirection = SLogReadDirection.FromEnd);
+
+
+		Task<IReadOnlyCollection<SLogRecord>> GetAdministratorLogFull(SLogReadDirection readDirection = SLogReadDirection.FromEnd);
+
+
+		Task<IReadOnlyCollection<SLogRecord>> GetSecurityLog(int               maxRecords,
+		                                                     SLogReadDirection readDirection = SLogReadDirection.FromEnd, 
+		                                                     uint              startIndex    = SLogIndex.Last,
+		                                                     DateTime?         startTime     = null, 
+		                                                     DateTime?         endTime       = null);
+
+
+		Task<IReadOnlyCollection<SLogRecord>> GetAdministratorLog(int maxRecords,
+		                                                          SLogReadDirection readDirection = SLogReadDirection.FromEnd, 
+		                                                          uint              startIndex = SLogIndex.Last,
+		                                                          DateTime?         startTime = null, 
+		                                                          DateTime?         endTime = null);
 	}
 }

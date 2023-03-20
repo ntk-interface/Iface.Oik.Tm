@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using Iface.Oik.Tm.Native.Interfaces;
 
 namespace Iface.Oik.Tm.Interfaces
 {
@@ -88,5 +89,24 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Interface USB HID/SSD")]  UsbHidSsd = 6,
     [Description("Сетевой ключ Interface")] Network   = 7,
     
+  }
+
+  
+  public enum SLogType : uint
+  {
+    Security      = TmNativeDefs.SLogType.Security,
+    Administrator = TmNativeDefs.SLogType.Administrator,
+  }
+  
+  public enum SLogReadDirection
+  {
+    FromEnd   = 0,
+    FromStart = 1
+  }
+
+  public static class SLogIndex
+  {
+    public const uint First = 0x00_00_00_00;
+    public const uint Last  = 0x7f_ff_ff_ff;
   }
 }

@@ -39,6 +39,12 @@ namespace Iface.Oik.Tm.Utils
     {
       return GetDateTimeFromTmStringByFormat(s, "yyyy.MM.dd HH:mm:ss");
     }
+    
+    
+    public static DateTime? GetDateTimeFromExtendedReversedTmString(string s)
+    {
+      return GetDateTimeFromTmStringByFormat(s, "yyyy.MM.dd HH:mm:ss.fff");
+    }
 
 
     public static DateTime GetDateTimeFromTimestamp(long timestamp, int milliseconds = 0)

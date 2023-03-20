@@ -36,7 +36,8 @@ namespace Iface.Oik.Tm.Api
             CfId = cfId;
             Host = host;
         }
-        public async Task<(IntPtr, DateTime)> OpenConfigurationTree(string FileName)
+        
+        public async Task<(IntPtr, DateTime)> OpenConfigurationTree(string fileName)
         {
             var fileTime = new TmNativeDefs.FileTime();
             const int errStringLength = 1000;
@@ -45,7 +46,7 @@ namespace Iface.Oik.Tm.Api
 
             var cfTreeRoot = await Task.Run(() => _native.CfsConfFileOpenCid(CfId,
                                                                              Host,
-                                                                             FileName,
+                                                                             fileName,
                                                                              30000 | TmNativeDefs.FailIfNoConnect,
                                                                              ref fileTime,
                                                                              out errCode,
@@ -58,10 +59,12 @@ namespace Iface.Oik.Tm.Api
 
             return (cfTreeRoot, GetDateTimeFromCustomFileTime(fileTime));
         }
+        
 		public async Task<(IntPtr, DateTime)> OpenMasterServiceConfiguration()
         {
             return await OpenConfigurationTree(TmNativeDefs.DefaultMasterConfFile).ConfigureAwait(false);
 		}
+        
 		public async Task<(MSTreeNode, DateTime)> LoadFullMSTree()
 		{
 			var (handle, time) = await OpenConfigurationTree(TmNativeDefs.DefaultMasterConfFile).ConfigureAwait(false);
@@ -139,6 +142,7 @@ namespace Iface.Oik.Tm.Api
 			}
 			return (msRoot, time);
 		}
+        
 		public async Task<bool> SaveMasterServiceConfiguration(IntPtr treeHandle, string serverName)
         {
             var fileTime = new TmNativeDefs.FileTime();
@@ -160,18 +164,22 @@ namespace Iface.Oik.Tm.Api
 		{
 			_native.CftNodeFreeTree(handle);
 		}
+        
 		public void FreeConfigurationTreeHandle(IntPtr handle)
 		{
 			_native.CftNodeFreeTree(handle);
 		}
+        
 		private static DateTime GetDateTimeFromCustomFileTime(TmNativeDefs.FileTime fileTime)
         {
             return DateTime.FromFileTime((long)fileTime.dwHighDateTime << 32 | (uint)fileTime.dwLowDateTime);
         }
+        
         public async Task<List<CfTreeNode>> GetCfTree(IntPtr rootHandle)
         {
             return await GetNodeChildren(rootHandle).ConfigureAwait(false);
         }
+        
         private async Task<List<CfTreeNode>> GetNodeChildren(IntPtr parentHandle, CfTreeNode parent = null)
         {
             var children = new List<CfTreeNode>();
@@ -191,6 +199,7 @@ namespace Iface.Oik.Tm.Api
             }
             return children;
         }
+        
         private async Task<string> GetNodeName(IntPtr nodeHandle)
         {
             const int nameBufLength = 200;
@@ -202,6 +211,7 @@ namespace Iface.Oik.Tm.Api
 
             return EncodingUtil.Win1251BytesToUtf8(nameBuf);
         }
+        
         private async Task<Dictionary<string, string>> GetNodeProps(IntPtr nodeHandle)
         {
             var props = new Dictionary<string, string>();
@@ -221,6 +231,7 @@ namespace Iface.Oik.Tm.Api
 
             return props;
         }
+        
         private async Task<string> GetPropName(IntPtr nodeHandle, int idx)
         {
             const int nameBufLength = 200;
@@ -232,6 +243,7 @@ namespace Iface.Oik.Tm.Api
 
             return EncodingUtil.Win1251BytesToUtf8(nameBuf);
         }
+        
         private async Task<string> GetPropValue(IntPtr nodeHandle, string propName)
         {
             const int valueBufLength = 200;
@@ -244,6 +256,7 @@ namespace Iface.Oik.Tm.Api
 
             return EncodingUtil.Win1251BytesToUtf8(valueBuf);
         }
+        
         public async Task<IntPtr> CreateNewMasterServiceTree(IEnumerable<MSTreeNode> tree)
         {
             var newTreeHandle = await Task.Run(() => _native.CftNodeNewTree())
@@ -257,6 +270,7 @@ namespace Iface.Oik.Tm.Api
 
             return newTreeHandle;
         }
+        
         private async Task CreateNode(IntPtr parentNodeHandle, MSTreeNode node, int tagId = -1)
         {
             var tag = tagId == -1 ? "Master" : $"#{tagId:X3}";
@@ -274,6 +288,7 @@ namespace Iface.Oik.Tm.Api
                 i++;
             }
         }
+        
         private async Task<bool> CreateNodeProperties(IntPtr nodeHandle, MSTreeNode node)
         {
             if (!await CreateNodePropertyAsync(nodeHandle, MSTreeConsts.ProgName, node.ProgName)
@@ -318,6 +333,7 @@ namespace Iface.Oik.Tm.Api
 
             return true;
         }
+        
         private async Task<bool> CreateMasterNodeProperties(IntPtr nodeHandle, MSTreeNode node)
         {
             var props = (MasterNodeProperties)node.Properties;
@@ -349,6 +365,7 @@ namespace Iface.Oik.Tm.Api
 
             return true;
         }
+        
         private async Task<bool> CreateChildNodeProperties(IntPtr nodeHandle, MSTreeNode node)
         {
             var props = (ChildNodeProperties)node.Properties;
@@ -372,6 +389,7 @@ namespace Iface.Oik.Tm.Api
 
             return true;
         }
+        
         private async Task<bool> CreateTmsNodeProperties(IntPtr nodeHandle, MSTreeNode node)
         {
             var props = (NewTmsNodeProperties)node.Properties;
@@ -392,6 +410,8 @@ namespace Iface.Oik.Tm.Api
 
             return true;
         }
+        
+        
         private async Task<bool> CreateExternalTaskNodeProperties(IntPtr nodeHandle, MSTreeNode node)
         {
             var props = (ExternalTaskNodeProperties)node.Properties;
@@ -427,6 +447,7 @@ namespace Iface.Oik.Tm.Api
 
             return true;
         }
+        
         private async Task<bool> CreateNodePropertyAsync(IntPtr nodeHandle, string propName, string propText)
         {
             return await Task.Run(() => _native.CftNPropSet(nodeHandle, propName, propText))
@@ -631,7 +652,8 @@ namespace Iface.Oik.Tm.Api
 
             return tmServersLog;
         }
-        public async Task<IReadOnlyCollection<TmServerLogRecord>> GetTmServersLog(int MaxRecords, DateTime? StartTime, DateTime? EndTime)
+        
+        public async Task<IReadOnlyCollection<TmServerLogRecord>> GetTmServersLog(int maxRecords, DateTime? startTime, DateTime? endTime)
         {
             await OpenTmServerLog().ConfigureAwait(false);
             var tmServersLog = new List<TmServerLogRecord>();
@@ -645,18 +667,18 @@ namespace Iface.Oik.Tm.Api
                 firstRecord = false;
 
                 if (logRecord == null) break;
-                if(EndTime != null)
+                if(endTime != null)
                 {
-                    if (logRecord.DateTime > EndTime)
+                    if (logRecord.DateTime > endTime)
                         continue;
                 }
-				if (StartTime != null)
+				if (startTime != null)
 				{
-					if (logRecord.DateTime < StartTime)
+					if (logRecord.DateTime < startTime)
 						break;
 				}
 				tmServersLog.Add(logRecord);
-                if ((MaxRecords > 0) && (tmServersLog.Count >= MaxRecords))
+                if ((maxRecords > 0) && (tmServersLog.Count >= maxRecords))
                     break;
             }
 
@@ -1268,5 +1290,213 @@ namespace Iface.Oik.Tm.Api
                   Exception($"Ошибка записи ini-строки. \nПуть: {path}\nСекция: {section}\nКлюч: {key}\nЗначение: {value}\nОшибка: {EncodingUtil.Win1251BytesToUtf8(errBuf)} Код: {errCode}");
             }
         }
-	}
+
+
+        public async Task<IReadOnlyCollection<SLogRecord>> GetSecurityLogFull(SLogReadDirection readDirection = SLogReadDirection.FromEnd)
+        {
+            return await GetSecurityLog(0,
+                                        readDirection,
+                                        readDirection == SLogReadDirection.FromEnd ? SLogIndex.Last : SLogIndex.First)
+                       .ConfigureAwait(false);
+        }
+        
+        
+        public async Task<IReadOnlyCollection<SLogRecord>> GetAdministratorLogFull(SLogReadDirection readDirection = SLogReadDirection.FromEnd)
+        {
+            return await GetAdministratorLog(0,
+                                        readDirection,
+                                        readDirection == SLogReadDirection.FromEnd ? SLogIndex.Last : SLogIndex.First)
+                       .ConfigureAwait(false);
+        }
+        
+        
+        public async Task<IReadOnlyCollection<SLogRecord>> GetSecurityLog(int maxRecords,
+                                                                          SLogReadDirection readDirection = SLogReadDirection.FromEnd, 
+                                                                          uint              startIndex = SLogIndex.Last,
+                                                                          DateTime?         startTime = null, 
+                                                                          DateTime?         endTime = null )
+        {
+            return await GetSLog(SLogType.Security, readDirection, startIndex, maxRecords, startTime, endTime)
+                       .ConfigureAwait(false);
+        }
+        
+        
+        public async Task<IReadOnlyCollection<SLogRecord>> GetAdministratorLog(int maxRecords,
+                                                                               SLogReadDirection readDirection = SLogReadDirection.FromEnd, 
+                                                                               uint              startIndex = SLogIndex.Last,
+                                                                               DateTime?         startTime = null, 
+                                                                               DateTime?         endTime = null )
+        {
+            return await GetSLog(SLogType.Administrator, readDirection, startIndex, maxRecords, startTime, endTime)
+                       .ConfigureAwait(false);
+        }
+        
+
+        public async Task<IReadOnlyCollection<SLogRecord>> GetSLog(SLogType          logType,
+                                                                   SLogReadDirection readDirection, 
+                                                                   uint              startIndex, 
+                                                                   int               maxRecords, 
+                                                                   DateTime?         startTime, 
+                                                                   DateTime?         endTime)
+        {
+            var logHandle = await OpenSLog(logType, readDirection, startIndex).ConfigureAwait(false);
+
+            var log = new List<SLogRecord>();
+            
+            while (true)
+            {
+                var (logPart, shouldContinue) = await ReadSLogRecordsBatch(logHandle, readDirection,startTime, endTime).ConfigureAwait(false);
+
+                if (logPart.IsNullOrEmpty() && !shouldContinue)
+                {
+                    break;
+                }
+
+                log.AddRange(logPart);
+
+                if (maxRecords > 0 && log.Count >= maxRecords)
+                {
+                    break;
+                }
+                
+                
+            }
+
+            await CloseSLog(logHandle).ConfigureAwait(false);
+            
+            return maxRecords > 0 ? log.Take(maxRecords).ToList() : log;
+        }
+        
+        
+        public async Task<ulong> OpenSLog(SLogType logType, 
+                                          SLogReadDirection direction,
+                                          uint startIndex)
+        {
+            const int errBufLength = 1000;
+            var       errBuf       = new byte[errBufLength];
+            uint      errCode      = 0;
+
+            var sLogHandle = await Task.Run(() => _native.СfsSLogOpen(CfId, 
+                                                                  (uint) logType, 
+                                                                  startIndex, 
+                                                                  (uint) direction, 
+                                                                  out errCode, 
+                                                                  ref errBuf, 
+                                                                  errBufLength)).ConfigureAwait(false);
+
+            if (sLogHandle == 0)
+            {
+                throw new Exception($"Ошибка открытия журнала безопасности. \nТип: ${logType}\nОшибка: {EncodingUtil.Win1251BytesToUtf8(errBuf)} Код: {errCode}");
+            }
+
+            return sLogHandle;
+        }
+
+
+        public async Task<(IReadOnlyCollection<SLogRecord> logPart, bool shouldContinue)> ReadSLogRecordsBatch(ulong             sLogHandle, 
+                                                                           SLogReadDirection readDirection,
+                                                                           DateTime?         startTime, 
+                                                                           DateTime?         endTime)
+        {
+            const int errBufLength = 1000;
+            var       errBuf       = new byte[errBufLength];
+            uint      errCode      = 0;
+            
+
+            var strPtr = await Task.Run(() => _native.CfsSLogReadRecords(CfId, 
+                                                                         sLogHandle, 
+                                                                         out errCode, 
+                                                                         ref errBuf, 
+                                                                         errBufLength)).ConfigureAwait(false);
+
+            if (strPtr == IntPtr.Zero)
+            {
+                return (null, false);
+            }
+
+            var shouldContinue = false;
+            var startTimeUtc   = startTime.HasValue ? TimeZoneInfo.ConvertTimeToUtc(startTime.Value) : (DateTime?)null;
+            var endTimeUtc     = endTime.HasValue ? TimeZoneInfo.ConvertTimeToUtc(endTime.Value) : (DateTime?)null;
+            
+            var logPart = new List<SLogRecord>();
+            var nextPtr = strPtr;
+
+            do
+            {
+                var index   = TmNativeUtil.GetDoubleNullTerminatorIndexFromPointer(nextPtr);
+                var strings = TmNativeUtil.GetUnknownLengthStringListFromDoubleNullTerminatedPointer(nextPtr);
+
+                if (!strings.Any())
+                {
+                    break;
+                }
+
+                var record = SLogRecord.CreateFromStringsList(strings);
+                
+                nextPtr = IntPtr.Add(nextPtr, index + 1);
+
+                if ((startTimeUtc.HasValue || endTimeUtc.HasValue) && !record.DateTime.HasValue) {
+                    shouldContinue = true;
+                    continue;
+                }
+                
+                if (readDirection == SLogReadDirection.FromStart)
+                {
+                    if(record.DateTime >= startTimeUtc)
+                    {
+                        var a = 1;
+                    }
+                    
+                    if (startTimeUtc.HasValue && record.DateTime < startTimeUtc)
+                    {
+                        shouldContinue = true;
+                        continue;
+                    }
+                    
+                    if (endTimeUtc.HasValue && record.DateTime > endTimeUtc)
+                    {
+                        shouldContinue = false;
+                        break;
+                    }
+                }
+                else
+                {
+                    if (endTimeUtc.HasValue && record.DateTime > endTimeUtc)
+                    {
+                        shouldContinue = true;
+                        continue;
+                    }
+
+                    if (startTimeUtc.HasValue && record.DateTime < startTimeUtc)
+                    {
+                        shouldContinue = false;
+                        break;
+                    }
+                }
+                
+                logPart.Add(record);
+                
+            } while (!TmNativeUtil.PointerValueIsNull(nextPtr));
+            
+            
+            _native.CfsFreeMemory(strPtr);
+            
+            return (logPart, shouldContinue);
+        }
+        
+        
+        public async Task<bool> CloseSLog(ulong sLogHandle)
+        {
+            const int errBufLength = 1000;
+            var       errBuf       = new byte[errBufLength];
+            uint      errCode      = 0;
+
+            return await Task.Run(() => _native.СfsSLogClose(CfId, 
+                                                             sLogHandle,
+                                                             out errCode, 
+                                                             ref errBuf, 
+                                                             errBufLength)).ConfigureAwait(false);
+        }
+        
+    }
 }

@@ -464,17 +464,49 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return cfsNodeFileLoad(fileName, out errCode, errBuf, maxErrs);
     }
-    
-    
+
+
     public IntPtr CfsConfFileOpen(string                    serverName,
-                                     string                    fileName,
-                                     uint                      timeout,
-                                     ref TmNativeDefs.FileTime fileTime,
-                                     out uint                  errCode,
-                                     ref byte[]                errBuf,
-                                     uint                      maxErrs)
+                                  string                    fileName,
+                                  uint                      timeout,
+                                  ref TmNativeDefs.FileTime fileTime,
+                                  out uint                  errCode,
+                                  ref byte[]                errBuf,
+                                  uint                      maxErrs)
     {
       return cfsConfFileOpen(serverName, fileName, timeout, ref fileTime, out errCode, errBuf, maxErrs);
+    }
+
+
+    public ulong СfsSLogOpen(IntPtr     connId,
+                             uint       logType,
+                             uint       fileStartIndex,
+                             uint       direction,
+                             out uint   errCode,
+                             ref byte[] errBuf,
+                             uint       maxErrs)
+    {
+      return cfsSlogOpen(connId, logType, fileStartIndex, direction, out errCode, errBuf, maxErrs);
+    }
+
+
+    public IntPtr CfsSLogReadRecords(IntPtr     connId,
+                                     ulong      sLogHandle,
+                                     out uint   errCode,
+                                     ref byte[] errBuf,
+                                     uint       maxErrs)
+    {
+      return cfsSlogReadRecords(connId, sLogHandle, out errCode, errBuf, maxErrs);
+    }
+
+
+    public bool СfsSLogClose(IntPtr     connId,
+                             ulong      sLogHandle,
+                             out uint   errCode,
+                             ref byte[] errBuf,
+                             uint       maxErrs)
+    {
+      return cfsSlogClose(connId, sLogHandle, out errCode, errBuf, maxErrs);
     }
   }
 }
