@@ -114,7 +114,7 @@ namespace Iface.Oik.Tm.Interfaces
 		                                                          DateTime?         endTime = null);
 
 
-		Task<int> GetRedirectorPort(string serverName, int portIndex);
+		Task<int> GetRedirectorPort(string pipeName, int portIndex);
 
 
 		Task<byte[]> GetBin(string uName,
@@ -122,7 +122,7 @@ namespace Iface.Oik.Tm.Interfaces
 		                    string binName);
 
 
-		Task<bool> SetRedirectorPort(string serverName, int portIndex, int port);
+		Task<bool> SetRedirectorPort(string pipeName, int portIndex, int port);
 
 
 		Task<bool> SetBin(string uName,

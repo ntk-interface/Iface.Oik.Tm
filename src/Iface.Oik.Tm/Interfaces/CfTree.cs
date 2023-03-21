@@ -135,19 +135,19 @@ namespace Iface.Oik.Tm.Interfaces
 	}
 	public class RbsNodeProperties : ReservedNodeProperties
 	{
-		public string DOC_Path { get; set; }
-		public string BinPath { get; set; }
-		public string DataPath { get; set; }
-		public short PostgresPort { get; set; }
-		public string RBF_Directory { get; set; }
-		public string JournalSQLCS { get; set; }
-		public string DTMX_SQLCS { get; set; }
+		public string DOC_Path { get; set; } = "";
+		public string BinPath { get; set; } = "";
+		public string DataPath { get; set; } = "";
+		public short RedirectorPort { get; set; }
+		public string RBF_Directory { get; set; } = "";
+		public string JournalSQLCS { get; set; } = "";
+		public string DTMX_SQLCS { get; set; } = "";
 	}
 	public class ExternalTaskNodeProperties : ChildNodeProperties
 	{
-		public string TaskPath { get; set; }
-		public string TaskArguments { get; set; }
-		public string ConfigurationFilePath { get; set; }
+		public string TaskPath { get; set; } = "";
+		public string TaskArguments { get; set; } = "";
+		public string ConfigurationFilePath { get; set; } = "";
 	}
 	public class ReservedNodeProperties : ChildNodeProperties
 	{
@@ -186,5 +186,9 @@ namespace Iface.Oik.Tm.Interfaces
 		public const string ext_task_old = "_ext_pc";
 		public const string toposrv = "ElectricTopology";
 		public const string gensrv = "_srv_.exe";
+		public const string RBS_CfgFile = "server.cfg";
+		public const string RBS_Parameters = "Parameters";
+		public const string RBS_ClientParms = "ClientParms";
+		public const string RBS_PGParms = "PGParms";
 	}
 }

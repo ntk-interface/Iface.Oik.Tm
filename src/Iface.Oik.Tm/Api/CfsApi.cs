@@ -37,7 +37,7 @@ namespace Iface.Oik.Tm.Api
             CfId = cfId;
             Host = host;
         }
-        
+
         public async Task<(IntPtr, DateTime)> OpenConfigurationTree(string fileName)
         {
             var fileTime = new TmNativeDefs.FileTime();
@@ -60,13 +60,11 @@ namespace Iface.Oik.Tm.Api
 
             return (cfTreeRoot, GetDateTimeFromCustomFileTime(fileTime));
         }
-        
-		public async Task<(IntPtr, DateTime)> OpenMasterServiceConfiguration()
+        public async Task<(IntPtr, DateTime)> OpenMasterServiceConfiguration()
         {
             return await OpenConfigurationTree(TmNativeDefs.DefaultMasterConfFile).ConfigureAwait(false);
 		}
-        
-		public async Task<(MSTreeNode, DateTime)> LoadFullMSTree()
+        public async Task<(MSTreeNode, DateTime)> LoadFullMSTree()
 		{
 			var (handle, time) = await OpenConfigurationTree(TmNativeDefs.DefaultMasterConfFile).ConfigureAwait(false);
 			var tree = await GetCfTree(handle).ConfigureAwait(false);
@@ -128,26 +126,26 @@ namespace Iface.Oik.Tm.Api
                         //< PGParms BinPath = "xx" DataPath = "xx" />
                         try
                         {
-                            var (rbs_handle, _) = await OpenConfigurationTree($"RB_SERVER\\{rbs_p.PipeName}\\server.cfg").ConfigureAwait(false);
+                            var (rbs_handle, _) = await OpenConfigurationTree($"RB_SERVER\\{rbs_p.PipeName}\\{MSTreeConsts.RBS_CfgFile}").ConfigureAwait(false);
                             var rbs_tree = await GetCfTree(rbs_handle).ConfigureAwait(false);
                             FreeConfigurationTreeHandle(rbs_handle);
                             if (rbs_tree != null)
                             {
                                 foreach (var item in rbs_tree)
                                 {
-                                    if (item.Name.Equals("Parameters"))
+                                    if (item.Name.Equals(MSTreeConsts.RBS_Parameters))
                                     {
                                         rbs_p.RBF_Directory = item.CfProperties.GetValueOrDefault(nameof(rbs_p.RBF_Directory), "");
                                     }
                                     else
-                                    if (item.Name.Equals("ClientParms"))
+                                    if (item.Name.Equals(MSTreeConsts.RBS_ClientParms))
                                     {
                                         rbs_p.DOC_Path = item.CfProperties.GetValueOrDefault(nameof(rbs_p.DOC_Path), "");
                                         rbs_p.JournalSQLCS = item.CfProperties.GetValueOrDefault(nameof(rbs_p.JournalSQLCS), "");
                                         rbs_p.DTMX_SQLCS = item.CfProperties.GetValueOrDefault(nameof(rbs_p.DTMX_SQLCS), "");
                                     }
                                     else
-                                    if (item.Name.Equals("PGParms"))
+                                    if (item.Name.Equals(MSTreeConsts.RBS_PGParms))
                                     {
 
                                         rbs_p.BinPath = item.CfProperties.GetValueOrDefault(nameof(rbs_p.BinPath), "");
@@ -157,6 +155,8 @@ namespace Iface.Oik.Tm.Api
                             }
                         }
                         catch { }
+                        //  параметры редиректора
+                        rbs_p.RedirectorPort = (short) await GetRedirectorPort(rbs_p.PipeName, 0).ConfigureAwait(false);
 					}
 				}
 			}
@@ -201,20 +201,24 @@ namespace Iface.Oik.Tm.Api
             {
                 if (server.Properties is RbsNodeProperties rbs_p)
                 {
+                    // общие параметры
 					var rbs_handle = _native.CftNodeNewTree();
-					IntPtr nodeHandle = _native.CftNodeInsertDown(rbs_handle, "Parameters");
+					IntPtr nodeHandle = _native.CftNodeInsertDown(rbs_handle, MSTreeConsts.RBS_Parameters);
 					_native.CftNPropSet(nodeHandle, nameof(rbs_p.RBF_Directory), rbs_p.RBF_Directory);
 
-					nodeHandle = _native.CftNodeInsertDown(rbs_handle, "ClientParms");
+					nodeHandle = _native.CftNodeInsertDown(rbs_handle, MSTreeConsts.RBS_ClientParms);
 					_native.CftNPropSet(nodeHandle, nameof(rbs_p.DOC_Path), rbs_p.DOC_Path);
 					_native.CftNPropSet(nodeHandle, nameof(rbs_p.DTMX_SQLCS), rbs_p.DTMX_SQLCS);
 					_native.CftNPropSet(nodeHandle, nameof(rbs_p.JournalSQLCS), rbs_p.JournalSQLCS);
 
-					nodeHandle = _native.CftNodeInsertDown(rbs_handle, "PGParms");
+					nodeHandle = _native.CftNodeInsertDown(rbs_handle, MSTreeConsts.RBS_PGParms);
 					_native.CftNPropSet(nodeHandle, nameof(rbs_p.BinPath), rbs_p.BinPath);
 					_native.CftNPropSet(nodeHandle, nameof(rbs_p.DataPath), rbs_p.DataPath);
-					await SaveConfigurationTree(rbs_handle, $"RB_SERVER\\{rbs_p.PipeName}\\server.cfg").ConfigureAwait(false);
+					await SaveConfigurationTree(rbs_handle, $"RB_SERVER\\{rbs_p.PipeName}\\{MSTreeConsts.RBS_CfgFile}").ConfigureAwait(false);
 					FreeConfigurationTreeHandle(rbs_handle);
+
+                    // параметры редиректора
+                    await SetRedirectorPort(rbs_p.PipeName, 0, (int)rbs_p.RedirectorPort).ConfigureAwait(false);
 				}
 			}
         }
@@ -1543,9 +1547,9 @@ namespace Iface.Oik.Tm.Api
         }
 
 
-        public async Task<int> GetRedirectorPort(string serverName, int portIndex)
+        public async Task<int> GetRedirectorPort(string pipeName, int portIndex)
         {
-            var portBinData = await GetBin(".cfs.", $"rbs${serverName}", $"ipg_port{portIndex}")
+            var portBinData = await GetBin(".cfs.", $"rbs${pipeName}", $"ipg_port{portIndex}")
                                   .ConfigureAwait(false);
 
             if (!int.TryParse(EncodingUtil.Win1251BytesToUtf8(portBinData), out var port))
@@ -1590,7 +1594,7 @@ namespace Iface.Oik.Tm.Api
         }
 
 
-        public async Task<bool> SetRedirectorPort(string serverName, int portIndex , int port)
+        public async Task<bool> SetRedirectorPort(string pipeName, int portIndex , int port)
         {
             var portStr = $"{port}";
             var binData = TmNativeUtil.GetFixedBytesWithTrailingZero(portStr, 
@@ -1598,7 +1602,7 @@ namespace Iface.Oik.Tm.Api
                                                                      "windows-1251");
 
             return await SetBin(".cfs.", 
-                                $"rbs${serverName}", 
+                                $"rbs${pipeName}", 
                                 $"ipg_port{portIndex}", 
                                 binData).ConfigureAwait(false);
         }
