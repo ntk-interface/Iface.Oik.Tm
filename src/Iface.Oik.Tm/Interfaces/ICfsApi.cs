@@ -10,14 +10,15 @@ namespace Iface.Oik.Tm.Interfaces
 		void SetCfIdAndHost(IntPtr cfId, string host);
 
 		Task<(IntPtr, DateTime)> OpenConfigurationTree(string fileName);
-
 		Task<(IntPtr, DateTime)> OpenMasterServiceConfiguration();
 		Task<(MSTreeNode, DateTime)> LoadFullMSTree();
-		Task<bool> SaveMasterServiceConfiguration(IntPtr treeHandle, string serverName);
+		Task SaveConfigurationTree(IntPtr treeHandle, string filename);
+		Task SaveMasterServiceConfiguration(IntPtr treeHandle);
+		Task SaveFullMSTree(MSTreeNode msRoot);
 
 		Task<List<CfTreeNode>> GetCfTree(IntPtr rootHandle);
 
-		Task<IntPtr> CreateNewMasterServiceTree(IEnumerable<MSTreeNode> tree);
+		Task<IntPtr> CreateNewMasterServiceTree(MSTreeNode msRoot);
 
 		void FreeConfigurationTreeHandle(IntPtr handle);
 
