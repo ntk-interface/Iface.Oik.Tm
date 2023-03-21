@@ -116,7 +116,7 @@ namespace Iface.Oik.Tm.Interfaces
 		Task<int> GetRedirectorPort(string serverName, int portIndex);
 
 
-		Task<string> GetBin(string uName,
+		Task<byte[]> GetBin(string uName,
 		                    string oName,
 		                    string binName);
 

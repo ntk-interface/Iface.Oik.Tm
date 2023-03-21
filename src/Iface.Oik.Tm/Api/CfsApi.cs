@@ -1501,9 +1501,10 @@ namespace Iface.Oik.Tm.Api
 
         public async Task<int> GetRedirectorPort(string serverName, int portIndex)
         {
-            var portStr = await GetBin(".cfs.", $"rbs${serverName}", $"ipg_port{portIndex}");
+            var portBinData = await GetBin(".cfs.", $"rbs${serverName}", $"ipg_port{portIndex}")
+                                  .ConfigureAwait(false);
 
-            if (!int.TryParse(portStr, out var port))
+            if (!int.TryParse(EncodingUtil.Win1251BytesToUtf8(portBinData), out var port))
             {
                 return -1;
             }
@@ -1512,7 +1513,7 @@ namespace Iface.Oik.Tm.Api
         }
 
 
-        public async Task<string> GetBin(string uName, 
+        public async Task<byte[]> GetBin(string uName, 
                                          string oName, 
                                          string binName)
         {
@@ -1534,12 +1535,14 @@ namespace Iface.Oik.Tm.Api
 
             if (resultPtr == IntPtr.Zero)
             {
-                return "";
+                return Array.Empty<byte>();
             }
 
-            var bin = TmNativeUtil.GetStringFromIntPtrWithAdditionalPart(resultPtr, (int)binLength);
+            var binData = new byte[binLength];
+            
+            Marshal.Copy(resultPtr, binData, 0, binData.Length);
 
-            return bin;
+            return binData;
         }
 
 
