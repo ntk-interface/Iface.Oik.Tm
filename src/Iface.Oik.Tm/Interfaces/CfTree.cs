@@ -71,7 +71,8 @@ namespace Iface.Oik.Tm.Interfaces
 					case MSTreeConsts.ext_task_old:
 						Properties = new ExternalTaskNodeProperties
 						{
-							TaskPath = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.TaskPath, String.Empty),
+							// «ачем то в пути внешней задачи пробелы заме€ютс€ на табул€ции
+							TaskPath = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.TaskPath, String.Empty).Replace('\t', ' '),
 							TaskArguments = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.TaskArguments, String.Empty),
 							ConfigurationFilePath = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.ConfFilePath, String.Empty)
 						};
@@ -79,17 +80,17 @@ namespace Iface.Oik.Tm.Interfaces
 					case MSTreeConsts.gensrv:
 						string t = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.TaskPath, String.Empty).Trim();
 
-						if (t.Equals("tmserv.dll"))
+						if (t.Equals(MSTreeConsts.pcsrv_old))
 						{
 							ProgName = t;
 							Properties = new ReservedNodeProperties();
 						}
 						else
 						{
-							if (t.Equals("rbase.dll"))
+							if (t.Equals(MSTreeConsts.rbsrv_old))
 							{
 								ProgName = t;
-								Properties = new ReservedNodeProperties();
+								Properties = new RbsNodeProperties();
 							}
 						}
 						break;
@@ -150,7 +151,7 @@ namespace Iface.Oik.Tm.Interfaces
 	}
 	public class ReservedNodeProperties : ChildNodeProperties
 	{
-		public ReserveRoles Type { get; set; } = ReserveRoles.None;
+		public short Type { get; set; } = 0;
 		public string BindAddr { get; set; } = "";
 		public string Addr { get; set; } = "";
 		public short Port { get; set; }
@@ -159,12 +160,6 @@ namespace Iface.Oik.Tm.Interfaces
 		public short RetakeTO { get; set; }
 		public bool CopyConfig { get; set; }
 		public bool StopInactive { get; set; }
-	}
-	public enum ReserveRoles
-	{
-		None = 0,
-		Master = 1,
-		Standby = 2
 	}
 	public static class MSTreeConsts
 	{
