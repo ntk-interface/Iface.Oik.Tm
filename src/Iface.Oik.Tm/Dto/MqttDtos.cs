@@ -19,13 +19,13 @@ namespace Iface.Oik.Tm.Dto
 
   public class MqttUserActionLogDto
   {
-    public Guid           Id         { get; set; }
-    public DateTime       Time       { get; set; }
-    public MqttKnownTopic Action     { get; set; }
-    public string         ActionName { get; set; }
-    public int            Importance { get; set; }
-    public string         Text       { get; set; }
-    public string         Username   { get; set; }
+    public Guid                 Id         { get; set; }
+    public DateTime             Time       { get; set; }
+    public MqttKnownTopic       Action     { get; set; }
+    public TmUserActionCategory Category   { get; set; }
+    public int                  Importance { get; set; }
+    public string               Text       { get; set; }
+    public string               Username   { get; set; }
   }
 
 

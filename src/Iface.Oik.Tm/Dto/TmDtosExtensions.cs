@@ -159,5 +159,20 @@ namespace Iface.Oik.Tm.Dto
         
       }
     }
+
+
+    public static MqttUserActionLogDto MapToMqttDto(this TmUserActionDto dto)
+    {
+      return new MqttUserActionLogDto
+      {
+        Id         = dto.Id,
+        Time       = dto.Time,
+        Action     = dto.Action,
+        Category   = dto.Category,
+        Importance = dto.Importance,
+        Text       = dto.Text,
+        Username   = dto.Username,
+      };
+    }
   }
 }

@@ -1,4 +1,5 @@
 using System;
+using Iface.Oik.Tm.Interfaces;
 
 namespace Iface.Oik.Tm.Dto
 {
@@ -232,5 +233,21 @@ namespace Iface.Oik.Tm.Dto
     public float TprZoneCLow   { get; set; }
     public float TprZoneCHigh  { get; set; }
     public float TprZoneDHigh  { get; set; }
+  }
+
+
+  public class TmUserActionDto
+  {
+    public Guid                 Id         { get; set; }
+    public MqttKnownTopic       Action     { get; set; }
+    public TmUserActionCategory Category   { get; set; }
+    public DateTime             Time       { get; set; }
+    public string               State      { get; set; }
+    public int                  Importance { get; set; }
+    public string               Text       { get; set; }
+    public string               Username   { get; set; }
+    public Guid?                ExtraId    { get; set; }
+    public int?                 ExtraInt   { get; set; }
+    public string               ExtraText  { get; set; }
   }
 }
