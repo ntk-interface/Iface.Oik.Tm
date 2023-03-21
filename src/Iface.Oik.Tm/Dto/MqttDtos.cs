@@ -100,12 +100,6 @@ namespace Iface.Oik.Tm.Dto
   }
 
 
-  public class MqttBindingWithNewNameDto : MqttBindingDto
-  {
-    public string NewName { get; set; }
-  }
-
-
   public class MqttBindingWithNewTypeDto : MqttBindingDto
   {
     public TobBindingType NewBindingType { get; set; }
@@ -115,5 +109,18 @@ namespace Iface.Oik.Tm.Dto
   public class MqttBindingWithNewTmAddrDto : MqttBindingDto
   {
     public string NewTmAddrString { get; set; }
+  }
+
+
+  public class MqttBindingWithChangesDto : MqttBindingDto
+  {
+    public string Changes { get; set; }
+  }
+
+
+  public class MqttBindingFromModusDto
+  {
+    public Guid   DocId   { get; set; }
+    public string DocName { get; set; }
   }
 }

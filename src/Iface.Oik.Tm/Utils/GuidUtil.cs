@@ -5,6 +5,12 @@ namespace Iface.Oik.Tm.Utils
 {
   public static class GuidUtil
   {
+    public static Guid EncodeCimSubstation(int schemeId)
+    {
+      return Encode(CimGuidScope.Substation, schemeId, 0, 0);
+    }
+    
+    
     public static Guid EncodeCimEquipment(int schemeId, int objectId)
     {
       return Encode(CimGuidScope.Equipment, schemeId, objectId, 0);
@@ -27,6 +33,12 @@ namespace Iface.Oik.Tm.Utils
     public static bool TryDecodeCimEquipment(Guid id, out int schemeId, out int objectId)
     {
       return TryDecode(CimGuidScope.Equipment, id, out schemeId, out objectId, out _);
+    }
+
+
+    public static bool TryDecodeCimSubstation(Guid id, out int schemeId)
+    {
+      return TryDecode(CimGuidScope.Equipment, id, out schemeId, out _, out _);
     }
 
 
