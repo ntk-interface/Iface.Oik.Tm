@@ -1541,5 +1541,40 @@ namespace Iface.Oik.Tm.Api
 
             return bin;
         }
+
+
+        public async Task<bool> SetRedirectorPort(string serverName, int portIndex , int port)
+        {
+            var portStr = $"{port}";
+            var binData = TmNativeUtil.GetFixedBytesWithTrailingZero(portStr, 
+                                                                     portStr.Length + 1, 
+                                                                     "windows-1251");
+
+            return await SetBin(".cfs.", 
+                                $"rbs${serverName}", 
+                                $"ipg_port{portIndex}", 
+                                binData).ConfigureAwait(false);
+        }
+
+
+        public async Task<bool> SetBin(string uName,
+                                       string oName,
+                                       string binName, 
+                                       byte[] binData)
+        {
+            const int errBufLength = 1000;
+            var       errBuf       = new byte[errBufLength];
+            uint      errCode      = 0;
+            
+            return await Task.Run(() => _native.CfsIfpcSetBin(CfId,
+                                                              uName,
+                                                              oName,
+                                                              binName,
+                                                              binData, 
+                                                              (uint)binData.Length, 
+                                                              out errCode, 
+                                                              ref errBuf, 
+                                                              errBufLength)).ConfigureAwait(false);
+        }
     }
 }

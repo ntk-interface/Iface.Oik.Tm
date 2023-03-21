@@ -509,6 +509,7 @@ namespace Iface.Oik.Tm.Native.Api
       return cfsSlogClose(connId, sLogHandle, out errCode, errBuf, maxErrs);
     }
 
+    
     public IntPtr CfsIfpcGetBin(IntPtr connId, 
                                 string uName, 
                                 string oName, 
@@ -519,6 +520,20 @@ namespace Iface.Oik.Tm.Native.Api
                                 uint maxErrs)
     {
       return cfsIfpcGetBin(connId, uName, oName, binName, out binLength, out errCode, errBuf, maxErrs);
+    }
+
+    
+    public bool CfsIfpcSetBin(IntPtr   connId,  
+                              string     uName,  
+                              string oName, 
+                              string binName, 
+                              byte[] buf, 
+                              uint bufLength,
+                              out uint errCode, 
+                              ref byte[] errBuf, 
+                              uint   maxErrs)
+    {
+      return cfsIfpcSetBin(connId, uName, oName, binName, buf, bufLength, out errCode, errBuf, maxErrs);
     }
   }
 }

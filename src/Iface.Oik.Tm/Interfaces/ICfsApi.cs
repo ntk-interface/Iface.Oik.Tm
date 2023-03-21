@@ -119,5 +119,14 @@ namespace Iface.Oik.Tm.Interfaces
 		Task<string> GetBin(string uName,
 		                    string oName,
 		                    string binName);
+
+
+		Task<bool> SetRedirectorPort(string serverName, int portIndex, int port);
+
+
+		Task<bool> SetBin(string uName,
+		                  string oName,
+		                  string binName,
+		                  byte[] binData);
 	}
 }

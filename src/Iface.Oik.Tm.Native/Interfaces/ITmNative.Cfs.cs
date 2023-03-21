@@ -363,5 +363,16 @@ namespace Iface.Oik.Tm.Native.Interfaces
                          out UInt32 errCode,
                          ref byte[] errBuf,
                          UInt32     maxErrs);
+
+
+    bool CfsIfpcSetBin(IntPtr     connId,
+                       string     uName,
+                       string     oName,
+                       string     binName,
+                       byte[] buf,
+                       UInt32     bufLength,
+                       out UInt32 errCode,
+                       ref byte[] errBuf,
+                       UInt32     maxErrs);
   }
 }
