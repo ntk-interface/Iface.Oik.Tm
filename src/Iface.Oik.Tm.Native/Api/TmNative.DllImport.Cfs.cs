@@ -423,5 +423,28 @@ namespace Iface.Oik.Tm.Native.Api
                                               out       UInt32 errCode,
                                               [In, Out] byte[] errBuf,
                                               UInt32           maxErrs);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern IntPtr cfsIfpcGetBin(IntPtr                                  connId,
+                                              [MarshalAs(UnmanagedType.LPStr)] string uName,
+                                              [MarshalAs(UnmanagedType.LPStr)] string oName,
+                                              [MarshalAs(UnmanagedType.LPStr)] string binName,
+                                              out                              UInt32 binLength,
+                                              out                              UInt32 errCode,
+                                              [In, Out]                        byte[] errBuf,
+                                              UInt32                                  maxErrs);
+
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern Boolean cfsIfpcSetBin(IntPtr                                  connId,
+                                               [MarshalAs(UnmanagedType.LPStr)] string uName,
+                                               [MarshalAs(UnmanagedType.LPStr)] string oName,
+                                               [MarshalAs(UnmanagedType.LPStr)] string binName,
+                                               [In] byte[]                             buf,
+                                               UInt32                                  bufLength,
+                                               out       UInt32                        errCode,
+                                               [In, Out] byte[]                        errBuf,
+                                               UInt32                                  maxErrs);
   }
 }

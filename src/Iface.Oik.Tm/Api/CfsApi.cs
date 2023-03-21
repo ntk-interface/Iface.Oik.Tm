@@ -1497,6 +1497,87 @@ namespace Iface.Oik.Tm.Api
                                                              ref errBuf, 
                                                              errBufLength)).ConfigureAwait(false);
         }
-        
+
+
+        public async Task<int> GetRedirectorPort(string serverName, int portIndex)
+        {
+            var portBinData = await GetBin(".cfs.", $"rbs${serverName}", $"ipg_port{portIndex}")
+                                  .ConfigureAwait(false);
+
+            if (!int.TryParse(EncodingUtil.Win1251BytesToUtf8(portBinData), out var port))
+            {
+                return -1;
+            }
+
+            return port;
+        }
+
+
+        public async Task<byte[]> GetBin(string uName, 
+                                         string oName, 
+                                         string binName)
+        {
+            const int errBufLength = 1000;
+            var       errBuf       = new byte[errBufLength];
+            uint      errCode      = 0;
+
+            uint binLength = 0;
+
+            var resultPtr = await Task.Run(() => _native.CfsIfpcGetBin(CfId,
+                                                                       uName,
+                                                                       oName,
+                                                                       binName,
+                                                                       out binLength,
+                                                                       out errCode, 
+                                                                       ref errBuf, 
+                                                                       errBufLength))
+                                      .ConfigureAwait(false);
+
+            if (resultPtr == IntPtr.Zero)
+            {
+                return Array.Empty<byte>();
+            }
+
+            var binData = new byte[binLength];
+            
+            Marshal.Copy(resultPtr, binData, 0, binData.Length);
+
+            return binData;
+        }
+
+
+        public async Task<bool> SetRedirectorPort(string serverName, int portIndex , int port)
+        {
+            var portStr = $"{port}";
+            var binData = TmNativeUtil.GetFixedBytesWithTrailingZero(portStr, 
+                                                                     portStr.Length + 1, 
+                                                                     "windows-1251");
+
+            return await SetBin(".cfs.", 
+                                $"rbs${serverName}", 
+                                $"ipg_port{portIndex}", 
+                                binData).ConfigureAwait(false);
+        }
+
+
+        public async Task<bool> SetBin(string uName,
+                                       string oName,
+                                       string binName, 
+                                       byte[] binData)
+        {
+            const int errBufLength = 1000;
+            var       errBuf       = new byte[errBufLength];
+            uint      errCode      = 0;
+            
+            return await Task.Run(() => _native.CfsIfpcSetBin(CfId,
+                                                              uName,
+                                                              oName,
+                                                              binName,
+                                                              binData, 
+                                                              (uint)binData.Length, 
+                                                              out errCode, 
+                                                              ref errBuf, 
+                                                              errBufLength)).ConfigureAwait(false);
+        }
     }
 }
