@@ -111,5 +111,13 @@ namespace Iface.Oik.Tm.Interfaces
 		                                                          uint              startIndex = SLogIndex.Last,
 		                                                          DateTime?         startTime = null, 
 		                                                          DateTime?         endTime = null);
+
+
+		Task<int> GetRedirectorPort(string serverName, int portIndex);
+
+
+		Task<string> GetBin(string uName,
+		                    string oName,
+		                    string binName);
 	}
 }

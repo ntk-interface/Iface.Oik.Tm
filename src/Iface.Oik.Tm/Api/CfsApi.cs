@@ -1497,6 +1497,49 @@ namespace Iface.Oik.Tm.Api
                                                              ref errBuf, 
                                                              errBufLength)).ConfigureAwait(false);
         }
-        
+
+
+        public async Task<int> GetRedirectorPort(string serverName, int portIndex)
+        {
+            var portStr = await GetBin(".cfs.", $"rbs${serverName}", $"ipg_port{portIndex}");
+
+            if (!int.TryParse(portStr, out var port))
+            {
+                return -1;
+            }
+
+            return port;
+        }
+
+
+        public async Task<string> GetBin(string uName, 
+                                         string oName, 
+                                         string binName)
+        {
+            const int errBufLength = 1000;
+            var       errBuf       = new byte[errBufLength];
+            uint      errCode      = 0;
+
+            uint binLength = 0;
+
+            var resultPtr = await Task.Run(() => _native.CfsIfpcGetBin(CfId,
+                                                                       uName,
+                                                                       oName,
+                                                                       binName,
+                                                                       out binLength,
+                                                                       out errCode, 
+                                                                       ref errBuf, 
+                                                                       errBufLength))
+                                      .ConfigureAwait(false);
+
+            if (resultPtr == IntPtr.Zero)
+            {
+                return "";
+            }
+
+            var bin = TmNativeUtil.GetStringFromIntPtrWithAdditionalPart(resultPtr, (int)binLength);
+
+            return bin;
+        }
     }
 }

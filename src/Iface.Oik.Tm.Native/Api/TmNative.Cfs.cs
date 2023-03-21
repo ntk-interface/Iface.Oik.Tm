@@ -508,5 +508,17 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return cfsSlogClose(connId, sLogHandle, out errCode, errBuf, maxErrs);
     }
+
+    public IntPtr CfsIfpcGetBin(IntPtr connId, 
+                                string uName, 
+                                string oName, 
+                                string binName, 
+                                out uint binLength, 
+                                out uint errCode,
+                                ref byte[] errBuf, 
+                                uint maxErrs)
+    {
+      return cfsIfpcGetBin(connId, uName, oName, binName, out binLength, out errCode, errBuf, maxErrs);
+    }
   }
 }
