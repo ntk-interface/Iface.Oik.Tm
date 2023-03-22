@@ -164,8 +164,47 @@ namespace Iface.Oik.Tm.Api
 		}
         public async Task SaveFullMSTree(MSTreeNode msRoot)
         {
+            // Нормализуем имена Pipe для дочерних компонент под серверами, убираем дублирование если есть
+            List<string> known_pipes = new List<string>();
+            foreach (var server in msRoot.Children)
+            {
+                if (server.Properties is ChildNodeProperties p)
+                {
+                    if(p.PipeName.Trim().IsNullOrEmpty())
+                    {
+                        switch(server.ProgName)
+                        {
+                            case MSTreeConsts.rbsrv:
+                            case MSTreeConsts.rbsrv_old:
+                                p.PipeName = "RBS";
+                                break;
+							case MSTreeConsts.pcsrv:
+							case MSTreeConsts.pcsrv_old:
+								p.PipeName = "TMS";
+								break;
+						}
+					}
+                    int i = 1;
+                    while (known_pipes.Contains(p.PipeName))
+                    {
+                        p.PipeName = $"{p.PipeName}{i}";
+                        i++;
+                    }
+                    known_pipes.Add(p.PipeName);
+                    if (server.Children != null)
+                    {
+                        foreach (var child in server.Children)
+                        { 
+                            if(child.Properties is ChildNodeProperties ch_p)
+                            {
+                                ch_p.PipeName = p.PipeName;
+                            }
+                        }
+                    }
+                }
+            }
             // Основное дерево мастер-сервиса
-            var tree_handle = await CreateNewMasterServiceTree(msRoot).ConfigureAwait(false);
+			var tree_handle = await CreateNewMasterServiceTree(msRoot).ConfigureAwait(false);
             await SaveMasterServiceConfiguration(tree_handle).ConfigureAwait(false);
             FreeMasterServiceConfigurationHandle(tree_handle);
 

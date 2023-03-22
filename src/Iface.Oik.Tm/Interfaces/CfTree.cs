@@ -53,7 +53,7 @@ namespace Iface.Oik.Tm.Interfaces
 					case MSTreeConsts.pcsrv:
 						Properties = new NewTmsNodeProperties
 						{
-							// Пассивный режим только для TMS под Ifpcore
+							// РџР°СЃСЃРёРІРЅС‹Р№ СЂРµР¶РёРј С‚РѕР»СЊРєРѕ РґР»СЏ TMS РїРѕРґ Ifpcore
 							PassiveMode = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.PassiveMode, "1").Equals("1"),
 						};
 						break;
@@ -71,7 +71,7 @@ namespace Iface.Oik.Tm.Interfaces
 					case MSTreeConsts.ext_task_old:
 						Properties = new ExternalTaskNodeProperties
 						{
-							// Зачем то в пути внешней задачи пробелы замеяются на табуляции
+							// Р—Р°С‡РµРј С‚Рѕ РІ РїСѓС‚Рё РІРЅРµС€РЅРµР№ Р·Р°РґР°С‡Рё РїСЂРѕР±РµР»С‹ Р·Р°РјРµСЏСЋС‚СЃСЏ РЅР° С‚Р°Р±СѓР»СЏС†РёРё
 							TaskPath = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.TaskPath, String.Empty).Replace('\t', ' '),
 							TaskArguments = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.TaskArguments, String.Empty),
 							ConfigurationFilePath = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.ConfFilePath, String.Empty)
@@ -156,22 +156,22 @@ namespace Iface.Oik.Tm.Interfaces
 		public string Addr { get; set; } = "";
 		public short Port { get; set; }
 		public short BPort { get; set; }
-		public short AbortTO { get; set; }
-		public short RetakeTO { get; set; }
-		public bool CopyConfig { get; set; }
+		public short AbortTO { get; set; } = 20;
+		public short RetakeTO { get; set; } = 20;
+		public bool CopyConfig { get; set; } 
 		public bool StopInactive { get; set; }
 	}
 	public static class MSTreeConsts
 	{
 		public const string LogFileSize = "LogFileSize";
-		public const string NoStart = "Отмена запуска";
-		public const string WorkDir = "Рабочий каталог";
+		public const string NoStart = "РћС‚РјРµРЅР° Р·Р°РїСѓСЃРєР°";
+		public const string WorkDir = "Р Р°Р±РѕС‡РёР№ РєР°С‚Р°Р»РѕРі";
 		public const string ProgName = "ProgName";
 		public const string PipeName = "PipeName";
-		public const string PassiveMode = "Пассивный режим";
+		public const string PassiveMode = "РџР°СЃСЃРёРІРЅС‹Р№ СЂРµР¶РёРј";
 		public const string TaskPath = "Args";
-		public const string TaskArguments = "Аргументы";
-		public const string ConfFilePath = "Конф. файл";
+		public const string TaskArguments = "РђСЂРіСѓРјРµРЅС‚С‹";
+		public const string ConfFilePath = "РљРѕРЅС„. С„Р°Р№Р»";
 		public const string portcore = "portcore";
 		public const string master = "_master_.exe";
 		public const string pcsrv = "pcsrv";
@@ -182,8 +182,8 @@ namespace Iface.Oik.Tm.Interfaces
 		public const string delta_old = "delta_nt.exe";
 		public const string tmcalc = "tmcalc_pc";
 		public const string tmcalc_old = "tmcalc.exe";
-		public const string ext_task = "_extern";
-		public const string ext_task_old = "_ext_pc";
+		public const string ext_task = "_ext_pc";
+		public const string ext_task_old = "_extern";
 		public const string toposrv = "ElectricTopology";
 		public const string gensrv = "_srv_.exe";
 		public const string RBS_CfgFile = "server.cfg";
