@@ -8,6 +8,10 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("User/Logout")]         UserLogout        = 11,
     [Description("User/CustomMessage")]  UserCustomMessage = 12,
 
+    [Description("Settings/GlobalClient/Edit")]        SettingsGlobalClientEdit        = 50,
+    [Description("Settings/UserClient/Edit")]          SettingsUserClientEdit          = 51,
+    [Description("Settings/UserEventMonitoring/Edit")] SettingsUserEventMonitoringEdit = 52,
+
     [Description("Model/Change/All")]                       ModelChangeAll                  = 100,
     [Description("Model/Topology/Change/All")]              TopologyChangeAll               = 110,
     [Description("Model/Topology/Change/Some")]             TopologyChangeSome              = 111,

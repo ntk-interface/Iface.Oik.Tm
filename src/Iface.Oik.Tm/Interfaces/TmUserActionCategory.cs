@@ -8,8 +8,9 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("")]                   None,
     [Description("Аудит")]              Audit,
     [Description("Каталог документов")] Documents,
-    [Description("Плакаты")]            Placards,
-    [Description("Привязки")]           Bindings,
+    [Description("Плакат")]             Placards,
+    [Description("Привязка")]           Bindings,
     [Description("Настройки")]          Settings,
+    [Description("Сообщение")]          Message,
   }
 }

@@ -29,6 +29,13 @@ namespace Iface.Oik.Tm.Dto
   }
 
 
+  public class MqttCustomMessageDto
+  {
+    public int    Importance { get; set; }
+    public string Message    { get; set; }
+  }
+
+
   public class MqttDocumentDto
   {
     public Guid   Id        { get; set; }
