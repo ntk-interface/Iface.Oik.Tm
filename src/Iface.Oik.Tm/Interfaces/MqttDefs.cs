@@ -5,28 +5,6 @@ using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public enum MqttKnownTopic
-  {
-    [Description("$User/Login")]  UserLogin  = 10,
-    [Description("$User/Logout")] UserLogout = 11,
-
-    [Description("Model/Change/All")]                    ModelChangeAll       = 100,
-    [Description("Model/Topology/Change/All")]           TopologyChangeAll    = 110,
-    [Description("Model/Topology/Change/Some")]          TopologyChangeSome   = 111,
-    [Description("Model/Placard/Add")]                   PlacardAdd           = 120,
-    [Description("Model/Placard/Edit")]                  PlacardEdit          = 121,
-    [Description("Model/Placard/Remove")]                PlacardRemove        = 122,
-    [Description("Model/Placard/PortableGround/Permit")] PortableGroundPermit = 123,
-    [Description("Model/Placard/PortableGround/Forbid")] PortableGroundForbid = 124,
-
-    [Description("TmEvent/Add")]    TmEventAdd    = 200,
-    [Description("TmEvent/Ack")]    TmEventAck    = 201,
-    [Description("TmAlert/Add")]    TmAlertAdd    = 250,
-    [Description("TmAlert/Remove")] TmAlertRemove = 251,
-    [Description("TmAlert/Ack")]    TmAlertAck    = 252,
-  }
-
-
   [Flags]
   public enum MqttQoS : byte
   {

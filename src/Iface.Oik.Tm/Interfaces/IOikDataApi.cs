@@ -131,6 +131,10 @@ namespace Iface.Oik.Tm.Interfaces
                                                   PreferApi prefer = PreferApi.Auto);
 
 
+    Task<IReadOnlyCollection<TmUserAction>> GetUserActionsArchive(TmEventFilter filter,
+                                                                PreferApi     prefer = PreferApi.Auto);
+
+
     Task<IReadOnlyCollection<TmEvent>> GetEventsArchive(TmEventFilter filter,
                                                         PreferApi     prefer = PreferApi.Auto);
 

@@ -339,6 +339,17 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
+    public static string GetUserName(int tmCid, int userId)
+    {
+      var userInfo = new TmNativeDefs.TUserInfo();
+      if (!Native.TmcGetUserInfo(tmCid, (uint) userId, ref userInfo))
+      {
+        return string.Empty;
+      }
+      return Encoding.GetEncoding(1251).GetString(userInfo.UserName).Trim('\0');
+    }
+
+
     public static TmServerFeatures GetTmServerFeatures(int tmCid)
     {
       var capabilitiesBuf = new byte[16];
@@ -677,6 +688,17 @@ namespace Iface.Oik.Tm.Helpers
         }
         Native.TmcSetRetransInfo(tmCid, (ushort)batchCount, ri);
       }
+    }
+
+
+    public static void MqttSubscribe(int tmCid, MqttKnownTopic knownTopic)
+    {
+      var topic = new MqttSubscriptionTopic(knownTopic);
+
+      Native.TmcPubSubscribe(tmCid,
+                             topic.Topic,
+                             (uint)topic.SubscriptionId,
+                             (byte)topic.QoS);
     }
 
 

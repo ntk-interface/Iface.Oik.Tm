@@ -1477,6 +1477,98 @@ namespace Iface.Oik.Tm.Api
 
       return $" LIMIT {filter.OutputLimit}";
     }
+    
+    
+    public async Task<IReadOnlyCollection<TmUserAction>> GetUserActionsArchive(TmEventFilter filter)
+    {
+      if (filter == null) return null; //???
+
+      var whereBeg              = GetWhereUserActionStartTime(filter);
+      var whereEnd              = GetWhereUserActionEndTime(filter);
+      var whereEventImportances = GetWhereUserActionImportances(filter);
+      var limit                 = GetEventsOutputLimit(filter);
+
+      try
+      {
+        var userActions = new List<TmUserAction>();
+        using (var sql = _createOikSqlConnection())
+        {
+          sql.Label = "ArchEvents";
+          await sql.OpenAsync().ConfigureAwait(false);
+          var commandText = $@"SELECT id, time, action, category, state, importance, text, user_name,
+                                extra_id, extra_int, extra_text,
+                                ack_time, ack_user
+            FROM oik_user_actions_log
+            WHERE 1=1 {whereBeg}{whereEnd}{whereEventImportances}
+            ORDER BY time
+            {limit}";
+
+          var parameters = new DynamicParameters();
+          if (!whereBeg.IsNullOrEmpty())
+          {
+            parameters.Add("@StartTime", filter.StartTime, DbType.DateTime);
+          }
+          if (!whereEnd.IsNullOrEmpty())
+          {
+            parameters.Add("@EndTime", filter.EndTime, DbType.DateTime);
+          }
+          if (!whereEventImportances.IsNullOrEmpty())
+          {
+            parameters.Add("@Importances", filter.Importances, DbType.Int16);
+          }
+
+          var dtos = await sql.DbConnection
+                              .QueryAsync<TmUserActionDto>(commandText, parameters)
+                              .ConfigureAwait(false);
+
+          dtos.ForEach((dto, idx) =>
+          {
+              var userAction = TmUserAction.CreateFromDto(dto);
+              userAction.Num = idx + 1;
+              userActions.Add(userAction);
+          });
+        }
+        return userActions;
+      }
+      catch (NpgsqlException ex)
+      {
+        HandleNpgsqlException(ex);
+        return null;
+      }
+      catch (Exception ex)
+      {
+        HandleException(ex);
+        return null;
+      }
+    }
+
+
+    private static string GetWhereUserActionEndTime(TmEventFilter filter)
+    {
+      if (!filter.EndTime.HasValue) return "";
+
+      return " AND time <= @EndTime";
+    }
+
+
+    private static string GetWhereUserActionStartTime(TmEventFilter filter)
+    {
+      if (!filter.StartTime.HasValue) return "";
+
+      return " AND time >= @StartTime";
+    }
+
+
+    private static string GetWhereUserActionImportances(TmEventFilter filter)
+    {
+      if (filter.Importances == TmEventImportances.None ||
+          filter.Importances == TmEventImportances.Any)
+      {
+        return "";
+      }
+
+      return " AND (1 << importance) & @Importances > 0";
+    }
 
 
     public async Task<(IReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix)

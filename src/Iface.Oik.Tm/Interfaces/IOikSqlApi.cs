@@ -34,6 +34,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<IReadOnlyCollection<TmEvent>> GetEventsArchive(TmEventFilter filter);
 
+    Task<IReadOnlyCollection<TmUserAction>> GetUserActionsArchive(TmEventFilter filter);
+
     Task<(IReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix);
 
     Task<IReadOnlyCollection<TmChannel>> GetTmTreeChannels();

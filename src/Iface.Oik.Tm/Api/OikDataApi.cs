@@ -652,6 +652,25 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<IReadOnlyCollection<TmUserAction>> GetUserActionsArchive(TmEventFilter filter, 
+                                                                             PreferApi     prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
+      if (api == ApiSelection.Tms)
+      {
+        return null;
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        return await _sql.GetUserActionsArchive(filter).ConfigureAwait(false);
+      }
+      else
+      {
+        return null;
+      }
+    }
+
+
     public async Task<TmEventElix> GetCurrentEventsElix(PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
