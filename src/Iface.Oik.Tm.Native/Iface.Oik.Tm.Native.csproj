@@ -21,4 +21,11 @@
 	<ItemGroup>
 		<Content Include="runtimes\**" PackagePath="runtimes" Visible="false" />
 	</ItemGroup>
+	
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	    <Exec Command="copy ..\..\lib\libif_cfs.so .\runtimes\unix\native\" />
+  	    <Exec Command="copy ..\..\lib\libif_cfs.dll .\runtimes\win-x64\native\" />
+		<Exec Command="copy ..\..\lib\cfshare.dll .\runtimes\win-x86\native\" />
+		<Exec Command="copy ..\..\lib\tmconn.dll .\runtimes\win-x86\native\" />
+	</Target>
 </Project>
