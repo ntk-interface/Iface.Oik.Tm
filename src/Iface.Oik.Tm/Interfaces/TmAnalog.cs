@@ -441,7 +441,10 @@ namespace Iface.Oik.Tm.Interfaces
       Name = name;
       Unit = unit.TrimEnd();
 
-      var formatParts = format.Split('.');
+      var formatParts = string.IsNullOrEmpty(format) 
+                          ? Array.Empty<string>() 
+                          : format.Split('.');
+      
       if (formatParts.Length > 1                        &&
           byte.TryParse(formatParts[0], out byte width) &&
           byte.TryParse(formatParts[1], out byte precision))
