@@ -1196,11 +1196,11 @@ namespace Iface.Oik.Tm.Native.Interfaces
 			//		CHAR rus[128];
 			//		} audit[32];
 			[MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
-			AccessRight[] Bit;
+			public AccessRight[] Bit;
 			[MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
-			AccessRight[] Cplx;
+			public AccessRight[] Cplx;
 			[MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
-			AccessRight[] Audit;
+			public AccessRight[] Audit;
 			//struct {
 			//		CHAR eng[128];
 			//CHAR rus[128];
@@ -1209,10 +1209,10 @@ namespace Iface.Oik.Tm.Native.Interfaces
 			//		CHAR eng[128];
 			//CHAR rus[128];
 			//	}objtypename;
-			AccessDescription Default;
-			AccessDescription ObjTypeName;
+			public AccessDescription Default;
+			public AccessDescription ObjTypeName;
 			//GENERIC_MAPPING GenericMapping;
-			AccessMapping GenericMapping;
+			public AccessMapping GenericMapping;
 			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
 			public string NamePrefix;
 			//CHAR name_prefix[128];
