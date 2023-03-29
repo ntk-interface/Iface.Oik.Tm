@@ -1002,7 +1002,7 @@ namespace Iface.Oik.Tm.Api
           }
           if (!whereFlags.IsNullOrEmpty())
           {
-            parameters.Add("@Flags", filter.Flags, DbType.Int32);
+            parameters.Add("@Flags", (int)filter.Flags, DbType.Int32);
           }
           if (!whereChangeTime.IsNullOrEmpty())
           {
@@ -1139,7 +1139,7 @@ namespace Iface.Oik.Tm.Api
           }
           if (!whereFlags.IsNullOrEmpty())
           {
-            parameters.Add("@Flags", filter.Flags, DbType.Int32);
+            parameters.Add("@Flags", (int)filter.Flags, DbType.Int32);
           }
           if (!whereChangeTime.IsNullOrEmpty())
           {
