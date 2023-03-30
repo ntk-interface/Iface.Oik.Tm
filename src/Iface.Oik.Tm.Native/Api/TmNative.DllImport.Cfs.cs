@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using Iface.Oik.Tm.Native.Interfaces;
 
@@ -456,5 +457,31 @@ namespace Iface.Oik.Tm.Native.Api
 		public static extern IntPtr cfsGetExtendedUserRightsDescriptor([MarshalAs(UnmanagedType.LPStr)] string ini,
 																	   [MarshalAs(UnmanagedType.LPStr)] string section, 
 																		uint fCheck);
+
+		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+		public static extern IntPtr cfsIfpcEnumUsers(IntPtr connId, 
+													 out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
+
+		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+		public static extern IntPtr cfsIfpcEnumOSUsers(IntPtr connId,
+													 out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
+
+		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+		public static extern Boolean cfsIfpcDeleteUser(IntPtr connId,
+													   [MarshalAs(UnmanagedType.LPStr)] string username,
+													   out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
+
+		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+		public static extern UInt32 cfsIfpcGetAccess(IntPtr connId,
+												   [MarshalAs(UnmanagedType.LPStr)] string uName,
+												   [MarshalAs(UnmanagedType.LPStr)] string oName,
+												   out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
+
+		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+		public static extern Boolean cfsIfpcSetAccess(IntPtr connId,
+												   [MarshalAs(UnmanagedType.LPStr)] string uName,
+												   [MarshalAs(UnmanagedType.LPStr)] string oName,
+												   UInt32 AccessMask,
+												   out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
 	}
 }

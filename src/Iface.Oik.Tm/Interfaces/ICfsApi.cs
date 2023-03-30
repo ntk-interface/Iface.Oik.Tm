@@ -129,5 +129,14 @@ namespace Iface.Oik.Tm.Interfaces
 		                  string oName,
 		                  string binName,
 		                  byte[] binData);
+
+		AccessDescriptor GetAccessDescriptor(string ProgName);
+		ExtendedRightsDescriptor GetExtendedRightsDescriptor();
+		Task<(bool, string, IReadOnlyCollection<string>)> IfpcEnumUsers();
+		Task<(bool, string, IReadOnlyCollection<string>)> IfpcEnumOSUsers();
+		Task<(bool, string)> IfpcChangeUserPassword(string username, string password);
+		Task<(bool, string)> IfpcDeleteUser(string username);
+		Task<(bool, string, uint)> IfpcGetAccessMask(string uName, string oName);
+		Task<(bool, string)> IfpcSetAccessMask(string uName, string oName, uint AccessMask);
 	}
 }

@@ -1163,9 +1163,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
 		public struct AccessDescription
 		{
 			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
-			public string Eng;
+			public string eng;
 			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
-			public string Rus;
+			public string rus;
 		}
 		[StructLayout(LayoutKind.Sequential)]
 		public struct AccessMapping
@@ -1182,8 +1182,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
 			public UInt32 ResourceType;
 			//struct {
 			//		DWORD mask;
-			//			CHAR eng[128];
-			//			CHAR rus[128];
+			//		CHAR eng[128];
+			//		CHAR rus[128];
 			//		} bit[32];
 			//struct {
 			//		DWORD mask;

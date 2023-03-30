@@ -31,11 +31,11 @@ namespace Iface.Oik.Tm.Native.Api
 		}
 
 
-		public UInt32 CfsGetExtendedUserData(IntPtr cfCid,
+		public uint CfsGetExtendedUserData(IntPtr cfCid,
 											 string serverType,
 											 string serverName,
 											 IntPtr buf,
-											 UInt32 bufSize)
+											 uint bufSize)
 		{
 			return cfsGetExtendedUserData(cfCid, serverType, serverName, buf, bufSize);
 		}
@@ -544,6 +544,38 @@ namespace Iface.Oik.Tm.Native.Api
 		public IntPtr CfsGetExtendedUserRightsDescriptor(string ini, string section, uint fCheck)
 		{
 			return cfsGetExtendedUserRightsDescriptor(ini, section, fCheck);
+		}
+		public IntPtr СfsIfpcEnumUsers(IntPtr connId, out uint errCode, ref byte[] errBuf, uint maxErrs)
+		{
+			return cfsIfpcEnumUsers(connId, out errCode, errBuf, maxErrs);
+		}
+
+		public IntPtr СfsIfpcEnumOSUsers(IntPtr connId, out uint errCode, ref byte[] errBuf, uint maxErrs)
+		{
+			return cfsIfpcEnumOSUsers(connId, out errCode, errBuf, maxErrs);
+		}
+
+		public Boolean СfsIfpcDeleteUser(IntPtr connId, string username,
+													   out uint errCode, ref byte[] errBuf, uint maxErrs)
+		{
+			return cfsIfpcDeleteUser(connId, username, out errCode, errBuf, maxErrs);
+		}
+
+		public uint СfsIfpcGetAccess(IntPtr connId,
+												   string uName,
+												   string oName,
+												   out uint errCode, ref byte[] errBuf, uint maxErrs)
+		{
+			return cfsIfpcGetAccess(connId, uName, oName, out errCode, errBuf, maxErrs);
+		}
+
+		public	Boolean СfsIfpcSetAccess(IntPtr connId,
+												   string uName,
+												   string oName,
+												   uint AccessMask,
+												   out uint errCode, ref byte[] errBuf, uint maxErrs)
+		{
+			return cfsIfpcSetAccess(connId, uName, oName, AccessMask, out errCode, errBuf, maxErrs);
 		}
 	}
 }

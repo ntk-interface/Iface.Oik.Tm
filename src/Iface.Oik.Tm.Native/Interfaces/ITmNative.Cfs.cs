@@ -374,7 +374,28 @@ namespace Iface.Oik.Tm.Native.Interfaces
 						   out UInt32 errCode,
 						   ref byte[] errBuf,
 						   UInt32 maxErrs);
+
 		IntPtr CfsGetAccessDescriptor(string ini, string section);
+
 		IntPtr CfsGetExtendedUserRightsDescriptor(string ini, string section, uint fCheck);
+
+		IntPtr СfsIfpcEnumUsers(IntPtr connId, 
+								out uint errCode, ref byte[] errBuf, uint maxErrs);
+
+		IntPtr СfsIfpcEnumOSUsers(IntPtr connId, 
+								  out uint errCode, ref byte[] errBuf, uint maxErrs);
+
+		Boolean СfsIfpcDeleteUser(IntPtr connId, string username,
+								  out uint errCode, ref byte[] errBuf, uint maxErrs);
+
+		uint СfsIfpcGetAccess(IntPtr connId,
+							  string uName,
+							  string oName,
+							  out uint errCode, ref byte[] errBuf, uint maxErrs);
+		Boolean СfsIfpcSetAccess(IntPtr connId,
+							     string uName,
+								 string oName,
+								 uint AccessMask,
+								 out uint errCode, ref byte[] errBuf, uint maxErrs);
 	}
 }
