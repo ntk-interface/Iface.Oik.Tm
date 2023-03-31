@@ -35,7 +35,8 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("UserActionLog/Ack")] UserActionLogAck = 203,
     [Description("TmAlert/Add")]       TmAlertAdd       = 250,
     [Description("TmAlert/Remove")]    TmAlertRemove    = 251,
-    [Description("TmAlert/Ack")]       TmAlertAck       = 252,
+    [Description("TmAlert/Change")]    TmAlertChange    = 252,
+    [Description("TmAlert/Ack")]       TmAlertAck       = 253,
 
     [Description("Document/Create")]          DocumentCreate          = 301,
     [Description("Document/UpdateContent")]   DocumentUpdateContent   = 302,
