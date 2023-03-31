@@ -1627,6 +1627,8 @@ namespace Iface.Oik.Tm.Api
 			var binData = new byte[binLength];
 
 			Marshal.Copy(resultPtr, binData, 0, binData.Length);
+			// не забываем освобождать память, возвращённую из библиотеки
+			_native.TmcFreeMemory(resultPtr);
 
 			return binData;
 		}
@@ -1829,13 +1831,13 @@ namespace Iface.Oik.Tm.Api
 				return (true, string.Empty);
 			}
 		}
-		public async Task<(bool, string, uint)> IfpcGetAccessMask(string uName, string oName)
+		public async Task<(bool, string, uint)> IfpcGetAccessMask(string username, string oName)
 		{
 			const int errBufLength = 1000;
 			var errBuf = new byte[errBufLength];
 			uint errCode = 0;
 
-			var result = await Task.Run(() => _native.СfsIfpcGetAccess(CfId, uName, oName, out errCode, ref errBuf, errBufLength)).ConfigureAwait(false);
+			var result = await Task.Run(() => _native.СfsIfpcGetAccess(CfId, username, oName, out errCode, ref errBuf, errBufLength)).ConfigureAwait(false);
 			if (errCode != 0)
 			{
 				return (false, EncodingUtil.Win1251BytesToUtf8(errBuf), 0);
@@ -1845,13 +1847,13 @@ namespace Iface.Oik.Tm.Api
 				return (true, String.Empty, result);
 			}
 		}
-		public async Task<(bool, string)> IfpcSetAccessMask(string uName, string oName, uint AccessMask)
+		public async Task<(bool, string)> IfpcSetAccessMask(string username, string oName, uint AccessMask)
 		{
 			const int errBufLength = 1000;
 			var errBuf = new byte[errBufLength];
 			uint errCode = 0;
 
-			var result = await Task.Run(() => _native.СfsIfpcSetAccess(CfId, uName, oName, AccessMask, out errCode, ref errBuf, errBufLength)).ConfigureAwait(false);
+			var result = await Task.Run(() => _native.СfsIfpcSetAccess(CfId, username, oName, AccessMask, out errCode, ref errBuf, errBufLength)).ConfigureAwait(false);
 			if (errCode != 0)
 			{
 				return (false, EncodingUtil.Win1251BytesToUtf8(errBuf));
@@ -1859,6 +1861,90 @@ namespace Iface.Oik.Tm.Api
 			else
 			{
 				return (true, String.Empty);
+			}
+		}
+		public async Task<(bool, string, ExtendedUserData)> IfpcGetExtendedUserData(string serverType, string serverName,  string username)
+		{
+			var resultPtr = await GetBin(username, serverType + serverName, "extr").ConfigureAwait(false);
+			if (resultPtr.Length == 0)
+			{
+				return (false, "Error CfsGetExtendedUserData", null);
+			}
+			var ui = new ExtendedUserData();
+			var data = TmNativeUtil.GetStringListFromDoubleNullTerminatedBytes(resultPtr);
+			foreach(var item in data)
+			{
+				var KeyValuePair = item.Split('=');
+				if(KeyValuePair.Length == 2)
+				{
+					switch(KeyValuePair[0])
+					{
+						case "UserID":
+							{
+								if (Int32.TryParse(KeyValuePair[1], out int i))
+									ui.UserID = i;
+							}
+							break;
+						case "UserNick":
+							ui.UserNick = KeyValuePair[1];
+							break;
+						case "UserPwd":
+							ui.UserPwd = KeyValuePair[1];
+							break;
+						case "Group":
+							{
+								if (Int32.TryParse(KeyValuePair[1], out int i))
+									ui.Group = i;
+							}
+							break;
+						case "KeyID":
+							ui.KeyID = KeyValuePair[1];
+							break;
+					}
+				}
+				else
+				if (KeyValuePair.Length == 1)
+				{
+					if (KeyValuePair[0].StartsWith("R"))
+					{
+						if (Int32.TryParse(KeyValuePair[0].Substring(1), out int idx))
+						{
+							if ((0 <= idx) && (idx < ui.Rights.Length))
+							{
+								ui.Rights[idx] = 1;
+							}
+						}
+					}
+				}
+			}
+			return (true, String.Empty, ui);
+		}
+		public async Task<(bool, string)> IfpcSetExtendedUserData(string serverType, string serverName,  string username, ExtendedUserData extendedUserData)
+		{
+			var data = new List<string>()
+			{
+				{ $"UserID={extendedUserData.UserID}"},
+				{ $"UserNick={extendedUserData.UserNick}"},
+				{ $"UserPwd={extendedUserData.UserPwd}"},
+				{ $"Group={extendedUserData.Group}"},
+				{ $"KeyID={extendedUserData.KeyID}"},
+			};
+			for(int idx=0; idx < extendedUserData.Rights.Length; idx++)
+			{
+				if (extendedUserData.Rights[idx] == 1)
+				{
+					data.Add("R" + idx);
+				}
+			}
+			var bin = TmNativeUtil.GetDoubleNullTerminatedBytesFromStringList(data);
+			var result = await SetBin(username, serverType + serverName, "extr", bin).ConfigureAwait(false);
+			if (result)
+			{
+				return (true, String.Empty);
+			}
+			else
+			{
+				return (false, "Error CfsSetExtendedUserData");
 			}
 		}
 	}

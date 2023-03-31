@@ -85,7 +85,8 @@ namespace Iface.Oik.Tm.Api
                 .ConfigureAwait(false);
 
       var singleBufPtr = Marshal.PtrToStructure<IntPtr>(bufPtr); // массив строк, а не просто строка
-      var str          = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(singleBufPtr);
+  	  Marshal.FreeHGlobal(bufPtr); // не забываем освобождать память из HGlobal
+	  var str          = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(singleBufPtr);
       _native.TmcFreeMemory(singleBufPtr);
 
       return str;

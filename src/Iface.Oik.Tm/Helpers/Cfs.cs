@@ -75,6 +75,7 @@ namespace Iface.Oik.Tm.Helpers
 		}
 
 		// todo надо ли вообще здесь такую реализацию
+		
 		public static TmUserInfo GetUserInfo(IntPtr cfCid,
 											 string serverName,
 											 string serverType)
@@ -89,10 +90,12 @@ namespace Iface.Oik.Tm.Helpers
 															(uint)nativeUserInfoSize);
 			if (fetchResult == 0)
 			{
+				Marshal.FreeHGlobal(nativeUserInfoPtr); // не забываем освобождать память из HGlobal
 				return null;
 			}
 
 			var nativeUserInfo = Marshal.PtrToStructure<TmNativeDefs.TExtendedUserInfo>(nativeUserInfoPtr);
+			Marshal.FreeHGlobal(nativeUserInfoPtr); // не забываем освобождать память из HGlobal
 
 			return new TmUserInfo(nativeUserInfo.UserId,
 								  Encoding.GetEncoding(1251).GetString(nativeUserInfo.UserName).Trim('\0'),
