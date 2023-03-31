@@ -138,5 +138,7 @@ namespace Iface.Oik.Tm.Interfaces
 		Task<(bool, string)> IfpcDeleteUser(string username);
 		Task<(bool, string, uint)> IfpcGetAccessMask(string uName, string oName);
 		Task<(bool, string)> IfpcSetAccessMask(string uName, string oName, uint AccessMask);
+		Task<(bool, string, ExtendedUserData)> IfpcGetExtendedUserData(string serverType, string serverName, string username);
+		Task<(bool, string)> IfpcSetExtendedUserData(string serverType, string serverName, string username, ExtendedUserData extendedUserData);
 	}
 }

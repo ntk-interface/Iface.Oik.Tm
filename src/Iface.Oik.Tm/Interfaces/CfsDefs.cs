@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 using Iface.Oik.Tm.Native.Interfaces;
 
 namespace Iface.Oik.Tm.Interfaces
@@ -138,4 +139,13 @@ namespace Iface.Oik.Tm.Interfaces
 		public byte DoUserPwd { get; set; }
 		public List<ExtendedRight> Rights { get; set; } = new List<ExtendedRight>();
 	}
+	public class ExtendedUserData
+	{
+		public int UserID{ get; set; }
+		public int Group { get; set; }
+		public string UserNick { get; set; }
+		public string UserPwd { get; set; }
+		public string KeyID { get; set; }
+		public byte[] Rights { get; set; } = new byte[250];
+}
 }

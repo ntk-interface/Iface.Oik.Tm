@@ -75,6 +75,7 @@ namespace Iface.Oik.Tm.Helpers
 		}
 
 		// todo надо ли вообще здесь такую реализацию
+		
 		public static TmUserInfo GetUserInfo(IntPtr cfCid,
 											 string serverName,
 											 string serverType)
@@ -95,6 +96,7 @@ namespace Iface.Oik.Tm.Helpers
 
 			var nativeUserInfo = Marshal.PtrToStructure<TmNativeDefs.TExtendedUserInfo>(nativeUserInfoPtr);
 			Marshal.FreeHGlobal(nativeUserInfoPtr); // не забываем освобождать память из HGlobal
+
 			return new TmUserInfo(nativeUserInfo.UserId,
 								  Encoding.GetEncoding(1251).GetString(nativeUserInfo.UserName).Trim('\0'),
 								  string.Empty, // todo надо ли сделать получать категорию
