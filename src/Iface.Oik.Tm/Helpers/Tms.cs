@@ -304,27 +304,29 @@ namespace Iface.Oik.Tm.Helpers
                                          string serverName)
     {
       var nativeUserInfoSize = Marshal.SizeOf(typeof(TmNativeDefs.TExtendedUserInfo));
-      var nativeUserInfoPtr  = Marshal.AllocHGlobal(nativeUserInfoSize);
 
       var cfCid = Native.TmcGetCfsHandle(tmCid);
       if (cfCid == IntPtr.Zero)
       {
         return null;
       }
+	 var nativeUserInfoPtr = Marshal.AllocHGlobal(nativeUserInfoSize);
 
-      var fetchResult = Native.CfsGetExtendedUserData(cfCid,
+	 var fetchResult = Native.CfsGetExtendedUserData(cfCid,
                                                       "tms$",
                                                       serverName,
                                                       nativeUserInfoPtr,
                                                       (uint)nativeUserInfoSize);
       if (fetchResult == 0)
       {
-        return null;
+		Marshal.FreeHGlobal(nativeUserInfoPtr); // не забываем освобождать память из HGlobal
+		return null;
       }
 
       var extendedUserInfo = Marshal.PtrToStructure<TmNativeDefs.TExtendedUserInfo>(nativeUserInfoPtr);
+	  Marshal.FreeHGlobal(nativeUserInfoPtr); // не забываем освобождать память из HGlobal
 
-      var userInfo = new TmNativeDefs.TUserInfo();
+	  var userInfo = new TmNativeDefs.TUserInfo();
       if (!Native.TmcGetUserInfo(tmCid, 0, ref userInfo))
       {
         return null;
