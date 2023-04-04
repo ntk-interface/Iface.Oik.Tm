@@ -33,17 +33,17 @@ namespace Iface.Oik.Tm.Interfaces
 		public MSTreeNode(CfTreeNode cft_node, MSTreeNode parent = null)
 		{
 			Parent = parent;
-			ProgName = cft_node.CfProperties.GetValueOrDefault( MSTreeConsts.ProgName, String.Empty);
-			string pipeName = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.PipeName, String.Empty);
-			bool noStart = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.NoStart, "0").Equals("1");
+			ProgName = cft_node.CfProperties.ValueOrDefault( MSTreeConsts.ProgName, String.Empty);
+			string pipeName = cft_node.CfProperties.ValueOrDefault(MSTreeConsts.PipeName, String.Empty);
+			bool noStart = cft_node.CfProperties.ValueOrDefault(MSTreeConsts.NoStart, "0").Equals("1");
 
 			Properties = null;
 			if (cft_node.Name == "Master")
 			{
 				Properties = new MasterNodeProperties
 				{
-					LogFileSize = int.Parse(cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.LogFileSize, "0x80000")),
-					WorkDir = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.WorkDir, String.Empty)
+					LogFileSize = int.Parse(cft_node.CfProperties.ValueOrDefault(MSTreeConsts.LogFileSize, "0x80000")),
+					WorkDir = cft_node.CfProperties.ValueOrDefault(MSTreeConsts.WorkDir, String.Empty)
 				};
 			}
 			else
@@ -54,7 +54,7 @@ namespace Iface.Oik.Tm.Interfaces
 						Properties = new NewTmsNodeProperties
 						{
 							// Пассивный режим только для TMS под Ifpcore
-							PassiveMode = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.PassiveMode, "1").Equals("1"),
+							PassiveMode = cft_node.CfProperties.ValueOrDefault(MSTreeConsts.PassiveMode, "1").Equals("1"),
 						};
 						break;
 					case MSTreeConsts.rbsrv:
@@ -72,13 +72,13 @@ namespace Iface.Oik.Tm.Interfaces
 						Properties = new ExternalTaskNodeProperties
 						{
 							// Зачем то в пути внешней задачи пробелы замеяются на табуляции
-							TaskPath = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.TaskPath, String.Empty).Replace('\t', ' '),
-							TaskArguments = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.TaskArguments, String.Empty),
-							ConfigurationFilePath = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.ConfFilePath, String.Empty)
+							TaskPath = cft_node.CfProperties.ValueOrDefault(MSTreeConsts.TaskPath, String.Empty).Replace('\t', ' '),
+							TaskArguments = cft_node.CfProperties.ValueOrDefault(MSTreeConsts.TaskArguments, String.Empty),
+							ConfigurationFilePath = cft_node.CfProperties.ValueOrDefault(MSTreeConsts.ConfFilePath, String.Empty)
 						};
 						break;
 					case MSTreeConsts.gensrv:
-						string t = cft_node.CfProperties.GetValueOrDefault(MSTreeConsts.TaskPath, String.Empty).Trim();
+						string t = cft_node.CfProperties.ValueOrDefault(MSTreeConsts.TaskPath, String.Empty).Trim();
 
 						if (t.Equals(MSTreeConsts.pcsrv_old))
 						{

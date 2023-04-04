@@ -46,7 +46,7 @@ namespace Iface.Oik.Tm.Utils
 
 			dict.Add(uniqueKey, value);
 		}
-		public static TValue GetValueOrDefault<TKey, TValue>(
+		public static TValue ValueOrDefault<TKey, TValue>(
 			this IDictionary<TKey, TValue> dictionary,
 			TKey key,
 			TValue defaultValue)
@@ -54,12 +54,18 @@ namespace Iface.Oik.Tm.Utils
 			return dictionary.TryGetValue(key, out var value) ? value : defaultValue;
 		}
 
-		public static TValue GetValueOrDefault<TKey, TValue>(
+		public static TValue ValueOrDefault<TKey, TValue>(
 			this IDictionary<TKey, TValue> dictionary,
 			TKey key,
 			Func<TValue> defaultValueProvider)
 		{
 			return dictionary.TryGetValue(key, out var value) ? value : defaultValueProvider();
+		}
+		public static TValue GetValueOrFirst<TKey, TValue>(
+			this IDictionary<TKey, TValue> dictionary,
+			TKey key)
+		{
+			return dictionary.TryGetValue(key, out var value) ? value : dictionary.Values.First();
 		}
 	}
 }

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Runtime.InteropServices;
+using System.Xml.Serialization;
 using Iface.Oik.Tm.Native.Interfaces;
 
 namespace Iface.Oik.Tm.Interfaces
@@ -143,9 +143,38 @@ namespace Iface.Oik.Tm.Interfaces
 	{
 		public int UserID{ get; set; }
 		public int Group { get; set; }
-		public string UserNick { get; set; }
-		public string UserPwd { get; set; }
-		public string KeyID { get; set; }
+		public string UserNick { get; set; } = "";
+		public string UserPwd { get; set; } = "";
+		public string KeyID { get; set; } = "";
 		public byte[] Rights { get; set; } = new byte[250];
-}
+	}
+	public class UserPolicy
+	{
+		[ReadOnly(true)]
+		public bool Predefined { get; set; }
+
+		[ReadOnly(true)]
+		public bool PasswordSet { get; set; }
+
+		[ReadOnly(true)]
+		public int BadLogonCount { get; set; }
+
+		public string UserTemplate { get; set; } = "";
+
+		public bool IsBlocked { get; set; }
+
+		public bool MustChangePassword { get; set; }
+
+		public DateTime NotBefore { get; set; }
+
+		public DateTime NotAfter { get; set; }
+
+		public int BadLogonLimit { get; set; }
+
+		[XmlArray]
+		public string EnabledMACs { get; set; } = "";
+
+		public string UserCategory { get; set; } = "";
+
+	}
 }

@@ -132,13 +132,14 @@ namespace Iface.Oik.Tm.Interfaces
 
 		AccessDescriptor GetAccessDescriptor(string ProgName);
 		ExtendedRightsDescriptor GetExtendedRightsDescriptor();
-		Task<(bool, string, IReadOnlyCollection<string>)> IfpcEnumUsers();
-		Task<(bool, string, IReadOnlyCollection<string>)> IfpcEnumOSUsers();
-		Task<(bool, string)> IfpcChangeUserPassword(string username, string password);
-		Task<(bool, string)> IfpcDeleteUser(string username);
-		Task<(bool, string, uint)> IfpcGetAccessMask(string uName, string oName);
-		Task<(bool, string)> IfpcSetAccessMask(string uName, string oName, uint AccessMask);
-		Task<(bool, string, ExtendedUserData)> IfpcGetExtendedUserData(string serverType, string serverName, string username);
-		Task<(bool, string)> IfpcSetExtendedUserData(string serverType, string serverName, string username, ExtendedUserData extendedUserData);
+		Task<(bool, string, IReadOnlyCollection<string>)> secEnumUsers();
+		Task<(bool, string, IReadOnlyCollection<string>)> secEnumOSUsers();
+		Task<(bool, string)> secChangeUserPassword(string username, string password);
+		Task<(bool, string)> secDeleteUser(string username);
+		Task<(bool, string, uint)> secGetAccessMask(string uName, string oName);
+		Task<(bool, string)> secSetAccessMask(string uName, string oName, uint AccessMask);
+		Task<(bool, string, ExtendedUserData)> secGetExtendedUserData(string serverType, string serverName, string username);
+		Task<(bool, string)> secSetExtendedUserData(string serverType, string serverName, string username, ExtendedUserData extendedUserData);
+		Task<(bool, string, UserPolicy)> secGetUserPolicy(string username);
 	}
 }

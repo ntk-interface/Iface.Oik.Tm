@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Net.NetworkInformation;
 using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Api;
@@ -97,22 +98,22 @@ namespace Iface.Oik.Tm.Api
 						if ((tokens.Length == 2) && tokens[1].Equals(rn_p.PipeName))
 						{// нашли правильный сервер по PipeName, заполняем параметры резервирования
 							short s;
-							if (short.TryParse(item.CfProperties.GetValueOrDefault(nameof(rn_p.Type), "0"), out s))
+							if (short.TryParse(item.CfProperties.ValueOrDefault(nameof(rn_p.Type), "0"), out s))
 							{
 								rn_p.Type = s;
 							}
-							rn_p.BindAddr = item.CfProperties.GetValueOrDefault(nameof(rn_p.BindAddr), "");
-							rn_p.Addr = item.CfProperties.GetValueOrDefault(nameof(rn_p.Addr), "");
-							if (short.TryParse(item.CfProperties.GetValueOrDefault(nameof(rn_p.Port), "0"), out s))
+							rn_p.BindAddr = item.CfProperties.ValueOrDefault(nameof(rn_p.BindAddr), "");
+							rn_p.Addr = item.CfProperties.ValueOrDefault(nameof(rn_p.Addr), "");
+							if (short.TryParse(item.CfProperties.ValueOrDefault(nameof(rn_p.Port), "0"), out s))
 								rn_p.Port = s;
-							if (short.TryParse(item.CfProperties.GetValueOrDefault(nameof(rn_p.BPort), "0"), out s))
+							if (short.TryParse(item.CfProperties.ValueOrDefault(nameof(rn_p.BPort), "0"), out s))
 								rn_p.BPort = s;
-							if (short.TryParse(item.CfProperties.GetValueOrDefault(nameof(rn_p.AbortTO), ""), out s))
+							if (short.TryParse(item.CfProperties.ValueOrDefault(nameof(rn_p.AbortTO), ""), out s))
 								rn_p.AbortTO = s;
-							if (short.TryParse(item.CfProperties.GetValueOrDefault(nameof(rn_p.RetakeTO), ""), out s))
+							if (short.TryParse(item.CfProperties.ValueOrDefault(nameof(rn_p.RetakeTO), ""), out s))
 								rn_p.RetakeTO = s;
-							rn_p.CopyConfig = item.CfProperties.GetValueOrDefault(nameof(rn_p.CopyConfig), "0").Equals("1");
-							rn_p.StopInactive = item.CfProperties.GetValueOrDefault(nameof(rn_p.StopInactive), "1").Equals("1");
+							rn_p.CopyConfig = item.CfProperties.ValueOrDefault(nameof(rn_p.CopyConfig), "0").Equals("1");
+							rn_p.StopInactive = item.CfProperties.ValueOrDefault(nameof(rn_p.StopInactive), "1").Equals("1");
 							break;
 						}
 					}
@@ -136,21 +137,21 @@ namespace Iface.Oik.Tm.Api
 								{
 									if (item.Name.Equals(MSTreeConsts.RBS_Parameters))
 									{
-										rbs_p.RBF_Directory = item.CfProperties.GetValueOrDefault(nameof(rbs_p.RBF_Directory), "");
+										rbs_p.RBF_Directory = item.CfProperties.ValueOrDefault(nameof(rbs_p.RBF_Directory), "");
 									}
 									else
 									if (item.Name.Equals(MSTreeConsts.RBS_ClientParms))
 									{
-										rbs_p.DOC_Path = item.CfProperties.GetValueOrDefault(nameof(rbs_p.DOC_Path), "");
-										rbs_p.JournalSQLCS = item.CfProperties.GetValueOrDefault(nameof(rbs_p.JournalSQLCS), "");
-										rbs_p.DTMX_SQLCS = item.CfProperties.GetValueOrDefault(nameof(rbs_p.DTMX_SQLCS), "");
+										rbs_p.DOC_Path = item.CfProperties.ValueOrDefault(nameof(rbs_p.DOC_Path), "");
+										rbs_p.JournalSQLCS = item.CfProperties.ValueOrDefault(nameof(rbs_p.JournalSQLCS), "");
+										rbs_p.DTMX_SQLCS = item.CfProperties.ValueOrDefault(nameof(rbs_p.DTMX_SQLCS), "");
 									}
 									else
 									if (item.Name.Equals(MSTreeConsts.RBS_PGParms))
 									{
 
-										rbs_p.BinPath = item.CfProperties.GetValueOrDefault(nameof(rbs_p.BinPath), "");
-										rbs_p.DataPath = item.CfProperties.GetValueOrDefault(nameof(rbs_p.DataPath), "");
+										rbs_p.BinPath = item.CfProperties.ValueOrDefault(nameof(rbs_p.BinPath), "");
+										rbs_p.DataPath = item.CfProperties.ValueOrDefault(nameof(rbs_p.DataPath), "");
 									}
 								}
 							}
@@ -1603,6 +1604,22 @@ namespace Iface.Oik.Tm.Api
 										 string oName,
 										 string binName)
 		{
+			(bool result, _, var binData) = await secGetBin(uName, oName, binName).ConfigureAwait(false);
+
+			if (result)
+			{
+				return binData;
+			}
+			else
+			{
+				return Array.Empty<byte>();
+			}
+
+		}
+		public async Task<(bool, string, byte[])> secGetBin(string uName,
+										 string oName,
+										 string binName)
+		{
 			const int errBufLength = 1000;
 			var errBuf = new byte[errBufLength];
 			uint errCode = 0;
@@ -1619,9 +1636,9 @@ namespace Iface.Oik.Tm.Api
 																	   errBufLength))
 									  .ConfigureAwait(false);
 
-			if (resultPtr == IntPtr.Zero)
+			if (errCode != 0)
 			{
-				return Array.Empty<byte>();
+				return (false, EncodingUtil.Win1251BytesToUtf8(errBuf), null);
 			}
 
 			var binData = new byte[binLength];
@@ -1630,7 +1647,7 @@ namespace Iface.Oik.Tm.Api
 			// не забываем освобождать память, возвращённую из библиотеки
 			_native.TmcFreeMemory(resultPtr);
 
-			return binData;
+			return (true, string.Empty, binData);
 		}
 
 
@@ -1647,8 +1664,15 @@ namespace Iface.Oik.Tm.Api
 								binData).ConfigureAwait(false);
 		}
 
-
 		public async Task<bool> SetBin(string uName,
+									   string oName,
+									   string binName,
+									   byte[] binData)
+		{
+			(bool result, _) = await secSetBin(uName, oName, binName, binData).ConfigureAwait(false);	
+			return result;
+		}
+		public async Task<(bool, string)> secSetBin(string uName,
 									   string oName,
 									   string binName,
 									   byte[] binData)
@@ -1657,7 +1681,7 @@ namespace Iface.Oik.Tm.Api
 			var errBuf = new byte[errBufLength];
 			uint errCode = 0;
 
-			return await Task.Run(() => _native.CfsIfpcSetBin(CfId,
+			var result =  await Task.Run(() => _native.CfsIfpcSetBin(CfId,
 															  uName,
 															  oName,
 															  binName,
@@ -1666,6 +1690,11 @@ namespace Iface.Oik.Tm.Api
 															  out errCode,
 															  ref errBuf,
 															  errBufLength)).ConfigureAwait(false);
+			if (errCode != 0)
+			{
+				return (false, EncodingUtil.Win1251BytesToUtf8(errBuf));
+			}
+			return (true, string.Empty);
 		}
 
 		public AccessDescriptor GetAccessDescriptor(string ProgName)
@@ -1741,8 +1770,8 @@ namespace Iface.Oik.Tm.Api
 					var Descriptions = item.Substring(1).Split('`');
 					if (Descriptions.Length == 2)
 					{
-						Right.Description["en"] = Descriptions[0];
 						Right.Description["ru"] = Descriptions[1];
+						Right.Description["en"] = Descriptions[0];
 						ret.Rights.Add(Right);
 					}
 				}
@@ -1759,8 +1788,8 @@ namespace Iface.Oik.Tm.Api
 							var Descriptions = BitAndDesc[1].Split('`');
 							if (Descriptions.Length == 2)
 							{
-								Right.Description["en"] = Descriptions[0];
 								Right.Description["ru"] = Descriptions[1];
+								Right.Description["en"] = Descriptions[0];
 								ret.Rights.Add(Right);
 							}
 						}
@@ -1770,7 +1799,7 @@ namespace Iface.Oik.Tm.Api
 			return ret;
 		}
 
-		public async Task<(bool, string, IReadOnlyCollection<string>)> IfpcEnumUsers()
+		public async Task<(bool, string, IReadOnlyCollection<string>)> secEnumUsers()
 		{
 			const int errBufLength = 1000;
 			var errBuf = new byte[errBufLength];
@@ -1780,9 +1809,9 @@ namespace Iface.Oik.Tm.Api
 			{
 				return (false, EncodingUtil.Win1251BytesToUtf8(errBuf), null); 
 			}
-			return (true, String.Empty, TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(resultPtr, 16384));
+			return (true, string.Empty, TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(resultPtr, 16384));
 		}
-		public async Task<(bool, string, IReadOnlyCollection<string>)> IfpcEnumOSUsers()
+		public async Task<(bool, string, IReadOnlyCollection<string>)> secEnumOSUsers()
 		{
 			const int errBufLength = 1000;
 			var errBuf = new byte[errBufLength];
@@ -1792,9 +1821,9 @@ namespace Iface.Oik.Tm.Api
 			{
 				return (false, EncodingUtil.Win1251BytesToUtf8(errBuf), null);
 			}
-			return (true, String.Empty, TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(resultPtr, 16384));
+			return (true, string.Empty, TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(resultPtr, 16384));
 		}
-		public async Task<(bool, string)> IfpcChangeUserPassword(string username, string password)
+		public async Task<(bool, string)> secChangeUserPassword(string username, string password)
 		{
 			const int errBufLength = 1000;
 			var errBuf = new byte[errBufLength];
@@ -1815,7 +1844,7 @@ namespace Iface.Oik.Tm.Api
 				return (true, string.Empty);
 			}
 		}
-		public async Task<(bool, string)> IfpcDeleteUser(string username)
+		public async Task<(bool, string)> secDeleteUser(string username)
 		{
 			const int errBufLength = 1000;
 			var errBuf = new byte[errBufLength];
@@ -1831,7 +1860,7 @@ namespace Iface.Oik.Tm.Api
 				return (true, string.Empty);
 			}
 		}
-		public async Task<(bool, string, uint)> IfpcGetAccessMask(string username, string oName)
+		public async Task<(bool, string, uint)> secGetAccessMask(string username, string oName)
 		{
 			const int errBufLength = 1000;
 			var errBuf = new byte[errBufLength];
@@ -1844,10 +1873,10 @@ namespace Iface.Oik.Tm.Api
 			}
 			else
 			{
-				return (true, String.Empty, result);
+				return (true, string.Empty, result);
 			}
 		}
-		public async Task<(bool, string)> IfpcSetAccessMask(string username, string oName, uint AccessMask)
+		public async Task<(bool, string)> secSetAccessMask(string username, string oName, uint AccessMask)
 		{
 			const int errBufLength = 1000;
 			var errBuf = new byte[errBufLength];
@@ -1860,15 +1889,15 @@ namespace Iface.Oik.Tm.Api
 			}
 			else
 			{
-				return (true, String.Empty);
+				return (true, string.Empty);
 			}
 		}
-		public async Task<(bool, string, ExtendedUserData)> IfpcGetExtendedUserData(string serverType, string serverName,  string username)
+		public async Task<(bool, string, ExtendedUserData)> secGetExtendedUserData(string serverType, string serverName,  string username)
 		{
-			var resultPtr = await GetBin(username, serverType + serverName, "extr").ConfigureAwait(false);
-			if (resultPtr.Length == 0)
+			(bool result, string errstring, var resultPtr) = await secGetBin(username, serverType + serverName, "extr").ConfigureAwait(false);
+			if (!result || (resultPtr.Length == 0))
 			{
-				return (false, "Error CfsGetExtendedUserData", null);
+				return (false, errstring, null);
 			}
 			var ui = new ExtendedUserData();
 			var data = TmNativeUtil.GetStringListFromDoubleNullTerminatedBytes(resultPtr);
@@ -1917,9 +1946,9 @@ namespace Iface.Oik.Tm.Api
 					}
 				}
 			}
-			return (true, String.Empty, ui);
+			return (true, string.Empty, ui);
 		}
-		public async Task<(bool, string)> IfpcSetExtendedUserData(string serverType, string serverName,  string username, ExtendedUserData extendedUserData)
+		public async Task<(bool, string)> secSetExtendedUserData(string serverType, string serverName,  string username, ExtendedUserData extendedUserData)
 		{
 			var data = new List<string>()
 			{
@@ -1937,15 +1966,135 @@ namespace Iface.Oik.Tm.Api
 				}
 			}
 			var bin = TmNativeUtil.GetDoubleNullTerminatedBytesFromStringList(data);
-			var result = await SetBin(username, serverType + serverName, "extr", bin).ConfigureAwait(false);
+			(bool result, string errstring) = await secSetBin(username, serverType + serverName, "extr", bin).ConfigureAwait(false);
 			if (result)
 			{
-				return (true, String.Empty);
+				return (true, string.Empty);
 			}
 			else
 			{
-				return (false, "Error CfsSetExtendedUserData");
+				return (false, errstring);
 			}
+		}
+		public async Task<(bool, string, UserPolicy)> secGetUserPolicy(string username)
+		{
+			bool result;
+			string errstring;
+			byte[] bin;
+			var _UserPolicy = new UserPolicy();
+
+			(result, errstring, bin) = await secGetBin(username, ".", "bad_logon").ConfigureAwait(false);
+			if (result)
+			{
+				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
+				if(Int32.TryParse(s, out int i))
+				{
+					_UserPolicy.BadLogonCount = i;
+				}
+			}
+
+			(result, errstring, bin) = await secGetBin(username, ".", "not_before").ConfigureAwait(false);
+			if (result)
+			{
+				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
+				if (Int32.TryParse(s, out int ut))
+				{
+					_UserPolicy.NotBefore = DateUtil.GetDateTimeFromTimestamp(ut, 0);
+				}
+			}
+
+			(result, errstring, bin) = await secGetBin(username, ".", "not_after").ConfigureAwait(false);
+			if (result) 
+			{
+				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
+				if (Int32.TryParse(s, out int ut))
+				{
+					_UserPolicy.NotAfter = DateUtil.GetDateTimeFromTimestamp(ut, 0);
+				}
+			}
+
+			(result, errstring, bin) = await secGetBin(username, ".", "chgp").ConfigureAwait(false);
+			if (result) 
+			{
+				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
+				if (Int32.TryParse(s, out int i))
+				{
+					if (i == 0)
+						_UserPolicy.MustChangePassword = false;
+					if (i == 1)
+						_UserPolicy.MustChangePassword = true;
+				}
+			}
+
+			(result, errstring, bin) = await secGetBin(username, ".", "blocked").ConfigureAwait(false);
+			if (result)
+			{
+				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
+				if (Int32.TryParse(s, out int i))
+				{
+					if (i == 0)
+						_UserPolicy.IsBlocked = false;
+					if (i == 1)
+						_UserPolicy.IsBlocked = true;
+				}
+			}
+
+			(result, errstring, bin) = await secGetBin(username, ".", "logon_limit").ConfigureAwait(false);
+			if (result)
+			{
+				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
+				if (Int32.TryParse(s, out int i))
+				{
+					_UserPolicy.BadLogonLimit = i;
+				}
+			}
+
+			(result, errstring, bin) = await secGetBin(username, ".", "initial").ConfigureAwait(false);
+			if (result)
+			{
+				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
+				if (Int32.TryParse(s, out int i))
+				{
+					if (i == 0)
+						_UserPolicy.Predefined = false;
+					if (i == 1)
+						_UserPolicy.Predefined = true;
+				}
+			}
+
+			(result, errstring, bin) = await secGetBin(username, ".", "mac_list").ConfigureAwait(false);
+			if (result && (bin.Length > 6))
+			{
+				_UserPolicy.EnabledMACs = string.Empty;
+				for (int i = 0; i < bin.Length; i+=6)
+				{
+					byte[] address = bin.Skip(i).Take(6).ToArray();
+					_UserPolicy.EnabledMACs += BitConverter.ToString(address).Replace('-', ':') + '\n';
+				}
+			}
+
+			(result, errstring, bin) = await secGetBin(username, ".", "pwd").ConfigureAwait(false);
+			if (result)
+			{
+				if (bin.Length > 0)
+					_UserPolicy.PasswordSet = true;
+				else
+					_UserPolicy.PasswordSet = false;
+			}
+
+			(result, errstring, bin) = await secGetBin(username, ".", "uctgr").ConfigureAwait(false);
+			if (result)
+			{
+				_UserPolicy.UserCategory = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
+			}
+
+			(result, errstring, bin) = await secGetBin(username, ".", "utmpl").ConfigureAwait(false);
+			if (result)
+			{
+				_UserPolicy.UserTemplate = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
+			}
+
+			return (true, string.Empty, _UserPolicy);
 		}
 	}
 }
