@@ -17,6 +17,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     // channelNum -> { null(весь канал) | коллекция rtuNum }
     public Dictionary<int, HashSet<int>> ChannelAndRtuCollection { get; set; }
+
+    public List<TmUserActionCategory> UserActionsCategories { get; } = new List<TmUserActionCategory>();
     
     public int OutputLimit { get; set; }
 
@@ -26,10 +28,15 @@ namespace Iface.Oik.Tm.Interfaces
                                TmAddrList.Count == 0                                                   &&
                                (TmStatusClassIdList     == null || TmStatusClassIdList.Count     == 0) &&
                                (ChannelAndRtuCollection == null || ChannelAndRtuCollection.Count == 0) &&
-                               OutputLimit == 0;
+                               UserActionsCategories.Count == 0                                        &&
+                               OutputLimit                 == 0;
 
 
     public bool IsAdvanced => !IsBasicOnly;
+
+
+    public bool AreUserActionsForbidden => UserActionsCategories.Count        == 1 &&
+                                           UserActionsCategories.ElementAt(0) == TmUserActionCategory.None;
 
 
     public TmEventFilter()
@@ -91,6 +98,7 @@ namespace Iface.Oik.Tm.Interfaces
       TmAddrList.Clear();
       ChannelAndRtuCollection?.Clear();
       TmStatusClassIdList?.Clear();
+      UserActionsCategories.Clear();
     }
 
 
@@ -130,6 +138,19 @@ namespace Iface.Oik.Tm.Interfaces
     {
       Types       = 0;
       Importances = 0;
+    }
+
+
+    public void PermitAllUserActions()
+    {
+      UserActionsCategories.Clear();
+    }
+
+
+    public void ForbidAllUserActions()
+    {
+      UserActionsCategories.Clear();
+      UserActionsCategories.Add(TmUserActionCategory.None);
     }
 
 
@@ -188,6 +209,22 @@ namespace Iface.Oik.Tm.Interfaces
       }
 
       return true;
+    }
+
+
+    public bool IsConform(TmUserAction userAction)
+    {
+      if (userAction == null)
+      {
+        return false;
+      }
+
+      if (UserActionsCategories.Count == 0)
+      {
+        return true;
+      }
+      
+      return UserActionsCategories.Contains(userAction.Category);
     }
 
 
