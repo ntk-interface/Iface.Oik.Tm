@@ -1697,9 +1697,9 @@ namespace Iface.Oik.Tm.Api
 			return (true, string.Empty);
 		}
 
-		public AccessDescriptor GetAccessDescriptor(string ProgName)
+		public AccessMasksDescriptor secGetAccessDescriptor(string ProgName)
 		{
-			var ad = new AccessDescriptor();
+			var ad = new AccessMasksDescriptor();
 			Dictionary<string, string> iniSections = new Dictionary<string, string>()
 				{
 					{ MSTreeConsts.portcore,  "master#1.prp.Security"},
@@ -1742,7 +1742,7 @@ namespace Iface.Oik.Tm.Api
 			return ad;
 		}
 
-		public ExtendedRightsDescriptor GetExtendedRightsDescriptor()
+		public ExtendedRightsDescriptor secGetExtendedRightsDescriptor()
 		{
 			var ret = new ExtendedRightsDescriptor();
 			var ext_ptr = _native.CfsGetExtendedUserRightsDescriptor("s_setup.ini", "TmsExtRights", 0);

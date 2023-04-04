@@ -130,8 +130,8 @@ namespace Iface.Oik.Tm.Interfaces
 		                  string binName,
 		                  byte[] binData);
 
-		AccessDescriptor GetAccessDescriptor(string ProgName);
-		ExtendedRightsDescriptor GetExtendedRightsDescriptor();
+		AccessMasksDescriptor secGetAccessDescriptor(string ProgName);
+		ExtendedRightsDescriptor secGetExtendedRightsDescriptor();
 		Task<(bool, string, IReadOnlyCollection<string>)> secEnumUsers();
 		Task<(bool, string, IReadOnlyCollection<string>)> secEnumOSUsers();
 		Task<(bool, string)> secChangeUserPassword(string username, string password);

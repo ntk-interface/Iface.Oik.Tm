@@ -117,7 +117,7 @@ namespace Iface.Oik.Tm.Interfaces
 		public uint Mask { get; set; }
 		public Dictionary<string, string> Description { get; set; } = new Dictionary<string, string>();
 	}
-	public class AccessDescriptor
+	public class AccessMasksDescriptor
 	{
 		public string NamePrefix = "";
 		public Dictionary<string, string> ObjTypeName { get; set; } = new Dictionary<string, string>();

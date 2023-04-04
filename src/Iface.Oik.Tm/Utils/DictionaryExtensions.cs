@@ -61,7 +61,7 @@ namespace Iface.Oik.Tm.Utils
 		{
 			return dictionary.TryGetValue(key, out var value) ? value : defaultValueProvider();
 		}
-		public static TValue GetValueOrFirst<TKey, TValue>(
+		public static TValue ValueOrFirst<TKey, TValue>(
 			this IDictionary<TKey, TValue> dictionary,
 			TKey key)
 		{
