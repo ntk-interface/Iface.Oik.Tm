@@ -1312,7 +1312,7 @@ namespace Iface.Oik.Tm.Api
     {
       if (filter == null) return null; //???
 
-      if (filter.Types == TmEventTypes.None)
+      if (filter.AreTmEventsForbidden)
       {
         return Array.Empty<TmEvent>();
       }
@@ -1573,9 +1573,9 @@ namespace Iface.Oik.Tm.Api
     
     private static string GetWhereUserActionCategories(TmEventFilter filter)
     {
-      if (filter.UserActionsCategories.IsNullOrEmpty()) return "";
+      if (filter.Categories.IsNullOrEmpty()) return "";
 
-      var categoriesList = filter.UserActionsCategories.Select(category => $"(category = {(int) category})");
+      var categoriesList = filter.Categories.Select(category => $"(category = {(int) category})");
       
       return $" AND ({string.Join(" OR ", categoriesList)})";
     }
