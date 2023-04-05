@@ -431,12 +431,12 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<float> GetAnalogFromRetro(int       ch,
-                                                int       rtu,
-                                                int       point,
-                                                DateTime  time,
-                                                int       retroNum = 0,
-                                                PreferApi prefer   = PreferApi.Auto)
+    public async Task<ITmAnalogRetro> GetAnalogFromRetro(int       ch,
+                                                         int       rtu,
+                                                         int       point,
+                                                         DateTime  time,
+                                                         int       retroNum = 0,
+                                                         PreferApi prefer   = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
       if (api == ApiSelection.Tms)
@@ -449,7 +449,7 @@ namespace Iface.Oik.Tm.Api
       }
       else
       {
-        return -1;
+        return new TmAnalogRetro(float.MaxValue, (short)TmFlags.Unreliable, 0);
       }
     }
 
