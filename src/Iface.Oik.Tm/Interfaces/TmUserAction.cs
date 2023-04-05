@@ -86,6 +86,24 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
+    public static TmUserAction CreateFromMqttDto(MqttUserActionLogDto dto)
+    {
+      var action = new TmUserAction(dto.Id)
+      {
+        Action      = dto.Action,
+        Category    = dto.Category,
+        TypeString  = dto.Category.GetDescription(),
+        Time        = dto.Time,
+        StateString = dto.State,
+        Importance  = dto.Importance,
+        Text        = dto.Text,
+        Username    = dto.Username,
+      };
+
+      return action;
+    }
+
+
     public override int GetHashCode()
     {
       return Id.GetHashCode();
