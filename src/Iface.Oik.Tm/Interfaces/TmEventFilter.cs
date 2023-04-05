@@ -8,6 +8,11 @@ namespace Iface.Oik.Tm.Interfaces
   // the type in use with JsonConvert Serialize/Deserialize
   public class TmEventFilter
   {
+    public TmEventSource Source { get; set; }
+    
+    public bool          AreTmEventsForbidden    => Source == TmEventSource.UserActions;
+    public bool          AreUserActionsForbidden => Source == TmEventSource.TmEvents;
+    
     public DateTime?          StartTime           { get; set; }
     public DateTime?          EndTime             { get; set; }
     public TmEventTypes       Types               { get; set; }
@@ -17,6 +22,9 @@ namespace Iface.Oik.Tm.Interfaces
 
     // channelNum -> { null(весь канал) | коллекция rtuNum }
     public Dictionary<int, HashSet<int>> ChannelAndRtuCollection { get; set; }
+
+
+    public List<TmUserActionCategory> Categories { get; } = new List<TmUserActionCategory>();
     
     public int OutputLimit { get; set; }
 
@@ -26,6 +34,8 @@ namespace Iface.Oik.Tm.Interfaces
                                TmAddrList.Count == 0                                                   &&
                                (TmStatusClassIdList     == null || TmStatusClassIdList.Count     == 0) &&
                                (ChannelAndRtuCollection == null || ChannelAndRtuCollection.Count == 0) &&
+                               Categories.Count == 0                                                   &&
+                               (Source == TmEventSource.Union)                                         &&
                                OutputLimit == 0;
 
 
@@ -84,6 +94,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     public void Clear()
     {
+      Source      = TmEventSource.Union;
       StartTime   = null;
       EndTime     = null;
       Types       = 0;
@@ -91,6 +102,7 @@ namespace Iface.Oik.Tm.Interfaces
       TmAddrList.Clear();
       ChannelAndRtuCollection?.Clear();
       TmStatusClassIdList?.Clear();
+      Categories.Clear();
     }
 
 
@@ -136,6 +148,11 @@ namespace Iface.Oik.Tm.Interfaces
     public bool IsConform(TmEvent ev)
     {
       if (ev == null)
+      {
+        return false;
+      }
+
+      if (AreTmEventsForbidden)
       {
         return false;
       }
@@ -191,6 +208,27 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
+    public bool IsConform(TmUserAction userAction)
+    {
+      if (userAction == null)
+      {
+        return false;
+      }
+
+      if (AreUserActionsForbidden)
+      {
+        return false;
+      }
+
+      if (Categories.Count == 0)
+      {
+        return true;
+      }
+      
+      return Categories.Contains(userAction.Category);
+    }
+
+
     public bool IsConformTmAddrComplexInteger(uint tma)
     {
       if (ChannelAndRtuCollection.IsNullOrEmpty()) return true;
@@ -235,6 +273,12 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
+    public bool IsConformCategory(TmUserActionCategory category)
+    {
+      return Categories.Count == 0 || Categories.Contains(category);
+    }
+
+
     public override string ToString()
     {
       if (!StartTime.HasValue || !EndTime.HasValue)
@@ -254,6 +298,15 @@ namespace Iface.Oik.Tm.Interfaces
     {
       var filters = new List<string>();
 
+      if (Source == TmEventSource.TmEvents)
+      {
+        filters.Add("Только события");
+      }
+      else if (Source == TmEventSource.UserActions)
+      {
+        filters.Add("Только действия пользователей");
+      }
+      
       if (Types != 0 && Types != TmEventTypes.Any)
       {
         var selectedTypes = Enum.GetValues(typeof(TmEventTypes))
@@ -261,6 +314,14 @@ namespace Iface.Oik.Tm.Interfaces
                                 .Where(type => type > 0 && Types.HasFlag(type))
                                 .Select(type => $"= \"{type.GetDescription()}\"");
         filters.Add($"(Тип {string.Join(" ИЛИ ", selectedTypes)})");
+      }
+      if (Categories.Count > 0)
+      {
+        var selectedCategories = Enum.GetValues(typeof(TmUserActionCategory))
+                                     .Cast<TmUserActionCategory>()
+                                     .Where(cat => Categories.Contains(cat))
+                                     .Select(cat => $"= \"{cat.GetDescription()}\"");
+        filters.Add($"(Категории {string.Join(" ИЛИ ", selectedCategories)})");
       }
       if (Importances != 0 && Importances != TmEventImportances.Any)
       {

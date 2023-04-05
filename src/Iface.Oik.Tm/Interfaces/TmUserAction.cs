@@ -8,13 +8,14 @@ namespace Iface.Oik.Tm.Interfaces
   {
     public Guid Id { get; }
 
-    public MqttKnownTopic Action      { get; private set; }
-    public string         TypeString  { get; private set; }
-    public DateTime       Time        { get; private set; }
-    public string         StateString { get; private set; }
-    public int            Importance  { get; private set; }
-    public string         Text        { get; private set; }
-    public string         Username    { get; private set; }
+    public MqttKnownTopic       Action      { get; private set; }
+    public TmUserActionCategory Category    { get; private set; }
+    public string               TypeString  { get; private set; }
+    public DateTime             Time        { get; private set; }
+    public string               StateString { get; private set; }
+    public int                  Importance  { get; private set; }
+    public string               Text        { get; private set; }
+    public string               Username    { get; private set; }
 
     public Guid?  ExtraId   { get; private set; }
     public int?   ExtraInt  { get; private set; }
@@ -69,6 +70,7 @@ namespace Iface.Oik.Tm.Interfaces
       var action = new TmUserAction(dto.Id)
       {
         Action      = dto.Action,
+        Category    = dto.Category,
         TypeString  = dto.Category.GetDescription(),
         Time        = dto.Time,
         StateString = dto.State,
@@ -78,6 +80,24 @@ namespace Iface.Oik.Tm.Interfaces
         ExtraId     = dto.ExtraId,
         ExtraInt    = dto.ExtraInt,
         ExtraText   = dto.ExtraText,
+      };
+
+      return action;
+    }
+
+
+    public static TmUserAction CreateFromMqttDto(MqttUserActionLogDto dto)
+    {
+      var action = new TmUserAction(dto.Id)
+      {
+        Action      = dto.Action,
+        Category    = dto.Category,
+        TypeString  = dto.Category.GetDescription(),
+        Time        = dto.Time,
+        StateString = dto.State,
+        Importance  = dto.Importance,
+        Text        = dto.Text,
+        Username    = dto.Username,
       };
 
       return action;

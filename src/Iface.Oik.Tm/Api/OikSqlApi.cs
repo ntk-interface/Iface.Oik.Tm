@@ -1312,6 +1312,11 @@ namespace Iface.Oik.Tm.Api
     {
       if (filter == null) return null; //???
 
+      if (filter.AreTmEventsForbidden)
+      {
+        return Array.Empty<TmEvent>();
+      }
+
       var whereBeg                   = GetWhereEventStartTime(filter);
       var whereEnd                   = GetWhereEventEndTime(filter);
       var whereEventTypes            = GetWhereEventTypes(filter);
@@ -1483,10 +1488,16 @@ namespace Iface.Oik.Tm.Api
     {
       if (filter == null) return null; //???
 
-      var whereBeg              = GetWhereUserActionStartTime(filter);
-      var whereEnd              = GetWhereUserActionEndTime(filter);
-      var whereEventImportances = GetWhereUserActionImportances(filter);
-      var limit                 = GetEventsOutputLimit(filter);
+      if (filter.AreUserActionsForbidden)
+      {
+        return Array.Empty<TmUserAction>();
+      }
+
+      var whereBeg               = GetWhereUserActionStartTime(filter);
+      var whereEnd               = GetWhereUserActionEndTime(filter);
+      var whereActionCategories  = GetWhereUserActionCategories(filter);
+      var whereActionImportances = GetWhereUserActionImportances(filter);
+      var limit                  = GetEventsOutputLimit(filter);
 
       try
       {
@@ -1499,7 +1510,7 @@ namespace Iface.Oik.Tm.Api
                                 extra_id, extra_int, extra_text,
                                 ack_time, ack_user
             FROM oik_user_actions_log
-            WHERE 1=1 {whereBeg}{whereEnd}{whereEventImportances}
+            WHERE 1=1 {whereBeg}{whereEnd}{whereActionCategories}{whereActionImportances}
             ORDER BY time
             {limit}";
 
@@ -1512,7 +1523,7 @@ namespace Iface.Oik.Tm.Api
           {
             parameters.Add("@EndTime", filter.EndTime, DbType.DateTime);
           }
-          if (!whereEventImportances.IsNullOrEmpty())
+          if (!whereActionImportances.IsNullOrEmpty())
           {
             parameters.Add("@Importances", filter.Importances, DbType.Int16);
           }
@@ -1556,6 +1567,17 @@ namespace Iface.Oik.Tm.Api
       if (!filter.StartTime.HasValue) return "";
 
       return " AND time >= @StartTime";
+    }
+    
+    
+    
+    private static string GetWhereUserActionCategories(TmEventFilter filter)
+    {
+      if (filter.Categories.IsNullOrEmpty()) return "";
+
+      var categoriesList = filter.Categories.Select(category => $"(category = {(int) category})");
+      
+      return $" AND ({string.Join(" OR ", categoriesList)})";
     }
 
 
