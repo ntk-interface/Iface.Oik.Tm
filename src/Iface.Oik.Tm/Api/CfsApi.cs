@@ -1670,7 +1670,7 @@ namespace Iface.Oik.Tm.Api
 									   string binName,
 									   byte[] binData)
 		{
-			(uint errCode, _) = await secSetBin(uName, oName, binName, binData).ConfigureAwait(false);	
+			(uint errCode, _) = await secSetBin(uName, oName, binName, binData).ConfigureAwait(false);
 			return (errCode == 0);
 		}
 		public async Task<(uint, string)> secSetBin(string uName,
@@ -1682,7 +1682,7 @@ namespace Iface.Oik.Tm.Api
 			var errBuf = new byte[errBufLength];
 			uint errCode = 0;
 
-			var result =  await Task.Run(() => _native.CfsIfpcSetBin(CfId,
+			var result = await Task.Run(() => _native.CfsIfpcSetBin(CfId,
 															  uName,
 															  oName,
 															  binName,
@@ -1809,7 +1809,7 @@ namespace Iface.Oik.Tm.Api
 			var resultPtr = await Task.Run(() => _native.СfsIfpcEnumUsers(CfId, out errCode, ref errBuf, errBufLength)).ConfigureAwait(false);
 			if (errCode != 0)
 			{
-				return (null, errCode, EncodingUtil.Win1251BytesToUtf8(errBuf)); 
+				return (null, errCode, EncodingUtil.Win1251BytesToUtf8(errBuf));
 			}
 			return (TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(resultPtr, 16384), 0, string.Empty);
 		}
@@ -1839,7 +1839,7 @@ namespace Iface.Oik.Tm.Api
 			var result = await Task.Run(() => _native.CfsIfpcSetUserPwd(CfId, username, password, out errCode, ref errBuf, errBufLength)).ConfigureAwait(false);
 			if (errCode != 0)
 			{
-				return (errCode, EncodingUtil.Win1251BytesToUtf8(errBuf)); 
+				return (errCode, EncodingUtil.Win1251BytesToUtf8(errBuf));
 			}
 			else
 			{
@@ -1855,7 +1855,7 @@ namespace Iface.Oik.Tm.Api
 			var result = await Task.Run(() => _native.СfsIfpcDeleteUser(CfId, username, out errCode, ref errBuf, errBufLength)).ConfigureAwait(false);
 			if (errCode != 0)
 			{
-				return (errCode, EncodingUtil.Win1251BytesToUtf8(errBuf)); 
+				return (errCode, EncodingUtil.Win1251BytesToUtf8(errBuf));
 			}
 			else
 			{
@@ -1894,7 +1894,7 @@ namespace Iface.Oik.Tm.Api
 				return (0, string.Empty);
 			}
 		}
-		public async Task<(ExtendedUserData, uint, string)> secGetExtendedUserData(string serverType, string serverName,  string username)
+		public async Task<(ExtendedUserData, uint, string)> secGetExtendedUserData(string serverType, string serverName, string username)
 		{
 			(var resultPtr, uint errCode, string errString) = await secGetBin(username, serverType + serverName, "extr").ConfigureAwait(false);
 			if ((errCode != 0) || (resultPtr.Length == 0))
@@ -1903,12 +1903,12 @@ namespace Iface.Oik.Tm.Api
 			}
 			var ui = new ExtendedUserData();
 			var data = TmNativeUtil.GetStringListFromDoubleNullTerminatedBytes(resultPtr);
-			foreach(var item in data)
+			foreach (var item in data)
 			{
 				var KeyValuePair = item.Split('=');
-				if(KeyValuePair.Length == 2)
+				if (KeyValuePair.Length == 2)
 				{
-					switch(KeyValuePair[0])
+					switch (KeyValuePair[0])
 					{
 						case "UserID":
 							{
@@ -1950,7 +1950,7 @@ namespace Iface.Oik.Tm.Api
 			}
 			return (ui, 0, string.Empty);
 		}
-		public async Task<(uint, string)> secSetExtendedUserData(string serverType, string serverName,  string username, ExtendedUserData extendedUserData)
+		public async Task<(uint, string)> secSetExtendedUserData(string serverType, string serverName, string username, ExtendedUserData extendedUserData)
 		{
 			var data = new List<string>()
 			{
@@ -1960,7 +1960,7 @@ namespace Iface.Oik.Tm.Api
 				{ $"Group={extendedUserData.Group}"},
 				{ $"KeyID={extendedUserData.KeyID}"},
 			};
-			for(int idx=0; idx < extendedUserData.Rights.Length; idx++)
+			for (int idx = 0; idx < extendedUserData.Rights.Length; idx++)
 			{
 				if (extendedUserData.Rights[idx] == 1)
 				{
@@ -1981,18 +1981,24 @@ namespace Iface.Oik.Tm.Api
 		public async Task<(UserPolicy, uint, string)> secGetUserPolicy(string username)
 		{
 			byte[] bin;
-			uint errCode;
-			string errString;
+			uint errCode, resErrCode = 0; ;
+			string errString, resErrString = string.Empty;
 			var _UserPolicy = new UserPolicy();
 
 			(bin, errCode, errString) = await secGetBin(username, ".", "bad_logon").ConfigureAwait(false);
 			if (errCode == 0)
 			{
 				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
-				if(Int32.TryParse(s, out int i))
+				if (Int32.TryParse(s, out int i))
 				{
 					_UserPolicy.BadLogonCount = i;
 				}
+			}
+			else
+			if (errCode != 2) // "No data"
+			{
+				resErrCode = errCode;
+				resErrString += errString;
 			}
 
 			(bin, errCode, errString) = await secGetBin(username, ".", "not_before").ConfigureAwait(false);
@@ -2004,6 +2010,12 @@ namespace Iface.Oik.Tm.Api
 					_UserPolicy.NotBefore = DateUtil.GetDateTimeFromTimestamp(ut, 0);
 				}
 			}
+			else
+			if (errCode != 2) // "No data"
+			{
+				resErrCode = errCode;
+				resErrString += errString;
+			}
 
 			(bin, errCode, errString) = await secGetBin(username, ".", "not_after").ConfigureAwait(false);
 			if (errCode == 0)
@@ -2014,9 +2026,15 @@ namespace Iface.Oik.Tm.Api
 					_UserPolicy.NotAfter = DateUtil.GetDateTimeFromTimestamp(ut, 0);
 				}
 			}
+			else
+			if (errCode != 2) // "No data"
+			{
+				resErrCode = errCode;
+				resErrString += errString;
+			}
 
 			(bin, errCode, errString) = await secGetBin(username, ".", "chgp").ConfigureAwait(false);
-			if (errCode == 0) 
+			if (errCode == 0)
 			{
 				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
 				if (Int32.TryParse(s, out int i))
@@ -2026,6 +2044,12 @@ namespace Iface.Oik.Tm.Api
 					if (i == 1)
 						_UserPolicy.MustChangePassword = true;
 				}
+			}
+			else
+			if (errCode != 2) // "No data"
+			{
+				resErrCode = errCode;
+				resErrString += errString;
 			}
 
 			(bin, errCode, errString) = await secGetBin(username, ".", "blocked").ConfigureAwait(false);
@@ -2040,6 +2064,12 @@ namespace Iface.Oik.Tm.Api
 						_UserPolicy.IsBlocked = true;
 				}
 			}
+			else
+			if (errCode != 2) // "No data"
+			{
+				resErrCode = errCode;
+				resErrString += errString;
+			}
 
 			(bin, errCode, errString) = await secGetBin(username, ".", "logon_limit").ConfigureAwait(false);
 			if (errCode == 0)
@@ -2049,6 +2079,12 @@ namespace Iface.Oik.Tm.Api
 				{
 					_UserPolicy.BadLogonLimit = i;
 				}
+			}
+			else
+			if (errCode != 2) // "No data"
+			{
+				resErrCode = errCode;
+				resErrString += errString;
 			}
 
 			(bin, errCode, errString) = await secGetBin(username, ".", "initial").ConfigureAwait(false);
@@ -2063,31 +2099,61 @@ namespace Iface.Oik.Tm.Api
 						_UserPolicy.Predefined = true;
 				}
 			}
+			else
+			if (errCode != 2) // "No data"
+			{
+				resErrCode = errCode;
+				resErrString += errString;
+			}
 
 			(bin, errCode, errString) = await secGetBin(username, ".", "mac_list").ConfigureAwait(false);
 			if ((errCode == 0) && (bin.Length >= 6))
 			{
 				_UserPolicy.EnabledMACs = string.Empty;
-				for (int i = 0; i < bin.Length; i+=6)
+				for (int i = 0; i < bin.Length; i += 6)
 				{
 					byte[] address = bin.Skip(i).Take(6).ToArray();
 					_UserPolicy.EnabledMACs += BitConverter.ToString(address).Replace('-', ':') + '\n';
 				}
 			}
-
-			(bin, errCode, errString) = await secGetBin(username, ".", "pwd").ConfigureAwait(false);
-			if (errCode == 0)
+			else
+			if (errCode != 2) // "No data"
 			{
-				if (bin.Length > 0)
-					_UserPolicy.PasswordSet = true;
-				else
-					_UserPolicy.PasswordSet = false;
+				resErrCode = errCode;
+				resErrString += errString;
 			}
+
+			// проверяем наличие пароля только у своих пользователей
+			if (username.StartsWith("*"))
+			{
+				(bin, errCode, errString) = await secGetBin(username, ".", "pwd").ConfigureAwait(false);
+				if (errCode == 0)
+				{
+					if (bin.Length > 0)
+						_UserPolicy.PasswordSet = true;
+					else
+						_UserPolicy.PasswordSet = false;
+				}
+				else
+				if (errCode != 2) // "No data"
+				{
+					resErrCode = errCode;
+					resErrString += errString;
+				}
+			}
+			else
+				_UserPolicy.PasswordSet = true;
 
 			(bin, errCode, errString) = await secGetBin(username, ".", "uctgr").ConfigureAwait(false);
 			if (errCode == 0)
 			{
 				_UserPolicy.UserCategory = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
+			}
+			else
+			if (errCode != 2) // "No data"
+			{
+				resErrCode = errCode;
+				resErrString += errString;
 			}
 
 			(bin, errCode, errString) = await secGetBin(username, ".", "utmpl").ConfigureAwait(false);
@@ -2095,18 +2161,24 @@ namespace Iface.Oik.Tm.Api
 			{
 				_UserPolicy.UserTemplate = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
 			}
+			else
+			if (errCode != 2) // "No data"
+			{
+				resErrCode = errCode;
+				resErrString += errString;
+			}
 
-			return (_UserPolicy, 0, string.Empty);
+			return (_UserPolicy, resErrCode, resErrString);
 		}
-		public async Task<(uint, string)> secSetUserPolicy(string username, UserPolicy userPolicy )
+		public async Task<(uint, string)> secSetUserPolicy(string username, UserPolicy userPolicy)
 		{
 			byte[] bin;
-			uint errCode, resErrCode=0;
-			string errString, resErrString=string.Empty;
+			uint errCode, resErrCode = 0;
+			string errString, resErrString = string.Empty;
 			string enc = "windows-1251";
 
 
-			if(userPolicy.IsBlocked)
+			if (userPolicy.IsBlocked)
 			{
 				bin = TmNativeUtil.GetFixedBytesWithTrailingZero("1", 2, enc);
 			}
@@ -2169,7 +2241,7 @@ namespace Iface.Oik.Tm.Api
 			}
 
 			string n = userPolicy.BadLogonLimit.ToString();
-			bin = TmNativeUtil.GetFixedBytesWithTrailingZero(n, n.Length+1, enc);
+			bin = TmNativeUtil.GetFixedBytesWithTrailingZero(n, n.Length + 1, enc);
 			(errCode, errString) = await secSetBin(username, ".", "logon_limit", bin).ConfigureAwait(false);
 			if (errCode != 0)
 			{
@@ -2193,18 +2265,18 @@ namespace Iface.Oik.Tm.Api
 				resErrString += errString;
 			}
 
-			bin=new byte[0];
+			bin = new byte[0];
 			var MACs = userPolicy.EnabledMACs.Split('\n');
-			foreach(var mac in MACs)
+			foreach (var mac in MACs)
 			{
 				if (mac.Length > 0)
 				{
 					var macbytes = mac.Split(new char[] { ':', '-' });
-					if(macbytes.Length == 6)
+					if (macbytes.Length == 6)
 					{
 						byte[] MAC = new byte[6];
 						bool good = true;
-						for(int i = 0; i < 6; i++)
+						for (int i = 0; i < 6; i++)
 						{
 							try
 							{
@@ -2216,7 +2288,7 @@ namespace Iface.Oik.Tm.Api
 								break;
 							}
 						}
-						if(good)
+						if (good)
 						{
 							bin = bin.Concat(MAC).ToArray();
 						}
@@ -2224,6 +2296,177 @@ namespace Iface.Oik.Tm.Api
 				}
 			}
 			(errCode, errString) = await secSetBin(username, ".", "mac_list", bin).ConfigureAwait(false);
+			if (errCode != 0)
+			{
+				resErrCode = errCode;
+				resErrString += errString;
+			}
+
+			return (resErrCode, resErrString);
+		}
+		public async Task<(PasswordPolicy, uint, string)> secGetPasswordPolicy()
+		{
+			byte[] bin;
+			uint errCode, resErrCode = 0; ;
+			string errString, resErrString = string.Empty;
+			var passwordPolicy = new PasswordPolicy();
+
+			(bin, errCode, errString) = await secGetBin(".cfs.", ".", "own_pch").ConfigureAwait(false);
+			if (errCode == 0)
+			{
+				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
+				if (Int32.TryParse(s, out int i))
+				{
+					passwordPolicy.AdminPasswordChange = (i == 0);
+				}
+			}
+			else
+			if (errCode != 2) // "No data"
+			{
+				resErrCode = errCode;
+				resErrString += errString;
+			}
+
+			(bin, errCode, errString) = await secGetBin(".cfs.", ".", "pwd_pol").ConfigureAwait(false);
+			if (errCode == 0)
+			{
+				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
+				if (Int32.TryParse(s, out int i))
+				{
+					passwordPolicy.EnforcePasswordCheck = (i==1);
+				}
+			}
+			else
+			if (errCode != 2) // "No data"
+			{
+				resErrCode = errCode;
+				resErrString += errString;
+			}
+
+			(bin, errCode, errString) = await secGetBin(".cfs.", ".", "pwd_pol_len").ConfigureAwait(false);
+			if (errCode == 0)
+			{
+				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
+				if (Int32.TryParse(s, out int i))
+				{
+					passwordPolicy.MinPasswordLength = i;
+				}
+			}
+			else
+			if (errCode != 2) // "No data"
+			{
+				resErrCode = errCode;
+				resErrString += errString;
+			}
+
+			(bin, errCode, errString) = await secGetBin(".cfs.", ".", "p_ex_days").ConfigureAwait(false);
+			if (errCode == 0)
+			{
+				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
+				if (Int32.TryParse(s, out int i))
+				{
+					passwordPolicy.PasswordTTL_Days = i;
+				}
+			}
+			else
+			if (errCode != 2) // "No data"
+			{
+				resErrCode = errCode;
+				resErrString += errString;
+			}
+
+			(bin, errCode, errString) = await secGetBin(".cfs.", ".", "pwd_pol_flg").ConfigureAwait(false);
+			if (errCode == 0)
+			{
+				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
+				if (uint.TryParse(s, out uint flg))
+				{
+					if ((flg & 0x00001) != 0) passwordPolicy.PwdChars_Upper = true;
+					if ((flg & 0x00002) != 0) passwordPolicy.PwdChars_Digits = true;
+					if ((flg & 0x00004) != 0) passwordPolicy.PwdChars_Special = true;
+					if ((flg & 0x00008) != 0) passwordPolicy.PwdChars_NoRepeat = true;
+					if ((flg & 0x00010) != 0) passwordPolicy.PwdChars_NoSequential = true;
+					if ((flg & 0x00020) != 0) passwordPolicy.PwdChars_CheckDictonary = true;
+					if ((flg & 0x10000) != 0) passwordPolicy.CheckOldPasswords = true;
+				}
+			}
+			else
+			if (errCode != 2) // "No data"
+			{
+				resErrCode = errCode;
+				resErrString += errString;
+			}
+
+			return (passwordPolicy, resErrCode, resErrString);
+		}
+		public async Task<(uint, string)> secSetPasswordPolicy(PasswordPolicy passwordPolicy)
+		{
+			byte[] bin;
+			string n;
+			uint errCode, resErrCode = 0;
+			string errString, resErrString = string.Empty;
+			string enc = "windows-1251";
+
+
+			if (passwordPolicy.AdminPasswordChange)
+			{
+				bin = TmNativeUtil.GetFixedBytesWithTrailingZero("0", 2, enc);
+			}
+			else
+			{
+				bin = TmNativeUtil.GetFixedBytesWithTrailingZero("1", 2, enc);
+			}
+			(errCode, errString) = await secSetBin(".cfs.", ".", "own_pch", bin).ConfigureAwait(false);
+			if (errCode != 0)
+			{
+				resErrCode = errCode;
+				resErrString += errString;
+			}
+			
+			if (passwordPolicy.EnforcePasswordCheck)
+			{
+				bin = TmNativeUtil.GetFixedBytesWithTrailingZero("1", 2, enc);
+			}
+			else
+			{
+				bin = TmNativeUtil.GetFixedBytesWithTrailingZero("0", 2, enc);
+			}
+			(errCode, errString) = await secSetBin(".cfs.", ".", "pwd_pol", bin).ConfigureAwait(false);
+			if (errCode != 0)
+			{
+				resErrCode = errCode;
+				resErrString += errString;
+			}
+
+			n = passwordPolicy.MinPasswordLength.ToString();
+			bin = TmNativeUtil.GetFixedBytesWithTrailingZero(n, n.Length + 1, enc);
+			(errCode, errString) = await secSetBin(".cfs.", ".", "pwd_pol_len", bin).ConfigureAwait(false);
+			if (errCode != 0)
+			{
+				resErrCode = errCode;
+				resErrString += errString;
+			}
+
+			n = passwordPolicy.PasswordTTL_Days.ToString();
+			bin = TmNativeUtil.GetFixedBytesWithTrailingZero(n, n.Length + 1, enc);
+			(errCode, errString) = await secSetBin(".cfs.", ".", "p_ex_days", bin).ConfigureAwait(false);
+			if (errCode != 0)
+			{
+				resErrCode = errCode;
+				resErrString += errString;
+			}
+
+			uint flg = 0xff_ff_ff_ff;
+			if (!passwordPolicy.PwdChars_Upper)          flg ^= 0x00001;
+			if (!passwordPolicy.PwdChars_Digits)         flg ^= 0x00002;
+			if (!passwordPolicy.PwdChars_Special)        flg ^= 0x00004;
+			if (!passwordPolicy.PwdChars_NoRepeat)       flg ^= 0x00008;
+			if (!passwordPolicy.PwdChars_NoSequential)   flg ^= 0x00010;
+			if (!passwordPolicy.PwdChars_CheckDictonary) flg ^= 0x00020;
+			if (!passwordPolicy.CheckOldPasswords)       flg ^= 0x10000;
+			string s_flg = flg.ToString();
+			bin = TmNativeUtil.GetFixedBytesWithTrailingZero(s_flg, s_flg.Length + 1, enc);
+			(errCode, errString) = await secSetBin(".cfs.", ".", "pwd_pol_flg", bin).ConfigureAwait(false);
 			if (errCode != 0)
 			{
 				resErrCode = errCode;

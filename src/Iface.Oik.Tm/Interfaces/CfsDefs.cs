@@ -177,4 +177,18 @@ namespace Iface.Oik.Tm.Interfaces
 		public string UserCategory { get; set; } = "";
 
 	}
+	public class PasswordPolicy
+	{
+		public bool AdminPasswordChange { get; set; }
+		public int PasswordTTL_Days { get; set; }
+		public bool EnforcePasswordCheck { get; set; }
+		public int MinPasswordLength { get; set; }
+		public bool PwdChars_Upper { get; set; }
+		public bool PwdChars_Digits { get; set; }
+		public bool PwdChars_Special { get; set; }
+		public bool PwdChars_NoRepeat { get; set; }
+		public bool PwdChars_NoSequential { get; set; }
+		public bool PwdChars_CheckDictonary { get; set; }
+		public bool CheckOldPasswords { get; set; }
+	}
 }
