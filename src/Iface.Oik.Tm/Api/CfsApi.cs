@@ -1,20 +1,16 @@
+using Iface.Oik.Tm.Helpers;
+using Iface.Oik.Tm.Interfaces;
+using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Native.Utils;
+using Iface.Oik.Tm.Utils;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Net.NetworkInformation;
-using Iface.Oik.Tm.Helpers;
-using Iface.Oik.Tm.Interfaces;
-using Iface.Oik.Tm.Native.Api;
-using Iface.Oik.Tm.Native.Interfaces;
-using Iface.Oik.Tm.Native.Utils;
-using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Api
 {
@@ -1831,7 +1827,7 @@ namespace Iface.Oik.Tm.Api
 			var errBuf = new byte[errBufLength];
 			uint errCode = 0;
 
-			if (!username.StartsWith("*"))
+			if ((username.Length > 0) && !username.StartsWith("*"))
 			{
 				return (12345, "Смена пароля допустима только у собственных пользователей");
 			}
@@ -2379,15 +2375,16 @@ namespace Iface.Oik.Tm.Api
 			if (errCode == 0)
 			{
 				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
-				if (uint.TryParse(s, out uint flg))
+				if (uint.TryParse(s, out uint ui))
 				{
-					if ((flg & 0x00001) != 0) passwordPolicy.PwdChars_Upper = true;
-					if ((flg & 0x00002) != 0) passwordPolicy.PwdChars_Digits = true;
-					if ((flg & 0x00004) != 0) passwordPolicy.PwdChars_Special = true;
-					if ((flg & 0x00008) != 0) passwordPolicy.PwdChars_NoRepeat = true;
-					if ((flg & 0x00010) != 0) passwordPolicy.PwdChars_NoSequential = true;
-					if ((flg & 0x00020) != 0) passwordPolicy.PwdChars_CheckDictonary = true;
-					if ((flg & 0x10000) != 0) passwordPolicy.CheckOldPasswords = true;
+					PWDPOL flags = (PWDPOL)ui;
+					passwordPolicy.PwdChars_Upper          = flags.HasFlag(PWDPOL.Upper);
+					passwordPolicy.PwdChars_Digits         = flags.HasFlag(PWDPOL.Digits);
+					passwordPolicy.PwdChars_Special        = flags.HasFlag(PWDPOL.Spec);
+					passwordPolicy.PwdChars_NoRepeat       = flags.HasFlag(PWDPOL.CheckRepeat);
+					passwordPolicy.PwdChars_NoSequential   = flags.HasFlag(PWDPOL.CheqSeq);
+					passwordPolicy.PwdChars_CheckDictonary = flags.HasFlag(PWDPOL.CheckDict);
+					passwordPolicy.CheckOldPasswords       = flags.HasFlag(PWDPOL.CheckCache);
 				}
 			}
 			else
@@ -2456,15 +2453,15 @@ namespace Iface.Oik.Tm.Api
 				resErrString += errString;
 			}
 
-			uint flg = 0xff_ff_ff_ff;
-			if (!passwordPolicy.PwdChars_Upper)          flg ^= 0x00001;
-			if (!passwordPolicy.PwdChars_Digits)         flg ^= 0x00002;
-			if (!passwordPolicy.PwdChars_Special)        flg ^= 0x00004;
-			if (!passwordPolicy.PwdChars_NoRepeat)       flg ^= 0x00008;
-			if (!passwordPolicy.PwdChars_NoSequential)   flg ^= 0x00010;
-			if (!passwordPolicy.PwdChars_CheckDictonary) flg ^= 0x00020;
-			if (!passwordPolicy.CheckOldPasswords)       flg ^= 0x10000;
-			string s_flg = flg.ToString();
+			PWDPOL flags = (PWDPOL)0xff_ff_ff_ff;
+			if (!passwordPolicy.PwdChars_Upper)          flags &= ~PWDPOL.Upper;
+			if (!passwordPolicy.PwdChars_Digits)		 flags &= ~PWDPOL.Digits;
+			if (!passwordPolicy.PwdChars_Special)		 flags &= ~PWDPOL.Spec;
+			if (!passwordPolicy.PwdChars_NoRepeat)		 flags &= ~PWDPOL.CheckRepeat;
+			if (!passwordPolicy.PwdChars_NoSequential)	 flags &= ~PWDPOL.CheqSeq;
+			if (!passwordPolicy.PwdChars_CheckDictonary) flags &= ~PWDPOL.CheckDict;
+			if (!passwordPolicy.CheckOldPasswords)		 flags &= ~PWDPOL.CheckCache;
+			string s_flg = flags.ToString();
 			bin = TmNativeUtil.GetFixedBytesWithTrailingZero(s_flg, s_flg.Length + 1, enc);
 			(errCode, errString) = await secSetBin(".cfs.", ".", "pwd_pol_flg", bin).ConfigureAwait(false);
 			if (errCode != 0)

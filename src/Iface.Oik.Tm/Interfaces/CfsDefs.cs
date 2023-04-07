@@ -112,6 +112,19 @@ namespace Iface.Oik.Tm.Interfaces
 		public const uint First = 0x00_00_00_00;
 		public const uint Last = 0x7f_ff_ff_ff;
 	}
+
+	[Flags]
+	public enum MS_AccessRights : uint
+	{
+		ReadConfig = 0x00_00_00_01,
+		WriteConfig = 0x00_00_00_02,
+		DirectoryAccess = 0x00_00_00_04,
+		ServersAccess = 0x00_00_00_08,
+		Trace = 0x00_00_00_10,
+		ReadSecurytyLog = 0x00_00_00_20,
+		ReadAdminLog = 0x00_00_00_40,
+		EditSecurity = 0x00_00_80_00,
+	}
 	public class AccessMask
 	{
 		public uint Mask { get; set; }
@@ -177,6 +190,19 @@ namespace Iface.Oik.Tm.Interfaces
 		public string UserCategory { get; set; } = "";
 
 	}
+
+	[Flags]
+	public enum PWDPOL : uint
+	{
+		Upper = 0x00001,
+		Digits = 0x00002,
+		Spec = 0x00004,
+		CheckRepeat = 0x00008,
+		CheqSeq = 0x00010,
+		CheckDict = 0x00020,
+		CheckCache = 0x10000,
+	}
+
 	public class PasswordPolicy
 	{
 		public bool AdminPasswordChange { get; set; }
