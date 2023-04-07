@@ -934,13 +934,20 @@ namespace Iface.Oik.Tm.Native.Interfaces
 			public Byte UptimeAbs;
 			public Byte NtProductType;
 			public Byte Win64;
-			public Byte UdbType;
+			public Byte _bres1;
 
 			[MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
 			public Byte[] LOctet;
 
+			public UInt32 CurrentGMT;
+			public UInt16 CurrentMs;
+
+			public byte SecType;
+			public byte Copyright;
+			public byte Endianness;
+
 			[MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
-			public UInt32[] Reserved;
+			public Byte[] Res;
 
 			public UInt32 CfsVerMaj;
 			public UInt32 CfsVerMin;
@@ -951,14 +958,16 @@ namespace Iface.Oik.Tm.Native.Interfaces
 			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
 			public string UserName;
 
-			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
-			public string Res2;
+			[MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
+			public byte[] Res2;
 
 			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
 			public string UserAddr;
 
-			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
-			public string Res3;
+			public UInt32 UserIfIp;
+
+			[MarshalAs(UnmanagedType.ByValArray, SizeConst = 28)]
+			public byte[] Res3;
 
 			[MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
 			public UInt32[] IpAddrs;
@@ -1150,6 +1159,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 		#endregion
 
 		#region Security
+
 		[StructLayout(LayoutKind.Sequential)]
 		public struct AccessRight 
 		{ 

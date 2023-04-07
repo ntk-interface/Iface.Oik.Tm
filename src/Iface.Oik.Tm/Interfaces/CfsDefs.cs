@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Runtime.InteropServices;
+using System.Xml.Serialization;
 using Iface.Oik.Tm.Native.Interfaces;
 
 namespace Iface.Oik.Tm.Interfaces
@@ -112,12 +112,25 @@ namespace Iface.Oik.Tm.Interfaces
 		public const uint First = 0x00_00_00_00;
 		public const uint Last = 0x7f_ff_ff_ff;
 	}
+
+	[Flags]
+	public enum MS_AccessRights : uint
+	{
+		ReadConfig = 0x00_00_00_01,
+		WriteConfig = 0x00_00_00_02,
+		DirectoryAccess = 0x00_00_00_04,
+		ServersAccess = 0x00_00_00_08,
+		Trace = 0x00_00_00_10,
+		ReadSecurytyLog = 0x00_00_00_20,
+		ReadAdminLog = 0x00_00_00_40,
+		EditSecurity = 0x00_00_80_00,
+	}
 	public class AccessMask
 	{
 		public uint Mask { get; set; }
 		public Dictionary<string, string> Description { get; set; } = new Dictionary<string, string>();
 	}
-	public class AccessDescriptor
+	public class AccessMasksDescriptor
 	{
 		public string NamePrefix = "";
 		public Dictionary<string, string> ObjTypeName { get; set; } = new Dictionary<string, string>();
@@ -143,9 +156,65 @@ namespace Iface.Oik.Tm.Interfaces
 	{
 		public int UserID{ get; set; }
 		public int Group { get; set; }
-		public string UserNick { get; set; }
-		public string UserPwd { get; set; }
-		public string KeyID { get; set; }
+		public string UserNick { get; set; } = "";
+		public string UserPwd { get; set; } = "";
+		public string KeyID { get; set; } = "";
 		public byte[] Rights { get; set; } = new byte[250];
-}
+	}
+	public class UserPolicy
+	{
+		[ReadOnly(true)]
+		public bool Predefined { get; set; }
+
+		[ReadOnly(true)]
+		public bool PasswordSet { get; set; }
+
+		[ReadOnly(true)]
+		public int BadLogonCount { get; set; }
+
+		public string UserTemplate { get; set; } = "";
+
+		public bool IsBlocked { get; set; }
+
+		public bool MustChangePassword { get; set; }
+
+		public DateTime NotBefore { get; set; }
+
+		public DateTime NotAfter { get; set; }
+
+		public int BadLogonLimit { get; set; }
+
+		[XmlArray]
+		public string EnabledMACs { get; set; } = "";
+
+		public string UserCategory { get; set; } = "";
+
+	}
+
+	[Flags]
+	public enum PWDPOL : uint
+	{
+		Upper = 0x00001,
+		Digits = 0x00002,
+		Spec = 0x00004,
+		CheckRepeat = 0x00008,
+		CheqSeq = 0x00010,
+		CheckDict = 0x00020,
+		CheckCache = 0x10000,
+	}
+
+	public class PasswordPolicy
+	{
+		public bool AdminPasswordChange { get; set; }
+		public int PasswordTTL_Days { get; set; }
+		public bool EnforcePasswordCheck { get; set; }
+		public int MinPasswordLength { get; set; }
+		public bool PwdChars_Upper { get; set; }
+		public bool PwdChars_Digits { get; set; }
+		public bool PwdChars_Special { get; set; }
+		public bool PwdChars_NoRepeat { get; set; }
+		public bool PwdChars_NoSequential { get; set; }
+		public bool PwdChars_CheckDictonary { get; set; }
+		public bool CheckOldPasswords { get; set; }
+	}
 }
