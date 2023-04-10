@@ -1,5 +1,6 @@
 using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
+using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
@@ -8,9 +9,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static Iface.Oik.Tm.Native.Interfaces.TmNativeDefs;
 
 namespace Iface.Oik.Tm.Api
 {
@@ -2329,7 +2332,7 @@ namespace Iface.Oik.Tm.Api
 				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
 				if (Int32.TryParse(s, out int i))
 				{
-					passwordPolicy.EnforcePasswordCheck = (i==1);
+					passwordPolicy.EnforcePasswordCheck = (i == 1);
 				}
 			}
 			else
@@ -2378,13 +2381,13 @@ namespace Iface.Oik.Tm.Api
 				if (uint.TryParse(s, out uint ui))
 				{
 					PWDPOL flags = (PWDPOL)ui;
-					passwordPolicy.PwdChars_Upper          = flags.HasFlag(PWDPOL.Upper);
-					passwordPolicy.PwdChars_Digits         = flags.HasFlag(PWDPOL.Digits);
-					passwordPolicy.PwdChars_Special        = flags.HasFlag(PWDPOL.Spec);
-					passwordPolicy.PwdChars_NoRepeat       = flags.HasFlag(PWDPOL.CheckRepeat);
-					passwordPolicy.PwdChars_NoSequential   = flags.HasFlag(PWDPOL.CheqSeq);
+					passwordPolicy.PwdChars_Upper = flags.HasFlag(PWDPOL.Upper);
+					passwordPolicy.PwdChars_Digits = flags.HasFlag(PWDPOL.Digits);
+					passwordPolicy.PwdChars_Special = flags.HasFlag(PWDPOL.Spec);
+					passwordPolicy.PwdChars_NoRepeat = flags.HasFlag(PWDPOL.CheckRepeat);
+					passwordPolicy.PwdChars_NoSequential = flags.HasFlag(PWDPOL.CheqSeq);
 					passwordPolicy.PwdChars_CheckDictonary = flags.HasFlag(PWDPOL.CheckDict);
-					passwordPolicy.CheckOldPasswords       = flags.HasFlag(PWDPOL.CheckCache);
+					passwordPolicy.CheckOldPasswords = flags.HasFlag(PWDPOL.CheckCache);
 				}
 			}
 			else
@@ -2419,7 +2422,7 @@ namespace Iface.Oik.Tm.Api
 				resErrCode = errCode;
 				resErrString += errString;
 			}
-			
+
 			if (passwordPolicy.EnforcePasswordCheck)
 			{
 				bin = TmNativeUtil.GetFixedBytesWithTrailingZero("1", 2, enc);
@@ -2454,13 +2457,13 @@ namespace Iface.Oik.Tm.Api
 			}
 
 			PWDPOL flags = (PWDPOL)0xff_ff_ff_ff;
-			if (!passwordPolicy.PwdChars_Upper)          flags &= ~PWDPOL.Upper;
-			if (!passwordPolicy.PwdChars_Digits)		 flags &= ~PWDPOL.Digits;
-			if (!passwordPolicy.PwdChars_Special)		 flags &= ~PWDPOL.Spec;
-			if (!passwordPolicy.PwdChars_NoRepeat)		 flags &= ~PWDPOL.CheckRepeat;
-			if (!passwordPolicy.PwdChars_NoSequential)	 flags &= ~PWDPOL.CheqSeq;
+			if (!passwordPolicy.PwdChars_Upper) flags &= ~PWDPOL.Upper;
+			if (!passwordPolicy.PwdChars_Digits) flags &= ~PWDPOL.Digits;
+			if (!passwordPolicy.PwdChars_Special) flags &= ~PWDPOL.Spec;
+			if (!passwordPolicy.PwdChars_NoRepeat) flags &= ~PWDPOL.CheckRepeat;
+			if (!passwordPolicy.PwdChars_NoSequential) flags &= ~PWDPOL.CheqSeq;
 			if (!passwordPolicy.PwdChars_CheckDictonary) flags &= ~PWDPOL.CheckDict;
-			if (!passwordPolicy.CheckOldPasswords)		 flags &= ~PWDPOL.CheckCache;
+			if (!passwordPolicy.CheckOldPasswords) flags &= ~PWDPOL.CheckCache;
 			string s_flg = flags.ToString();
 			bin = TmNativeUtil.GetFixedBytesWithTrailingZero(s_flg, s_flg.Length + 1, enc);
 			(errCode, errString) = await secSetBin(".cfs.", ".", "pwd_pol_flg", bin).ConfigureAwait(false);
@@ -2471,6 +2474,56 @@ namespace Iface.Oik.Tm.Api
 			}
 
 			return (resErrCode, resErrString);
+		}
+		public async Task<(ComputerInfo, uint, string)> GetComputerInfo()
+		{
+			const int errBufLength = 1000;
+			var errBuf = new byte[errBufLength];
+			uint errCode = 0;
+
+			var _computerInfoS = new ComputerInfoS()
+			{
+				Len = (uint)Marshal.SizeOf(typeof(ComputerInfoS))
+			};
+			await Task.Run(() => _native.CfsGetComputerInfo(CfId, ref _computerInfoS, out errCode, ref errBuf, errBufLength)).ConfigureAwait(false);
+			if (errCode != 0)
+			{
+				return (null, errCode, EncodingUtil.Win1251BytesToUtf8(errBuf));
+			}
+			else
+			{
+				//public string SoftwareKeyID { get; set; }
+
+				var computerInfo = new ComputerInfo()
+				{
+					ComputerName = _computerInfoS.ComputerName,
+					PrimaryDomainName = _computerInfoS.DomInfo.PrimaryDomainName,
+					OS_ProductType = $"ostype{_computerInfoS.NtProductType}",
+					OS_Version = $"{_computerInfoS.NtVerMaj}.{_computerInfoS.NtVerMin} build {_computerInfoS.NtBuild}",
+					Architecture = (_computerInfoS.Win64 == 1)?"x64":"x86",
+					Acp = _computerInfoS.Acp,
+
+					ServerTimeGMT = DateUtil.GetDateTimeFromTimestamp(_computerInfoS.CurrentGMT, _computerInfoS.CurrentMs),
+					Uptime = _computerInfoS.Uptime,
+
+					Copyright = $"oiktype{_computerInfoS.Copyright}",
+					CfsVer = $"{_computerInfoS.CfsVerMaj}.{_computerInfoS.CfsVerMin}",
+
+					UserName = _computerInfoS.UserName,
+					UserAddr = _computerInfoS.UserAddr,
+					AccessMask = _computerInfoS.AccessMask,
+				};
+				computerInfo.IpAddrs = new List<string>();
+				foreach(var addr in _computerInfoS.IpAddrs)
+				{
+					if (addr == 0)
+						break;
+					computerInfo.IpAddrs.Add(new IPAddress(addr).ToString());
+				}
+				computerInfo.SoftwareKeyID = BitConverter.ToString(_computerInfoS.LOctet).Replace("-", "");
+
+				return (computerInfo, 0, string.Empty);
+			}
 		}
 	}
 }

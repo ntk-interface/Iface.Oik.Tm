@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 using Iface.Oik.Tm.Native.Interfaces;
 
@@ -95,7 +96,7 @@ namespace Iface.Oik.Tm.Interfaces
 	}
 
 
-	public enum SLogType : uint
+	public enum CfsSLogType : uint
 	{
 		Security = TmNativeDefs.SLogType.Security,
 		Administrator = TmNativeDefs.SLogType.Administrator,
@@ -216,5 +217,24 @@ namespace Iface.Oik.Tm.Interfaces
 		public bool PwdChars_NoSequential { get; set; }
 		public bool PwdChars_CheckDictonary { get; set; }
 		public bool CheckOldPasswords { get; set; }
+	}
+	public class ComputerInfo
+	{
+		public string ComputerName { get; set; }
+		public string PrimaryDomainName { get; set; }
+		public string OS_ProductType { get; set; }
+		public string OS_Version { get; set; }
+		public string Architecture { get; set; }
+		public List<string> IpAddrs { get; set; }
+		public UInt32 Acp { get; set; }
+		public UInt64 Uptime { get; set; }
+		public DateTime ServerTimeGMT { get; set; }
+
+		public string SoftwareKeyID { get; set; }
+		public string Copyright { get; set; }
+		public string CfsVer { get; set; }
+		public string UserName { get; set; }
+		public string UserAddr { get; set; }
+		public UInt32 AccessMask { get; set; }
 	}
 }
