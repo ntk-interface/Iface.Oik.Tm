@@ -2522,6 +2522,21 @@ namespace Iface.Oik.Tm.Api
 				}
 				computerInfo.SoftwareKeyID = BitConverter.ToString(_computerInfoS.LOctet).Replace("-", "");
 
+				// читаем дату билда и установки отдельно
+
+				computerInfo.BuildDate = await GetIniString("@@", "IInfo", "BuildTime").ConfigureAwait(false);
+				if(computerInfo.BuildDate.Equals(string.Empty))
+				{
+					var path = Path.Combine(await GetBasePath().ConfigureAwait(false),
+											"dispserv.ini");
+					// если попали на старый сервер
+					computerInfo.BuildDate = await GetIniString(path, "Info", "BuildTime").ConfigureAwait(false);
+					computerInfo.InstallDate = await GetIniString(path, "Info", "InstTime").ConfigureAwait(false);
+				}
+				else
+					computerInfo.InstallDate = await GetIniString("@@", "IInfo", "InstTime").ConfigureAwait(false);
+
+
 				return (computerInfo, 0, string.Empty);
 			}
 		}

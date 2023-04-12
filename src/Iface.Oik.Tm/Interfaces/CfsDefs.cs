@@ -122,7 +122,7 @@ namespace Iface.Oik.Tm.Interfaces
 		DirectoryAccess = 0x00_00_00_04,
 		ServersAccess = 0x00_00_00_08,
 		Trace = 0x00_00_00_10,
-		ReadSecurytyLog = 0x00_00_00_20,
+		ReadSecurityLog = 0x00_00_00_20,
 		ReadAdminLog = 0x00_00_00_40,
 		EditSecurity = 0x00_00_80_00,
 	}
@@ -233,6 +233,8 @@ namespace Iface.Oik.Tm.Interfaces
 		public string SoftwareKeyID { get; set; }
 		public string Copyright { get; set; }
 		public string CfsVer { get; set; }
+		public string BuildDate { get; set; }
+		public string InstallDate { get; set; }
 		public string UserName { get; set; }
 		public string UserAddr { get; set; }
 		public UInt32 AccessMask { get; set; }
