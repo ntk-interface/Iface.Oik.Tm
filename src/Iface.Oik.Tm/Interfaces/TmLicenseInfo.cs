@@ -49,8 +49,8 @@ namespace Iface.Oik.Tm.Interfaces
             ErrorAdd2.Name  = name;
             ErrorAdd2.Value = value;
             break;
-          case "@Company":
-            break;
+          //case "@Company":
+          //  break;
           default:
             LicenseDataItems.Add(new LicenseDataItem
             {
