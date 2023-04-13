@@ -1248,23 +1248,9 @@ namespace Iface.Oik.Tm.Api
 			{
 				var typeNumStr = typeString.Split(new[] { ". " }, StringSplitOptions.None).First();
 
-				switch (typeNumStr)
+				if(int.TryParse(typeNumStr, out int t))
 				{
-					case "4":
-						licenseKeyTypes.Add(LicenseKeyType.TypeFour);
-						break;
-					case "5":
-						licenseKeyTypes.Add(LicenseKeyType.Software);
-						break;
-					case "6":
-						licenseKeyTypes.Add(LicenseKeyType.UsbHidSsd);
-						break;
-					case "7":
-						licenseKeyTypes.Add(LicenseKeyType.Network);
-						break;
-					default:
-						licenseKeyTypes.Add(LicenseKeyType.Unknown);
-						break;
+					licenseKeyTypes.Add((LicenseKeyType)t);
 				}
 			}
 
@@ -1272,7 +1258,7 @@ namespace Iface.Oik.Tm.Api
 		}
 
 
-		private async Task<int> GetCurrentLicenseKeyCom()
+		public async Task<int> GetCurrentLicenseKeyCom()
 		{
 			var path = Path.Combine(await GetBasePath().ConfigureAwait(false),
 									"Data\\Main\\cfshare.ini");

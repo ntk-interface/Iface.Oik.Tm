@@ -87,12 +87,15 @@ namespace Iface.Oik.Tm.Interfaces
 
 	public enum LicenseKeyType
 	{
-		[Description("Неизвестный тип ключа")] Unknown = 0,
-		[Description("???")] TypeFour = 4,
-		[Description("Программная лицензия")] Software = 5,
-		[Description("Interface USB HID/SSD")] UsbHidSsd = 6,
-		[Description("Сетевой ключ Interface")] Network = 7,
-
+		DallasCOM = 0,
+		DallasLPT = 1,
+		DallasUSB = 2,
+		IfaceUSBCOM = 3,
+		HDDKey = 4,
+		Software = 5,
+		UsbHidSsd = 6,
+		Network = 7,
+		Unknown = -1,
 	}
 
 
@@ -220,6 +223,11 @@ namespace Iface.Oik.Tm.Interfaces
 	}
 	public class ComputerInfo
 	{
+		public string Copyright { get; set; }
+		public string CfsVer { get; set; }
+		public string BuildDate { get; set; }
+		public string InstallDate { get; set; }
+		public string SoftwareKeyID { get; set; }
 		public string ComputerName { get; set; }
 		public string PrimaryDomainName { get; set; }
 		public string OS_ProductType { get; set; }
@@ -229,12 +237,6 @@ namespace Iface.Oik.Tm.Interfaces
 		public UInt32 Acp { get; set; }
 		public UInt64 Uptime { get; set; }
 		public DateTime ServerTimeGMT { get; set; }
-
-		public string SoftwareKeyID { get; set; }
-		public string Copyright { get; set; }
-		public string CfsVer { get; set; }
-		public string BuildDate { get; set; }
-		public string InstallDate { get; set; }
 		public string UserName { get; set; }
 		public string UserAddr { get; set; }
 		public UInt32 AccessMask { get; set; }
