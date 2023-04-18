@@ -151,5 +151,7 @@ namespace Iface.Oik.Tm.Interfaces
 		Task<(uint, string)> SecSetPasswordPolicy(PasswordPolicy passwordPolicy);
 		Task<(bool, string)> SaveMachineConfig(bool fFull, string FileName);
 		Task<(IReadOnlyCollection<string>, uint, string)> DirEnum(string Path);
+		Task<bool> CreateBackup(string progName, string pipeName, string directory);
+		Task<bool> RestoreBackup(string progName, string pipeName, string filename);
 	}
 }

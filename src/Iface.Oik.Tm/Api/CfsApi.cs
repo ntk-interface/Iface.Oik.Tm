@@ -2562,7 +2562,7 @@ namespace Iface.Oik.Tm.Api
 				return (TmNativeUtil.GetStringListFromDoubleNullTerminatedChars(resBuf), 0, string.Empty);
 			}
 		}
-		public async Task CreateBackup(string serverType, string serverName, string directory)
+		public async Task<bool> CreateBackup(string progName, string pipeName, string directory)
 		{
 		//#define TMS_BACKUP_CONFIG	1
 		//#define TMS_BACKUP_ARRAY	2
@@ -2575,14 +2575,36 @@ namespace Iface.Oik.Tm.Api
 		//#define RBS_BACKUP_SECURITY 2
 
 			uint bflags = 1;
-			
-			await Task.Run(() => _native.TmcBackupServerProcedure(Host, "TMS", directory, ref bflags, 0, null, (IntPtr)0)).ConfigureAwait(false);
-			//await Task.Run(() => _native.RbcBackupServerProcedure(Host, "RBS", directory, ref bflags, 0, null, (IntPtr)0)).ConfigureAwait(false);
+			bool result = false;
+			switch (progName)
+			{
+				case MSTreeConsts.pcsrv:
+				case MSTreeConsts.pcsrv_old:
+					result = await Task.Run(() => _native.TmcBackupServerProcedure(Host, pipeName, directory, ref bflags, 0, null, (IntPtr)0)).ConfigureAwait(false);
+					break;
+				case MSTreeConsts.rbsrv:
+				case MSTreeConsts.rbsrv_old:
+					result = await Task.Run(() => _native.RbcBackupServerProcedure(Host, pipeName, directory, ref bflags, 0, null, (IntPtr)0)).ConfigureAwait(false);
+					break;
+			}
+			return result;
 		}
-		public async Task RestoreBackup(string serverType, string serverName, string filename)
+		public async Task<bool> RestoreBackup(string progName, string pipeName, string filename)
 		{
 			uint bflags = 1;
-			var result = await Task.Run(() => _native.TmcRestoreServer(true, Host, "TMS", filename, ref bflags, 0, null, (IntPtr)0)).ConfigureAwait(false);
+			bool result=false;
+			switch (progName)
+			{
+				case MSTreeConsts.pcsrv:
+				case MSTreeConsts.pcsrv_old:
+					result = await Task.Run(() => _native.TmcRestoreServer(true, Host, pipeName, filename, ref bflags, 0, null, (IntPtr)0)).ConfigureAwait(false);
+					break;
+				case MSTreeConsts.rbsrv:
+				case MSTreeConsts.rbsrv_old:
+					result = await Task.Run(() => _native.TmcRestoreServer(false, Host, pipeName, filename, ref bflags, 0, null, (IntPtr)0)).ConfigureAwait(false);
+					break;
+			}
+			return result;
 		}
 	}
 }
