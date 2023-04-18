@@ -2,6 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Text;
 using Iface.Oik.Tm.Native.Interfaces;
+using static Iface.Oik.Tm.Native.Interfaces.TmNativeDefs;
 
 namespace Iface.Oik.Tm.Native.Api
 {
@@ -576,6 +577,34 @@ namespace Iface.Oik.Tm.Native.Api
 												   out uint errCode, ref byte[] errBuf, uint maxErrs)
 		{
 			return cfsIfpcSetAccess(connId, uName, oName, AccessMask, out errCode, errBuf, maxErrs);
+		}
+
+		public Boolean CfsSaveMachineConfig(Boolean fFull,
+			string RemoteMasterMachine,
+			string FileName,
+			ref byte[] errBuf, uint maxErrs)
+		{
+			return cfsSaveMachineConfig(fFull, RemoteMasterMachine, FileName, errBuf, maxErrs);
+		}
+
+		public Boolean CfsExternalBackupServer(IntPtr connId,
+			string dllname,
+			string servname,
+			uint bflags,
+			ref CfsServerBackupData pbd,
+			out uint errCode, ref byte[] errBuf, uint maxErrs)
+		{
+			return cfsExternalBackupServer(connId, dllname, servname, bflags, ref pbd, out errCode, errBuf, maxErrs);
+		}
+
+		public Boolean CfsExternalRestoreServer(IntPtr connId,
+			string dllname,
+			string servname,
+			string filename,
+			out UInt32 pbflags,
+			out uint errCode, ref byte[] errBuf, uint maxErrs)
+		{
+			return cfsExternalRestoreServer(connId,dllname, servname, filename, out pbflags, out errCode, errBuf, maxErrs);
 		}
 	}
 }

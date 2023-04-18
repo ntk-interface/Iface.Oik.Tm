@@ -121,7 +121,7 @@ namespace Iface.Oik.Tm.Interfaces
 		                    string oName,
 		                    string binName);
 
-		Task<(byte[], uint, string)> secGetBin(string uName,
+		Task<(byte[], uint, string)> SecGetBin(string uName,
 												 string oName,
 												 string binName);
 		Task<bool> SetRedirectorPort(string pipeName, int portIndex, int port);
@@ -131,23 +131,25 @@ namespace Iface.Oik.Tm.Interfaces
 		                  string oName,
 		                  string binName,
 		                  byte[] binData);
-		Task<(uint, string)> secSetBin(string uName,
+		Task<(uint, string)> SecSetBin(string uName,
 											   string oName,
 											   string binName,
 											   byte[] binData);
-		AccessMasksDescriptor secGetAccessDescriptor(string ProgName);
-		ExtendedRightsDescriptor secGetExtendedRightsDescriptor();
-		Task<(IReadOnlyCollection<string>, uint, string)> secEnumUsers();
-		Task<(IReadOnlyCollection<string>, uint, string)> secEnumOSUsers();
-		Task<(uint, string)> secChangeUserPassword(string username, string password);
-		Task<(uint, string)> secDeleteUser(string username);
-		Task<(uint, uint, string)> secGetAccessMask(string uName, string oName);
-		Task<(uint, string)> secSetAccessMask(string uName, string oName, uint AccessMask);
-		Task<(ExtendedUserData, uint, string)> secGetExtendedUserData(string serverType, string serverName, string username);
-		Task<(uint, string)> secSetExtendedUserData(string serverType, string serverName, string username, ExtendedUserData extendedUserData);
-		Task<(UserPolicy, uint, string)> secGetUserPolicy(string username);
-		Task<(uint, string)> secSetUserPolicy(string username, UserPolicy userPolicy);
-		Task<(PasswordPolicy, uint, string)> secGetPasswordPolicy();
-		Task<(uint, string)> secSetPasswordPolicy(PasswordPolicy passwordPolicy);
+		AccessMasksDescriptor SecGetAccessDescriptor(string ProgName);
+		ExtendedRightsDescriptor SecGetExtendedRightsDescriptor();
+		Task<(IReadOnlyCollection<string>, uint, string)> SecEnumUsers();
+		Task<(IReadOnlyCollection<string>, uint, string)> SecEnumOSUsers();
+		Task<(uint, string)> SecChangeUserPassword(string username, string password);
+		Task<(uint, string)> SecDeleteUser(string username);
+		Task<(uint, uint, string)> SecGetAccessMask(string uName, string oName);
+		Task<(uint, string)> SecSetAccessMask(string uName, string oName, uint AccessMask);
+		Task<(ExtendedUserData, uint, string)> SecGetExtendedUserData(string serverType, string serverName, string username);
+		Task<(uint, string)> SecSetExtendedUserData(string serverType, string serverName, string username, ExtendedUserData extendedUserData);
+		Task<(UserPolicy, uint, string)> SecGetUserPolicy(string username);
+		Task<(uint, string)> SecSetUserPolicy(string username, UserPolicy userPolicy);
+		Task<(PasswordPolicy, uint, string)> SecGetPasswordPolicy();
+		Task<(uint, string)> SecSetPasswordPolicy(PasswordPolicy passwordPolicy);
+		Task<(bool, string)> SaveMachineConfig(bool fFull, string FileName);
+		Task<(IReadOnlyCollection<string>, uint, string)> DirEnum(string Path);
 	}
 }

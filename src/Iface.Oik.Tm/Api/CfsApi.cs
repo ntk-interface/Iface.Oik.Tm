@@ -11,9 +11,12 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using static Iface.Oik.Tm.Native.Interfaces.TmNativeDefs;
+using static System.Runtime.CompilerServices.RuntimeHelpers;
 
 namespace Iface.Oik.Tm.Api
 {
@@ -1248,7 +1251,7 @@ namespace Iface.Oik.Tm.Api
 			{
 				var typeNumStr = typeString.Split(new[] { ". " }, StringSplitOptions.None).First();
 
-				if(int.TryParse(typeNumStr, out int t))
+				if (int.TryParse(typeNumStr, out int t))
 				{
 					licenseKeyTypes.Add((LicenseKeyType)t);
 				}
@@ -1589,7 +1592,7 @@ namespace Iface.Oik.Tm.Api
 										 string oName,
 										 string binName)
 		{
-			(var binData, uint errCode, _) = await secGetBin(uName, oName, binName).ConfigureAwait(false);
+			(var binData, uint errCode, _) = await SecGetBin(uName, oName, binName).ConfigureAwait(false);
 
 			if (errCode == 0)
 			{
@@ -1602,7 +1605,7 @@ namespace Iface.Oik.Tm.Api
 
 		}
 
-		public async Task<(byte[], uint, string)> secGetBin(string uName,
+		public async Task<(byte[], uint, string)> SecGetBin(string uName,
 										 string oName,
 										 string binName)
 		{
@@ -1655,10 +1658,10 @@ namespace Iface.Oik.Tm.Api
 									   string binName,
 									   byte[] binData)
 		{
-			(uint errCode, _) = await secSetBin(uName, oName, binName, binData).ConfigureAwait(false);
+			(uint errCode, _) = await SecSetBin(uName, oName, binName, binData).ConfigureAwait(false);
 			return (errCode == 0);
 		}
-		public async Task<(uint, string)> secSetBin(string uName,
+		public async Task<(uint, string)> SecSetBin(string uName,
 									   string oName,
 									   string binName,
 									   byte[] binData)
@@ -1683,7 +1686,7 @@ namespace Iface.Oik.Tm.Api
 			return (0, string.Empty);
 		}
 
-		public AccessMasksDescriptor secGetAccessDescriptor(string ProgName)
+		public AccessMasksDescriptor SecGetAccessDescriptor(string ProgName)
 		{
 			var ad = new AccessMasksDescriptor();
 			Dictionary<string, string> iniSections = new Dictionary<string, string>()
@@ -1728,7 +1731,7 @@ namespace Iface.Oik.Tm.Api
 				return null;
 		}
 
-		public ExtendedRightsDescriptor secGetExtendedRightsDescriptor()
+		public ExtendedRightsDescriptor SecGetExtendedRightsDescriptor()
 		{
 			var ret = new ExtendedRightsDescriptor();
 			var ext_ptr = _native.CfsGetExtendedUserRightsDescriptor("s_setup.ini", "TmsExtRights", 0);
@@ -1786,7 +1789,7 @@ namespace Iface.Oik.Tm.Api
 			return ret;
 		}
 
-		public async Task<(IReadOnlyCollection<string>, uint, string)> secEnumUsers()
+		public async Task<(IReadOnlyCollection<string>, uint, string)> SecEnumUsers()
 		{
 			const int errBufLength = 1000;
 			var errBuf = new byte[errBufLength];
@@ -1798,7 +1801,7 @@ namespace Iface.Oik.Tm.Api
 			}
 			return (TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(resultPtr, 16384), 0, string.Empty);
 		}
-		public async Task<(IReadOnlyCollection<string>, uint, string)> secEnumOSUsers()
+		public async Task<(IReadOnlyCollection<string>, uint, string)> SecEnumOSUsers()
 		{
 			const int errBufLength = 1000;
 			var errBuf = new byte[errBufLength];
@@ -1810,7 +1813,7 @@ namespace Iface.Oik.Tm.Api
 			}
 			return (TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(resultPtr, 16384), 0, string.Empty);
 		}
-		public async Task<(uint, string)> secChangeUserPassword(string username, string password)
+		public async Task<(uint, string)> SecChangeUserPassword(string username, string password)
 		{
 			const int errBufLength = 1000;
 			var errBuf = new byte[errBufLength];
@@ -1831,7 +1834,7 @@ namespace Iface.Oik.Tm.Api
 				return (0, string.Empty);
 			}
 		}
-		public async Task<(uint, string)> secDeleteUser(string username)
+		public async Task<(uint, string)> SecDeleteUser(string username)
 		{
 			const int errBufLength = 1000;
 			var errBuf = new byte[errBufLength];
@@ -1847,7 +1850,7 @@ namespace Iface.Oik.Tm.Api
 				return (0, string.Empty);
 			}
 		}
-		public async Task<(uint, uint, string)> secGetAccessMask(string username, string oName)
+		public async Task<(uint, uint, string)> SecGetAccessMask(string username, string oName)
 		{
 			const int errBufLength = 1000;
 			var errBuf = new byte[errBufLength];
@@ -1863,7 +1866,7 @@ namespace Iface.Oik.Tm.Api
 				return (result, 0, string.Empty);
 			}
 		}
-		public async Task<(uint, string)> secSetAccessMask(string username, string oName, uint AccessMask)
+		public async Task<(uint, string)> SecSetAccessMask(string username, string oName, uint AccessMask)
 		{
 			const int errBufLength = 1000;
 			var errBuf = new byte[errBufLength];
@@ -1879,9 +1882,9 @@ namespace Iface.Oik.Tm.Api
 				return (0, string.Empty);
 			}
 		}
-		public async Task<(ExtendedUserData, uint, string)> secGetExtendedUserData(string serverType, string serverName, string username)
+		public async Task<(ExtendedUserData, uint, string)> SecGetExtendedUserData(string serverType, string serverName, string username)
 		{
-			(var resultPtr, uint errCode, string errString) = await secGetBin(username, serverType + serverName, "extr").ConfigureAwait(false);
+			(var resultPtr, uint errCode, string errString) = await SecGetBin(username, serverType + serverName, "extr").ConfigureAwait(false);
 			if ((errCode != 0) || (resultPtr.Length == 0))
 			{
 				return (null, errCode, errString);
@@ -1935,7 +1938,7 @@ namespace Iface.Oik.Tm.Api
 			}
 			return (ui, 0, string.Empty);
 		}
-		public async Task<(uint, string)> secSetExtendedUserData(string serverType, string serverName, string username, ExtendedUserData extendedUserData)
+		public async Task<(uint, string)> SecSetExtendedUserData(string serverType, string serverName, string username, ExtendedUserData extendedUserData)
 		{
 			var data = new List<string>()
 			{
@@ -1953,7 +1956,7 @@ namespace Iface.Oik.Tm.Api
 				}
 			}
 			var bin = TmNativeUtil.GetDoubleNullTerminatedBytesFromStringList(data);
-			(uint errCode, string errString) = await secSetBin(username, serverType + serverName, "extr", bin).ConfigureAwait(false);
+			(uint errCode, string errString) = await SecSetBin(username, serverType + serverName, "extr", bin).ConfigureAwait(false);
 			if (errCode != 0)
 			{
 				return (errCode, errString);
@@ -1963,14 +1966,14 @@ namespace Iface.Oik.Tm.Api
 				return (0, string.Empty);
 			}
 		}
-		public async Task<(UserPolicy, uint, string)> secGetUserPolicy(string username)
+		public async Task<(UserPolicy, uint, string)> SecGetUserPolicy(string username)
 		{
 			byte[] bin;
 			uint errCode, resErrCode = 0; ;
 			string errString, resErrString = string.Empty;
 			var _UserPolicy = new UserPolicy();
 
-			(bin, errCode, errString) = await secGetBin(username, ".", "bad_logon").ConfigureAwait(false);
+			(bin, errCode, errString) = await SecGetBin(username, ".", "bad_logon").ConfigureAwait(false);
 			if (errCode == 0)
 			{
 				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
@@ -1986,7 +1989,7 @@ namespace Iface.Oik.Tm.Api
 				resErrString += errString;
 			}
 
-			(bin, errCode, errString) = await secGetBin(username, ".", "not_before").ConfigureAwait(false);
+			(bin, errCode, errString) = await SecGetBin(username, ".", "not_before").ConfigureAwait(false);
 			if (errCode == 0)
 			{
 				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
@@ -2002,7 +2005,7 @@ namespace Iface.Oik.Tm.Api
 				resErrString += errString;
 			}
 
-			(bin, errCode, errString) = await secGetBin(username, ".", "not_after").ConfigureAwait(false);
+			(bin, errCode, errString) = await SecGetBin(username, ".", "not_after").ConfigureAwait(false);
 			if (errCode == 0)
 			{
 				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
@@ -2018,7 +2021,7 @@ namespace Iface.Oik.Tm.Api
 				resErrString += errString;
 			}
 
-			(bin, errCode, errString) = await secGetBin(username, ".", "chgp").ConfigureAwait(false);
+			(bin, errCode, errString) = await SecGetBin(username, ".", "chgp").ConfigureAwait(false);
 			if (errCode == 0)
 			{
 				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
@@ -2037,7 +2040,7 @@ namespace Iface.Oik.Tm.Api
 				resErrString += errString;
 			}
 
-			(bin, errCode, errString) = await secGetBin(username, ".", "blocked").ConfigureAwait(false);
+			(bin, errCode, errString) = await SecGetBin(username, ".", "blocked").ConfigureAwait(false);
 			if (errCode == 0)
 			{
 				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
@@ -2056,7 +2059,7 @@ namespace Iface.Oik.Tm.Api
 				resErrString += errString;
 			}
 
-			(bin, errCode, errString) = await secGetBin(username, ".", "logon_limit").ConfigureAwait(false);
+			(bin, errCode, errString) = await SecGetBin(username, ".", "logon_limit").ConfigureAwait(false);
 			if (errCode == 0)
 			{
 				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
@@ -2072,7 +2075,7 @@ namespace Iface.Oik.Tm.Api
 				resErrString += errString;
 			}
 
-			(bin, errCode, errString) = await secGetBin(username, ".", "initial").ConfigureAwait(false);
+			(bin, errCode, errString) = await SecGetBin(username, ".", "initial").ConfigureAwait(false);
 			if (errCode == 0)
 			{
 				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
@@ -2091,7 +2094,7 @@ namespace Iface.Oik.Tm.Api
 				resErrString += errString;
 			}
 
-			(bin, errCode, errString) = await secGetBin(username, ".", "mac_list").ConfigureAwait(false);
+			(bin, errCode, errString) = await SecGetBin(username, ".", "mac_list").ConfigureAwait(false);
 			if ((errCode == 0) && (bin.Length >= 6))
 			{
 				_UserPolicy.EnabledMACs = string.Empty;
@@ -2111,7 +2114,7 @@ namespace Iface.Oik.Tm.Api
 			// проверяем наличие пароля только у своих пользователей
 			if (username.StartsWith("*"))
 			{
-				(bin, errCode, errString) = await secGetBin(username, ".", "pwd").ConfigureAwait(false);
+				(bin, errCode, errString) = await SecGetBin(username, ".", "pwd").ConfigureAwait(false);
 				if (errCode == 0)
 				{
 					if (bin.Length > 0)
@@ -2129,7 +2132,7 @@ namespace Iface.Oik.Tm.Api
 			else
 				_UserPolicy.PasswordSet = true;
 
-			(bin, errCode, errString) = await secGetBin(username, ".", "uctgr").ConfigureAwait(false);
+			(bin, errCode, errString) = await SecGetBin(username, ".", "uctgr").ConfigureAwait(false);
 			if (errCode == 0)
 			{
 				_UserPolicy.UserCategory = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
@@ -2141,7 +2144,7 @@ namespace Iface.Oik.Tm.Api
 				resErrString += errString;
 			}
 
-			(bin, errCode, errString) = await secGetBin(username, ".", "utmpl").ConfigureAwait(false);
+			(bin, errCode, errString) = await SecGetBin(username, ".", "utmpl").ConfigureAwait(false);
 			if (errCode == 0)
 			{
 				_UserPolicy.UserTemplate = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
@@ -2155,7 +2158,7 @@ namespace Iface.Oik.Tm.Api
 
 			return (_UserPolicy, resErrCode, resErrString);
 		}
-		public async Task<(uint, string)> secSetUserPolicy(string username, UserPolicy userPolicy)
+		public async Task<(uint, string)> SecSetUserPolicy(string username, UserPolicy userPolicy)
 		{
 			byte[] bin;
 			uint errCode, resErrCode = 0;
@@ -2171,7 +2174,7 @@ namespace Iface.Oik.Tm.Api
 			{
 				bin = TmNativeUtil.GetFixedBytesWithTrailingZero("0", 2, enc);
 			}
-			(errCode, errString) = await secSetBin(username, ".", "blocked", bin).ConfigureAwait(false);
+			(errCode, errString) = await SecSetBin(username, ".", "blocked", bin).ConfigureAwait(false);
 			if (errCode != 0)
 			{
 				resErrCode = errCode;
@@ -2186,7 +2189,7 @@ namespace Iface.Oik.Tm.Api
 			{
 				bin = TmNativeUtil.GetFixedBytesWithTrailingZero("0", 2, enc);
 			}
-			(errCode, errString) = await secSetBin(username, ".", "chgp", bin).ConfigureAwait(false);
+			(errCode, errString) = await SecSetBin(username, ".", "chgp", bin).ConfigureAwait(false);
 			if (errCode != 0)
 			{
 				resErrCode = errCode;
@@ -2203,7 +2206,7 @@ namespace Iface.Oik.Tm.Api
 				dt = _native.UxGmTime2UxTime(DateUtil.GetUtcTimestampFromDateTime(userPolicy.NotBefore)).ToString();
 			}
 			bin = TmNativeUtil.GetFixedBytesWithTrailingZero(dt, dt.Length + 1, enc);
-			(errCode, errString) = await secSetBin(username, ".", "not_before", bin).ConfigureAwait(false);
+			(errCode, errString) = await SecSetBin(username, ".", "not_before", bin).ConfigureAwait(false);
 			if (errCode != 0)
 			{
 				resErrCode = errCode;
@@ -2218,7 +2221,7 @@ namespace Iface.Oik.Tm.Api
 				dt = _native.UxGmTime2UxTime(DateUtil.GetUtcTimestampFromDateTime(userPolicy.NotAfter)).ToString();
 			}
 			bin = TmNativeUtil.GetFixedBytesWithTrailingZero(dt, dt.Length + 1, enc);
-			(errCode, errString) = await secSetBin(username, ".", "not_after", bin).ConfigureAwait(false);
+			(errCode, errString) = await SecSetBin(username, ".", "not_after", bin).ConfigureAwait(false);
 			if (errCode != 0)
 			{
 				resErrCode = errCode;
@@ -2227,7 +2230,7 @@ namespace Iface.Oik.Tm.Api
 
 			string n = userPolicy.BadLogonLimit.ToString();
 			bin = TmNativeUtil.GetFixedBytesWithTrailingZero(n, n.Length + 1, enc);
-			(errCode, errString) = await secSetBin(username, ".", "logon_limit", bin).ConfigureAwait(false);
+			(errCode, errString) = await SecSetBin(username, ".", "logon_limit", bin).ConfigureAwait(false);
 			if (errCode != 0)
 			{
 				resErrCode = errCode;
@@ -2235,7 +2238,7 @@ namespace Iface.Oik.Tm.Api
 			}
 
 			bin = TmNativeUtil.GetFixedBytesWithTrailingZero(userPolicy.UserCategory, userPolicy.UserCategory.Length + 1, enc);
-			(errCode, errString) = await secSetBin(username, ".", "uctgr", bin).ConfigureAwait(false);
+			(errCode, errString) = await SecSetBin(username, ".", "uctgr", bin).ConfigureAwait(false);
 			if (errCode != 0)
 			{
 				resErrCode = errCode;
@@ -2243,7 +2246,7 @@ namespace Iface.Oik.Tm.Api
 			}
 
 			bin = TmNativeUtil.GetFixedBytesWithTrailingZero(userPolicy.UserTemplate, userPolicy.UserTemplate.Length + 1, enc);
-			(errCode, errString) = await secSetBin(username, ".", "utmpl", bin).ConfigureAwait(false);
+			(errCode, errString) = await SecSetBin(username, ".", "utmpl", bin).ConfigureAwait(false);
 			if (errCode != 0)
 			{
 				resErrCode = errCode;
@@ -2280,7 +2283,7 @@ namespace Iface.Oik.Tm.Api
 					}
 				}
 			}
-			(errCode, errString) = await secSetBin(username, ".", "mac_list", bin).ConfigureAwait(false);
+			(errCode, errString) = await SecSetBin(username, ".", "mac_list", bin).ConfigureAwait(false);
 			if (errCode != 0)
 			{
 				resErrCode = errCode;
@@ -2289,14 +2292,14 @@ namespace Iface.Oik.Tm.Api
 
 			return (resErrCode, resErrString);
 		}
-		public async Task<(PasswordPolicy, uint, string)> secGetPasswordPolicy()
+		public async Task<(PasswordPolicy, uint, string)> SecGetPasswordPolicy()
 		{
 			byte[] bin;
 			uint errCode, resErrCode = 0; ;
 			string errString, resErrString = string.Empty;
 			var passwordPolicy = new PasswordPolicy();
 
-			(bin, errCode, errString) = await secGetBin(".cfs.", ".", "own_pch").ConfigureAwait(false);
+			(bin, errCode, errString) = await SecGetBin(".cfs.", ".", "own_pch").ConfigureAwait(false);
 			if (errCode == 0)
 			{
 				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
@@ -2312,7 +2315,7 @@ namespace Iface.Oik.Tm.Api
 				resErrString += errString;
 			}
 
-			(bin, errCode, errString) = await secGetBin(".cfs.", ".", "pwd_pol").ConfigureAwait(false);
+			(bin, errCode, errString) = await SecGetBin(".cfs.", ".", "pwd_pol").ConfigureAwait(false);
 			if (errCode == 0)
 			{
 				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
@@ -2328,7 +2331,7 @@ namespace Iface.Oik.Tm.Api
 				resErrString += errString;
 			}
 
-			(bin, errCode, errString) = await secGetBin(".cfs.", ".", "pwd_pol_len").ConfigureAwait(false);
+			(bin, errCode, errString) = await SecGetBin(".cfs.", ".", "pwd_pol_len").ConfigureAwait(false);
 			if (errCode == 0)
 			{
 				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
@@ -2344,7 +2347,7 @@ namespace Iface.Oik.Tm.Api
 				resErrString += errString;
 			}
 
-			(bin, errCode, errString) = await secGetBin(".cfs.", ".", "p_ex_days").ConfigureAwait(false);
+			(bin, errCode, errString) = await SecGetBin(".cfs.", ".", "p_ex_days").ConfigureAwait(false);
 			if (errCode == 0)
 			{
 				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
@@ -2360,7 +2363,7 @@ namespace Iface.Oik.Tm.Api
 				resErrString += errString;
 			}
 
-			(bin, errCode, errString) = await secGetBin(".cfs.", ".", "pwd_pol_flg").ConfigureAwait(false);
+			(bin, errCode, errString) = await SecGetBin(".cfs.", ".", "pwd_pol_flg").ConfigureAwait(false);
 			if (errCode == 0)
 			{
 				string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
@@ -2385,7 +2388,7 @@ namespace Iface.Oik.Tm.Api
 
 			return (passwordPolicy, resErrCode, resErrString);
 		}
-		public async Task<(uint, string)> secSetPasswordPolicy(PasswordPolicy passwordPolicy)
+		public async Task<(uint, string)> SecSetPasswordPolicy(PasswordPolicy passwordPolicy)
 		{
 			byte[] bin;
 			string n;
@@ -2402,7 +2405,7 @@ namespace Iface.Oik.Tm.Api
 			{
 				bin = TmNativeUtil.GetFixedBytesWithTrailingZero("1", 2, enc);
 			}
-			(errCode, errString) = await secSetBin(".cfs.", ".", "own_pch", bin).ConfigureAwait(false);
+			(errCode, errString) = await SecSetBin(".cfs.", ".", "own_pch", bin).ConfigureAwait(false);
 			if (errCode != 0)
 			{
 				resErrCode = errCode;
@@ -2417,7 +2420,7 @@ namespace Iface.Oik.Tm.Api
 			{
 				bin = TmNativeUtil.GetFixedBytesWithTrailingZero("0", 2, enc);
 			}
-			(errCode, errString) = await secSetBin(".cfs.", ".", "pwd_pol", bin).ConfigureAwait(false);
+			(errCode, errString) = await SecSetBin(".cfs.", ".", "pwd_pol", bin).ConfigureAwait(false);
 			if (errCode != 0)
 			{
 				resErrCode = errCode;
@@ -2426,7 +2429,7 @@ namespace Iface.Oik.Tm.Api
 
 			n = passwordPolicy.MinPasswordLength.ToString();
 			bin = TmNativeUtil.GetFixedBytesWithTrailingZero(n, n.Length + 1, enc);
-			(errCode, errString) = await secSetBin(".cfs.", ".", "pwd_pol_len", bin).ConfigureAwait(false);
+			(errCode, errString) = await SecSetBin(".cfs.", ".", "pwd_pol_len", bin).ConfigureAwait(false);
 			if (errCode != 0)
 			{
 				resErrCode = errCode;
@@ -2435,7 +2438,7 @@ namespace Iface.Oik.Tm.Api
 
 			n = passwordPolicy.PasswordTTL_Days.ToString();
 			bin = TmNativeUtil.GetFixedBytesWithTrailingZero(n, n.Length + 1, enc);
-			(errCode, errString) = await secSetBin(".cfs.", ".", "p_ex_days", bin).ConfigureAwait(false);
+			(errCode, errString) = await SecSetBin(".cfs.", ".", "p_ex_days", bin).ConfigureAwait(false);
 			if (errCode != 0)
 			{
 				resErrCode = errCode;
@@ -2452,7 +2455,7 @@ namespace Iface.Oik.Tm.Api
 			if (!passwordPolicy.CheckOldPasswords) flags &= ~PWDPOL.CheckCache;
 			string s_flg = flags.ToString();
 			bin = TmNativeUtil.GetFixedBytesWithTrailingZero(s_flg, s_flg.Length + 1, enc);
-			(errCode, errString) = await secSetBin(".cfs.", ".", "pwd_pol_flg", bin).ConfigureAwait(false);
+			(errCode, errString) = await SecSetBin(".cfs.", ".", "pwd_pol_flg", bin).ConfigureAwait(false);
 			if (errCode != 0)
 			{
 				resErrCode = errCode;
@@ -2486,7 +2489,7 @@ namespace Iface.Oik.Tm.Api
 					PrimaryDomainName = _computerInfoS.DomInfo.PrimaryDomainName,
 					OS_ProductType = $"ostype{_computerInfoS.NtProductType}",
 					OS_Version = $"{_computerInfoS.NtVerMaj}.{_computerInfoS.NtVerMin} build {_computerInfoS.NtBuild}",
-					Architecture = (_computerInfoS.Win64 == 1)?"x64":"x86",
+					Architecture = (_computerInfoS.Win64 == 1) ? "x64" : "x86",
 					Acp = _computerInfoS.Acp,
 
 					ServerTimeGMT = DateUtil.GetDateTimeFromTimestamp(_computerInfoS.CurrentGMT, _computerInfoS.CurrentMs),
@@ -2500,22 +2503,22 @@ namespace Iface.Oik.Tm.Api
 					AccessMask = _computerInfoS.AccessMask,
 				};
 				computerInfo.IpAddrs = new List<string>();
-				foreach(var addr in _computerInfoS.IpAddrs)
+				foreach (var addr in _computerInfoS.IpAddrs)
 				{
 					if (addr == 0)
 						break;
 					computerInfo.IpAddrs.Add(new IPAddress(addr).ToString());
 				}
-				computerInfo.SoftwareKeyID = BitConverter.ToString(_computerInfoS.LOctet).Replace("-", "");
+				//computerInfo.SoftwareKeyID = BitConverter.ToString(_computerInfoS.LOctet).Replace("-", "");
 
 				// читаем дату билда и установки отдельно
 
 				computerInfo.BuildDate = await GetIniString("@@", "IInfo", "BuildTime").ConfigureAwait(false);
-				if(computerInfo.BuildDate.Equals(string.Empty))
+				if (computerInfo.BuildDate.Equals(string.Empty))
 				{
+					// если попали на старый сервер
 					var path = Path.Combine(await GetBasePath().ConfigureAwait(false),
 											"dispserv.ini");
-					// если попали на старый сервер
 					computerInfo.BuildDate = await GetIniString(path, "Info", "BuildTime").ConfigureAwait(false);
 					computerInfo.InstallDate = await GetIniString(path, "Info", "InstTime").ConfigureAwait(false);
 				}
@@ -2525,6 +2528,61 @@ namespace Iface.Oik.Tm.Api
 
 				return (computerInfo, 0, string.Empty);
 			}
+		}
+		public async Task<(bool, string)> SaveMachineConfig(bool fFull, string FileName)
+		{
+			const int errBufLength = 1000;
+			var errBuf = new byte[errBufLength];
+
+			var result = await Task.Run(() => _native.CfsSaveMachineConfig(fFull, Host, FileName, ref errBuf, errBufLength)).ConfigureAwait(false);
+			if (result != true)
+			{
+				return (false, EncodingUtil.Win1251BytesToUtf8(errBuf));
+			}
+			else
+			{
+				return (true, string.Empty);
+			}
+		}
+		public async Task<(IReadOnlyCollection<string>, uint, string)> DirEnum(string Path)
+		{
+			const int resBufLength = 20480;
+			var resBuf = new char[resBufLength];
+			const int errBufLength = 1000;
+			var errBuf = new byte[errBufLength];
+			uint errCode = 0;
+
+			var result = await Task.Run(() => _native.CfsDirEnum(CfId, Path, ref resBuf, resBufLength, out errCode, ref errBuf, errBufLength)).ConfigureAwait(false);
+			if (errCode != 0)
+			{
+				return (null, errCode, EncodingUtil.Win1251BytesToUtf8(errBuf));
+			}
+			else
+			{
+				return (TmNativeUtil.GetStringListFromDoubleNullTerminatedChars(resBuf), 0, string.Empty);
+			}
+		}
+		public async Task CreateBackup(string serverType, string serverName, string directory)
+		{
+		//#define TMS_BACKUP_CONFIG	1
+		//#define TMS_BACKUP_ARRAY	2
+		//#define TMS_BACKUP_EVLOG	4
+		//#define TMS_BACKUP_ALARMS	8
+		//#define TMS_BACKUP_RETRO	0x10
+		//#define TMS_BACKUP_SECURITY	0x20
+
+		//#define RBS_BACKUP_BASES	1
+		//#define RBS_BACKUP_SECURITY 2
+
+			uint bflags = 1;
+			
+			await Task.Run(() => _native.TmcBackupServerProcedure(Host, "TMS", directory, ref bflags, 0, null, (IntPtr)0)).ConfigureAwait(false);
+			//await Task.Run(() => _native.RbcBackupServerProcedure(Host, "RBS", directory, ref bflags, 0, null, (IntPtr)0)).ConfigureAwait(false);
+		}
+		public async Task RestoreBackup(string serverType, string serverName, string filename)
+		{
+			uint bflags = 1;
+			var result = await Task.Run(() => _native.TmcRestoreServer(true, Host, "TMS", filename, ref bflags, 0, null, (IntPtr)0)).ConfigureAwait(false);
 		}
 	}
 }

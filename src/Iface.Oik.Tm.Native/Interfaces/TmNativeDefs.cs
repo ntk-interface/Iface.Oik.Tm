@@ -1251,6 +1251,16 @@ namespace Iface.Oik.Tm.Native.Interfaces
 			//}
 			//CFS_EXT_SRVRT_DESCRIPTOR;
 		}
+
+		[StructLayout(LayoutKind.Sequential)]
+		public struct CfsServerBackupData
+		{
+			public UInt32 error_code;
+			public UInt32 bflags;
+			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 1024)]
+			public string fname_or_error;
+		}
+
 		#endregion
 
 		#region Delta
