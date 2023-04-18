@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using Iface.Oik.Tm.Native.Interfaces;
@@ -805,5 +806,25 @@ namespace Iface.Oik.Tm.Native.Api
     public static extern Boolean tmcGetConnectErrorText(Int32            cid,
                                                         [In, Out] byte[] buf,
                                                         UInt32            bufSize);
-  }
+
+	[DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+	public static extern Boolean tmcBackupServerProcedure(
+	                                                [MarshalAs(UnmanagedType.LPStr)] string machine,
+	                                                [MarshalAs(UnmanagedType.LPStr)] string pipe,
+	                                                [MarshalAs(UnmanagedType.LPStr)] string directory,
+	                                                ref UInt32 pbflags,
+	                                                Int32 hCancel,
+	                                                [MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback prog_fn,
+	                                                IntPtr prog_parm);
+
+	[DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+	public static extern Boolean tmcRestoreServer(Boolean tms_not_rbs,
+												[MarshalAs(UnmanagedType.LPStr)] string machine,
+												[MarshalAs(UnmanagedType.LPStr)] string pipe,
+												[MarshalAs(UnmanagedType.LPStr)] string filename,
+												ref UInt32 pbflags,
+												Int32 hCancel,
+												[MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback prog_fn,
+												IntPtr prog_parm);
+	}
 }

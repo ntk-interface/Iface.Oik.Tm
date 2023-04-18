@@ -9,7 +9,7 @@ namespace Iface.Oik.Tm.Interfaces
     {
       Type = GetLicenseKeyType(nativeCom / 256);
 
-      if (Type == LicenseKeyType.Unknown)
+      if (Type == LicenseKeyType.DallasCOM)
       {
         Port = nativeCom % 256;
       }
@@ -37,7 +37,7 @@ namespace Iface.Oik.Tm.Interfaces
       switch (typeValue)
       {
         case 4:
-          return LicenseKeyType.TypeFour;
+          return LicenseKeyType.HDDKey;
         case 5:
           return LicenseKeyType.Software;
         case 6:

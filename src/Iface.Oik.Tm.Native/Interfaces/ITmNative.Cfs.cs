@@ -397,5 +397,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
 								 string oName,
 								 uint AccessMask,
 								 out uint errCode, ref byte[] errBuf, uint maxErrs);
+		Boolean CfsSaveMachineConfig(Boolean fFull,
+			string RemoteMasterMachine,
+			string FileName,
+			ref byte[] errBuf, uint maxErrs);
 	}
 }

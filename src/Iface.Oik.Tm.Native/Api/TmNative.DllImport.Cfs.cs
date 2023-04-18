@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using Iface.Oik.Tm.Native.Interfaces;
+using static Iface.Oik.Tm.Native.Interfaces.TmNativeDefs;
 
 namespace Iface.Oik.Tm.Native.Api
 {
@@ -476,5 +477,27 @@ namespace Iface.Oik.Tm.Native.Api
 												   [MarshalAs(UnmanagedType.LPStr)] string oName,
 												   UInt32 AccessMask,
 												   out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
+
+		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+		public static extern Boolean cfsSaveMachineConfig(Boolean fFull, 
+			[MarshalAs(UnmanagedType.LPStr)] string RemoteMasterMachine,
+			[MarshalAs(UnmanagedType.LPStr)] string FileName,
+			[In, Out] byte[] errBuf, UInt32 maxErrs);
+
+		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+		public static extern Boolean cfsExternalBackupServer(IntPtr connId,
+			[MarshalAs(UnmanagedType.LPStr)] string dllname,
+			[MarshalAs(UnmanagedType.LPStr)] string servname, 
+			uint bflags,
+			[In, Out] ref CfsServerBackupData pbd,
+			out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
+
+		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+		public static extern Boolean cfsExternalRestoreServer(IntPtr connId,
+			[MarshalAs(UnmanagedType.LPStr)] string dllname,
+			[MarshalAs(UnmanagedType.LPStr)] string servname,
+			[MarshalAs(UnmanagedType.LPStr)] string filename, 
+			out UInt32 pbflags,
+			out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
 	}
 }

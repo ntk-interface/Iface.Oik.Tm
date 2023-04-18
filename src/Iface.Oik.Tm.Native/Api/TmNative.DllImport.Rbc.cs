@@ -1,4 +1,6 @@
+using Iface.Oik.Tm.Native.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace Iface.Oik.Tm.Native.Api
@@ -19,5 +21,24 @@ namespace Iface.Oik.Tm.Native.Api
     public static extern Int32 rbcGetSecurity(Int32      cid,
                                               out bool   pAdmin,
                                               out UInt32 pAccessMask);
-  }
+
+		//TMC_IMPEX BOOL _CDECL rbcBackupServerProcedure(
+		//LPSTR machine,
+		//	LPSTR pipe,
+		//	LPSTR directory,
+		//	PDWORD pbflags,
+		//	HANDLE hCancel,
+		//	tmcProgressFn prog_fn,
+		//	LPVOID prog_parm
+		//);
+	[DllImport(Tmconn, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+	public static extern Boolean rbcBackupServerProcedure(
+													[MarshalAs(UnmanagedType.LPStr)] string machine,
+													[MarshalAs(UnmanagedType.LPStr)] string pipe,
+													[MarshalAs(UnmanagedType.LPStr)] string directory,
+													ref UInt32 pbflags,
+													Int32 hCancel,
+													[MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback prog_fn,
+													IntPtr prog_parm);
+	}
 }

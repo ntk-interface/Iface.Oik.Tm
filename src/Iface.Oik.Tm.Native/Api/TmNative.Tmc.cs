@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using System.Text;
 using Iface.Oik.Tm.Native.Interfaces;
 
@@ -1000,5 +1001,23 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcGetConnectErrorText(cid, buf, bufSize);
     }
-  }
+
+	public Boolean TmcBackupServerProcedure(string machine,	string pipe, string directory,
+											ref UInt32 pbflags,
+											Int32 hCancel,
+											TmNativeCallback prog_fn,
+											IntPtr prog_parm)
+        {
+            return tmcBackupServerProcedure(machine, pipe, directory, ref pbflags, hCancel, prog_fn, prog_parm);
+        }
+	public  Boolean TmcRestoreServer(Boolean tms_not_rbs,
+									string machine, string pipe, string filename,
+									ref UInt32 pbflags,
+									Int32 hCancel,
+									[MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback prog_fn,
+									IntPtr prog_parm)
+        {
+            return tmcRestoreServer(tms_not_rbs, machine, pipe, filename, ref pbflags, hCancel, prog_fn, prog_parm);
+        }
+	}
 }
