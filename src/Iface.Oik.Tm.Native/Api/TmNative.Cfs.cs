@@ -606,5 +606,14 @@ namespace Iface.Oik.Tm.Native.Api
 		{
 			return cfsExternalRestoreServer(connId,dllname, servname, filename, out pbflags, out errCode, errBuf, maxErrs);
 		}
+		public  Boolean CfsIfpcBackupSecurity(IntPtr connId, string snp, string pwd, string filename, out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs)
+		{
+			return cfsIfpcBackupSecurity(connId, snp, pwd, filename, out errCode, errBuf, maxErrs);
+		}
+
+		public  Boolean CfsIfpcRestoreSecurity(IntPtr connId, string snp, string pwd, string filename, out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs)
+		{
+			return cfsIfpcRestoreSecurity(connId, snp, pwd, filename, out errCode, errBuf, maxErrs);
+		}
 	}
 }

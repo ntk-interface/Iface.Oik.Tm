@@ -2481,8 +2481,6 @@ namespace Iface.Oik.Tm.Api
 			}
 			else
 			{
-				//public string SoftwareKeyID { get; set; }
-
 				var computerInfo = new ComputerInfo()
 				{
 					ComputerName = _computerInfoS.ComputerName,
@@ -2509,7 +2507,7 @@ namespace Iface.Oik.Tm.Api
 						break;
 					computerInfo.IpAddrs.Add(new IPAddress(addr).ToString());
 				}
-				//computerInfo.SoftwareKeyID = BitConverter.ToString(_computerInfoS.LOctet).Replace("-", "");
+				computerInfo.SoftwareKeyID = BitConverter.ToString(_computerInfoS.LOctet).Replace("-", "");
 
 				// читаем дату билда и установки отдельно
 
@@ -2529,12 +2527,21 @@ namespace Iface.Oik.Tm.Api
 				return (computerInfo, 0, string.Empty);
 			}
 		}
-		public async Task<(bool, string)> SaveMachineConfig(bool fFull, string FileName)
+		private static string BackupDateFormat = "dd_MM_yyyy (HH.mm.ss)";
+		public async Task<(bool, string)> SaveMachineConfig(string directory, bool full)
 		{
 			const int errBufLength = 1000;
 			var errBuf = new byte[errBufLength];
-
-			var result = await Task.Run(() => _native.CfsSaveMachineConfig(fFull, Host, FileName, ref errBuf, errBufLength)).ConfigureAwait(false);
+			string fileName;
+			if (full)
+			{
+				fileName = "FullConf-" + DateTime.Now.ToString(BackupDateFormat) + ".cfim";
+			}
+			else
+			{
+				fileName = "MasterConf-" + DateTime.Now.ToString(BackupDateFormat)+".pkf";
+			}
+			var result = await Task.Run(() => _native.CfsSaveMachineConfig(full, Host, Path.Combine(directory, fileName), ref errBuf, errBufLength)).ConfigureAwait(false);
 			if (result != true)
 			{
 				return (false, EncodingUtil.Win1251BytesToUtf8(errBuf));
@@ -2562,34 +2569,38 @@ namespace Iface.Oik.Tm.Api
 				return (TmNativeUtil.GetStringListFromDoubleNullTerminatedChars(resBuf), 0, string.Empty);
 			}
 		}
-		public async Task<bool> CreateBackup(string progName, string pipeName, string directory)
+		public async Task<bool> CreateBackup(string progName, string pipeName, string directory, bool withRetro,
+											 TmNativeCallback callback=null,
+											 IntPtr callbackParameter=default(IntPtr))
 		{
-		//#define TMS_BACKUP_CONFIG	1
-		//#define TMS_BACKUP_ARRAY	2
-		//#define TMS_BACKUP_EVLOG	4
-		//#define TMS_BACKUP_ALARMS	8
-		//#define TMS_BACKUP_RETRO	0x10
-		//#define TMS_BACKUP_SECURITY	0x20
-
-		//#define RBS_BACKUP_BASES	1
-		//#define RBS_BACKUP_SECURITY 2
-
-			uint bflags = 1;
+			uint bflags;
 			bool result = false;
 			switch (progName)
 			{
 				case MSTreeConsts.pcsrv:
 				case MSTreeConsts.pcsrv_old:
-					result = await Task.Run(() => _native.TmcBackupServerProcedure(Host, pipeName, directory, ref bflags, 0, null, (IntPtr)0)).ConfigureAwait(false);
+					//#define TMS_BACKUP_CONFIG	1
+					//#define TMS_BACKUP_ARRAY	2
+					//#define TMS_BACKUP_EVLOG	4
+					//#define TMS_BACKUP_ALARMS	8
+					//#define TMS_BACKUP_RETRO	0x10
+					//#define TMS_BACKUP_SECURITY	0x20
+					bflags =  1 | 2 | 4 | 8; if (withRetro) bflags |= 0x10;
+					result = await Task.Run(() => _native.TmcBackupServerProcedure(Host, pipeName, directory, ref bflags, 0, callback, callbackParameter)).ConfigureAwait(false);
 					break;
 				case MSTreeConsts.rbsrv:
 				case MSTreeConsts.rbsrv_old:
-					result = await Task.Run(() => _native.RbcBackupServerProcedure(Host, pipeName, directory, ref bflags, 0, null, (IntPtr)0)).ConfigureAwait(false);
+					//#define RBS_BACKUP_BASES	1
+					//#define RBS_BACKUP_SECURITY 2
+					bflags = 1;
+					result = await Task.Run(() => _native.RbcBackupServerProcedure(Host, pipeName, directory, ref bflags, 0, callback, callbackParameter)).ConfigureAwait(false);
 					break;
 			}
 			return result;
 		}
-		public async Task<bool> RestoreBackup(string progName, string pipeName, string filename)
+		public async Task<bool> RestoreBackup(string progName, string pipeName, string filename,
+											  TmNativeCallback callback = null,
+											  IntPtr callbackParameter = default(IntPtr))
 		{
 			uint bflags = 1;
 			bool result=false;
@@ -2597,14 +2608,82 @@ namespace Iface.Oik.Tm.Api
 			{
 				case MSTreeConsts.pcsrv:
 				case MSTreeConsts.pcsrv_old:
-					result = await Task.Run(() => _native.TmcRestoreServer(true, Host, pipeName, filename, ref bflags, 0, null, (IntPtr)0)).ConfigureAwait(false);
+					result = await Task.Run(() => _native.TmcRestoreServer(true, Host, pipeName, filename, ref bflags, 0, callback, callbackParameter)).ConfigureAwait(false);
 					break;
 				case MSTreeConsts.rbsrv:
 				case MSTreeConsts.rbsrv_old:
-					result = await Task.Run(() => _native.TmcRestoreServer(false, Host, pipeName, filename, ref bflags, 0, null, (IntPtr)0)).ConfigureAwait(false);
+					result = await Task.Run(() => _native.TmcRestoreServer(false, Host, pipeName, filename, ref bflags, 0, callback, callbackParameter)).ConfigureAwait(false);
 					break;
 			}
 			return result;
+		}
+		public async Task<(uint, string)> BackupSecurity(string directory, string pwd="")
+		{
+			const int errBufLength = 1000;
+			var errBuf = new byte[errBufLength];
+			uint errCode = 0;
+			string fileName = "", snp = "";
+
+			if (String.IsNullOrEmpty(pwd))
+			{
+				snp = "\x1";
+				var _computerInfoS = new ComputerInfoS()
+				{
+					Len = (uint)Marshal.SizeOf(typeof(ComputerInfoS))
+				};
+				await Task.Run(() => _native.CfsGetComputerInfo(CfId, ref _computerInfoS, out errCode, ref errBuf, errBufLength)).ConfigureAwait(false);
+				if (errCode != 0)
+				{
+					return (errCode, EncodingUtil.Win1251BytesToUtf8(errBuf));
+				}
+				switch(_computerInfoS.SecType)
+				{
+					case 0:
+						fileName = "users.ini";
+						break;
+					case 1:
+						fileName = "users.01";
+						break;
+					case 2:
+						fileName = "users.02";
+						break;
+					default:
+						return (1001, "Unknown security type");
+				}
+				fileName += " " + DateTime.Now.ToString(BackupDateFormat) + ".bbk";
+			}
+			else
+			{
+				snp = "\x2";
+				fileName = "Security-" + DateTime.Now.ToString(BackupDateFormat) + ".sbk";
+			}
+
+			await Task.Run(() => _native.CfsIfpcBackupSecurity(CfId, snp, pwd, Path.Combine(directory, fileName), out errCode, ref errBuf, errBufLength)).ConfigureAwait(false);
+			if (errCode != 0)
+			{
+				return (errCode, EncodingUtil.Win1251BytesToUtf8(errBuf));
+			}
+			else
+			{
+				return (0, string.Empty);
+			}
+		}
+		public async Task<(uint, string)> RestoreSecurity(string filename, string pwd)
+		{
+			const int errBufLength = 1000;
+			var errBuf = new byte[errBufLength];
+			uint errCode = 0;
+			string snp = "\x2";
+
+			await Task.Run(() => _native.CfsIfpcRestoreSecurity(CfId, snp, pwd, filename, out errCode, ref errBuf, errBufLength)).ConfigureAwait(false);
+			if (errCode != 0)
+			{
+				return (errCode, EncodingUtil.Win1251BytesToUtf8(errBuf));
+			}
+			else
+			{
+				return (0, string.Empty);
+			}
 		}
 	}
 }

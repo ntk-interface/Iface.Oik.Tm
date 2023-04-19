@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Iface.Oik.Tm.Native.Interfaces
@@ -401,5 +402,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 			string RemoteMasterMachine,
 			string FileName,
 			ref byte[] errBuf, uint maxErrs);
+		Boolean CfsIfpcBackupSecurity(IntPtr connId, string snp, string pwd, string filename, out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);
+		Boolean CfsIfpcRestoreSecurity(IntPtr connId, string snp, string pwd, string filename, out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);
 	}
 }

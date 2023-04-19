@@ -227,7 +227,7 @@ namespace Iface.Oik.Tm.Interfaces
 		public string CfsVer { get; set; }
 		public string BuildDate { get; set; }
 		public string InstallDate { get; set; }
-		//public string SoftwareKeyID { get; set; }
+		public string SoftwareKeyID { get; set; }
 		public string ComputerName { get; set; }
 		public string PrimaryDomainName { get; set; }
 		public string OS_ProductType { get; set; }

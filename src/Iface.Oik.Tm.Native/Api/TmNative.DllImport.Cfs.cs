@@ -499,5 +499,19 @@ namespace Iface.Oik.Tm.Native.Api
 			[MarshalAs(UnmanagedType.LPStr)] string filename, 
 			out UInt32 pbflags,
 			out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
+
+		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+		public static extern Boolean cfsIfpcBackupSecurity(IntPtr connId,
+			[MarshalAs(UnmanagedType.LPStr)] string snp,
+			[MarshalAs(UnmanagedType.LPStr)] string pwd,
+			[MarshalAs(UnmanagedType.LPStr)] string filename,
+			out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
+
+		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+		public static extern Boolean cfsIfpcRestoreSecurity(IntPtr connId,
+			[MarshalAs(UnmanagedType.LPStr)] string snp,
+			[MarshalAs(UnmanagedType.LPStr)] string pwd,
+			[MarshalAs(UnmanagedType.LPStr)] string filename,
+			out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
 	}
 }
