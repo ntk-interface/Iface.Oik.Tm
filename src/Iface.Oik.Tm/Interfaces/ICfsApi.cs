@@ -154,7 +154,7 @@ namespace Iface.Oik.Tm.Interfaces
 		Task<bool> CreateBackup(string progName, string pipeName, string directory, bool withRetro,
 								TmNativeCallback callback = null,
 								IntPtr callbackParameter = default(IntPtr));
-		Task<bool> RestoreBackup(string progName, string pipeName, string filename,
+		Task<bool> RestoreBackup(string progName, string pipeName, string filename, bool withRetro,
 								 TmNativeCallback callback = null,
 								 IntPtr callbackParameter = default(IntPtr));
 		Task<(uint, string)> BackupSecurity(string directory, string pwd = "");

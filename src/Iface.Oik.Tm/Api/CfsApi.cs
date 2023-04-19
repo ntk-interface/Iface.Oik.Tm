@@ -2598,7 +2598,7 @@ namespace Iface.Oik.Tm.Api
 			}
 			return result;
 		}
-		public async Task<bool> RestoreBackup(string progName, string pipeName, string filename,
+		public async Task<bool> RestoreBackup(string progName, string pipeName, string filename, bool withRetro,
 											  TmNativeCallback callback = null,
 											  IntPtr callbackParameter = default(IntPtr))
 		{
@@ -2608,10 +2608,12 @@ namespace Iface.Oik.Tm.Api
 			{
 				case MSTreeConsts.pcsrv:
 				case MSTreeConsts.pcsrv_old:
+					bflags = 1 | 2 | 4 | 8; if (withRetro) bflags |= 0x10;
 					result = await Task.Run(() => _native.TmcRestoreServer(true, Host, pipeName, filename, ref bflags, 0, callback, callbackParameter)).ConfigureAwait(false);
 					break;
 				case MSTreeConsts.rbsrv:
 				case MSTreeConsts.rbsrv_old:
+					bflags = 1;
 					result = await Task.Run(() => _native.TmcRestoreServer(false, Host, pipeName, filename, ref bflags, 0, callback, callbackParameter)).ConfigureAwait(false);
 					break;
 			}
