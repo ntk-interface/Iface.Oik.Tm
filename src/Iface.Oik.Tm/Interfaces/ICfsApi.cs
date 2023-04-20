@@ -77,10 +77,9 @@ namespace Iface.Oik.Tm.Interfaces
 		Task<IReadOnlyCollection<string>> GetFilesInDirectory(string path);
 
 
-		Task PutFile(string localFilePath,
+		Task<(bool, string)> PutFile(string localFilePath,
 					 string remoteFilePath,
 					 uint timeout);
-
 
 		Task DeleteFile(string remoteFilePath);
 

@@ -1188,19 +1188,17 @@ namespace Iface.Oik.Tm.Api
 		}
 
 
-		public async Task PutFile(string localFilePath,
+		public async Task<(bool, string)> PutFile(string localFilePath,
 								  string remoteFilePath,
 								  uint timeout = 20000)
 		{
 			if (localFilePath.IsNullOrEmpty())
 			{
-				Console.WriteLine("Ошибка: не указан локальный путь до файла");
-				return;
+				return (false, "Ошибка: не указан локальный путь до файла");
 			}
 			if (remoteFilePath.IsNullOrEmpty())
 			{
-				Console.WriteLine("Ошибка: не указан удалённый путь до файла");
-				return;
+				return (false, "Ошибка: не указан удалённый путь до файла");
 			}
 
 			const int errBufLength = 1000;
@@ -1210,10 +1208,10 @@ namespace Iface.Oik.Tm.Api
 			if (!await Task.Run(() => _native.CfsFilePut(CfId, remoteFilePath, localFilePath, timeout, out errCode,
 														ref errBuf, errBufLength)).ConfigureAwait(false))
 			{
-				Console.WriteLine($"Ошибка при отправке файла: {errCode} - {EncodingUtil.Win1251BytesToUtf8(errBuf)}");
+				return (false, $"Ошибка при отправке файла: {errCode} - {EncodingUtil.Win1251BytesToUtf8(errBuf)}");
 			}
+			return (true, string.Empty);
 		}
-
 
 		public async Task DeleteFile(string remoteFilePath)
 		{
@@ -2617,7 +2615,7 @@ namespace Iface.Oik.Tm.Api
 					result = await Task.Run(() => _native.TmcRestoreServer(false, Host, pipeName, filename, ref bflags, 0, callback, callbackParameter)).ConfigureAwait(false);
 					break;
 			}
-			return result;
+			return (bflags!=0)?result:false;
 		}
 		public async Task<(uint, string)> BackupSecurity(string directory, string pwd="")
 		{
@@ -2685,6 +2683,55 @@ namespace Iface.Oik.Tm.Api
 			else
 			{
 				return (0, string.Empty);
+			}
+		}
+		public async Task<(IReadOnlyCollection<string>, string)> EnumPackedFiles(string pkfname)
+		{
+			const int errBufLength = 1000;
+			var errBuf = new byte[errBufLength];
+
+			var result = await Task.Run(() => _native.PkfEnumPackedFiles(pkfname, ref errBuf, errBufLength)).ConfigureAwait(false);
+			if (result == IntPtr.Zero)
+			{
+				return (null, EncodingUtil.Win1251BytesToUtf8(errBuf));
+			}
+			else
+			{
+				var res = (TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(result, 65536));
+				_native.PkfFreeMemory(result);
+				return (res, string.Empty);
+			}
+		}
+		public async Task<(IReadOnlyCollection<string>, string)> UnPack(string pkfname, string dirname)
+		{
+			const int errBufLength = 1000;
+			var errBuf = new byte[errBufLength];
+
+			var result = await Task.Run(() => _native.PkfUnPack(pkfname, dirname, ref errBuf, errBufLength)).ConfigureAwait(false);
+			if (result == IntPtr.Zero)
+			{
+				return (null, EncodingUtil.Win1251BytesToUtf8(errBuf));
+			}
+			else
+			{
+				var res = (TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(result, 65536));
+				_native.PkfFreeMemory(result);
+				return (res, string.Empty); 
+			}
+		}
+		public async Task<(bool, string)> ExtractFile(string pkfname, string filename, string dirname)
+		{
+			const int errBufLength = 1000;
+			var errBuf = new byte[errBufLength];
+
+			var result = await Task.Run(() => _native.PkfExtractFile(pkfname, filename, dirname, ref errBuf, errBufLength)).ConfigureAwait(false);
+			if (!result)
+			{
+				return (false, EncodingUtil.Win1251BytesToUtf8(errBuf));
+			}
+			else
+			{
+				return (true, string.Empty);
 			}
 		}
 	}
