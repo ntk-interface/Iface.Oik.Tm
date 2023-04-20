@@ -77,10 +77,9 @@ namespace Iface.Oik.Tm.Interfaces
 		Task<IReadOnlyCollection<string>> GetFilesInDirectory(string path);
 
 
-		Task PutFile(string localFilePath,
+		Task<(bool, string)> PutFile(string localFilePath,
 					 string remoteFilePath,
 					 uint timeout);
-
 
 		Task DeleteFile(string remoteFilePath);
 
@@ -149,9 +148,15 @@ namespace Iface.Oik.Tm.Interfaces
 		Task<(uint, string)> SecSetUserPolicy(string username, UserPolicy userPolicy);
 		Task<(PasswordPolicy, uint, string)> SecGetPasswordPolicy();
 		Task<(uint, string)> SecSetPasswordPolicy(PasswordPolicy passwordPolicy);
-		Task<(bool, string)> SaveMachineConfig(bool fFull, string FileName);
+		Task<(bool, string)> SaveMachineConfig(string directory, bool full);
 		Task<(IReadOnlyCollection<string>, uint, string)> DirEnum(string Path);
-		Task<bool> CreateBackup(string progName, string pipeName, string directory);
-		Task<bool> RestoreBackup(string progName, string pipeName, string filename);
+		Task<bool> CreateBackup(string progName, string pipeName, string directory, bool withRetro,
+								TmNativeCallback callback = null,
+								IntPtr callbackParameter = default(IntPtr));
+		Task<bool> RestoreBackup(string progName, string pipeName, string filename, bool withRetro,
+								 TmNativeCallback callback = null,
+								 IntPtr callbackParameter = default(IntPtr));
+		Task<(uint, string)> BackupSecurity(string directory, string pwd = "");
+		Task<(uint, string)> RestoreSecurity(string filename, string pwd);
 	}
 }
