@@ -1804,7 +1804,14 @@ namespace Iface.Oik.Tm.Api
 			const int errBufLength = 1000;
 			var errBuf = new byte[errBufLength];
 			uint errCode = 0;
-			var resultPtr = await Task.Run(() => _native.СfsIfpcEnumOSUsers(CfId, out errCode, ref errBuf, errBufLength)).ConfigureAwait(false);
+			// сделаем отдельное соединение чтобы не занимать долгой выборкой основное
+			IntPtr temp_cfsid = await Task.Run(() => _native.CfsConnect(Host, out errCode, ref errBuf, errBufLength)).ConfigureAwait(false);
+			if ((temp_cfsid == IntPtr.Zero) && (errCode != 0))
+			{
+				return (null, errCode, EncodingUtil.Win1251BytesToUtf8(errBuf));
+			}
+			var resultPtr = await Task.Run(() => _native.СfsIfpcEnumOSUsers(temp_cfsid, out errCode, ref errBuf, errBufLength)).ConfigureAwait(false);
+			_native.CfsDisconnect(temp_cfsid);
 			if (errCode != 0)
 			{
 				return (null, errCode, EncodingUtil.Win1251BytesToUtf8(errBuf));
