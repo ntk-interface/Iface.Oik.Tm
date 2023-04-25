@@ -11,10 +11,10 @@ namespace Iface.Oik.Tm.Interfaces
     private readonly Regex _dataStringRegex = new
       Regex(@".*=.*", RegexOptions.Compiled);
 
-    public string                ActiveKeyId      { get; }
-    public LicenseDataItem       Error            { get; } = new LicenseDataItem();
-    public LicenseDataItem       ErrorAdd1        { get; } = new LicenseDataItem();
-    public LicenseDataItem       ErrorAdd2        { get; } = new LicenseDataItem();
+    public string                ActiveKeyId      { get; } // .1
+    public LicenseDataItem       Error            { get; } = new LicenseDataItem(); // .2
+    public LicenseDataItem       Addition1        { get; } = new LicenseDataItem(); // .3
+    public LicenseDataItem       Addition2        { get; } = new LicenseDataItem(); // .4
     public TmLicenseKey          ActiveKey        { get; }
     public List<LicenseDataItem> LicenseDataItems { get; } = new List<LicenseDataItem>();
     
@@ -42,12 +42,12 @@ namespace Iface.Oik.Tm.Interfaces
             Error.Value = value;
             break;
           case ".3":
-            ErrorAdd1.Name  = name;
-            ErrorAdd1.Value = value;
+            Addition1.Name  = name;
+            Addition1.Value = value;
             break;
           case ".4":
-            ErrorAdd2.Name  = name;
-            ErrorAdd2.Value = value;
+            Addition2.Name  = name;
+            Addition2.Value = value;
             break;
           //case "@Company":
           //  break;
