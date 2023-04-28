@@ -77,7 +77,7 @@ namespace Iface.Oik.Tm.Native.Api
 											 [MarshalAs(UnmanagedType.LPStr)] string remotePath,
 											 [MarshalAs(UnmanagedType.LPStr)] string localPath,
 											 UInt32 timeout,
-											 IntPtr fileTime,
+											 [In, Out] ref TmNativeDefs.FileTime fileTime,
 											 out UInt32 errCode,
 											 [In, Out] byte[] errBuf,
 											 UInt32 maxErrs);
@@ -482,6 +482,15 @@ namespace Iface.Oik.Tm.Native.Api
 		public static extern Boolean cfsSaveMachineConfig(Boolean fFull, 
 			[MarshalAs(UnmanagedType.LPStr)] string RemoteMasterMachine,
 			[MarshalAs(UnmanagedType.LPStr)] string FileName,
+			[In, Out] byte[] errBuf, UInt32 maxErrs);
+
+		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+		public static extern Boolean cfsSaveMachineConfigEx(
+			[MarshalAs(UnmanagedType.LPStr)] string RemoteMasterMachine,
+			[MarshalAs(UnmanagedType.LPStr)] string FileName,
+			uint dwScope,
+			[MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback prog_fn,
+			IntPtr prog_parm,
 			[In, Out] byte[] errBuf, UInt32 maxErrs);
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]

@@ -186,7 +186,6 @@ namespace Iface.Oik.Tm.Interfaces
 		public const string ext_task_old = "_extern";
 		public const string toposrv = "ElectricTopology";
 		public const string gensrv = "_srv_.exe";
-		public const string RBS_CfgFile = "server.cfg";
 		public const string RBS_Parameters = "Parameters";
 		public const string RBS_ClientParms = "ClientParms";
 		public const string RBS_PGParms = "PGParms";

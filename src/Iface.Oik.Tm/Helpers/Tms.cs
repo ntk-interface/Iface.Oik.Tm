@@ -469,12 +469,12 @@ namespace Iface.Oik.Tm.Helpers
       }
 
       var localPath = Path.Combine(Path.GetTempPath(), Path.GetFileName(remotePath));
-
-      const int errStringLength = 1000;
+	  var fileTime = new TmNativeDefs.FileTime();
+	  const int errStringLength = 1000;
       var       errString       = new byte[errStringLength];
       uint      errCode         = 0;
 
-      if (!Native.CfsFileGet(cfCid, remotePath, localPath, 30000, IntPtr.Zero,
+      if (!Native.CfsFileGet(cfCid, remotePath, localPath, 30000, ref fileTime,
                              out errCode, ref errString, errStringLength))
       {
         return false;
