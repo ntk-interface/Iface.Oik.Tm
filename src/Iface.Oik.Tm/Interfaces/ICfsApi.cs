@@ -15,15 +15,10 @@ namespace Iface.Oik.Tm.Interfaces
 		Task SaveConfigurationTree(IntPtr treeHandle, string filename);
 		Task SaveMasterServiceConfiguration(IntPtr treeHandle);
 		Task SaveFullMSTree(MSTreeNode msRoot);
-
-		Task<List<CfTreeNode>> GetCfTree(IntPtr rootHandle);
-
+        Task<List<CfTreeNode>> GetCfTree(IntPtr rootHandle);
 		Task<IntPtr> CreateNewMasterServiceTree(MSTreeNode msRoot);
-
 		void FreeConfigurationTreeHandle(IntPtr handle);
-
 		void FreeMasterServiceConfigurationHandle(IntPtr handle);
-
 
 
 		Task<CfsDefs.SoftwareTypes> GetSoftwareType();
@@ -40,6 +35,7 @@ namespace Iface.Oik.Tm.Interfaces
 
 		Task<bool> IsConnected();
 
+		Task<string> GetBasePath();
 
 		Task<IReadOnlyCollection<TmServer>> GetTmServersTree();
 
@@ -148,15 +144,21 @@ namespace Iface.Oik.Tm.Interfaces
 		Task<(uint, string)> SecSetUserPolicy(string username, UserPolicy userPolicy);
 		Task<(PasswordPolicy, uint, string)> SecGetPasswordPolicy();
 		Task<(uint, string)> SecSetPasswordPolicy(PasswordPolicy passwordPolicy);
-		Task<(bool, string)> SaveMachineConfig(string directory, bool full);
 		Task<(IReadOnlyCollection<string>, uint, string)> DirEnum(string Path);
-		Task<bool> CreateBackup(string progName, string pipeName, string directory, bool withRetro,
+		Task<(bool, string)> SaveMachineConfig(string directory, bool full);
+		Task<(bool, string)> SaveMachineConfigEx(string directory, uint scope,
+																	  TmNativeCallback callback = null,
+																	  IntPtr callbackParameter = default);
+		Task<(bool, string)> CreateBackup(string progName, string pipeName, string directory, bool withRetro,
 								TmNativeCallback callback = null,
-								IntPtr callbackParameter = default(IntPtr));
-		Task<bool> RestoreBackup(string progName, string pipeName, string filename, bool withRetro,
+								IntPtr callbackParameter = default);
+		Task<(bool, string)> RestoreBackup(string progName, string pipeName, string filename, bool withRetro,
 								 TmNativeCallback callback = null,
-								 IntPtr callbackParameter = default(IntPtr));
+								 IntPtr callbackParameter = default);
 		Task<(uint, string)> BackupSecurity(string directory, string pwd = "");
 		Task<(uint, string)> RestoreSecurity(string filename, string pwd);
+		Task<(IReadOnlyCollection<string>, string)> EnumPackedFiles(string pkfname);
+		Task<(IReadOnlyCollection<string>, string)> UnPack(string pkfname, string dirname);
+		Task<(bool, string)> ExtractFile(string pkfname, string filename, string dirname);
 	}
 }

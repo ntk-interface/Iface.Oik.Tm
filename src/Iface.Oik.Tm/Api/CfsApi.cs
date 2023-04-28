@@ -13,6 +13,7 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using static Iface.Oik.Tm.Native.Interfaces.TmNativeDefs;
@@ -66,11 +67,11 @@ namespace Iface.Oik.Tm.Api
 		}
 		public async Task<(IntPtr, DateTime)> OpenMasterServiceConfiguration()
 		{
-			return await OpenConfigurationTree(TmNativeDefs.DefaultMasterConfFile).ConfigureAwait(false);
+			return await OpenConfigurationTree(TmNativeDefs.MasterConfFile).ConfigureAwait(false);
 		}
 		public async Task<(MSTreeNode, DateTime)> LoadFullMSTree()
 		{
-			var (handle, time) = await OpenConfigurationTree(TmNativeDefs.DefaultMasterConfFile).ConfigureAwait(false);
+			var (handle, time) = await OpenMasterServiceConfiguration().ConfigureAwait(false);
 			var tree = await GetCfTree(handle).ConfigureAwait(false);
 			FreeConfigurationTreeHandle(handle);
 			// считаем что дерево мастер-сервиса всегда начинается с одного элемента
@@ -80,7 +81,7 @@ namespace Iface.Oik.Tm.Api
 			List<CfTreeNode> res_tree = new List<CfTreeNode>();
 			try
 			{
-				var (res_handle, _) = await OpenConfigurationTree(TmNativeDefs.DefaultHotStanbyConfFile).ConfigureAwait(false);
+				var (res_handle, _) = await OpenConfigurationTree(TmNativeDefs.HotStanbyConfFile).ConfigureAwait(false);
 				res_tree = await GetCfTree(res_handle).ConfigureAwait(false);
 				FreeConfigurationTreeHandle(res_handle);
 			}
@@ -130,7 +131,7 @@ namespace Iface.Oik.Tm.Api
 						//< PGParms BinPath = "xx" DataPath = "xx" />
 						try
 						{
-							var (rbs_handle, _) = await OpenConfigurationTree($"RB_SERVER\\{rbs_p.PipeName}\\{MSTreeConsts.RBS_CfgFile}").ConfigureAwait(false);
+							var (rbs_handle, _) = await OpenConfigurationTree($"{TmNativeDefs.RbsDirectory}\\{rbs_p.PipeName}\\{TmNativeDefs.RbsConfFile}").ConfigureAwait(false);
 							var rbs_tree = await GetCfTree(rbs_handle).ConfigureAwait(false);
 							FreeConfigurationTreeHandle(rbs_handle);
 							if (rbs_tree != null)
@@ -236,7 +237,7 @@ namespace Iface.Oik.Tm.Api
 					_native.CftNPropSet(nodeHandle, nameof(p.StopInactive), p.StopInactive ? "1" : "0");
 				}
 			}
-			await SaveConfigurationTree(res_handle, TmNativeDefs.DefaultHotStanbyConfFile).ConfigureAwait(false);
+			await SaveConfigurationTree(res_handle, TmNativeDefs.HotStanbyConfFile).ConfigureAwait(false);
 			FreeConfigurationTreeHandle(res_handle);
 
 			// Конфигурации серверов RBS
@@ -257,7 +258,7 @@ namespace Iface.Oik.Tm.Api
 					nodeHandle = _native.CftNodeInsertDown(rbs_handle, MSTreeConsts.RBS_PGParms);
 					_native.CftNPropSet(nodeHandle, nameof(rbs_p.BinPath), rbs_p.BinPath);
 					_native.CftNPropSet(nodeHandle, nameof(rbs_p.DataPath), rbs_p.DataPath);
-					await SaveConfigurationTree(rbs_handle, $"RB_SERVER\\{rbs_p.PipeName}\\{MSTreeConsts.RBS_CfgFile}").ConfigureAwait(false);
+					await SaveConfigurationTree(rbs_handle, $"{TmNativeDefs.RbsDirectory}\\{rbs_p.PipeName}\\{TmNativeDefs.RbsConfFile}").ConfigureAwait(false);
 					FreeConfigurationTreeHandle(rbs_handle);
 
 					// параметры редиректора
@@ -287,7 +288,7 @@ namespace Iface.Oik.Tm.Api
 		}
 		public async Task SaveMasterServiceConfiguration(IntPtr treeHandle)
 		{
-			await SaveConfigurationTree(treeHandle, TmNativeDefs.DefaultMasterConfFile).ConfigureAwait(false);
+			await SaveConfigurationTree(treeHandle, TmNativeDefs.MasterConfFile).ConfigureAwait(false);
 		}
 		public void FreeMasterServiceConfigurationHandle(IntPtr handle)
 		{
@@ -305,54 +306,52 @@ namespace Iface.Oik.Tm.Api
 
 		public async Task<List<CfTreeNode>> GetCfTree(IntPtr rootHandle)
 		{
-			return await GetNodeChildren(rootHandle).ConfigureAwait(false);
+            return await Task.Run(() => GetNodeChildren(rootHandle)).ConfigureAwait(false);
 		}
 
-		private async Task<List<CfTreeNode>> GetNodeChildren(IntPtr parentHandle, CfTreeNode parent = null)
+		private List<CfTreeNode> GetNodeChildren(IntPtr parentHandle, CfTreeNode parent = null)
 		{
 			var children = new List<CfTreeNode>();
 
 			for (var i = 0; ; i++)
 			{
-				var childHandle = await Task.Run(() => _native.CftNodeEnum(parentHandle, i))
-											.ConfigureAwait(false);
+				var childHandle = _native.CftNodeEnum(parentHandle, i);
 				if (childHandle == IntPtr.Zero)
 					break;
-				var nodeChild = new CfTreeNode(await GetNodeName(childHandle).ConfigureAwait(false), parent)
+				var nodeChild = new CfTreeNode(GetNodeName(childHandle), parent)
 				{
-					CfProperties = await GetNodeProps(childHandle).ConfigureAwait(false)
+					CfProperties = GetNodeProps(childHandle),
 				};
-				nodeChild.Children = await GetNodeChildren(childHandle, nodeChild).ConfigureAwait(false);
+				nodeChild.Children = GetNodeChildren(childHandle, nodeChild);
 				children.Add(nodeChild);
 			}
-			return children;
+			if (children.Count == 0)
+				return null;
+			else
+				return children;
 		}
 
-		private async Task<string> GetNodeName(IntPtr nodeHandle)
+		private string GetNodeName(IntPtr nodeHandle)
 		{
 			const int nameBufLength = 200;
 			var nameBuf = new byte[nameBufLength];
 
-			await Task.Run(() =>
-							 _native.CftNodeGetName(nodeHandle, ref nameBuf, nameBufLength))
-					  .ConfigureAwait(false);
+			_native.CftNodeGetName(nodeHandle, ref nameBuf, nameBufLength);
 
 			return EncodingUtil.Win1251BytesToUtf8(nameBuf);
 		}
 
-		private async Task<Dictionary<string, string>> GetNodeProps(IntPtr nodeHandle)
+		private Dictionary<string, string> GetNodeProps(IntPtr nodeHandle)
 		{
 			var props = new Dictionary<string, string>();
 
 			for (var i = 0; ; i++)
 			{
-				var propName = await GetPropName(nodeHandle, i)
-								 .ConfigureAwait(false);
+				var propName = GetPropName(nodeHandle, i);
 				if (propName == "")
 					break;
 
-				var propValue = await GetPropValue(nodeHandle, propName)
-								  .ConfigureAwait(false);
+				var propValue = GetPropValue(nodeHandle, propName);
 
 				props.Add(propName, propValue);
 			}
@@ -360,27 +359,22 @@ namespace Iface.Oik.Tm.Api
 			return props;
 		}
 
-		private async Task<string> GetPropName(IntPtr nodeHandle, int idx)
+		private string GetPropName(IntPtr nodeHandle, int idx)
 		{
 			const int nameBufLength = 200;
 			var nameBuf = new byte[nameBufLength];
 
-			await Task.Run(() =>
-							 _native.CftNPropEnum(nodeHandle, idx, ref nameBuf, nameBufLength))
-					  .ConfigureAwait(false);
+			_native.CftNPropEnum(nodeHandle, idx, ref nameBuf, nameBufLength);
 
 			return EncodingUtil.Win1251BytesToUtf8(nameBuf);
 		}
 
-		private async Task<string> GetPropValue(IntPtr nodeHandle, string propName)
+		private string GetPropValue(IntPtr nodeHandle, string propName)
 		{
 			const int valueBufLength = 200;
 			var valueBuf = new byte[valueBufLength];
 
-			await Task.Run(() =>
-							 _native.CftNPropGetText(nodeHandle, propName, ref valueBuf,
-													 valueBufLength))
-					  .ConfigureAwait(false);
+			_native.CftNPropGetText(nodeHandle, propName, ref valueBuf, valueBufLength);
 
 			return EncodingUtil.Win1251BytesToUtf8(valueBuf);
 		}
@@ -1015,32 +1009,9 @@ namespace Iface.Oik.Tm.Api
 
 		private async Task<bool> GetDispServIniFile(string localPath)
 		{
-			const string remotePath = "@dispserv.ini";
-			const int errBufLength = 512;
-			var errBuf = new byte[errBufLength];
-			uint errCode = 0;
-
-			if (!await Task.Run(() => _native.CfsFileGet(CfId,
-														 remotePath,
-														 localPath,
-														 30000 | TmNativeDefs.FailIfNoConnect,
-														 IntPtr.Zero,
-														 out errCode,
-														 ref errBuf,
-														 errBufLength))
-						   .ConfigureAwait(false))
-			{
-				Console.WriteLine($"Ошибка при скачивании файла: {errCode} - {EncodingUtil.Win1251BytesToUtf8(errBuf)}");
-				return false;
-			}
-
-			if (!File.Exists(localPath))
-			{
-				Console.WriteLine("Ошибка при сохранении файла в файловую систему");
-				return false;
-			}
-
-			return true;
+			bool result;
+			(result, _, _) = await GetFile(localPath, "@dispserv.ini").ConfigureAwait(false);
+			return result;
 		}
 
 		private async Task<string> GetInstallationInfoString(string key)
@@ -1205,14 +1176,52 @@ namespace Iface.Oik.Tm.Api
 			var errBuf = new byte[errBufLength];
 			uint errCode = 0;
 
-			if (!await Task.Run(() => _native.CfsFilePut(CfId, remoteFilePath, localFilePath, timeout, out errCode,
-														ref errBuf, errBufLength)).ConfigureAwait(false))
+			if (!await Task.Run(() => _native.CfsFilePut(CfId, 
+														 remoteFilePath, 
+														 localFilePath, 
+														 timeout | TmNativeDefs.FailIfNoConnect, 
+														 out errCode,
+														 ref errBuf, errBufLength)).ConfigureAwait(false))
 			{
 				return (false, $"Ошибка при отправке файла: {errCode} - {EncodingUtil.Win1251BytesToUtf8(errBuf)}");
 			}
 			return (true, string.Empty);
 		}
+		public async Task<(bool, string, DateTime)> GetFile(string localFilePath, string remoteFilePath, uint timeout = 20000)
+		{
+			if (localFilePath.IsNullOrEmpty())
+			{
+				return (false, "Ошибка: не указан локальный путь до файла", DateTime.MinValue);
+			}
+			if (remoteFilePath.IsNullOrEmpty())
+			{
+				return (false, "Ошибка: не указан удалённый путь до файла", DateTime.MinValue);
+			}
+			var fileTime = new TmNativeDefs.FileTime();
+			const int errStringLength = 1000;
+			var errString = new byte[errStringLength];
+			uint errCode = 0;
+			if (!await Task.Run(() => _native.CfsFileGet(CfId,
+														 remoteFilePath,
+														 localFilePath,
+														 timeout | TmNativeDefs.FailIfNoConnect,
+														 ref fileTime,
+														 out errCode,
+														 ref errString,
+														 errStringLength))
+						   .ConfigureAwait(false))
+			{
+				return (false, $"Ошибка при скачивании файла: {errCode} - {EncodingUtil.Win1251BytesToUtf8(errString)}", DateTime.MinValue);
+			}
 
+			if (!File.Exists(localFilePath))
+			{
+				Console.WriteLine("Ошибка при сохранении файла в файловую систему");
+				return (false, "Ошибка при сохранении файла в файловую систему", DateTime.MinValue);
+			}
+
+			return (true, string.Empty, GetDateTimeFromCustomFileTime(fileTime));
+		}
 		public async Task DeleteFile(string remoteFilePath)
 		{
 			const int errBufLength = 1000;
@@ -1281,7 +1290,7 @@ namespace Iface.Oik.Tm.Api
 		}
 
 
-		private async Task<string> GetBasePath()
+		public async Task<string> GetBasePath()
 		{
 			const int basePathBufLength = 1000;
 			var basePathBuf = new byte[basePathBufLength];
@@ -2486,7 +2495,7 @@ namespace Iface.Oik.Tm.Api
 			}
 			else
 			{
-				var computerInfo = new ComputerInfo()
+				var computerInfo = new ComputerInfo
 				{
 					ComputerName = _computerInfoS.ComputerName,
 					PrimaryDomainName = _computerInfoS.DomInfo.PrimaryDomainName,
@@ -2504,8 +2513,8 @@ namespace Iface.Oik.Tm.Api
 					UserName = _computerInfoS.UserName,
 					UserAddr = _computerInfoS.UserAddr,
 					AccessMask = _computerInfoS.AccessMask,
+					IpAddrs = new List<string>()
 				};
-				computerInfo.IpAddrs = new List<string>();
 				foreach (var addr in _computerInfoS.IpAddrs)
 				{
 					if (addr == 0)
@@ -2556,6 +2565,43 @@ namespace Iface.Oik.Tm.Api
 				return (true, string.Empty);
 			}
 		}
+		public async Task<(bool, string)> SaveMachineConfigEx(string directory, uint scope, 
+															  TmNativeCallback callback = null,
+															  IntPtr callbackParameter = default)
+		{
+			const int errBufLength = 1000;
+			var errBuf = new byte[errBufLength];
+			string fileName="undefined";
+			if (scope == 0)//#define CFS_SMC_DEV		0
+			{
+				fileName = "MasterConf-" + DateTime.Now.ToString(BackupDateFormat) + ".pkf";
+			}
+			else
+			if (scope == 1)//#define CFS_SMC_MEDIUM		1
+			{
+				fileName = "FullConf-" + DateTime.Now.ToString(BackupDateFormat) + ".cfim";
+			}
+			else
+			if (scope == 2)//#define CFS_SMC_COMPLETE	2
+			{
+				fileName = "FullConfRetro-" + DateTime.Now.ToString(BackupDateFormat) + ".cfim";
+			}
+				var result = await Task.Run(() => _native.CfsSaveMachineConfigEx(
+					Host,
+					Path.Combine(directory, fileName),
+					scope,
+					callback, callbackParameter,
+					ref errBuf, errBufLength)).ConfigureAwait(false);
+
+			if (result != true)
+			{
+				return (false, EncodingUtil.Win1251BytesToUtf8(errBuf));
+			}
+			else
+			{
+				return (true, string.Empty);
+			}
+		}
 		public async Task<(IReadOnlyCollection<string>, uint, string)> DirEnum(string Path)
 		{
 			const int resBufLength = 20480;
@@ -2574,9 +2620,9 @@ namespace Iface.Oik.Tm.Api
 				return (TmNativeUtil.GetStringListFromDoubleNullTerminatedChars(resBuf), 0, string.Empty);
 			}
 		}
-		public async Task<bool> CreateBackup(string progName, string pipeName, string directory, bool withRetro,
+		public async Task<(bool, string)> CreateBackup(string progName, string pipeName, string directory, bool withRetro,
 											 TmNativeCallback callback=null,
-											 IntPtr callbackParameter=default(IntPtr))
+											 IntPtr callbackParameter = default(IntPtr))
 		{
 			uint bflags;
 			bool result = false;
@@ -2601,11 +2647,14 @@ namespace Iface.Oik.Tm.Api
 					result = await Task.Run(() => _native.RbcBackupServerProcedure(Host, pipeName, directory, ref bflags, 0, callback, callbackParameter)).ConfigureAwait(false);
 					break;
 			}
-			return result;
+			if (result)
+				return (result, string.Empty);
+			else
+				return (result, "error");
 		}
-		public async Task<bool> RestoreBackup(string progName, string pipeName, string filename, bool withRetro,
+		public async Task<(bool, string)> RestoreBackup(string progName, string pipeName, string filename, bool withRetro,
 											  TmNativeCallback callback = null,
-											  IntPtr callbackParameter = default(IntPtr))
+											  IntPtr callbackParameter = default)
 		{
 			uint bflags = 1;
 			bool result=false;
@@ -2622,7 +2671,12 @@ namespace Iface.Oik.Tm.Api
 					result = await Task.Run(() => _native.TmcRestoreServer(false, Host, pipeName, filename, ref bflags, 0, callback, callbackParameter)).ConfigureAwait(false);
 					break;
 			}
-			return (bflags!=0)?result:false;
+			if (bflags == 0)
+				return (result, "nothing restored");
+			if (result)
+				return (result, string.Empty);
+			else
+				return (result, "error");
 		}
 		public async Task<(uint, string)> BackupSecurity(string directory, string pwd="")
 		{

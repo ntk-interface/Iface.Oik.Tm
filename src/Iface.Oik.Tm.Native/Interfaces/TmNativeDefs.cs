@@ -1094,11 +1094,17 @@ namespace Iface.Oik.Tm.Native.Interfaces
 		#region Cfs
 
 		public const UInt32 FailIfNoConnect = 0x80000000;
-		public const string DefaultMasterConfFile = "_master_";
-		public const byte MasterServiceStatusCommand = 0;
+		public const string MasterConfFile = "_master_";
+        public const string HotStanbyConfFile = "reserve.cfg";
+        public const string RbsDirectory = "RB_SERVER";
+        public const string RbsConfFile = "server.cfg";
+        public const string TmsDirectory = "TM_SERVER";
+		public const string TmsSchemaFile = "tms_hlp.ini";
+		public const string TmsStructConfFile = "tms.cfg";
+        public const string TmsHardwareConfFile = "hw.cfg";
+        public const byte MasterServiceStatusCommand = 0;
 		public const byte StartMasterServiceCommand = 1;
 		public const byte StopMasterServiceCommand = 2;
-		public const string DefaultHotStanbyConfFile = "reserve.cfg";
 
 		public enum CfsIitgk : UInt32
 		{

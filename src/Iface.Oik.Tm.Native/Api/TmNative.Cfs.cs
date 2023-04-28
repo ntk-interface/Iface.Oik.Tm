@@ -1,7 +1,9 @@
 using System;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Native.Utils;
 using static Iface.Oik.Tm.Native.Interfaces.TmNativeDefs;
 
 namespace Iface.Oik.Tm.Native.Api
@@ -94,12 +96,12 @@ namespace Iface.Oik.Tm.Native.Api
 							   string remotePath,
 							   string localPath,
 							   uint timeout,
-							   IntPtr fileTime,
+							   ref TmNativeDefs.FileTime fileTime,
 							   out uint errCode,
 							   ref byte[] errBuf,
 							   uint maxErrs)
 		{
-			return cfsFileGet(cfCid, remotePath, localPath, timeout, fileTime, out errCode, errBuf, maxErrs);
+			return cfsFileGet(cfCid, remotePath, localPath, timeout, ref fileTime, out errCode, errBuf, maxErrs);
 		}
 
 
@@ -586,7 +588,25 @@ namespace Iface.Oik.Tm.Native.Api
 		{
 			return cfsSaveMachineConfig(fFull, RemoteMasterMachine, FileName, errBuf, maxErrs);
 		}
-
+		public Boolean CfsSaveMachineConfigEx(
+					string RemoteMasterMachine,
+					string FileName,
+					uint dwScope,
+					TmNativeCallback prog_fn, IntPtr prog_parm,
+					ref byte[] errBuf, uint maxErrs)
+		{
+			try
+			{
+				return cfsSaveMachineConfigEx(RemoteMasterMachine, FileName, dwScope, prog_fn, prog_parm, errBuf, maxErrs);
+			}
+			catch (Exception ex)
+			{
+				var ex_message = TmNativeUtil.GetFixedBytesWithTrailingZero(ex.Message, (int)maxErrs - 1, "windows-1251");
+				ex_message.CopyTo(errBuf, 0);
+				return false;
+			}
+			
+		}
 		public Boolean CfsExternalBackupServer(IntPtr connId,
 			string dllname,
 			string servname,

@@ -62,7 +62,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 						string remotePath,
 						string localPath,
 						uint timeout,
-						IntPtr fileTime,
+						ref TmNativeDefs.FileTime fileTime,
 						out uint errCode,
 						ref byte[] errString,
 						uint maxErrs);
@@ -401,6 +401,12 @@ namespace Iface.Oik.Tm.Native.Interfaces
 		Boolean CfsSaveMachineConfig(Boolean fFull,
 			string RemoteMasterMachine,
 			string FileName,
+			ref byte[] errBuf, uint maxErrs);
+		Boolean CfsSaveMachineConfigEx(
+			string RemoteMasterMachine,
+			string FileName,
+			uint dwScope,
+			TmNativeCallback prog_fn, IntPtr prog_parm,
 			ref byte[] errBuf, uint maxErrs);
 		Boolean CfsIfpcBackupSecurity(IntPtr connId, string snp, string pwd, string filename, out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);
 		Boolean CfsIfpcRestoreSecurity(IntPtr connId, string snp, string pwd, string filename, out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);

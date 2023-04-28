@@ -2013,15 +2013,15 @@ namespace Iface.Oik.Tm.Api
         Console.WriteLine("Ошибка при получении cfCid");
         return false;
       }
-
-      const int errStringLength = 1000;
+	  var fileTime = new TmNativeDefs.FileTime();
+	  const int errStringLength = 1000;
       var       errString       = new byte[errStringLength];
       uint      errCode         = 0;
       if (!await Task.Run(() => _native.CfsFileGet(cfCid,
                                                    remotePath,
                                                    localPath,
                                                    60000,
-                                                   IntPtr.Zero,
+                                                   ref fileTime,
                                                    out errCode,
                                                    ref errString,
                                                    errStringLength))
