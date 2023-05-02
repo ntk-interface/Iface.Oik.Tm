@@ -588,9 +588,10 @@ namespace Iface.Oik.Tm.Test.Api
       {
         uint error;
         var  errorBuf = new byte[80];
+        var  fileTime = new TmNativeDefs.FileTime();
         A.CallTo(() => native.TmcGetCfsHandle(A<int>._))
          .Returns(new IntPtr(1));
-        A.CallTo(() => native.CfsFileGet(new IntPtr(1), "", "", 0, IntPtr.Zero, out error, ref errorBuf, 0))
+        A.CallTo(() => native.CfsFileGet(new IntPtr(1), "", "", 0, ref fileTime, out error, ref errorBuf, 0))
          .WithAnyArguments()
          .Returns(false);
 
@@ -605,9 +606,10 @@ namespace Iface.Oik.Tm.Test.Api
       {
         uint error;
         var  errorBuf = new byte[80];
+        var  fileTime = new TmNativeDefs.FileTime();
         A.CallTo(() => native.TmcGetCfsHandle(A<int>._))
          .Returns(new IntPtr(1));
-        A.CallTo(() => native.CfsFileGet(new IntPtr(1), "", "", 0, IntPtr.Zero, out error, ref errorBuf, 0))
+        A.CallTo(() => native.CfsFileGet(new IntPtr(1), "", "", 0, ref fileTime, out error, ref errorBuf, 0))
          .WithAnyArguments()
          .Returns(true);
 
