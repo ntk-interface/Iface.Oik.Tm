@@ -11,6 +11,8 @@ namespace Iface.Oik.Tm.Interfaces
 	{
 		public string Name { get; }
 		public CfTreeNode Parent { get; }
+		public bool IsDirty { get; set; }
+		public bool Disabled { get; set;  }
 		public Dictionary<string, string> CfProperties { get; set; }
 		public List<CfTreeNode> Children { get; set; }
 		public CfTreeNode()
