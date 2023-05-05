@@ -4,9 +4,9 @@ namespace Iface.Oik.Tm.Interfaces
 {
   public enum MqttKnownTopic
   {
-    [Description("User/Login")]          UserLogin         = 10,
-    [Description("User/Logout")]         UserLogout        = 11,
-    [Description("User/CustomMessage")]  UserCustomMessage = 12,
+    [Description("User/Login")]         UserLogin         = 10,
+    [Description("User/Logout")]        UserLogout        = 11,
+    [Description("User/CustomMessage")] UserCustomMessage = 12,
 
     [Description("Settings/GlobalClient/Edit")]        SettingsGlobalClientEdit        = 50,
     [Description("Settings/UserClient/Edit")]          SettingsUserClientEdit          = 51,
@@ -45,5 +45,8 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Document/AddTag")]          DocumentAddTag          = 305,
     [Description("Document/RemoveTag")]       DocumentRemoveTag       = 306,
     [Description("Document/Delete")]          DocumentDelete          = 307,
+
+    [Description("ServerConnection/Problem")]   ServerProblem   = 1001,
+    [Description("ServerConnection/Reconnect")] ServerReconnect = 1002,
   }
 }
