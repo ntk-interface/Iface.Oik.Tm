@@ -37,6 +37,8 @@ namespace Iface.Oik.Tm.Interfaces
 
 		Task<string> GetBasePath();
 
+		Task<IReadOnlyCollection<string>> GetTimezones();
+
 		Task<IReadOnlyCollection<TmServer>> GetTmServersTree();
 
 

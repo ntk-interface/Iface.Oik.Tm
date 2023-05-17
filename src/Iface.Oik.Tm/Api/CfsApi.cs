@@ -589,6 +589,23 @@ namespace Iface.Oik.Tm.Api
 			return await Task.Run(() => _native.CfsIsConnected(CfId))
 							 .ConfigureAwait(false);
 		}
+		public async Task<IReadOnlyCollection<string>> GetTimezones()
+		{
+			const int errStringLength = 1000;
+			var errBuf = new byte[errStringLength];
+			uint errCode = 0;
+
+			var timezonesIdsPointer = await Task.Run(() => _native.CfsEnumTimezones(CfId,
+																				  out errCode,
+																				  ref errBuf,
+																				 errStringLength))
+											  .ConfigureAwait(false);
+
+			var timezonesIds = TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(timezonesIdsPointer, 1000);
+
+			_native.CfsFreeMemory(timezonesIdsPointer);
+			return timezonesIds;
+		}
 
 		public async Task<IReadOnlyCollection<TmServer>> GetTmServersTree()
 		{
