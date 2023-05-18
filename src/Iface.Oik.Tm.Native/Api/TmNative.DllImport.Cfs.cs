@@ -384,6 +384,14 @@ namespace Iface.Oik.Tm.Native.Api
 													[In, Out] byte[] errBuf,
 													UInt32 maxErrs);
 
+		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+		public static extern IntPtr cfsEditGrabCid(IntPtr connId,
+												   Boolean bGrab, 
+												   [MarshalAs(UnmanagedType.LPStr)] string fileName,
+												   [MarshalAs(UnmanagedType.LPStr)] string userName,
+												   out UInt32 errCode,
+												   [In, Out] byte[] errBuf,
+												   UInt32 maxErrs);
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern IntPtr cfsConfFileOpen([MarshalAs(UnmanagedType.LPStr)] string serverName,

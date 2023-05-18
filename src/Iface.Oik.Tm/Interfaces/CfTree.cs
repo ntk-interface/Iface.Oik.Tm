@@ -9,16 +9,12 @@ namespace Iface.Oik.Tm.Interfaces
 {
 	public class CfTreeNode
 	{
-		public string Name { get; }
-		public CfTreeNode Parent { get; }
-		public bool IsDirty { get; set; }
+		public CfTreeNode Parent { get; set; }
+		public List<CfTreeNode> Children { get; set; }
+		public string Name { get; set; }
+		//public bool IsDirty;
 		public bool Disabled { get; set;  }
 		public Dictionary<string, string> CfProperties { get; set; }
-		public List<CfTreeNode> Children { get; set; }
-		public CfTreeNode()
-		{
-			//Children = new List<CfTreeNode>();
-		}
 		public CfTreeNode(string nodeName, CfTreeNode parent = null)
 		{
 			Name = nodeName;

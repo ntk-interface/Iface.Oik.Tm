@@ -152,6 +152,16 @@ namespace Iface.Oik.Tm.Native.Api
 			cfsDisconnect(connId);
 		}
 
+		public IntPtr CfsEditGrabCid(IntPtr connId,
+									 Boolean bGrab,
+									 string fileName,
+									 string userName,
+									 out uint errCode,
+									 ref byte[] errBuf,
+									 uint maxErrs)
+		{
+			return cfsEditGrabCid(connId, bGrab, fileName, userName, out errCode, errBuf, maxErrs);
+		}
 
 		public IntPtr CfsConfFileOpenCid(IntPtr connId,
 										 string serverName,
