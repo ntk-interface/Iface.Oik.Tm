@@ -815,57 +815,72 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<IReadOnlyCollection<TmClassStatus>> GetStatusesClasses()
     {
-      var tmClasses = new List<TmClassStatus>();
-      var tmcAddr = new TmNativeDefs.TAdrTm
-      {
-        Ch  = -1,
-        RTU = -1,
-      };
+      const int tmcAddrsLimit = 127;
+      
+      var tmClasses     = new List<TmClassStatus>();
 
-      for (var i = 1; i < 128; i++)
+      var tmcAddrs = Enumerable.Range(1, tmcAddrsLimit).Select(x => new TmNativeDefs.TAdrTm
       {
-        tmcAddr.Point = (short)i;
-        var classDataPtr = await Task.Run(() => _native.TmcGetStatusClassData(_cid, 1, new[] { tmcAddr }))
-                                     .ConfigureAwait(false);
-        if (classDataPtr == IntPtr.Zero)
+        Ch    = -1,
+        RTU   = -1,
+        Point = (short)x
+      }).ToArray();
+      
+      var classDataPtr = await Task.Run(() => _native.TmcGetStatusClassData(_cid, tmcAddrsLimit, tmcAddrs))
+                                   .ConfigureAwait(false);
+      
+      var singleClassDataPtr = Marshal.PtrToStructure<IntPtr>(classDataPtr);
+
+      if (singleClassDataPtr == IntPtr.Zero)
+      {
+        return Array.Empty<TmClassStatus>();
+      }
+
+      for (var i = 0; i <= tmcAddrsLimit; i++)
+      {
+        var tmcClassDataStr = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(singleClassDataPtr);
+
+        if (tmcClassDataStr == string.Empty)
         {
+          singleClassDataPtr = IntPtr.Add(singleClassDataPtr, 1);
           continue;
         }
-
-        var singleClassDataPtr = Marshal.PtrToStructure<IntPtr>(classDataPtr); // у нас массив строк, а не просто строка
-        var tmcClassDataStr    = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(singleClassDataPtr);
-
+        
         var tmClassId    = 0;
         var tmClassName  = "";
         var tmClassFlags = 0;
-        tmcClassDataStr?.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries)
+        
+        tmcClassDataStr.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries)
                        .ForEach(property =>
-                       {
-                         var kvp = property.Split('=');
-                         if (kvp.Length != 2)
-                         {
-                           return;
-                         }
+                                {
+                                  var kvp = property.Split('=');
+                                  if (kvp.Length != 2)
+                                  {
+                                    return;
+                                  }
 
-                         if (kvp[0] == "ClassNumber")
-                         {
-                           int.TryParse(kvp[1], out tmClassId);
-                         }
+                                  if (kvp[0] == "ClassNumber")
+                                  {
+                                    int.TryParse(kvp[1], out tmClassId);
+                                  }
 
-                         if (kvp[0] == "ClassName")
-                         {
-                           tmClassName = kvp[1];
-                         }
+                                  if (kvp[0] == "ClassName")
+                                  {
+                                    tmClassName = kvp[1];
+                                  }
 
-                         if (kvp[0] == "ClassFlags")
-                         {
-                           int.TryParse(kvp[1], NumberStyles.HexNumber, null, out tmClassFlags);
-                         }
-                       });
+                                  if (kvp[0] == "ClassFlags")
+                                  {
+                                    int.TryParse(kvp[1], NumberStyles.HexNumber, null, out tmClassFlags);
+                                  }
+                                });
+        
         if (tmClassId != 0)
         {
           tmClasses.Add(new TmClassStatus(tmClassId, tmClassName, tmClassFlags));
         }
+        
+        singleClassDataPtr = IntPtr.Add(singleClassDataPtr, tmcClassDataStr.Length + 1);
       }
 
       return tmClasses;
@@ -874,28 +889,40 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<IReadOnlyCollection<TmClassAnalog>> GetAnalogsClasses()
     {
-      var tmAnalogs = new List<TmClassAnalog>();
-      var tmcAddr = new TmNativeDefs.TAdrTm
+      const int tmcAddrsLimit = 127;
+      var       tmAnalogs     = new List<TmClassAnalog>();
+      
+      var tmcAddrs = Enumerable.Range(1, tmcAddrsLimit).Select(x => new TmNativeDefs.TAdrTm
       {
-        Ch  = -1,
-        RTU = -1,
-      };
+        Ch    = -1,
+        RTU   = -1,
+        Point = (short)x
+      }).ToArray();
+      
+      var classDataPtr = await Task.Run(() => _native.TmcGetAnalogClassData(_cid, tmcAddrsLimit, tmcAddrs))
+                                   .ConfigureAwait(false);
+      var singleClassDataPtr = Marshal.PtrToStructure<IntPtr>(classDataPtr);
 
-      for (var i = 1; i < 128; i++)
+      if (singleClassDataPtr == IntPtr.Zero)
       {
-        tmcAddr.Point = (short)i;
-        var classDataPtr = await Task.Run(() => _native.TmcGetAnalogClassData(_cid, 1, new[] { tmcAddr }))
-                                     .ConfigureAwait(false);
-        if (classDataPtr == IntPtr.Zero)
+        return Array.Empty<TmClassAnalog>();
+      }
+      
+      for (var i = 0; i <= tmcAddrsLimit; i++)
+      {
+        
+        var tmcClassDataStr    = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(singleClassDataPtr);
+        
+        if (tmcClassDataStr == string.Empty)
         {
+          singleClassDataPtr = IntPtr.Add(singleClassDataPtr, 1);
           continue;
         }
-
-        var singleClassDataPtr = Marshal.PtrToStructure<IntPtr>(classDataPtr); // у нас массив строк, а не просто строка
-        var tmcClassDataStr    = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(singleClassDataPtr);
+        
         var tmClassId          = 0;
         var tmClassName        = "";
-        tmcClassDataStr?.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries)
+        
+        tmcClassDataStr.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries)
                        .ForEach(property =>
                        {
                          var kvp = property.Split('=');
@@ -918,6 +945,8 @@ namespace Iface.Oik.Tm.Api
         {
           tmAnalogs.Add(new TmClassAnalog(tmClassId, tmClassName));
         }
+        
+        singleClassDataPtr = IntPtr.Add(singleClassDataPtr, tmcClassDataStr.Length + 1);
       }
 
       return tmAnalogs;
