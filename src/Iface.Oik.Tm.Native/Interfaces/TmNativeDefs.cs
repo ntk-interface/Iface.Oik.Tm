@@ -1170,18 +1170,18 @@ namespace Iface.Oik.Tm.Native.Interfaces
 		public struct AccessRight 
 		{ 
 			public UInt32 Mask;
-			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
-			public string eng;
-			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
-			public string rus;
+			[MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
+			public byte[] eng;
+			[MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
+			public byte[] rus;
 		}
-		[StructLayout(LayoutKind.Sequential)]
+		[StructLayout(LayoutKind.Sequential) ]
 		public struct AccessDescription
 		{
-			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
-			public string eng;
-			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
-			public string rus;
+			[MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
+			public byte[] eng;
+			[MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
+			public byte[] rus;
 		}
 		[StructLayout(LayoutKind.Sequential)]
 		public struct AccessMapping

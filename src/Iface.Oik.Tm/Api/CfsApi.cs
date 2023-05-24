@@ -1107,8 +1107,13 @@ namespace Iface.Oik.Tm.Api
 			var keyDataDictionary = new Dictionary<string, string>();
 			foreach (var keyData in keyDataStrings)
 			{
-				keyDataDictionary.Add(keyData.Split('=').First(),
-									  await GetLicenseKeyDataItemString(keyData).ConfigureAwait(false));
+				var parts = keyData.Split('=');
+				string translated = await GetLicenseKeyDataItemString(keyData).ConfigureAwait(false);
+				if(parts.First().Equals("@Company"))
+				{
+					translated = translated.Split('=').First()+'='+parts.Last();
+				}
+				keyDataDictionary.Add(parts.First(), translated);
 			}
 
 			var currentLicenseKey = new TmLicenseKey(await GetCurrentLicenseKeyCom().ConfigureAwait(false));
@@ -1266,11 +1271,10 @@ namespace Iface.Oik.Tm.Api
 			const string section = "AppKeyList";
 
 			const uint bufSize = 1024;
+			var licenseKeyTypes = new List<LicenseKeyType>();
 
 			var typesStrings = (await GetIniString(path, section, bufSize: bufSize).ConfigureAwait(false)).Split(new[] { ';' },
-			  StringSplitOptions.RemoveEmptyEntries);
-
-			var licenseKeyTypes = new List<LicenseKeyType>();
+			StringSplitOptions.RemoveEmptyEntries);
 
 			foreach (var typeString in typesStrings)
 			{
@@ -1292,7 +1296,7 @@ namespace Iface.Oik.Tm.Api
 									"Data\\Main\\cfshare.ini");
 			const string section = "IfaceSecKey";
 			const string key = "COM";
-
+			
 			var currentLicenseKeyCom = await GetIniString(path, section, key, bufSize: 1024).ConfigureAwait(false);
 
 			return currentLicenseKeyCom.IsNullOrEmpty() ? 0 : Convert.ToInt32(currentLicenseKeyCom);
@@ -1301,10 +1305,7 @@ namespace Iface.Oik.Tm.Api
 
 		private async Task<string> GetLicenseKeyDataItemString(string rawItemString)
 		{
-			const string path = "@@";
-			const string section = "SStr";
-
-			return await GetIniString(path, section, bufSize: 1024, def: rawItemString).ConfigureAwait(false);
+		    	return await GetIniString("@@", "SStr", bufSize: 1024, def: rawItemString).ConfigureAwait(false);
 		}
 
 
@@ -1544,7 +1545,7 @@ namespace Iface.Oik.Tm.Api
 				{
 					if (record.DateTime >= startTimeUtc)
 					{
-						var a = 1;
+						// var a = 1;
 					}
 
 					if (startTimeUtc.HasValue && record.DateTime < startTimeUtc)
@@ -1732,8 +1733,8 @@ namespace Iface.Oik.Tm.Api
 				var cfs_ad = Marshal.PtrToStructure<TmNativeDefs.CfsAccessDescriptor>(sec_ptr);
 				_native.TmcFreeMemory(sec_ptr);
 
-				ad.ObjTypeName["ru"] = cfs_ad.ObjTypeName.rus.Replace("&", "");
-				ad.ObjTypeName["en"] = cfs_ad.ObjTypeName.eng.Replace("&", "");
+				ad.ObjTypeName["ru"] = EncodingUtil.Win1251BytesToUtf8(cfs_ad.ObjTypeName.rus).Replace("&", "");
+				ad.ObjTypeName["en"] = EncodingUtil.Win1251BytesToUtf8(cfs_ad.ObjTypeName.eng).Replace("&", "");
 				var pre = cfs_ad.NamePrefix.Split('$');
 				if (pre.Length > 1)
 					ad.NamePrefix = pre[0] + "$";
@@ -1745,8 +1746,8 @@ namespace Iface.Oik.Tm.Api
 					if (cfs_ad.Bit[bit].Mask != 0xffffffff)
 					{
 						var newMask = new AccessMask() { Mask = cfs_ad.Bit[bit].Mask };
-						newMask.Description["ru"] = cfs_ad.Bit[bit].rus.Replace("&", "");
-						newMask.Description["en"] = cfs_ad.Bit[bit].eng.Replace("&", "");
+						newMask.Description["ru"] = EncodingUtil.Win1251BytesToUtf8(cfs_ad.Bit[bit].rus).Replace("&", "");
+						newMask.Description["en"] = EncodingUtil.Win1251BytesToUtf8(cfs_ad.Bit[bit].eng).Replace("&", "");
 						ad.AccessMasks.Add(newMask);
 					}
 				}
@@ -2302,7 +2303,7 @@ namespace Iface.Oik.Tm.Api
 							{
 								MAC[i] = Convert.ToByte(macbytes[i], 16);
 							}
-							catch (Exception e)
+							catch 
 							{
 								good = false;
 								break;
@@ -2542,18 +2543,21 @@ namespace Iface.Oik.Tm.Api
 				computerInfo.SoftwareKeyID = BitConverter.ToString(_computerInfoS.LOctet).Replace("-", "");
 
 				// читаем дату билда и установки отдельно
-
-				computerInfo.BuildDate = await GetIniString("@@", "IInfo", "BuildTime").ConfigureAwait(false);
-				if (computerInfo.BuildDate.Equals(string.Empty))
+				try
 				{
-					// если попали на старый сервер
-					var path = Path.Combine(await GetBasePath().ConfigureAwait(false),
-											"dispserv.ini");
-					computerInfo.BuildDate = await GetIniString(path, "Info", "BuildTime").ConfigureAwait(false);
-					computerInfo.InstallDate = await GetIniString(path, "Info", "InstTime").ConfigureAwait(false);
+					computerInfo.BuildDate = await GetIniString("@@", "IInfo", "BuildTime").ConfigureAwait(false);
+					if (computerInfo.BuildDate.Equals(string.Empty))
+					{
+						// если попали на старый сервер
+						var path = Path.Combine(await GetBasePath().ConfigureAwait(false),
+												"dispserv.ini");
+						computerInfo.BuildDate = await GetIniString(path, "Info", "BuildTime").ConfigureAwait(false);
+						computerInfo.InstallDate = await GetIniString(path, "Info", "InstTime").ConfigureAwait(false);
+					}
+					else
+						computerInfo.InstallDate = await GetIniString("@@", "IInfo", "InstTime").ConfigureAwait(false);
 				}
-				else
-					computerInfo.InstallDate = await GetIniString("@@", "IInfo", "InstTime").ConfigureAwait(false);
+				catch{}
 
 
 				return (computerInfo, 0, string.Empty);
