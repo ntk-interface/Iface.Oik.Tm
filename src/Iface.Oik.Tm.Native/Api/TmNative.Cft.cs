@@ -66,7 +66,7 @@ namespace Iface.Oik.Tm.Native.Api
 
     public bool CftNPropSet(IntPtr id,
                             string propName,
-                            string propText)
+                            byte[] propText)
     {
       return cftNPropSet(id, propName, propText);
     }

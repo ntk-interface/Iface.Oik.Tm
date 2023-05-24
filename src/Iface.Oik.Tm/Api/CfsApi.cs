@@ -226,15 +226,15 @@ namespace Iface.Oik.Tm.Api
 						tag = $"{server.ProgName}:{tag}";
 
 					var nodeHandle = _native.CftNodeInsertDown(res_handle, tag);
-					_native.CftNPropSet(nodeHandle, nameof(p.Type), p.Type.ToString());
-					_native.CftNPropSet(nodeHandle, nameof(p.BindAddr), p.BindAddr.Trim());
-					_native.CftNPropSet(nodeHandle, nameof(p.Addr), p.Addr.Trim());
-					_native.CftNPropSet(nodeHandle, nameof(p.Port), p.Port.ToString());
-					_native.CftNPropSet(nodeHandle, nameof(p.BPort), p.BPort.ToString());
-					_native.CftNPropSet(nodeHandle, nameof(p.AbortTO), p.AbortTO.ToString());
-					_native.CftNPropSet(nodeHandle, nameof(p.RetakeTO), p.RetakeTO.ToString());
-					_native.CftNPropSet(nodeHandle, nameof(p.CopyConfig), p.CopyConfig ? "1" : "0");
-					_native.CftNPropSet(nodeHandle, nameof(p.StopInactive), p.StopInactive ? "1" : "0");
+					SetNodeProperty(nodeHandle, nameof(p.Type), p.Type.ToString());
+					SetNodeProperty(nodeHandle, nameof(p.BindAddr), p.BindAddr.Trim());
+					SetNodeProperty(nodeHandle, nameof(p.Addr), p.Addr.Trim());
+					SetNodeProperty(nodeHandle, nameof(p.Port), p.Port.ToString());
+					SetNodeProperty(nodeHandle, nameof(p.BPort), p.BPort.ToString());
+					SetNodeProperty(nodeHandle, nameof(p.AbortTO), p.AbortTO.ToString());
+					SetNodeProperty(nodeHandle, nameof(p.RetakeTO), p.RetakeTO.ToString());
+					SetNodeProperty(nodeHandle, nameof(p.CopyConfig), p.CopyConfig ? "1" : "0");
+					SetNodeProperty(nodeHandle, nameof(p.StopInactive), p.StopInactive ? "1" : "0");
 				}
 			}
 			await SaveConfigurationTree(res_handle, TmNativeDefs.HotStanbyConfFile).ConfigureAwait(false);
@@ -248,16 +248,16 @@ namespace Iface.Oik.Tm.Api
 					// общие параметры
 					var rbs_handle = _native.CftNodeNewTree();
 					IntPtr nodeHandle = _native.CftNodeInsertDown(rbs_handle, MSTreeConsts.RBS_Parameters);
-					_native.CftNPropSet(nodeHandle, nameof(rbs_p.RBF_Directory), rbs_p.RBF_Directory);
+					SetNodeProperty(nodeHandle, nameof(rbs_p.RBF_Directory), rbs_p.RBF_Directory);
 
 					nodeHandle = _native.CftNodeInsertDown(rbs_handle, MSTreeConsts.RBS_ClientParms);
-					_native.CftNPropSet(nodeHandle, nameof(rbs_p.DOC_Path), rbs_p.DOC_Path);
-					_native.CftNPropSet(nodeHandle, nameof(rbs_p.DTMX_SQLCS), rbs_p.DTMX_SQLCS);
-					_native.CftNPropSet(nodeHandle, nameof(rbs_p.JournalSQLCS), rbs_p.JournalSQLCS);
+					SetNodeProperty(nodeHandle, nameof(rbs_p.DOC_Path), rbs_p.DOC_Path);
+					SetNodeProperty(nodeHandle, nameof(rbs_p.DTMX_SQLCS), rbs_p.DTMX_SQLCS);
+					SetNodeProperty(nodeHandle, nameof(rbs_p.JournalSQLCS), rbs_p.JournalSQLCS);
 
 					nodeHandle = _native.CftNodeInsertDown(rbs_handle, MSTreeConsts.RBS_PGParms);
-					_native.CftNPropSet(nodeHandle, nameof(rbs_p.BinPath), rbs_p.BinPath);
-					_native.CftNPropSet(nodeHandle, nameof(rbs_p.DataPath), rbs_p.DataPath);
+					SetNodeProperty(nodeHandle, nameof(rbs_p.BinPath), rbs_p.BinPath);
+					SetNodeProperty(nodeHandle, nameof(rbs_p.DataPath), rbs_p.DataPath);
 					await SaveConfigurationTree(rbs_handle, $"{TmNativeDefs.RbsDirectory}\\{rbs_p.PipeName}\\{TmNativeDefs.RbsConfFile}").ConfigureAwait(false);
 					FreeConfigurationTreeHandle(rbs_handle);
 
@@ -405,7 +405,7 @@ namespace Iface.Oik.Tm.Api
 			{
 				foreach (var prop in node.CfProperties)
 				{
-					CreateNodeProperty(nodeHandle, prop.Key, prop.Value);
+					SetNodeProperty(nodeHandle, prop.Key, prop.Value);
 				}
 			}
 			if ((node.Children != null) && node.Children.Any())
@@ -439,20 +439,20 @@ namespace Iface.Oik.Tm.Api
 		{
 			if (node.ProgName.Equals(MSTreeConsts.rbsrv_old) || node.ProgName.Equals(MSTreeConsts.pcsrv_old))
 			{
-				if (!CreateNodeProperty(nodeHandle, MSTreeConsts.ProgName, MSTreeConsts.gensrv))
+				if (!SetNodeProperty(nodeHandle, MSTreeConsts.ProgName, MSTreeConsts.gensrv))
 					return false;
 
-				if (!CreateNodeProperty(nodeHandle, MSTreeConsts.TaskPath, node.ProgName))
+				if (!SetNodeProperty(nodeHandle, MSTreeConsts.TaskPath, node.ProgName))
 					return false;
 			}
 			else
 			{
-				if (!CreateNodeProperty(nodeHandle, MSTreeConsts.ProgName, node.ProgName))
+				if (!SetNodeProperty(nodeHandle, MSTreeConsts.ProgName, node.ProgName))
 					return false;
 			}
 			if (node.Properties.NoStart)
 			{
-				if (!CreateNodeProperty(nodeHandle, MSTreeConsts.NoStart, "1")) return false;
+				if (!SetNodeProperty(nodeHandle, MSTreeConsts.NoStart, "1")) return false;
 			}
 			switch (node.Properties)
 			{
@@ -481,11 +481,11 @@ namespace Iface.Oik.Tm.Api
 		{
 			var props = (MasterNodeProperties)node.Properties;
 
-			if (!CreateNodeProperty(nodeHandle, MSTreeConsts.LogFileSize, props.LogFileSize.ToString())) 
+			if (!SetNodeProperty(nodeHandle, MSTreeConsts.LogFileSize, props.LogFileSize.ToString())) 
 				return false;
 
 			if (node.ProgName.Equals(MSTreeConsts.portcore))
-				if (!CreateNodeProperty(nodeHandle, MSTreeConsts.WorkDir, props.WorkDir)) 
+				if (!SetNodeProperty(nodeHandle, MSTreeConsts.WorkDir, props.WorkDir)) 
 					return false;
 
 			return true;
@@ -495,7 +495,7 @@ namespace Iface.Oik.Tm.Api
 		{
 			var props = (ChildNodeProperties)node.Properties;
 
-			if (!CreateNodeProperty(nodeHandle, MSTreeConsts.PipeName, props.PipeName)) 
+			if (!SetNodeProperty(nodeHandle, MSTreeConsts.PipeName, props.PipeName)) 
 				return false;
 
 			return true;
@@ -509,7 +509,7 @@ namespace Iface.Oik.Tm.Api
 				return false;
 			if (!props.PassiveMode)
 			{
-				if (!CreateNodeProperty(nodeHandle, MSTreeConsts.PassiveMode, Convert.ToInt32(props.PassiveMode).ToString())) 
+				if (!SetNodeProperty(nodeHandle, MSTreeConsts.PassiveMode, Convert.ToInt32(props.PassiveMode).ToString())) 
 					return false;
 			}
 			return true;
@@ -523,21 +523,22 @@ namespace Iface.Oik.Tm.Api
 				return false;
 
 			// Зачем то в пути внешней задачи пробелы замеяются на табуляции
-			if (!CreateNodeProperty(nodeHandle, MSTreeConsts.TaskPath, props.TaskPath.Replace(' ', '\t'))) 
+			if (!SetNodeProperty(nodeHandle, MSTreeConsts.TaskPath, props.TaskPath.Replace(' ', '\t'))) 
 				return false;
 
-			if (!CreateNodeProperty(nodeHandle, MSTreeConsts.TaskArguments, props.TaskArguments)) 
+			if (!SetNodeProperty(nodeHandle, MSTreeConsts.TaskArguments, props.TaskArguments)) 
 				return false;
 
-			if (!CreateNodeProperty(nodeHandle, MSTreeConsts.ConfFilePath, props.ConfigurationFilePath)) 
+			if (!SetNodeProperty(nodeHandle, MSTreeConsts.ConfFilePath, props.ConfigurationFilePath)) 
 				return false;
 
 			return true;
 		}
 
-		private bool CreateNodeProperty(IntPtr nodeHandle, string propName, string propText)
+		private bool SetNodeProperty(IntPtr nodeHandle, string propName, string propText)
 		{
-			return _native.CftNPropSet(nodeHandle, propName, propText);
+			var arr_propText = EncodingUtil.Utf8ToWin1251Bytes(propText);
+			return _native.CftNPropSet(nodeHandle, propName, arr_propText);
 		}
 
 		public async Task<CfsDefs.SoftwareTypes> GetSoftwareType()

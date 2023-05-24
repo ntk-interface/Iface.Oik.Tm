@@ -56,7 +56,7 @@ namespace Iface.Oik.Tm.Native.Api
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern bool cftNPropSet(IntPtr                                  id,
                                           [MarshalAs(UnmanagedType.LPStr)] string propName,
-                                          [MarshalAs(UnmanagedType.LPStr)] string propText);
+                                          byte[] propText);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
