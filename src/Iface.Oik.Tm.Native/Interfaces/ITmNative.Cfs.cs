@@ -112,7 +112,13 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 		void CfsDisconnect(IntPtr connId);
 
-
+		IntPtr CfsEditGrabCid(IntPtr connId,
+						  	  Boolean bGrab,
+							  string fileName,
+							  string userName,
+							  out uint errCode,
+							  ref byte[] errBuf,
+							  uint maxErrs);
 		IntPtr CfsConfFileOpenCid(IntPtr connId,
 								  string serverName,
 								  string fileName,
