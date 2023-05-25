@@ -272,10 +272,10 @@ namespace Iface.Oik.Tm.Helpers
       uint      errCode      = 0;
 
       var result = Native.CfsGetIniString(cfCid,
-                                          "@@",
-                                          "LinkedServer",
-                                          tmServerName,
-                                          string.Empty,
+                                          EncodingUtil.Utf8ToWin1251Bytes("@@"),
+                                          EncodingUtil.Utf8ToWin1251Bytes("LinkedServer"),
+                                          EncodingUtil.Utf8ToWin1251Bytes(tmServerName),
+                                          EncodingUtil.Utf8ToWin1251Bytes(string.Empty),
                                           ref buf,
                                           out bufSize,
                                           out errCode,

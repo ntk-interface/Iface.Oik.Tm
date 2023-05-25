@@ -249,10 +249,10 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
 		bool CfsGetIniString(IntPtr connId,
-							 string path,
-							 string section,
-							 string key,
-							 string def,
+							 byte[] path,
+							 byte[] section,
+							 byte[] key,
+							 byte[] def,
 							 ref byte[] value,
 							 out uint pcbValue,
 							 out uint errCode,
@@ -260,10 +260,10 @@ namespace Iface.Oik.Tm.Native.Interfaces
 							 uint maxErrs);
 
 		bool CfsSetIniString(IntPtr connId,
-							 string path,
-							 string section,
-							 string key,
-							 string value,
+							 byte[] path,
+							 byte[] section,
+							 byte[] key,
+							 byte[] value,
 							 out uint errCode,
 							 ref byte[] errBuf,
 							 uint maxErrs);
@@ -416,5 +416,6 @@ namespace Iface.Oik.Tm.Native.Interfaces
 			ref byte[] errBuf, uint maxErrs);
 		Boolean CfsIfpcBackupSecurity(IntPtr connId, string snp, string pwd, string filename, out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);
 		Boolean CfsIfpcRestoreSecurity(IntPtr connId, string snp, string pwd, string filename, out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);
-	}
+        //bool CfsGetIniString(IntPtr cfCid, string v1, string v2, string tmServerName, string empty, ref byte[] buf, out uint bufSize, out uint errCode, ref byte[] errBuf, int errBufLength);
+    }
 }

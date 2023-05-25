@@ -1110,10 +1110,6 @@ namespace Iface.Oik.Tm.Api
 			{
 				var parts = keyData.Split('=');
 				string translated = await GetLicenseKeyDataItemString(keyData).ConfigureAwait(false);
-				if(parts.First().Equals("@Company"))
-				{
-					translated = translated.Split('=').First()+'='+parts.Last();
-				}
 				keyDataDictionary.Add(parts.First(), translated);
 			}
 
@@ -1351,7 +1347,10 @@ namespace Iface.Oik.Tm.Api
 			uint errCode = 0;
 
 			var result = await Task.Run(() => _native.CfsGetIniString(CfId,
-																	  path, section, key, def,
+																	  EncodingUtil.Utf8ToWin1251Bytes(path), 
+																	  EncodingUtil.Utf8ToWin1251Bytes(section), 
+																	  EncodingUtil.Utf8ToWin1251Bytes(key), 
+																	  EncodingUtil.Utf8ToWin1251Bytes(def),
 																	  ref buf,
 																	  out bufSize,
 																	  out errCode,
@@ -1379,7 +1378,10 @@ namespace Iface.Oik.Tm.Api
 			uint errCode = 0;
 
 			var result = await Task.Run(() => _native.CfsSetIniString(CfId,
-																	  path, section, key, value,
+																	  EncodingUtil.Utf8ToWin1251Bytes(path), 
+																	  EncodingUtil.Utf8ToWin1251Bytes(section), 
+																	  EncodingUtil.Utf8ToWin1251Bytes(key), 
+																	  EncodingUtil.Utf8ToWin1251Bytes(value),
 																	  out errCode,
 																	  ref errBuf,
 																	  errBufLength))

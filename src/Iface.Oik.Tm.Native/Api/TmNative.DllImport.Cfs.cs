@@ -269,10 +269,10 @@ namespace Iface.Oik.Tm.Native.Api
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern bool cfsGetIniString(IntPtr connId,
-												  [MarshalAs(UnmanagedType.LPStr)] string path,
-												  [MarshalAs(UnmanagedType.LPStr)] string section,
-												  [MarshalAs(UnmanagedType.LPStr)] string key,
-												  [MarshalAs(UnmanagedType.LPStr)] string def,
+												  byte[] path,
+												  byte[] section,
+												  byte[] key,
+												  byte[] def,
 												  [In, Out] byte[] value,
 												  out UInt32 pcbValue,
 												  out UInt32 errCode,
@@ -282,10 +282,10 @@ namespace Iface.Oik.Tm.Native.Api
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern bool cfsSetIniString(IntPtr connId,
-												  [MarshalAs(UnmanagedType.LPStr)] string path,
-												  [MarshalAs(UnmanagedType.LPStr)] string section,
-												  [MarshalAs(UnmanagedType.LPStr)] string key,
-												  [MarshalAs(UnmanagedType.LPStr)] string value,
+												  byte[] path,
+												  byte[] section,
+												  byte[] key,
+												  byte[] value,
 												  out UInt32 errCode,
 												  [In, Out] byte[] errBuf,
 												  UInt32 maxErrs);
