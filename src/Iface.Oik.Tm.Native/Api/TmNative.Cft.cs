@@ -6,16 +6,16 @@ namespace Iface.Oik.Tm.Native.Api
   public partial class TmNative
   {
     public IntPtr CftNodeEnum(IntPtr id,
-                              Int32  count)
+                              Int32  idx)
     {
-      return cftNodeEnum(id, count);
+      return cftNodeEnum(id, idx);
     }
     
     
     public IntPtr CftNodeEnumAll(IntPtr id,
-                                 Int32  count)
+                                 Int32  idx)
     {
-      return cftNodeEnumAll(id, count);
+      return cftNodeEnumAll(id, idx);
     }
     
 
@@ -66,7 +66,7 @@ namespace Iface.Oik.Tm.Native.Api
 
     public bool CftNPropSet(IntPtr id,
                             string propName,
-                            string propText)
+                            byte[] propText)
     {
       return cftNPropSet(id, propName, propText);
     }

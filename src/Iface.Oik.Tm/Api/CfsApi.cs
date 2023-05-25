@@ -209,7 +209,7 @@ namespace Iface.Oik.Tm.Api
 				}
 			}
 			// Основное дерево мастер-сервиса
-			var tree_handle = await CreateNewMasterServiceTree(msRoot).ConfigureAwait(false);
+			var tree_handle = CreateNewMasterServiceTree(msRoot);
 			await SaveMasterServiceConfiguration(tree_handle).ConfigureAwait(false);
 			FreeMasterServiceConfigurationHandle(tree_handle);
 
@@ -226,15 +226,15 @@ namespace Iface.Oik.Tm.Api
 						tag = $"{server.ProgName}:{tag}";
 
 					var nodeHandle = _native.CftNodeInsertDown(res_handle, tag);
-					_native.CftNPropSet(nodeHandle, nameof(p.Type), p.Type.ToString());
-					_native.CftNPropSet(nodeHandle, nameof(p.BindAddr), p.BindAddr.Trim());
-					_native.CftNPropSet(nodeHandle, nameof(p.Addr), p.Addr.Trim());
-					_native.CftNPropSet(nodeHandle, nameof(p.Port), p.Port.ToString());
-					_native.CftNPropSet(nodeHandle, nameof(p.BPort), p.BPort.ToString());
-					_native.CftNPropSet(nodeHandle, nameof(p.AbortTO), p.AbortTO.ToString());
-					_native.CftNPropSet(nodeHandle, nameof(p.RetakeTO), p.RetakeTO.ToString());
-					_native.CftNPropSet(nodeHandle, nameof(p.CopyConfig), p.CopyConfig ? "1" : "0");
-					_native.CftNPropSet(nodeHandle, nameof(p.StopInactive), p.StopInactive ? "1" : "0");
+					SetNodeProperty(nodeHandle, nameof(p.Type), p.Type.ToString());
+					SetNodeProperty(nodeHandle, nameof(p.BindAddr), p.BindAddr.Trim());
+					SetNodeProperty(nodeHandle, nameof(p.Addr), p.Addr.Trim());
+					SetNodeProperty(nodeHandle, nameof(p.Port), p.Port.ToString());
+					SetNodeProperty(nodeHandle, nameof(p.BPort), p.BPort.ToString());
+					SetNodeProperty(nodeHandle, nameof(p.AbortTO), p.AbortTO.ToString());
+					SetNodeProperty(nodeHandle, nameof(p.RetakeTO), p.RetakeTO.ToString());
+					SetNodeProperty(nodeHandle, nameof(p.CopyConfig), p.CopyConfig ? "1" : "0");
+					SetNodeProperty(nodeHandle, nameof(p.StopInactive), p.StopInactive ? "1" : "0");
 				}
 			}
 			await SaveConfigurationTree(res_handle, TmNativeDefs.HotStanbyConfFile).ConfigureAwait(false);
@@ -248,16 +248,16 @@ namespace Iface.Oik.Tm.Api
 					// общие параметры
 					var rbs_handle = _native.CftNodeNewTree();
 					IntPtr nodeHandle = _native.CftNodeInsertDown(rbs_handle, MSTreeConsts.RBS_Parameters);
-					_native.CftNPropSet(nodeHandle, nameof(rbs_p.RBF_Directory), rbs_p.RBF_Directory);
+					SetNodeProperty(nodeHandle, nameof(rbs_p.RBF_Directory), rbs_p.RBF_Directory);
 
 					nodeHandle = _native.CftNodeInsertDown(rbs_handle, MSTreeConsts.RBS_ClientParms);
-					_native.CftNPropSet(nodeHandle, nameof(rbs_p.DOC_Path), rbs_p.DOC_Path);
-					_native.CftNPropSet(nodeHandle, nameof(rbs_p.DTMX_SQLCS), rbs_p.DTMX_SQLCS);
-					_native.CftNPropSet(nodeHandle, nameof(rbs_p.JournalSQLCS), rbs_p.JournalSQLCS);
+					SetNodeProperty(nodeHandle, nameof(rbs_p.DOC_Path), rbs_p.DOC_Path);
+					SetNodeProperty(nodeHandle, nameof(rbs_p.DTMX_SQLCS), rbs_p.DTMX_SQLCS);
+					SetNodeProperty(nodeHandle, nameof(rbs_p.JournalSQLCS), rbs_p.JournalSQLCS);
 
 					nodeHandle = _native.CftNodeInsertDown(rbs_handle, MSTreeConsts.RBS_PGParms);
-					_native.CftNPropSet(nodeHandle, nameof(rbs_p.BinPath), rbs_p.BinPath);
-					_native.CftNPropSet(nodeHandle, nameof(rbs_p.DataPath), rbs_p.DataPath);
+					SetNodeProperty(nodeHandle, nameof(rbs_p.BinPath), rbs_p.BinPath);
+					SetNodeProperty(nodeHandle, nameof(rbs_p.DataPath), rbs_p.DataPath);
 					await SaveConfigurationTree(rbs_handle, $"{TmNativeDefs.RbsDirectory}\\{rbs_p.PipeName}\\{TmNativeDefs.RbsConfFile}").ConfigureAwait(false);
 					FreeConfigurationTreeHandle(rbs_handle);
 
@@ -304,9 +304,9 @@ namespace Iface.Oik.Tm.Api
 			return DateTime.FromFileTime((long)fileTime.dwHighDateTime << 32 | (uint)fileTime.dwLowDateTime);
 		}
 
-		public async Task<List<CfTreeNode>> GetCfTree(IntPtr rootHandle)
+		public async Task<List<CfTreeNode>> GetCfTree(IntPtr rootHandle, CfTreeNode parent = null)
 		{
-            return await Task.Run(() => GetNodeChildren(rootHandle)).ConfigureAwait(false);
+            return await Task.Run(() => GetNodeChildren(rootHandle, parent)).ConfigureAwait(false);
 		}
 
 		private List<CfTreeNode> GetNodeChildren(IntPtr parentHandle, CfTreeNode parent = null)
@@ -315,11 +315,12 @@ namespace Iface.Oik.Tm.Api
 
 			for (var i = 0; ; i++)
 			{
-				var childHandle = _native.CftNodeEnum(parentHandle, i);
+				var childHandle = _native.CftNodeEnumAll(parentHandle, i);
 				if (childHandle == IntPtr.Zero)
 					break;
 				var nodeChild = new CfTreeNode(GetNodeName(childHandle), parent)
 				{
+					Disabled = !_native.CftNodeIsEnabled(childHandle),
 					CfProperties = GetNodeProps(childHandle),
 				};
 				nodeChild.Children = GetNodeChildren(childHandle, nodeChild);
@@ -379,24 +380,48 @@ namespace Iface.Oik.Tm.Api
 			return EncodingUtil.Win1251BytesToUtf8(valueBuf);
 		}
 
-		public async Task<IntPtr> CreateNewMasterServiceTree(MSTreeNode msRoot)
+		private IntPtr CreateNewMasterServiceTree(MSTreeNode msRoot)
 		{
-			var newTreeHandle = await Task.Run(() => _native.CftNodeNewTree())
-										  .ConfigureAwait(false);
+			var newTreeHandle = _native.CftNodeNewTree();
 
-			await CreateMSNode(newTreeHandle, msRoot).ConfigureAwait(false);
+			CreateMSNode(newTreeHandle, msRoot);
 
 			return newTreeHandle;
 		}
-
-		private async Task CreateMSNode(IntPtr parentNodeHandle, MSTreeNode node, int tagId = -1)
+		public IntPtr CreateConfigurationTree(IEnumerable<CfTreeNode> tree)
+		{
+			var newTreeHandle = _native.CftNodeNewTree();
+			foreach(var node in tree)
+			{
+				CreateCfgNode(newTreeHandle, node);
+			}
+			return newTreeHandle;
+		}
+		private void CreateCfgNode(IntPtr parentNodeHandle, CfTreeNode node)
+		{
+			var nodeHandle = _native.CftNodeInsertDown(parentNodeHandle, node.Name);
+			_native.CftNodeEnable(nodeHandle, !node.Disabled);
+			if ((node.CfProperties != null) && node.CfProperties.Any())
+			{
+				foreach (var prop in node.CfProperties)
+				{
+					SetNodeProperty(nodeHandle, prop.Key, prop.Value);
+				}
+			}
+			if ((node.Children != null) && node.Children.Any())
+			{
+				foreach (var child in node.Children)
+				{
+					CreateCfgNode(nodeHandle, child);
+				}
+			}
+		}
+		private void CreateMSNode(IntPtr parentNodeHandle, MSTreeNode node, int tagId = -1)
 		{
 			var tag = tagId == -1 ? "Master" : $"#{tagId:X3}";
-			var nodeHandle = await Task.Run(() => _native.CftNodeInsertDown(parentNodeHandle, tag))
-									   .ConfigureAwait(false);
+			var nodeHandle = _native.CftNodeInsertDown(parentNodeHandle, tag);
 
-			if (!await CreateMSNodeProperties(nodeHandle, node)
-				   .ConfigureAwait(false))
+			if (CreateMSNodeProperties(nodeHandle, node))
 				throw new Exception("Ошибка заполнения дерева конфигурации");
 
 			if (node.Children != null)
@@ -404,139 +429,116 @@ namespace Iface.Oik.Tm.Api
 				var i = 0;
 				foreach (var childNode in node.Children)
 				{
-					await CreateMSNode(nodeHandle, childNode as MSTreeNode, i).ConfigureAwait(false);
+					CreateMSNode(nodeHandle, childNode as MSTreeNode, i);
 					i++;
 				}
 			}
 		}
 
-		private async Task<bool> CreateMSNodeProperties(IntPtr nodeHandle, MSTreeNode node)
+		private bool CreateMSNodeProperties(IntPtr nodeHandle, MSTreeNode node)
 		{
 			if (node.ProgName.Equals(MSTreeConsts.rbsrv_old) || node.ProgName.Equals(MSTreeConsts.pcsrv_old))
 			{
-				if (!await CreateNodePropertyAsync(nodeHandle, MSTreeConsts.ProgName, MSTreeConsts.gensrv)
-					   .ConfigureAwait(false))
+				if (!SetNodeProperty(nodeHandle, MSTreeConsts.ProgName, MSTreeConsts.gensrv))
 					return false;
 
-				if (!await CreateNodePropertyAsync(nodeHandle, MSTreeConsts.TaskPath, node.ProgName)
-					   .ConfigureAwait(false))
+				if (!SetNodeProperty(nodeHandle, MSTreeConsts.TaskPath, node.ProgName))
 					return false;
 			}
 			else
 			{
-				if (!await CreateNodePropertyAsync(nodeHandle, MSTreeConsts.ProgName, node.ProgName)
-					   .ConfigureAwait(false))
+				if (!SetNodeProperty(nodeHandle, MSTreeConsts.ProgName, node.ProgName))
 					return false;
 			}
 			if (node.Properties.NoStart)
 			{
-				if (!await CreateNodePropertyAsync(nodeHandle,
-												   MSTreeConsts.NoStart,
-												   "1")
-					   .ConfigureAwait(false)) return false;
+				if (!SetNodeProperty(nodeHandle, MSTreeConsts.NoStart, "1")) return false;
 			}
 			switch (node.Properties)
 			{
 				case MasterNodeProperties _:
-					if (!await CreateMasterNodeProperties(nodeHandle, node)
-						   .ConfigureAwait(false)) return false;
+					if (!CreateMasterNodeProperties(nodeHandle, node)) 
+						return false;
 					break;
 				case NewTmsNodeProperties _:
-					if (!await CreateNewTmsNodeProperties(nodeHandle, node)
-						   .ConfigureAwait(false)) return false;
+					if (!CreateNewTmsNodeProperties(nodeHandle, node)) 
+						return false;
 					break;
 				case ExternalTaskNodeProperties _:
-					if (!await CreateExternalTaskNodeProperties(nodeHandle, node)
-						   .ConfigureAwait(false)) return false;
+					if (!CreateExternalTaskNodeProperties(nodeHandle, node)) 
+						return false;
 					break;
 				default:
-					if (!await CreateChildNodeProperties(nodeHandle, node)
-						   .ConfigureAwait(false))
+					if (!CreateChildNodeProperties(nodeHandle, node))
 						return false;
-
 					break;
 			}
 
 			return true;
 		}
 
-		private async Task<bool> CreateMasterNodeProperties(IntPtr nodeHandle, MSTreeNode node)
+		private bool CreateMasterNodeProperties(IntPtr nodeHandle, MSTreeNode node)
 		{
 			var props = (MasterNodeProperties)node.Properties;
 
-			if (!await CreateNodePropertyAsync(nodeHandle,
-											   MSTreeConsts.LogFileSize,
-											   props.LogFileSize.ToString())
-				   .ConfigureAwait(false)) return false;
+			if (!SetNodeProperty(nodeHandle, MSTreeConsts.LogFileSize, props.LogFileSize.ToString())) 
+				return false;
 
 			if (node.ProgName.Equals(MSTreeConsts.portcore))
-				if (!await CreateNodePropertyAsync(nodeHandle,
-												   MSTreeConsts.WorkDir,
-												   props.WorkDir)
-					   .ConfigureAwait(false)) return false;
+				if (!SetNodeProperty(nodeHandle, MSTreeConsts.WorkDir, props.WorkDir)) 
+					return false;
 
 			return true;
 		}
 
-		private async Task<bool> CreateChildNodeProperties(IntPtr nodeHandle, MSTreeNode node)
+		private bool CreateChildNodeProperties(IntPtr nodeHandle, MSTreeNode node)
 		{
 			var props = (ChildNodeProperties)node.Properties;
 
-			if (!await CreateNodePropertyAsync(nodeHandle,
-											   MSTreeConsts.PipeName,
-											   props.PipeName)
-				   .ConfigureAwait(false)) return false;
+			if (!SetNodeProperty(nodeHandle, MSTreeConsts.PipeName, props.PipeName)) 
+				return false;
 
 			return true;
 		}
 
-		private async Task<bool> CreateNewTmsNodeProperties(IntPtr nodeHandle, MSTreeNode node)
+		private bool CreateNewTmsNodeProperties(IntPtr nodeHandle, MSTreeNode node)
 		{
 			var props = (NewTmsNodeProperties)node.Properties;
 
-			if (!await CreateChildNodeProperties(nodeHandle, node)
-				   .ConfigureAwait(false)) return false;
+			if (!CreateChildNodeProperties(nodeHandle, node)) 
+				return false;
 			if (!props.PassiveMode)
 			{
-				if (!await CreateNodePropertyAsync(nodeHandle,
-												   MSTreeConsts.PassiveMode,
-												   Convert.ToInt32(props.PassiveMode).ToString())
-					   .ConfigureAwait(false)) return false;
+				if (!SetNodeProperty(nodeHandle, MSTreeConsts.PassiveMode, Convert.ToInt32(props.PassiveMode).ToString())) 
+					return false;
 			}
-
 			return true;
 		}
 
-		private async Task<bool> CreateExternalTaskNodeProperties(IntPtr nodeHandle, MSTreeNode node)
+		private bool CreateExternalTaskNodeProperties(IntPtr nodeHandle, MSTreeNode node)
 		{
 			var props = (ExternalTaskNodeProperties)node.Properties;
 
-			if (!await CreateChildNodeProperties(nodeHandle, node)
-				.ConfigureAwait(false)) return false;
+			if (!CreateChildNodeProperties(nodeHandle, node)) 
+				return false;
 
 			// Зачем то в пути внешней задачи пробелы замеяются на табуляции
-			if (!await CreateNodePropertyAsync(nodeHandle,
-											   MSTreeConsts.TaskPath,
-											   props.TaskPath.Replace(' ', '\t'))
-				   .ConfigureAwait(false)) return false;
+			if (!SetNodeProperty(nodeHandle, MSTreeConsts.TaskPath, props.TaskPath.Replace(' ', '\t'))) 
+				return false;
 
-			if (!await CreateNodePropertyAsync(nodeHandle,
-											   MSTreeConsts.TaskArguments,
-											   props.TaskArguments)
-				   .ConfigureAwait(false)) return false;
+			if (!SetNodeProperty(nodeHandle, MSTreeConsts.TaskArguments, props.TaskArguments)) 
+				return false;
 
-			if (!await CreateNodePropertyAsync(nodeHandle,
-											   MSTreeConsts.ConfFilePath,
-											   props.ConfigurationFilePath)
-				   .ConfigureAwait(false)) return false;
+			if (!SetNodeProperty(nodeHandle, MSTreeConsts.ConfFilePath, props.ConfigurationFilePath)) 
+				return false;
 
 			return true;
 		}
 
-		private async Task<bool> CreateNodePropertyAsync(IntPtr nodeHandle, string propName, string propText)
+		private bool SetNodeProperty(IntPtr nodeHandle, string propName, string propText)
 		{
-			return await Task.Run(() => _native.CftNPropSet(nodeHandle, propName, propText))
-							 .ConfigureAwait(false);
+			var arr_propText = EncodingUtil.Utf8ToWin1251Bytes(propText);
+			return _native.CftNPropSet(nodeHandle, propName, arr_propText);
 		}
 
 		public async Task<CfsDefs.SoftwareTypes> GetSoftwareType()
@@ -587,6 +589,23 @@ namespace Iface.Oik.Tm.Api
 		{
 			return await Task.Run(() => _native.CfsIsConnected(CfId))
 							 .ConfigureAwait(false);
+		}
+		public async Task<IReadOnlyCollection<string>> GetTimezones()
+		{
+			const int errStringLength = 1000;
+			var errBuf = new byte[errStringLength];
+			uint errCode = 0;
+
+			var timezonesIdsPointer = await Task.Run(() => _native.CfsEnumTimezones(CfId,
+																				  out errCode,
+																				  ref errBuf,
+																				 errStringLength))
+											  .ConfigureAwait(false);
+
+			var timezonesIds = TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(timezonesIdsPointer, 1000);
+
+			_native.CfsFreeMemory(timezonesIdsPointer);
+			return timezonesIds;
 		}
 
 		public async Task<IReadOnlyCollection<TmServer>> GetTmServersTree()
@@ -1089,8 +1108,9 @@ namespace Iface.Oik.Tm.Api
 			var keyDataDictionary = new Dictionary<string, string>();
 			foreach (var keyData in keyDataStrings)
 			{
-				keyDataDictionary.Add(keyData.Split('=').First(),
-									  await GetLicenseKeyDataItemString(keyData).ConfigureAwait(false));
+				var parts = keyData.Split('=');
+				string translated = await GetLicenseKeyDataItemString(keyData).ConfigureAwait(false);
+				keyDataDictionary.Add(parts.First(), translated);
 			}
 
 			var currentLicenseKey = new TmLicenseKey(await GetCurrentLicenseKeyCom().ConfigureAwait(false));
@@ -1248,11 +1268,10 @@ namespace Iface.Oik.Tm.Api
 			const string section = "AppKeyList";
 
 			const uint bufSize = 1024;
+			var licenseKeyTypes = new List<LicenseKeyType>();
 
 			var typesStrings = (await GetIniString(path, section, bufSize: bufSize).ConfigureAwait(false)).Split(new[] { ';' },
-			  StringSplitOptions.RemoveEmptyEntries);
-
-			var licenseKeyTypes = new List<LicenseKeyType>();
+			StringSplitOptions.RemoveEmptyEntries);
 
 			foreach (var typeString in typesStrings)
 			{
@@ -1274,7 +1293,7 @@ namespace Iface.Oik.Tm.Api
 									"Data\\Main\\cfshare.ini");
 			const string section = "IfaceSecKey";
 			const string key = "COM";
-
+			
 			var currentLicenseKeyCom = await GetIniString(path, section, key, bufSize: 1024).ConfigureAwait(false);
 
 			return currentLicenseKeyCom.IsNullOrEmpty() ? 0 : Convert.ToInt32(currentLicenseKeyCom);
@@ -1283,10 +1302,7 @@ namespace Iface.Oik.Tm.Api
 
 		private async Task<string> GetLicenseKeyDataItemString(string rawItemString)
 		{
-			const string path = "@@";
-			const string section = "SStr";
-
-			return await GetIniString(path, section, bufSize: 1024, def: rawItemString).ConfigureAwait(false);
+		    	return await GetIniString("@@", "SStr", bufSize: 1024, def: rawItemString).ConfigureAwait(false);
 		}
 
 
@@ -1331,7 +1347,10 @@ namespace Iface.Oik.Tm.Api
 			uint errCode = 0;
 
 			var result = await Task.Run(() => _native.CfsGetIniString(CfId,
-																	  path, section, key, def,
+																	  EncodingUtil.Utf8ToWin1251Bytes(path), 
+																	  EncodingUtil.Utf8ToWin1251Bytes(section), 
+																	  EncodingUtil.Utf8ToWin1251Bytes(key), 
+																	  EncodingUtil.Utf8ToWin1251Bytes(def),
 																	  ref buf,
 																	  out bufSize,
 																	  out errCode,
@@ -1359,7 +1378,10 @@ namespace Iface.Oik.Tm.Api
 			uint errCode = 0;
 
 			var result = await Task.Run(() => _native.CfsSetIniString(CfId,
-																	  path, section, key, value,
+																	  EncodingUtil.Utf8ToWin1251Bytes(path), 
+																	  EncodingUtil.Utf8ToWin1251Bytes(section), 
+																	  EncodingUtil.Utf8ToWin1251Bytes(key), 
+																	  EncodingUtil.Utf8ToWin1251Bytes(value),
 																	  out errCode,
 																	  ref errBuf,
 																	  errBufLength))
@@ -1526,7 +1548,7 @@ namespace Iface.Oik.Tm.Api
 				{
 					if (record.DateTime >= startTimeUtc)
 					{
-						var a = 1;
+						// var a = 1;
 					}
 
 					if (startTimeUtc.HasValue && record.DateTime < startTimeUtc)
@@ -1714,8 +1736,8 @@ namespace Iface.Oik.Tm.Api
 				var cfs_ad = Marshal.PtrToStructure<TmNativeDefs.CfsAccessDescriptor>(sec_ptr);
 				_native.TmcFreeMemory(sec_ptr);
 
-				ad.ObjTypeName["ru"] = cfs_ad.ObjTypeName.rus.Replace("&", "");
-				ad.ObjTypeName["en"] = cfs_ad.ObjTypeName.eng.Replace("&", "");
+				ad.ObjTypeName["ru"] = EncodingUtil.Win1251BytesToUtf8(cfs_ad.ObjTypeName.rus).Replace("&", "");
+				ad.ObjTypeName["en"] = EncodingUtil.Win1251BytesToUtf8(cfs_ad.ObjTypeName.eng).Replace("&", "");
 				var pre = cfs_ad.NamePrefix.Split('$');
 				if (pre.Length > 1)
 					ad.NamePrefix = pre[0] + "$";
@@ -1727,8 +1749,8 @@ namespace Iface.Oik.Tm.Api
 					if (cfs_ad.Bit[bit].Mask != 0xffffffff)
 					{
 						var newMask = new AccessMask() { Mask = cfs_ad.Bit[bit].Mask };
-						newMask.Description["ru"] = cfs_ad.Bit[bit].rus.Replace("&", "");
-						newMask.Description["en"] = cfs_ad.Bit[bit].eng.Replace("&", "");
+						newMask.Description["ru"] = EncodingUtil.Win1251BytesToUtf8(cfs_ad.Bit[bit].rus).Replace("&", "");
+						newMask.Description["en"] = EncodingUtil.Win1251BytesToUtf8(cfs_ad.Bit[bit].eng).Replace("&", "");
 						ad.AccessMasks.Add(newMask);
 					}
 				}
@@ -2284,7 +2306,7 @@ namespace Iface.Oik.Tm.Api
 							{
 								MAC[i] = Convert.ToByte(macbytes[i], 16);
 							}
-							catch (Exception e)
+							catch 
 							{
 								good = false;
 								break;
@@ -2524,18 +2546,21 @@ namespace Iface.Oik.Tm.Api
 				computerInfo.SoftwareKeyID = BitConverter.ToString(_computerInfoS.LOctet).Replace("-", "");
 
 				// читаем дату билда и установки отдельно
-
-				computerInfo.BuildDate = await GetIniString("@@", "IInfo", "BuildTime").ConfigureAwait(false);
-				if (computerInfo.BuildDate.Equals(string.Empty))
+				try
 				{
-					// если попали на старый сервер
-					var path = Path.Combine(await GetBasePath().ConfigureAwait(false),
-											"dispserv.ini");
-					computerInfo.BuildDate = await GetIniString(path, "Info", "BuildTime").ConfigureAwait(false);
-					computerInfo.InstallDate = await GetIniString(path, "Info", "InstTime").ConfigureAwait(false);
+					computerInfo.BuildDate = await GetIniString("@@", "IInfo", "BuildTime").ConfigureAwait(false);
+					if (computerInfo.BuildDate.Equals(string.Empty))
+					{
+						// если попали на старый сервер
+						var path = Path.Combine(await GetBasePath().ConfigureAwait(false),
+												"dispserv.ini");
+						computerInfo.BuildDate = await GetIniString(path, "Info", "BuildTime").ConfigureAwait(false);
+						computerInfo.InstallDate = await GetIniString(path, "Info", "InstTime").ConfigureAwait(false);
+					}
+					else
+						computerInfo.InstallDate = await GetIniString("@@", "IInfo", "InstTime").ConfigureAwait(false);
 				}
-				else
-					computerInfo.InstallDate = await GetIniString("@@", "IInfo", "InstTime").ConfigureAwait(false);
+				catch{}
 
 
 				return (computerInfo, 0, string.Empty);

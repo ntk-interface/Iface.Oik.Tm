@@ -46,7 +46,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
     
     bool CftNPropSet(IntPtr id,
                      string propName,
-                     string propText);
+                     byte[] propText);
 
 
     bool CftNodeIsEnabled(IntPtr id);
