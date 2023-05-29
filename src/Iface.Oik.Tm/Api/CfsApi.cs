@@ -421,7 +421,7 @@ namespace Iface.Oik.Tm.Api
 			var tag = tagId == -1 ? "Master" : $"#{tagId:X3}";
 			var nodeHandle = _native.CftNodeInsertDown(parentNodeHandle, tag);
 
-			if (CreateMSNodeProperties(nodeHandle, node))
+			if (!CreateMSNodeProperties(nodeHandle, node))
 				throw new Exception("Ошибка заполнения дерева конфигурации");
 
 			if (node.Children != null)
