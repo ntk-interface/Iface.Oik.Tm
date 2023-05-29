@@ -1102,7 +1102,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
 		public const string TmsSchemaFile = "tms_hlp.ini";
 		public const string TmsStructConfFile = "tms.cfg";
         public const string TmsHardwareConfFile = "hw.cfg";
-        public const byte MasterServiceStatusCommand = 0;
+		public const string TmsCalcConfFile = "calc.cfg";
+		public const byte MasterServiceStatusCommand = 0;
 		public const byte StartMasterServiceCommand = 1;
 		public const byte StopMasterServiceCommand = 2;
 

@@ -4,7 +4,9 @@ namespace Iface.Oik.Tm.Utils
 {
   public static class EncodingUtil
   {
-    public static string Utf8ToWin1251(string src)
+	public const string cp1251 = "windows-1251";
+
+	public static string Utf8ToWin1251(string src)
     {
       if (src == null) return null;
 
