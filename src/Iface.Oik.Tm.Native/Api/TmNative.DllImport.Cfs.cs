@@ -530,5 +530,8 @@ namespace Iface.Oik.Tm.Native.Api
 			[MarshalAs(UnmanagedType.LPStr)] string pwd,
 			[MarshalAs(UnmanagedType.LPStr)] string filename,
 			out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
+
+		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+		public static extern IntPtr cfsMakeInprocCrd(byte[] machine, byte[] user, byte[] pwd);
 	}
 }

@@ -645,5 +645,10 @@ namespace Iface.Oik.Tm.Native.Api
 		{
 			return cfsIfpcRestoreSecurity(connId, snp, pwd, filename, out errCode, errBuf, maxErrs);
 		}
+
+		public IntPtr CfsMakeInprocCrd(byte[] machine, byte[] user, byte[] pwd)
+		{
+			return cfsMakeInprocCrd(machine, user, pwd);
+		}
 	}
 }

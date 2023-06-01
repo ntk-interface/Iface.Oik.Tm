@@ -42,7 +42,23 @@ namespace Iface.Oik.Tm.Api
 			CfId = cfId;
 			Host = host;
 		}
-
+		public string MakeInprocCrd(string machine, string user, string pwd)
+		{
+			var ptr = _native.CfsMakeInprocCrd(
+				EncodingUtil.Utf8ToWin1251Bytes(machine),
+				EncodingUtil.Utf8ToWin1251Bytes(user),
+				EncodingUtil.Utf8ToWin1251Bytes(pwd));
+			if(ptr != IntPtr.Zero)
+			{
+				string res = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(ptr);
+				_native.CfsFreeMemory(ptr);
+				return res;
+			}
+			else
+			{
+				return string.Empty;
+			}
+		}
 		public async Task<(IntPtr, DateTime)> OpenConfigurationTree(string fileName)
 		{
 			var fileTime = new TmNativeDefs.FileTime();

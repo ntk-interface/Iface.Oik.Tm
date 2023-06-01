@@ -17,6 +17,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 		void CfsSetUserForThread(string user,
 								 string password);
 
+		IntPtr CfsMakeInprocCrd(byte[] machine, byte[] user, byte[] pwd);
 
 		UInt32 CfsGetExtendedUserData(IntPtr cfCid,
 									  string serverType,

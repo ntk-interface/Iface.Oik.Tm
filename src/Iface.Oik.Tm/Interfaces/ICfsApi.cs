@@ -8,7 +8,7 @@ namespace Iface.Oik.Tm.Interfaces
 	public interface ICfsApi
 	{
 		void SetCfIdAndHost(IntPtr cfId, string host);
-
+		string MakeInprocCrd(string machine, string user, string pwd);
 		Task<(IntPtr, DateTime)> OpenConfigurationTree(string fileName);
 		IntPtr CreateConfigurationTree(IEnumerable<CfTreeNode> tree);
 		Task<(IntPtr, DateTime)> OpenMasterServiceConfiguration();
