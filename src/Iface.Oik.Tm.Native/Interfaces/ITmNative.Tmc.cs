@@ -662,7 +662,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
                                    ref byte[] buf,
                                    UInt32  bufSize);
 
-    Boolean TmcBackupServerProcedure(string machine, string pipe, string directory,
+    Boolean TmcBackupServerProcedure(string machine, string pipe, byte[] directory,
                                         ref UInt32 pbflags,
                                         Int32 hCancel,
                                         TmNativeCallback prog_fn,

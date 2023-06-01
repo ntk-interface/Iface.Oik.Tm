@@ -35,7 +35,7 @@ namespace Iface.Oik.Tm.Native.Api
 	public static extern Boolean rbcBackupServerProcedure(
 													[MarshalAs(UnmanagedType.LPStr)] string machine,
 													[MarshalAs(UnmanagedType.LPStr)] string pipe,
-													[MarshalAs(UnmanagedType.LPStr)] string directory,
+													byte[] directory,
 													ref UInt32 pbflags,
 													Int32 hCancel,
 													[MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback prog_fn,

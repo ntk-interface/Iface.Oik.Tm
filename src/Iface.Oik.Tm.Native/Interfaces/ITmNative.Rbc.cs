@@ -15,7 +15,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 		Int32 RbcGetSecurity(Int32 cid,
 							 out bool pAdmin,
 							 out UInt32 pAccessMask);
-		Boolean RbcBackupServerProcedure(string machine, string pipe, string directory,
+		Boolean RbcBackupServerProcedure(string machine, string pipe, byte[] directory,
 														ref UInt32 pbflags,
 														Int32 hCancel,
 														TmNativeCallback prog_fn,

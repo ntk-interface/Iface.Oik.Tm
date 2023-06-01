@@ -2667,6 +2667,8 @@ namespace Iface.Oik.Tm.Api
 		{
 			uint bflags;
 			bool result = false;
+			byte[] reserved_buf = TmNativeUtil.GetFixedBytesWithTrailingZero(directory, 260, EncodingUtil.cp1251);
+
 			switch (progName)
 			{
 				case MSTreeConsts.pcsrv:
@@ -2678,14 +2680,14 @@ namespace Iface.Oik.Tm.Api
 					//#define TMS_BACKUP_RETRO	0x10
 					//#define TMS_BACKUP_SECURITY	0x20
 					bflags =  1 | 2 | 4 | 8; if (withRetro) bflags |= 0x10;
-					result = await Task.Run(() => _native.TmcBackupServerProcedure(Host, pipeName, directory, ref bflags, 0, callback, callbackParameter)).ConfigureAwait(false);
+					result = await Task.Run(() => _native.TmcBackupServerProcedure(Host, pipeName, reserved_buf, ref bflags, 0, callback, callbackParameter)).ConfigureAwait(false);
 					break;
 				case MSTreeConsts.rbsrv:
 				case MSTreeConsts.rbsrv_old:
 					//#define RBS_BACKUP_BASES	1
 					//#define RBS_BACKUP_SECURITY 2
 					bflags = 1;
-					result = await Task.Run(() => _native.RbcBackupServerProcedure(Host, pipeName, directory, ref bflags, 0, callback, callbackParameter)).ConfigureAwait(false);
+					result = await Task.Run(() => _native.RbcBackupServerProcedure(Host, pipeName, reserved_buf, ref bflags, 0, callback, callbackParameter)).ConfigureAwait(false);
 					break;
 			}
 			if (result)

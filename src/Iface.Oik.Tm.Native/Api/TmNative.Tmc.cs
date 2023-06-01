@@ -1002,7 +1002,7 @@ namespace Iface.Oik.Tm.Native.Api
       return tmcGetConnectErrorText(cid, buf, bufSize);
     }
 
-	public Boolean TmcBackupServerProcedure(string machine,	string pipe, string directory,
+	public Boolean TmcBackupServerProcedure(string machine,	string pipe, byte[] directory,
 											ref UInt32 pbflags,
 											Int32 hCancel,
 											TmNativeCallback prog_fn,
