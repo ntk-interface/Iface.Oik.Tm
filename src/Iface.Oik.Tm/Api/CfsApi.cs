@@ -388,7 +388,7 @@ namespace Iface.Oik.Tm.Api
 
 		private string GetPropValue(IntPtr nodeHandle, string propName)
 		{
-			const int valueBufLength = 200;
+			const int valueBufLength = 16384;
 			var valueBuf = new byte[valueBufLength];
 
 			_native.CftNPropGetText(nodeHandle, propName, ref valueBuf, valueBufLength);
