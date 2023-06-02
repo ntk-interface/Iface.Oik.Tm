@@ -392,7 +392,7 @@ namespace Iface.Oik.Tm.Api
 			if(ptr != IntPtr.Zero)
 			{
 				string ret = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(ptr);
-				_native.TmcFreeMemory(ptr);
+				_native.CfsFreeMemory(ptr);
 				return ret;
 			}	
 			else
@@ -1684,7 +1684,7 @@ namespace Iface.Oik.Tm.Api
 
 			Marshal.Copy(resultPtr, binData, 0, binData.Length);
 			// не забываем освобождать память, возвращённую из библиотеки
-			_native.TmcFreeMemory(resultPtr);
+			_native.CfsFreeMemory(resultPtr);
 
 			return (binData, 0, string.Empty);
 		}
@@ -1755,7 +1755,7 @@ namespace Iface.Oik.Tm.Api
 				if (sec_ptr == IntPtr.Zero)
 					throw new Exception("GetAccessDescriptor sec_ptr error");
 				var cfs_ad = Marshal.PtrToStructure<TmNativeDefs.CfsAccessDescriptor>(sec_ptr);
-				_native.TmcFreeMemory(sec_ptr);
+				_native.CfsFreeMemory(sec_ptr);
 
 				ad.ObjTypeName["ru"] = EncodingUtil.Win1251BytesToUtf8(cfs_ad.ObjTypeName.rus).Replace("&", "");
 				ad.ObjTypeName["en"] = EncodingUtil.Win1251BytesToUtf8(cfs_ad.ObjTypeName.eng).Replace("&", "");
@@ -1789,7 +1789,7 @@ namespace Iface.Oik.Tm.Api
 				return null;
 
 			var er = Marshal.PtrToStructure<TmNativeDefs.CfsExtSrvrtDescriptor>(ext_ptr);
-			_native.TmcFreeMemory(ext_ptr);
+			_native.CfsFreeMemory(ext_ptr);
 
 			ret.DoUserID = er.DoUserID;
 			ret.DoUserPwd = er.DoUserPwd;
