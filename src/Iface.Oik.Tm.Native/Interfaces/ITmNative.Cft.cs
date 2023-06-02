@@ -17,19 +17,19 @@ namespace Iface.Oik.Tm.Native.Interfaces
     
     
     IntPtr CftNodeGetName(IntPtr     id,
-                          ref byte[] buf,
+                          byte[] buf,
                           uint       count);
 
     
     IntPtr CftNPropEnum(IntPtr     id,
                         int        idx,
-                        ref byte[] buf,
+                        byte[] buf,
                         uint       count);
 
     
     IntPtr CftNPropGetText(IntPtr     id,
                            string     name,
-                           ref byte[] buf,
+                           byte[] buf,
                            uint       count);
 
     

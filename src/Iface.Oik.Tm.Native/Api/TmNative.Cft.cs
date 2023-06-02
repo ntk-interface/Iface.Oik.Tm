@@ -25,7 +25,7 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
     public IntPtr CftNodeGetName(IntPtr     id,
-                                 ref byte[] buf,
+                                 byte[] buf,
                                  uint       count)
     {
       return cftNodeGetName(id, buf, count);
@@ -33,7 +33,7 @@ namespace Iface.Oik.Tm.Native.Api
 
     public IntPtr CftNPropEnum(IntPtr     id,
                                int        idx,
-                               ref byte[] buf,
+                               byte[] buf,
                                uint       count)
     {
       return cftNPropEnum(id, idx, buf, count);
@@ -41,7 +41,7 @@ namespace Iface.Oik.Tm.Native.Api
 
     public IntPtr CftNPropGetText(IntPtr     id,
                                   string     name,
-                                  ref byte[] buf,
+                                  byte[] buf,
                                   uint       count)
     {
       return cftNPropGetText(id, name, buf, count);

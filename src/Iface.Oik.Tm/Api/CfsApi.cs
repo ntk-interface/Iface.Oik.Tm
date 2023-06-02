@@ -353,7 +353,7 @@ namespace Iface.Oik.Tm.Api
 			const int nameBufLength = 200;
 			var nameBuf = new byte[nameBufLength];
 
-			_native.CftNodeGetName(nodeHandle, ref nameBuf, nameBufLength);
+			_native.CftNodeGetName(nodeHandle, nameBuf, nameBufLength);
 
 			return EncodingUtil.Win1251BytesToUtf8(nameBuf);
 		}
@@ -381,19 +381,24 @@ namespace Iface.Oik.Tm.Api
 			const int nameBufLength = 200;
 			var nameBuf = new byte[nameBufLength];
 
-			_native.CftNPropEnum(nodeHandle, idx, ref nameBuf, nameBufLength);
+			_native.CftNPropEnum(nodeHandle, idx, nameBuf, nameBufLength);
 
 			return EncodingUtil.Win1251BytesToUtf8(nameBuf);
 		}
 
 		private string GetPropValue(IntPtr nodeHandle, string propName)
 		{
-			const int valueBufLength = 16384;
-			var valueBuf = new byte[valueBufLength];
-
-			_native.CftNPropGetText(nodeHandle, propName, ref valueBuf, valueBufLength);
-
-			return EncodingUtil.Win1251BytesToUtf8(valueBuf);
+			IntPtr ptr = _native.CftNPropGetText(nodeHandle, propName, null, 0);
+			if(ptr != IntPtr.Zero)
+			{
+				string ret = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(ptr);
+				_native.TmcFreeMemory(ptr);
+				return ret;
+			}	
+			else
+			{
+				return string.Empty;
+			}
 		}
 
 		private IntPtr CreateNewMasterServiceTree(MSTreeNode msRoot)
