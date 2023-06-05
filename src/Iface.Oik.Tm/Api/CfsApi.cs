@@ -645,7 +645,7 @@ namespace Iface.Oik.Tm.Api
 			return lookup.Values.Where(x => x.Parent == null).ToList();
 		}
 
-		private async Task<IReadOnlyCollection<TmServer>> GetTmServers()
+		public async Task<IReadOnlyCollection<TmServer>> GetTmServers()
 		{
 			var serverIdsList = await GetIfaceServerId().ConfigureAwait(false);
 			var tmUsers = await GetTmUsers()
@@ -666,7 +666,7 @@ namespace Iface.Oik.Tm.Api
 			return tmServersList;
 		}
 
-		private async Task<IReadOnlyCollection<string>> GetIfaceServerId()
+		public async Task<IReadOnlyCollection<string>> GetIfaceServerId()
 		{
 			const int errStringLength = 1000;
 			var errBuf = new byte[errStringLength];
@@ -685,7 +685,7 @@ namespace Iface.Oik.Tm.Api
 			return serversIds;
 		}
 
-		private async Task<TmNativeDefs.IfaceServer> GetIfaceServerData(string serverId)
+		public async Task<TmNativeDefs.IfaceServer> GetIfaceServerData(string serverId)
 		{
 			const int errStringLength = 1000;
 			var errBuf = new byte[errStringLength];
@@ -908,7 +908,7 @@ namespace Iface.Oik.Tm.Api
 				throw new Exception($"Ошибка трассировки: {EncodingUtil.Win1251BytesToUtf8(errBuf)} Код: {errCode} CfId:{CfId}");
 			}
 
-			var cfsLogRecords = ParseCfsServerLogRecordPointer(logRecordPtr, 5120);
+			var cfsLogRecords = ParseCfsServerLogRecordPointer(logRecordPtr, 65535);
 
 			await Task.Run(() => _native.CfsFreeMemory(logRecordPtr)).ConfigureAwait(false);
 
