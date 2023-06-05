@@ -876,7 +876,6 @@ namespace Iface.Oik.Tm.Api
 																		   ref errBuf,
 																		   errBufLength))
 								   .ConfigureAwait(false);
-			Console.WriteLine($"Register result: {result}");
 		}
 
 		public async Task StopTmServerTrace()
@@ -887,7 +886,6 @@ namespace Iface.Oik.Tm.Api
 
 			var result = await Task.Run(() => _native.CfsTraceEndTrace(CfId, out errCode, ref errBuf, errBufLength))
 								   .ConfigureAwait(false);
-			Console.WriteLine($"Stop result: {result}");
 		}
 
 		public async Task<IReadOnlyCollection<TmServerLogRecord>> TraceTmServerLogRecords()
@@ -895,25 +893,28 @@ namespace Iface.Oik.Tm.Api
 			const int errBufLength = 1000;
 			var errBuf = new byte[errBufLength];
 			uint errCode = 0;
+			List<CfsLogRecord> records = new List<CfsLogRecord>();
 
-			var logRecordPtr = await Task.Run(() => _native.CfsTraceGetMessage(CfId, out errCode,
-																			   ref errBuf,
-																			   errBufLength))
-										 .ConfigureAwait(false);
-
-			if (logRecordPtr == IntPtr.Zero) return null;
-
-			if (errCode != 0)
+			while (true)
 			{
-				throw new Exception($"Ошибка трассировки: {EncodingUtil.Win1251BytesToUtf8(errBuf)} Код: {errCode} CfId:{CfId}");
+				var logRecordPtr = await Task.Run(() => _native.CfsTraceGetMessage(CfId, out errCode,
+																				   ref errBuf,
+																				   errBufLength))
+											 .ConfigureAwait(false);
+
+				if (logRecordPtr == IntPtr.Zero) break;
+
+				if (errCode != 0)
+				{
+					throw new Exception($"Ошибка трассировки: {EncodingUtil.Win1251BytesToUtf8(errBuf)} Код: {errCode} CfId:{CfId}");
+				}
+
+				var tmpLogRecords = ParseCfsServerLogRecordPointer(logRecordPtr, 65535);
+				_native.CfsFreeMemory(logRecordPtr);
+				records.AddRange(tmpLogRecords);
 			}
 
-			var cfsLogRecords = ParseCfsServerLogRecordPointer(logRecordPtr, 65535);
-
-			await Task.Run(() => _native.CfsFreeMemory(logRecordPtr)).ConfigureAwait(false);
-
-
-			return cfsLogRecords.Select(TmServerLogRecord.CreateFromCfsLogRecord).ToList();
+			return records.Select(TmServerLogRecord.CreateFromCfsLogRecord).ToList();
 		}
 
 		private async Task OpenTmServerLog()
