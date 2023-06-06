@@ -2017,7 +2017,7 @@ namespace Iface.Oik.Tm.Api
       var        errString       = new byte[errStringLength];
       uint       errCode         = 0;
       if (!await Task.Run(() => _native.CfsDirEnum(cfCid,
-                                                   path,
+												   EncodingUtil.Utf8ToWin1251Bytes(path),
                                                    ref buf,
                                                    bufLength,
                                                    out errCode,
@@ -2047,8 +2047,8 @@ namespace Iface.Oik.Tm.Api
       var       errString       = new byte[errStringLength];
       uint      errCode         = 0;
       if (!await Task.Run(() => _native.CfsFileGet(cfCid,
-                                                   remotePath,
-                                                   localPath,
+                                                   EncodingUtil.Utf8ToWin1251Bytes(remotePath),
+                                                   EncodingUtil.Utf8ToWin1251Bytes(localPath),
                                                    60000,
                                                    ref fileTime,
                                                    out errCode,

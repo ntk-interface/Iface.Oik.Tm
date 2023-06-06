@@ -63,9 +63,9 @@ namespace Iface.Oik.Tm.Native.Api
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern bool cfsDirEnum(IntPtr cfCid,
-											 [MarshalAs(UnmanagedType.LPStr)] string path,
+											 byte[] path,
 											 [MarshalAs(UnmanagedType.LPArray)] [In, Out]
-										 char[] buf,
+										     char[] buf,
 											 UInt32 bufLength,
 											 out UInt32 errCode,
 											 [In, Out] byte[] errBuf,
@@ -74,8 +74,8 @@ namespace Iface.Oik.Tm.Native.Api
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern bool cfsFileGet(IntPtr cfCid,
-											 [MarshalAs(UnmanagedType.LPStr)] string remotePath,
-											 [MarshalAs(UnmanagedType.LPStr)] string localPath,
+											 byte[] remotePath,
+											 byte[] localPath,
 											 UInt32 timeout,
 											 [In, Out] ref TmNativeDefs.FileTime fileTime,
 											 out UInt32 errCode,
@@ -85,7 +85,7 @@ namespace Iface.Oik.Tm.Native.Api
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern bool cfsFileGetPropreties(IntPtr cfCid,
-													   [MarshalAs(UnmanagedType.LPStr)] string fileName,
+													   byte[] fileName,
 													   [In, Out] ref TmNativeDefs.CfsFileProperties pProps,
 													   out UInt32 errCode,
 													   [In, Out] byte[] errBuf,
@@ -94,8 +94,8 @@ namespace Iface.Oik.Tm.Native.Api
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern bool cfsFilePut(IntPtr connId,
-											 [MarshalAs(UnmanagedType.LPStr)] string remoteFileName,
-											 [MarshalAs(UnmanagedType.LPStr)] string localFileName,
+											 byte[] remoteFileName,
+											 byte[] localFileName,
 											 UInt32 timeout,
 											 out UInt32 errCode,
 											 [In, Out] byte[] errBuf,
@@ -104,7 +104,7 @@ namespace Iface.Oik.Tm.Native.Api
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern bool cfsFileDelete(IntPtr connId,
-												[MarshalAs(UnmanagedType.LPStr)] string remoteFileName,
+												byte[] remoteFileName,
 												out UInt32 errCode,
 												[In, Out] byte[] errBuf,
 												UInt32 maxErrs);

@@ -116,8 +116,7 @@ namespace Iface.Oik.Tm.Api
 						var tokens = item.Name.Split(':');
 						if ((tokens.Length == 2) && tokens[1].Equals(rn_p.PipeName))
 						{// нашли правильный сервер по PipeName, заполняем параметры резервирования
-							short s;
-							if (short.TryParse(item.CfProperties.ValueOrDefault(nameof(rn_p.Type), "0"), out s))
+							if (short.TryParse(item.CfProperties.ValueOrDefault(nameof(rn_p.Type), "0"), out short s))
 							{
 								rn_p.Type = s;
 							}
@@ -1072,7 +1071,7 @@ namespace Iface.Oik.Tm.Api
 
 			var result =
 			  await Task.Run(() => _native.CfsFileGetPropreties(CfId,
-																filePath,
+																EncodingUtil.Utf8ToWin1251Bytes(filePath),
 																ref fileProps,
 																out errCode,
 																ref errBuf,
@@ -1160,7 +1159,7 @@ namespace Iface.Oik.Tm.Api
 
 
 			if (!await Task.Run(() => _native.CfsDirEnum(CfId,
-														 path,
+														 EncodingUtil.Utf8ToWin1251Bytes(path),
 														 ref buf,
 														 bufLength,
 														 out errCode,
@@ -1219,8 +1218,8 @@ namespace Iface.Oik.Tm.Api
 			uint errCode = 0;
 
 			if (!await Task.Run(() => _native.CfsFilePut(CfId, 
-														 remoteFilePath, 
-														 localFilePath, 
+														 EncodingUtil.Utf8ToWin1251Bytes(remoteFilePath), 
+														 EncodingUtil.Utf8ToWin1251Bytes(localFilePath), 
 														 timeout | TmNativeDefs.FailIfNoConnect, 
 														 out errCode,
 														 ref errBuf, errBufLength)).ConfigureAwait(false))
@@ -1244,8 +1243,8 @@ namespace Iface.Oik.Tm.Api
 			var errString = new byte[errStringLength];
 			uint errCode = 0;
 			if (!await Task.Run(() => _native.CfsFileGet(CfId,
-														 remoteFilePath,
-														 localFilePath,
+														 EncodingUtil.Utf8ToWin1251Bytes(remoteFilePath),
+														 EncodingUtil.Utf8ToWin1251Bytes(localFilePath),
 														 timeout | TmNativeDefs.FailIfNoConnect,
 														 ref fileTime,
 														 out errCode,
@@ -1276,7 +1275,7 @@ namespace Iface.Oik.Tm.Api
 				return;
 			}
 
-			if (!await Task.Run(() => _native.CfsFileDelete(CfId, remoteFilePath, out errCode, ref errBuf, errBufLength))
+			if (!await Task.Run(() => _native.CfsFileDelete(CfId, EncodingUtil.Utf8ToWin1251Bytes(remoteFilePath), out errCode, ref errBuf, errBufLength))
 						  .ConfigureAwait(false))
 			{
 				Console.WriteLine($"Ошибка при удалении файла: {errCode} - {EncodingUtil.Win1251BytesToUtf8(errBuf)}");
@@ -2588,7 +2587,7 @@ namespace Iface.Oik.Tm.Api
 				return (computerInfo, 0, string.Empty);
 			}
 		}
-		private static string BackupDateFormat = "dd_MM_yyyy (HH.mm.ss)";
+		private static readonly string BackupDateFormat = "dd_MM_yyyy (HH.mm.ss)";
 		public async Task<(bool, string)> SaveMachineConfig(string directory, bool full)
 		{
 			const int errBufLength = 1000;
@@ -2657,7 +2656,10 @@ namespace Iface.Oik.Tm.Api
 			var errBuf = new byte[errBufLength];
 			uint errCode = 0;
 
-			var result = await Task.Run(() => _native.CfsDirEnum(CfId, Path, ref resBuf, resBufLength, out errCode, ref errBuf, errBufLength)).ConfigureAwait(false);
+			var result = await Task.Run(() => _native.CfsDirEnum(CfId, 
+				EncodingUtil.Utf8ToWin1251Bytes(Path), 
+				ref resBuf, resBufLength, 
+				out errCode, ref errBuf, errBufLength)).ConfigureAwait(false);
 			if (errCode != 0)
 			{
 				return (null, errCode, EncodingUtil.Win1251BytesToUtf8(errBuf));
@@ -2669,7 +2671,7 @@ namespace Iface.Oik.Tm.Api
 		}
 		public async Task<(bool, string)> CreateBackup(string progName, string pipeName, string directory, bool withRetro,
 											 TmNativeCallback callback=null,
-											 IntPtr callbackParameter = default(IntPtr))
+											 IntPtr callbackParameter = default)
 		{
 			uint bflags;
 			bool result = false;

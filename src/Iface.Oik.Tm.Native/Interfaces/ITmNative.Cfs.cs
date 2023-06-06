@@ -51,7 +51,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
 		bool CfsDirEnum(IntPtr cfCid,
-						string path,
+						byte[] path,
 						ref char[] buf,
 						uint bufLength,
 						out uint errCode,
@@ -60,8 +60,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
 		bool CfsFileGet(IntPtr cfCid,
-						string remotePath,
-						string localPath,
+						byte[] remotePath,
+						byte[] localPath,
 						uint timeout,
 						ref TmNativeDefs.FileTime fileTime,
 						out uint errCode,
@@ -70,7 +70,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
 		bool CfsFileGetPropreties(IntPtr cfCid,
-								  string fileName,
+								  byte[] fileName,
 								  ref TmNativeDefs.CfsFileProperties pProps,
 								  out uint errCode,
 								  ref byte[] errString,
@@ -78,8 +78,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
 		bool CfsFilePut(IntPtr connId,
-						string remoteFileName,
-						string localFileName,
+						byte[] remoteFileName,
+						byte[] localFileName,
 						uint timeout,
 						out uint errCode,
 						ref byte[] errString,
@@ -87,7 +87,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
 		bool CfsFileDelete(IntPtr connId,
-						   string remoteFileName,
+						   byte[] remoteFileName,
 						   out uint errCode,
 						   ref byte[] errString,
 						   uint maxErrs);

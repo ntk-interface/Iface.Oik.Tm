@@ -187,5 +187,8 @@ namespace Iface.Oik.Tm.Interfaces
 		public const string RBS_Parameters = "Parameters";
 		public const string RBS_ClientParms = "ClientParms";
 		public const string RBS_PGParms = "PGParms";
+		public const string Tmcalc_FUnr = "##FUnr";
+		public const string Tmcalc_SRel = "##SRel";
+
 	}
 }

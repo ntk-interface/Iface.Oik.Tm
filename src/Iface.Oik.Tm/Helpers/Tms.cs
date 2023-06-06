@@ -474,7 +474,7 @@ namespace Iface.Oik.Tm.Helpers
       var       errString       = new byte[errStringLength];
       uint      errCode         = 0;
 
-      if (!Native.CfsFileGet(cfCid, remotePath, localPath, 30000, ref fileTime,
+      if (!Native.CfsFileGet(cfCid, EncodingUtil.Utf8ToWin1251Bytes(remotePath), EncodingUtil.Utf8ToWin1251Bytes(localPath), 30000, ref fileTime,
                              out errCode, ref errString, errStringLength))
       {
         return false;
