@@ -533,5 +533,9 @@ namespace Iface.Oik.Tm.Native.Api
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern IntPtr cfsMakeInprocCrd(byte[] machine, byte[] user, byte[] pwd);
+
+		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+		public static extern Boolean cfsPrepNewConfig(IntPtr connId, byte[] remote_fname,
+			out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
 	}
 }

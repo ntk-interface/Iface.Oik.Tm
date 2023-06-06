@@ -614,8 +614,7 @@ namespace Iface.Oik.Tm.Native.Api
 				var ex_message = TmNativeUtil.GetFixedBytesWithTrailingZero(ex.Message, (int)maxErrs - 1, "windows-1251");
 				ex_message.CopyTo(errBuf, 0);
 				return false;
-			}
-			
+			}		
 		}
 		public Boolean CfsExternalBackupServer(IntPtr connId,
 			string dllname,
@@ -649,6 +648,11 @@ namespace Iface.Oik.Tm.Native.Api
 		public IntPtr CfsMakeInprocCrd(byte[] machine, byte[] user, byte[] pwd)
 		{
 			return cfsMakeInprocCrd(machine, user, pwd);
+		}
+
+		public Boolean CfsPrepNewConfig(IntPtr connId, byte[] remote_fname,	out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs)
+		{
+			return cfsPrepNewConfig(connId, remote_fname, out errCode, errBuf, maxErrs);
 		}
 	}
 }

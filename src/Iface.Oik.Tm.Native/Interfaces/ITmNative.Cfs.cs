@@ -417,6 +417,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 			ref byte[] errBuf, uint maxErrs);
 		Boolean CfsIfpcBackupSecurity(IntPtr connId, string snp, string pwd, string filename, out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);
 		Boolean CfsIfpcRestoreSecurity(IntPtr connId, string snp, string pwd, string filename, out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);
-        //bool CfsGetIniString(IntPtr cfCid, string v1, string v2, string tmServerName, string empty, ref byte[] buf, out uint bufSize, out uint errCode, ref byte[] errBuf, int errBufLength);
-    }
+		//bool CfsGetIniString(IntPtr cfCid, string v1, string v2, string tmServerName, string empty, ref byte[] buf, out uint bufSize, out uint errCode, ref byte[] errBuf, int errBufLength);
+		Boolean CfsPrepNewConfig(IntPtr connId, byte[] remote_fname, out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);
+	}
 }

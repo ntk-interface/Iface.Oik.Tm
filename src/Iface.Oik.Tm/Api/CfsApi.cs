@@ -167,7 +167,6 @@ namespace Iface.Oik.Tm.Api
 									else
 									if (item.Name.Equals(MSTreeConsts.RBS_PGParms))
 									{
-
 										rbs_p.BinPath = item.CfProperties.ValueOrDefault(nameof(rbs_p.BinPath), "");
 										rbs_p.DataPath = item.CfProperties.ValueOrDefault(nameof(rbs_p.DataPath), "");
 									}
@@ -1724,7 +1723,7 @@ namespace Iface.Oik.Tm.Api
 
 			if (!int.TryParse(EncodingUtil.Win1251BytesToUtf8(portBinData), out var port))
 			{
-				return -1;
+				return 0;
 			}
 
 			return port;
@@ -2733,6 +2732,30 @@ namespace Iface.Oik.Tm.Api
 					ref errBuf, errBufLength)).ConfigureAwait(false);
 
 			if (result != true)
+			{
+				return (false, EncodingUtil.Win1251BytesToUtf8(errBuf));
+			}
+			else
+			{
+				return (true, string.Empty);
+			}
+		}
+		public async Task<(bool, string)> RestoreMachineConfig(string filename)
+		{
+			const int errBufLength = 1000;
+			var errBuf = new byte[errBufLength];
+			uint errCode = 0;
+
+			string remoteFilename = Path.GetFileName(filename);
+			(bool res, string errString) = await PutFile(filename, remoteFilename).ConfigureAwait(false);
+			if (!res)
+				return (res, errString);
+
+			var	result = await Task.Run(() => _native.CfsPrepNewConfig(CfId,
+				EncodingUtil.Utf8ToWin1251Bytes(remoteFilename),
+				out errCode, ref errBuf, errBufLength)).ConfigureAwait(false);
+
+			if (errCode != 0)
 			{
 				return (false, EncodingUtil.Win1251BytesToUtf8(errBuf));
 			}
