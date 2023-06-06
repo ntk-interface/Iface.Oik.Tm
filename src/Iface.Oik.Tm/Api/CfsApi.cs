@@ -179,6 +179,46 @@ namespace Iface.Oik.Tm.Api
 						rbs_p.RedirectorPort = (short)await GetRedirectorPort(rbs_p.PipeName, 0).ConfigureAwait(false);
 					}
 				}
+				// под серверами ТМ ищем дорасчёт
+				if (node.ProgName.Equals(MSTreeConsts.pcsrv) || node.ProgName.Equals(MSTreeConsts.pcsrv_old))
+				{
+					if((node.Children != null) && (node.Properties is ChildNodeProperties tms_p))
+					{
+						foreach(var child in node.Children)
+						{
+							if(child.Properties is TmCalcNodeProperties calc_p)
+							{
+								// читаем конфигурацию дорасчётчика если есть
+								try
+								{
+									var (calc_handle, _) = await OpenConfigurationTree($"{TmNativeDefs.TmsDirectory}\\{tms_p.PipeName}\\{TmNativeDefs.TmCalcConfFile}").ConfigureAwait(false);
+									var calc_tree = await GetCfTree(calc_handle).ConfigureAwait(false);
+									FreeConfigurationTreeHandle(calc_handle);
+									if (calc_tree != null)
+									{
+										foreach (var item in calc_tree)
+										{
+											if (item.CfProperties != null)
+											{
+												switch (item.Name)
+												{
+													case MSTreeConsts.Tmcalc_FUnr:
+														calc_p.FUnr = item.CfProperties.ValueOrDefault(MSTreeConsts.Tmcalc_Value, "-").StartsWith("+");
+														break;
+													case MSTreeConsts.Tmcalc_SRel:
+														calc_p.SRel = item.CfProperties.ValueOrDefault(MSTreeConsts.Tmcalc_Value, "-").StartsWith("+");
+														break;
+												}
+											}
+										}
+									}
+								}
+								catch { }
+								break;
+							}
+						}
+					}
+				}
 			}
 			return (msRoot, time);
 		}
@@ -255,7 +295,7 @@ namespace Iface.Oik.Tm.Api
 			await SaveConfigurationTree(res_handle, TmNativeDefs.HotStanbyConfFile).ConfigureAwait(false);
 			FreeConfigurationTreeHandle(res_handle);
 
-			// Конфигурации серверов RBS
+			// Другие конфигурации (rb, tmcalc)
 			foreach (var server in msRoot.Children)
 			{
 				if (server.Properties is RbsNodeProperties rbs_p)
@@ -278,6 +318,59 @@ namespace Iface.Oik.Tm.Api
 
 					// параметры редиректора
 					await SetRedirectorPort(rbs_p.PipeName, 0, (int)rbs_p.RedirectorPort).ConfigureAwait(false);
+				}
+				else
+				if (server.ProgName.Equals(MSTreeConsts.pcsrv) || server.ProgName.Equals(MSTreeConsts.pcsrv_old))
+				{
+					if ((server.Children != null) && (server.Properties is ChildNodeProperties tms_p))
+					{
+						foreach (var child in server.Children)
+						{
+							if (child.Properties is TmCalcNodeProperties calc_p)
+							{
+								// читаем конфигурацию дорасчётчика если есть
+								try
+								{
+									string fileName = $"{TmNativeDefs.TmsDirectory}\\{tms_p.PipeName}\\{TmNativeDefs.TmCalcConfFile}";
+									var (calc_handle, _) = await OpenConfigurationTree(fileName).ConfigureAwait(false);
+									var calc_tree = await GetCfTree(calc_handle).ConfigureAwait(false);
+									FreeConfigurationTreeHandle(calc_handle);
+									if(calc_tree == null) calc_tree = new List<CfTreeNode>();
+
+									var FUnr = calc_tree.Find(n => n.Name.Equals(MSTreeConsts.Tmcalc_FUnr));
+									if (FUnr == null)
+									{
+										FUnr = new CfTreeNode(MSTreeConsts.Tmcalc_FUnr);
+										calc_tree.Add(FUnr);
+									}
+									FUnr.CfProperties = new Dictionary<string, string>
+									{
+										[MSTreeConsts.Tmcalc_Value] = calc_p.FUnr ? "+" : "-"
+									};
+
+									var SRel = calc_tree.Find(n => n.Name.Equals(MSTreeConsts.Tmcalc_SRel));
+									if (SRel == null)
+									{
+										SRel = new CfTreeNode(MSTreeConsts.Tmcalc_SRel);
+										calc_tree.Add(SRel);
+									}
+									SRel.CfProperties = new Dictionary<string, string>
+									{
+										[MSTreeConsts.Tmcalc_Value] = calc_p.SRel ? "+" : "-"
+									};
+
+									calc_handle = CreateConfigurationTree(calc_tree);
+									if (calc_handle != IntPtr.Zero)
+									{
+										await SaveConfigurationTree(calc_handle, fileName).ConfigureAwait(false);
+										FreeConfigurationTreeHandle(calc_handle);
+									}
+								}
+								catch { }
+								break;
+							}
+						}
+					}
 				}
 			}
 		}

@@ -58,10 +58,12 @@ namespace Iface.Oik.Tm.Interfaces
 					case MSTreeConsts.rbsrv:
 						Properties = new RbsNodeProperties();
 						break;
-					case MSTreeConsts.delta:
-					case MSTreeConsts.delta_old:
 					case MSTreeConsts.tmcalc:
 					case MSTreeConsts.tmcalc_old:
+						Properties = new TmCalcNodeProperties();
+						break;
+					case MSTreeConsts.delta:
+					case MSTreeConsts.delta_old:
 					case MSTreeConsts.toposrv:
 						Properties = new ChildNodeProperties();
 						break;
@@ -141,11 +143,16 @@ namespace Iface.Oik.Tm.Interfaces
 		public string JournalSQLCS { get; set; } = "";
 		public string DTMX_SQLCS { get; set; } = "";
 	}
-	public class ExternalTaskNodeProperties : ChildNodeProperties
+	public class ExternalTaskNodeProperties: ChildNodeProperties
 	{
 		public string TaskPath { get; set; } = "";
 		public string TaskArguments { get; set; } = "";
 		public string ConfigurationFilePath { get; set; } = "";
+	}
+	public class TmCalcNodeProperties: ChildNodeProperties
+	{
+		public bool FUnr { get; set; }
+		public bool SRel { get; set; }
 	}
 	public class ReservedNodeProperties : ChildNodeProperties
 	{
@@ -189,6 +196,7 @@ namespace Iface.Oik.Tm.Interfaces
 		public const string RBS_PGParms = "PGParms";
 		public const string Tmcalc_FUnr = "##FUnr";
 		public const string Tmcalc_SRel = "##SRel";
-
+		public const string Tmcalc_Disabled = "Disabled";
+		public const string Tmcalc_Value = "Value";
 	}
 }
