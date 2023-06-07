@@ -69,8 +69,8 @@ namespace Iface.Oik.Tm.Dto
 
   public class MqttPlacardAddedDto : MqttPlacardDto
   {
-    public int?   Index       { get; set; }
-    public string Comment     { get; set; }
+    public int?   Index   { get; set; }
+    public string Comment { get; set; }
   }
 
 
@@ -128,7 +128,7 @@ namespace Iface.Oik.Tm.Dto
 
   public class MqttBindingFromModusDto
   {
-    public Guid   DocId   { get; set; }
-    public string DocName { get; set; }
+    public int    SchemeId { get; set; }
+    public string DocName  { get; set; }
   }
 }
