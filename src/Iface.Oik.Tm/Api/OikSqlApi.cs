@@ -1488,9 +1488,12 @@ namespace Iface.Oik.Tm.Api
     {
       if (filter == null) return null; //???
 
-      if (filter.AreUserActionsForbidden)
+      if (filter.AreUserActionsForbidden              ||
+          filter.TmAddrList.Count > 0                 ||
+          !filter.TmStatusClassIdList.IsNullOrEmpty() ||
+          !filter.ChannelAndRtuCollection.IsNullOrEmpty())
       {
-        return Array.Empty<TmUserAction>();
+        return Array.Empty<TmUserAction>(); // TODO временно обнуляем при задании ТМ-адресов или классов
       }
 
       var whereBeg               = GetWhereUserActionStartTime(filter);
