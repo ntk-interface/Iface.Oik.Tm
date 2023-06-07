@@ -172,6 +172,7 @@ namespace Iface.Oik.Tm.Dto
         Importance = dto.Importance,
         Text       = dto.Text,
         Username   = dto.Username,
+        ExtraId    = dto.ExtraId,
       };
     }
   }

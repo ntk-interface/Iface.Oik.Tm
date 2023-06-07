@@ -98,6 +98,7 @@ namespace Iface.Oik.Tm.Interfaces
         Importance  = dto.Importance,
         Text        = dto.Text,
         Username    = dto.Username,
+        ExtraId     = dto.ExtraId,
       };
 
       return action;

@@ -27,6 +27,7 @@ namespace Iface.Oik.Tm.Dto
     public int                  Importance { get; set; }
     public string               Text       { get; set; }
     public string               Username   { get; set; }
+    public Guid?                ExtraId    { get; set; }
   }
 
 
