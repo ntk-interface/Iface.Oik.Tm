@@ -2103,7 +2103,7 @@ namespace Iface.Oik.Tm.Api
       const int bufSize = 1024;
 
       var buf = new byte[bufSize];
-      await Task.Run(() => _native.TmcEvaluateExpression(_cid, expression, buf, bufSize))
+      await Task.Run(() => _native.TmcEvaluateExpression(_cid, EncodingUtil.Utf8ToWin1251Bytes(expression), buf, bufSize))
                 .ConfigureAwait(false);
 
       return EncodingUtil.Win1251BytesToUtf8(buf);

@@ -28,7 +28,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     
     IntPtr CftNPropGetText(IntPtr     id,
-                           string     name,
+                           byte[]     name,
                            byte[] buf,
                            uint       count);
 
@@ -37,15 +37,15 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     
     IntPtr CftNodeInsertAfter(IntPtr id,
-                              string nodeTag);
+                              byte[] nodeTag);
 
     
     IntPtr CftNodeInsertDown(IntPtr id,
-                             string nodeTag);
+                             byte[] nodeTag);
 
     
     bool CftNPropSet(IntPtr id,
-                     string propName,
+                     byte[] propName,
                      byte[] propText);
 
 

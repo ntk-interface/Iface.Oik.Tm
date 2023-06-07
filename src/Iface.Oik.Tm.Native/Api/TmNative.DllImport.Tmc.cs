@@ -416,7 +416,7 @@ namespace Iface.Oik.Tm.Native.Api
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcEvaluateExpression(Int32                                   cid,
-                                                     [MarshalAs(UnmanagedType.LPStr)] string expr,
+                                                     byte[] expr,
                                                      [In, Out]                        byte[] res,
                                                      UInt32                                  cbBytes);
 
@@ -809,8 +809,8 @@ namespace Iface.Oik.Tm.Native.Api
 
 	[DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 	public static extern Boolean tmcBackupServerProcedure(
-	                                                [MarshalAs(UnmanagedType.LPStr)] string machine,
-	                                                [MarshalAs(UnmanagedType.LPStr)] string pipe,
+	                                                byte[] machine,
+	                                                byte[] pipe,
 	                                                byte[] directory,
 	                                                ref UInt32 pbflags,
 	                                                Int32 hCancel,
@@ -819,9 +819,9 @@ namespace Iface.Oik.Tm.Native.Api
 
 	[DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 	public static extern Boolean tmcRestoreServer(Boolean tms_not_rbs,
-												[MarshalAs(UnmanagedType.LPStr)] string machine,
-												[MarshalAs(UnmanagedType.LPStr)] string pipe,
-												[MarshalAs(UnmanagedType.LPStr)] string filename,
+												byte[] machine,
+												byte[] pipe,
+												byte[] filename,
 												ref UInt32 pbflags,
 												Int32 hCancel,
 												[MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback prog_fn,

@@ -40,7 +40,7 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
     public IntPtr CftNPropGetText(IntPtr     id,
-                                  string     name,
+                                  byte[]     name,
                                   byte[] buf,
                                   uint       count)
     {
@@ -53,19 +53,19 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
     public IntPtr CftNodeInsertAfter(IntPtr id,
-                                     string nodeTag)
+                                     byte[] nodeTag)
     {
       return cftNodeInsertAfter(id, nodeTag);
     }
 
     public IntPtr CftNodeInsertDown(IntPtr id,
-                                    string nodeTag)
+                                    byte[] nodeTag)
     {
       return cftNodeInsertDown(id, nodeTag);
     }
 
     public bool CftNPropSet(IntPtr id,
-                            string propName,
+                            byte[] propName,
                             byte[] propText)
     {
       return cftNPropSet(id, propName, propText);

@@ -24,7 +24,7 @@ namespace Iface.Oik.Tm.Helpers
 		public static void SetUserCredentials(string user,
 											  string password)
 		{
-			Native.CfsSetUser(user, password);
+			Native.CfsSetUser(EncodingUtil.Utf8ToWin1251Bytes(user), EncodingUtil.Utf8ToWin1251Bytes(password));
 		}
 
 		public static (IntPtr cfId, string errString, int errorCode) ConnectToCfs(string host)
@@ -33,7 +33,7 @@ namespace Iface.Oik.Tm.Helpers
 			var errBuf = new byte[errStringLength];
 
 			var cfId =
-			  Native.CfsConnect(host, out uint errCode, ref errBuf, errStringLength);
+			  Native.CfsConnect(EncodingUtil.Utf8ToWin1251Bytes(host), out uint errCode, ref errBuf, errStringLength);
 
 			if (cfId == IntPtr.Zero)
 			{

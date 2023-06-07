@@ -25,18 +25,18 @@ namespace Iface.Oik.Tm.Native.Api
 	public partial class TmNative
 	{
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
-		public static extern IntPtr pkfEnumPackedFiles([MarshalAs(UnmanagedType.LPStr)] string pkfname, 
+		public static extern IntPtr pkfEnumPackedFiles(byte[] pkfname, 
 													   [In, Out] byte[] errBuf,  UInt32 maxErrs);
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
-		public static extern IntPtr pkfUnPack([MarshalAs(UnmanagedType.LPStr)] string pkfname,
-											   [MarshalAs(UnmanagedType.LPStr)] string dirname,
+		public static extern IntPtr pkfUnPack(byte[] pkfname,
+											   byte[] dirname,
 											   [In, Out] byte[] errBuf, UInt32 maxErrs);
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
-		public static extern Boolean pkfExtractFile([MarshalAs(UnmanagedType.LPStr)] string pkfname,
-												    [MarshalAs(UnmanagedType.LPStr)] string filename,
-												    [MarshalAs(UnmanagedType.LPStr)] string dirname,
+		public static extern Boolean pkfExtractFile(byte[] pkfname,
+												    byte[] filename,
+													byte[] dirname,
 													[In, Out] byte[] errBuf, UInt32 maxErrs);
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]

@@ -10,12 +10,12 @@ namespace Iface.Oik.Tm.Native.Interfaces
 							string extArg = null);
 
 
-		void CfsSetUser(string user,
-						string password);
+		void CfsSetUser(byte[] user,
+						byte[] password);
 
 
-		void CfsSetUserForThread(string user,
-								 string password);
+		void CfsSetUserForThread(byte[] user,
+								 byte[] password);
 
 		IntPtr CfsMakeInprocCrd(byte[] machine, byte[] user, byte[] pwd);
 
@@ -35,8 +35,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
 		bool StracAllocServer(ref TmNativeDefs.TraceItemStorage tis,
 							  UInt32 pid,
 							  UInt32 ppid,
-							  string name,
-							  string comment);
+							  byte[] name,
+							  byte[] comment);
 
 
 		void StracSetServerState(ref TmNativeDefs.TraceItemStorage tis,
@@ -105,7 +105,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 		Int64 UxGmTime2UxTime(Int64 time);
 
 
-		IntPtr CfsConnect(string serverName,
+		IntPtr CfsConnect(byte[] serverName,
 						  out uint errCode,
 						  ref byte[] errString,
 						  uint maxErrs);
@@ -115,14 +115,14 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 		IntPtr CfsEditGrabCid(IntPtr connId,
 						  	  Boolean bGrab,
-							  string fileName,
-							  string userName,
+							  byte[] fileName,
+							  byte[] userName,
 							  out uint errCode,
 							  ref byte[] errBuf,
 							  uint maxErrs);
 		IntPtr CfsConfFileOpenCid(IntPtr connId,
-								  string serverName,
-								  string fileName,
+								  byte[] serverName,
+								  byte[] fileName,
 								  uint timeout,
 								  ref TmNativeDefs.FileTime fileTime,
 								  out uint errCode,
@@ -131,8 +131,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
 		bool CfsConfFileSaveAs(IntPtr treeHandle,
-							   string serverName,
-							   string remoteFileName,
+							   byte[] serverName,
+							   byte[] remoteFileName,
 							   uint timeout,
 							   ref TmNativeDefs.FileTime fileTime,
 							   out uint errCode,
@@ -170,7 +170,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
 		bool CfsTraceGetUserData(IntPtr connId,
-								 string userId,
+								 byte[] userId,
 								 ref TmNativeDefs.IfaceUser ifaceServer,
 								 out uint errCode,
 								 ref byte[] errBuf,
@@ -291,16 +291,16 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
 		bool CfsIfpcSetUserPwd(IntPtr connId,
-							   string username,
-							   string password,
+							   byte[] username,
+							   byte[] password,
 							   out uint errCode,
 							   ref byte[] errBuf,
 							   uint maxErrs);
 
 
-		void DPrintF(string message);
-		void MPrintF(string message);
-		void EPrintF(string message);
+		void DPrintF(byte[] message);
+		void MPrintF(byte[] message);
+		void EPrintF(byte[] message);
 
 
 		IntPtr LfParseMessage(IntPtr stringPtrToParse,
@@ -319,20 +319,20 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
 		Boolean CfsNodeFileSave(IntPtr treeHandle,
-								string fileName,
+								byte[] fileName,
 								out UInt32 errCode,
 								ref byte[] errBuf,
 								uint maxErrs);
 
 
-		IntPtr CfsNodeFileLoad(string fileName,
+		IntPtr CfsNodeFileLoad(byte[] fileName,
 							   out UInt32 errCode,
 							   ref byte[] errBuf,
 							   UInt32 maxErrs);
 
 
-		IntPtr CfsConfFileOpen(string serverName,
-							   string fileName,
+		IntPtr CfsConfFileOpen(byte[] serverName,
+							   byte[] fileName,
 							   uint timeout,
 							   ref TmNativeDefs.FileTime fileTime,
 							   out uint errCode,
@@ -364,9 +364,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
 		IntPtr CfsIfpcGetBin(IntPtr connId,
-							 string uName,
-							 string oName,
-							 string binName,
+							 byte[] uName,
+							 byte[] oName,
+							 byte[] binName,
 							 out UInt32 binLength,
 							 out UInt32 errCode,
 							 ref byte[] errBuf,
@@ -374,9 +374,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
 		bool CfsIfpcSetBin(IntPtr connId,
-						   string uName,
-						   string oName,
-						   string binName,
+						   byte[] uName,
+						   byte[] oName,
+						   byte[] binName,
 						   byte[] buf,
 						   UInt32 bufLength,
 						   out UInt32 errCode,
@@ -393,30 +393,30 @@ namespace Iface.Oik.Tm.Native.Interfaces
 		IntPtr СfsIfpcEnumOSUsers(IntPtr connId, 
 								  out uint errCode, ref byte[] errBuf, uint maxErrs);
 
-		Boolean СfsIfpcDeleteUser(IntPtr connId, string username,
+		Boolean СfsIfpcDeleteUser(IntPtr connId, byte[] username,
 								  out uint errCode, ref byte[] errBuf, uint maxErrs);
 
 		uint СfsIfpcGetAccess(IntPtr connId,
-							  string uName,
-							  string oName,
+							  byte[] uName,
+							  byte[] oName,
 							  out uint errCode, ref byte[] errBuf, uint maxErrs);
 		Boolean СfsIfpcSetAccess(IntPtr connId,
-							     string uName,
-								 string oName,
+								 byte[] uName,
+								 byte[] oName,
 								 uint AccessMask,
 								 out uint errCode, ref byte[] errBuf, uint maxErrs);
 		Boolean CfsSaveMachineConfig(Boolean fFull,
-			string RemoteMasterMachine,
-			string FileName,
+			byte[] RemoteMasterMachine,
+			byte[] FileName,
 			ref byte[] errBuf, uint maxErrs);
 		Boolean CfsSaveMachineConfigEx(
-			string RemoteMasterMachine,
-			string FileName,
+			byte[] RemoteMasterMachine,
+			byte[] FileName,
 			uint dwScope,
 			TmNativeCallback prog_fn, IntPtr prog_parm,
 			ref byte[] errBuf, uint maxErrs);
-		Boolean CfsIfpcBackupSecurity(IntPtr connId, string snp, string pwd, string filename, out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);
-		Boolean CfsIfpcRestoreSecurity(IntPtr connId, string snp, string pwd, string filename, out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);
+		Boolean CfsIfpcBackupSecurity(IntPtr connId, byte[] snp, byte[] pwd, byte[] filename, out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);
+		Boolean CfsIfpcRestoreSecurity(IntPtr connId, byte[] snp, byte[] pwd, byte[] filename, out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);
 		//bool CfsGetIniString(IntPtr cfCid, string v1, string v2, string tmServerName, string empty, ref byte[] buf, out uint bufSize, out uint errCode, ref byte[] errBuf, int errBufLength);
 		Boolean CfsPrepNewConfig(IntPtr connId, byte[] remote_fname, out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);
 	}

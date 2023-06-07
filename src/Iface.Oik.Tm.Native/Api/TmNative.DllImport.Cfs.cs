@@ -16,13 +16,13 @@ namespace Iface.Oik.Tm.Native.Api
 
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-		public static extern void cfsSetUser([MarshalAs(UnmanagedType.LPStr)] string name,
-											 [MarshalAs(UnmanagedType.LPStr)] string pwd);
+		public static extern void cfsSetUser(byte[] name,
+											 byte[] pwd);
 
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-		public static extern void cfsSetUserForThread([MarshalAs(UnmanagedType.LPStr)] string name,
-													  [MarshalAs(UnmanagedType.LPStr)] string pwd);
+		public static extern void cfsSetUserForThread(byte[] name,
+													  byte[] pwd);
 
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
@@ -44,8 +44,8 @@ namespace Iface.Oik.Tm.Native.Api
 		public static extern bool strac_AllocServer(ref TmNativeDefs.TraceItemStorage tis,
 													UInt32 pid,
 													UInt32 ppid,
-													[MarshalAs(UnmanagedType.LPStr)] string name,
-													[MarshalAs(UnmanagedType.LPStr)] string comment);
+													byte[] name,
+													byte[] comment);
 
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
@@ -111,7 +111,7 @@ namespace Iface.Oik.Tm.Native.Api
 
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-		public static extern IntPtr cfsConnect([MarshalAs(UnmanagedType.LPStr)] string serverName,
+		public static extern IntPtr cfsConnect(byte[] serverName,
 											   out UInt32 errCode,
 											   [In, Out] byte[] errBuf,
 											   UInt32 maxErrs);
@@ -123,8 +123,8 @@ namespace Iface.Oik.Tm.Native.Api
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern IntPtr cfsConfFileOpenCid(IntPtr connId,
-													   [MarshalAs(UnmanagedType.LPStr)] string serverName,
-													   [MarshalAs(UnmanagedType.LPStr)] string fileName,
+													   byte[] serverName,
+													   byte[] fileName,
 													   UInt32 timeout,
 													   [In, Out] ref TmNativeDefs.FileTime fileTime,
 													   out UInt32 errCode,
@@ -133,8 +133,8 @@ namespace Iface.Oik.Tm.Native.Api
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern bool cfsConfFileSaveAs(IntPtr treeHandle,
-													[MarshalAs(UnmanagedType.LPStr)] string serverName,
-													[MarshalAs(UnmanagedType.LPStr)] string remoteFileName,
+													byte[] serverName,
+													byte[] remoteFileName,
 													UInt32 timeout,
 													[In, Out] ref TmNativeDefs.FileTime fileTime,
 													out UInt32 errCode,
@@ -177,7 +177,7 @@ namespace Iface.Oik.Tm.Native.Api
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern bool cfsTraceGetUserData(IntPtr connId,
-													  [MarshalAs(UnmanagedType.LPStr)] string userId,
+													  byte[] userId,
 													  [In, Out] ref TmNativeDefs.IfaceUser ifaceUser,
 													  out UInt32 errCode,
 													  [In, Out] byte[] errBuf,
@@ -327,8 +327,8 @@ namespace Iface.Oik.Tm.Native.Api
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern bool cfsIfpcSetUserPwd(IntPtr connId,
-													[MarshalAs(UnmanagedType.LPStr)] string username,
-													[MarshalAs(UnmanagedType.LPStr)] string password,
+													byte[] username,
+													byte[] password,
 													out UInt32 errCode,
 													[In, Out] byte[] errBuf,
 													UInt32 maxErrs);
@@ -339,18 +339,18 @@ namespace Iface.Oik.Tm.Native.Api
 
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-		public static extern void e_printf([MarshalAs(UnmanagedType.LPStr)] string format,
-										   [MarshalAs(UnmanagedType.LPStr)] string message);
+		public static extern void e_printf(byte[] format,
+										   byte[] message);
 
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-		public static extern void m_printf([MarshalAs(UnmanagedType.LPStr)] string format,
-										   [MarshalAs(UnmanagedType.LPStr)] string message);
+		public static extern void m_printf(byte[] format,
+										   byte[] message);
 
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-		public static extern void d_printf([MarshalAs(UnmanagedType.LPStr)] string format,
-										   [MarshalAs(UnmanagedType.LPStr)] string message);
+		public static extern void d_printf(byte[] format,
+										   byte[] message);
 
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
@@ -372,30 +372,30 @@ namespace Iface.Oik.Tm.Native.Api
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern Boolean cfsNodeFileSave(IntPtr treeHandle,
-													 [MarshalAs(UnmanagedType.LPStr)] string fileName,
+													 byte[] fileName,
 													 out UInt32 errCode,
 													 [In, Out] byte[] errBuf,
 													 UInt32 maxErrs);
 
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-		public static extern IntPtr cfsNodeFileLoad([MarshalAs(UnmanagedType.LPStr)] string fileName,
+		public static extern IntPtr cfsNodeFileLoad(byte[] fileName,
 													out UInt32 errCode,
 													[In, Out] byte[] errBuf,
 													UInt32 maxErrs);
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern IntPtr cfsEditGrabCid(IntPtr connId,
-												   Boolean bGrab, 
-												   [MarshalAs(UnmanagedType.LPStr)] string fileName,
-												   [MarshalAs(UnmanagedType.LPStr)] string userName,
+												   Boolean bGrab,
+												   byte[] fileName,
+												   byte[] userName,
 												   out UInt32 errCode,
 												   [In, Out] byte[] errBuf,
 												   UInt32 maxErrs);
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-		public static extern IntPtr cfsConfFileOpen([MarshalAs(UnmanagedType.LPStr)] string serverName,
-													[MarshalAs(UnmanagedType.LPStr)] string fileName,
+		public static extern IntPtr cfsConfFileOpen(byte[] serverName,
+													byte[] fileName,
 													UInt32 timeout,
 													[In, Out] ref TmNativeDefs.FileTime fileTime,
 													out UInt32 errCode,
@@ -431,9 +431,9 @@ namespace Iface.Oik.Tm.Native.Api
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern IntPtr cfsIfpcGetBin(IntPtr connId,
-												  [MarshalAs(UnmanagedType.LPStr)] string uName,
-												  [MarshalAs(UnmanagedType.LPStr)] string oName,
-												  [MarshalAs(UnmanagedType.LPStr)] string binName,
+												  byte[] uName,
+												  byte[] oName,
+												  byte[] binName,
 												  out UInt32 binLength,
 												  out UInt32 errCode,
 												  [In, Out] byte[] errBuf,
@@ -442,9 +442,9 @@ namespace Iface.Oik.Tm.Native.Api
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern Boolean cfsIfpcSetBin(IntPtr connId,
-												   [MarshalAs(UnmanagedType.LPStr)] string uName,
-												   [MarshalAs(UnmanagedType.LPStr)] string oName,
-												   [MarshalAs(UnmanagedType.LPStr)] string binName,
+												   byte[] uName,
+												   byte[] oName,
+												   byte[] binName,
 												   [In] byte[] buf,
 												   UInt32 bufLength,
 												   out UInt32 errCode,
@@ -470,32 +470,32 @@ namespace Iface.Oik.Tm.Native.Api
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern Boolean cfsIfpcDeleteUser(IntPtr connId,
-													   [MarshalAs(UnmanagedType.LPStr)] string username,
+													   byte[] username,
 													   out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern UInt32 cfsIfpcGetAccess(IntPtr connId,
-												   [MarshalAs(UnmanagedType.LPStr)] string uName,
-												   [MarshalAs(UnmanagedType.LPStr)] string oName,
+												   byte[] uName,
+												   byte[] oName,
 												   out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern Boolean cfsIfpcSetAccess(IntPtr connId,
-												   [MarshalAs(UnmanagedType.LPStr)] string uName,
-												   [MarshalAs(UnmanagedType.LPStr)] string oName,
+												   byte[] uName,
+												   byte[] oName,
 												   UInt32 AccessMask,
 												   out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern Boolean cfsSaveMachineConfig(Boolean fFull, 
-			[MarshalAs(UnmanagedType.LPStr)] string RemoteMasterMachine,
-			[MarshalAs(UnmanagedType.LPStr)] string FileName,
+			byte[] RemoteMasterMachine,
+			byte[] FileName,
 			[In, Out] byte[] errBuf, UInt32 maxErrs);
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern Boolean cfsSaveMachineConfigEx(
-			[MarshalAs(UnmanagedType.LPStr)] string RemoteMasterMachine,
-			[MarshalAs(UnmanagedType.LPStr)] string FileName,
+			byte[] RemoteMasterMachine,
+			byte[] FileName,
 			uint dwScope,
 			[MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback prog_fn,
 			IntPtr prog_parm,
@@ -503,32 +503,32 @@ namespace Iface.Oik.Tm.Native.Api
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern Boolean cfsExternalBackupServer(IntPtr connId,
-			[MarshalAs(UnmanagedType.LPStr)] string dllname,
-			[MarshalAs(UnmanagedType.LPStr)] string servname, 
+			byte[] dllname,
+			byte[] servname, 
 			uint bflags,
 			[In, Out] ref CfsServerBackupData pbd,
 			out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern Boolean cfsExternalRestoreServer(IntPtr connId,
-			[MarshalAs(UnmanagedType.LPStr)] string dllname,
-			[MarshalAs(UnmanagedType.LPStr)] string servname,
-			[MarshalAs(UnmanagedType.LPStr)] string filename, 
+			byte[] dllname,
+			byte[] servname,
+			byte[] filename, 
 			out UInt32 pbflags,
 			out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern Boolean cfsIfpcBackupSecurity(IntPtr connId,
-			[MarshalAs(UnmanagedType.LPStr)] string snp,
-			[MarshalAs(UnmanagedType.LPStr)] string pwd,
-			[MarshalAs(UnmanagedType.LPStr)] string filename,
+			byte[] snp,
+			byte[] pwd,
+			byte[] filename,
 			out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern Boolean cfsIfpcRestoreSecurity(IntPtr connId,
-			[MarshalAs(UnmanagedType.LPStr)] string snp,
-			[MarshalAs(UnmanagedType.LPStr)] string pwd,
-			[MarshalAs(UnmanagedType.LPStr)] string filename,
+			byte[] snp,
+			byte[] pwd,
+			byte[] filename,
 			out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
 
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]

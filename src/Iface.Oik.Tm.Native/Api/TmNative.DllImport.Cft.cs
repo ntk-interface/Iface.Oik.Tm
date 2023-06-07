@@ -34,7 +34,7 @@ namespace Iface.Oik.Tm.Native.Api
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern IntPtr cftNPropGetText(IntPtr                                  id,
-                                                [MarshalAs(UnmanagedType.LPStr)] string name,
+                                                byte[] name,
                                                 [In, Out]                        byte[] buf,
                                                 UInt32                                  count);
 
@@ -45,17 +45,17 @@ namespace Iface.Oik.Tm.Native.Api
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern IntPtr cftNodeInsertAfter(IntPtr                                  id,
-                                                   [MarshalAs(UnmanagedType.LPStr)] string nodeTag);
+                                                   byte[] nodeTag);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern IntPtr cftNodeInsertDown(IntPtr                                  id,
-                                                  [MarshalAs(UnmanagedType.LPStr)] string nodeTag);
+                                                  byte[] nodeTag);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern bool cftNPropSet(IntPtr                                  id,
-                                          [MarshalAs(UnmanagedType.LPStr)] string propName,
+                                          byte[] propName,
                                           byte[] propText);
 
 

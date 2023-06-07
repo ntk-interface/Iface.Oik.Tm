@@ -28,20 +28,20 @@ namespace Iface.Oik.Tm.Helpers
     public static void SetUserCredentials(string user,
                                           string password)
     {
-      Native.CfsSetUser(user, password);
+      Native.CfsSetUser(EncodingUtil.Utf8ToWin1251Bytes(user), EncodingUtil.Utf8ToWin1251Bytes(password));
     }
 
 
     public static void ClearUserCredentials()
     {
-      Native.CfsSetUser(string.Empty, string.Empty);
+      Native.CfsSetUser(new byte[1] { 0 }, new byte[1] { 0 });
     }
 
 
     public static void SetUserCredentialsForThread(string user,
                                                    string password)
     {
-      Native.CfsSetUserForThread(user, password);
+      Native.CfsSetUserForThread(EncodingUtil.Utf8ToWin1251Bytes(user), EncodingUtil.Utf8ToWin1251Bytes(password));
     }
 
 
@@ -247,7 +247,7 @@ namespace Iface.Oik.Tm.Helpers
         username = "*" + username;
       }
 
-      if (Native.CfsIfpcSetUserPwd(cfCid, username, password, out errCode, ref errBuf, errBufLength))
+      if (Native.CfsIfpcSetUserPwd(cfCid, EncodingUtil.Utf8ToWin1251Bytes(username), EncodingUtil.Utf8ToWin1251Bytes(password), out errCode, ref errBuf, errBufLength))
       {
         return (true, string.Empty);
       }
@@ -433,13 +433,13 @@ namespace Iface.Oik.Tm.Helpers
       switch (level)
       {
         case TmPrintLevel.Debug:
-          Native.DPrintF(messageString);
+          Native.DPrintF(EncodingUtil.Utf8ToWin1251Bytes(messageString));
           break;
         case TmPrintLevel.Message:
-          Native.MPrintF(messageString);
+          Native.MPrintF(EncodingUtil.Utf8ToWin1251Bytes(messageString));
           break;
         case TmPrintLevel.Error:
-          Native.EPrintF(messageString);
+          Native.EPrintF(EncodingUtil.Utf8ToWin1251Bytes(messageString));
           break;
       }
     }

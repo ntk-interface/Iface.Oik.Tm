@@ -33,8 +33,8 @@ namespace Iface.Oik.Tm.Native.Api
 		//);
 	[DllImport(Tmconn, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
 	public static extern Boolean rbcBackupServerProcedure(
-													[MarshalAs(UnmanagedType.LPStr)] string machine,
-													[MarshalAs(UnmanagedType.LPStr)] string pipe,
+													byte[] machine,
+													byte[] pipe,
 													byte[] directory,
 													ref UInt32 pbflags,
 													Int32 hCancel,
