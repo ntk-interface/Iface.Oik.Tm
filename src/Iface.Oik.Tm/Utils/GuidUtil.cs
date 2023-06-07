@@ -38,7 +38,7 @@ namespace Iface.Oik.Tm.Utils
 
     public static bool TryDecodeCimSubstation(Guid id, out int schemeId)
     {
-      return TryDecode(CimGuidScope.Equipment, id, out schemeId, out _, out _);
+      return TryDecode(CimGuidScope.Substation, id, out schemeId, out _, out _);
     }
 
 
