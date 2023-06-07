@@ -784,9 +784,8 @@ namespace Iface.Oik.Tm.Api
 			var ifaceServer = new TmNativeDefs.IfaceServer();
 
 			await Task.Run(() => _native.CfsTraceGetServerData(CfId,
-															   serverId,
-															   ref
-															   ifaceServer,
+															   EncodingUtil.Utf8ToWin1251Bytes(serverId),
+															   ref ifaceServer,
 															   out errCode,
 															   ref errBuf,
 															   errStringLength))

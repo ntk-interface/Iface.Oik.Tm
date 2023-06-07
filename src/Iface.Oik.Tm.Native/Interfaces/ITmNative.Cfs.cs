@@ -156,7 +156,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
 		bool CfsTraceGetServerData(IntPtr connId,
-								   string serverId,
+								   byte[] serverId,
 								   ref TmNativeDefs.IfaceServer ifaceServer,
 								   out uint errCode,
 								   ref byte[] errBuf,
