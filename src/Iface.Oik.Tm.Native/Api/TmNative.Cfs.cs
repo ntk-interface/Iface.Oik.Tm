@@ -20,15 +20,15 @@ namespace Iface.Oik.Tm.Native.Api
 		}
 
 
-		public void CfsSetUser(string user,
-							   string password)
+		public void CfsSetUser(byte[] user,
+							   byte[] password)
 		{
 			cfsSetUser(user, password);
 		}
 
 
-		public void CfsSetUserForThread(string user,
-										string password)
+		public void CfsSetUserForThread(byte[] user,
+										byte[] password)
 		{
 			cfsSetUserForThread(user, password);
 		}
@@ -56,8 +56,8 @@ namespace Iface.Oik.Tm.Native.Api
 		public bool StracAllocServer(ref TmNativeDefs.TraceItemStorage tis,
 									 UInt32 pid,
 									 UInt32 ppid,
-									 string name,
-									 string comment)
+									 byte[] name,
+									 byte[] comment)
 		{
 			return strac_AllocServer(ref tis, pid, ppid, name, comment);
 		}
@@ -138,7 +138,7 @@ namespace Iface.Oik.Tm.Native.Api
 		}
 
 
-		public IntPtr CfsConnect(string serverName,
+		public IntPtr CfsConnect(byte[] serverName,
 								 out uint errCode,
 								 ref byte[] errBuf,
 								 uint maxErrs)
@@ -154,8 +154,8 @@ namespace Iface.Oik.Tm.Native.Api
 
 		public IntPtr CfsEditGrabCid(IntPtr connId,
 									 Boolean bGrab,
-									 string fileName,
-									 string userName,
+									 byte[] fileName,
+									 byte[] userName,
 									 out uint errCode,
 									 ref byte[] errBuf,
 									 uint maxErrs)
@@ -164,8 +164,8 @@ namespace Iface.Oik.Tm.Native.Api
 		}
 
 		public IntPtr CfsConfFileOpenCid(IntPtr connId,
-										 string serverName,
-										 string fileName,
+										 byte[] serverName,
+										 byte[] fileName,
 										 uint timeout,
 										 ref TmNativeDefs.FileTime fileTime,
 										 out uint errCode,
@@ -177,8 +177,8 @@ namespace Iface.Oik.Tm.Native.Api
 
 
 		public bool CfsConfFileSaveAs(IntPtr treeHandle,
-									  string serverName,
-									  string remoteFileName,
+									  byte[] serverName,
+									  byte[] remoteFileName,
 									  uint timeout,
 									  ref TmNativeDefs.FileTime fileTime,
 									  out uint errCode,
@@ -218,7 +218,7 @@ namespace Iface.Oik.Tm.Native.Api
 
 
 		public bool CfsTraceGetServerData(IntPtr connId,
-										  string serverId,
+										  byte[] serverId,
 										  ref TmNativeDefs.IfaceServer ifaceServer,
 										  out uint errCode,
 										  ref byte[] errBuf,
@@ -238,7 +238,7 @@ namespace Iface.Oik.Tm.Native.Api
 
 
 		public bool CfsTraceGetUserData(IntPtr connId,
-										string userId,
+										byte[] userId,
 										ref TmNativeDefs.IfaceUser ifaceServer,
 										out uint errCode,
 										ref byte[] errBuf,
@@ -406,8 +406,8 @@ namespace Iface.Oik.Tm.Native.Api
 
 
 		public bool CfsIfpcSetUserPwd(IntPtr connId,
-									  string username,
-									  string password,
+									  byte[] username,
+									  byte[] password,
 									  out uint errCode,
 									  ref byte[] errBuf,
 									  uint maxErrs)
@@ -422,21 +422,21 @@ namespace Iface.Oik.Tm.Native.Api
 		}
 
 
-		public void DPrintF(string message)
+		public void DPrintF(byte[] message)
 		{
-			d_printf("%s", message);
+			d_printf(new byte[3] { 37, 115, 0 }, message);
 		}
 
 
-		public void MPrintF(string message)
+		public void MPrintF(byte[] message)
 		{
-			m_printf("%s", message);
+			m_printf(new byte[3] { 37, 115, 0 }, message);
 		}
 
 
-		public void EPrintF(string message)
+		public void EPrintF(byte[] message)
 		{
-			e_printf("%s", message);
+			e_printf(new byte[3] { 37, 115, 0 }, message);
 		}
 
 
@@ -462,7 +462,7 @@ namespace Iface.Oik.Tm.Native.Api
 
 
 		public Boolean CfsNodeFileSave(IntPtr treeHandle,
-									   string fileName,
+									   byte[] fileName,
 									   out UInt32 errCode,
 									   ref byte[] errBuf,
 									   UInt32 maxErrs)
@@ -471,7 +471,7 @@ namespace Iface.Oik.Tm.Native.Api
 		}
 
 
-		public IntPtr CfsNodeFileLoad(string fileName,
+		public IntPtr CfsNodeFileLoad(byte[] fileName,
 									  out UInt32 errCode,
 									  ref byte[] errBuf,
 									  UInt32 maxErrs)
@@ -480,8 +480,8 @@ namespace Iface.Oik.Tm.Native.Api
 		}
 
 
-		public IntPtr CfsConfFileOpen(string serverName,
-									  string fileName,
+		public IntPtr CfsConfFileOpen(byte[] serverName,
+									  byte[] fileName,
 									  uint timeout,
 									  ref TmNativeDefs.FileTime fileTime,
 									  out uint errCode,
@@ -525,9 +525,9 @@ namespace Iface.Oik.Tm.Native.Api
 
 
 		public IntPtr CfsIfpcGetBin(IntPtr connId,
-									string uName,
-									string oName,
-									string binName,
+									byte[] uName,
+									byte[] oName,
+									byte[] binName,
 									out uint binLength,
 									out uint errCode,
 									ref byte[] errBuf,
@@ -538,9 +538,9 @@ namespace Iface.Oik.Tm.Native.Api
 
 
 		public bool CfsIfpcSetBin(IntPtr connId,
-								  string uName,
-								  string oName,
-								  string binName,
+								  byte[] uName,
+								  byte[] oName,
+								  byte[] binName,
 								  byte[] buf,
 								  uint bufLength,
 								  out uint errCode,
@@ -568,23 +568,23 @@ namespace Iface.Oik.Tm.Native.Api
 			return cfsIfpcEnumOSUsers(connId, out errCode, errBuf, maxErrs);
 		}
 
-		public Boolean СfsIfpcDeleteUser(IntPtr connId, string username,
+		public Boolean СfsIfpcDeleteUser(IntPtr connId, byte[] username,
 													   out uint errCode, ref byte[] errBuf, uint maxErrs)
 		{
 			return cfsIfpcDeleteUser(connId, username, out errCode, errBuf, maxErrs);
 		}
 
 		public uint СfsIfpcGetAccess(IntPtr connId,
-												   string uName,
-												   string oName,
+												   byte[] uName,
+												   byte[] oName,
 												   out uint errCode, ref byte[] errBuf, uint maxErrs)
 		{
 			return cfsIfpcGetAccess(connId, uName, oName, out errCode, errBuf, maxErrs);
 		}
 
 		public	Boolean СfsIfpcSetAccess(IntPtr connId,
-												   string uName,
-												   string oName,
+												   byte[] uName,
+												   byte[] oName,
 												   uint AccessMask,
 												   out uint errCode, ref byte[] errBuf, uint maxErrs)
 		{
@@ -592,15 +592,15 @@ namespace Iface.Oik.Tm.Native.Api
 		}
 
 		public Boolean CfsSaveMachineConfig(Boolean fFull,
-			string RemoteMasterMachine,
-			string FileName,
+			byte[] RemoteMasterMachine,
+			byte[] FileName,
 			ref byte[] errBuf, uint maxErrs)
 		{
 			return cfsSaveMachineConfig(fFull, RemoteMasterMachine, FileName, errBuf, maxErrs);
 		}
 		public Boolean CfsSaveMachineConfigEx(
-					string RemoteMasterMachine,
-					string FileName,
+					byte[] RemoteMasterMachine,
+					byte[] FileName,
 					uint dwScope,
 					TmNativeCallback prog_fn, IntPtr prog_parm,
 					ref byte[] errBuf, uint maxErrs)
@@ -614,12 +614,11 @@ namespace Iface.Oik.Tm.Native.Api
 				var ex_message = TmNativeUtil.GetFixedBytesWithTrailingZero(ex.Message, (int)maxErrs - 1, "windows-1251");
 				ex_message.CopyTo(errBuf, 0);
 				return false;
-			}
-			
+			}		
 		}
 		public Boolean CfsExternalBackupServer(IntPtr connId,
-			string dllname,
-			string servname,
+			byte[] dllname,
+			byte[] servname,
 			uint bflags,
 			ref CfsServerBackupData pbd,
 			out uint errCode, ref byte[] errBuf, uint maxErrs)
@@ -628,20 +627,20 @@ namespace Iface.Oik.Tm.Native.Api
 		}
 
 		public Boolean CfsExternalRestoreServer(IntPtr connId,
-			string dllname,
-			string servname,
-			string filename,
+			byte[] dllname,
+			byte[] servname,
+			byte[] filename,
 			out UInt32 pbflags,
 			out uint errCode, ref byte[] errBuf, uint maxErrs)
 		{
 			return cfsExternalRestoreServer(connId,dllname, servname, filename, out pbflags, out errCode, errBuf, maxErrs);
 		}
-		public  Boolean CfsIfpcBackupSecurity(IntPtr connId, string snp, string pwd, string filename, out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs)
+		public  Boolean CfsIfpcBackupSecurity(IntPtr connId, byte[] snp, byte[] pwd, byte[] filename, out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs)
 		{
 			return cfsIfpcBackupSecurity(connId, snp, pwd, filename, out errCode, errBuf, maxErrs);
 		}
 
-		public  Boolean CfsIfpcRestoreSecurity(IntPtr connId, string snp, string pwd, string filename, out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs)
+		public  Boolean CfsIfpcRestoreSecurity(IntPtr connId, byte[] snp, byte[] pwd, byte[] filename, out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs)
 		{
 			return cfsIfpcRestoreSecurity(connId, snp, pwd, filename, out errCode, errBuf, maxErrs);
 		}
@@ -649,6 +648,11 @@ namespace Iface.Oik.Tm.Native.Api
 		public IntPtr CfsMakeInprocCrd(byte[] machine, byte[] user, byte[] pwd)
 		{
 			return cfsMakeInprocCrd(machine, user, pwd);
+		}
+
+		public Boolean CfsPrepNewConfig(IntPtr connId, byte[] remote_fname,	out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs)
+		{
+			return cfsPrepNewConfig(connId, remote_fname, out errCode, errBuf, maxErrs);
 		}
 	}
 }

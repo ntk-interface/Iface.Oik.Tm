@@ -9,7 +9,7 @@ namespace Iface.Oik.Tm.Native.Api
   {
     public string GetOikTaskExecutable(string origin)
     {
-      DPrintF(origin);
+      //DPrintF(origin);
       if (Path.GetExtension(origin) == ".dll")
       {
         var executableExtension = (PlatformUtil.IsWindows) ? ".exe" : "";

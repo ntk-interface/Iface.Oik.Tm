@@ -207,7 +207,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
     Int16 TmcEvaluateExpression(Int32  cid,
-                                string expr,
+								byte[] expr,
                                 byte[] res,
                                 UInt32 cbBytes);
 
@@ -662,13 +662,13 @@ namespace Iface.Oik.Tm.Native.Interfaces
                                    ref byte[] buf,
                                    UInt32  bufSize);
 
-    Boolean TmcBackupServerProcedure(string machine, string pipe, byte[] directory,
+    Boolean TmcBackupServerProcedure(byte[] machine, byte[] pipe, byte[] directory,
                                         ref UInt32 pbflags,
                                         Int32 hCancel,
                                         TmNativeCallback prog_fn,
                                         IntPtr prog_parm);
     Boolean TmcRestoreServer(Boolean tms_not_rbs,
-                                        string machine, string pipe, string filename,
+										byte[] machine, byte[] pipe, byte[] filename,
                                         ref UInt32 pbflags,
                                         Int32 hCancel,
                                         [MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback prog_fn,

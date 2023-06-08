@@ -151,6 +151,7 @@ namespace Iface.Oik.Tm.Interfaces
 		Task<(bool, string)> SaveMachineConfigEx(string directory, uint scope,
 																	  TmNativeCallback callback = null,
 																	  IntPtr callbackParameter = default);
+		Task<(bool, string)> RestoreMachineConfig(string filename);
 		Task<(bool, string)> CreateBackup(string progName, string pipeName, string directory, bool withRetro,
 								TmNativeCallback callback = null,
 								IntPtr callbackParameter = default);
