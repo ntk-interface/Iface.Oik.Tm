@@ -1443,8 +1443,31 @@ namespace Iface.Oik.Tm.Api
       {
         return "";
       }
-
-      return " AND (1 << importance) & @Importances > 0";
+      // return " AND (1 << importance) & @Importances > 0";
+      // TQI не поддерживает битовое смещение, поэтому теперь вручную заполняем
+      var importances = new List<int>(); 
+      if (filter.Importances.HasFlag(TmEventImportances.Imp0))
+      {
+        importances.Add(0);
+      }
+      if (filter.Importances.HasFlag(TmEventImportances.Imp1))
+      {
+        importances.Add(1);
+      }
+      if (filter.Importances.HasFlag(TmEventImportances.Imp2))
+      {
+        importances.Add(2);
+      }
+      if (filter.Importances.HasFlag(TmEventImportances.Imp3))
+      {
+        importances.Add(3);
+      }
+      
+      if (importances.Count == 0)
+      {
+        return "";
+      }
+      return $" AND importance IN({string.Join(",", importances)})";
     }
 
 
