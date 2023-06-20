@@ -177,15 +177,20 @@ namespace Iface.Oik.Tm.Api
       var serverUtcTime = _native.UxGmTime2UxTime(utcTime);
       
       var statusPoint = new TmNativeDefs.TStatusPoint();
-      
-      await Task.Run(() => _native.TmcStatusFullEx(_cid, 
-                                                   (short)ch, 
-                                                   (short)rtu, 
-                                                   (short)point,
-                                                   ref statusPoint, 
-                                                   (uint) serverUtcTime))
-                .ConfigureAwait(false);
 
+      var isSuccess = await Task.Run(() => _native.TmcStatusFullEx(_cid,
+                                                                   (short)ch,
+                                                                   (short)rtu,
+                                                                   (short)point,
+                                                                   ref statusPoint,
+                                                                   (uint)serverUtcTime))
+                                .ConfigureAwait(false);
+
+      var flags = (TmFlags)statusPoint.Flags;
+      if (isSuccess == 0 || flags.HasFlag(TmFlags.Unreliable))
+      {
+        return -1;
+      }
       return statusPoint.Status;
     }
 
@@ -197,20 +202,25 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<float> GetAnalogFromRetro(int ch, int rtu, int point, DateTime time, int retroNum = 0)
+    public async Task<ITmAnalogRetro> GetAnalogFromRetro(int ch, int rtu, int point, DateTime time, int retroNum = 0)
     {
       var analogPoint = new TmNativeDefs.TAnalogPoint();
-      
-      await Task.Run(() => _native.TmcAnalogFull(_cid,
-                                                 (short) ch,
-                                                 (short) rtu,
-                                                 (short) point,
-                                                 ref analogPoint,
-                                                 time.ToTmString(),
-                                                 (short)retroNum))
-                .ConfigureAwait(false);
 
-      return analogPoint.AsFloat;
+      var isSuccess = await Task.Run(() => _native.TmcAnalogFull(_cid,
+                                                                 (short)ch,
+                                                                 (short)rtu,
+                                                                 (short)point,
+                                                                 ref analogPoint,
+                                                                 time.ToTmString(),
+                                                                 (short)retroNum))
+                                .ConfigureAwait(false);
+
+      var timestamp = DateUtil.GetUtcTimestampFromDateTime(time);
+      if (isSuccess == 0)
+      {
+        return new TmAnalogRetro(float.MaxValue, (short)TmFlags.Unreliable, timestamp);
+      }
+      return new TmAnalogRetro(analogPoint.AsFloat, analogPoint.Flags, DateUtil.GetUtcTimestampFromDateTime(time));
     }
 
 

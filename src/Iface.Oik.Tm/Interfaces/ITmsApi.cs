@@ -35,7 +35,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<float> GetAnalog(int ch, int rtu, int point);
 
-    Task<float> GetAnalogFromRetro(int ch, int rtu, int point, DateTime time, int retroNum = 0);
+    Task<ITmAnalogRetro> GetAnalogFromRetro(int ch, int rtu, int point, DateTime time, int retroNum = 0);
 
     Task SetAnalog(int ch, int rtu, int point, float value);
 
