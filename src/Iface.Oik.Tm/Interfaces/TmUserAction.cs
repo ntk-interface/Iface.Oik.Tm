@@ -17,6 +17,7 @@ namespace Iface.Oik.Tm.Interfaces
     public string               Text        { get; private set; }
     public string               Username    { get; private set; }
 
+    public long?  FullTma   { get; private set; }
     public Guid?  ExtraId   { get; private set; }
     public int?   ExtraInt  { get; private set; }
     public string ExtraText { get; private set; }
@@ -77,6 +78,7 @@ namespace Iface.Oik.Tm.Interfaces
         Importance  = dto.Importance,
         Text        = dto.Text,
         Username    = dto.Username,
+        FullTma     = dto.Tma,
         ExtraId     = dto.ExtraId,
         ExtraInt    = dto.ExtraInt,
         ExtraText   = dto.ExtraText,
@@ -98,6 +100,7 @@ namespace Iface.Oik.Tm.Interfaces
         Importance  = dto.Importance,
         Text        = dto.Text,
         Username    = dto.Username,
+        FullTma     = dto.Tma,
         ExtraId     = dto.ExtraId,
       };
 

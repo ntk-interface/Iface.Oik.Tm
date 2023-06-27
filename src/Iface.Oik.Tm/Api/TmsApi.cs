@@ -2682,7 +2682,7 @@ namespace Iface.Oik.Tm.Api
       var (ch, rtu, point) = tmTag.TmAddr.GetTupleShort();
       var propsBytes = TmNativeUtil.GetDoubleNullTerminatedBytesFromStringList(new[]
       {
-        $"EvUnblkTime="
+        "EvUnblkTime="
       });
       await Task.Run(() => _native.TmcSetObjectProperties(_cid,
                                                           tmTag.NativeType,

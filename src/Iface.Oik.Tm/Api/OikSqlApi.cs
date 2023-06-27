@@ -1533,8 +1533,8 @@ namespace Iface.Oik.Tm.Api
           sql.Label = "ArchEvents";
           await sql.OpenAsync().ConfigureAwait(false);
           var commandText = $@"SELECT id, time, action, category, state, importance, text, user_name,
-                                extra_id, extra_int, extra_text,
-                                ack_time, ack_user
+                               tma, extra_id, extra_int, extra_text,
+                               ack_time, ack_user
             FROM oik_user_actions_log
             WHERE 1=1 {whereBeg}{whereEnd}{whereActionCategories}{whereActionImportances}
             ORDER BY time

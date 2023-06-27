@@ -27,6 +27,7 @@ namespace Iface.Oik.Tm.Dto
     public int                  Importance { get; set; }
     public string               Text       { get; set; }
     public string               Username   { get; set; }
+    public long?                Tma        { get; set; }
     public Guid?                ExtraId    { get; set; }
   }
 
@@ -131,5 +132,13 @@ namespace Iface.Oik.Tm.Dto
   {
     public int    SchemeId { get; set; }
     public string DocName  { get; set; }
+  }
+
+
+  public class MqttTmTagBlockEvents
+  {
+    public long   TagFullTma     { get; set; }
+    public string TagName        { get; set; }
+    public int    MinutesToBlock { get; set; }
   }
 }

@@ -169,9 +169,11 @@ namespace Iface.Oik.Tm.Dto
         Time       = dto.Time,
         Action     = dto.Action,
         Category   = dto.Category,
+        State      = dto.State,
         Importance = dto.Importance,
         Text       = dto.Text,
         Username   = dto.Username,
+        Tma        = dto.Tma,
         ExtraId    = dto.ExtraId,
       };
     }
