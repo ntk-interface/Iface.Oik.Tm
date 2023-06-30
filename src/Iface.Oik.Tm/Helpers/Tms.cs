@@ -25,6 +25,12 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
+    public static void InitNativeLibraryAndIgnoreLinuxSignals()
+    {
+      Native.CfsInitLibrary(extArg: "nosig");
+    }
+
+
     public static void SetUserCredentials(string user,
                                           string password)
     {

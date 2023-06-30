@@ -15,7 +15,7 @@ namespace Iface.Oik.Tm.Native.Api
 #if x86
       return false;
 #else
-			return cfsInitLibrary(baseDir, extArg);
+			return cfsInitLibrary(baseDir, extArg ?? "nosig");
 #endif
 		}
 
