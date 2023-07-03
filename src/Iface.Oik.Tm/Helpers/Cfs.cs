@@ -5,6 +5,7 @@ using System.Text;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Helpers
@@ -25,6 +26,22 @@ namespace Iface.Oik.Tm.Helpers
 											  string password)
 		{
 			Native.CfsSetUser(EncodingUtil.Utf8ToWin1251Bytes(user), EncodingUtil.Utf8ToWin1251Bytes(password));
+		}
+		
+		public static string MakeInprocCrd(string host, string user, string pwd)
+		{
+			var ptr = Native.CfsMakeInprocCrd(EncodingUtil.Utf8ToWin1251Bytes(host),
+			                                  EncodingUtil.Utf8ToWin1251Bytes(user),
+			                                  EncodingUtil.Utf8ToWin1251Bytes(pwd));
+			if (ptr == IntPtr.Zero)
+			{
+				return string.Empty;
+			}
+			
+			var res = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(ptr);
+			Native.CfsFreeMemory(ptr);
+			return res;
+
 		}
 
 		public static (IntPtr cfId, string errString, int errorCode) ConnectToCfs(string host)
@@ -110,5 +127,15 @@ namespace Iface.Oik.Tm.Helpers
 			Native.CfsDisconnect(cfId);
 		}
 
+
+		public static (bool hasNus, TmNativeDefs.NewUserSystem nusFlags) GetNewUserSystemFlags(IntPtr cfCid)
+		{
+			const int errBufLength = 1000;
+			var       errBuf       = new byte[errBufLength];
+			uint      errCode      = 0;
+
+			var hasNus = Native.CfsIfpcNewUserSystemAvaliable(cfCid, out var nusFlags, out errCode, ref errBuf, errBufLength);
+			return (hasNus, (TmNativeDefs.NewUserSystem)nusFlags);
+		}
 	}
 }
