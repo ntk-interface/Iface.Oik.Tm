@@ -1,4 +1,6 @@
+using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Utils;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -163,5 +165,10 @@ namespace Iface.Oik.Tm.Interfaces
 		Task<(IReadOnlyCollection<string>, string)> EnumPackedFiles(string pkfname);
 		Task<(IReadOnlyCollection<string>, string)> UnPack(string pkfname, string dirname);
 		Task<(bool, string)> ExtractFile(string pkfname, string filename, string dirname);
+		Task<(uint, string, UInt64, UInt32)> StartTestTmcalc(string tmsname, string clcname, UInt32 test_way, UInt32 test_flags);
+		Task<(uint, string)> StopTestTmcalc(UInt64 handle, UInt32 pid);
+		Task<(uint, string)> PmonCheckProcess(string process_name_args);
+		Task<(uint, string)> PmonStopProcess(string process_name_args);
+		Task<(uint, string)> PmonRestartProcess(string process_name_args);
 	}
 }

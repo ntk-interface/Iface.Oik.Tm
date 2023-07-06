@@ -654,5 +654,37 @@ namespace Iface.Oik.Tm.Native.Api
 		{
 			return cfsPrepNewConfig(connId, remote_fname, out errCode, errBuf, maxErrs);
 		}
+		public  Boolean CfsIfpcTestTmcalc(IntPtr connId,
+			byte[] tmsname, byte[] clcname, UInt32 test_way, UInt32 test_flags,
+			out UInt64 p_handle, out UInt32 p_pid,
+			out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs)
+		{
+			return cfsIfpcTestTmcalc(connId, tmsname, clcname, test_way, test_flags, out p_handle, out p_pid, out errCode, errBuf, maxErrs);
+		}
+		public Boolean CfsIfpcStopTestTmcalc(IntPtr connId,
+			UInt64 handle, UInt32 pid,
+			out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs)
+		{
+			return cfsIfpcStopTestTmcalc(connId, handle, pid, out errCode, errBuf, maxErrs);
+		}
+		public Boolean СfsPmonCheckProcess(IntPtr connId, byte[] process_name_args,
+			out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs)
+		{
+			return cfsPmonCheckProcess(connId, process_name_args, out errCode, errBuf, maxErrs);
+		}
+
+		public Boolean CfsPmonStopProcess(IntPtr connId, byte[] process_name_args,
+			out UInt32 pnumfound,
+			out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs)
+		{
+			return cfsPmonStopProcess(connId, process_name_args, out pnumfound, out errCode, errBuf, maxErrs);
+		}
+
+		public Boolean CfsPmonRestartProcess(IntPtr connId, byte[] process_name_args,
+			out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs)
+		{
+			return cfsPmonRestartProcess(connId, process_name_args, out errCode, errBuf, maxErrs);
+		}
+
 	}
 }

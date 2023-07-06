@@ -419,5 +419,22 @@ namespace Iface.Oik.Tm.Native.Interfaces
 		Boolean CfsIfpcRestoreSecurity(IntPtr connId, byte[] snp, byte[] pwd, byte[] filename, out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);
 		//bool CfsGetIniString(IntPtr cfCid, string v1, string v2, string tmServerName, string empty, ref byte[] buf, out uint bufSize, out uint errCode, ref byte[] errBuf, int errBufLength);
 		Boolean CfsPrepNewConfig(IntPtr connId, byte[] remote_fname, out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);
+		Boolean CfsIfpcTestTmcalc(IntPtr connId,
+			byte[] tmsname, byte[] clcname, UInt32 test_way, UInt32 test_flags,
+			out UInt64 p_handle, out UInt32 p_pid,
+			out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);
+		Boolean CfsIfpcStopTestTmcalc(IntPtr connId,
+			UInt64 handle, UInt32 pid,
+			out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);
+
+		Boolean СfsPmonCheckProcess(IntPtr connId, byte[] process_name_args,
+			out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);
+
+		Boolean CfsPmonStopProcess(IntPtr connId, byte[] process_name_args,
+			out UInt32 pnumfound,
+			out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);
+
+		Boolean CfsPmonRestartProcess(IntPtr connId, byte[] process_name_args,
+			out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);
 	}
 }
