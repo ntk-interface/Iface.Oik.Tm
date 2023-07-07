@@ -12,6 +12,7 @@ using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -725,7 +726,11 @@ namespace Iface.Oik.Tm.Api
 			var lookup = new Dictionary<uint, TmServer>();
 			var tmServers = await GetTmServers().ConfigureAwait(false);
 
-			tmServers.ForEach(x => lookup.Add(x.ProcessId, x));
+			// Иногда случаются дубли, лучше сделать который не даст исключений
+			foreach(var server in tmServers)
+			{
+				lookup[server.ProcessId] = server;
+			}
 			foreach (var tmServer in tmServers)
 			{
 				if (!lookup.TryGetValue(tmServer.ParentProcessId, out var proposedParent)) continue;
@@ -2973,6 +2978,82 @@ namespace Iface.Oik.Tm.Api
 			{
 				return (true, string.Empty);
 			}
+		}
+		public async Task<(uint, string, UInt64, UInt32)> StartTestTmcalc(string tmsname, string clcname, UInt32 test_way, UInt32 test_flags)
+		{
+			const int errBufLength = 1000;
+			var errBuf = new byte[errBufLength];
+			uint errCode = 0;
+			UInt64 handle=0;
+			UInt32 pid=0;
+
+			var result = await Task.Run(() => _native.CfsIfpcTestTmcalc(CfId,
+				EncodingUtil.Utf8ToWin1251Bytes(tmsname),
+				EncodingUtil.Utf8ToWin1251Bytes(clcname),
+				test_way, test_flags,
+				out handle, out pid,
+				out errCode, ref errBuf, errBufLength
+				)).ConfigureAwait(false);
+			if (!result)
+			{
+				return (errCode, EncodingUtil.Win1251BytesToUtf8(errBuf), 0, 0);
+			}
+			else
+			{
+				return (0, string.Empty, handle, pid);
+			}
+		}
+		public async Task<(uint, string)> StopTestTmcalc(UInt64 handle, UInt32 pid)
+		{
+			const int errBufLength = 1000;
+			var errBuf = new byte[errBufLength];
+			uint errCode = 0;
+			var result = await Task.Run(() => _native.CfsIfpcStopTestTmcalc(CfId,
+				handle, pid,
+				out errCode, ref errBuf, errBufLength
+				)).ConfigureAwait(false);
+			if (!result)
+			{
+				return (errCode, EncodingUtil.Win1251BytesToUtf8(errBuf));
+			}
+			else
+			{
+				return (0, string.Empty);
+			}
+		}
+		public async Task<(bool, string)> PmonCheckProcess(string process_name_args)
+		{
+			const int errBufLength = 1000;
+			var errBuf = new byte[errBufLength];
+			uint errCode = 0;
+			var result = await Task.Run(() => _native.СfsPmonCheckProcess(CfId,
+				EncodingUtil.Utf8ToWin1251Bytes(process_name_args),
+				out errCode, ref errBuf, errBufLength
+				)).ConfigureAwait(false);
+			return (result, EncodingUtil.Win1251BytesToUtf8(errBuf));
+		}
+		public async Task<(bool, string)> PmonStopProcess(string process_name_args)
+		{
+			const int errBufLength = 1000;
+			var errBuf = new byte[errBufLength];
+			uint errCode = 0, pnumfound = 0;
+			var result = await Task.Run(() => _native.CfsPmonStopProcess(CfId,
+				EncodingUtil.Utf8ToWin1251Bytes(process_name_args),
+				out pnumfound,
+				out errCode, ref errBuf, errBufLength
+				)).ConfigureAwait(false);
+			return (result, EncodingUtil.Win1251BytesToUtf8(errBuf));
+		}
+		public async Task<(bool, string)> PmonRestartProcess(string process_name_args)
+		{
+			const int errBufLength = 1000;
+			var errBuf = new byte[errBufLength];
+			uint errCode = 0;
+			var result = await Task.Run(() => _native.CfsPmonRestartProcess(CfId,
+				EncodingUtil.Utf8ToWin1251Bytes(process_name_args),
+				out errCode, ref errBuf, errBufLength
+				)).ConfigureAwait(false);
+			return (result, EncodingUtil.Win1251BytesToUtf8(errBuf));
 		}
 	}
 }

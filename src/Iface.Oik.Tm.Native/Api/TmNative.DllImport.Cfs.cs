@@ -537,5 +537,29 @@ namespace Iface.Oik.Tm.Native.Api
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern Boolean cfsPrepNewConfig(IntPtr connId, byte[] remote_fname,
 			out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
+
+		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+		public static extern Boolean cfsIfpcTestTmcalc(IntPtr connId, 
+			byte[] tmsname, byte[] clcname, UInt32 test_way, UInt32 test_flags,
+			out UInt64 p_handle, out UInt32 p_pid,
+			out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
+
+		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+		public static extern Boolean cfsIfpcStopTestTmcalc(IntPtr connId, 
+			UInt64 handle, UInt32 pid,
+			out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
+
+		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+		public static extern Boolean cfsPmonCheckProcess(IntPtr connId, byte[] process_name_args,
+			out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
+
+		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+		public static extern Boolean cfsPmonStopProcess(IntPtr connId, byte[] process_name_args, 
+			out UInt32 pnumfound,
+			out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
+
+		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+		public static extern Boolean cfsPmonRestartProcess(IntPtr connId, byte[] process_name_args,
+			out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
 	}
 }
