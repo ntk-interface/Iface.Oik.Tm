@@ -167,8 +167,8 @@ namespace Iface.Oik.Tm.Interfaces
 		Task<(bool, string)> ExtractFile(string pkfname, string filename, string dirname);
 		Task<(uint, string, UInt64, UInt32)> StartTestTmcalc(string tmsname, string clcname, UInt32 test_way, UInt32 test_flags);
 		Task<(uint, string)> StopTestTmcalc(UInt64 handle, UInt32 pid);
-		Task<(uint, string)> PmonCheckProcess(string process_name_args);
-		Task<(uint, string)> PmonStopProcess(string process_name_args);
-		Task<(uint, string)> PmonRestartProcess(string process_name_args);
+		Task<(bool, string)> PmonCheckProcess(string process_name_args);
+		Task<(bool, string)> PmonStopProcess(string process_name_args);
+		Task<(bool, string)> PmonRestartProcess(string process_name_args);
 	}
 }

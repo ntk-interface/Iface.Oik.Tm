@@ -3021,7 +3021,7 @@ namespace Iface.Oik.Tm.Api
 				return (0, string.Empty);
 			}
 		}
-		public async Task<(uint, string)> PmonCheckProcess(string process_name_args)
+		public async Task<(bool, string)> PmonCheckProcess(string process_name_args)
 		{
 			const int errBufLength = 1000;
 			var errBuf = new byte[errBufLength];
@@ -3030,9 +3030,9 @@ namespace Iface.Oik.Tm.Api
 				EncodingUtil.Utf8ToWin1251Bytes(process_name_args),
 				out errCode, ref errBuf, errBufLength
 				)).ConfigureAwait(false);
-			return (errCode, EncodingUtil.Win1251BytesToUtf8(errBuf));
+			return (result, EncodingUtil.Win1251BytesToUtf8(errBuf));
 		}
-		public async Task<(uint, string)> PmonStopProcess(string process_name_args)
+		public async Task<(bool, string)> PmonStopProcess(string process_name_args)
 		{
 			const int errBufLength = 1000;
 			var errBuf = new byte[errBufLength];
@@ -3042,9 +3042,9 @@ namespace Iface.Oik.Tm.Api
 				out pnumfound,
 				out errCode, ref errBuf, errBufLength
 				)).ConfigureAwait(false);
-			return (errCode, EncodingUtil.Win1251BytesToUtf8(errBuf));
+			return (result, EncodingUtil.Win1251BytesToUtf8(errBuf));
 		}
-		public async Task<(uint, string)> PmonRestartProcess(string process_name_args)
+		public async Task<(bool, string)> PmonRestartProcess(string process_name_args)
 		{
 			const int errBufLength = 1000;
 			var errBuf = new byte[errBufLength];
@@ -3053,7 +3053,7 @@ namespace Iface.Oik.Tm.Api
 				EncodingUtil.Utf8ToWin1251Bytes(process_name_args),
 				out errCode, ref errBuf, errBufLength
 				)).ConfigureAwait(false);
-			return (errCode, EncodingUtil.Win1251BytesToUtf8(errBuf));
+			return (result, EncodingUtil.Win1251BytesToUtf8(errBuf));
 		}
 	}
 }
