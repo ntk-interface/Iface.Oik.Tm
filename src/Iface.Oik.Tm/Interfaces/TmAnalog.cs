@@ -142,6 +142,10 @@ namespace Iface.Oik.Tm.Interfaces
         {
           flagsToDisplay.Add("Идет опрос");
         }
+        if (IsAbnormal)
+        {
+          flagsToDisplay.Add("Несоответствие нормальному режиму");
+        }
         if (IsManuallyBlocked)
         {
           flagsToDisplay.Add("Заблокировано оператором");
