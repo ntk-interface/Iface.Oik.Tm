@@ -738,7 +738,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    private async Task UpdateTagProperties(TmTag tag)
+    public async Task UpdateTagProperties(TmTag tag)
     {
       await Task.Run(() => UpdateTagPropertiesSynchronously(tag)).ConfigureAwait(false);
     }
@@ -794,7 +794,122 @@ namespace Iface.Oik.Tm.Api
       tag.SetTmcClassData(str);
     }
 
+    
+    public async Task UpdateTagsClassDataExplicitly(IReadOnlyList<TmTag> tags)
+    {
+      var analogs = new List<TmAnalog>();
+      var statuses = new List<TmStatus>();
+      foreach (var tag in tags)
+      {
+        switch (tag)
+        {
+          case TmAnalog analog:
+            analogs.Add(analog);
+            break;
+          case TmStatus status:
+            statuses.Add(status);
+            break;
+          default:
+            continue;
+        }
+      }
 
+      var analogsTask = UpdateAnalogsClassDataExplicitly(analogs);
+      var statusTask  = UpdateStatusesClassDataExplicitly(statuses);
+
+      await Task.WhenAll(analogsTask, statusTask).ConfigureAwait(false);
+    }
+
+    
+    public async Task UpdateAnalogsClassDataExplicitly(IReadOnlyList<TmAnalog> tmAnalogs)
+    {
+      await Task.Run(() => UpdateAnalogsClassDataExplicitlySynchronously(tmAnalogs)).ConfigureAwait(false);
+    }
+    
+    
+    private void UpdateAnalogsClassDataExplicitlySynchronously(IReadOnlyList<TmAnalog> tmAnalogs)
+    {
+      var source = tmAnalogs;
+
+      while (source.Any())
+      {
+        var chunk        = source.Take(128).ToList();
+        var classDataPtr = _native.TmcGetAnalogClassData(_cid, (uint) chunk.Count, chunk.Select(x => x.TmAddr.ToAdrTm()).ToArray());
+
+        if (classDataPtr == IntPtr.Zero)
+        {
+          return;
+        }
+
+        var singleClassDataPtr = Marshal.PtrToStructure<IntPtr>(classDataPtr); 
+        
+        foreach (var analog in chunk)
+        {
+          var str = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(singleClassDataPtr);
+
+          analog.SetTmcClassData(str);
+
+          if (str == string.Empty)
+          {
+            singleClassDataPtr = IntPtr.Add(singleClassDataPtr, 1);
+            continue;
+          }
+          
+          singleClassDataPtr = IntPtr.Add(singleClassDataPtr, str.Length + 1);
+        }
+
+        source = source.Skip(128).ToList();
+        _native.TmcFreeMemory(classDataPtr);
+      }
+    }
+
+
+    public async Task UpdateStatusesClassDataExplicitly(IReadOnlyList<TmStatus> tmStatus)
+    {
+      await Task.Run(() => UpdateStatusesClassDataExplicitlySynchronously(tmStatus)).ConfigureAwait(false);
+    }
+    
+    
+    private void UpdateStatusesClassDataExplicitlySynchronously(IReadOnlyList<TmStatus> tmStatus)
+    {
+      var source = tmStatus;
+
+      while (source.Any())
+      {
+        var chunk        = source.Take(128).ToList();
+        var classDataPtr = _native.TmcGetStatusClassData(_cid, (uint) chunk.Count, chunk.Select(x => x.TmAddr.ToAdrTm()).ToArray());
+
+        if (classDataPtr == IntPtr.Zero)
+        {
+          return;
+        }
+        
+        
+        var singleClassDataPtr = Marshal.PtrToStructure<IntPtr>(classDataPtr);
+
+
+        foreach (var status in chunk)
+        {
+          var str = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(singleClassDataPtr);
+
+          status.SetTmcClassData(str);
+
+          if (str == string.Empty)
+          {
+            singleClassDataPtr = IntPtr.Add(singleClassDataPtr, 1);
+            continue;
+          }
+          
+          singleClassDataPtr = IntPtr.Add(singleClassDataPtr, str.Length + 1);
+        }
+
+        source = source.Skip(128).ToArray();
+        
+        _native.TmcFreeMemory(classDataPtr);
+      }
+    }
+    
+    
     private async Task UpdateAnalogTechParameters(TmTag tag)
     {
       await Task.Run(() => UpdateAnalogTechParametersSynchronously(tag)).ConfigureAwait(false);
