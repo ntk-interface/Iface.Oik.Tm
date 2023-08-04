@@ -561,5 +561,9 @@ namespace Iface.Oik.Tm.Native.Api
 		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 		public static extern Boolean cfsPmonRestartProcess(IntPtr connId, byte[] process_name_args,
 			out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
+
+		[DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+		public static extern Boolean cfsSwapFnSrvRole(byte[] serverName, Boolean b_pre, byte[] fns_name,
+			out UInt32 errCode, [In, Out] byte[] errBuf, UInt32 maxErrs);
 	}
 }
