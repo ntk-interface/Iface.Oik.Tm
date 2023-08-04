@@ -397,7 +397,7 @@ namespace Iface.Oik.Tm.Interfaces
       {
         if (int.TryParse(value, out var normalStatus))
         {
-          NormalStatus = (short )normalStatus;
+          NormalStatus = (short) ((normalStatus == 0 || normalStatus == 1) ? normalStatus : -1);
         }
       }
       if (key == "Importance")
