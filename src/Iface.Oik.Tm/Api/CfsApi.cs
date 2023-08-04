@@ -3055,5 +3055,19 @@ namespace Iface.Oik.Tm.Api
 				)).ConfigureAwait(false);
 			return (result, EncodingUtil.Win1251BytesToUtf8(errBuf));
 		}
+		
+		public async Task<(bool, string)> SwapFnSrvRole(string serverName, Boolean b_pre, string fns_name)
+		{
+			const int errBufLength = 1000;
+			var errBuf = new byte[errBufLength];
+			uint errCode = 0;
+			var result = await Task.Run(() => _native.CfsSwapFnSrvRole(
+				EncodingUtil.Utf8ToWin1251Bytes(serverName),
+				b_pre,
+				EncodingUtil.Utf8ToWin1251Bytes(fns_name),
+				out errCode, ref errBuf, errBufLength
+				)).ConfigureAwait(false);
+			return (result, EncodingUtil.Win1251BytesToUtf8(errBuf));
+		}
 	}
 }

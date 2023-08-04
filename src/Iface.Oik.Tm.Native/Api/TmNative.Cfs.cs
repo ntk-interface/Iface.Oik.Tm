@@ -685,6 +685,11 @@ namespace Iface.Oik.Tm.Native.Api
 		{
 			return cfsPmonRestartProcess(connId, process_name_args, out errCode, errBuf, maxErrs);
 		}
+		public Boolean CfsSwapFnSrvRole(byte[] serverName, Boolean b_pre, byte[] fns_name,
+			out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs)
+		{
+			return cfsSwapFnSrvRole(serverName, b_pre, fns_name, out errCode, errBuf, maxErrs);
+		}
 
 	}
 }

@@ -436,5 +436,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 		Boolean CfsPmonRestartProcess(IntPtr connId, byte[] process_name_args,
 			out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);
+
+		Boolean CfsSwapFnSrvRole(byte[] serverName, Boolean b_pre, byte[] fns_name,
+			out UInt32 errCode, ref byte[] errBuf, UInt32 maxErrs);
 	}
 }

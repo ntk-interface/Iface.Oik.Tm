@@ -317,7 +317,4 @@ ASALocalRun/
 # MSBuild Binary and Structured Log
 *.binlog
 
-/src/Iface.Oik.Tm.Native/runtimes/unix/native/libif_cfs.so
-/src/Iface.Oik.Tm.Native/runtimes/win-x64/native/libif_cfs.dll
-/src/Iface.Oik.Tm.Native/runtimes/win-x86/native/cfshare.dll
-/src/Iface.Oik.Tm.Native/runtimes/win-x86/native/tmconn.dll
+/src/Iface.Oik.Tm.Native/runtimes/**

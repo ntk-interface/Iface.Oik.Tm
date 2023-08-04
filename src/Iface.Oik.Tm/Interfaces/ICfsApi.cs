@@ -170,5 +170,6 @@ namespace Iface.Oik.Tm.Interfaces
 		Task<(bool, string)> PmonCheckProcess(string process_name_args);
 		Task<(bool, string)> PmonStopProcess(string process_name_args);
 		Task<(bool, string)> PmonRestartProcess(string process_name_args);
+		Task<(bool, string)> SwapFnSrvRole(string serverName, Boolean b_pre, string fns_name);
 	}
 }
