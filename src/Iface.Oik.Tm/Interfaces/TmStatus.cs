@@ -379,7 +379,15 @@ namespace Iface.Oik.Tm.Interfaces
       }
       return defaultValue;
     }
-    
+
+
+    public override void SetTmcObjectProperties(string tmcObjectPropertiesString)
+    {
+      NormalStatus = -1;
+      
+      base.SetTmcObjectProperties(tmcObjectPropertiesString);
+    }
+
 
     protected override void SetTmcObjectProperties(string key, string value)
     {
@@ -571,6 +579,32 @@ namespace Iface.Oik.Tm.Interfaces
       };
     }
 
+    
+    public string GetCustomFlagName(TmFlags flag)
+    {
+      switch (flag)
+      {
+        case TmFlags.LevelA: return Flag1Name;
+        case TmFlags.LevelB: return Flag2Name;
+        case TmFlags.LevelC: return Flag3Name;
+        case TmFlags.LevelD: return Flag4Name;
+        default:             return string.Empty;
+      }
+    }
+    
+    
+    public string GetCustomFlagStatus(TmFlags flag)
+    {
+      switch (flag)
+      {
+        case TmFlags.LevelA: return Flag1Status;
+        case TmFlags.LevelB: return Flag2Status;
+        case TmFlags.LevelC: return Flag3Status;
+        case TmFlags.LevelD: return Flag4Status;
+        default:             return string.Empty;
+      }
+    }
+    
 
     public static TmStatus CreateFromTmTreeDto(TmStatusTmTreeDto dto)
     {

@@ -527,13 +527,16 @@ namespace Iface.Oik.Tm.Test.Api
       [Theory, TmAutoFakeItEasyData]
       public async void ReturnsNullWhenWhenTmconnReturnsFalse([Frozen] ITmNative native, TmsApi tms)
       {
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        
         uint error;
-        var  errorBuf = new byte[80];
-        uint bufLength          = 80;
-        var  buf                = new char[bufLength];
+        var  errorBuf  = new byte[80];
+        uint bufLength = 80;
+        var  buf       = new char[bufLength];
+
         A.CallTo(() => native.TmcGetCfsHandle(A<int>._))
          .Returns(new IntPtr(1));
-        A.CallTo(() => native.CfsDirEnum(new IntPtr(1), "", ref buf, bufLength, out error, ref errorBuf, 0))
+        A.CallTo(() => native.CfsDirEnum(new IntPtr(1), Array.Empty<byte>(), ref buf, bufLength, out error, ref errorBuf, 0))
          .WithAnyArguments()
          .Returns(false);
 
@@ -552,7 +555,7 @@ namespace Iface.Oik.Tm.Test.Api
         var  buf                = new char[bufLength];
         A.CallTo(() => native.TmcGetCfsHandle(A<int>._))
          .Returns(new IntPtr(1));
-        A.CallTo(() => native.CfsDirEnum(new IntPtr(1), "", ref buf, bufLength, out error, ref errorBuf, 0))
+        A.CallTo(() => native.CfsDirEnum(new IntPtr(1), Array.Empty<byte>(), ref buf, bufLength, out error, ref errorBuf, 0))
          .WithAnyArguments()
          .Returns(true)
          .AssignsOutAndRefParameters(new[]
@@ -591,7 +594,7 @@ namespace Iface.Oik.Tm.Test.Api
         var  fileTime = new TmNativeDefs.FileTime();
         A.CallTo(() => native.TmcGetCfsHandle(A<int>._))
          .Returns(new IntPtr(1));
-        A.CallTo(() => native.CfsFileGet(new IntPtr(1), "", "", 0, ref fileTime, out error, ref errorBuf, 0))
+        A.CallTo(() => native.CfsFileGet(new IntPtr(1), Array.Empty<byte>(), Array.Empty<byte>(), 0, ref fileTime, out error, ref errorBuf, 0))
          .WithAnyArguments()
          .Returns(false);
 
@@ -609,7 +612,7 @@ namespace Iface.Oik.Tm.Test.Api
         var  fileTime = new TmNativeDefs.FileTime();
         A.CallTo(() => native.TmcGetCfsHandle(A<int>._))
          .Returns(new IntPtr(1));
-        A.CallTo(() => native.CfsFileGet(new IntPtr(1), "", "", 0, ref fileTime, out error, ref errorBuf, 0))
+        A.CallTo(() => native.CfsFileGet(new IntPtr(1), Array.Empty<byte>(), Array.Empty<byte>(), 0, ref fileTime, out error, ref errorBuf, 0))
          .WithAnyArguments()
          .Returns(true);
 

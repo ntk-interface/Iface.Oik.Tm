@@ -184,7 +184,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void SetTmcObjectProperties(string tmcObjectPropertiesString)
+    public virtual void SetTmcObjectProperties(string tmcObjectPropertiesString)
     {
       Properties     = new Dictionary<string, string>();
       HasTmProvider  = false;
@@ -229,13 +229,28 @@ namespace Iface.Oik.Tm.Interfaces
       foreach (var prop in props)
       {
         var kvp = prop.Split('=');
-        if (kvp.Length == 2)
+        if (kvp.Length != 2)
         {
-          ClassData.Add(kvp[0], kvp[1]);
+         continue; 
         }
+        
+        SetTmcClassDataItem(kvp[0], kvp[1]);
       }
     }
 
+
+    private void SetTmcClassDataItem(string key, string value)
+    {
+      ClassData.Add(key, value);
+
+      switch (key)
+      {
+        case "ClassNumber":
+          ClassId = byte.TryParse(value, out var classId) ? classId : (byte?) null;
+          break;
+      }
+    }
+    
 
     public void SetBlockedEventsData(string name, DateTime time)
     {
