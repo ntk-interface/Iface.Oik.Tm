@@ -3067,6 +3067,11 @@ namespace Iface.Oik.Tm.Api
 				EncodingUtil.Utf8ToWin1251Bytes(fns_name),
 				out errCode, ref errBuf, errBufLength
 				)).ConfigureAwait(false);
+			if (fns_name.IsNullOrEmpty())
+			{
+				// просто проверка поддержки функции
+				return ((errCode == 21201), string.Empty);
+			}
 			return (result, EncodingUtil.Win1251BytesToUtf8(errBuf));
 		}
 	}
