@@ -184,7 +184,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void SetTmcObjectProperties(string tmcObjectPropertiesString)
+    public virtual void SetTmcObjectProperties(string tmcObjectPropertiesString)
     {
       Properties     = new Dictionary<string, string>();
       HasTmProvider  = false;

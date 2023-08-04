@@ -379,7 +379,15 @@ namespace Iface.Oik.Tm.Interfaces
       }
       return defaultValue;
     }
-    
+
+
+    public override void SetTmcObjectProperties(string tmcObjectPropertiesString)
+    {
+      NormalStatus = -1;
+      
+      base.SetTmcObjectProperties(tmcObjectPropertiesString);
+    }
+
 
     protected override void SetTmcObjectProperties(string key, string value)
     {
@@ -389,7 +397,7 @@ namespace Iface.Oik.Tm.Interfaces
       {
         if (int.TryParse(value, out var normalStatus))
         {
-          NormalStatus = (short) ((normalStatus == 0 || normalStatus == 1) ? normalStatus : -1);
+          NormalStatus = (short )normalStatus;
         }
       }
       if (key == "Importance")
