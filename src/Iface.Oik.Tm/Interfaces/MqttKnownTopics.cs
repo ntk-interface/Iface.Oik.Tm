@@ -49,6 +49,10 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Document/CreateFromModusConvert")]             DocumentCreateFromModusConvert             = 309,
     [Description("Document/AddTagFromModusConvert")]             DocumentAddTagFromModusConvert             = 310,
     [Description("Document/UpdateContentFromModusConvert")]      DocumentUpdateContentFromModusConvert      = 311,
+    [Description("Document/UpdateCalcScript")]                   DocumentUpdateCalcScript                   = 312,
+    [Description("Document/EnableCalcScript")]                   DocumentEnableCalcScript                   = 313,
+    [Description("Document/DisableCalcScript")]                  DocumentDisableCalcScript                  = 314,
+    [Description("Document/DeleteCalcScript")]                   DocumentDeleteCalcScript                   = 315,
 
     [Description("Tm/Tag/BlockEvents")]   TmTagBlockEventsTemporarily = 500,
     [Description("Tm/Tag/UnblockEvents")] TmTagUnblockEvents          = 501,

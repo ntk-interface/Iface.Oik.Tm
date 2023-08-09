@@ -23,10 +23,10 @@
 	</ItemGroup>
 	
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(OS)' == 'Windows_NT' ">
-		<Exec Command="mkdir .\runtimes\unix\native\" />
-		<Exec Command="mkdir .\runtimes\win-x64\native\" />
-		<Exec Command="mkdir .\runtimes\win-x86\native\" />
-		<Exec Command="copy ..\..\lib\libif_cfs.so .\runtimes\unix\native\" />
+        <Exec Command="mkdir runtimes\unix\native\" IgnoreExitCode="true" />
+        <Exec Command="mkdir runtimes\win-x64\native\" IgnoreExitCode="true" />
+        <Exec Command="mkdir runtimes\win-x86\native\" IgnoreExitCode="true" />
+	    <Exec Command="copy ..\..\lib\libif_cfs.so .\runtimes\unix\native\" />
   	    <Exec Command="copy ..\..\lib\libif_cfs.dll .\runtimes\win-x64\native\" />
 		<Exec Command="copy ..\..\lib\cfshare.dll .\runtimes\win-x86\native\" />
 		<Exec Command="copy ..\..\lib\tmconn.dll .\runtimes\win-x86\native\" />
