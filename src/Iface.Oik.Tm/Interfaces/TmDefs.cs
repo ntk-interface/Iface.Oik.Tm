@@ -259,6 +259,8 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Документ - левая кнопка (в новой вкладке)")]     DocumentForClickNewTab   = 21,
     [Description("Документ - левая кнопка (во всплывающем окне)")] DocumentForClickOverview = 22,
     [Description("Переход на другой элемент")]                     Hyperlink                = 23,
+    [Description("Вызов функции дорасчета - контекстное меню")]    CalcScriptForContextMenu = 24,
+    [Description("Вызов функции дорасчета - левая кнопка мыши")]   CalcScriptForClick       = 25,
   }
 
 
@@ -309,7 +311,38 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Исключение при выполнении ТУ")]                                   Except                 = -15,
     [Description("Оконечное устройство занято другой операцией")]                   Busy                   = -16,
     [Description("Отказано: нет захвата ТУ")]                                       NoControlCapture       = -17,
-    [Description("Команда не была отправлена")]                                     CommandNotSentToServer = -100,
+    [Description("Переключение не произошло в заданное время")]                     SwitchTimeout          = -18,
+
+    [Description("МЭК850: причина неизвестна")]                                Iec850Error850 = -850,
+    [Description("МЭК850: не поддерживается")]                                 Iec850Error851 = -851,
+    [Description("МЭК850: заблокировано иерархией переключений")]              Iec850Error852 = -852,
+    [Description("МЭК850: команда выбора не прошла")]                          Iec850Error853 = -853,
+    [Description("МЭК850: неверная позиция")]                                  Iec850Error854 = -854,
+    [Description("МЭК850: позиция уже достигнута")]                            Iec850Error855 = -855,
+    [Description("МЭК850: во время исполнения произошло измененме параметра")] Iec850Error856 = -856,
+    [Description("МЭК850: достигнут лимит шагов переключения")]                Iec850Error857 = -857,
+    [Description("МЭК850: блокировано режимом")]                               Iec850Error858 = -858,
+    [Description("МЭК850: блокировано процессом")]                             Iec850Error859 = -859,
+    [Description("МЭК850: блокировано перекрестным захватом")]                 Iec850Error860 = -860,
+    [Description("МЭК850: блокировано проверкой synchrocheck")]                Iec850Error861 = -861,
+    [Description("МЭК850: команда уже выполняется")]                           Iec850Error862 = -862,
+    [Description("МЭК850: блокировано состоянием устройства (health)")]        Iec850Error863 = -863,
+    [Description("МЭК850: cause 1 of N control")]                              Iec850Error864 = -864,
+    [Description("МЭК850: команда отменена")]                                  Iec850Error865 = -865,
+    [Description("МЭК850: исчерпан лимит времени")]                            Iec850Error866 = -866,
+    [Description("МЭК850: abortion by trip")]                                  Iec850Error867 = -867,
+    [Description("МЭК850: объект управления не был выбран")]                   Iec850Error868 = -868,
+    [Description("МЭК850: объект управления уже был выбран")]                  Iec850Error869 = -869,
+    [Description("МЭК850: доступ запрещен")]                                   Iec850Error870 = -870,
+    [Description("МЭК850: ended with overshoot")]                              Iec850Error871 = -871,
+    [Description("МЭК850: отмена из-за отклонения процедуры")]                 Iec850Error872 = -872,
+    [Description("МЭК850: отмена из-за потери связи")]                         Iec850Error873 = -873,
+    [Description("МЭК850: отмена из-за команды")]                              Iec850Error874 = -874,
+    [Description("МЭК850: none")]                                              Iec850Error875 = -875,
+    [Description("МЭК850: неверные параметры")]                                Iec850Error876 = -876,
+    [Description("МЭК850: блокировано другим клиентом")]                       Iec850Error877 = -877,
+    
+    [Description("Команда не была отправлена")] CommandNotSentToServer = -100,
   }
 
 
