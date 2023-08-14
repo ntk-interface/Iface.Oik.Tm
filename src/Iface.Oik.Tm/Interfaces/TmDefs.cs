@@ -259,6 +259,8 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Документ - левая кнопка (в новой вкладке)")]     DocumentForClickNewTab   = 21,
     [Description("Документ - левая кнопка (во всплывающем окне)")] DocumentForClickOverview = 22,
     [Description("Переход на другой элемент")]                     Hyperlink                = 23,
+    [Description("Вызов функции дорасчета - контекстное меню")]    CalcScriptForContextMenu = 24,
+    [Description("Вызов функции дорасчета - левая кнопка мыши")]   CalcScriptForClick       = 25,
   }
 
 
