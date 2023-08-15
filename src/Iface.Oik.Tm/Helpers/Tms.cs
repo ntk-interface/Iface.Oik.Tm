@@ -403,15 +403,15 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
-    public static int OpenSqlRedirector(int rbCid)
+    public static int OpenSqlRedirector(int rbCid, int rbPort = 0)
     {
-      return Native.RbcIpgStartRedirector(rbCid, 0);
+      return Native.RbcIpgStartRedirector(rbCid, (ushort) rbPort);
     }
 
 
-    public static bool CloseSqlRedirector(int rbCid)
+    public static bool CloseSqlRedirector(int rbCid, int rbPort = 0)
     {
-      return Native.RbcIpgStopRedirector(rbCid, 0);
+      return Native.RbcIpgStopRedirector(rbCid, (ushort) rbPort);
     }
 
 
@@ -869,7 +869,7 @@ namespace Iface.Oik.Tm.Helpers
   {
     public string Host        { get; set; } = ".";
     public string TmServer    { get; set; } = "TMS";
-    public string RbServer    { get; set; } = "RBS";
+    public string RbServer    { get; set; } = "";
     public string User        { get; set; } = "";
     public string Password    { get; set; } = "";
     public string ConfigPath  { get; set; } = "";
