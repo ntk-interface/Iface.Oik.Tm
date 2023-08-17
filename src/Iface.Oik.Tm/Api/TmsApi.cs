@@ -195,6 +195,49 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<IReadOnlyCollection<TmStatusRetro>> GetStatusRetroEx(TmStatus            status,
+                                                                          TmStatusRetroFilter filter,
+                                                                          bool                getRealTelemetry = false)
+    {
+      if (filter.StartTime >= filter.EndTime)
+      {
+        return Array.Empty<TmStatusRetro>();
+      }
+
+      var (ch, rtu, point) = status.TmAddr.GetTupleShort();
+
+      var tmcStatusPoint = new TmNativeDefs.TStatusPoint();
+      var statusRetros   = new List<TmStatusRetro>();
+      
+      var currentTime = filter.StartTime;
+
+      while (currentTime <= filter.EndTime)
+      {
+        var time = _native.UxGmTime2UxTime(DateUtil.GetUtcTimestampFromDateTime(currentTime));
+        var result = await Task.Run(() => _native.TmcStatusFullEx(_cid,
+                                                                getRealTelemetry
+                                                                  ? (short)(ch + TmNativeDefs.RealTelemetryFlag)
+                                                                  : ch,
+                                                                rtu,
+                                                                point,
+                                                                ref tmcStatusPoint,
+                                                                (uint) time))
+                               .ConfigureAwait(false);
+
+        currentTime = currentTime.AddSeconds(filter.Step);
+
+        if (result != TmNativeDefs.Success)
+        {
+          continue;
+        }
+        
+        statusRetros.Add(new TmStatusRetro(tmcStatusPoint.Status, tmcStatusPoint.Flags, time));
+      }
+
+      return statusRetros;
+    }
+    
+
     public async Task<float> GetAnalog(int ch, int rtu, int point)
     {
       return await Task.Run(() => _native.TmcAnalog(_cid, (short)ch, (short)rtu, (short)point, null, 0))
