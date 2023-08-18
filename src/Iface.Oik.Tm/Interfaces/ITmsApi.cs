@@ -102,6 +102,10 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<IReadOnlyCollection<TmClassAnalog>> GetAnalogsClasses();
 
+    Task<IReadOnlyCollection<TmStatusRetro>> GetStatusRetroEx(TmStatus            status,
+                                                              TmStatusRetroFilter filter,
+                                                              bool                getRealTelemetry = false);
+    
     Task<IReadOnlyCollection<ITmAnalogRetro[]>> GetAnalogsMicroSeries(IReadOnlyList<TmAnalog> analogs);
 
 
