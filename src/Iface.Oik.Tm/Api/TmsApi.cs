@@ -30,9 +30,15 @@ namespace Iface.Oik.Tm.Api
     public void SetCidAndUserInfo(int cid, TmUserInfo userInfo)
     {
       _cid      = cid;
-      _userInfo = userInfo;
+      SetUserInfo(userInfo);
     }
 
+
+    public void SetUserInfo(TmUserInfo userInfo)
+    {
+      _userInfo = userInfo;
+    }
+    
 
     public async Task<TmServerComputerInfo> GetServerComputerInfo()
     {
