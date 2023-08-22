@@ -607,6 +607,8 @@ namespace Iface.Oik.Tm.Test.Api
       [Theory, TmAutoFakeItEasyData]
       public async void ReturnsFalseWhenNoFileFound([Frozen] ITmNative native, TmsApi tms)
       {
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+      
         uint error;
         var  errorBuf = new byte[80];
         var  fileTime = new TmNativeDefs.FileTime();
