@@ -40,6 +40,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task SetAnalog(int ch, int rtu, int point, float value);
 
+    Task SetAnalogByCode(int ch, int rtu, int point, int code);
+
     Task UpdateTag(TmTag tag);
 
     Task UpdateStatus(TmStatus status);

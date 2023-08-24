@@ -2057,6 +2057,13 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task SetAnalogByCode(int ch, int rtu, int point, int code)
+    {
+      await Task.Run(() => _native.TmcSetAnalogByCode(_cid, (short)ch, (short)rtu, (short)point, (short)code))
+                .ConfigureAwait(false);
+    }
+
+
     public async Task<bool> SetAnalogManually(TmAnalog tmAnalog, float value, bool alsoBlockManually = false)
     {
       if (tmAnalog == null) return false;

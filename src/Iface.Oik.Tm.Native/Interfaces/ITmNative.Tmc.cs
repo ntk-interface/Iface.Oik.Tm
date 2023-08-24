@@ -392,6 +392,13 @@ namespace Iface.Oik.Tm.Native.Interfaces
                             Int16 flags);
 
 
+    Int16 TmcSetAnalogByCode(Int32 cid,
+                             Int16 ch,
+                             Int16 rtu,
+                             Int16 point,
+                             Int16 code);
+    
+    
     Int16 TmcClrAnalogFlags(Int32 cid,
                             Int16 ch,
                             Int16 rtu,

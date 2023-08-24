@@ -589,6 +589,16 @@ namespace Iface.Oik.Tm.Native.Api
       return tmcSetAnalogFlags(cid, ch, rtu, point, flags);
     }
 
+    
+    public Int16 TmcSetAnalogByCode(Int32  cid,
+                              Int16  ch,
+                              Int16  rtu,
+                              Int16  point,
+                              Int16 code)
+    {
+      return tmcSetAnalogByCode(cid, ch, rtu, point, code);
+    }
+    
 
     public Int16 TmcClrAnalogFlags(Int32 cid,
                                    Int16 ch,

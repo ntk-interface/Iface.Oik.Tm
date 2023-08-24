@@ -463,6 +463,15 @@ namespace Iface.Oik.Tm.Native.Api
                                                  Int16 point,
                                                  Int16 flags);
 
+    
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int16 tmcSetAnalogByCode(Int32 cid,
+                                                 Int16 ch,
+                                                 Int16 rtu,
+                                                 Int16 point,
+                                                 Int16 code);
+
+    
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcClrAnalogFlags(Int32 cid,
