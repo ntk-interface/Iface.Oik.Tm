@@ -385,7 +385,8 @@ namespace Iface.Oik.Tm.Api
         }
 
         analogRetros.Add(new TmAnalogRetro(tmcAnalogPoint.AsFloat, tmcAnalogPoint.Flags,
-                                           _native.UxGmTime2UxTime(DateUtil.GetUtcTimestampFromDateTime(time))));
+                                           _native.UxGmTime2UxTime(DateUtil.GetUtcTimestampFromDateTime(time)),
+                                           tmcAnalogPoint.AsCode));
       }
 
       return analogRetros;
@@ -2053,6 +2054,13 @@ namespace Iface.Oik.Tm.Api
     public async Task SetAnalog(int ch, int rtu, int point, float value)
     {
       await Task.Run(() => _native.TmcSetAnalog(_cid, (short)ch, (short)rtu, (short)point, value, null))
+                .ConfigureAwait(false);
+    }
+
+
+    public async Task SetAnalogByCode(int ch, int rtu, int point, int code)
+    {
+      await Task.Run(() => _native.TmcSetAnalogByCode(_cid, (short)ch, (short)rtu, (short)point, (short)code))
                 .ConfigureAwait(false);
     }
 

@@ -8,6 +8,7 @@ namespace Iface.Oik.Tm.Interfaces
     public float    Value { get; }
     public TmFlags  Flags { get; }
     public DateTime Time  { get; }
+    public int?     Code  { get; }
 
     public bool IsUnreliable => Flags.HasFlag(TmFlags.Unreliable);
 
@@ -17,6 +18,7 @@ namespace Iface.Oik.Tm.Interfaces
       Value = value;
       Flags = (TmFlags) (flags & 0xFF_FF);
       Time  = DateUtil.GetDateTimeFromTimestamp(timestamp, ms);
+      Code  = null;
     }
   }
 
@@ -28,6 +30,7 @@ namespace Iface.Oik.Tm.Interfaces
     public float    MaxValue { get; }
     public TmFlags  Flags    { get; }
     public DateTime Time     { get; }
+    public int?     Code     { get; }
 
     public float Value => AvgValue;
 
@@ -41,6 +44,7 @@ namespace Iface.Oik.Tm.Interfaces
       MaxValue = max;
       Flags    = (TmFlags) (flags & 0xFF_FF);
       Time     = DateUtil.GetDateTimeFromTimestamp(timestamp, ms);
+      Code     = null;
     }
   }
 }
