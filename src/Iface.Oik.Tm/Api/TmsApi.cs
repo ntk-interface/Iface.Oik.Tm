@@ -385,7 +385,8 @@ namespace Iface.Oik.Tm.Api
         }
 
         analogRetros.Add(new TmAnalogRetro(tmcAnalogPoint.AsFloat, tmcAnalogPoint.Flags,
-                                           _native.UxGmTime2UxTime(DateUtil.GetUtcTimestampFromDateTime(time))));
+                                           _native.UxGmTime2UxTime(DateUtil.GetUtcTimestampFromDateTime(time)),
+                                           tmcAnalogPoint.AsCode));
       }
 
       return analogRetros;

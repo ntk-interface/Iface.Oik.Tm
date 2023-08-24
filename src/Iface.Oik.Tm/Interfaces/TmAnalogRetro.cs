@@ -8,6 +8,7 @@ namespace Iface.Oik.Tm.Interfaces
     private readonly bool _invalidFlags;
 
     public float    Value { get; }
+    public int?     Code  { get; }
     public TmFlags  Flags { get; }
     public DateTime Time  { get; }
 
@@ -19,11 +20,12 @@ namespace Iface.Oik.Tm.Interfaces
     public bool IsUnreliable => !IsValid;
 
 
-    public TmAnalogRetro(float value, short flags, long timestamp)
+    public TmAnalogRetro(float value, short flags, long timestamp, short? code = null)
     {
       Value         = value;
       Flags         = (TmFlags) flags;
       Time          = DateUtil.GetDateTimeFromTimestamp(timestamp);
+      Code          = code;
       _invalidFlags = (flags < 0);
     }
   }

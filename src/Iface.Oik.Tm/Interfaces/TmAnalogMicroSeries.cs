@@ -8,6 +8,7 @@ namespace Iface.Oik.Tm.Interfaces
     public float    Value { get; }
     public TmFlags  Flags { get; }
     public DateTime Time  { get; }
+    public int?     Code  { get; }
 
     public bool IsUnreliable => Flags.HasFlag(TmFlags.Unreliable);
 
@@ -17,6 +18,7 @@ namespace Iface.Oik.Tm.Interfaces
       Value = value;
       Flags = flags.HasFlag(TmAnalogMicroSeriesFlags.IsReliable) ? TmFlags.None : TmFlags.Unreliable;
       Time  = time;
+      Code  = null;
     }
 
 
