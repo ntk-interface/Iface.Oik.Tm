@@ -189,7 +189,15 @@ namespace Iface.Oik.Tm.Native.Api
                                               UInt32                                time,
                                               UInt16                                retroNum);
 
-
+    
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern void tmcAccumByList(Int32                                cid,
+                                             UInt16                               count,
+                                             [In]      TmNativeDefs.TAdrTm[]      addr,
+                                             [In, Out] TmNativeDefs.TAccumPoint[] accum,
+                                             UInt32                               time);
+    
+    
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern IntPtr tmcTMValuesByListEx(Int32                      cid,
                                                     UInt16                     tmType,

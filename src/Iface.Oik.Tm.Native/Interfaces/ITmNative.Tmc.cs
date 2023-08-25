@@ -299,6 +299,13 @@ namespace Iface.Oik.Tm.Native.Interfaces
                          UInt16                      retroNum);
 
 
+    void TmcAccumByList(Int32                      cid,
+                        UInt16                     count,
+                        TmNativeDefs.TAdrTm[]      addr,
+                        TmNativeDefs.TAccumPoint[] accum,
+                        UInt32                     time);
+    
+
     short TmcGetObjectProperties(int        cid,
                                  ushort     objectType,
                                  short      ch,

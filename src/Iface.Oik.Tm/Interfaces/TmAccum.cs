@@ -10,12 +10,20 @@ namespace Iface.Oik.Tm.Interfaces
   {
     public static readonly string InvalidValueString = "???";
 
+    private short   _code;
     private float   _value;
     private float   _load;
     private TmFlags _flags     = TmFlags.Invalid;
     private byte    _precision = 3;
     private string  _unit      = "";
+    private byte    _width;
 
+    public short Code
+    {
+      get => _code;
+      set => SetPropertyValue(ref _code, value);
+    }
+    
     public float Value
     {
       get => _value;
@@ -46,6 +54,12 @@ namespace Iface.Oik.Tm.Interfaces
       set => SetPropertyValueAndRefresh(ref _unit, value);
     }
 
+    public byte Width
+    {
+      get => _width;
+      set => SetPropertyValueAndRefresh(ref _width, value);
+    }
+    
     public bool IsUnreliable      => Flags.HasFlag(TmFlags.Unreliable);
     public bool IsInvalid         => Flags.HasFlag(TmFlags.Invalid);
     public bool IsManuallyBlocked => Flags.HasFlag(TmFlags.ManuallyBlocked);
@@ -227,6 +241,15 @@ namespace Iface.Oik.Tm.Interfaces
       tmAccum.Name = tmcCommonPoint.name;
 
       return tmAccum;
+    }
+    
+    public void FromTAccumPoint(TmNativeDefs.TAccumPoint tmcAccumPoint)
+    {
+      IsInit    = true;
+      Value     = tmcAccumPoint.Value;
+      Flags     = (TmFlags) tmcAccumPoint.Flags;
+      Width     = (byte) (tmcAccumPoint.Format & 0x0F);
+      Precision = (byte) (tmcAccumPoint.Format >> 4);
     }
   }
 }
