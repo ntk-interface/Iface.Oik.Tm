@@ -413,6 +413,14 @@ namespace Iface.Oik.Tm.Native.Interfaces
                             Int16 flags);
 
 
+    short TmcSetAccumValue(int    cid,
+                           short  ch,
+                           short  rtu,
+                           short  point,
+                           float  value,
+                           string dateTime);
+    
+
     Int16 TmcSetAccumFlags(Int32 cid,
                            Int16 ch,
                            Int16 rtu,

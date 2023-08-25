@@ -488,6 +488,16 @@ namespace Iface.Oik.Tm.Native.Api
                                                  Int16 point,
                                                  Int16 flags);
 
+    
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int16 tmcSetAccumValue(Int32                                   cid,
+                                                Int16                                   ch,
+												Int16                                   rtu,
+												Int16                                   point,
+												Single                                  value,
+												[MarshalAs(UnmanagedType.LPStr)] string dateTime);
+
+    
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcSetAccumFlags(Int32 cid,

@@ -620,6 +620,17 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public short TmcSetAccumValue(int    cid,
+                                  short  ch,
+                                  short  rtu,
+                                  short  point,
+                                  float  value,
+                                  string dateTime)
+    {
+      return tmcSetAccumValue(cid, ch, rtu, point, value, dateTime);
+    }
+    
+    
     public Int16 TmcSetAccumFlags(Int32 cid,
                                   Int16 ch, Int16 rtu, Int16 point,
                                   Int16 flags)

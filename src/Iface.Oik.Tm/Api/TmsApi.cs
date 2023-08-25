@@ -2221,6 +2221,13 @@ namespace Iface.Oik.Tm.Api
 
       return true;
     }
+    
+    
+    public async Task SetAccum(int ch, int rtu, int point, float value)
+    {
+      await Task.Run(() => _native.TmcSetAccumValue(_cid, (short)ch, (short)rtu, (short)point, value, null))
+                .ConfigureAwait(false);
+    }
 
 
     public async Task<IReadOnlyCollection<string>> GetFilesInDirectory(string path)

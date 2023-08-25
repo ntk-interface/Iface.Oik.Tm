@@ -211,6 +211,10 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<bool> SetAlarmValue(TmAlarm tmAlarm, float value);
 
+
+    Task SetAccum(int ch, int rtu, int point, float value);
+    
+
     Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTelecontrolScript(TmStatus tmStatus);
 
 
