@@ -1698,6 +1698,9 @@ namespace Iface.Oik.Tm.Api
         case TmAnalog _:
           timedValueType = (byte)TmNativeDefs.VfType.AnalogFloat;
           break;
+        case TmAccum _:
+          timedValueType = (byte)TmNativeDefs.VfType.AccumFloat;
+          break;
         default:
           return;
       }
