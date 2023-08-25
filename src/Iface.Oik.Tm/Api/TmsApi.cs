@@ -656,6 +656,13 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task UpdateAccumExplicitly(TmAccum accum, uint time, bool getRealTelemetry)
+    {
+      await UpdateAccumsExplicitly(new List<TmAccum> { accum }, time, getRealTelemetry)
+        .ConfigureAwait(false);
+    }
+
+
     public async Task UpdateAccum(TmAccum accum)
     {
       await UpdateAccums(new List<TmAccum> { accum }).ConfigureAwait(false);
@@ -736,6 +743,35 @@ namespace Iface.Oik.Tm.Api
       await Task.Run(() => UpdateAccumsSynchronously(accums)).ConfigureAwait(false);
     }
 
+    
+    public async Task UpdateAccumsExplicitly(IReadOnlyList<TmAccum> accums, 
+                                             uint                   time,
+                                             bool                   getRealTelemetry = false)
+    {
+      if (accums.IsNullOrEmpty()) return;
+
+      var count            = accums.Count;
+      var tmcAddrList      = new TmNativeDefs.TAdrTm[count];
+      var accumPointsList = new TmNativeDefs.TAccumPoint[count];
+
+      for (var i = 0; i < count; i++)
+      {
+        tmcAddrList[i] = accums[i].TmAddr.ToAdrTm();
+        if (getRealTelemetry)
+        {
+          tmcAddrList[i].Ch += TmNativeDefs.RealTelemetryFlag;
+        }
+      }
+
+      await Task.Run(() => _native.TmcAccumByList(_cid, (ushort)count, tmcAddrList, accumPointsList, time))
+                .ConfigureAwait(false);
+      
+      for (var i = 0; i < count; i++)
+      {
+        accums[i].FromTAccumPoint(accumPointsList[i]);
+      }
+    }
+    
 
     public async Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags)
     {
@@ -1662,6 +1698,9 @@ namespace Iface.Oik.Tm.Api
         case TmAnalog _:
           timedValueType = (byte)TmNativeDefs.VfType.AnalogFloat;
           break;
+        case TmAccum _:
+          timedValueType = (byte)TmNativeDefs.VfType.AccumFloat;
+          break;
         default:
           return;
       }
@@ -2182,6 +2221,13 @@ namespace Iface.Oik.Tm.Api
 
       return true;
     }
+    
+    
+    public async Task SetAccum(int ch, int rtu, int point, float value)
+    {
+      await Task.Run(() => _native.TmcSetAccumValue(_cid, (short)ch, (short)rtu, (short)point, value, null))
+                .ConfigureAwait(false);
+    }
 
 
     public async Task<IReadOnlyCollection<string>> GetFilesInDirectory(string path)
@@ -2407,6 +2453,45 @@ namespace Iface.Oik.Tm.Api
         for (var i = 0; i < count; i++)
         {
           result.Add(new TmAnalog(channelId, rtuId, itemsIndexes[i]));
+        }
+
+        startIndex += (short)(count + 1);
+        // todo name, properties?
+      }
+
+      return result;
+    }
+
+    
+    public async Task<IReadOnlyCollection<TmAccum>> GetTmTreeAccums(int channelId, int rtuId)
+    {
+      if (channelId < 0 || channelId > 254 ||
+          rtuId     < 1 || rtuId     > 255)
+      {
+        return null;
+      }
+
+      var   result     = new List<TmAccum>();
+      short startIndex = 0;
+      while (true)
+      {
+        var itemsIndexes = new ushort[255];
+        var count = await Task.Run(() => _native.TmcEnumObjects(_cid,
+                                                                (ushort)TmNativeDefs.TmDataTypes.Accum,
+                                                                255,
+                                                                ref itemsIndexes,
+                                                                (short)channelId,
+                                                                (short)rtuId,
+                                                                startIndex))
+                              .ConfigureAwait(false);
+        if (count == 0)
+        {
+          break;
+        }
+
+        for (var i = 0; i < count; i++)
+        {
+          result.Add(new TmAccum(channelId, rtuId, itemsIndexes[i]));
         }
 
         startIndex += (short)(count + 1);

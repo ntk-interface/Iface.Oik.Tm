@@ -459,6 +459,16 @@ namespace Iface.Oik.Tm.Native.Api
       tmcAnalogByList(cid, count, addr, analogs, time, retroNum);
     }
 
+    
+    public void TmcAccumByList(Int32                      cid,
+                               UInt16                     count,
+                               TmNativeDefs.TAdrTm[]      addr,
+                               TmNativeDefs.TAccumPoint[] accum,
+                               UInt32                     time)
+    {
+      tmcAccumByList(cid, count, addr, accum, time);
+    }
+    
 
     public short TmcGetObjectProperties(int        cid,
                                         ushort     objectType,
@@ -610,6 +620,17 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public short TmcSetAccumValue(int    cid,
+                                  short  ch,
+                                  short  rtu,
+                                  short  point,
+                                  float  value,
+                                  string dateTime)
+    {
+      return tmcSetAccumValue(cid, ch, rtu, point, value, dateTime);
+    }
+    
+    
     public Int16 TmcSetAccumFlags(Int32 cid,
                                   Int16 ch, Int16 rtu, Int16 point,
                                   Int16 flags)

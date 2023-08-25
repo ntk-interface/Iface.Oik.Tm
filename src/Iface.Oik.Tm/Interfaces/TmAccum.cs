@@ -10,12 +10,20 @@ namespace Iface.Oik.Tm.Interfaces
   {
     public static readonly string InvalidValueString = "???";
 
+    private short   _code;
     private float   _value;
     private float   _load;
     private TmFlags _flags     = TmFlags.Invalid;
     private byte    _precision = 3;
     private string  _unit      = "";
+    private byte    _width;
 
+    public short Code
+    {
+      get => _code;
+      set => SetPropertyValue(ref _code, value);
+    }
+    
     public float Value
     {
       get => _value;
@@ -46,6 +54,12 @@ namespace Iface.Oik.Tm.Interfaces
       set => SetPropertyValueAndRefresh(ref _unit, value);
     }
 
+    public byte Width
+    {
+      get => _width;
+      set => SetPropertyValueAndRefresh(ref _width, value);
+    }
+    
     public bool IsUnreliable      => Flags.HasFlag(TmFlags.Unreliable);
     public bool IsInvalid         => Flags.HasFlag(TmFlags.Invalid);
     public bool IsManuallyBlocked => Flags.HasFlag(TmFlags.ManuallyBlocked);
@@ -55,16 +69,9 @@ namespace Iface.Oik.Tm.Interfaces
     public bool IsUnacked         => Flags.HasFlag(TmFlags.Unacked);
     public bool IsTmStreaming     => Flags.HasFlag(TmFlags.TmStreaming);
 
-    public string ValueString => (IsInit)
-                                   ? Value.ToString("0." + new string('0', Precision))
-                                   : InvalidValueString;
+    public string ValueString => IsInit ? $"{Value}" : InvalidValueString;
 
-
-    public string ValueWithUnitString => (IsInit)
-                                           ? ValueString + " " + Unit
-                                           : InvalidValueString;
-
-    public string LoadString => (IsInit)
+    public string LoadString => IsInit
                                   ? Load.ToString("0." + new string('0', Precision))
                                   : InvalidValueString;
 
@@ -73,7 +80,7 @@ namespace Iface.Oik.Tm.Interfaces
                                           ? LoadString + " " + Unit
                                           : InvalidValueString;
 
-    public override string ValueToDisplay => ValueWithUnitString;
+    public override string ValueToDisplay => ValueString;
     public          string LoadToDisplay  => LoadWithUnitString;
 
     public override List<string> FlagsToDisplay
@@ -227,6 +234,41 @@ namespace Iface.Oik.Tm.Interfaces
       tmAccum.Name = tmcCommonPoint.name;
 
       return tmAccum;
+    }
+
+    protected override void SetTmcObjectProperties(string key, string value)
+    {
+      base.SetTmcObjectProperties(key, value);
+      
+      switch (key)
+      {
+        case "Units":
+          Unit = value;
+          break;
+        case "Format":
+        {
+          var formatParts = value.Split('.');
+          if (formatParts.Length > 1                        &&
+              byte.TryParse(formatParts[0], out byte width) &&
+              byte.TryParse(formatParts[1], out byte precision))
+          {
+            Width     = width;
+            Precision = precision;
+          }
+
+          break;
+        }
+      }
+    }
+    
+    public void FromTAccumPoint(TmNativeDefs.TAccumPoint tmcAccumPoint)
+    {
+      IsInit    = true;
+      Value     = tmcAccumPoint.Value;
+      Load      = tmcAccumPoint.Load;
+      Flags     = (TmFlags) tmcAccumPoint.Flags;
+      Width     = (byte) (tmcAccumPoint.Format & 0x0F);
+      Precision = (byte) (tmcAccumPoint.Format >> 4);
     }
   }
 }

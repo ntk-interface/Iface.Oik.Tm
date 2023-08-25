@@ -50,12 +50,19 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task UpdateAnalog(TmAnalog analog);
 
-
     Task UpdateAnalogExplicitly(TmAnalog analog,
                                 uint     time             = 0,
                                 ushort   retroNum         = 0,
                                 bool     getRealTelemetry = false);
 
+    
+    Task UpdateAccumExplicitly(TmAccum accum,
+                               uint    time             = 0,
+                               bool    getRealTelemetry = false);
+
+    Task UpdateAccumsExplicitly(IReadOnlyList<TmAccum> accums,
+                                uint                   time             = 0,
+                                bool                   getRealTelemetry = false);
 
     Task UpdateStatuses(IReadOnlyList<TmStatus> statuses);
 
@@ -96,6 +103,7 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<TmStatus>> GetTmTreeStatuses(int channelId, int rtuId);
 
     Task<IReadOnlyCollection<TmAnalog>> GetTmTreeAnalogs(int channelId, int rtuId);
+    Task<IReadOnlyCollection<TmAccum>> GetTmTreeAccums(int channelId, int rtuId);
 
     Task<string> GetChannelName(int channelId);
 
@@ -202,6 +210,10 @@ namespace Iface.Oik.Tm.Interfaces
     Task<bool> SetAnalogTechParameters(TmAnalog analog, TmAnalogTechParameters parameters);
 
     Task<bool> SetAlarmValue(TmAlarm tmAlarm, float value);
+
+
+    Task SetAccum(int ch, int rtu, int point, float value);
+    
 
     Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTelecontrolScript(TmStatus tmStatus);
 
