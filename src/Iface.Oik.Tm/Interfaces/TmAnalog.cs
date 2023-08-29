@@ -327,24 +327,36 @@ namespace Iface.Oik.Tm.Interfaces
     {
       base.SetTmcObjectProperties(key, value);
       
-      if (key == "Units")
+      switch (key)
       {
-        Unit = value;
-      }
-      if (key == "Format")
-      {
-        var formatParts = value.Split('.');
-        if (formatParts.Length > 1                        &&
-            byte.TryParse(formatParts[0], out byte width) &&
-            byte.TryParse(formatParts[1], out byte precision))
+        case "Units":
+          Unit = value;
+          break;
+        case "Format":
         {
-          Width     = width;
-          Precision = precision;
+          var formatParts = value.Split('.');
+          if (formatParts.Length > 1                        &&
+              byte.TryParse(formatParts[0], out byte width) &&
+              byte.TryParse(formatParts[1], out byte precision))
+          {
+            Width     = width;
+            Precision = precision;
+          }
+
+          break;
         }
-      }
-      if (key == "FBFlagsC")
-      {
-        Teleregulation = GetRegulationFromNativeFlag(value);
+        case "FBFlagsC":
+          Teleregulation = GetRegulationFromNativeFlag(value);
+          break;
+        case "Class":
+        {
+          if (byte.TryParse(value, out var classId))
+          {
+            ClassId = classId;
+          }
+
+          break;
+        }
       }
     }
 

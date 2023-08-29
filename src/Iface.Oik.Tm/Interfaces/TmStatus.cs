@@ -393,18 +393,34 @@ namespace Iface.Oik.Tm.Interfaces
     {
       base.SetTmcObjectProperties(key, value);
       
-      if (key == "Normal")
+      switch (key)
       {
-        if (int.TryParse(value, out var normalStatus))
+        case "Normal":
         {
-          NormalStatus = (short) ((normalStatus == 0 || normalStatus == 1) ? normalStatus : -1);
+          if (int.TryParse(value, out var normalStatus))
+          {
+            NormalStatus = (short) ((normalStatus == 0 || normalStatus == 1) ? normalStatus : -1);
+          }
+
+          break;
         }
-      }
-      if (key == "Importance")
-      {
-        if (int.TryParse(value, out var importance))
+        case "Importance":
         {
-          Importance = (short) importance;
+          if (int.TryParse(value, out var importance))
+          {
+            Importance = (short) importance;
+          }
+
+          break;
+        }
+        case "Class":
+        {
+          if (byte.TryParse(value, out var classId))
+          {
+            ClassId = classId;
+          }
+
+          break;
         }
       }
     }
