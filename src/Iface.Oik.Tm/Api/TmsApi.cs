@@ -2415,8 +2415,8 @@ namespace Iface.Oik.Tm.Api
         {
           result.Add(new TmStatus(channelId, rtuId, itemsIndexes[i]));
         }
-
-        startIndex += (short)(count + 1);
+        
+        startIndex = (short)(itemsIndexes[count - 1] + 1);
         // todo name, properties?
       }
 
@@ -2455,7 +2455,7 @@ namespace Iface.Oik.Tm.Api
           result.Add(new TmAnalog(channelId, rtuId, itemsIndexes[i]));
         }
 
-        startIndex += (short)(count + 1);
+        startIndex = (short)(itemsIndexes[count - 1] + 1);
         // todo name, properties?
       }
 
@@ -2494,7 +2494,7 @@ namespace Iface.Oik.Tm.Api
           result.Add(new TmAccum(channelId, rtuId, itemsIndexes[i]));
         }
 
-        startIndex += (short)(count + 1);
+        startIndex = (short)(itemsIndexes[count - 1] + 1);
         // todo name, properties?
       }
 
