@@ -153,7 +153,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<bool> RemoveAlerts(IEnumerable<TmAlert> alerts);
 
-    Task<IReadOnlyCollection<TmEvent>> GetEventsArchive(TmEventFilter filter);
+    Task<IReadOnlyCollection<TmEvent>> GetEventsArchiveByElix(TmEventFilter filter);
 
     Task<(IReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix);
 
