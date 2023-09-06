@@ -295,6 +295,16 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public IntPtr TmcEventLogEx(Int32                          cid,
+                                 UInt16                        eventMask,
+                                 UInt32                        startUnixTime,
+                                 UInt32                        endUnixTime,
+                                 TmNativeDefs.TEventExCriteria criteria)
+    {
+      return tmcEventLogEx(cid, eventMask, startUnixTime, endUnixTime, criteria);
+    }
+    
+
     public IntPtr TmcEventLogByElix(Int32                     cid,
                                     ref TmNativeDefs.TTMSElix elix,
                                     UInt16                    eventMask,

@@ -2612,6 +2612,57 @@ namespace Iface.Oik.Tm.Api
 
       var events = new List<TmEvent>();
       var cache  = new Dictionary<string, TmTag>();
+
+      var criteria = new TmNativeDefs.TEventExCriteria
+      {
+        ItemsLimit = (uint) filter.OutputLimit,
+        HStop = IntPtr.Zero,
+        EvlArch = true
+      };
+      
+      const int bufSize      = 1000;
+      var       addDataBytes = new byte[bufSize];
+      var       i            = 0;
+
+      await Task.Run(() =>
+                     {
+                       var tEventPtr = _native.TmcEventLogEx(_cid,
+                                                             (ushort)filterTypes,
+                                                             (uint)startTime,
+                                                             (uint)endTime, 
+                                                             criteria);
+
+                         if (tEventPtr == IntPtr.Zero)
+                         {
+                           return;
+                         }
+
+                         var curPtr = tEventPtr;
+
+                         while (curPtr != IntPtr.Zero)
+                         {
+                           var tEventEx = TmNativeUtil.TEventExFromIntPtr(curPtr);
+                           
+                           _native.TmcEventGetAdditionalRecData((uint)i, ref addDataBytes, bufSize);
+                           var addData = TmNativeUtil.GetEventAddData(addDataBytes);
+
+                           var tmEvent = CreateEvent(tEventEx.Event,
+                                                     addData,
+                                                     tEventEx.EventSize,
+                                                     cache);
+
+                           if (filterImportances.HasFlag(tmEvent.ImportanceFlag))
+                           {
+                             events.Add(tmEvent);
+                           }
+                           
+                           curPtr = tEventEx.Next;
+                           i++;
+                         }
+                         
+                         _native.TmcFreeMemory(tEventPtr);
+
+                     }).ConfigureAwait(false);
       
       
       return events;
@@ -3161,7 +3212,7 @@ namespace Iface.Oik.Tm.Api
     private TmEvent CreateEvent(TmNativeDefs.TEvent           tEvent,
                                 TmNativeDefs.TTMSEventAddData addData,
                                 uint                          eventSize,
-                                Dictionary<string, TmTag>     tmTagsCache,
+                                IDictionary<string, TmTag>    tmTagsCache,
                                 TmNativeDefs.TTMSElix?        elix = null)
     {
       TmEvent tmEvent;
