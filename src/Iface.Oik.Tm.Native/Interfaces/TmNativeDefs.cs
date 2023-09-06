@@ -426,6 +426,24 @@ namespace Iface.Oik.Tm.Native.Interfaces
 			public UInt16 Point;
 		}
 
+		
+		[StructLayout(LayoutKind.Sequential, Pack = 1)]
+		public struct TEventEx
+		{
+			public IntPtr Next;
+			public UInt32 EventSize;
+			public TEvent Event;
+		}
+
+		
+		[StructLayout(LayoutKind.Sequential, Pack = 1)]
+		public struct TEventExHeader
+		{
+			public IntPtr Next;
+			public UInt32 EventSize;
+		}
+		
+
 		[StructLayout(LayoutKind.Sequential, Pack = 1)]
 		public struct TTMSElix
 		{
@@ -433,6 +451,17 @@ namespace Iface.Oik.Tm.Native.Interfaces
 			public UInt64 M;
 		}
 
+
+		[StructLayout(LayoutKind.Sequential, Pack = 1)]
+		public struct TEventExCriteria
+		{
+			public UInt32  ItemsLimit;
+			public UInt32  MemoryLimit;
+			public IntPtr  HStop;
+			public Boolean Interrupted;
+			public Boolean EvlArch;
+		}
+		
 
 		[StructLayout(LayoutKind.Sequential, Pack = 1)]
 		public struct TEventElix

@@ -639,7 +639,7 @@ namespace Iface.Oik.Tm.Api
       var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: true, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
       {
-        return await _tms.GetEventsArchive(filter).ConfigureAwait(false);
+        return await _tms.GetEventsArchiveByElix(filter).ConfigureAwait(false);
       }
       else if (api == ApiSelection.Sql)
       {

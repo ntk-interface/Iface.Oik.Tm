@@ -191,6 +191,13 @@ namespace Iface.Oik.Tm.Native.Interfaces
                               UInt32 cbBin);
 
 
+    IntPtr TmcEventLogEx(Int32                         cid,
+                         UInt16                        eventMask,
+                         UInt32                        startUnixTime,
+                         UInt32                        endUnixTime,
+                         TmNativeDefs.TEventExCriteria criteria);
+    
+
     IntPtr TmcEventLogByElix(Int32                     cid,
                              ref TmNativeDefs.TTMSElix elix,
                              UInt16                    eventMask,
