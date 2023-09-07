@@ -404,6 +404,7 @@ namespace Iface.Oik.Tm.Interfaces
     Debug   = TmNativeDefs.TmsTraceFlags.Debug,
     In      = TmNativeDefs.TmsTraceFlags.In,
     Out     = TmNativeDefs.TmsTraceFlags.Out,
+    All = Error | Message | Debug | In | Out
   }
 
 
