@@ -403,15 +403,15 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
-    public static int OpenSqlRedirector(int rbCid, int rbPort = 0)
+    public static int OpenSqlRedirector(int rbCid)
     {
-      return Native.RbcIpgStartRedirector(rbCid, (ushort) rbPort);
+      return Native.RbcIpgStartRedirector(rbCid, 0);
     }
 
 
-    public static bool CloseSqlRedirector(int rbCid, int rbPort = 0)
+    public static bool CloseSqlRedirector(int rbCid)
     {
-      return Native.RbcIpgStopRedirector(rbCid, (ushort) rbPort);
+      return Native.RbcIpgStopRedirector(rbCid, 0);
     }
 
 
