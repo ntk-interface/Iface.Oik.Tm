@@ -2751,22 +2751,18 @@ namespace Iface.Oik.Tm.Api
 
     public async Task StartTmAddrTracer(int channel, int rtu, int point, TmType tmType, TmTraceTypes filterTypes)
     {
-      var result =
-        await Task.Run(() => _native.TmcSetTracer(_cid,
+      await Task.Run(() => _native.TmcSetTracer(_cid,
                                                   (short)channel,
                                                   (short)rtu,
                                                   (short)point,
                                                   (ushort)tmType.ToNativeType(),
                                                   (ushort)filterTypes))
                   .ConfigureAwait(false);
-
-      Console.WriteLine($"Start tmc trace result: {result}");
     }
 
 
     public async Task StopTmAddrTracer(int channel, int rtu, int point, TmType tmType)
     {
-      var result =
         await Task.Run(() => _native.TmcSetTracer(_cid,
                                                   (short)channel,
                                                   (short)rtu,
@@ -2774,8 +2770,7 @@ namespace Iface.Oik.Tm.Api
                                                   (ushort)tmType.ToNativeType(),
                                                   (ushort)TmTraceTypes.None))
                   .ConfigureAwait(false);
-
-      Console.WriteLine($"Stop tmc trace result: {result}");
+      
     }
 
 
