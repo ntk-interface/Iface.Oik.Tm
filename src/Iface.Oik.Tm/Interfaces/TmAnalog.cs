@@ -99,25 +99,6 @@ namespace Iface.Oik.Tm.Interfaces
       : InvalidValueString;
 
 
-    public byte TmcRegulationType
-    {
-      get
-      {
-        switch (Teleregulation)
-        {
-          case TmTeleregulation.Step:
-            return (byte) TmNativeDefs.AnalogRegulationType.Step;
-          case TmTeleregulation.Code:
-            return (byte) TmNativeDefs.AnalogRegulationType.Code;
-          case TmTeleregulation.Value:
-            return (byte) TmNativeDefs.AnalogRegulationType.Value;
-          default:
-            return 0;
-        }
-      }
-    }
-
-
     public override string ValueToDisplay => ValueWithUnitString;
     
     public override List<string> FlagsToDisplay
