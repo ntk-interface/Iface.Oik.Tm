@@ -1408,22 +1408,20 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<TmTelecontrolResult> TeleregulateByCode(TmAnalog analog, int code)
     {
-      if (analog == null || !analog.HasTeleregulationByCode)
+      if (analog == null)
       {
         return TmTelecontrolResult.CommandNotSentToServer;
       }
-
       return await TeleregulateByValueOrCode(analog, null, code).ConfigureAwait(false);
     }
 
 
     public async Task<TmTelecontrolResult> TeleregulateByValue(TmAnalog analog, float value)
     {
-      if (analog == null || !analog.HasTeleregulationByValue)
+      if (analog == null)
       {
         return TmTelecontrolResult.CommandNotSentToServer;
       }
-
       return await TeleregulateByValueOrCode(analog, value, null).ConfigureAwait(false);
     }
 
@@ -1466,8 +1464,7 @@ namespace Iface.Oik.Tm.Api
 
     private async Task<TmTelecontrolResult> TeleregulateByStepUpOrDown(TmAnalog analog, bool isStepUp)
     {
-      if (analog == null ||
-          !analog.HasTeleregulationByStep)
+      if (analog == null)
       {
         return TmTelecontrolResult.CommandNotSentToServer;
       }
