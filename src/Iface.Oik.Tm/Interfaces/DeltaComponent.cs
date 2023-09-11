@@ -214,6 +214,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     public string TraceChainLastLinkString => TraceChain.Last().ToString();
     public string FullPathName             => Parent == null ? Name : $"{Parent.FullPathName} • {Name}";
+    public bool   HasChildren              => Children.Any();
 
 
     public DeltaComponent(string name, string type, uint[] traceChain)
