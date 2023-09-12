@@ -37,15 +37,13 @@ namespace Iface.Oik.Tm.Interfaces
                                                   TmNativeDefs.DeltaItemsFlags deltaFlags,
                                                   int                          value,
                                                   string                       additionalInfo,
-                                                  TmAddr                       tmAddr,
-                                                  string                       objectName)
+                                                  TmAddr                       tmAddr)
     {
       var deltaItem = new DeltaItem
                       {
                         Type       = DeltaItemTypes.Status,
                         TypeString = "ТС",
                         TmAddress  = tmAddr,
-                        ObjectName = objectName
                       };
 
       if (deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.ZeroEnum))
@@ -96,8 +94,7 @@ namespace Iface.Oik.Tm.Interfaces
                                                   TmNativeDefs.DeltaItemsFlags deltaFlags,
                                                   int                          value,
                                                   string                       additionalInfo,
-                                                  TmAddr                       tmAddr,
-                                                  string                       objectName)
+                                                  TmAddr                       tmAddr)
     {
       var enumShift = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.ZeroEnum) ? 0 : 1;
       var hexValue  = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Analong) ? $"{value & 0xffff:X}" : $"{value:X}";
@@ -117,8 +114,7 @@ namespace Iface.Oik.Tm.Interfaces
                                ? $"{value} (0x{hexValue})"
                                : $"{value} (0x{hexValue}) ?",
                AdditionalInfo = additionalInfo,
-               TmAddress      = tmAddr,
-               ObjectName = objectName
+               TmAddress      = tmAddr
              };
     }
 
@@ -128,8 +124,7 @@ namespace Iface.Oik.Tm.Interfaces
                                                        TmNativeDefs.DeltaItemsFlags deltaFlags,
                                                        float                        value,
                                                        string                       additionalInfo,
-                                                       TmAddr                       tmAddr,
-                                                       string                       objectName)
+                                                       TmAddr                       tmAddr)
     {
       var enumShift = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.ZeroEnum) ? 0 : 1;
       var updateTime = lastUpdateTimestamp == 0
@@ -148,8 +143,7 @@ namespace Iface.Oik.Tm.Interfaces
                                ? $"{value:N6}"
                                : $"{value:N6} ?",
                AdditionalInfo = additionalInfo,
-               TmAddress      = tmAddr,
-               ObjectName = objectName
+               TmAddress      = tmAddr
              };
     }
 
@@ -159,8 +153,7 @@ namespace Iface.Oik.Tm.Interfaces
                                                  TmNativeDefs.DeltaItemsFlags deltaFlags,
                                                  int                          value,
                                                  string                       additionalInfo,
-                                                 TmAddr                       tmAddr,
-                                                 string                       objectName)
+                                                 TmAddr                       tmAddr)
     {
       var enumShift = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.ZeroEnum) ? 0 : 1;
       var updateTime = lastUpdateTimestamp == 0
@@ -179,8 +172,7 @@ namespace Iface.Oik.Tm.Interfaces
                                ? $"{value} "
                                : $"{value} ?",
                AdditionalInfo = additionalInfo,
-               TmAddress      = tmAddr,
-               ObjectName = objectName
+               TmAddress      = tmAddr
              };
     }
 
@@ -190,8 +182,7 @@ namespace Iface.Oik.Tm.Interfaces
                                                       TmNativeDefs.DeltaItemsFlags deltaFlags,
                                                       float                        value,
                                                       string                       additionalInfo,
-                                                      TmAddr                       tmAddr,
-                                                      string                       objectName)
+                                                      TmAddr                       tmAddr)
     {
       var enumShift = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.ZeroEnum) ? 0 : 1;
       var updateTime = lastUpdateTimestamp == 0
@@ -210,8 +201,7 @@ namespace Iface.Oik.Tm.Interfaces
                                ? $"{value:N6}"
                                : $"{value:N6} ?",
                AdditionalInfo = additionalInfo,
-               TmAddress      = tmAddr,
-               ObjectName = objectName
+               TmAddress      = tmAddr
              };
     }
 
@@ -223,8 +213,7 @@ namespace Iface.Oik.Tm.Interfaces
                                                    int                          controlGroup,
                                                    int                          controlPoint,
                                                    string                       additionalInfo,
-                                                   TmAddr                       tmAddr,
-                                                   string                       objectName)
+                                                   TmAddr                       tmAddr)
     {
       var enumShift = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.ZeroEnum) ? 0 : 1;
       var updateTime = lastUpdateTimestamp == 0
@@ -243,8 +232,7 @@ namespace Iface.Oik.Tm.Interfaces
                                ? $"{controlBlock + enumShift}-{controlGroup + enumShift}-{controlPoint + enumShift}"
                                : string.Empty,
                AdditionalInfo = additionalInfo,
-               TmAddress      = tmAddr,
-               ObjectName = objectName
+               TmAddress      = tmAddr
              };
     }
 
@@ -273,6 +261,11 @@ namespace Iface.Oik.Tm.Interfaces
                AdditionalInfo = additionalInfo,
                TmAddress      = tmAddr
              };
+    }
+
+    public void SetObjectName(string name)
+    {
+      ObjectName = name;
     }
   }
 }

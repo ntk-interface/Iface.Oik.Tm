@@ -15,8 +15,10 @@ namespace Iface.Oik.Tm.Interfaces
 
     
     Task GetComponentsItems(DeltaComponent component);
-    
-    
+
+
+    Task UpdateItemName(DeltaItem item);
+
     Task<bool> RegisterTracer();
 
     

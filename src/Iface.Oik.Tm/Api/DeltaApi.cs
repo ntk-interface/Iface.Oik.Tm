@@ -72,8 +72,7 @@ namespace Iface.Oik.Tm.Api
 
       while (true)
       {
-        var itemPtr = await Task.Run(() => _native.TmcDntGetNextItem(componentItemsPtr))
-                                .ConfigureAwait(false);
+        var itemPtr = _native.TmcDntGetNextItem(componentItemsPtr);
 
         if (itemPtr == IntPtr.Zero) break;
 
@@ -118,15 +117,12 @@ namespace Iface.Oik.Tm.Api
                                               statusStruct.TmsRtu,
                                               statusStruct.TmsPoint);
 
-            var statusObjectName = await GetObjectName(tmAddrStatus).ConfigureAwait(false);
-
             component.Items.Add(DeltaItem.CreateStatusDeltaItem(numStatus,
                                                                 statusStruct.LastUpdate,
                                                                 (TmNativeDefs.DeltaItemsFlags) statusStruct.DeltaFlags,
                                                                 statusStruct.Value,
                                                                 addStringStatus,
-                                                                tmAddrStatus,
-                                                                statusObjectName));
+                                                                tmAddrStatus));
 
             break;
           case TmNativeDefs.DeltaItemTypes.Analog:
@@ -148,15 +144,12 @@ namespace Iface.Oik.Tm.Api
                                               analogStruct.TmsRtu,
                                               analogStruct.TmsPoint);
 
-            var analogObjectName = await GetObjectName(tmAddrAnalog).ConfigureAwait(false);
-
             component.Items.Add(DeltaItem.CreateAnalogDeltaItem(numAnalog,
                                                                 analogStruct.LastUpdate,
                                                                 (TmNativeDefs.DeltaItemsFlags) analogStruct.DeltaFlags,
                                                                 analogStruct.Value,
                                                                 addStringAnalog,
-                                                                tmAddrAnalog,
-                                                                analogObjectName));
+                                                                tmAddrAnalog));
 
             break;
           case TmNativeDefs.DeltaItemTypes.Accum:
@@ -179,15 +172,12 @@ namespace Iface.Oik.Tm.Api
                                              accumStruct.TmsRtu,
                                              accumStruct.TmsPoint);
 
-            var accumObjectName = await GetObjectName(tmAddrAccum).ConfigureAwait(false);
-
             component.Items.Add(DeltaItem.CreateAccumDeltaItem(numAccum,
                                                                accumStruct.LastUpdate,
                                                                (TmNativeDefs.DeltaItemsFlags) accumStruct.DeltaFlags,
                                                                accumStruct.Value,
                                                                addStringAccum,
-                                                               tmAddrAccum,
-                                                               accumObjectName));
+                                                               tmAddrAccum));
 
             break;
           case TmNativeDefs.DeltaItemTypes.Control:
@@ -210,8 +200,6 @@ namespace Iface.Oik.Tm.Api
                                                controlStruct.TmsRtu,
                                                controlStruct.TmsPoint);
 
-            var controlObjectName = await GetObjectName(tmAddrControl).ConfigureAwait(false);
-
             component.Items.Add(DeltaItem.CreateControlDeltaItem(numControl,
                                                                  controlStruct.LastUpdate,
                                                                  (TmNativeDefs.DeltaItemsFlags) controlStruct
@@ -220,8 +208,7 @@ namespace Iface.Oik.Tm.Api
                                                                  controlStruct.CtrlGroup,
                                                                  controlStruct.CtrlPoint,
                                                                  addStringControl,
-                                                                 tmAddrControl,
-                                                                 controlObjectName));
+                                                                 tmAddrControl));
 
             break;
           case TmNativeDefs.DeltaItemTypes.AnalogF:
@@ -243,16 +230,13 @@ namespace Iface.Oik.Tm.Api
                                                analogFStruct.TmsRtu,
                                                analogFStruct.TmsPoint);
 
-            var analogFObjectName = await GetObjectName(tmAddrAnalogF).ConfigureAwait(false);
-
             component.Items.Add(DeltaItem.CreateAnalogFloatDeltaItem(numAnalogF,
                                                                      analogFStruct.LastUpdate,
                                                                      (TmNativeDefs.DeltaItemsFlags) analogFStruct
                                                                        .DeltaFlags,
                                                                      analogFStruct.Value,
                                                                      addStringAnalogF,
-                                                                     tmAddrAnalogF,
-                                                                     analogFObjectName));
+                                                                     tmAddrAnalogF));
             break;
           case TmNativeDefs.DeltaItemTypes.AccumF:
             var accumFStruct     = Marshal.PtrToStructure<TmNativeDefs.DeltaAccumF>(itemPtr);
@@ -273,16 +257,13 @@ namespace Iface.Oik.Tm.Api
                                               accumFStruct.TmsRtu,
                                               accumFStruct.TmsPoint);
 
-            var accumFObjectName = await GetObjectName(tmAddrAccumF).ConfigureAwait(false);
-
             component.Items.Add(DeltaItem.CreateAccumFloatDeltaItem(numAccumF,
                                                                     accumFStruct.LastUpdate,
                                                                     (TmNativeDefs.DeltaItemsFlags) accumFStruct
                                                                       .DeltaFlags,
                                                                     accumFStruct.Value,
                                                                     addStringAccumF,
-                                                                    tmAddrAccumF,
-                                                                    accumFObjectName));
+                                                                    tmAddrAccumF));
             break;
           case TmNativeDefs.DeltaItemTypes.StrVal:
             var strValStruct     = Marshal.PtrToStructure<TmNativeDefs.DeltaStrval>(itemPtr);
@@ -317,11 +298,28 @@ namespace Iface.Oik.Tm.Api
         }
       }
 
-      await Task.Run(() => _native.TmcDntCloseItem(componentItemsPtr))
-                .ConfigureAwait(false);
+      _native.TmcDntCloseItem(componentItemsPtr);
     }
 
 
+    public async Task UpdateItemName(DeltaItem item)
+    {
+      switch (item.Type)
+      {
+        case DeltaItemTypes.Status:
+        case DeltaItemTypes.Analog:
+        case DeltaItemTypes.Accum:
+        case DeltaItemTypes.Control:
+        case DeltaItemTypes.AnalogFloat:
+        case DeltaItemTypes.AccumFloat:
+          item.SetObjectName(await GetObjectName(item.TmAddress).ConfigureAwait(false));
+          break;
+        default:
+          return;
+      }
+    }
+    
+    
     public async Task<bool> RegisterTracer()
     {
       return await Task.Run(() => _native.TmcDntRegisterUser(_cid)).ConfigureAwait(false);
