@@ -11,7 +11,6 @@ namespace Iface.Oik.Tm.Interfaces
     public DateTime?      UpdateTime             { get; private set; }
     public TmAddr         TmAddress              { get; private set; }
     public string         ObjectName             { get; private set; }
-    public string         TypeString             { get; private set; }
     public string         AddressInChannelString { get; private set; }
     public string         AdditionalInfo         { get; private set; }
     public string         ValueString            { get; private set; }
@@ -26,7 +25,6 @@ namespace Iface.Oik.Tm.Interfaces
       return new DeltaItem
              {
                Type           = DeltaItemTypes.Description,
-               TypeString     = descArray.Length == 1 ? "" : descArray.FirstOrDefault(),
                AdditionalInfo = descArray.LastOrDefault()
              };
     }
@@ -41,9 +39,8 @@ namespace Iface.Oik.Tm.Interfaces
     {
       var deltaItem = new DeltaItem
                       {
-                        Type       = DeltaItemTypes.Status,
-                        TypeString = "ТС",
-                        TmAddress  = tmAddr,
+                        Type      = DeltaItemTypes.Status,
+                        TmAddress = tmAddr,
                       };
 
       if (deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.ZeroEnum))
@@ -108,7 +105,6 @@ namespace Iface.Oik.Tm.Interfaces
                                           ? $"0x{addressInChannel:X}"
                                           : $"{addressInChannel + enumShift}",
                Type       = DeltaItemTypes.Analog,
-               TypeString = "ТИТ",
                UpdateTime = updateTime,
                ValueString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Reliable)
                                ? $"{value} (0x{hexValue})"
@@ -137,7 +133,6 @@ namespace Iface.Oik.Tm.Interfaces
                                           ? $"0x{addressInChannel:X}"
                                           : $"{addressInChannel + enumShift}",
                Type       = DeltaItemTypes.Analog,
-               TypeString = "ТИТ",
                UpdateTime = updateTime,
                ValueString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Reliable)
                                ? $"{value:N6}"
@@ -166,7 +161,6 @@ namespace Iface.Oik.Tm.Interfaces
                                           ? $"0x{addressInChannel:X}"
                                           : $"{addressInChannel + enumShift}",
                Type       = DeltaItemTypes.Accum,
-               TypeString = "ТИИ",
                UpdateTime = updateTime,
                ValueString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Reliable)
                                ? $"{value} "
@@ -195,7 +189,6 @@ namespace Iface.Oik.Tm.Interfaces
                                           ? $"0x{addressInChannel:X}"
                                           : $"{addressInChannel + enumShift}",
                Type       = DeltaItemTypes.AccumFloat,
-               TypeString = "ТИИ",
                UpdateTime = updateTime,
                ValueString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Reliable)
                                ? $"{value:N6}"
@@ -226,7 +219,6 @@ namespace Iface.Oik.Tm.Interfaces
                                           ? $"0x{addressInChannel:X}"
                                           : $"{addressInChannel + enumShift}",
                Type       = DeltaItemTypes.Control,
-               TypeString = "ТУ",
                UpdateTime = updateTime,
                ValueString = controlBlock != 0xffff
                                ? $"{controlBlock + enumShift}-{controlGroup + enumShift}-{controlPoint + enumShift}"
@@ -255,7 +247,6 @@ namespace Iface.Oik.Tm.Interfaces
                                           ? $"0x{addressInChannel:X}"
                                           : $"{addressInChannel + enumShift}",
                Type           = DeltaItemTypes.Analog,
-               TypeString     = "СТР",
                UpdateTime     = updateTime,
                ValueString    = valueString,
                AdditionalInfo = additionalInfo,
