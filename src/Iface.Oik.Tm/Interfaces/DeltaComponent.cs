@@ -10,21 +10,21 @@ namespace Iface.Oik.Tm.Interfaces
   public class DeltaComponent : TmNotifyPropertyChanged
   {
     private readonly int    _hashCode;
-    private          string _description;
-    private          string _statusPerformanceString;
-    private          string _statusInstantPerformanceString;
+    private          string _description                    = string.Empty;
+    private          string _statusPerformanceString        = string.Empty;
+    private          string _statusInstantPerformanceString = string.Empty;
     private          long   _statusesReceived;
     private          long   _instantStatusesReceived;
-    private          string _analogPerformanceString;
-    private          string _analogInstantPerformanceString;
+    private          string _analogPerformanceString        = string.Empty;
+    private          string _analogInstantPerformanceString = string.Empty;
     private          long   _analogsReceived;
     private          long   _instantAnalogsReceived;
-    private          string _accumPerformanceString;
-    private          string _accumInstantPerformanceString;
+    private          string _accumPerformanceString        = string.Empty;
+    private          string _accumInstantPerformanceString = string.Empty;
     private          long   _accumsReceived;
     private          long   _instantAccumsReceived;
-    private          string _messagesPerformanceString;
-    private          string _messagesInstantPerformanceString;
+    private          string _messagesPerformanceString        = string.Empty;
+    private          string _messagesInstantPerformanceString = string.Empty;
     private          long   _messagesReceived;
     private          long   _instantMessagesReceived;
 
