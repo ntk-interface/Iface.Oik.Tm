@@ -14,7 +14,7 @@ namespace Iface.Oik.Tm.Interfaces
     Task<int> GetTreeChangeValue();
 
     
-    Task GetComponentsItems(DeltaComponent component);
+    Task<(IReadOnlyCollection<DeltaItem>, string)> GetComponentsItems(DeltaComponent component);
 
 
     Task UpdateItemName(DeltaItem item);

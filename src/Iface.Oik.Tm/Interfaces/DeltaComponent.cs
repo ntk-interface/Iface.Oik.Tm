@@ -245,12 +245,26 @@ namespace Iface.Oik.Tm.Interfaces
           break;
       }
     }
-
-    public void ClearItems()
+    
+    public bool TryUpdateItems(IReadOnlyCollection<DeltaItem> newItems, string newDescription)
     {
-      Description = string.Empty;
-      Items.Clear();
+      var updated = false;
+      if (newDescription != Description)
+      {
+        Description = newDescription;
+        updated     = true;
+      }
+      
+      if (!Items.SequenceEqual(newItems))
+      {
+        Items.Clear();
+        Items.AddRange(newItems);
+        updated = true;
+      }
+
+      return updated;
     }
+    
 
     public void SetInitialPerformanceStats(long ticks,
                                            long statusCount,
