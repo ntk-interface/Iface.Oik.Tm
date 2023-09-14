@@ -340,15 +340,16 @@ namespace Iface.Oik.Tm.Api
 
 
     public async Task TraceComponent(DeltaComponent  component,
-                                     DeltaTraceTypes traceType,
-                                     bool            showDebugMessages)
+                                     DeltaTraceTypes traceType)
     {
       var traceFlag = traceType == DeltaTraceTypes.Protocol
                         ? TmNativeDefs.DeltaTraceFlags.Usr
                         : TmNativeDefs.DeltaTraceFlags.Drv;
 
-      var traceChain = component.TraceChain;
 
+      var traceChain = new uint[component.TraceChain.Length];
+      component.TraceChain.CopyTo(traceChain, 0);
+      
       if (traceType == DeltaTraceTypes.Physical)
       {
         traceChain[0] = ~traceChain[0];
@@ -361,19 +362,25 @@ namespace Iface.Oik.Tm.Api
                                                       0,
                                                       0))
                 .ConfigureAwait(false);
+    }
 
-      if (showDebugMessages)
-      {
-        await Task.Run(() => _native.TmcDntStopDebug(_cid))
-                  .ConfigureAwait(false);
-      }
+
+    public async Task StartDebug()
+    {
+      await Task.Run(() => _native.TmcDntBeginDebug(_cid))
+                .ConfigureAwait(false);
+    }
+
+
+    public async Task StopDebug()
+    {
+      await Task.Run(() => _native.TmcDntStopDebug(_cid))
+                .ConfigureAwait(false);
     }
 
 
     public async Task StopTrace()
     {
-      await Task.Run(() => _native.TmcDntStopDebug(_cid))
-                .ConfigureAwait(false);
       await Task.Run(() => _native.TmcDntStopTrace(_cid)).ConfigureAwait(false);
     }
 

@@ -26,11 +26,15 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task TraceComponent(DeltaComponent component, 
-                        DeltaTraceTypes traceType, 
-                        bool showDebugMessages);
+                        DeltaTraceTypes traceType);
 
 
     Task StopTrace();
+
+
+    Task StartDebug();
+    
+    Task StopDebug();
 
 
     Task UpdateComponentsTreeLiveInfo(IReadOnlyCollection<DeltaComponent> tree);
