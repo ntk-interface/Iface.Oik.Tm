@@ -6,9 +6,10 @@ namespace Iface.Oik.Tm.Interfaces
   public class DeltaTraceMessage
   {
     public DeltaTraceMessageTypes Type         { get; }
-    public DateTime?              Time     { get; }
+    public DateTime?              Time         { get; }
     public string                 Text         { get; }
     public string                 BinaryString { get; }
+    public bool                   IsDecoded    { get; }
 
     public string TimeString => Time.HasValue ? $"{Time.Value:yyyy.MM.dd HH:mm:ss.fff}" : string.Empty;
     public DeltaTraceMessage(DeltaTraceMessageTypes type, string dateTimeString, string text, string binaryString)
@@ -17,46 +18,19 @@ namespace Iface.Oik.Tm.Interfaces
 
       if (!dateTimeString.IsNullOrEmpty())
       {
-        Time = DateUtil.GetDateTimeFromExtendedTmString(dateTimeString);
+        Time = DateUtil.GetDateTimeFromExtendedReversedTmString(dateTimeString);
       }
       Text     = text;
       BinaryString = binaryString;
+
+      IsDecoded = text.Contains("•");
     }
 
     public override string ToString()
     {
-      string prefix;
-      switch (Type)
-      {
-        case DeltaTraceMessageTypes.Error:
-          prefix = "Ошибка   ";
-          break;
-        case DeltaTraceMessageTypes.Message:
-          prefix = "Сообщение";
-          break;
-        case DeltaTraceMessageTypes.Debug:
-          prefix = "Отладка  ";
-          break;
-        case DeltaTraceMessageTypes.In:
-          prefix = "<--      ";
-          break;
-        case DeltaTraceMessageTypes.Out:
-          prefix = "-->      ";
-          break;
-        case DeltaTraceMessageTypes.TmsIn:
-          prefix = "ТМС <--  ";
-          break;
-        case DeltaTraceMessageTypes.TmsOut:
-          prefix = "ТМС -->  ";
-          break;
-        default:
-          prefix = "?        ";
-          break;
-      }
-
       var binaryString = BinaryString.IsNullOrEmpty() ? string.Empty : $" {BinaryString}";
       var timeString = TimeString.IsNullOrEmpty() ? string.Empty : $" [{TimeString}]";
-      return $"{prefix}{timeString} {Text}{binaryString}";
+      return $"{timeString} {Text}{binaryString}";
     }
   }
 }
