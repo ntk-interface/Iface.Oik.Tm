@@ -41,12 +41,12 @@ namespace Iface.Oik.Tm.Interfaces
 
     public static DeltaItem CreateDescriptionDeltaItem(string descriptionString)
     {
-      var descArray = descriptionString.TrimStart('*').Split(':');
       return new DeltaItem(DeltaItemTypes.Description,
                            null,
                            null,
                            string.Empty,
-                           descArray.LastOrDefault(), string.Empty);
+                           descriptionString.TrimStart('*'), 
+                           string.Empty);
     }
 
 
