@@ -7,28 +7,46 @@ namespace Iface.Oik.Tm.Interfaces
 {
   public class DeltaItem
   {
-    public DeltaItemTypes Type                   { get; private set; }
-    public DateTime?      UpdateTime             { get; private set; }
-    public TmAddr         TmAddress              { get; private set; }
+    private readonly int _hashCode;
+    
+    public DeltaItemTypes Type                   { get; }
+    public DateTime?      UpdateTime             { get; }
+    public TmAddr         TmAddress              { get; }
     public string         ObjectName             { get; private set; }
-    public string         TypeString             { get; private set; }
-    public string         AddressInChannelString { get; private set; }
-    public string         AdditionalInfo         { get; private set; }
-    public string         ValueString            { get; private set; }
+    public string         AddressInChannelString { get; }
+    public string         AdditionalInfo         { get; }
+    public string         ValueString            { get; }
 
     public string UpdateTimeString => UpdateTime.HasValue ? $"{UpdateTime.Value:dd.MM.yyyy H:mm:ss}" : string.Empty;
     public string TmAddressString  => TmAddress == null ? string.Empty : TmAddress.ToString();
 
 
+    private DeltaItem(DeltaItemTypes type, 
+                      DateTime? updateTime, 
+                      TmAddr tmAddress, 
+                      string addressInChannelString, 
+                      string additionalInfo,
+                      string valueString)
+    {
+      Type                   = type;
+      UpdateTime             = updateTime;
+      TmAddress              = tmAddress;
+      AddressInChannelString = addressInChannelString;
+      AdditionalInfo         = additionalInfo;
+      ValueString            = valueString;
+
+      _hashCode = (type, updateTime, tmAddress, addressInChannelString, additionalInfo, valueString).GetHashCode();
+    }
+    
+
     public static DeltaItem CreateDescriptionDeltaItem(string descriptionString)
     {
       var descArray = descriptionString.TrimStart('*').Split(':');
-      return new DeltaItem
-             {
-               Type           = DeltaItemTypes.Description,
-               TypeString     = descArray.Length == 1 ? "" : descArray.FirstOrDefault(),
-               AdditionalInfo = descArray.LastOrDefault()
-             };
+      return new DeltaItem(DeltaItemTypes.Description,
+                           null,
+                           null,
+                           string.Empty,
+                           descArray.LastOrDefault(), string.Empty);
     }
 
 
@@ -37,57 +55,50 @@ namespace Iface.Oik.Tm.Interfaces
                                                   TmNativeDefs.DeltaItemsFlags deltaFlags,
                                                   int                          value,
                                                   string                       additionalInfo,
-                                                  TmAddr                       tmAddr,
-                                                  string                       objectName)
+                                                  TmAddr                       tmAddr)
     {
-      var deltaItem = new DeltaItem
-                      {
-                        Type       = DeltaItemTypes.Status,
-                        TypeString = "ТС",
-                        TmAddress  = tmAddr,
-                        ObjectName = objectName
-                      };
-
+      var addrInChannelStr = string.Empty;
       if (deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.ZeroEnum))
       {
-        deltaItem.AddressInChannelString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Hex)
-                                             ? $"0x{addressInChannel:X}"
-                                             : $"{addressInChannel}";
+        addrInChannelStr = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Hex)
+                             ? $"0x{addressInChannel:X}"
+                             : $"{addressInChannel}";
       }
       else
       {
         var addressQuotient = Math.DivRem(addressInChannel, 8, out var addressRemainder);
-        deltaItem.AddressInChannelString = $"{addressQuotient + 1}-{addressRemainder}";
+        addrInChannelStr = $"{addressQuotient + 1}-{addressRemainder}";
       }
 
-      deltaItem.ValueString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Reliable)
-                                ? $"{value & 0xF}"
-                                : $"{value & 0xF} ?";
+      var valueString = string.Empty;
+      valueString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Reliable)
+                      ? $"{value & 0xF}"
+                      : $"{value & 0xF} ?";
 
       if (deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.DestVal))
       {
-        deltaItem.ValueString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.DestReli)
-                                  ? $"{deltaItem.ValueString} ({value >> 4})"
-                                  : $"{deltaItem.ValueString} ({value >> 4} ?)";
+        valueString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.DestReli)
+                        ? $"{valueString} ({value >> 4})"
+                        : $"{valueString} ({value >> 4} ?)";
       }
+      
+      var updateTime = lastUpdateTimestamp == 0
+                     ? (DateTime?) null
+                     : DateUtil.GetDateTimeFromTimestamp(lastUpdateTimestamp);
 
-      deltaItem.UpdateTime = lastUpdateTimestamp == 0
-                               ? (DateTime?) null
-                               : DateUtil.GetDateTimeFromTimestamp(lastUpdateTimestamp);
-
-      deltaItem.AdditionalInfo = additionalInfo;
+      var addInfo = additionalInfo;
 
       if (deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.S2Break))
       {
-        deltaItem.AdditionalInfo = $"{deltaItem.AdditionalInfo} <Обрыв>";
+        addInfo = $"{addInfo} <Обрыв>";
       }
 
       if (deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.S2Malfn))
       {
-        deltaItem.AdditionalInfo = $"{deltaItem.AdditionalInfo} <Неисп>";
+        addInfo = $"{addInfo} <Неисп>";
       }
 
-      return deltaItem;
+      return new DeltaItem(DeltaItemTypes.Status, updateTime, tmAddr, addrInChannelStr, addInfo, valueString);
     }
 
 
@@ -96,8 +107,7 @@ namespace Iface.Oik.Tm.Interfaces
                                                   TmNativeDefs.DeltaItemsFlags deltaFlags,
                                                   int                          value,
                                                   string                       additionalInfo,
-                                                  TmAddr                       tmAddr,
-                                                  string                       objectName)
+                                                  TmAddr                       tmAddr)
     {
       var enumShift = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.ZeroEnum) ? 0 : 1;
       var hexValue  = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Analong) ? $"{value & 0xffff:X}" : $"{value:X}";
@@ -105,21 +115,15 @@ namespace Iface.Oik.Tm.Interfaces
                          ? (DateTime?) null
                          : DateUtil.GetDateTimeFromTimestamp(lastUpdateTimestamp);
 
-      return new DeltaItem
-             {
-               AddressInChannelString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Hex)
-                                          ? $"0x{addressInChannel:X}"
-                                          : $"{addressInChannel + enumShift}",
-               Type       = DeltaItemTypes.Analog,
-               TypeString = "ТИТ",
-               UpdateTime = updateTime,
-               ValueString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Reliable)
-                               ? $"{value} (0x{hexValue})"
-                               : $"{value} (0x{hexValue}) ?",
-               AdditionalInfo = additionalInfo,
-               TmAddress      = tmAddr,
-               ObjectName = objectName
-             };
+      var addrInChannelStr = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Hex)
+                            ? $"0x{addressInChannel:X}"
+                            : $"{addressInChannel + enumShift}";
+      
+      var valueString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Reliable)
+                          ? $"{value} (0x{hexValue})"
+                          : $"{value} (0x{hexValue}) ?";
+      
+      return new DeltaItem(DeltaItemTypes.Analog, updateTime, tmAddr, addrInChannelStr, additionalInfo, valueString);
     }
 
 
@@ -128,29 +132,22 @@ namespace Iface.Oik.Tm.Interfaces
                                                        TmNativeDefs.DeltaItemsFlags deltaFlags,
                                                        float                        value,
                                                        string                       additionalInfo,
-                                                       TmAddr                       tmAddr,
-                                                       string                       objectName)
+                                                       TmAddr                       tmAddr)
     {
       var enumShift = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.ZeroEnum) ? 0 : 1;
       var updateTime = lastUpdateTimestamp == 0
                          ? (DateTime?) null
                          : DateUtil.GetDateTimeFromTimestamp(lastUpdateTimestamp);
 
-      return new DeltaItem
-             {
-               AddressInChannelString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Hex)
-                                          ? $"0x{addressInChannel:X}"
-                                          : $"{addressInChannel + enumShift}",
-               Type       = DeltaItemTypes.Analog,
-               TypeString = "ТИТ",
-               UpdateTime = updateTime,
-               ValueString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Reliable)
-                               ? $"{value:N6}"
-                               : $"{value:N6} ?",
-               AdditionalInfo = additionalInfo,
-               TmAddress      = tmAddr,
-               ObjectName = objectName
-             };
+      var addrInChannelStr = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Hex)
+                               ? $"0x{addressInChannel:X}"
+                               : $"{addressInChannel + enumShift}";
+
+      var valueString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Reliable)
+                          ? $"{value:N6}"
+                          : $"{value:N6} ?";
+
+      return new DeltaItem(DeltaItemTypes.Analog, updateTime, tmAddr, addrInChannelStr, additionalInfo, valueString);
     }
 
 
@@ -159,29 +156,22 @@ namespace Iface.Oik.Tm.Interfaces
                                                  TmNativeDefs.DeltaItemsFlags deltaFlags,
                                                  int                          value,
                                                  string                       additionalInfo,
-                                                 TmAddr                       tmAddr,
-                                                 string                       objectName)
+                                                 TmAddr                       tmAddr)
     {
       var enumShift = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.ZeroEnum) ? 0 : 1;
       var updateTime = lastUpdateTimestamp == 0
                          ? (DateTime?) null
                          : DateUtil.GetDateTimeFromTimestamp(lastUpdateTimestamp);
 
-      return new DeltaItem
-             {
-               AddressInChannelString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Hex)
-                                          ? $"0x{addressInChannel:X}"
-                                          : $"{addressInChannel + enumShift}",
-               Type       = DeltaItemTypes.Accum,
-               TypeString = "ТИИ",
-               UpdateTime = updateTime,
-               ValueString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Reliable)
-                               ? $"{value} "
-                               : $"{value} ?",
-               AdditionalInfo = additionalInfo,
-               TmAddress      = tmAddr,
-               ObjectName = objectName
-             };
+      var addrInChannelStr = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Hex)
+                               ? $"0x{addressInChannel:X}"
+                               : $"{addressInChannel + enumShift}";
+
+      var valueString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Reliable)
+                          ? $"{value} "
+                          : $"{value} ?";
+
+      return new DeltaItem(DeltaItemTypes.Accum, updateTime, tmAddr, addrInChannelStr, additionalInfo, valueString);
     }
 
 
@@ -190,29 +180,22 @@ namespace Iface.Oik.Tm.Interfaces
                                                       TmNativeDefs.DeltaItemsFlags deltaFlags,
                                                       float                        value,
                                                       string                       additionalInfo,
-                                                      TmAddr                       tmAddr,
-                                                      string                       objectName)
+                                                      TmAddr                       tmAddr)
     {
       var enumShift = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.ZeroEnum) ? 0 : 1;
       var updateTime = lastUpdateTimestamp == 0
                          ? (DateTime?) null
                          : DateUtil.GetDateTimeFromTimestamp(lastUpdateTimestamp);
 
-      return new DeltaItem
-             {
-               AddressInChannelString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Hex)
-                                          ? $"0x{addressInChannel:X}"
-                                          : $"{addressInChannel + enumShift}",
-               Type       = DeltaItemTypes.AccumFloat,
-               TypeString = "ТИИ",
-               UpdateTime = updateTime,
-               ValueString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Reliable)
-                               ? $"{value:N6}"
-                               : $"{value:N6} ?",
-               AdditionalInfo = additionalInfo,
-               TmAddress      = tmAddr,
-               ObjectName = objectName
-             };
+      var addrInChannelStr = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Hex)
+                               ? $"0x{addressInChannel:X}"
+                               : $"{addressInChannel + enumShift}";
+
+      var valueString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Reliable)
+                          ? $"{value:N6}"
+                          : $"{value:N6} ?";
+      
+      return new DeltaItem(DeltaItemTypes.AccumFloat, updateTime, tmAddr, addrInChannelStr, additionalInfo, valueString);
     }
 
 
@@ -223,29 +206,22 @@ namespace Iface.Oik.Tm.Interfaces
                                                    int                          controlGroup,
                                                    int                          controlPoint,
                                                    string                       additionalInfo,
-                                                   TmAddr                       tmAddr,
-                                                   string                       objectName)
+                                                   TmAddr                       tmAddr)
     {
       var enumShift = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.ZeroEnum) ? 0 : 1;
       var updateTime = lastUpdateTimestamp == 0
                          ? (DateTime?) null
                          : DateUtil.GetDateTimeFromTimestamp(lastUpdateTimestamp);
 
-      return new DeltaItem
-             {
-               AddressInChannelString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Hex)
-                                          ? $"0x{addressInChannel:X}"
-                                          : $"{addressInChannel + enumShift}",
-               Type       = DeltaItemTypes.Control,
-               TypeString = "ТУ",
-               UpdateTime = updateTime,
-               ValueString = controlBlock != 0xffff
-                               ? $"{controlBlock + enumShift}-{controlGroup + enumShift}-{controlPoint + enumShift}"
-                               : string.Empty,
-               AdditionalInfo = additionalInfo,
-               TmAddress      = tmAddr,
-               ObjectName = objectName
-             };
+      var addrInChannelStr = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Hex)
+                               ? $"0x{addressInChannel:X}"
+                               : $"{addressInChannel + enumShift}";
+
+      var valueString = controlBlock != 0xffff
+                          ? $"{controlBlock + enumShift}-{controlGroup + enumShift}-{controlPoint + enumShift}"
+                          : string.Empty;
+      
+      return new DeltaItem(DeltaItemTypes.Control, updateTime, tmAddr, addrInChannelStr, additionalInfo, valueString);
     }
 
 
@@ -260,19 +236,57 @@ namespace Iface.Oik.Tm.Interfaces
       var updateTime = lastUpdateTimestamp == 0
                          ? (DateTime?) null
                          : DateUtil.GetDateTimeFromTimestamp(lastUpdateTimestamp);
+      
+      var addrInChannelStr = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Hex)
+                               ? $"0x{addressInChannel:X}"
+                               : $"{addressInChannel + enumShift}";
 
-      return new DeltaItem
-             {
-               AddressInChannelString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Hex)
-                                          ? $"0x{addressInChannel:X}"
-                                          : $"{addressInChannel + enumShift}",
-               Type           = DeltaItemTypes.Analog,
-               TypeString     = "СТР",
-               UpdateTime     = updateTime,
-               ValueString    = valueString,
-               AdditionalInfo = additionalInfo,
-               TmAddress      = tmAddr
-             };
+      return new DeltaItem(DeltaItemTypes.StrVal, updateTime, tmAddr, addrInChannelStr, additionalInfo, valueString);
+    }
+
+    public override int GetHashCode()
+    {
+      return _hashCode;
+    }
+
+    public override bool Equals(object obj)
+    {
+      return Equals(obj as DeltaItem);
+    }
+
+    public bool Equals(DeltaItem comparison)
+    {
+      if (ReferenceEquals(comparison, null))
+      {
+        return false;
+      }
+
+      if (ReferenceEquals(this, comparison))
+      {
+        return true;
+      }
+
+      return comparison.GetHashCode() == GetHashCode();
+    }
+    
+    public static bool operator ==(DeltaItem left, DeltaItem right)
+    {
+      if (ReferenceEquals(left, null))
+      {
+        return ReferenceEquals(right, null);
+      }
+
+      return left.Equals(right);
+    }
+
+    public static bool operator !=(DeltaItem left, DeltaItem right)
+    {
+      return !(left == right);
+    }
+
+    public void SetObjectName(string name)
+    {
+      ObjectName = name;
     }
   }
 }

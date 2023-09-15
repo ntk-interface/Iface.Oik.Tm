@@ -14,9 +14,11 @@ namespace Iface.Oik.Tm.Interfaces
     Task<int> GetTreeChangeValue();
 
     
-    Task GetComponentsItems(DeltaComponent component);
-    
-    
+    Task<(IReadOnlyCollection<DeltaItem>, string)> GetComponentsItems(DeltaComponent component);
+
+
+    Task UpdateItemName(DeltaItem item);
+
     Task<bool> RegisterTracer();
 
     
@@ -24,11 +26,15 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task TraceComponent(DeltaComponent component, 
-                        DeltaTraceTypes traceType, 
-                        bool showDebugMessages);
+                        DeltaTraceTypes traceType);
 
 
     Task StopTrace();
+
+
+    Task StartDebug();
+    
+    Task StopDebug();
 
 
     Task UpdateComponentsTreeLiveInfo(IReadOnlyCollection<DeltaComponent> tree);

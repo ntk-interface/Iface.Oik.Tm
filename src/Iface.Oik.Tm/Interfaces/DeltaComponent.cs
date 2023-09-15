@@ -10,21 +10,21 @@ namespace Iface.Oik.Tm.Interfaces
   public class DeltaComponent : TmNotifyPropertyChanged
   {
     private readonly int    _hashCode;
-    private          string _description;
-    private          string _statusPerformanceString;
-    private          string _statusInstantPerformanceString;
+    private          string _description                    = string.Empty;
+    private          string _statusPerformanceString        = string.Empty;
+    private          string _statusInstantPerformanceString = string.Empty;
     private          long   _statusesReceived;
     private          long   _instantStatusesReceived;
-    private          string _analogPerformanceString;
-    private          string _analogInstantPerformanceString;
+    private          string _analogPerformanceString        = string.Empty;
+    private          string _analogInstantPerformanceString = string.Empty;
     private          long   _analogsReceived;
     private          long   _instantAnalogsReceived;
-    private          string _accumPerformanceString;
-    private          string _accumInstantPerformanceString;
+    private          string _accumPerformanceString        = string.Empty;
+    private          string _accumInstantPerformanceString = string.Empty;
     private          long   _accumsReceived;
     private          long   _instantAccumsReceived;
-    private          string _messagesPerformanceString;
-    private          string _messagesInstantPerformanceString;
+    private          string _messagesPerformanceString        = string.Empty;
+    private          string _messagesInstantPerformanceString = string.Empty;
     private          long   _messagesReceived;
     private          long   _instantMessagesReceived;
 
@@ -214,6 +214,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     public string TraceChainLastLinkString => TraceChain.Last().ToString();
     public string FullPathName             => Parent == null ? Name : $"{Parent.FullPathName} • {Name}";
+    public bool   HasChildren              => Children.Any();
 
 
     public DeltaComponent(string name, string type, uint[] traceChain)
@@ -244,12 +245,26 @@ namespace Iface.Oik.Tm.Interfaces
           break;
       }
     }
-
-    public void ClearItems()
+    
+    public bool TryUpdateItems(IReadOnlyCollection<DeltaItem> newItems, string newDescription)
     {
-      Description = string.Empty;
-      Items.Clear();
+      var updated = false;
+      if (newDescription != Description)
+      {
+        Description = newDescription;
+        updated     = true;
+      }
+      
+      if (!Items.SequenceEqual(newItems))
+      {
+        Items.Clear();
+        Items.AddRange(newItems);
+        updated = true;
+      }
+
+      return updated;
     }
+    
 
     public void SetInitialPerformanceStats(long ticks,
                                            long statusCount,
