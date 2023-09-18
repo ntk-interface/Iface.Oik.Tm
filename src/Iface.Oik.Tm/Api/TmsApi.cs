@@ -1408,22 +1408,20 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<TmTelecontrolResult> TeleregulateByCode(TmAnalog analog, int code)
     {
-      if (analog == null || !analog.HasTeleregulationByCode)
+      if (analog == null)
       {
         return TmTelecontrolResult.CommandNotSentToServer;
       }
-
       return await TeleregulateByValueOrCode(analog, null, code).ConfigureAwait(false);
     }
 
 
     public async Task<TmTelecontrolResult> TeleregulateByValue(TmAnalog analog, float value)
     {
-      if (analog == null || !analog.HasTeleregulationByValue)
+      if (analog == null)
       {
         return TmTelecontrolResult.CommandNotSentToServer;
       }
-
       return await TeleregulateByValueOrCode(analog, value, null).ConfigureAwait(false);
     }
 
@@ -1432,14 +1430,17 @@ namespace Iface.Oik.Tm.Api
     {
       var (ch, rtu, point) = analog.TmAddr.GetTupleShort();
 
-      GCHandle handle;
+      GCHandle                          handle;
+      TmNativeDefs.AnalogRegulationType command;
       if (value.HasValue)
       {
-        handle = GCHandle.Alloc(value.Value, GCHandleType.Pinned);
+        handle  = GCHandle.Alloc(value.Value, GCHandleType.Pinned);
+        command = TmNativeDefs.AnalogRegulationType.Value;
       }
       else if (code.HasValue)
       {
-        handle = GCHandle.Alloc((short)code.Value, GCHandleType.Pinned);
+        handle  = GCHandle.Alloc((short)code.Value, GCHandleType.Pinned);
+        command = TmNativeDefs.AnalogRegulationType.Code;
       }
       else
       {
@@ -1452,7 +1453,7 @@ namespace Iface.Oik.Tm.Api
                                                                         ch,
                                                                         rtu,
                                                                         point,
-                                                                        analog.TmcRegulationType,
+                                                                        (byte) command,
                                                                         handle.AddrOfPinnedObject()))
                                .ConfigureAwait(false);
         return (TmTelecontrolResult)result;
@@ -1466,8 +1467,7 @@ namespace Iface.Oik.Tm.Api
 
     private async Task<TmTelecontrolResult> TeleregulateByStepUpOrDown(TmAnalog analog, bool isStepUp)
     {
-      if (analog == null ||
-          !analog.HasTeleregulationByStep)
+      if (analog == null)
       {
         return TmTelecontrolResult.CommandNotSentToServer;
       }
@@ -1476,13 +1476,14 @@ namespace Iface.Oik.Tm.Api
 
       var stepValue = (short)(isStepUp ? 1 : -1);
       var handle    = GCHandle.Alloc(stepValue, GCHandleType.Pinned);
+      var command   = TmNativeDefs.AnalogRegulationType.Step;
       try
       {
         var result = await Task.Run(() => _native.TmcRegulationByAnalog(_cid,
                                                                         ch,
                                                                         rtu,
                                                                         point,
-                                                                        analog.TmcRegulationType,
+                                                                        (byte) command,
                                                                         handle.AddrOfPinnedObject()))
                                .ConfigureAwait(false);
         return (TmTelecontrolResult)result;
