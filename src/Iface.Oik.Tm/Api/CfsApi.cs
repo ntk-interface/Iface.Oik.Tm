@@ -1004,7 +1004,7 @@ namespace Iface.Oik.Tm.Api
 					throw new Exception($"Ошибка трассировки: {EncodingUtil.Win1251BytesToUtf8(errBuf)} Код: {errCode} CfId:{CfId}");
 				}
 
-				var tmpLogRecords = ParseCfsServerLogRecordPointer(logRecordPtr, 65535);
+				var tmpLogRecords = ParseCfsServerLogRecordPointer(logRecordPtr);
 				_native.CfsFreeMemory(logRecordPtr);
 				records.AddRange(tmpLogRecords);
 			}
@@ -1058,32 +1058,41 @@ namespace Iface.Oik.Tm.Api
 
 			if (logRecordPtr == IntPtr.Zero) return null;
 
-			var cfsLogRecord = ParseCfsServerLogRecordPointer(logRecordPtr, 1000).FirstOrDefault();
+			var cfsLogRecord = ParseCfsServerLogRecordPointer(logRecordPtr).FirstOrDefault();
 
 			_native.CfsFreeMemory(logRecordPtr);
 
 			return TmServerLogRecord.CreateFromCfsLogRecord(cfsLogRecord);
 		}
 
-		private IReadOnlyCollection<TmNativeDefs.CfsLogRecord> ParseCfsServerLogRecordPointer(IntPtr ptr, int maxSize)
+		private IReadOnlyCollection<TmNativeDefs.CfsLogRecord> ParseCfsServerLogRecordPointer(IntPtr ptr)
 		{
-			var strList = TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(ptr, maxSize);
+			var strList = TmNativeUtil.GetUnknownLengthStringListFromDoubleNullTerminatedPointer(ptr);
 
-			return strList.Select(x =>
-								  {
-									  var mc = _cfsServerLogRecordRegex.Match(x);
-									  return new TmNativeDefs.CfsLogRecord
-									  {
-										  Time = mc.Groups[1].Value,
-										  Date = mc.Groups[2].Value,
-										  Name = mc.Groups[3].Value,
-										  Type = mc.Groups[4].Value,
-										  MsgType = mc.Groups[5].Value.Trim(' '),
-										  ThreadId = mc.Groups[6].Value,
-										  Message = mc.Groups[7].Value,
-									  };
-								  })
-						  .ToList();
+			var records = new List<CfsLogRecord>();
+			
+			foreach (var str in strList)
+			{
+				var mc = _cfsServerLogRecordRegex.Match(str);
+
+				if (!mc.Success)
+				{
+					continue;
+				}
+				
+				records.Add(new TmNativeDefs.CfsLogRecord
+				{
+					Time     = mc.Groups[1].Value,
+					Date     = mc.Groups[2].Value,
+					Name     = mc.Groups[3].Value,
+					Type     = mc.Groups[4].Value,
+					MsgType  = mc.Groups[5].Value.Trim(' '),
+					ThreadId = mc.Groups[6].Value,
+					Message  = mc.Groups[7].Value,
+				});
+			}
+
+			return records;
 		}
 
 		public async Task<TmInstallationInfo> GetTmInstallationInfo()
