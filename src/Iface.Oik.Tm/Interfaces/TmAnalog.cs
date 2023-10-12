@@ -366,6 +366,11 @@ namespace Iface.Oik.Tm.Interfaces
 
     public void FromTAnalogPoint(TmNativeDefs.TAnalogPoint tmcAnalogPoint)
     {
+      if (tmcAnalogPoint.Flags == -1)
+      {
+        return;
+      }
+      
       IsInit    = true;
       Code      = tmcAnalogPoint.AsCode;
       Value     = tmcAnalogPoint.AsFloat;

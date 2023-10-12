@@ -263,6 +263,11 @@ namespace Iface.Oik.Tm.Interfaces
     
     public void FromTAccumPoint(TmNativeDefs.TAccumPoint tmcAccumPoint)
     {
+      if (tmcAccumPoint.Flags == -1)
+      {
+        return;
+      }
+      
       IsInit    = true;
       Value     = tmcAccumPoint.Value;
       Load      = tmcAccumPoint.Load;
