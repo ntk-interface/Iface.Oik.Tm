@@ -449,6 +449,11 @@ namespace Iface.Oik.Tm.Interfaces
 
     public void FromTStatusPoint(TmNativeDefs.TStatusPoint tmcStatusPoint)
     {
+      if (tmcStatusPoint.Flags == -1)
+      {
+        return;
+      } 
+      
       IsInit = true;
       Status = tmcStatusPoint.Status;
       Flags  = (TmFlags) tmcStatusPoint.Flags;
