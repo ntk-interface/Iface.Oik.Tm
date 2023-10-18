@@ -1,8 +1,5 @@
-using Iface.Oik.Tm.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Xml.Linq;
-using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
@@ -135,13 +132,19 @@ namespace Iface.Oik.Tm.Interfaces
 	}
 	public class RbsNodeProperties : ReservedNodeProperties
 	{
-		public string DOC_Path { get; set; } = "";
-		public string BinPath { get; set; } = "";
-		public string DataPath { get; set; } = "";
-		public short RedirectorPort { get; set; }
-		public string RBF_Directory { get; set; } = "";
-		public string JournalSQLCS { get; set; } = "";
-		public string DTMX_SQLCS { get; set; } = "";
+		public RbsNodeProperties(short redirectorPort = 0)
+		{
+			RedirectorPort = redirectorPort;
+		}
+		
+		public string DOC_Path       { get; set; } = "";
+		public string BinPath        { get; set; } = "";
+		public string DataPath       { get; set; } = "";
+		public short  RedirectorPort { get; set; }
+		public string RBF_Directory  { get; set; } = "";
+		public string JournalSQLCS   { get; set; } = "";
+		public string DTMX_SQLCS     { get; set; } = "";
+		public bool   HasRedirector  => RedirectorPort != 0;
 	}
 	public class ExternalTaskNodeProperties: ChildNodeProperties
 	{
