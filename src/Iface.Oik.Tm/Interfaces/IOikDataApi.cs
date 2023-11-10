@@ -106,8 +106,19 @@ namespace Iface.Oik.Tm.Interfaces
                         PreferApi               prefer = PreferApi.Auto);
 
 
+    Task UpdateStatusesFromRetro(IReadOnlyList<TmStatus> statuses,
+                                 DateTime                time,
+                                 PreferApi               prefer = PreferApi.Auto);
+
+
     Task UpdateAnalogs(IReadOnlyList<TmAnalog> analogs,
                        PreferApi               prefer = PreferApi.Auto);
+
+
+    Task UpdateAnalogsFromRetro(IReadOnlyList<TmAnalog> analogs,
+                                DateTime                time,
+                                int                     retroNum = 0,
+                                PreferApi               prefer   = PreferApi.Auto);
 
 
     Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags,

@@ -452,11 +452,12 @@ namespace Iface.Oik.Tm.Interfaces
       if (tmcStatusPoint.Flags == -1)
       {
         return;
-      } 
+      }
       
-      IsInit = true;
-      Status = tmcStatusPoint.Status;
-      Flags  = (TmFlags) tmcStatusPoint.Flags;
+      IsInit  = true;
+      Status  = (short) (tmcStatusPoint.Status & 0x0001); // на случай, если задана датаграмма ExtsShowS2
+      S2Flags = (TmS2Flags) (tmcStatusPoint.Status >> 1); // на случай, если задана датаграмма ExtsShowS2
+      Flags   = (TmFlags) tmcStatusPoint.Flags;
     }
 
 

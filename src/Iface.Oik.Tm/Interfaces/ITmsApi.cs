@@ -66,9 +66,13 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task UpdateStatuses(IReadOnlyList<TmStatus> statuses);
 
+    Task UpdateStatusesFromRetro(IReadOnlyList<TmStatus> statuses, DateTime time);
+
     Task UpdateStatusesExplicitly(IReadOnlyList<TmStatus> statuses, bool getRealTelemetry = false);
 
     Task UpdateAnalogs(IReadOnlyList<TmAnalog> analogs);
+
+    Task UpdateAnalogsFromRetro(IReadOnlyList<TmAnalog> statuses, DateTime time, int retroNum = 0);
 
 
     Task UpdateAnalogsExplicitly(IReadOnlyList<TmAnalog> analogs,

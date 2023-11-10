@@ -702,6 +702,37 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task UpdateStatusesFromRetro(IReadOnlyList<TmStatus> statuses, DateTime time)
+    {
+      if (statuses.IsNullOrEmpty()) return;
+      
+      var utcTime       = DateUtil.GetUtcTimestampFromDateTime(time);
+      var serverUtcTime = _native.UxGmTime2UxTime(utcTime);
+
+      var count            = statuses.Count;
+      var tmcAddrList      = new TmNativeDefs.TAdrTm[count];
+      var statusPointsList = new TmNativeDefs.TStatusPoint[count];
+
+      for (var i = 0; i < count; i++)
+      {
+        tmcAddrList[i] = statuses[i].TmAddr.ToAdrTm();
+      }
+
+      await Task.Run(() => _native.TmcStatusByListEx(_cid, 
+                                                     (ushort)count, 
+                                                     tmcAddrList, 
+                                                     statusPointsList, 
+                                                     (uint) serverUtcTime))
+                .ConfigureAwait(false);
+
+      for (var i = 0; i < count; i++)
+      {
+        statuses[i].FromTStatusPoint(statusPointsList[i]);
+        statuses[i].ChangeTime = time;
+      }
+    }
+
+
     public async Task UpdateAnalogs(IReadOnlyList<TmAnalog> analogs)
     {
       await Task.Run(() => UpdateAnalogsSynchronously(analogs)).ConfigureAwait(false);
@@ -734,6 +765,40 @@ namespace Iface.Oik.Tm.Api
       for (var i = 0; i < count; i++)
       {
         analogs[i].FromTAnalogPoint(analogPointsList[i]);
+      }
+    }
+
+
+    public async Task UpdateAnalogsFromRetro(IReadOnlyList<TmAnalog> analogs,
+                                             DateTime                time,
+                                             int                     retroNum = 0)
+    {
+      if (analogs.IsNullOrEmpty()) return;
+      
+      var utcTime       = DateUtil.GetUtcTimestampFromDateTime(time);
+      var serverUtcTime = _native.UxGmTime2UxTime(utcTime);
+
+      var count            = analogs.Count;
+      var tmcAddrList      = new TmNativeDefs.TAdrTm[count];
+      var analogPointsList = new TmNativeDefs.TAnalogPoint[count];
+
+      for (var i = 0; i < count; i++)
+      {
+        tmcAddrList[i] = analogs[i].TmAddr.ToAdrTm();
+      }
+
+      await Task.Run(() => _native.TmcAnalogByList(_cid, 
+                                                   (ushort)count, 
+                                                   tmcAddrList, 
+                                                   analogPointsList, 
+                                                   (uint) serverUtcTime, 
+                                                   (ushort) retroNum))
+                .ConfigureAwait(false);
+
+      for (var i = 0; i < count; i++)
+      {
+        analogs[i].FromTAnalogPoint(analogPointsList[i]);
+        analogs[i].ChangeTime = time;
       }
     }
 
