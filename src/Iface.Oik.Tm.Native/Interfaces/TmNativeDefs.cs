@@ -289,7 +289,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
 			TmTotValCnt = 0x10,
 			ReserveSentAsyncBytes = 0x20,
 			ExtValCount = 0x40,
-			ReserveBufferSize = 0x80
+			ReserveBufferSize = 0x80,
+			PassiveServer = 0x100,
+			ReserveSentSyncBytes = 0x200
 		}
 
 
@@ -1057,8 +1059,16 @@ namespace Iface.Oik.Tm.Native.Interfaces
 			public UInt32 DtmxBufFill;
 			public UInt32 AnRW;
 			public UInt32 ReserveBufSize;
+			public UInt32 ReserveSentSyncBytes;
+			public UInt32 ReserveAsyncPackets;
+			public UInt32 ReserveSeconds;
+			public UInt32 ReserveAsyncXPercent;
+			public UInt32 TobSetCount;
 
-			[MarshalAs(UnmanagedType.ByValArray, SizeConst = 72)]
+			[MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
+			public byte[] KeyId;
+			
+			[MarshalAs(UnmanagedType.ByValArray, SizeConst = 44)]
 			public byte[] Reserved;
 		}
 

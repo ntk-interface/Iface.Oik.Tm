@@ -24,11 +24,20 @@ namespace Iface.Oik.Tm.Interfaces
     public uint?     ReserveBufferFill       { get; }
     public uint?     ReserveBufferMaxFill    { get; }
     public uint?     ReserveSentAsyncBytes   { get; }
+    public uint?     ReserveSentSyncBytes    { get; }
+    public uint      ReserveAsyncPackets     { get; }
+    public uint      ReserveSeconds          { get; }
+    public uint      ReserveAsyncXPercent    { get; }
     public uint      DtmxLastCommit          { get; }
     public uint      DtmxBufferFill          { get; }
     public uint      AnRW                    { get; }
+    public uint      TobSetCount             { get; }
 
-    public TmServerInfo(string serverName, 
+    public byte[] KeyId { get; }
+
+    public string KeyIdString => KeyId == null ? null : BitConverter.ToString(KeyId).Replace("-", "");
+    
+    public TmServerInfo(string                   serverName,
                         TmNativeDefs.TServerInfo tServerInfo)
     {
       CurrentServerName       = serverName;
@@ -44,8 +53,16 @@ namespace Iface.Oik.Tm.Interfaces
       DtmxBufferFill          = tServerInfo.DtmxBufFill;
       DtmxLastCommit          = tServerInfo.DtmxLastCommit;
       AnRW                    = tServerInfo.AnRW;
+      ReserveAsyncPackets     = tServerInfo.ReserveAsyncPackets;
+      ReserveSeconds          = tServerInfo.ReserveSeconds;
+      TobSetCount             = tServerInfo.TobSetCount;
 
-      var flags = (TmNativeDefs.ServerInfoPresenceFlags) tServerInfo.PresenceFlags;
+      if (tServerInfo.KeyId[0] != 0)
+      {
+        KeyId = tServerInfo.KeyId;
+      }
+
+      var flags = (TmNativeDefs.ServerInfoPresenceFlags)tServerInfo.PresenceFlags;
 
       if (flags.HasFlag(TmNativeDefs.ServerInfoPresenceFlags.UniqUserCount))
       {
@@ -85,6 +102,11 @@ namespace Iface.Oik.Tm.Interfaces
       if (flags.HasFlag(TmNativeDefs.ServerInfoPresenceFlags.ReserveSentAsyncBytes))
       {
         ReserveSentAsyncBytes = tServerInfo.ReserveSentAsyncBytes;
+      }
+
+      if (flags.HasFlag(TmNativeDefs.ServerInfoPresenceFlags.ReserveSentSyncBytes))
+      {
+        ReserveSentSyncBytes = tServerInfo.ReserveSentSyncBytes;
       }
     }
 
