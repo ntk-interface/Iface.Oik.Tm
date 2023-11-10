@@ -532,6 +532,25 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task UpdateStatusesFromRetro(IReadOnlyList<TmStatus> statuses,
+                                              DateTime                time,
+                                              PreferApi               prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        await _tms.UpdateStatusesFromRetro(statuses, time).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+      }
+      else
+      {
+        // todo IsInit = false;
+      }
+    }
+
+
     public async Task UpdateAnalogs(IReadOnlyList<TmAnalog> analogs,
                                     PreferApi               prefer = PreferApi.Auto)
     {
@@ -543,6 +562,26 @@ namespace Iface.Oik.Tm.Api
       else if (api == ApiSelection.Sql)
       {
         await _sql.UpdateAnalogs(analogs).ConfigureAwait(false);
+      }
+      else
+      {
+        // todo IsInit = false;
+      }
+    }
+
+
+    public async Task UpdateAnalogsFromRetro(IReadOnlyList<TmAnalog> analogs,
+                                             DateTime                time,
+                                             int                     retroNum = 0,
+                                             PreferApi               prefer   = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        await _tms.UpdateAnalogsFromRetro(analogs, time, retroNum).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
       }
       else
       {

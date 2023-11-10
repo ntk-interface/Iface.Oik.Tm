@@ -459,6 +459,16 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public void TmcStatusByListEx(Int32                       cid,
+                                  UInt16                      count,
+                                  TmNativeDefs.TAdrTm[]       addr,
+                                  TmNativeDefs.TStatusPoint[] statuses,
+                                  UInt32                      time)
+    {
+      tmcStatusByListEx(cid, count, addr, statuses, time);
+    }
+
+
     public void TmcAnalogByList(Int32                       cid,
                                 UInt16                      count,
                                 TmNativeDefs.TAdrTm[]       addr,

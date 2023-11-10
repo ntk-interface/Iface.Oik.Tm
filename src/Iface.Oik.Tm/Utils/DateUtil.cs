@@ -29,6 +29,12 @@ namespace Iface.Oik.Tm.Utils
     }
 
 
+    public static DateTime? GetDateFromTmString(string s)
+    {
+      return GetDateTimeFromTmStringByFormat(s, "dd.MM.yyyy");
+    }
+
+
     public static DateTime? GetDateTimeFromExtendedTmString(string s)
     {
       return GetDateTimeFromTmStringByFormat(s, "dd.MM.yyyy HH:mm:ss.fff");

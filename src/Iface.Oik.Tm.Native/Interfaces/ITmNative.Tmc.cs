@@ -298,6 +298,13 @@ namespace Iface.Oik.Tm.Native.Interfaces
                          TmNativeDefs.TStatusPoint[] statuses);
 
 
+    void TmcStatusByListEx(Int32                       cid,
+                           UInt16                      count,
+                           TmNativeDefs.TAdrTm[]       addr,
+                           TmNativeDefs.TStatusPoint[] statuses,
+                           UInt32                      time);
+
+
     void TmcAnalogByList(Int32                       cid,
                          UInt16                      count,
                          TmNativeDefs.TAdrTm[]       addr,

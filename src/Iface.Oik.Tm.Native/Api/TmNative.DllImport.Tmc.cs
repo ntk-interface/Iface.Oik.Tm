@@ -182,6 +182,14 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern void tmcStatusByListEx(Int32                                 cid,
+                                                UInt16                                count,
+                                                [In]      TmNativeDefs.TAdrTm[]       addr,
+                                                [In, Out] TmNativeDefs.TStatusPoint[] status,
+                                                UInt32                                time);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern void tmcAnalogByList(Int32                                 cid,
                                               UInt16                                count,
                                               [In]      TmNativeDefs.TAdrTm[]       addr,
