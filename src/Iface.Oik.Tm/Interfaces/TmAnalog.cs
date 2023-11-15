@@ -368,6 +368,7 @@ namespace Iface.Oik.Tm.Interfaces
     {
       if (tmcAnalogPoint.Flags == -1)
       {
+        IsInit = false;
         return;
       }
       

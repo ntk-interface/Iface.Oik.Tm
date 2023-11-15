@@ -451,6 +451,7 @@ namespace Iface.Oik.Tm.Interfaces
     {
       if (tmcStatusPoint.Flags == -1)
       {
+        IsInit = false;
         return;
       }
       

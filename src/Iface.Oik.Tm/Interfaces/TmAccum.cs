@@ -265,6 +265,7 @@ namespace Iface.Oik.Tm.Interfaces
     {
       if (tmcAccumPoint.Flags == -1)
       {
+        IsInit = false;
         return;
       }
       
