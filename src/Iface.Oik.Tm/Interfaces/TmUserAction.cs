@@ -58,6 +58,14 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
     public bool IsAcked => AckTime != null; // TODO
+    
+    public TmType TmAddrType           { get; private set; }
+    public uint   TmAddrComplexInteger { get; private set; } // sql: tma // one-based, 0=none
+    public string TmAddrString         { get; private set; }
+    
+    public bool HasTmAddr   => TmAddrType != 0;
+    public bool HasTmStatus => TmAddrType == TmType.Status;
+    public bool HasTmAnalog => TmAddrType == TmType.Analog;
 
 
     protected TmUserAction(Guid id)
@@ -83,6 +91,7 @@ namespace Iface.Oik.Tm.Interfaces
         ExtraInt    = dto.ExtraInt,
         ExtraText   = dto.ExtraText,
       };
+      action.PrepareTmAddrValues();
 
       return action;
     }
@@ -103,8 +112,25 @@ namespace Iface.Oik.Tm.Interfaces
         FullTma     = dto.Tma,
         ExtraId     = dto.ExtraId,
       };
+      action.PrepareTmAddrValues();
 
       return action;
+    }
+
+
+    private void PrepareTmAddrValues()
+    {
+      if (FullTma == null)
+      {
+        TmAddrType           = TmType.Unknown;
+        TmAddrComplexInteger = 0;
+        TmAddrString         = null;
+        return;
+      }
+      var tmAddr = TmAddr.CreateFromSqlFullTma(FullTma.Value);
+      TmAddrType           = tmAddr.Type;
+      TmAddrComplexInteger = tmAddr.ToComplexInteger();
+      TmAddrString         = tmAddr.ToSqlTmaStr();
     }
 
 

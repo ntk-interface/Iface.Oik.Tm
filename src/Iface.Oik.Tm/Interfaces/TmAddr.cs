@@ -190,6 +190,14 @@ namespace Iface.Oik.Tm.Interfaces
       return CreateFromNormalized(type, (uint) value);
     }
 
+    
+    public static TmAddr CreateFromSqlFullTma(long fullTma)
+    {
+      var tmaType = (fullTma >> 32);
+      var tma     = fullTma         & 0xFF_FF_FF_FF;
+      return CreateFromSqlTmaAndTmaType((ushort) tmaType, (int) tma);
+    }
+
 
     public static TmAddr CreateFromSqlTma(int value)
     {
