@@ -268,6 +268,11 @@ namespace Iface.Oik.Tm.Interfaces
                                          PreferApi prefer = PreferApi.Auto);
 
 
+    Task<bool> BlockTagEventsTemporarily(TmTag     tmTag,
+                                         DateTime  endBlockTime,
+                                         PreferApi prefer = PreferApi.Auto);
+
+
     Task UnblockTagEvents(TmTag     tmTag,
                           PreferApi prefer = PreferApi.Auto);
 

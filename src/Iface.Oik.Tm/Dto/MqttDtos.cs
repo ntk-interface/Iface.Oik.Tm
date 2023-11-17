@@ -137,8 +137,9 @@ namespace Iface.Oik.Tm.Dto
 
   public class MqttTmTagBlockEvents
   {
-    public long   TagFullTma     { get; set; }
-    public string TagName        { get; set; }
-    public int    MinutesToBlock { get; set; }
+    public long     TagFullTma     { get; set; }
+    public string   TagName        { get; set; }
+    public DateTime EndBlockTime   { get; set; }
+    public string   Comment        { get; set; }
   }
 }

@@ -3043,15 +3043,21 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<bool> BlockTagEventsTemporarily(TmTag tmTag, int minutesToBlock)
     {
+      return await BlockTagEventsTemporarily(tmTag, DateTime.Now.AddMinutes(minutesToBlock)).ConfigureAwait(false);
+    }
+
+
+    public async Task<bool> BlockTagEventsTemporarily(TmTag tmTag, DateTime endBlockTime)
+    {
       if (tmTag == null)
       {
         return false;
       }
       
       var (ch, rtu, point) = tmTag.TmAddr.GetTupleShort();
-      var propsBytes  = TmNativeUtil.GetDoubleNullTerminatedBytesFromStringList(new[]
+      var propsBytes = TmNativeUtil.GetDoubleNullTerminatedBytesFromStringList(new[]
       {
-        $"EvUnblkTime={DateTime.Now.AddMinutes(minutesToBlock):yyyy.MM.dd HH:mm:00}"
+        $"EvUnblkTime={endBlockTime:yyyy.MM.dd HH:mm:00}"
       });
       var propsChanged = 0u;
       var result = await Task.Run(() => _native.TmcSetObjectProperties(_cid, 

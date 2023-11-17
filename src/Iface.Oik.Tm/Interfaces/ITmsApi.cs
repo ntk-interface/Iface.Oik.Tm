@@ -312,6 +312,10 @@ namespace Iface.Oik.Tm.Interfaces
                                          int   minutesToBlock);
 
 
+    Task<bool> BlockTagEventsTemporarily(TmTag    tmTag,
+                                         DateTime endBlockTime);
+
+
     Task UnblockTagEvents(TmTag tmTag);
 
 

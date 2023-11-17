@@ -1358,6 +1358,26 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<bool> BlockTagEventsTemporarily(TmTag     tmTag,
+                                                      DateTime  endBlockTime,
+                                                      PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.BlockTagEventsTemporarily(tmTag, endBlockTime).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+        return false;
+      }
+    }
+
+
     public async Task UnblockTagEvents(TmTag     tmTag,
                                       PreferApi prefer = PreferApi.Auto)
     {
