@@ -58,11 +58,11 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
     public bool IsAcked => AckTime != null; // TODO
-    
+
     public TmType TmAddrType           { get; private set; }
     public uint   TmAddrComplexInteger { get; private set; } // sql: tma // one-based, 0=none
     public string TmAddrString         { get; private set; }
-    
+
     public bool HasTmAddr   => TmAddrType != 0;
     public bool HasTmStatus => TmAddrType == TmType.Status;
     public bool HasTmAnalog => TmAddrType == TmType.Analog;
