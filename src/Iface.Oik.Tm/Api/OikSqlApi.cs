@@ -1511,19 +1511,19 @@ namespace Iface.Oik.Tm.Api
     {
       if (filter == null) return null; //???
 
-      if (filter.AreUserActionsForbidden              ||
-          filter.TmAddrList.Count > 0                 ||
-          !filter.TmStatusClassIdList.IsNullOrEmpty() ||
-          !filter.ChannelAndRtuCollection.IsNullOrEmpty())
+      if (filter.AreUserActionsForbidden           ||
+          !filter.TmStatusClassIdList.IsNullOrEmpty())
       {
         return Array.Empty<TmUserAction>(); // TODO временно обнуляем при задании ТМ-адресов или классов
       }
 
-      var whereBeg               = GetWhereUserActionStartTime(filter);
-      var whereEnd               = GetWhereUserActionEndTime(filter);
-      var whereActionCategories  = GetWhereUserActionCategories(filter);
-      var whereActionImportances = GetWhereUserActionImportances(filter);
-      var limit                  = GetEventsOutputLimit(filter);
+      var whereBeg                   = GetWhereUserActionStartTime(filter);
+      var whereEnd                   = GetWhereUserActionEndTime(filter);
+      var whereActionCategories      = GetWhereUserActionCategories(filter);
+      var whereActionImportances     = GetWhereUserActionImportances(filter);
+      var whereActionChannelsAndRtus = GetWhereUserActionChannelsAndRtus(filter);
+      var whereActionTmAddr          = GetWhereUserActionTmAddr(filter);
+      var limit                      = GetEventsOutputLimit(filter);
 
       try
       {
@@ -1536,7 +1536,7 @@ namespace Iface.Oik.Tm.Api
                                tma, extra_id, extra_int, extra_text,
                                ack_time, ack_user
             FROM oik_user_actions_log
-            WHERE 1=1 {whereBeg}{whereEnd}{whereActionCategories}{whereActionImportances}
+            WHERE 1=1 {whereBeg}{whereEnd}{whereActionCategories}{whereActionImportances}{whereActionChannelsAndRtus}{whereActionTmAddr}
             ORDER BY time
             {limit}";
 
@@ -1552,6 +1552,10 @@ namespace Iface.Oik.Tm.Api
           if (!whereActionImportances.IsNullOrEmpty())
           {
             parameters.Add("@Importances", filter.Importances, DbType.Int16);
+          }
+          if (!whereActionTmAddr.IsNullOrEmpty())
+          {
+            parameters.Add("@FullTmaArray", filter.TmAddrList.Select(addr => addr.ToSqlFullTma()).ToArray());
           }
 
           var dtos = await sql.DbConnection
@@ -1616,6 +1620,42 @@ namespace Iface.Oik.Tm.Api
       }
 
       return " AND (1 << importance) & @Importances > 0";
+    }
+
+
+    private static string GetWhereUserActionTmAddr(TmEventFilter filter)
+    {
+      if (filter.TmAddrList.IsNullOrEmpty()) return "";
+
+      return " AND tma = ANY(@FullTmaArray)";
+    }
+
+
+    private static string GetWhereUserActionChannelsAndRtus(TmEventFilter filter)
+    {
+      if (filter.ChannelAndRtuCollection.IsNullOrEmpty()) return "";
+
+      var tmaList = new List<string>();
+      foreach (var chAndRtu in filter.ChannelAndRtuCollection)
+      {
+        var channelId = chAndRtu.Key;
+        var rtuList   = chAndRtu.Value;
+        if (rtuList == null)
+        {
+          var (tmaStart, tmaEnd) = TmChannel.GetSqlTmaRange(channelId);
+          tmaList.Add($"((tma & {uint.MaxValue}) >= {tmaStart} AND (tma & {uint.MaxValue}) <= {tmaEnd})");
+        }
+        else
+        {
+          foreach (var rtuId in rtuList)
+          {
+            var (tmaStart, tmaEnd) = TmRtu.GetSqlTmaRange(channelId, rtuId);
+            tmaList.Add($"((tma & {uint.MaxValue} >= {tmaStart} AND (tma & {uint.MaxValue} <= {tmaEnd})");
+          }
+        }
+      }
+
+      return " AND (" + string.Join(" OR ", tmaList) + ")";
     }
 
 

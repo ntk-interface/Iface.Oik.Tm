@@ -220,12 +220,38 @@ namespace Iface.Oik.Tm.Interfaces
         return false;
       }
 
-      if (Categories.Count == 0)
+      if (Categories.Count > 0 && !Categories.Contains(userAction.Category))
       {
-        return true;
+        return false;
       }
-      
-      return Categories.Contains(userAction.Category);
+
+      if (StartTime.HasValue && userAction.Time < StartTime)
+      {
+        return false;
+      }
+
+      if (EndTime.HasValue && userAction.Time > EndTime)
+      {
+        return false;
+      }
+
+      if (ChannelAndRtuCollection != null &&
+          !IsConformTmAddrComplexInteger(userAction.TmAddrComplexInteger))
+      {
+        return false;
+      }
+
+      if (TmAddrList.Count != 0)
+      {
+        if (string.IsNullOrEmpty(userAction.TmAddrString)               ||
+            !TmAddr.TryParse(userAction.TmAddrString, out var evTmAddr) ||
+            !TmAddrList.Any(addr => evTmAddr.Equals(addr)))
+        {
+          return false;
+        }
+      }
+
+      return true;
     }
 
 
