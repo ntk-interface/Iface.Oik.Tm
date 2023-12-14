@@ -2,6 +2,7 @@ using System;
 using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.IntegrationTest.Util;
 using Iface.Oik.Tm.Interfaces;
+using Iface.Oik.Tm.Native.Api;
 
 namespace Iface.Oik.Tm.IntegrationTest.Workers;
 
@@ -10,6 +11,7 @@ public static class TestStaticTms
   public static void DoWork()
   {
     TestConnection();
+    TestCfMethods();
     TestTmMethods();
     TestRbMethods();
   }
@@ -43,6 +45,14 @@ public static class TestStaticTms
     Tms.Disconnect(cid4);
 
     Tms.ClearUserCredentials();
+  }
+
+
+  private static void TestCfMethods()
+  {
+    var utcTimestamp       = 1702548448; // 2023-12-14T10:07:28
+    var serverUtcTimestamp = Tms.GetServerPseudoUnixTimestamp(utcTimestamp);
+    Log.Condition(serverUtcTimestamp == utcTimestamp + 5 * 60 * 60, $"uxgmtime2uxtime returns correct time {serverUtcTimestamp}");
   }
 
 
