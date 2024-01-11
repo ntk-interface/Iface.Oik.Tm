@@ -166,6 +166,8 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
+    public override bool HasProblems => !IsInit || IsUnreliable || IsInvalid;
+
     public override string ValueToDisplay => StatusCaption;
 
     public override List<string> FlagsToDisplay

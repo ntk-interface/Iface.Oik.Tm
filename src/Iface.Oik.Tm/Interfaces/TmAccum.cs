@@ -82,6 +82,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     public override string ValueToDisplay => ValueString;
     public          string LoadToDisplay  => LoadWithUnitString;
+    
+    public override bool HasProblems => !IsInit || IsUnreliable || IsInvalid;
 
     public override List<string> FlagsToDisplay
     {

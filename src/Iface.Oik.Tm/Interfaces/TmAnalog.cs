@@ -99,6 +99,9 @@ namespace Iface.Oik.Tm.Interfaces
       : InvalidValueString;
 
 
+
+    public override bool HasProblems => !IsInit || IsUnreliable || IsInvalid;
+
     public override string ValueToDisplay => ValueWithUnitString;
     
     public override List<string> FlagsToDisplay

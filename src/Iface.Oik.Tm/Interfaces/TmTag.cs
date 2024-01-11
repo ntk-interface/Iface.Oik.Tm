@@ -71,6 +71,7 @@ namespace Iface.Oik.Tm.Interfaces
       private set => SetPropertyValueAndRefresh(ref _properties, value);
     }
 
+    public abstract bool HasProblems { get; }
 
     public abstract string       ValueToDisplay { get; }
     public abstract List<string> FlagsToDisplay { get; }
