@@ -1317,14 +1317,15 @@ namespace Iface.Oik.Tm.Api
         return Array.Empty<TmEvent>();
       }
 
-      var whereBeg                   = GetWhereEventStartTime(filter);
-      var whereEnd                   = GetWhereEventEndTime(filter);
-      var whereEventTypes            = GetWhereEventTypes(filter);
-      var whereEventImportances      = GetWhereEventImportances(filter);
-      var whereEventTmStatusClassIds = GetWhereEventTmStatusClassIds(filter);
-      var whereEventChannelsAndRtus  = GetWhereEventChannelsAndRtus(filter);
-      var whereEventTmAddr           = GetWhereEventTmAddr(filter);
-      var limit                      = GetEventsOutputLimit(filter);
+      var whereBeg                      = GetWhereEventStartTime(filter);
+      var whereEnd                      = GetWhereEventEndTime(filter);
+      var whereEventTypes               = GetWhereEventTypes(filter);
+      var whereEventImportances         = GetWhereEventImportances(filter);
+      var whereEventTmStatusClassIds    = GetWhereEventTmStatusClassIds(filter);
+      var whereEventChannelsAndRtus     = GetWhereEventChannelsAndRtus(filter);
+      var whereEventTmAddr              = GetWhereEventTmAddr(filter);
+      var whereEventFromReserveExcluded = GetWhereEventFromReserveExcluded(filter);
+      var limit                         = GetEventsOutputLimit(filter);
 
       try
       {
@@ -1335,10 +1336,10 @@ namespace Iface.Oik.Tm.Api
           await sql.OpenAsync().ConfigureAwait(false);
           var commandText = $@"SELECT elix, update_time, 
                                 rec_text, name, rec_state_text, rec_type, rec_type_name, user_name, importance, 
-                                tma, tma_str, tm_type_name, tm_type, class_id, v_val, alarm_active,
+                                tma, tma_str, tm_type_name, tm_type, class_id, v_val, alarm_active, ts_add_flags,
                                 ack_time, ack_user
             FROM oik_event_log
-            WHERE 1=1 {whereBeg}{whereEnd}{whereEventTypes}{whereEventImportances}{whereEventTmStatusClassIds}{whereEventTmAddr}{whereEventChannelsAndRtus}
+            WHERE 1=1 {whereBeg}{whereEnd}{whereEventTypes}{whereEventImportances}{whereEventTmStatusClassIds}{whereEventTmAddr}{whereEventChannelsAndRtus}{whereEventFromReserveExcluded}
             ORDER BY update_time
             {limit}";
 
@@ -1496,6 +1497,16 @@ namespace Iface.Oik.Tm.Api
       if (!filter.StartTime.HasValue) return "";
 
       return " AND update_time >= @StartTime";
+    }
+
+
+    private static string GetWhereEventFromReserveExcluded(TmEventFilter filter)
+    {
+      if (!filter.ExcludeFromReserve)
+      {
+        return "";
+      }
+      return " AND (ts_add_flags IS NULL OR get_bit(ts_add_flags,4) != 1)";
     }
 
 
@@ -1674,7 +1685,7 @@ namespace Iface.Oik.Tm.Api
           await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT elix, update_time, 
                                 rec_text, name, rec_state_text, rec_type, rec_type_name, user_name, importance, 
-                                tma, tma_str, tm_type_name, tm_type, class_id, v_val, alarm_active,
+                                tma, tma_str, tm_type_name, tm_type, class_id, v_val, alarm_active, ts_add_flags,
                                 ack_time, ack_user
                               FROM oik_event_log_elix
                               WHERE elix > @Elix

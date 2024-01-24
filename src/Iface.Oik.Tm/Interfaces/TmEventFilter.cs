@@ -19,6 +19,7 @@ namespace Iface.Oik.Tm.Interfaces
     public TmEventImportances Importances         { get; set; }
     public List<TmAddr>       TmAddrList          { get; } = new List<TmAddr>();
     public List<int>          TmStatusClassIdList { get; set; }
+    public bool               ExcludeFromReserve  { get; set; }
 
     // channelNum -> { null(весь канал) | коллекция rtuNum }
     public Dictionary<int, HashSet<int>> ChannelAndRtuCollection { get; set; }
@@ -34,7 +35,8 @@ namespace Iface.Oik.Tm.Interfaces
                                TmAddrList.Count == 0                                                   &&
                                (TmStatusClassIdList     == null || TmStatusClassIdList.Count     == 0) &&
                                (ChannelAndRtuCollection == null || ChannelAndRtuCollection.Count == 0) &&
-                               Categories.Count == 0                                                   &&
+                               !ExcludeFromReserve                                                     &&
+                               Categories.Count == 0                                                   && 
                                (Source == TmEventSource.Union)                                         &&
                                OutputLimit == 0;
 
@@ -102,6 +104,7 @@ namespace Iface.Oik.Tm.Interfaces
       TmAddrList.Clear();
       ChannelAndRtuCollection?.Clear();
       TmStatusClassIdList?.Clear();
+      ExcludeFromReserve = false;
       Categories.Clear();
     }
 
@@ -202,6 +205,12 @@ namespace Iface.Oik.Tm.Interfaces
         {
           return false;
         }
+      }
+
+      if (ExcludeFromReserve &&
+          ev.IsFromReserve)
+      {
+        return false;
       }
 
       return true;
@@ -393,6 +402,10 @@ namespace Iface.Oik.Tm.Interfaces
       if (!TmAddrList.IsNullOrEmpty())
       {
         filters.Add($"(ТМ-адреса содержатся в [{string.Join(",", TmAddrList)}])");
+      }
+      if (ExcludeFromReserve)
+      {
+        filters.Add("Исключать события с резервных каналов");
       }
       if (OutputLimit > 0)
       {
