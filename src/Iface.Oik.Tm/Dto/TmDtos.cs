@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using Iface.Oik.Tm.Interfaces;
 
 namespace Iface.Oik.Tm.Dto
@@ -164,6 +165,7 @@ namespace Iface.Oik.Tm.Dto
     public string    AckUser      { get; set; }
     public bool?     AlarmActive  { get; set; }
     public float?    VVal         { get; set; }
+    public BitArray  TsAddFlags   { get; set; }
   }
 
 

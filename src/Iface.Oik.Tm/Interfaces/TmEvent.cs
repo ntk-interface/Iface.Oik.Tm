@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Iface.Oik.Tm.Dto;
@@ -27,6 +29,7 @@ namespace Iface.Oik.Tm.Interfaces
     public string       TmAddrString         { get; private set; }
     public object       Reference            { get; private set; }
     public DateTime?    FixTime              { get; private set; }
+    public bool         IsFromReserve        { get; private set; } // EVL_ST_EXTF_SECONDARY, sql: ts_add_flags[4]
 
     private int       _num;
     private DateTime? _ackTime;
@@ -100,6 +103,7 @@ namespace Iface.Oik.Tm.Interfaces
                            dto.ClassId,
                            dto.AlarmActive,
                            dto.VVal,
+                           dto.TsAddFlags,
                            dto.AckTime,
                            dto.AckUser);
     }
@@ -121,6 +125,7 @@ namespace Iface.Oik.Tm.Interfaces
                                         short?    classId,
                                         bool?     isAlarmActive,
                                         float?    alarmInitialValue,
+                                        BitArray  tsExtraFlags,
                                         DateTime? ackTime,
                                         string    ackUser)
     {
@@ -172,6 +177,7 @@ namespace Iface.Oik.Tm.Interfaces
                       TmAddrComplexInteger = (uint) tmAddrComplexInteger,
                       AckTime              = ackTime.NullIfEpoch(),
                       AckUser              = ackUser,
+                      IsFromReserve        = tsExtraFlags != null && tsExtraFlags.Count > 4 && tsExtraFlags[4] == true, 
                       Reference            = reference,
                     };
 
@@ -552,6 +558,7 @@ namespace Iface.Oik.Tm.Interfaces
       if (hasSecondary)
       {
         statusChangeEvent.Reference = statusChangeEvent.Reference == null ? "(s)" : $"{statusChangeEvent.Reference} (s)";
+        statusChangeEvent.IsFromReserve = true;
       }
 
       if (hasNoCurData)
