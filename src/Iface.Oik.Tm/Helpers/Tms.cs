@@ -264,6 +264,19 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
+    public static bool CheckUserCredentials(int tmCid, string username, string password)
+    {
+      var cfCid = Native.TmcGetCfsHandle(tmCid);
+      if (cfCid == IntPtr.Zero)
+      {
+        return false;
+      }
+      return Native.CfsCheckUserCred(cfCid, 
+                                     EncodingUtil.Utf8ToWin1251Bytes(username),
+                                     EncodingUtil.Utf8ToWin1251Bytes(password));
+    }
+
+
     public static string GetLinkedRbServerName(int tmCid, string tmServerName)
     {
       var cfCid = Native.TmcGetCfsHandle(tmCid);

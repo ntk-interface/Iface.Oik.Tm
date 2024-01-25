@@ -17,6 +17,11 @@ namespace Iface.Oik.Tm.Native.Interfaces
 		void CfsSetUserForThread(byte[] user,
 								 byte[] password);
 
+
+		bool CfsCheckUserCred(IntPtr cfCid,
+		                      byte[] user,
+		                      byte[] password);
+
 		IntPtr CfsMakeInprocCrd(byte[] machine, byte[] user, byte[] pwd);
 
 		UInt32 CfsGetExtendedUserData(IntPtr cfCid,

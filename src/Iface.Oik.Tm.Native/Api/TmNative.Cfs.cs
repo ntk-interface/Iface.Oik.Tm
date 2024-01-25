@@ -34,6 +34,14 @@ namespace Iface.Oik.Tm.Native.Api
 		}
 
 
+		public bool CfsCheckUserCred(IntPtr cfCid,
+		                             byte[] user,
+		                             byte[] password)
+		{
+			return cfsCheckUserCred(cfCid, user, password);
+		}
+
+
 		public uint CfsGetExtendedUserData(IntPtr cfCid,
 											 string serverType,
 											 string serverName,

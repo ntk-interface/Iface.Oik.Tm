@@ -69,6 +69,7 @@ public static class TestStaticTms
     TestLinkedRbServer(tmCid, tmServer);
     TestSecurity(tmCid);
     TestUserInfo(tmCid, tmServer);
+    TestCheckUserCredentials(tmCid, username, password);
     TestLicenseFeature(tmCid);
     TestTmServerFeatures(tmCid);
 
@@ -112,6 +113,15 @@ public static class TestStaticTms
   {
     var user = Tms.GetUserInfo(tmCid, tmServer);
     Log.Condition(user != null, $"User data: ID = {user?.Id}, GroupId = {user?.GroupId}, Name = {user?.Name}");
+  }
+
+
+  private static void TestCheckUserCredentials(int tmCid, string username, string password)
+  {
+    Log.Condition(Tms.CheckUserCredentials(tmCid, username, password), "Check valid user credentials");
+    Log.Condition(!Tms.CheckUserCredentials(tmCid, username, "???_password"), "Invalid user password fail");
+    Log.Condition(!Tms.CheckUserCredentials(tmCid, "???_username", password), "Invalid user name fail");
+    Log.Condition(!Tms.CheckUserCredentials(tmCid, "???_username", "???_password"), "Invalid user credentials fail");
   }
 
 
