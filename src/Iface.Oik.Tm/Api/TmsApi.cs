@@ -908,6 +908,40 @@ namespace Iface.Oik.Tm.Api
                                      1024);
       tag.SetTmcObjectProperties(EncodingUtil.Win1251BytesToUtf8(sb));
     }
+    
+    
+    private TmStatus FindTmStatusReserveTag(TmStatus tmStatus)
+    {
+      var sb = new byte[1024];
+      var (ch, rtu, point) = tmStatus.TmAddr.GetTupleShort();
+      _native.TmcGetObjectProperties(_cid,
+                                     (ushort) TmNativeDefs.TmDataTypes.Status,
+                                     ch,
+                                     rtu,
+                                     point,
+                                     ref sb,
+                                     1024);
+      
+      var props = EncodingUtil.Win1251BytesToUtf8(sb).Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
+      foreach (var prop in props)
+      {
+        var kvp = prop.Split('=');
+        if (kvp.Length != 2)
+        {
+          continue;
+        }
+        if (kvp[0] == "Reserve" && TmAddr.TryParse(kvp[1], out var tmAddrReserve, TmType.Status))
+        {
+          return new TmStatus(tmAddrReserve);
+        }
+        if (kvp[0] == "Reserving" && TmAddr.TryParse(kvp[1], out var tmAddrReserving, TmType.Status))
+        {
+          return new TmStatus(tmAddrReserving);
+        }
+      }
+      
+      return null;
+    }
 
 
     private async Task UpdateTagClassData(TmTag tag)
