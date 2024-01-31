@@ -910,17 +910,17 @@ namespace Iface.Oik.Tm.Api
     }
     
     
-    private TmStatus FindTmStatusReserveTag(TmStatus tmStatus)
+    private async Task<TmStatus> FindTmStatusReserveTag(TmStatus tmStatus)
     {
       var sb = new byte[1024];
       var (ch, rtu, point) = tmStatus.TmAddr.GetTupleShort();
-      _native.TmcGetObjectProperties(_cid,
-                                     (ushort) TmNativeDefs.TmDataTypes.Status,
-                                     ch,
-                                     rtu,
-                                     point,
-                                     ref sb,
-                                     1024);
+      await Task.Run(() => _native.TmcGetObjectProperties(_cid,
+                                                          (ushort)TmNativeDefs.TmDataTypes.Status,
+                                                          ch,
+                                                          rtu,
+                                                          point,
+                                                          ref sb,
+                                                          1024)).ConfigureAwait(false);
       
       var props = EncodingUtil.Win1251BytesToUtf8(sb).Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
       foreach (var prop in props)
@@ -1814,26 +1814,35 @@ namespace Iface.Oik.Tm.Api
         timedValueType += (byte)TmNativeDefs.VfType.FlagClear;
       }
 
-      await Task.Run(() => _native.TmcSetTimedValues(_cid,
-                                                     1,
-                                                     new[]
-                                                     {
-                                                       new TmNativeDefs.TTimedValueAndFlags
-                                                       {
-                                                         Vf =
-                                                         {
-                                                           Adr   = tmTag.TmAddr.ToAdrTm(),
-                                                           Type  = timedValueType,
-                                                           Flags = (byte)flags,
-                                                           Bits  = 0,
-                                                         },
-                                                         Xt =
-                                                         {
-                                                           Flags = (ushort)TmNativeDefs.TMXTimeFlags.User,
-                                                         }
-                                                       }
-                                                     }))
+      var tvf = new TmNativeDefs.TTimedValueAndFlags
+      {
+        Vf =
+        {
+          Adr   = tmTag.TmAddr.ToAdrTm(),
+          Type  = timedValueType,
+          Flags = (byte)flags,
+          Bits  = 0,
+        },
+        Xt =
+        {
+          Flags = (ushort)TmNativeDefs.TMXTimeFlags.User,
+        }
+      };
+      await Task.Run(() => _native.TmcSetTimedValues(_cid, 1, new[] { tvf }))
                 .ConfigureAwait(false);
+      
+      // переключаем также резерв для ТС, если есть
+      if (tmTag is TmStatus tmStatus)
+      {
+        var resStatus = await FindTmStatusReserveTag(tmStatus).ConfigureAwait(false);
+        if (resStatus != null)
+        {
+          tvf.Vf.Adr = resStatus.TmAddr.ToAdrTm();
+          await Task.Run(() => _native.TmcSetTimedValues(_cid, 1, new[] { tvf }))
+                    .ConfigureAwait(false);
+        }
+      }
+      
 
       // изменения флагов 1-4 для ТС записываются в журнал событий
       if (tmTag is TmStatus &&
@@ -2008,7 +2017,7 @@ namespace Iface.Oik.Tm.Api
       // выставляем новое состояние с флагом ручной установки
       if (tmStatus.IsInverted) // при инверсии нужно инвертировать команду
       {
-        newStatus = newStatus ^ 1;
+        newStatus ^= 1;
       }
 
       byte flags = (byte)TmNativeDefs.Flags.ManuallySet;
@@ -2017,29 +2026,34 @@ namespace Iface.Oik.Tm.Api
         flags += (byte)TmNativeDefs.Flags.UnreliableManu;
       }
 
-      await Task.Run(() => _native.TmcSetTimedValues(_cid,
-                                                     1,
-                                                     new[]
-                                                     {
-                                                       new TmNativeDefs.TTimedValueAndFlags
-                                                       {
-                                                         Vf =
-                                                         {
-                                                           Adr = tmStatus.TmAddr.ToAdrTm(),
-                                                           Type = (byte)TmNativeDefs.VfType.Status  +
-                                                                  (byte)TmNativeDefs.VfType.FlagSet +
-                                                                  (byte)TmNativeDefs.VfType.AlwaysSetValue,
-                                                           Flags = flags,
-                                                           Bits  = 1,
-                                                           Value = (uint)newStatus,
-                                                         },
-                                                         Xt =
-                                                         {
-                                                           Flags = (ushort)TmNativeDefs.TMXTimeFlags.User,
-                                                         }
-                                                       }
-                                                     }))
+      var tvf = new TmNativeDefs.TTimedValueAndFlags
+      {
+        Vf =
+        {
+          Adr = tmStatus.TmAddr.ToAdrTm(),
+          Type = (byte)TmNativeDefs.VfType.Status + 
+                 (byte)TmNativeDefs.VfType.FlagSet + 
+                 (byte)TmNativeDefs.VfType.AlwaysSetValue,
+          Flags = flags,
+          Bits  = 1,
+          Value = (uint)newStatus,
+        },
+        Xt =
+        {
+          Flags = (ushort)TmNativeDefs.TMXTimeFlags.User,
+        }
+      };
+      await Task.Run(() => _native.TmcSetTimedValues(_cid, 1, new[] { tvf }))
                 .ConfigureAwait(false);
+      
+      // переключаем также резерв, если есть
+      var resStatus = await FindTmStatusReserveTag(tmStatus).ConfigureAwait(false);
+      if (resStatus != null)
+      {
+        tvf.Vf.Adr = resStatus.TmAddr.ToAdrTm();
+        await Task.Run(() => _native.TmcSetTimedValues(_cid, 1, new[] { tvf }))
+                  .ConfigureAwait(false);
+      }
 
       return true;
     }
@@ -2164,6 +2178,15 @@ namespace Iface.Oik.Tm.Api
 
       await Task.Run(() => _native.TmcSetStatusNormal(_cid, ch, rtu, point, (ushort)normalValue))
                 .ConfigureAwait(false);
+                
+      // переключаем также нормальное состояние резерва, если есть
+      var resStatus = await FindTmStatusReserveTag(status).ConfigureAwait(false);
+      if (resStatus != null)
+      {
+        var (resCh, resRtu, resPoint) = resStatus.TmAddr.GetTupleShort();
+        await Task.Run(() => _native.TmcSetStatusNormal(_cid, resCh, resRtu, resPoint, (ushort)normalValue))
+                  .ConfigureAwait(false);
+      }
     }
 
 
