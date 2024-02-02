@@ -910,12 +910,12 @@ namespace Iface.Oik.Tm.Api
     }
     
     
-    private async Task<TmStatus> FindTmStatusReserveTag(TmStatus tmStatus)
+    private async Task<TmTag> FindTmTagReserveTag(TmTag tmTag)
     {
       var sb = new byte[1024];
-      var (ch, rtu, point) = tmStatus.TmAddr.GetTupleShort();
+      var (ch, rtu, point) = tmTag.TmAddr.GetTupleShort();
       await Task.Run(() => _native.TmcGetObjectProperties(_cid,
-                                                          (ushort)TmNativeDefs.TmDataTypes.Status,
+                                                          (ushort)tmTag.Type.ToNativeType(),
                                                           ch,
                                                           rtu,
                                                           point,
@@ -930,13 +930,13 @@ namespace Iface.Oik.Tm.Api
         {
           continue;
         }
-        if (kvp[0] == "Reserve" && TmAddr.TryParse(kvp[1], out var tmAddrReserve, TmType.Status))
+        if (kvp[0] == "Reserve" && TmAddr.TryParse(kvp[1], out var tmAddrReserve, tmTag.Type))
         {
-          return new TmStatus(tmAddrReserve);
+          return TmTag.Create(tmAddrReserve);
         }
-        if (kvp[0] == "Reserving" && TmAddr.TryParse(kvp[1], out var tmAddrReserving, TmType.Status))
+        if (kvp[0] == "Reserving" && TmAddr.TryParse(kvp[1], out var tmAddrReserving, tmTag.Type))
         {
-          return new TmStatus(tmAddrReserving);
+          return TmTag.Create(tmAddrReserving);
         }
       }
       
@@ -1831,16 +1831,13 @@ namespace Iface.Oik.Tm.Api
       await Task.Run(() => _native.TmcSetTimedValues(_cid, 1, new[] { tvf }))
                 .ConfigureAwait(false);
       
-      // переключаем также резерв для ТС, если есть
-      if (tmTag is TmStatus tmStatus)
+      // переключаем также флаги на резерве, если есть
+      var resTmTag = await FindTmTagReserveTag(tmTag).ConfigureAwait(false);
+      if (resTmTag != null)
       {
-        var resStatus = await FindTmStatusReserveTag(tmStatus).ConfigureAwait(false);
-        if (resStatus != null)
-        {
-          tvf.Vf.Adr = resStatus.TmAddr.ToAdrTm();
-          await Task.Run(() => _native.TmcSetTimedValues(_cid, 1, new[] { tvf }))
-                    .ConfigureAwait(false);
-        }
+        tvf.Vf.Adr = resTmTag.TmAddr.ToAdrTm();
+        await Task.Run(() => _native.TmcSetTimedValues(_cid, 1, new[] { tvf }))
+                  .ConfigureAwait(false);
       }
       
 
@@ -2047,7 +2044,7 @@ namespace Iface.Oik.Tm.Api
                 .ConfigureAwait(false);
       
       // переключаем также резерв, если есть
-      var resStatus = await FindTmStatusReserveTag(tmStatus).ConfigureAwait(false);
+      var resStatus = await FindTmTagReserveTag(tmStatus).ConfigureAwait(false);
       if (resStatus != null)
       {
         tvf.Vf.Adr = resStatus.TmAddr.ToAdrTm();
@@ -2180,7 +2177,7 @@ namespace Iface.Oik.Tm.Api
                 .ConfigureAwait(false);
                 
       // переключаем также нормальное состояние резерва, если есть
-      var resStatus = await FindTmStatusReserveTag(status).ConfigureAwait(false);
+      var resStatus = await FindTmTagReserveTag(status).ConfigureAwait(false);
       if (resStatus != null)
       {
         var (resCh, resRtu, resPoint) = resStatus.TmAddr.GetTupleShort();
@@ -2240,28 +2237,33 @@ namespace Iface.Oik.Tm.Api
         flags += (byte)TmNativeDefs.Flags.UnreliableManu;
       }
 
-      await Task.Run(() => _native.TmcSetTimedValues(_cid,
-                                                     1,
-                                                     new[]
-                                                     {
-                                                       new TmNativeDefs.TTimedValueAndFlags
-                                                       {
-                                                         Vf =
-                                                         {
-                                                           Adr = tmAnalog.TmAddr.ToAdrTm(),
-                                                           Type = (byte)TmNativeDefs.VfType.AnalogFloat +
-                                                                  (byte)TmNativeDefs.VfType.FlagSet     +
-                                                                  (byte)TmNativeDefs.VfType.AlwaysSetValue,
-                                                           Flags = flags,
-                                                           Bits  = 32,
-                                                           Value = uintValue,
-                                                         },
-                                                         Xt =
-                                                         {
-                                                           Flags = (ushort)TmNativeDefs.TMXTimeFlags.User,
-                                                         }
-                                                       }
-                                                     })).ConfigureAwait(false);
+      var tvf = new TmNativeDefs.TTimedValueAndFlags
+      {
+        Vf =
+        {
+          Adr = tmAnalog.TmAddr.ToAdrTm(),
+          Type = (byte)TmNativeDefs.VfType.AnalogFloat +
+                 (byte)TmNativeDefs.VfType.FlagSet     +
+                 (byte)TmNativeDefs.VfType.AlwaysSetValue,
+          Flags = flags,
+          Bits  = 32,
+          Value = uintValue,
+        },
+        Xt =
+        {
+          Flags = (ushort)TmNativeDefs.TMXTimeFlags.User,
+        }
+      };
+      await Task.Run(() => _native.TmcSetTimedValues(_cid, 1, new[] { tvf })).ConfigureAwait(false);
+      
+      // выставляем также значение резерву, если есть
+      var resAnalogs = await FindTmTagReserveTag(tmAnalog).ConfigureAwait(false);
+      if (resAnalogs != null)
+      {
+        tvf.Vf.Adr = resAnalogs.TmAddr.ToAdrTm();
+        await Task.Run(() => _native.TmcSetTimedValues(_cid, 1, new[] { tvf }))
+                  .ConfigureAwait(false);
+      }
 
       // регистрируем событие
       var ev = new TmNativeDefs.TEvent
