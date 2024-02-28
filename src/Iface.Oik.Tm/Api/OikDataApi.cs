@@ -1986,6 +1986,48 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<bool> SetAnalogBackdateManually(TmAnalog  tmAnalog,
+                                                     float     value,
+                                                     DateTime  time,
+                                                     PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.SetAnalogBackdateManually(tmAnalog, value, time).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+        return false;
+      }
+    }
+
+
+    public async Task<bool> SetStatusBackdateManually(TmStatus  analog,
+                                                     int       status,
+                                                     DateTime  time,
+                                                     PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.SetStatusBackdateManually(analog, status, time).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+        return false;
+      }
+    }
+
+
     public async Task<bool> SetAnalogTechParameters(TmAnalog  analog, TmAnalogTechParameters parameters,
                                                     PreferApi prefer = PreferApi.Auto)
     {

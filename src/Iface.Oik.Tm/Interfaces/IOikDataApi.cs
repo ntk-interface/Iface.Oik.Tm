@@ -384,6 +384,18 @@ namespace Iface.Oik.Tm.Interfaces
                                  PreferApi prefer            = PreferApi.Auto);
 
 
+    Task<bool> SetAnalogBackdateManually(TmAnalog  tmAnalog,
+                                        float     value,
+                                        DateTime  time,
+                                        PreferApi prefer = PreferApi.Auto);
+
+
+    Task<bool> SetStatusBackdateManually(TmStatus  tmStatus,
+                                        int       status,
+                                        DateTime  time,
+                                        PreferApi prefer = PreferApi.Auto);
+
+
     Task<bool> SetAnalogTechParameters(TmAnalog               analog,
                                        TmAnalogTechParameters parameters,
                                        PreferApi              prefer = PreferApi.Auto);

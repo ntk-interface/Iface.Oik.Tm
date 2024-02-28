@@ -217,6 +217,10 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<bool> SetAlarmValue(TmAlarm tmAlarm, float value);
 
+    Task<bool> SetAnalogBackdateManually(TmAnalog tmAnalog, float value, DateTime time);
+
+    Task<bool> SetStatusBackdateManually(TmStatus tmStatus, int status, DateTime time);
+
 
     Task SetAccum(int ch, int rtu, int point, float value);
     

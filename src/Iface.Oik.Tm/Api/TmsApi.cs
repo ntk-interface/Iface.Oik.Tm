@@ -2288,6 +2288,138 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<bool> SetAnalogBackdateManually(TmAnalog tmAnalog, float value, DateTime time)
+    {
+      if (tmAnalog == null) return false;
+      
+      var utcTime       = DateUtil.GetUtcTimestampFromDateTime(time);
+      var serverUtcTime = _native.UxGmTime2UxTime(utcTime);
+
+      // установка нового значения
+      var uintValue = BitConverter.ToUInt32(BitConverter.GetBytes(value), 0); // функция требует значение DWORD
+
+      var tvf = new TmNativeDefs.TTimedValueAndFlags
+      {
+        Vf =
+        {
+          Adr = tmAnalog.TmAddr.ToAdrTm(),
+          Type = (byte)TmNativeDefs.VfType.AnalogFloat +
+                 (byte)TmNativeDefs.VfType.FlagSet     +
+                 (byte)TmNativeDefs.VfType.AlwaysSetValue,
+          Flags = (byte)TmNativeDefs.Flags.ManuallySet,
+          Bits  = 32,
+          Value = uintValue,
+        },
+        Xt =
+        {
+          Flags = (ushort)TmNativeDefs.TMXTimeFlags.User,
+          Sec   = (uint)serverUtcTime,
+        }
+      };
+      await Task.Run(() => _native.TmcSetTimedValues(_cid, 1, new[] { tvf })).ConfigureAwait(false);
+      
+      // выставляем также значение резерву, если есть
+      var resAnalogs = await FindTmTagReserveTag(tmAnalog).ConfigureAwait(false);
+      if (resAnalogs != null)
+      {
+        tvf.Vf.Adr = resAnalogs.TmAddr.ToAdrTm();
+        await Task.Run(() => _native.TmcSetTimedValues(_cid, 1, new[] { tvf }))
+                  .ConfigureAwait(false);
+      }
+
+      // регистрируем событие
+      var ev = new TmNativeDefs.TEvent
+      {
+        Id       = (ushort)TmNativeDefs.EventTypes.ManualAnalogSet,
+        Imp      = 0,
+        DateTime = time.ToTmByteArray(),
+        Data = TmNativeUtil.GetBytes(new TmNativeDefs.AnalogSetData
+        {
+          Cmd      = 1, // флаг ручной установки
+          Value    = value,
+          UserName = TmNativeUtil.GetFixedBytesWithTrailingZero(_userInfo?.Name, 16, "cp866"),
+        }),
+      };
+      (ev.Ch, ev.Rtu, ev.Point) = tmAnalog.TmAddr.GetTuple();
+
+      await Task.Run(() => _native.TmcRegEvent(_cid, ev))
+                .ConfigureAwait(false);
+
+      return true;
+    }
+
+
+    public async Task<bool> SetStatusBackdateManually(TmStatus tmStatus,
+                                                     int      status,
+                                                     DateTime time)
+    {
+      if (tmStatus == null) return false;
+
+      var (ch, rtu, point) = tmStatus.TmAddr.GetTuple();
+      
+      var utcTime       = DateUtil.GetUtcTimestampFromDateTime(time);
+      var serverUtcTime = _native.UxGmTime2UxTime(utcTime);
+
+      // регистрируем событие переключения (в старом клиенте такой порядок - сначала событие, потом само переключение)
+      var ev = new TmNativeDefs.TEvent
+      {
+        Ch       = ch,
+        Rtu      = rtu,
+        Point    = point,
+        Id       = (ushort)TmNativeDefs.EventTypes.ManualStatusSet,
+        Imp      = 0,
+        DateTime = time.ToTmByteArray(),
+        Data = TmNativeUtil.GetBytes(new TmNativeDefs.ControlData
+        {
+          Cmd = (byte)status,
+          UserName =
+            TmNativeUtil.GetFixedBytesWithTrailingZero(_userInfo?.Name, 16,
+                                                       "cp866"),
+        }),
+      };
+      await Task.Run(() => _native.TmcRegEvent(_cid, ev))
+                .ConfigureAwait(false);
+
+      // выставляем новое состояние с флагом ручной установки
+      if (tmStatus.IsInverted) // при инверсии нужно инвертировать команду
+      {
+        status ^= 1;
+      }
+
+      var tvf = new TmNativeDefs.TTimedValueAndFlags
+      {
+        Vf =
+        {
+          Adr = tmStatus.TmAddr.ToAdrTm(),
+          Type = (byte)TmNativeDefs.VfType.Status + 
+                 (byte)TmNativeDefs.VfType.FlagSet + 
+                 (byte)TmNativeDefs.VfType.AlwaysSetValue,
+          Flags = (byte)TmNativeDefs.Flags.ManuallySet,
+          Bits  = 1,
+          Value = (uint)status,
+        },
+        Xt =
+        {
+          Flags = (ushort)TmNativeDefs.TMXTimeFlags.User,
+          Sec   = (uint)serverUtcTime,
+        }
+      };
+      await Task.Run(() => _native.TmcSetTimedValues(_cid, 1, new[] { tvf }))
+                .ConfigureAwait(false);
+      
+      // переключаем также резерв, если есть
+      var resStatus = await FindTmTagReserveTag(tmStatus).ConfigureAwait(false);
+      if (resStatus != null)
+      {
+        tvf.Vf.Adr = resStatus.TmAddr.ToAdrTm();
+        await Task.Run(() => _native.TmcSetTimedValues(_cid, 1, new[] { tvf }))
+                  .ConfigureAwait(false);
+      }
+
+      return true;
+    }
+
+
     public async Task<bool> SetAnalogTechParameters(TmAnalog analog, TmAnalogTechParameters parameters)
     {
       if (analog == null || parameters == null)
