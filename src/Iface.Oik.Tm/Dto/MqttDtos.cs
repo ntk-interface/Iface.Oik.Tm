@@ -62,10 +62,11 @@ namespace Iface.Oik.Tm.Dto
 
   public abstract class MqttPlacardDto
   {
-    public Guid   Id          { get; set; }
-    public int    TypeId      { get; set; }
-    public string TypeName    { get; set; }
-    public Guid   EquipmentId { get; set; }
+    public Guid   Id            { get; set; }
+    public int    TypeId        { get; set; }
+    public string TypeName      { get; set; }
+    public Guid   EquipmentId   { get; set; }
+    public string EquipmentName { get; set; }
   }
 
 
@@ -94,8 +95,9 @@ namespace Iface.Oik.Tm.Dto
 
   public class MqttPermittedPortableGroundDto
   {
-    public Guid EquipmentId { get; set; }
-    public bool IsPermitted { get; set; }
+    public Guid   EquipmentId   { get; set; }
+    public string EquipmentName { get; set; }
+    public bool   IsPermitted   { get; set; }
   }
 
 
