@@ -144,4 +144,13 @@ namespace Iface.Oik.Tm.Dto
     public DateTime EndBlockTime   { get; set; }
     public string   Comment        { get; set; }
   }
+
+
+  public class MqttTmTagSetBackdate
+  {
+    public long     TagFullTma     { get; set; }
+    public string   TagName        { get; set; }
+    public string   ValueToDisplay { get; set; }
+    public DateTime Time           { get; set; }
+  }
 }

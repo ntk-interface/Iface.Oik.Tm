@@ -56,6 +56,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     [Description("Tm/Tag/BlockEvents")]   TmTagBlockEventsTemporarily = 500,
     [Description("Tm/Tag/UnblockEvents")] TmTagUnblockEvents          = 501,
+    [Description("Tm/Tag/SetBackdate")]   TmTagSetBackdate            = 502,
 
     [Description("ServerConnection/Problem")]   ServerProblem   = 1001,
     [Description("ServerConnection/Reconnect")] ServerReconnect = 1002,
