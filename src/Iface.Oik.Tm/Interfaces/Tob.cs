@@ -220,7 +220,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     public override string ToString()
     {
-      return $"{ToAddrString()}, N={NameOrDefault}, Topo={TopologyState}";
+      return $"{ToAddrString()}, N={NameOrDefault}, Topo={TopologyState}, Cim={CimGuid}";
     }
 
 

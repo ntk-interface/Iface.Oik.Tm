@@ -83,6 +83,13 @@ namespace Iface.Oik.Tm.Interfaces
   }
 
 
+  public enum TmTopologyType
+  {
+    Voltage = 1,
+    Ground  = 2,
+  }
+
+
   public enum TmTeleregulation
   {
     None  = 0,

@@ -4,6 +4,36 @@ using Iface.Oik.Tm.Interfaces;
 
 namespace Iface.Oik.Tm.Dto
 {
+  public class MqttClientRequestDto
+  {
+    public string ClientId { get; set; }
+  }
+  
+  public class MqttClientResponseDto
+  {
+    public string ClientId { get; set; }
+  }
+
+  
+  public class MqttTopologyTraceRequestDto : MqttClientRequestDto
+  {
+    public Guid           EquipmentId { get; set; }
+    public TmTopologyType Type        { get; set; }
+  }
+
+
+  public class MqttTopologyTraceResponseDto : MqttClientResponseDto
+  {
+    public List<MqttTopologyTraceDto> Traces { get; set; }
+  }
+
+
+  public class MqttTopologyTraceDto
+  {
+    public List<Guid> EquipmentIds { get; set; }
+  }
+  
+  
   public class MqttUserCustomMessageDto
   {
     public TmEventImportances Importance { get; set; } = TmEventImportances.Imp0;

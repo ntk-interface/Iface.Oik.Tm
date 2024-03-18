@@ -84,5 +84,8 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Цифровой прибор")] DigitalDevice  = 133, // Модус 4
     [Description("Цифровой прибор")] DigitalDevice2 = 134, // Модус 5
     [Description("Таблица")]         Table          = 313,
+    
+    [Description("Линия связи генеральной схемы")]       GeneralSchemeLine      = 65002, // генеральная схема CIM-модели
+    [Description("Источник мощности генеральной схемы")] GeneralSchemeGenerator = 65010, // генеральная схема CIM-модели
   }
 }
