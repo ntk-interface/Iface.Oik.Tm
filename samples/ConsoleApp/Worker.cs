@@ -42,23 +42,6 @@ namespace ConsoleApp
 
       var ts  = new TmStatus(20, 1, 1);
       var ti  = new TmAnalog(20, 1, 1);
-      var tii = new TmAccum(20, 1, 1);
-
-      var tiis = new List<TmAccum>
-      {
-        new(20, 1, 1),
-        new(20, 1, 2),
-      };
-
-      var tree = await _api.GetTmTreeAccums(20, 1);
-
-      await _api.UpdateTagPropertiesAndClassData(tii);
-      await _api.UpdateAccum(tii);
-      
-      await _api.UpdateTagsPropertiesAndClassData(tiis);
-      await _api.UpdateAccums(tiis);
-
-      await _api.UpdateAccumsFromRetro(tiis, new DateTime(2024, 04, 19, 08, 00, 00));
 
       await _api.UpdateTagPropertiesAndClassData(ts);
       await _api.UpdateStatus(ts);
