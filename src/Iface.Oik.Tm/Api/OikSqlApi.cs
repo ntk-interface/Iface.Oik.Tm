@@ -101,7 +101,67 @@ namespace Iface.Oik.Tm.Api
           var parameters = new {Ch = ch, Rtu = rtu, Point = point};
 
           return await sql.DbConnection
-                          .QueryFirstOrDefaultAsync<int>(commandText, parameters)
+                          .QueryFirstOrDefaultAsync<float>(commandText, parameters)
+                          .ConfigureAwait(false);
+        }
+      }
+      catch (NpgsqlException ex)
+      {
+        HandleNpgsqlException(ex);
+        return -1;
+      }
+      catch (Exception ex)
+      {
+        HandleException(ex);
+        return -1;
+      }
+    }
+
+
+    public async Task<float> GetAccum(int ch, int rtu, int point)
+    {
+      try
+      {
+        using (var sql = _createOikSqlConnection())
+        {
+          await sql.OpenAsync().ConfigureAwait(false);
+          var commandText = @"SELECT v_val
+                              FROM oik_cur_ti
+                              WHERE ch = @Ch AND rtu = @Rtu AND point = @Point";
+          var parameters = new {Ch = ch, Rtu = rtu, Point = point};
+
+          return await sql.DbConnection
+                          .QueryFirstOrDefaultAsync<float>(commandText, parameters)
+                          .ConfigureAwait(false);
+        }
+      }
+      catch (NpgsqlException ex)
+      {
+        HandleNpgsqlException(ex);
+        return -1;
+      }
+      catch (Exception ex)
+      {
+        HandleException(ex);
+        return -1;
+      }
+    }
+
+
+    public async Task<float> GetAccumLoad(int ch, int rtu, int point)
+    {
+      try
+      {
+        using (var sql = _createOikSqlConnection())
+        {
+          await sql.OpenAsync().ConfigureAwait(false);
+          var commandText = @"SELECT v_load
+                              FROM oik_cur_ti
+                              WHERE ch = @Ch AND rtu = @Rtu AND point = @Point";
+          var parameters = new {Ch = ch, Rtu = rtu, Point = point};
+
+          return await sql.DbConnection
+                          .QueryFirstOrDefaultAsync<float>(commandText, parameters)
                           .ConfigureAwait(false);
         }
       }

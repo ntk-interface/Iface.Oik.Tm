@@ -16,6 +16,10 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<float> GetAnalog(int ch, int rtu, int point);
 
+    Task<float> GetAccum(int ch, int rtu, int point);
+
+    Task<float> GetAccumLoad(int ch, int rtu, int point);
+
     Task UpdateStatus(TmStatus status);
 
     Task UpdateAnalog(TmAnalog analog);

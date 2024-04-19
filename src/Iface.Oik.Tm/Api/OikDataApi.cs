@@ -449,7 +449,7 @@ namespace Iface.Oik.Tm.Api
       }
       else
       {
-        return new TmAnalogRetro(float.MaxValue, (short)TmFlags.Unreliable, 0);
+        return TmAnalogRetro.UnreliableValue;
       }
     }
 
@@ -471,6 +471,70 @@ namespace Iface.Oik.Tm.Api
       }
       else
       {
+      }
+    }
+
+
+    public async Task<float> GetAccum(int       ch,
+                                      int       rtu,
+                                      int       point,
+                                      PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.GetAccum(ch, rtu, point).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        return await _sql.GetAccum(ch, rtu, point).ConfigureAwait(false);
+      }
+      else
+      {
+        return -1;
+      }
+    }
+
+
+    public async Task<float> GetAccumLoad(int       ch,
+                                          int       rtu,
+                                          int       point,
+                                          PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.GetAccumLoad(ch, rtu, point).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        return await _sql.GetAccumLoad(ch, rtu, point).ConfigureAwait(false);
+      }
+      else
+      {
+        return -1;
+      }
+    }
+
+
+    public async Task<ITmAccumRetro> GetAccumFromRetro(int       ch,
+                                                       int       rtu,
+                                                       int       point,
+                                                       DateTime  time,
+                                                       PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.GetAccumFromRetro(ch, rtu, point, time).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+        return TmAccumRetro.UnreliableValue;
       }
     }
 

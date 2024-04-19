@@ -39,8 +39,15 @@ namespace ConsoleApp
       Console.WriteLine(_infr.TmUserInfo?.Name);
       Console.WriteLine(await _api.GetSystemTimeString());
 
-      var ts = new TmStatus(20, 1, 1);
-      var ti = new TmAnalog(20, 1, 1);
+      var ts  = new TmStatus(20, 1, 1);
+      var ti  = new TmAnalog(20, 1, 1);
+      var tii = new TmAccum(20, 1, 1);
+
+      var valueTms = await _api.GetAccum(20, 1, 1, PreferApi.Tms);
+      var valueSql = await _api.GetAccum(20, 1, 1, PreferApi.Sql);
+
+      var loadTms = await _api.GetAccumLoad(20, 1, 1, PreferApi.Tms);
+      var loadSql = await _api.GetAccumLoad(20, 1, 1, PreferApi.Sql);
 
       await _api.UpdateTagPropertiesAndClassData(ts);
       await _api.UpdateStatus(ts);

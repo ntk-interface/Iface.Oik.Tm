@@ -94,6 +94,25 @@ namespace Iface.Oik.Tm.Interfaces
                    PreferApi prefer = PreferApi.Auto);
 
 
+    Task<float> GetAccum(int       ch,
+                         int       rtu,
+                         int       point,
+                         PreferApi prefer = PreferApi.Auto);
+
+
+    Task<float> GetAccumLoad(int       ch,
+                             int       rtu,
+                             int       point,
+                             PreferApi prefer = PreferApi.Auto);
+
+
+    Task<ITmAccumRetro> GetAccumFromRetro(int       ch,
+                                          int       rtu,
+                                          int       point,
+                                          DateTime  time,
+                                          PreferApi prefer = PreferApi.Auto);
+
+
     Task UpdateStatus(TmStatus  status,
                       PreferApi prefer = PreferApi.Auto);
 
