@@ -61,6 +61,8 @@ namespace Iface.Oik.Tm.Interfaces
                                 ushort   retroNum         = 0,
                                 bool     getRealTelemetry = false);
 
+    Task UpdateAccum(TmAccum accum);
+
     
     Task UpdateAccumExplicitly(TmAccum accum,
                                uint    time             = 0,
@@ -78,7 +80,11 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task UpdateAnalogs(IReadOnlyList<TmAnalog> analogs);
 
-    Task UpdateAnalogsFromRetro(IReadOnlyList<TmAnalog> statuses, DateTime time, int retroNum = 0);
+    Task UpdateAnalogsFromRetro(IReadOnlyList<TmAnalog> analogs, DateTime time, int retroNum = 0);
+
+    Task UpdateAccums(IReadOnlyList<TmAccum> accums);
+
+    Task UpdateAccumsFromRetro(IReadOnlyList<TmAccum> accums, DateTime time);
 
 
     Task UpdateAnalogsExplicitly(IReadOnlyList<TmAnalog> analogs,

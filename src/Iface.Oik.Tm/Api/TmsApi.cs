@@ -268,7 +268,9 @@ namespace Iface.Oik.Tm.Api
       {
         return TmAnalogRetro.UnreliableValue;
       }
-      return new TmAnalogRetro(analogPoint.AsFloat, analogPoint.Flags, DateUtil.GetUtcTimestampFromDateTime(time));
+      var utcTime       = DateUtil.GetUtcTimestampFromDateTime(time);
+      var serverUtcTime = _native.UxGmTime2UxTime(utcTime);
+      return new TmAnalogRetro(analogPoint.AsFloat, analogPoint.Flags, serverUtcTime);
     }
     
 
@@ -301,7 +303,9 @@ namespace Iface.Oik.Tm.Api
       {
         return TmAccumRetro.UnreliableValue;
       }
-      return new TmAccumRetro(accumPoint.Value, accumPoint.Load, accumPoint.Flags, DateUtil.GetUtcTimestampFromDateTime(time));
+      var utcTime       = DateUtil.GetUtcTimestampFromDateTime(time);
+      var serverUtcTime = _native.UxGmTime2UxTime(utcTime);
+      return new TmAccumRetro(accumPoint.Value, accumPoint.Load, accumPoint.Flags, serverUtcTime);
     }
 
 
@@ -866,6 +870,38 @@ namespace Iface.Oik.Tm.Api
       for (var i = 0; i < count; i++)
       {
         accums[i].FromTAccumPoint(accumPointsList[i]);
+      }
+    }
+
+
+    public async Task UpdateAccumsFromRetro(IReadOnlyList<TmAccum> accums,
+                                            DateTime               time)
+    {
+      if (accums.IsNullOrEmpty()) return;
+      
+      var utcTime       = DateUtil.GetUtcTimestampFromDateTime(time);
+      var serverUtcTime = _native.UxGmTime2UxTime(utcTime);
+
+      var count           = accums.Count;
+      var tmcAddrList     = new TmNativeDefs.TAdrTm[count];
+      var accumPointsList = new TmNativeDefs.TAccumPoint[count];
+
+      for (var i = 0; i < count; i++)
+      {
+        tmcAddrList[i] = accums[i].TmAddr.ToAdrTm();
+      }
+
+      await Task.Run(() => _native.TmcAccumByList(_cid, 
+                                                  (ushort)count, 
+                                                  tmcAddrList, 
+                                                  accumPointsList, 
+                                                  (uint) serverUtcTime))
+                .ConfigureAwait(false);
+
+      for (var i = 0; i < count; i++)
+      {
+        accums[i].FromTAccumPoint(accumPointsList[i]);
+        accums[i].ChangeTime = time;
       }
     }
     

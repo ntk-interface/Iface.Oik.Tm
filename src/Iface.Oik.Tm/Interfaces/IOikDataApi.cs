@@ -121,6 +121,10 @@ namespace Iface.Oik.Tm.Interfaces
                       PreferApi prefer = PreferApi.Auto);
 
 
+    Task UpdateAccum(TmAccum   accum,
+                     PreferApi prefer = PreferApi.Auto);
+
+
     Task UpdateStatuses(IReadOnlyList<TmStatus> statuses,
                         PreferApi               prefer = PreferApi.Auto);
 
@@ -138,6 +142,15 @@ namespace Iface.Oik.Tm.Interfaces
                                 DateTime                time,
                                 int                     retroNum = 0,
                                 PreferApi               prefer   = PreferApi.Auto);
+
+
+    Task UpdateAccums(IReadOnlyList<TmAccum> accums,
+                      PreferApi              prefer = PreferApi.Auto);
+
+
+    Task UpdateAccumsFromRetro(IReadOnlyList<TmAccum> accums,
+                               DateTime               time,
+                               PreferApi              prefer = PreferApi.Auto);
 
 
     Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags,
@@ -195,6 +208,11 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<TmAnalog>> GetTmTreeAnalogs(int       channelId,
                                                          int       rtuId,
                                                          PreferApi prefer = PreferApi.Auto);
+
+
+    Task<IReadOnlyCollection<TmAccum>> GetTmTreeAccums(int       channelId,
+                                                       int       rtuId,
+                                                       PreferApi prefer = PreferApi.Auto);
 
 
     Task<string> GetChannelName(int       channelId,

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Interfaces;
@@ -43,11 +44,21 @@ namespace ConsoleApp
       var ti  = new TmAnalog(20, 1, 1);
       var tii = new TmAccum(20, 1, 1);
 
-      var valueTms = await _api.GetAccum(20, 1, 1, PreferApi.Tms);
-      var valueSql = await _api.GetAccum(20, 1, 1, PreferApi.Sql);
+      var tiis = new List<TmAccum>
+      {
+        new(20, 1, 1),
+        new(20, 1, 2),
+      };
 
-      var loadTms = await _api.GetAccumLoad(20, 1, 1, PreferApi.Tms);
-      var loadSql = await _api.GetAccumLoad(20, 1, 1, PreferApi.Sql);
+      var tree = await _api.GetTmTreeAccums(20, 1);
+
+      await _api.UpdateTagPropertiesAndClassData(tii);
+      await _api.UpdateAccum(tii);
+      
+      await _api.UpdateTagsPropertiesAndClassData(tiis);
+      await _api.UpdateAccums(tiis);
+
+      await _api.UpdateAccumsFromRetro(tiis, new DateTime(2024, 04, 19, 08, 00, 00));
 
       await _api.UpdateTagPropertiesAndClassData(ts);
       await _api.UpdateStatus(ts);
