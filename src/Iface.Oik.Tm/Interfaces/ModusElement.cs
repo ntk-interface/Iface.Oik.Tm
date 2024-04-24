@@ -7,6 +7,7 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Выключатель")]                  Breaker                    = 41,
     [Description("Выключатель нагрузки")]         LoadBreaker                = 42,
     [Description("Выдвижной выключатель")]        DrawoutBreaker             = 43,
+    [Description("Рубильник")]                    DoublePoleSwitch           = 44,
     [Description("Разъединитель")]                OldDisconnector            = 45, // Модус 5.1
     [Description("Разъединитель")]                OldDisconnector2           = 46, // Модус 5.1
     [Description("Выдвижной разъединитель")]      DrawoutDisconnector        = 49,
