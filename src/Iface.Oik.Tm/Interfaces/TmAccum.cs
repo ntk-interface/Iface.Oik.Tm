@@ -100,8 +100,11 @@ namespace Iface.Oik.Tm.Interfaces
                                           ? LoadString + " " + Unit
                                           : InvalidValueString;
 
-    public override string ValueToDisplay => ValueWithUnitString;
-    public          string LoadToDisplay  => LoadWithUnitString;
+    public override string ValueToDisplay => (IsInit)
+                                               ? $"{ValueString} ({LoadString}) {Unit}"
+                                               : InvalidValueString;
+    
+    public string LoadToDisplay  => LoadWithUnitString;
     
     public override bool HasProblems => !IsInit || IsUnreliable || IsInvalid;
 

@@ -268,6 +268,7 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Переход на другой элемент")]                     Hyperlink                = 23,
     [Description("Вызов функции дорасчета - контекстное меню")]    CalcScriptForContextMenu = 24,
     [Description("Вызов функции дорасчета - левая кнопка мыши")]   CalcScriptForClick       = 25,
+    [Description("Осн. интегральное измерение")]                   MainTmAccum              = 26,
   }
 
 
