@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Interfaces;
+using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
@@ -263,13 +264,48 @@ namespace Iface.Oik.Tm.Api
                                                                  time.ToTmString(),
                                                                  (short)retroNum))
                                 .ConfigureAwait(false);
-
-      var timestamp = DateUtil.GetUtcTimestampFromDateTime(time);
       if (isSuccess == 0)
       {
-        return new TmAnalogRetro(float.MaxValue, (short)TmFlags.Unreliable, timestamp);
+        return TmAnalogRetro.UnreliableValue;
       }
-      return new TmAnalogRetro(analogPoint.AsFloat, analogPoint.Flags, DateUtil.GetUtcTimestampFromDateTime(time));
+      var utcTime       = DateUtil.GetUtcTimestampFromDateTime(time);
+      var serverUtcTime = _native.UxGmTime2UxTime(utcTime);
+      return new TmAnalogRetro(analogPoint.AsFloat, analogPoint.Flags, serverUtcTime);
+    }
+    
+
+    public async Task<float> GetAccum(int ch, int rtu, int point)
+    {
+      return await Task.Run(() => TmNative.tmcAccumValue(_cid, (short)ch, (short)rtu, (short)point, null))
+                       .ConfigureAwait(false);
+    }
+    
+
+    public async Task<float> GetAccumLoad(int ch, int rtu, int point)
+    {
+      return await Task.Run(() => TmNative.tmcAccumLoad(_cid, (short)ch, (short)rtu, (short)point, null))
+                       .ConfigureAwait(false);
+    }
+
+
+    public async Task<ITmAccumRetro> GetAccumFromRetro(int ch, int rtu, int point, DateTime time)
+    {
+      var accumPoint = new TmNativeDefs.TAccumPoint();
+
+      var isSuccess = await Task.Run(() => TmNative.tmcAccumFull(_cid,
+                                                                 (short)ch,
+                                                                 (short)rtu,
+                                                                 (short)point,
+                                                                 ref accumPoint,
+                                                                 time.ToTmString()))
+                                .ConfigureAwait(false);
+      if (isSuccess == 0)
+      {
+        return TmAccumRetro.UnreliableValue;
+      }
+      var utcTime       = DateUtil.GetUtcTimestampFromDateTime(time);
+      var serverUtcTime = _native.UxGmTime2UxTime(utcTime);
+      return new TmAccumRetro(accumPoint.Value, accumPoint.Load, accumPoint.Flags, serverUtcTime);
     }
 
 
@@ -834,6 +870,38 @@ namespace Iface.Oik.Tm.Api
       for (var i = 0; i < count; i++)
       {
         accums[i].FromTAccumPoint(accumPointsList[i]);
+      }
+    }
+
+
+    public async Task UpdateAccumsFromRetro(IReadOnlyList<TmAccum> accums,
+                                            DateTime               time)
+    {
+      if (accums.IsNullOrEmpty()) return;
+      
+      var utcTime       = DateUtil.GetUtcTimestampFromDateTime(time);
+      var serverUtcTime = _native.UxGmTime2UxTime(utcTime);
+
+      var count           = accums.Count;
+      var tmcAddrList     = new TmNativeDefs.TAdrTm[count];
+      var accumPointsList = new TmNativeDefs.TAccumPoint[count];
+
+      for (var i = 0; i < count; i++)
+      {
+        tmcAddrList[i] = accums[i].TmAddr.ToAdrTm();
+      }
+
+      await Task.Run(() => _native.TmcAccumByList(_cid, 
+                                                  (ushort)count, 
+                                                  tmcAddrList, 
+                                                  accumPointsList, 
+                                                  (uint) serverUtcTime))
+                .ConfigureAwait(false);
+
+      for (var i = 0; i < count; i++)
+      {
+        accums[i].FromTAccumPoint(accumPointsList[i]);
+        accums[i].ChangeTime = time;
       }
     }
     

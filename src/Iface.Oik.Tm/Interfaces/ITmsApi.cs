@@ -42,6 +42,12 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task SetAnalogByCode(int ch, int rtu, int point, int code);
 
+    Task<float> GetAccum(int ch, int rtu, int point);
+
+    Task<float> GetAccumLoad(int ch, int rtu, int point);
+
+    Task<ITmAccumRetro> GetAccumFromRetro(int ch, int rtu, int point, DateTime time);
+
     Task UpdateTag(TmTag tag);
 
     Task UpdateStatus(TmStatus status);
@@ -54,6 +60,8 @@ namespace Iface.Oik.Tm.Interfaces
                                 uint     time             = 0,
                                 ushort   retroNum         = 0,
                                 bool     getRealTelemetry = false);
+
+    Task UpdateAccum(TmAccum accum);
 
     
     Task UpdateAccumExplicitly(TmAccum accum,
@@ -72,7 +80,11 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task UpdateAnalogs(IReadOnlyList<TmAnalog> analogs);
 
-    Task UpdateAnalogsFromRetro(IReadOnlyList<TmAnalog> statuses, DateTime time, int retroNum = 0);
+    Task UpdateAnalogsFromRetro(IReadOnlyList<TmAnalog> analogs, DateTime time, int retroNum = 0);
+
+    Task UpdateAccums(IReadOnlyList<TmAccum> accums);
+
+    Task UpdateAccumsFromRetro(IReadOnlyList<TmAccum> accums, DateTime time);
 
 
     Task UpdateAnalogsExplicitly(IReadOnlyList<TmAnalog> analogs,
@@ -107,6 +119,7 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<TmStatus>> GetTmTreeStatuses(int channelId, int rtuId);
 
     Task<IReadOnlyCollection<TmAnalog>> GetTmTreeAnalogs(int channelId, int rtuId);
+    
     Task<IReadOnlyCollection<TmAccum>> GetTmTreeAccums(int channelId, int rtuId);
 
     Task<string> GetChannelName(int channelId);

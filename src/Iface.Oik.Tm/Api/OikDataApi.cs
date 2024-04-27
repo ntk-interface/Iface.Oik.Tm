@@ -449,7 +449,7 @@ namespace Iface.Oik.Tm.Api
       }
       else
       {
-        return new TmAnalogRetro(float.MaxValue, (short)TmFlags.Unreliable, 0);
+        return TmAnalogRetro.UnreliableValue;
       }
     }
 
@@ -471,6 +471,70 @@ namespace Iface.Oik.Tm.Api
       }
       else
       {
+      }
+    }
+
+
+    public async Task<float> GetAccum(int       ch,
+                                      int       rtu,
+                                      int       point,
+                                      PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.GetAccum(ch, rtu, point).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        return await _sql.GetAccum(ch, rtu, point).ConfigureAwait(false);
+      }
+      else
+      {
+        return -1;
+      }
+    }
+
+
+    public async Task<float> GetAccumLoad(int       ch,
+                                          int       rtu,
+                                          int       point,
+                                          PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.GetAccumLoad(ch, rtu, point).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        return await _sql.GetAccumLoad(ch, rtu, point).ConfigureAwait(false);
+      }
+      else
+      {
+        return -1;
+      }
+    }
+
+
+    public async Task<ITmAccumRetro> GetAccumFromRetro(int       ch,
+                                                       int       rtu,
+                                                       int       point,
+                                                       DateTime  time,
+                                                       PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.GetAccumFromRetro(ch, rtu, point, time).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+        return TmAccumRetro.UnreliableValue;
       }
     }
 
@@ -509,6 +573,25 @@ namespace Iface.Oik.Tm.Api
       else
       {
         analog.IsInit = false;
+      }
+    }
+
+
+    public async Task UpdateAccum(TmAccum  accum,
+                                   PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
+      if (api == ApiSelection.Tms)
+      {
+        await _tms.UpdateAccum(accum).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        await _sql.UpdateAccum(accum).ConfigureAwait(false);
+      }
+      else
+      {
+        accum.IsInit = false;
       }
     }
 
@@ -579,6 +662,44 @@ namespace Iface.Oik.Tm.Api
       if (api == ApiSelection.Tms)
       {
         await _tms.UpdateAnalogsFromRetro(analogs, time, retroNum).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+      }
+      else
+      {
+        // todo IsInit = false;
+      }
+    }
+
+
+    public async Task UpdateAccums(IReadOnlyList<TmAccum> accums,
+                                   PreferApi              prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
+      if (api == ApiSelection.Tms)
+      {
+        await _tms.UpdateAccums(accums).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        await _sql.UpdateAccums(accums).ConfigureAwait(false);
+      }
+      else
+      {
+        // todo IsInit = false;
+      }
+    }
+
+
+    public async Task UpdateAccumsFromRetro(IReadOnlyList<TmAccum> accums,
+                                            DateTime               time,
+                                            PreferApi              prefer   = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        await _tms.UpdateAccumsFromRetro(accums, time).ConfigureAwait(false);
       }
       else if (api == ApiSelection.Sql)
       {
@@ -835,6 +956,26 @@ namespace Iface.Oik.Tm.Api
       else if (api == ApiSelection.Sql)
       {
         return await _sql.GetTmTreeAnalogs(channelId, rtuId).ConfigureAwait(false);
+      }
+      else
+      {
+        return null;
+      }
+    }
+
+
+    public async Task<IReadOnlyCollection<TmAccum>> GetTmTreeAccums(int       channelId,
+                                                                    int       rtuId,
+                                                                    PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: true, isSqlImplemented: true);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.GetTmTreeAccums(channelId, rtuId).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        return await _sql.GetTmTreeAccums(channelId, rtuId).ConfigureAwait(false);
       }
       else
       {

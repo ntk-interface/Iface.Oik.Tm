@@ -85,6 +85,31 @@ namespace Iface.Oik.Tm.Dto
     }
 
 
+    public static TmAccumDto MapToTmAccumDto(this TmAccumTmTreeDto dto)
+    {
+      return new TmAccumDto
+      {
+        VVal       = dto.VVal,
+        VLoad      = dto.VLoad,
+        Flags      = dto.Flags,
+        ChangeTime = dto.ChangeTime,
+      };
+    }
+
+
+    public static TmAccumPropertiesDto MapToTmAccumPropertiesDto(this TmAccumTmTreeDto dto)
+    {
+      return new TmAccumPropertiesDto
+      {
+        Name           = dto.Name,
+        VUnit          = dto.VUnit,
+        VFormat        = dto.VFormat,
+        VCounterFormat = dto.VCounterFormat,
+        Provider       = dto.Provider,
+      };
+    }
+
+
     public static TmAnalogMicroSeriesDto MapToTmAnalogMicroSeriesDto(this TmAlertDto dto)
     {
       return new TmAnalogMicroSeriesDto

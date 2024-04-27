@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Interfaces;
@@ -39,8 +40,8 @@ namespace ConsoleApp
       Console.WriteLine(_infr.TmUserInfo?.Name);
       Console.WriteLine(await _api.GetSystemTimeString());
 
-      var ts = new TmStatus(20, 1, 1);
-      var ti = new TmAnalog(20, 1, 1);
+      var ts  = new TmStatus(20, 1, 1);
+      var ti  = new TmAnalog(20, 1, 1);
 
       await _api.UpdateTagPropertiesAndClassData(ts);
       await _api.UpdateStatus(ts);

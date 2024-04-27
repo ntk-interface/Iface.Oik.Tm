@@ -130,6 +130,42 @@ namespace Iface.Oik.Tm.Dto
   }
 
 
+  public class TmAccumDto
+  {
+    public float     VVal       { get; set; }
+    public float     VLoad      { get; set; }
+    public int       Flags      { get; set; }
+    public DateTime? ChangeTime { get; set; }
+  }
+
+
+  public class TmAccumPropertiesDto
+  {
+    public string Name           { get; set; }
+    public string VUnit          { get; set; }
+    public string VFormat        { get; set; }
+    public string VCounterFormat { get; set; }
+    public string Provider       { get; set; }
+  }
+
+
+  public class TmAccumTmTreeDto
+  {
+    public short     Ch             { get; set; }
+    public short     Rtu            { get; set; }
+    public short     Point          { get; set; }
+    public string    Name           { get; set; }
+    public string    VUnit          { get; set; }
+    public string    VFormat        { get; set; }
+    public string    VCounterFormat { get; set; }
+    public string    Provider       { get; set; }
+    public float     VVal           { get; set; }
+    public float     VLoad          { get; set; }
+    public int       Flags          { get; set; }
+    public DateTime? ChangeTime     { get; set; }
+  }
+
+
   public class TmAlarmDto
   {
     public short  AlarmId    { get; set; }

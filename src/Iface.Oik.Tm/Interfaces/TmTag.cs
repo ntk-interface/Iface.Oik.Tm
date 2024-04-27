@@ -113,7 +113,7 @@ namespace Iface.Oik.Tm.Interfaces
           case TmType.Analog:
             return "Измерение";
           case TmType.Accum:
-            return "Аналоговое измерение";
+            return "Интегральное измерение";
           default:
             return "???";
         }

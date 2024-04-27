@@ -175,6 +175,31 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Single tmcAccumValue(Int32                                   cid,
+                                              Int16                                   ch,
+                                              Int16                                   rtu,
+                                              Int16                                   point,
+                                              [MarshalAs(UnmanagedType.LPStr)] string dateTime);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Single tmcAccumLoad(Int32                                   cid,
+                                             Int16                                   ch,
+                                             Int16                                   rtu,
+                                             Int16                                   point,
+                                             [MarshalAs(UnmanagedType.LPStr)] string dateTime);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int16 tmcAccumFull(Int32                                                     cid,
+                                            Int16                                                     ch,
+                                            Int16                                                     rtu,
+                                            Int16                                                     point,
+                                            [In, Out] ref                    TmNativeDefs.TAccumPoint accumPoint,
+                                            [MarshalAs(UnmanagedType.LPStr)] string                   dateTime);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern void tmcStatusByList(Int32                                 cid,
                                               UInt16                                count,
                                               [In]      TmNativeDefs.TAdrTm[]       addr,

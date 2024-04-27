@@ -16,13 +16,21 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<float> GetAnalog(int ch, int rtu, int point);
 
+    Task<float> GetAccum(int ch, int rtu, int point);
+
+    Task<float> GetAccumLoad(int ch, int rtu, int point);
+
     Task UpdateStatus(TmStatus status);
 
     Task UpdateAnalog(TmAnalog analog);
 
+    Task UpdateAccum(TmAccum accum);
+
     Task UpdateStatuses(IReadOnlyList<TmStatus> statuses);
 
     Task UpdateAnalogs(IReadOnlyList<TmAnalog> analogs);
+
+    Task UpdateAccums(IReadOnlyList<TmAccum> accums);
 
     Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags);
 
@@ -45,6 +53,8 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<TmStatus>> GetTmTreeStatuses(int channelId, int rtuId);
 
     Task<IReadOnlyCollection<TmAnalog>> GetTmTreeAnalogs(int channelId, int rtuId);
+
+    Task<IReadOnlyCollection<TmAccum>> GetTmTreeAccums(int channelId, int rtuId);
 
     Task<string> GetChannelName(int channelId);
 
