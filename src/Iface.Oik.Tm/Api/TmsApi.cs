@@ -3903,12 +3903,13 @@ namespace Iface.Oik.Tm.Api
     
     public async Task<bool> MqttPublish(MqttPublishTopic topic, byte[] payload)
     {
-      return await Task.Run(() => _native.TmcPubPublish(_cid, 
+      return await Task.Run(() => _native.TmcPubPublishEx(_cid, 
                                                         topic.Topic, 
                                                         topic.LifetimeSec, 
                                                         (byte)topic.QoS, 
                                                         payload, 
-                                                        (uint)payload.Length))
+                                                        (uint)payload.Length, 
+                                                        topic.GetAddListPtr()))
                        .ConfigureAwait(false);
     }
   }

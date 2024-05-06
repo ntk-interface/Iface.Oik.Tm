@@ -685,6 +685,15 @@ namespace Iface.Oik.Tm.Native.Interfaces
                           Byte[] data,
                           UInt32 cbData);
 
+    
+    Boolean TmcPubPublishEx(Int32  cid,
+                            string topic,
+                            UInt32 lifeTimeSec,
+                            Byte   qos,
+                            Byte[] data,
+                            UInt32 cbData,
+                            IntPtr addList);
+    
 
     Boolean TmcPubAck(Int32  cid,
                       string topic,
