@@ -1,6 +1,8 @@
 using System;
-using System.ComponentModel;
+using System.Collections.Generic;
+using System.Linq;
 using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
@@ -21,12 +23,13 @@ namespace Iface.Oik.Tm.Interfaces
 
   public class MqttMessage
   {
-    public string  Topic          { get; set; }
-    public byte[]  Payload        { get; set; }
-    public MqttQoS QoS            { get; set; }
-    public bool    Retain         { get; set; }
-    public int     SubscriptionId { get; set; }
-    public uint    UserId         { get; set; }
+    public string                     Topic          { get; set; }
+    public byte[]                     Payload        { get; set; }
+    public MqttQoS                    QoS            { get; set; }
+    public bool                       Retain         { get; set; }
+    public int                        SubscriptionId { get; set; }
+    public uint                       UserId         { get; set; }
+    public Dictionary<string, string> VariableHeader { get; set; } = new Dictionary<string, string>();
   }
 
 
@@ -45,6 +48,7 @@ namespace Iface.Oik.Tm.Interfaces
       {
         throw new ArgumentException("Топик не может быть пустым");
       }
+
       var indexOfHash = topic.IndexOf("#", StringComparison.Ordinal);
       if (indexOfHash != -1 && indexOfHash != topic.Length - 1)
       {
@@ -66,19 +70,21 @@ namespace Iface.Oik.Tm.Interfaces
 
   public class MqttPublishTopic
   {
-    public string  Topic       { get; }
-    public MqttQoS QoS         { get; }
-    public uint    LifetimeSec { get; }
+    public string                     Topic          { get; }
+    public MqttQoS                    QoS            { get; }
+    public uint                       LifetimeSec    { get; }
+    public Dictionary<string, string> VariableHeader { get; }
 
-
-    public MqttPublishTopic(string  topic,
-                            MqttQoS qos         = MqttQoS.AtMostOnce,
-                            uint    lifetimeSec = 0)
+    public MqttPublishTopic(string                     topic,
+                            MqttQoS                    qos            = MqttQoS.AtMostOnce,
+                            uint                       lifetimeSec    = 0,
+                            Dictionary<string, string> variableHeader = null)
     {
       if (string.IsNullOrEmpty(topic))
       {
         throw new ArgumentException("Топик не может быть пустым");
       }
+
       foreach (var @char in topic)
       {
         switch (@char)
@@ -89,15 +95,25 @@ namespace Iface.Oik.Tm.Interfaces
             throw new ArgumentException("Символ '#' недопустим в имени топика");
         }
       }
-      Topic       = topic;
-      QoS         = qos;
-      LifetimeSec = lifetimeSec;
+
+      Topic          = topic;
+      QoS            = qos;
+      LifetimeSec    = lifetimeSec;
+      VariableHeader = variableHeader;
     }
 
 
     public MqttPublishTopic(MqttKnownTopic knownTopic)
       : this(knownTopic.GetDescription())
     {
+    }
+
+    public IntPtr GetAddListPtr()
+    {
+      return VariableHeader.IsNullOrEmpty()
+               ? IntPtr.Zero
+               : TmNativeUtil.GetDoubleNullTerminatedPointerFromStringList(VariableHeader.Select(x => 
+                                                                             $"{x.Key}={x.Value}"));
     }
   }
 }

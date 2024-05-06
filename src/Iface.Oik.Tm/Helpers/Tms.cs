@@ -742,7 +742,6 @@ namespace Iface.Oik.Tm.Helpers
     public static MqttMessage ParseMqttDatagram(byte[] datagram)
     {
       var result = new MqttMessage();
-      
       var (infoList, payload) = TmNativeUtil.SplitMqttMessageDatagram(datagram);
 
       result.Payload = payload;
@@ -762,11 +761,16 @@ namespace Iface.Oik.Tm.Helpers
           case "r":
             result.Retain = int.Parse(pair.Value) == 1;
             break;
+          case "dl":
+            // tail length
           case "pf":
-            // Pub flags
+            // pub flags
             break;
           case "usid":
             result.UserId = uint.Parse(pair.Value);
+            break;
+          default:
+            result.VariableHeader.Add(pair.Key, pair.Value);
             break;
         }
       }

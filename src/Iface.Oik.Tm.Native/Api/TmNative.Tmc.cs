@@ -1021,6 +1021,18 @@ namespace Iface.Oik.Tm.Native.Api
       return tmcPubPublish(cid, topic, lifeTimeSec, qos, data, cbData);
     }
 
+    
+    public Boolean TmcPubPublishEx(Int32 cid,
+                                 string  topic,
+                                 UInt32  lifeTimeSec,
+                                 Byte    qos,
+                                 Byte[]  data,
+                                 UInt32  cbData, 
+                                 IntPtr  addListPtr)
+    {
+      return tmcPubPublishEx(cid, topic, lifeTimeSec, qos, data, cbData, addListPtr);
+    }
+    
 
     public Boolean TmcPubSubscribe(Int32  cid,
                                    string topic,
