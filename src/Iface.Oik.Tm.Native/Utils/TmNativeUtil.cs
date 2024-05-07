@@ -99,63 +99,38 @@ namespace Iface.Oik.Tm.Native.Utils
         break;
       }
 
-      var infoBytes = new byte[doubleNull - 2];
-      Array.Copy(datagram, 2, infoBytes, 0, doubleNull - 2);
+      var infoBytes = new byte[doubleNull];
+      Array.Copy(datagram, 2, infoBytes, 0, doubleNull);
+      var infoDictionary = Encoding.GetEncoding(1251)
+                                   .GetString(infoBytes)
+                                   .Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries)
+                                   .Select(x =>
+                                           {
+                                             var item = x.Split('=');
+                                             return new KeyValuePair<string, string>(item[0], item[1]);
+                                           });
 
-      var infoStr = Encoding.GetEncoding(1251).GetString(infoBytes);
-      
-      var    tailIndex = doubleNull + 2;
+      byte[] payloadBytes;
+      var    payloadIndex = doubleNull + 2;
 
-      if (tailIndex > datagram.Length)
+      if (payloadIndex > datagram.Length)
       {
-        return (GetMqttMessageDatagramInfoPairs(infoStr), Array.Empty<byte>());
+        payloadBytes = Array.Empty<byte>();
+      }
+      else
+      {
+        var payloadLength = datagram.Length - payloadIndex;
+        payloadBytes = new byte[payloadLength];
+        Array.Copy(datagram,
+                   payloadIndex,
+                   payloadBytes,
+                   0,
+                   payloadLength);
       }
 
-      doubleNull = 0;
-      for (var i = tailIndex; i < datagram.Length; i++)
-      {
-        if (datagram[i] != 0 || datagram[i - 1] != 0) continue;
-        doubleNull = i - 1;
-        break;
-      }
-
-      if (doubleNull != 0)
-      {
-        var varHeaderBytesLength = doubleNull - tailIndex;
-        var varHeaderBytes       = new byte[varHeaderBytesLength];
-        
-        Array.Copy(datagram, tailIndex, varHeaderBytes, 0, varHeaderBytesLength);
-        
-        infoStr   += "\0"       + Encoding.GetEncoding(1251).GetString(varHeaderBytes);
-        tailIndex =  doubleNull + 2;
-      }
-      
-      if (tailIndex > datagram.Length)
-      {
-        return (GetMqttMessageDatagramInfoPairs(infoStr), Array.Empty<byte>());
-      }
-
-      var    payloadLength = datagram.Length - tailIndex;
-      var payload = new byte[payloadLength];
-      Array.Copy(datagram,
-                 tailIndex,
-                 payload,
-                 0,
-                 payloadLength);
-
-
-      return (GetMqttMessageDatagramInfoPairs(infoStr), payload);
+      return (infoDictionary, payloadBytes);
     }
-
-    private static IEnumerable<KeyValuePair<string, string>> GetMqttMessageDatagramInfoPairs(string infoString)
-    {
-      return infoString.Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries)
-                       .Select(x =>
-                               {
-                                 var item = x.Split('=');
-                                 return new KeyValuePair<string, string>(item[0], item[1]);
-                               });
-    }
+    
 
     public static byte[] GetDoubleNullTerminatedBytesFromStringList(IEnumerable<string> list,
                                                                     int                 maxSize = 1024)
