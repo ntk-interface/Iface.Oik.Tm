@@ -355,10 +355,20 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<bool> MqttUnsubscribe(MqttKnownTopic topic);
 
+    Task<bool> MqttPublish(MqttKnownTopic topic, byte[] payload);
+
     Task<bool> MqttPublish(MqttKnownTopic topic, string payload = "");
 
     Task<bool> MqttPublish(MqttPublishTopic topic, byte[] payload);
 
     Task<bool> MqttPublish(MqttPublishTopic topic, string payload);
+
+    Task<bool> MqttPublish(string topic, byte[] payload);
+
+    Task<byte[]> MqttInvokeRpc(MqttPublishTopic requestTopic, byte[] requestPayload, int timeoutSeconds = 5);
+    
+    Task<byte[]> MqttInvokeRpc(MqttKnownTopic requestTopic, byte[] requestPayload, int timeoutSeconds = 5);
+
+    void NotifyOfMqttMessage(MqttMessage message);
   }
 }

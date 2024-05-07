@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Iface.Oik.Tm.Native.Interfaces;
-using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
@@ -23,13 +21,13 @@ namespace Iface.Oik.Tm.Interfaces
 
   public class MqttMessage
   {
-    public string                     Topic          { get; set; }
-    public byte[]                     Payload        { get; set; }
-    public MqttQoS                    QoS            { get; set; }
-    public bool                       Retain         { get; set; }
-    public int                        SubscriptionId { get; set; }
-    public uint                       UserId         { get; set; }
-    public Dictionary<string, string> VariableHeader { get; set; } = new Dictionary<string, string>();
+    public string  Topic          { get; set; }
+    public byte[]  Payload        { get; set; }
+    public MqttQoS QoS            { get; set; }
+    public bool    Retain         { get; set; }
+    public int     SubscriptionId { get; set; }
+    public uint    UserId         { get; set; }
+    public string  ResponseTopic  { get; set; }
   }
 
 
@@ -99,7 +97,7 @@ namespace Iface.Oik.Tm.Interfaces
       Topic          = topic;
       QoS            = qos;
       LifetimeSec    = lifetimeSec;
-      VariableHeader = variableHeader;
+      VariableHeader = variableHeader ?? new Dictionary<string, string>();
     }
 
 
@@ -108,12 +106,10 @@ namespace Iface.Oik.Tm.Interfaces
     {
     }
 
-    public IntPtr GetAddListPtr()
+
+    public void AddResponseTopic(string responseTopic)
     {
-      return VariableHeader.IsNullOrEmpty()
-               ? IntPtr.Zero
-               : TmNativeUtil.GetDoubleNullTerminatedPointerFromStringList(VariableHeader.Select(x => 
-                                                                             $"{x.Key}={x.Value}"));
+      VariableHeader["respt"] = responseTopic;
     }
   }
 }
