@@ -535,5 +535,17 @@ namespace Iface.Oik.Tm.Interfaces
     Task<bool> MqttPublish(MqttPublishTopic topic, byte[] payload, PreferApi prefer = PreferApi.Auto);
     
     Task<bool> MqttPublish(MqttPublishTopic topic, string payload, PreferApi prefer = PreferApi.Auto);
+
+    Task<bool> MqttPublish(string topic, byte[] payload, PreferApi prefer = PreferApi.Auto);
+    
+    Task<byte[]> MqttInvokeRpc(MqttPublishTopic requestTopic,
+                               byte[]           requestPayload,
+                               int              timeoutSeconds = 5,
+                               PreferApi        prefer         = PreferApi.Auto);
+    
+    Task<byte[]> MqttInvokeRpc(MqttKnownTopic requestTopic,
+                               byte[]         requestPayload,
+                               int            timeoutSeconds = 5,
+                               PreferApi      prefer         = PreferApi.Auto);
   }
 }

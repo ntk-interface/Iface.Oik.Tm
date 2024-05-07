@@ -4,25 +4,47 @@ using Iface.Oik.Tm.Interfaces;
 
 namespace Iface.Oik.Tm.Dto
 {
-  public class MqttClientRequestDto
+  public class MqttRpcRequestDto
   {
-    public string ClientId { get; set; }
   }
   
-  public class MqttClientResponseDto
+  public class MqttRpcResponseDto
   {
-    public string ClientId { get; set; }
+  }
+
+
+  public class MqttTopologyEquipmentStatusRequestDto : MqttRpcRequestDto
+  {
+    public List<Guid> EquipmentIds { get; set; }
+  }
+
+
+  public class MqttTopologyEquipmentStatusResponseDto : MqttRpcResponseDto
+  {
+    public List<CimTopologyStatus> Statuses { get; set; } 
+  }
+
+
+  public class MqttTopologyEquipmentTerminalsStatusRequestDto : MqttRpcRequestDto
+  {
+    public Guid EquipmentId { get; set; }
+  }
+
+
+  public class MqttTopologyEquipmentTerminalsStatusResponseDto : MqttRpcResponseDto
+  {
+    public List<CimTopologyStatus> Statuses { get; set; } 
   }
 
   
-  public class MqttTopologyTraceRequestDto : MqttClientRequestDto
+  public class MqttTopologyTraceRequestDto : MqttRpcRequestDto
   {
     public Guid           EquipmentId { get; set; }
     public TmTopologyType Type        { get; set; }
   }
 
 
-  public class MqttTopologyTraceResponseDto : MqttClientResponseDto
+  public class MqttTopologyTraceResponseDto : MqttRpcResponseDto
   {
     public List<MqttTopologyTraceDto> Traces { get; set; }
   }

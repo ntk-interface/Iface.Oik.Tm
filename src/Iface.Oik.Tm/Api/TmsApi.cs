@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Api;
@@ -20,6 +21,9 @@ namespace Iface.Oik.Tm.Api
 
     private readonly ITmNative  _native;
     private          TmUserInfo _userInfo;
+
+
+    private event EventHandler<MqttMessage> MqttMessageReceived = delegate { };
 
 
     public TmsApi(ITmNative native)
@@ -3853,13 +3857,52 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    private bool MqttPublishSync(MqttPublishTopic topic, byte[] payload)
+    {
+      if (topic.VariableHeader.IsNullOrEmpty())
+      {
+        return _native.TmcPubPublish(_cid,
+                                     topic.Topic,
+                                     topic.LifetimeSec,
+                                     (byte)topic.QoS,
+                                     payload,
+                                     (uint)payload.Length);
+      }
+      else
+      {
+        var addListPtr = TmNativeUtil.GetDoubleNullTerminatedPointerFromStringList(topic.VariableHeader.Select(
+          x => $"{x.Key}={x.Value}"));
+        return _native.TmcPubPublishEx(_cid,
+                                       topic.Topic,
+                                       topic.LifetimeSec,
+                                       (byte)topic.QoS,
+                                       payload,
+                                       (uint)payload.Length,
+                                       addListPtr);
+      }
+    }
+
+
+    private bool MqttSubscribeSync(MqttSubscriptionTopic topic)
+    {
+      return _native.TmcPubSubscribe(_cid,
+                                     topic.Topic,
+                                     (uint)topic.SubscriptionId,
+                                     (byte)topic.QoS);
+    }
+
+
+    private bool MqttUnsubscribeSync(MqttSubscriptionTopic topic)
+    {
+      return _native.TmcPubUnsubscribe(_cid,
+                                       topic.Topic,
+                                       (uint)topic.SubscriptionId);
+    }
+
+
     public async Task<bool> MqttSubscribe(MqttSubscriptionTopic topic)
     {
-      return await Task.Run(() => _native.TmcPubSubscribe(_cid,
-                                                          topic.Topic, 
-                                                          (uint)topic.SubscriptionId,
-                                                          (byte)topic.QoS))
-                       .ConfigureAwait(false);
+      return await Task.Run(() => MqttSubscribeSync(topic)).ConfigureAwait(false);
     }
 
 
@@ -3871,10 +3914,7 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<bool> MqttUnsubscribe(MqttSubscriptionTopic topic)
     {
-      return await Task.Run(() => _native.TmcPubUnsubscribe(_cid, 
-                                                            topic.Topic, 
-                                                            (uint)topic.SubscriptionId))
-                       .ConfigureAwait(false);
+      return await Task.Run(() => MqttUnsubscribeSync(topic)).ConfigureAwait(false);
     }
 
 
@@ -3884,9 +3924,15 @@ namespace Iface.Oik.Tm.Api
     }
     
 
+    public async Task<bool> MqttPublish(MqttKnownTopic topic, byte[] payload)
+    {
+      return await MqttPublish(new MqttPublishTopic(topic), payload).ConfigureAwait(false);
+    }
+    
+
     public async Task<bool> MqttPublish(MqttKnownTopic topic, string payload = "")
     {
-      return await MqttPublish(new MqttPublishTopic(topic),
+      return await MqttPublish(topic,
                                string.IsNullOrWhiteSpace(payload)
                                  ? Array.Empty<byte>()
                                  : EncodingUtil.Utf8ToWin1251Bytes(payload))
@@ -3896,21 +3942,76 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<bool> MqttPublish(MqttPublishTopic topic, string payload)
     {
-      return await MqttPublish(topic, EncodingUtil.Utf8ToWin1251Bytes(payload))
-        .ConfigureAwait(false);
+      return await MqttPublish(topic, EncodingUtil.Utf8ToWin1251Bytes(payload)).ConfigureAwait(false);
+    }
+
+
+    public async Task<bool> MqttPublish(string topic, byte[] payload)
+    {
+      return await MqttPublish(new MqttPublishTopic(topic), payload).ConfigureAwait(false);
     }
     
     
     public async Task<bool> MqttPublish(MqttPublishTopic topic, byte[] payload)
     {
-      return await Task.Run(() => _native.TmcPubPublishEx(_cid, 
-                                                        topic.Topic, 
-                                                        topic.LifetimeSec, 
-                                                        (byte)topic.QoS, 
-                                                        payload, 
-                                                        (uint)payload.Length, 
-                                                        topic.GetAddListPtr()))
-                       .ConfigureAwait(false);
+      return await Task.Run(() => MqttPublishSync(topic, payload)).ConfigureAwait(false);
+    }
+
+
+    public Task<byte[]> MqttInvokeRpc(MqttPublishTopic requestTopic,
+                                      byte[]           requestPayload,
+                                      int              timeoutSeconds = 5)
+    {
+      const int responseId    = 656667;                             // случайное число
+      var       responseTopic = $"rpc/{Guid.NewGuid().ToString()}"; // случайная строка, ловим ответы только сюда
+      
+      var tcs = new TaskCompletionSource<byte[]>();
+
+      void WrapperFunc(object sender, MqttMessage message)
+      {
+        if (message.Payload.IsNullOrEmpty() ||
+            string.IsNullOrEmpty(message.Topic) ||
+            !message.Topic.Equals(responseTopic, StringComparison.Ordinal))
+        {
+          return;
+        }
+        MqttMessageReceived -= WrapperFunc;
+        MqttUnsubscribeSync(new MqttSubscriptionTopic(responseTopic, responseId));
+        tcs.TrySetResult(message.Payload);
+      }
+      
+      MqttSubscribeSync(new MqttSubscriptionTopic(responseTopic, responseId)); 
+      MqttMessageReceived += WrapperFunc;
+
+      var cancellationToken = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds));
+      cancellationToken.Token.Register(() =>
+                                       {
+                                         if (tcs.TrySetCanceled())
+                                         {
+                                           MqttMessageReceived -= WrapperFunc;
+                                           MqttUnsubscribeSync(new MqttSubscriptionTopic(responseTopic, responseId)); 
+                                         }
+                                       }, useSynchronizationContext: false);
+
+      requestTopic.AddResponseTopic(responseTopic);
+      MqttPublishSync(requestTopic, requestPayload);
+
+      return tcs.Task;
+    }
+
+
+    public async Task<byte[]> MqttInvokeRpc(MqttKnownTopic requestTopic,
+                                            byte[]         requestPayload,
+                                            int            timeoutSeconds = 5)
+    {
+      return await MqttInvokeRpc(new MqttPublishTopic(requestTopic), requestPayload, timeoutSeconds)
+              .ConfigureAwait(false);
+    }
+
+
+    public void NotifyOfMqttMessage(MqttMessage message)
+    {
+      MqttMessageReceived.Invoke(this, message);
     }
   }
 }

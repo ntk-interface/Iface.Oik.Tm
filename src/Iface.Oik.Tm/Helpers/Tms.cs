@@ -769,8 +769,12 @@ namespace Iface.Oik.Tm.Helpers
           case "usid":
             result.UserId = uint.Parse(pair.Value);
             break;
+          case "respt":
+            result.ResponseTopic = pair.Value;
+            break;
           default:
-            result.VariableHeader.Add(pair.Key, pair.Value);
+            // VariableHeader
+            //result.VariableHeader.Add(pair.Key, pair.Value);
             break;
         }
       }
