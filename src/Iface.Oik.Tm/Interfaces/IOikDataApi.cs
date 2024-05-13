@@ -530,6 +530,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<bool> MqttUnsubscribe(MqttKnownTopic topic, PreferApi prefer = PreferApi.Auto);
     
+    Task<bool> MqttPublish(MqttKnownTopic topic, byte[] payload, PreferApi prefer = PreferApi.Auto);
+    
     Task<bool> MqttPublish(MqttKnownTopic topic, string payload = "", PreferApi prefer = PreferApi.Auto);
 
     Task<bool> MqttPublish(MqttPublishTopic topic, byte[] payload, PreferApi prefer = PreferApi.Auto);
