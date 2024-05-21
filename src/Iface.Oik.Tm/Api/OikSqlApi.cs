@@ -404,7 +404,8 @@ namespace Iface.Oik.Tm.Api
                                cl_text0, cl_text1, cl_break_text, cl_malfun_text, 
                                cl_fla_name, cl_flb_name, cl_flc_name, cl_fld_name,
                                cl_fla_text0, cl_flb_text0, cl_flc_text0, cl_fld_text0, 
-                               cl_fla_text1, cl_flb_text1, cl_flc_text1, cl_fld_text1
+                               cl_fla_text1, cl_flb_text1, cl_flc_text1, cl_fld_text1,
+                               cl_ctltext_off, cl_ctltext_on
               FROM oik_cur_ts
                 RIGHT JOIN UNNEST(@TmaArray) WITH ORDINALITY t (a,i)
                 ON tma = t.a
@@ -530,7 +531,8 @@ namespace Iface.Oik.Tm.Api
                                cl_text0, cl_text1, cl_break_text, cl_malfun_text, 
                                cl_fla_name, cl_flb_name, cl_flc_name, cl_fld_name,
                                cl_fla_text0, cl_flb_text0, cl_flc_text0, cl_fld_text0, 
-                               cl_fla_text1, cl_flb_text1, cl_flc_text1, cl_fld_text1
+                               cl_fla_text1, cl_flb_text1, cl_flc_text1, cl_fld_text1,
+                               cl_ctltext_off, cl_ctltext_on
               FROM oik_cur_ts
               WHERE tma = @Tma";
           var parameters = new {Tma = status.TmAddr.ToSqlTma()};
