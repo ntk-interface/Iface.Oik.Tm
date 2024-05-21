@@ -51,6 +51,8 @@ namespace Iface.Oik.Tm.Dto
     public string ClFlCText1   { get; set; }
     public string ClFlDText0   { get; set; }
     public string ClFlDText1   { get; set; }
+    public string ClCtlTextOn  { get; set; }
+    public string ClCtlTextOff { get; set; }
   }
 
 

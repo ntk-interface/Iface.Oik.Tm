@@ -31,7 +31,9 @@ namespace Iface.Oik.Tm.Interfaces
       Flag4,
       Flag4Off,
       Flag4On,
-      ClassName
+      ClassName,
+      CommandOff,
+      CommandOn,
     }
 
 
@@ -103,6 +105,9 @@ namespace Iface.Oik.Tm.Interfaces
     public string CaptionOff         => GetClassCaption(ClassCaption.Off);
     public string CaptionBreak       => GetClassCaption(ClassCaption.Break);
     public string CaptionMalfunction => GetClassCaption(ClassCaption.Malfunction);
+
+    public string CaptionCommandOn  => GetClassCaption(ClassCaption.CommandOn);
+    public string CaptionCommandOff => GetClassCaption(ClassCaption.CommandOff);
 
     public string Flag1Name => GetClassCaption(ClassCaption.Flag1);
     public string Flag2Name => GetClassCaption(ClassCaption.Flag2);
@@ -365,6 +370,12 @@ namespace Iface.Oik.Tm.Interfaces
         
         case ClassCaption.ClassName:
           return GetClassDataValue("ClassName");
+        
+        case ClassCaption.CommandOff:
+          return GetClassDataValue("CtlOffTxt", "Отключить");
+        
+        case ClassCaption.CommandOn:
+          return GetClassDataValue("CtlOnTxt", "Включить");
 
         default:
           return "";
@@ -375,9 +386,10 @@ namespace Iface.Oik.Tm.Interfaces
     private string GetClassDataValue(string key, string defaultValue = "")
     {
       if (ClassData != null && 
-          ClassData.TryGetValue(key, out var caption))
+          ClassData.TryGetValue(key, out var caption) &&
+          !string.IsNullOrEmpty(caption))
       {
-        return caption ?? defaultValue;
+        return caption;
       }
       return defaultValue;
     }
@@ -547,7 +559,9 @@ namespace Iface.Oik.Tm.Interfaces
                                    dto.ClFlCText0,
                                    dto.ClFlCText1,
                                    dto.ClFlDText0,
-                                   dto.ClFlDText1);
+                                   dto.ClFlDText1,
+                                   dto.ClCtlTextOff,
+                                   dto.ClCtlTextOn);
     }
 
 
@@ -571,7 +585,9 @@ namespace Iface.Oik.Tm.Interfaces
                                              string flag3OffCaption,
                                              string flag3OnCaption,
                                              string flag4OffCaption,
-                                             string flag4OnCaption)
+                                             string flag4OnCaption,
+                                             string commandOffCaption,
+                                             string commandOnCaption)
     {
       Name         = name;
       Importance   = importance;
@@ -602,6 +618,8 @@ namespace Iface.Oik.Tm.Interfaces
         {"F31Txt", flag3OnCaption},
         {"F40Txt", flag4OffCaption},
         {"F41Txt", flag4OnCaption},
+        {"CtlOffTxt", commandOffCaption},
+        {"CtlOnTxt", commandOnCaption},
       };
     }
 
