@@ -140,7 +140,7 @@ namespace Iface.Oik.Tm.Api
 				// ищем сервера БД
 				if (node.Properties is RbsNodeProperties rbs_p)
 				{
-					if (node.ProgName.Equals(MSTreeConsts.rbsrv) || node.ProgName.Equals(MSTreeConsts.rbsrv_old))
+					if (node.ProgName.Equals(MSTreeConsts.RBaseServer) || node.ProgName.Equals(MSTreeConsts.rbsrv_old))
 					{
 						//< Parameters RBF_Directory = "xx" />
 						//< ClientParms DOC_Path = "xx" JournalSQLCS = "xx" DTMX_SQLCS = "xx" />
@@ -180,7 +180,7 @@ namespace Iface.Oik.Tm.Api
 					}
 				}
 				// под серверами ТМ ищем дорасчёт
-				if (node.ProgName.Equals(MSTreeConsts.pcsrv) || node.ProgName.Equals(MSTreeConsts.pcsrv_old))
+				if (node.ProgName.Equals(MSTreeConsts.TmServer) || node.ProgName.Equals(MSTreeConsts.pcsrv_old))
 				{
 					if((node.Children != null) && (node.Properties is ChildNodeProperties tms_p))
 					{
@@ -234,11 +234,11 @@ namespace Iface.Oik.Tm.Api
 					{
 						switch (server.ProgName)
 						{
-							case MSTreeConsts.rbsrv:
+							case MSTreeConsts.RBaseServer:
 							case MSTreeConsts.rbsrv_old:
 								p.PipeName = "RBS";
 								break;
-							case MSTreeConsts.pcsrv:
+							case MSTreeConsts.TmServer:
 							case MSTreeConsts.pcsrv_old:
 								p.PipeName = "TMS";
 								break;
@@ -320,7 +320,7 @@ namespace Iface.Oik.Tm.Api
 					await SetRedirectorPort(rbs_p.PipeName, 0, (int)rbs_p.RedirectorPort).ConfigureAwait(false);
 				}
 				else
-				if (server.ProgName.Equals(MSTreeConsts.pcsrv) || server.ProgName.Equals(MSTreeConsts.pcsrv_old))
+				if (server.ProgName.Equals(MSTreeConsts.TmServer) || server.ProgName.Equals(MSTreeConsts.pcsrv_old))
 				{
 					if ((server.Children != null) && (server.Properties is ChildNodeProperties tms_p))
 					{
@@ -597,7 +597,7 @@ namespace Iface.Oik.Tm.Api
 			if (!SetNodeProperty(nodeHandle, MSTreeConsts.LogFileSize, props.LogFileSize.ToString())) 
 				return false;
 
-			if (node.ProgName.Equals(MSTreeConsts.portcore))
+			if (node.ProgName.Equals(MSTreeConsts.Portcore))
 				if (!SetNodeProperty(nodeHandle, MSTreeConsts.WorkDir, props.WorkDir)) 
 					return false;
 
@@ -1846,11 +1846,11 @@ namespace Iface.Oik.Tm.Api
 			var ad = new AccessMasksDescriptor();
 			Dictionary<string, string> iniSections = new Dictionary<string, string>()
 				{
-					{ MSTreeConsts.portcore,  "master#1.prp.Security"},
+					{ MSTreeConsts.Portcore,  "master#1.prp.Security"},
 					{ MSTreeConsts.master,    "master.prp.Security"},
-					{ MSTreeConsts.rbsrv,     "rbsrv#1.prp.Security"},
+					{ MSTreeConsts.RBaseServer,     "rbsrv#1.prp.Security"},
 					{ MSTreeConsts.rbsrv_old, "serv_dll.ch.RbsSecurity"},
-					{ MSTreeConsts.pcsrv,     "pcsrv#1.prp.Security"},
+					{ MSTreeConsts.TmServer,     "pcsrv#1.prp.Security"},
 					{ MSTreeConsts.pcsrv_old, "serv_dll.ch.TmsSecurity"},
 				};
 
@@ -2810,7 +2810,7 @@ namespace Iface.Oik.Tm.Api
 
 			switch (progName)
 			{
-				case MSTreeConsts.pcsrv:
+				case MSTreeConsts.TmServer:
 				case MSTreeConsts.pcsrv_old:
 					//#define TMS_BACKUP_CONFIG	1
 					//#define TMS_BACKUP_ARRAY	2
@@ -2821,7 +2821,7 @@ namespace Iface.Oik.Tm.Api
 					bflags =  1 | 2 | 4 | 8; if (withRetro) bflags |= 0x10;
 					result = await Task.Run(() => _native.TmcBackupServerProcedure(EncodingUtil.Utf8ToWin1251Bytes(Host), EncodingUtil.Utf8ToWin1251Bytes(pipeName), reserved_buf, ref bflags, 0, callback, callbackParameter)).ConfigureAwait(false);
 					break;
-				case MSTreeConsts.rbsrv:
+				case MSTreeConsts.RBaseServer:
 				case MSTreeConsts.rbsrv_old:
 					//#define RBS_BACKUP_BASES	1
 					//#define RBS_BACKUP_SECURITY 2
@@ -2842,12 +2842,12 @@ namespace Iface.Oik.Tm.Api
 			bool result=false;
 			switch (progName)
 			{
-				case MSTreeConsts.pcsrv:
+				case MSTreeConsts.TmServer:
 				case MSTreeConsts.pcsrv_old:
 					bflags = 1 | 2 | 4 | 8; if (withRetro) bflags |= 0x10;
 					result = await Task.Run(() => _native.TmcRestoreServer(true, EncodingUtil.Utf8ToWin1251Bytes(Host), EncodingUtil.Utf8ToWin1251Bytes(pipeName), EncodingUtil.Utf8ToWin1251Bytes(filename), ref bflags, 0, callback, callbackParameter)).ConfigureAwait(false);
 					break;
-				case MSTreeConsts.rbsrv:
+				case MSTreeConsts.RBaseServer:
 				case MSTreeConsts.rbsrv_old:
 					bflags = 1;
 					result = await Task.Run(() => _native.TmcRestoreServer(false, EncodingUtil.Utf8ToWin1251Bytes(Host), EncodingUtil.Utf8ToWin1251Bytes(pipeName), EncodingUtil.Utf8ToWin1251Bytes(filename), ref bflags, 0, callback, callbackParameter)).ConfigureAwait(false);
