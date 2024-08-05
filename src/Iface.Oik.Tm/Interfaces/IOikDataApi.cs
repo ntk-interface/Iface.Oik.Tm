@@ -334,6 +334,11 @@ namespace Iface.Oik.Tm.Interfaces
       PreferApi prefer = PreferApi.Auto);
 
 
+    Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTeleregulationScript(
+      TmAnalog tmAnalog, 
+      PreferApi prefer = PreferApi.Auto);
+
+
     Task OverrideTelecontrolScript(PreferApi prefer = PreferApi.Auto);
 
 

@@ -1500,6 +1500,75 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTeleregulationScript(TmAnalog tmAnalog)
+    {
+      if (tmAnalog == null) return (false, null);
+
+      await UpdateAnalog(tmAnalog).ConfigureAwait(false);
+      
+      var (ch, rtu, point) = tmAnalog.TmAddr.GetTupleShort();
+      
+      TmNativeDefs.AnalogRegulationType command;
+      if (tmAnalog.HasTeleregulationByCode)
+      {
+        command = TmNativeDefs.AnalogRegulationType.Code;
+      }
+      else if (tmAnalog.HasTeleregulationByValue)
+      {
+        command = TmNativeDefs.AnalogRegulationType.Value;
+      }
+      else if (tmAnalog.HasTeleregulationByStep)
+      {
+        command = TmNativeDefs.AnalogRegulationType.Step;
+      }
+      else
+      {
+        return (false, new List<TmControlScriptCondition> { 
+                   new TmControlScriptCondition(false, "Не определено регулирование") 
+                 });
+      }
+
+      var handle = GCHandle.Alloc(0, GCHandleType.Pinned);
+
+      int scriptResult;
+      try
+      {
+        scriptResult = await Task.Run(() => _native.TmcExecuteRegulationScript(_cid,
+                                                                               ch,
+                                                                               rtu,
+                                                                               point,
+                                                                               (byte)command,
+                                                                               handle.AddrOfPinnedObject()))
+                                 .ConfigureAwait(false);
+      }
+      finally
+      {
+        handle.Free();
+      }
+
+      var conditions = new List<TmControlScriptCondition>();
+
+      if (tmAnalog.IsUnreliable ||
+          tmAnalog.IsInvalid    ||
+          tmAnalog.IsManuallyBlocked)
+      {
+        scriptResult = 0;
+        conditions.Add(new TmControlScriptCondition(false, "Нет достоверной информации о состоянии"));
+      }
+
+      (await GetLastTmcErrorText().ConfigureAwait(false))
+      ?.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries)
+       .ForEach(condition =>
+        {
+          var isConditionMet = condition[0] == '1';
+          var text           = condition.Substring(1);
+          conditions.Add(new TmControlScriptCondition(isConditionMet, text));
+        });
+
+      return (scriptResult == 1, conditions);
+    }
+
+
     public async Task OverrideTelecontrolScript()
     {
       await Task.Run(() => _native.TmcOverrideControlScript(_cid, true))

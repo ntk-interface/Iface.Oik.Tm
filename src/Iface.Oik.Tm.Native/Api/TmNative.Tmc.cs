@@ -377,6 +377,17 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public Int32 TmcExecuteRegulationScript(Int32  cid,
+                                            Int16  ch,
+                                            Int16  rtu,
+                                            Int16  point,
+                                            Byte   regType,
+                                            IntPtr regData)
+    {
+      return tmcExecuteRegulationScript(cid, ch, rtu, point, regType, regData);
+    }
+
+
     public Boolean TmcOverrideControlScript(Int32 cid,
                                             bool  fOverride)
     {

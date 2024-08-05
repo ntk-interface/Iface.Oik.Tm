@@ -243,6 +243,14 @@ namespace Iface.Oik.Tm.Native.Interfaces
                                   Int16 cmd);
 
 
+    Int32 TmcExecuteRegulationScript(Int32  cid,
+                                     Int16  ch,
+                                     Int16  rtu,
+                                     Int16  point,
+                                     Byte   regType,
+                                     IntPtr regData);
+
+
     Boolean TmcOverrideControlScript(Int32 cid,
                                      bool  fOverride);
 

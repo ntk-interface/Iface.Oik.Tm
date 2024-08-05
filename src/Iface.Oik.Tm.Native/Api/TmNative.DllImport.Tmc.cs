@@ -344,6 +344,15 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int32 tmcExecuteRegulationScript(Int32  cid,
+                                                          Int16  ch,
+                                                          Int16  rtu,
+                                                          Int16  point,
+                                                          Byte   regType,
+                                                          IntPtr regData);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Boolean tmcOverrideControlScript(Int32 cid,
                                                           bool  fOverride);
 
