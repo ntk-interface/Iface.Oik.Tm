@@ -244,6 +244,8 @@ namespace Iface.Oik.Tm.Interfaces
     Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTelecontrolScriptExplicitly(TmStatus tmStatus,
                                                                                                  int
                                                                                                    explicitNewStatus);
+    
+    Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTeleregulationScript(TmAnalog tmAnalog);
 
 
     Task OverrideTelecontrolScript();
