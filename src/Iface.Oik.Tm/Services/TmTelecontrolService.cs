@@ -111,26 +111,64 @@ namespace Iface.Oik.Tm.Services
     }
 
 
-    public async Task<TmTelecontrolResult> TeleregulateByStepUp(TmAnalog analog)
+    public async Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckScript(TmAnalog tmAnalog)
     {
+      return await _api.CheckTeleregulationScript(tmAnalog).ConfigureAwait(false);
+    }
+
+
+    public async Task<TmTelecontrolResult> TeleregulateByStepUp(TmAnalog analog, bool overrideScript = false)
+    {
+      if (overrideScript)
+      {
+        if (!CanOverrideScript())
+        {
+          return TmTelecontrolResult.ScriptError;
+        }
+        await _api.OverrideTelecontrolScript().ConfigureAwait(false);
+      }
       return await _api.TeleregulateByStepUp(analog).ConfigureAwait(false);
     }
 
 
-    public async Task<TmTelecontrolResult> TeleregulateByStepDown(TmAnalog analog)
+    public async Task<TmTelecontrolResult> TeleregulateByStepDown(TmAnalog analog, bool overrideScript = false)
     {
+      if (overrideScript)
+      {
+        if (!CanOverrideScript())
+        {
+          return TmTelecontrolResult.ScriptError;
+        }
+        await _api.OverrideTelecontrolScript().ConfigureAwait(false);
+      }
       return await _api.TeleregulateByStepDown(analog).ConfigureAwait(false);
     }
 
 
-    public async Task<TmTelecontrolResult> TeleregulateByCode(TmAnalog analog, int code)
+    public async Task<TmTelecontrolResult> TeleregulateByCode(TmAnalog analog, int code, bool overrideScript = false)
     {
+      if (overrideScript)
+      {
+        if (!CanOverrideScript())
+        {
+          return TmTelecontrolResult.ScriptError;
+        }
+        await _api.OverrideTelecontrolScript().ConfigureAwait(false);
+      }
       return await _api.TeleregulateByCode(analog, code).ConfigureAwait(false);
     }
 
 
-    public async Task<TmTelecontrolResult> TeleregulateByValue(TmAnalog analog, float value)
+    public async Task<TmTelecontrolResult> TeleregulateByValue(TmAnalog analog, float value, bool overrideScript = false)
     {
+      if (overrideScript)
+      {
+        if (!CanOverrideScript())
+        {
+          return TmTelecontrolResult.ScriptError;
+        }
+        await _api.OverrideTelecontrolScript().ConfigureAwait(false);
+      }
       return await _api.TeleregulateByValue(analog, value).ConfigureAwait(false);
     }
   }

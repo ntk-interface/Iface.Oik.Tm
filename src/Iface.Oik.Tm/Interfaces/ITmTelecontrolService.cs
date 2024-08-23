@@ -24,12 +24,14 @@ namespace Iface.Oik.Tm.Interfaces
     
     TmTeleregulateValidationResult Validate(TmAnalog tmAnalog);
 
-    Task<TmTelecontrolResult> TeleregulateByStepUp(TmAnalog analog);
+    Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckScript(TmAnalog tmAnalog);
 
-    Task<TmTelecontrolResult> TeleregulateByStepDown(TmAnalog analog);
+    Task<TmTelecontrolResult> TeleregulateByStepUp(TmAnalog analog, bool overrideScript = false);
 
-    Task<TmTelecontrolResult> TeleregulateByCode(TmAnalog analog, int code);
+    Task<TmTelecontrolResult> TeleregulateByStepDown(TmAnalog analog, bool overrideScript = false);
 
-    Task<TmTelecontrolResult> TeleregulateByValue(TmAnalog analog, float value);
+    Task<TmTelecontrolResult> TeleregulateByCode(TmAnalog analog, int code, bool overrideScript = false);
+
+    Task<TmTelecontrolResult> TeleregulateByValue(TmAnalog analog, float value, bool overrideScript = false);
   }
 }
