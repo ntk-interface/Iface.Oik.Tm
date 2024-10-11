@@ -301,7 +301,7 @@ namespace Iface.Oik.Tm.Native.Api
                                  UInt32                        endUnixTime,
                                  TmNativeDefs.TEventExCriteria criteria)
     {
-      return tmcEventLogEx(cid, eventMask, startUnixTime, endUnixTime, criteria);
+      return tmcEventLogEx(cid, eventMask, startUnixTime, endUnixTime, ref criteria);
     }
     
 

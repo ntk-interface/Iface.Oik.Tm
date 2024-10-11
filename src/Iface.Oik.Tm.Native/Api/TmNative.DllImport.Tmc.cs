@@ -292,11 +292,11 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern IntPtr tmcEventLogEx(Int32                              cid,
-                                              UInt16                             eventMask,
-                                              UInt32                             startUnixTime,
-                                              UInt32                             endUnixTime,
-                                              [In] TmNativeDefs.TEventExCriteria criteria);
+    public static extern IntPtr tmcEventLogEx(Int32                                  cid,
+                                              UInt16                                 eventMask,
+                                              UInt32                                 startUnixTime,
+                                              UInt32                                 endUnixTime,
+                                              [In] ref TmNativeDefs.TEventExCriteria criteria);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
