@@ -78,6 +78,10 @@ namespace Iface.Oik.Tm.Interfaces
       ? (float?) Reference
       : null;
 
+    public TmEventChangedStatus ChangedStatus => Type == TmEventTypes.StatusChange && Reference != null
+                                                   ? (TmEventChangedStatus)Reference
+                                                   : null;
+
 
     public TmEvent(int hashCode)
     {
@@ -103,6 +107,9 @@ namespace Iface.Oik.Tm.Interfaces
                            dto.ClassId,
                            dto.AlarmActive,
                            dto.VVal,
+                           dto.VCode,
+                           dto.VS2,
+                           dto.Flags,
                            dto.TsAddFlags,
                            dto.AckTime,
                            dto.AckUser);
@@ -125,6 +132,9 @@ namespace Iface.Oik.Tm.Interfaces
                                         short?    classId,
                                         bool?     isAlarmActive,
                                         float?    alarmInitialValue,
+                                        short?    statusCode,
+                                        short?    statusS2Flags,
+                                        int?      statusFlags,
                                         BitArray  tsExtraFlags,
                                         DateTime? ackTime,
                                         string    ackUser)
@@ -137,10 +147,16 @@ namespace Iface.Oik.Tm.Interfaces
         ? tmTypeString
         : typeString;
 
-      var reference = eventType     == TmEventTypes.Alarm && 
-                      isAlarmActive == true
-        ? alarmInitialValue
-        : null;
+      object reference = null;
+      if (eventType == TmEventTypes.Alarm &&
+          isAlarmActive == true)
+      {
+        reference = alarmInitialValue;
+      }
+      else if (eventType == TmEventTypes.StatusChange)
+      {
+        reference = TmEventChangedStatus.CreateFromDto(statusCode, statusFlags, statusS2Flags);
+      }
 
       string eventText;
       string eventStateString;
@@ -189,11 +205,6 @@ namespace Iface.Oik.Tm.Interfaces
       if (tmAddrComplexInteger != 0)
       {
         tmEvent.TmAddrString = tmAddrString;
-        if (false)
-        {
-          TmAddr.TryParseType(tmAddrString, out var tmType, TmType.Unknown);
-          tmEvent.TmAddrType = tmType;
-        }
       }
       else
       {

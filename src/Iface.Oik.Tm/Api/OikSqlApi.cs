@@ -1572,7 +1572,7 @@ namespace Iface.Oik.Tm.Api
           await sql.OpenAsync().ConfigureAwait(false);
           var commandText = $@"SELECT elix, update_time, 
                                 rec_text, name, rec_state_text, rec_type, rec_type_name, user_name, importance, 
-                                tma, tma_str, tm_type_name, tm_type, class_id, v_val, alarm_active, ts_add_flags,
+                                tma, tma_str, tm_type_name, tm_type, class_id, v_val, alarm_active, v_code, v_s2, flags, ts_add_flags,
                                 ack_time, ack_user
             FROM oik_event_log
             WHERE 1=1 {whereBeg}{whereEnd}{whereEventTypes}{whereEventImportances}{whereEventTmStatusClassIds}{whereEventTmAddr}{whereEventChannelsAndRtus}{whereEventFromReserveExcluded}
@@ -1921,7 +1921,7 @@ namespace Iface.Oik.Tm.Api
           await sql.OpenAsync().ConfigureAwait(false);
           var commandText = @"SELECT elix, update_time, 
                                 rec_text, name, rec_state_text, rec_type, rec_type_name, user_name, importance, 
-                                tma, tma_str, tm_type_name, tm_type, class_id, v_val, alarm_active, ts_add_flags,
+                                tma, tma_str, tm_type_name, tm_type, class_id, v_val, alarm_active, v_code, v_s2, flags, ts_add_flags,
                                 ack_time, ack_user
                               FROM oik_event_log_elix
                               WHERE elix > @Elix
