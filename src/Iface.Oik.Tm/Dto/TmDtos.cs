@@ -203,6 +203,9 @@ namespace Iface.Oik.Tm.Dto
     public string    AckUser      { get; set; }
     public bool?     AlarmActive  { get; set; }
     public float?    VVal         { get; set; }
+    public short?    VCode        { get; set; }
+    public short?    VS2          { get; set; }
+    public int?      Flags        { get; set; }
     public BitArray  TsAddFlags   { get; set; }
   }
 
