@@ -63,8 +63,6 @@ namespace ConsoleApp
       Console.WriteLine("Монитор тревог:");
       var alerts = await _api.GetAlertsWithAnalogMicroSeries();
       alerts?.ForEach(alert => Console.WriteLine($"{alert.Name}, {alert.ImportanceAlias}, {alert.CurrentValueString}"));
-
-      var statusEvents = await _api.GetEventsArchive(new TmEventFilter("01.10.2024", "15.10.2024"));
     }
   }
 }
