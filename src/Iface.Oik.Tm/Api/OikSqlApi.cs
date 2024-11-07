@@ -1897,7 +1897,7 @@ namespace Iface.Oik.Tm.Api
           foreach (var rtuId in rtuList)
           {
             var (tmaStart, tmaEnd) = TmRtu.GetSqlTmaRange(channelId, rtuId);
-            tmaList.Add($"((tma & {uint.MaxValue} >= {tmaStart} AND (tma & {uint.MaxValue} <= {tmaEnd})");
+            tmaList.Add($"((tma & {uint.MaxValue}) >= {tmaStart} AND (tma & {uint.MaxValue}) <= {tmaEnd})");
           }
         }
       }
