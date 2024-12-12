@@ -1202,6 +1202,23 @@ namespace Iface.Oik.Tm.Native.Interfaces
 			Security = 0,
 			Administrator = 1
 		}
+		
+		public enum Trs : UInt32
+		{
+			RstNonres = 0,
+			
+			SrcIndef = 1,
+			SrcConn = 2,
+			SrcSync = 3,
+			SrcWork = 4,
+			SrcUnconn = 5,
+			
+			DstRes = 0x1001,
+			DstFree = 0x1002,
+			DstIndef = 0x1003,
+		}
+		
+		
 		#endregion
 
 		#region Security

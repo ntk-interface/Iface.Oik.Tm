@@ -14,6 +14,9 @@ namespace Iface.Oik.Tm.Interfaces
 		Task<(IntPtr, DateTime)> OpenConfigurationTree(string fileName);
 		IntPtr CreateConfigurationTree(IEnumerable<CfTreeNode> tree);
 		Task<(IntPtr, DateTime)> OpenMasterServiceConfiguration();
+
+		Task<IReadOnlyCollection<CfTreeNode>> GetReserveConfiguration();
+		
 		Task<(MSTreeNode, DateTime)> LoadFullMSTree();
 		Task SaveConfigurationTree(IntPtr treeHandle, string filename);
 		Task SaveMasterServiceConfiguration(IntPtr treeHandle);
