@@ -103,7 +103,154 @@ namespace Iface.Oik.Tm.Api
       
       return resTree;
     }
+    
 
+    public async Task<ReserveServerState> ReserveServerTypeIsWorking(CfTreeNode reserveConfNode)
+    {
+      if (!reserveConfNode.CfProperties.TryGetValue("Type", out var type) || type.Trim() != "1")
+      {
+        return new ReserveServerState {IsWorking = false};
+      }
+
+      if (!reserveConfNode.CfProperties.TryGetValue("Addr", out var sAddr))
+      {
+        return new ReserveServerState {IsWorking = false};
+      }
+
+      var ipAddr = TmNativeUtil.IpAddrToNativeDword(sAddr);
+
+      if (ipAddr == 0)
+      {
+        return new ReserveServerState {IsWorking = false};
+      }
+      
+
+      if (!reserveConfNode.CfProperties.TryGetValue("Port", out var sPort) 
+          || !ushort.TryParse(sPort, out var port) 
+          || port == 0 
+          || port > 0xfff)
+      {
+        return new ReserveServerState {IsWorking = false};
+      }
+
+      var bPort = port;
+          
+      if (reserveConfNode.CfProperties.TryGetValue("BPort", out var sBPort) 
+          && ushort.TryParse(sBPort, out var nBPort) )
+      {
+        bPort = nBPort;
+            
+        if (bPort == 0 || bPort > 0xfff)
+        {
+          return new ReserveServerState {IsWorking = false};
+        }
+      }
+
+      var split = reserveConfNode.Name.Split(':');
+
+      if (split.Length != 2)
+      {
+        return new ReserveServerState {IsWorking = false};
+      }
+
+      var bCastSignature = await GetReserveServerBroadcastSignature(split.First()).ConfigureAwait(false);
+
+      if (bCastSignature is BroadcastServerSignature.None)
+      {
+        return new ReserveServerState {IsWorking = false};
+      }
+
+      return await ReserveServerTypeIsWorking(ipAddr, bPort, port, bCastSignature).ConfigureAwait(false);
+    }
+    
+    
+    public async Task<ReserveServerState> ReserveServerTypeIsWorking(uint                     ipAddrDword, 
+                                                                      ushort                   bPort, 
+                                                                      ushort                   port,
+                                                                      BroadcastServerSignature bCastSignature)
+    {
+      const int reserveServerNameBufSize = 64;
+      const int errBufSize = 2048;
+      
+      var  reserveServerNameBuf = new byte[reserveServerNameBufSize];
+      var  errBuf               = new byte[errBufSize];
+      uint errCode              = 0;
+      var  isWorking            = false;
+      
+      var result = await Task.Run(() => _native.CfsIsReserveWorking(CfId,
+                                                                ipAddrDword,
+                                                                bPort,
+                                                                port,
+                                                                (uint)bCastSignature,
+                                                                out isWorking,
+                                                                ref reserveServerNameBuf,
+                                                                out errCode,
+                                                                ref errBuf,
+                                                                errBufSize))
+                             .ConfigureAwait(false);
+
+      if (errCode != 0 || !reserveServerNameBuf.Any() )
+      {
+        return new ReserveServerState {IsWorking = false};
+      }
+
+      return new ReserveServerState
+      {
+        IsWorking      = isWorking && result,
+        RemotePipeName = EncodingUtil.Win1251BytesToUtf8(reserveServerNameBuf),
+        Signature      = bCastSignature
+      };;
+    }
+
+
+    public async Task<BroadcastServerSignature> GetReserveServerBroadcastSignature(string binName)
+    {
+      const string path    = "@@";
+      const string section = "VPath";
+      
+      var basePath = await GetIniString(path, section).ConfigureAwait(false);
+      
+      var sectionName = $"{binName}#1.prp.Layout";
+
+      // сигнатура сервера бродкастных сообщений
+      var sSrvResType = await GetIniString($"{basePath}\\s_setup.ini", sectionName, "ResType").ConfigureAwait(false);
+
+      switch (sSrvResType)
+      {
+        case "1":
+          return BroadcastServerSignature.Sbr;
+        case "2":
+          return BroadcastServerSignature.Smt;
+        default:
+          return BroadcastServerSignature.None;
+      }
+    }
+
+
+    public async Task OverrideReservePipe(string pipeName, BroadcastServerSignature signature)
+    {
+      const string path    = "@@";
+      const string section = "VPath";
+      
+      var basePath = await GetIniString(path, section).ConfigureAwait(false);
+      var iniPath  = string.Empty;
+      
+      switch (signature)
+      {
+        case BroadcastServerSignature.Sbr:
+          iniPath = Path.Combine(basePath, "RB_SERV", pipeName, "rbsx.ini");
+          break;
+        case BroadcastServerSignature.Smt:
+          iniPath = Path.Combine(basePath, "TM_SERV", pipeName, "tmsx.ini");
+          break;
+        default:
+          return;
+      }
+
+      await SetIniString(iniPath, "Reserve", "SrcCheckTarget", "0").ConfigureAwait(false);
+    }
+    
+    
     public async Task<(MSTreeNode, DateTime)> LoadFullMSTree()
     {
       var (handle, time) = await OpenMasterServiceConfiguration().ConfigureAwait(false);

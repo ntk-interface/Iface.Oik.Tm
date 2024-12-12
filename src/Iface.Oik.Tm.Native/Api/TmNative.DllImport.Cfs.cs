@@ -467,153 +467,165 @@ namespace Iface.Oik.Tm.Native.Api
                                                                    uint                                    fCheck);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr cfsIfpcEnumUsers(IntPtr     connId,
-                                                 out UInt32 errCode, 
+    public static extern IntPtr cfsIfpcEnumUsers(IntPtr           connId,
+                                                 out       UInt32 errCode,
                                                  [In, Out] byte[] errBuf,
-                                                 UInt32 maxErrs);
+                                                 UInt32           maxErrs);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr cfsIfpcEnumOSUsers(IntPtr     connId,
-                                                   out UInt32 errCode, 
-                                                   [In, Out] byte[] errBuf, 
-                                                   UInt32 maxErrs);
+    public static extern IntPtr cfsIfpcEnumOSUsers(IntPtr           connId,
+                                                   out       UInt32 errCode,
+                                                   [In, Out] byte[] errBuf,
+                                                   UInt32           maxErrs);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean cfsIfpcDeleteUser(IntPtr     connId,
-                                                   byte[]     username,
-                                                   out UInt32 errCode, 
-                                                   [In, Out] byte[] errBuf, 
-                                                   UInt32 maxErrs);
+    public static extern Boolean cfsIfpcDeleteUser(IntPtr           connId,
+                                                   byte[]           username,
+                                                   out       UInt32 errCode,
+                                                   [In, Out] byte[] errBuf,
+                                                   UInt32           maxErrs);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern UInt32 cfsIfpcGetAccess(IntPtr     connId,
-                                                 byte[]     uName,
-                                                 byte[]     oName,
-                                                 out UInt32 errCode, 
-                                                 [In, Out] byte[] errBuf, 
-                                                 UInt32 maxErrs);
+    public static extern UInt32 cfsIfpcGetAccess(IntPtr           connId,
+                                                 byte[]           uName,
+                                                 byte[]           oName,
+                                                 out       UInt32 errCode,
+                                                 [In, Out] byte[] errBuf,
+                                                 UInt32           maxErrs);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean cfsIfpcSetAccess(IntPtr     connId,
-                                                  byte[]     uName,
-                                                  byte[]     oName,
-                                                  UInt32     accessMask,
-                                                  out UInt32 errCode, 
-                                                  [In, Out] byte[] errBuf, 
-                                                  UInt32 maxErrs);
+    public static extern Boolean cfsIfpcSetAccess(IntPtr           connId,
+                                                  byte[]           uName,
+                                                  byte[]           oName,
+                                                  UInt32           accessMask,
+                                                  out       UInt32 errCode,
+                                                  [In, Out] byte[] errBuf,
+                                                  UInt32           maxErrs);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern Boolean cfsSaveMachineConfig(Boolean          fFull,
                                                       byte[]           remoteMasterMachine,
                                                       byte[]           fileName,
-                                                      [In, Out] byte[] errBuf, 
-                                                      UInt32 maxErrs);
+                                                      [In, Out] byte[] errBuf,
+                                                      UInt32           maxErrs);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean cfsSaveMachineConfigEx(byte[]                                                  remoteMasterMachine,
-                                                        byte[]                                                  fileName,
-                                                        uint                                                    dwScope,
+    public static extern Boolean cfsSaveMachineConfigEx(byte[] remoteMasterMachine,
+                                                        byte[] fileName,
+                                                        uint dwScope,
                                                         [MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback progFn,
-                                                        IntPtr                                                  progParm,
-                                                        [In, Out] byte[]                                        errBuf, 
-                                                        UInt32 maxErrs);
-
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean cfsExternalBackupServer(IntPtr connId,
-                                                         byte[] dllName,
-                                                         byte[] servName,
-                                                         uint bFlags,
-                                                         [In, Out] ref CfsServerBackupData pbd,
-                                                         out UInt32 errCode, 
-                                                         [In, Out] byte[] errBuf,
-                                                         UInt32 maxErrs);
-
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean cfsExternalRestoreServer(IntPtr     connId,
-                                                          byte[]     dllName,
-                                                          byte[]     servName,
-                                                          byte[]     filename,
-                                                          out UInt32 pbFlags,
-                                                          out UInt32 errCode, 
-                                                          [In, Out] byte[] errBuf, 
-                                                          UInt32 maxErrs);
-
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean cfsIfpcBackupSecurity(IntPtr     connId,
-                                                       byte[]     snp,
-                                                       byte[]     pwd,
-                                                       byte[]     filename,
-                                                       out UInt32 errCode, 
-                                                       [In, Out] byte[] errBuf, 
-                                                       UInt32 maxErrs);
-
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean cfsIfpcRestoreSecurity(IntPtr     connId,
-                                                        byte[]     snp,
-                                                        byte[]     pwd,
-                                                        byte[]     filename,
-                                                        out UInt32 errCode, 
+                                                        IntPtr progParm,
                                                         [In, Out] byte[] errBuf,
                                                         UInt32 maxErrs);
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern Boolean cfsExternalBackupServer(IntPtr                            connId,
+                                                         byte[]                            dllName,
+                                                         byte[]                            servName,
+                                                         uint                              bFlags,
+                                                         [In, Out] ref CfsServerBackupData pbd,
+                                                         out           UInt32              errCode,
+                                                         [In, Out]     byte[]              errBuf,
+                                                         UInt32                            maxErrs);
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern Boolean cfsExternalRestoreServer(IntPtr           connId,
+                                                          byte[]           dllName,
+                                                          byte[]           servName,
+                                                          byte[]           filename,
+                                                          out       UInt32 pbFlags,
+                                                          out       UInt32 errCode,
+                                                          [In, Out] byte[] errBuf,
+                                                          UInt32           maxErrs);
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern Boolean cfsIfpcBackupSecurity(IntPtr           connId,
+                                                       byte[]           snp,
+                                                       byte[]           pwd,
+                                                       byte[]           filename,
+                                                       out       UInt32 errCode,
+                                                       [In, Out] byte[] errBuf,
+                                                       UInt32           maxErrs);
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern Boolean cfsIfpcRestoreSecurity(IntPtr           connId,
+                                                        byte[]           snp,
+                                                        byte[]           pwd,
+                                                        byte[]           filename,
+                                                        out       UInt32 errCode,
+                                                        [In, Out] byte[] errBuf,
+                                                        UInt32           maxErrs);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern IntPtr cfsMakeInprocCrd(byte[] machine, byte[] user, byte[] pwd);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean cfsPrepNewConfig(IntPtr     connId,  
+    public static extern Boolean cfsPrepNewConfig(IntPtr           connId,
                                                   byte[]           remoteFName,
-                                                  out UInt32 errCode, 
+                                                  out       UInt32 errCode,
                                                   [In, Out] byte[] errBuf,
-                                                  UInt32 maxErrs);
+                                                  UInt32           maxErrs);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean cfsIfpcTestTmcalc(IntPtr connId,
-                                                   byte[] tmsName, 
-                                                   byte[] clcName, 
-                                                   UInt32 testWay, 
-                                                   UInt32 testFlags,
-                                                   out UInt64 pHandle, 
-                                                   out UInt32 pPid,
-                                                   out UInt32 errCode, 
-                                                   [In, Out] byte[] errBuf, 
-                                                   UInt32 maxErrs);
+    public static extern Boolean cfsIfpcTestTmcalc(IntPtr           connId,
+                                                   byte[]           tmsName,
+                                                   byte[]           clcName,
+                                                   UInt32           testWay,
+                                                   UInt32           testFlags,
+                                                   out       UInt64 pHandle,
+                                                   out       UInt32 pPid,
+                                                   out       UInt32 errCode,
+                                                   [In, Out] byte[] errBuf,
+                                                   UInt32           maxErrs);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean cfsIfpcStopTestTmcalc(IntPtr     connId,
-                                                       UInt64     handle,  
+    public static extern Boolean cfsIfpcStopTestTmcalc(IntPtr           connId,
+                                                       UInt64           handle,
                                                        UInt32           pid,
-                                                       out UInt32 errCode, 
-                                                       [In, Out] byte[] errBuf, 
-                                                       UInt32 maxErrs);
+                                                       out       UInt32 errCode,
+                                                       [In, Out] byte[] errBuf,
+                                                       UInt32           maxErrs);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean cfsPmonCheckProcess(IntPtr     connId,  
+    public static extern Boolean cfsPmonCheckProcess(IntPtr           connId,
                                                      byte[]           processNameArgs,
-                                                     out UInt32 errCode, 
-                                                     [In, Out] byte[] errBuf, 
-                                                     UInt32 maxErrs);
+                                                     out       UInt32 errCode,
+                                                     [In, Out] byte[] errBuf,
+                                                     UInt32           maxErrs);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean cfsPmonStopProcess(IntPtr     connId, 
-                                                    byte[] processNameArgs,
-                                                    out UInt32 pNumFound,
-                                                    out UInt32 errCode, 
-                                                    [In, Out] byte[] errBuf, 
-                                                    UInt32 maxErrs);
+    public static extern Boolean cfsPmonStopProcess(IntPtr           connId,
+                                                    byte[]           processNameArgs,
+                                                    out       UInt32 pNumFound,
+                                                    out       UInt32 errCode,
+                                                    [In, Out] byte[] errBuf,
+                                                    UInt32           maxErrs);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean cfsPmonRestartProcess(IntPtr     connId,  
+    public static extern Boolean cfsPmonRestartProcess(IntPtr           connId,
                                                        byte[]           processNameArgs,
-                                                       out UInt32 errCode, 
-                                                       [In, Out] byte[] errBuf, 
-                                                       UInt32 maxErrs);
+                                                       out       UInt32 errCode,
+                                                       [In, Out] byte[] errBuf,
+                                                       UInt32           maxErrs);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean cfsSwapFnSrvRole(byte[]     serverName,
-                                                  Boolean          bPre,  
-                                                  byte[] fnsName,
-                                                  out UInt32 errCode,    
-                                                  [In, Out] byte[] errBuf, 
-                                                  UInt32 maxErrs);
+    public static extern Boolean cfsSwapFnSrvRole(byte[]           serverName,
+                                                  Boolean          bPre,
+                                                  byte[]           fnsName,
+                                                  out       UInt32 errCode,
+                                                  [In, Out] byte[] errBuf,
+                                                  UInt32           maxErrs);
+
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern Boolean cfsIsReserveWorking(IntPtr            connId,
+                                                     UInt32            ipAddress,
+                                                     UInt16            ipBcPort,
+                                                     UInt16            ipPort,
+                                                     UInt32            sType,
+                                                     out       Boolean working,
+                                                     [In, Out] byte[]  sName, // 64 
+                                                     out       UInt32  errCode,
+                                                     [In, Out] byte[]  errBuf,
+                                                     UInt32            maxErrs);
   }
 }

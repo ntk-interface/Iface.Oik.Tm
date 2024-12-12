@@ -627,5 +627,43 @@ namespace Iface.Oik.Tm.Native.Utils
 
       return structure;
     }
+
+    public static uint IpAddrToNativeDword(string ipAddrString)
+    {
+      var partsList = new List<uint>();
+
+      foreach (var partStr in ipAddrString.Split('.'))
+      {
+        if (!uint.TryParse(partStr, out var part))
+        {
+          return 0;
+        }
+        partsList.Add(part);
+      }
+
+      if (partsList.Count != 4)
+      {
+        return 0;
+      }
+
+      return IpAddrToNativeDword(partsList[0], partsList[1], partsList[2], partsList[3]);
+    }
+
+    public static uint IpAddrToNativeDword(uint x1, uint x2, uint x3, uint x4)
+    {
+      if (x1 > 255 || x2 > 255 || x3 > 255 || x4 > 255)
+      {
+        return 0;
+      }
+
+      var ipAddr = (x4 << 24) + (x3 << 16) + (x2 << 8) + x1;
+
+      if (ipAddr == 0 || ipAddr == 0xffffffff)
+      {
+        return 0;
+      }
+
+      return ipAddr;
+    }
   }
 }
