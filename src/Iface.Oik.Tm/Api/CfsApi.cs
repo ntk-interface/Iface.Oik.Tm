@@ -87,6 +87,22 @@ namespace Iface.Oik.Tm.Api
       return await OpenConfigurationTree(MasterConfFile).ConfigureAwait(false);
     }
 
+    public async Task<IReadOnlyCollection<CfTreeNode>> GetReserveConfiguration()
+    {
+      var resTree = new List<CfTreeNode>();
+      try
+      {
+        var (resHandle, _) = await OpenConfigurationTree(HotStanbyConfFile).ConfigureAwait(false);
+        resTree            = await GetCfTree(resHandle).ConfigureAwait(false);
+        FreeConfigurationTreeHandle(resHandle);
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex.Message);
+      }
+      
+      return resTree;
+    }
 
     public async Task<(MSTreeNode, DateTime)> LoadFullMSTree()
     {
@@ -99,17 +115,7 @@ namespace Iface.Oik.Tm.Api
       var msRoot = new MSTreeNode(tree.First());
 
       // читаем конфигурацию резервирования если есть
-      var resTree = new List<CfTreeNode>();
-      try
-      {
-        var (resHandle, _) = await OpenConfigurationTree(HotStanbyConfFile).ConfigureAwait(false);
-        resTree            = await GetCfTree(resHandle).ConfigureAwait(false);
-        FreeConfigurationTreeHandle(resHandle);
-      }
-      catch (Exception ex)
-      {
-        Console.WriteLine(ex.Message);
-      }
+      var resTree = await GetReserveConfiguration().ConfigureAwait(false);
 
       // перебираем элементы на втором уровне после мастер-сервиса
       foreach (var node in msRoot.Children)
