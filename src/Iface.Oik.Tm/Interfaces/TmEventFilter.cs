@@ -275,7 +275,7 @@ namespace Iface.Oik.Tm.Interfaces
         if (rtuList == null)
         {
           var (tmaStart, tmaEnd) = TmChannel.GetSqlTmaRange(channelId);
-          if (tma >= tmaStart && tma <= tmaEnd)
+          if (tma >= (uint) tmaStart && tma <= (uint) tmaEnd)
           {
             return true;
           }
@@ -285,7 +285,7 @@ namespace Iface.Oik.Tm.Interfaces
           foreach (var rtuId in rtuList)
           {
             var (tmaStart, tmaEnd) = TmRtu.GetSqlTmaRange(channelId, rtuId);
-            if (tma >= tmaStart && tma <= tmaEnd)
+            if (tma >= (uint) tmaStart && tma <= (uint) tmaEnd)
             {
               return true;
             }
