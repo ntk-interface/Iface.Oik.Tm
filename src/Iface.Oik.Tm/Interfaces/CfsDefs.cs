@@ -241,4 +241,19 @@ namespace Iface.Oik.Tm.Interfaces
 		public string UserAddr { get; set; }
 		public UInt32 AccessMask { get; set; }
 	}
+
+	public enum ReserveState : uint
+	{
+		NotReserved = 0,
+		
+		MainUndefined       = 1,
+		MainConnecting      = 2,
+		MainSynchronization = 3,
+		MainActive          = 4,
+		MainNotConnected        = 5,
+		
+		ReserveConnectedToMain = 0x1001,
+		ReserveActive = 0x1002,
+		ReserveUndefined = 0x1003,
+	}
 }
