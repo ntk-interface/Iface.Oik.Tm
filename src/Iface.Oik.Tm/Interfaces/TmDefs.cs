@@ -83,10 +83,11 @@ namespace Iface.Oik.Tm.Interfaces
   }
 
 
-  public enum TmTopologyType
+  public enum TmTopologyTraceType
   {
-    Voltage = 1,
-    Ground  = 2,
+    VoltageSource   = 1,
+    GroundSource    = 2,
+    AdjacentSection = 3,
   }
 
 
