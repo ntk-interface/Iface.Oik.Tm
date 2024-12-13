@@ -39,8 +39,8 @@ namespace Iface.Oik.Tm.Dto
   
   public class MqttTopologyTraceRequestDto : MqttRpcRequestDto
   {
-    public Guid           EquipmentId { get; set; }
-    public TmTopologyType Type        { get; set; }
+    public Guid                EquipmentId { get; set; }
+    public TmTopologyTraceType Type        { get; set; }
   }
 
 
