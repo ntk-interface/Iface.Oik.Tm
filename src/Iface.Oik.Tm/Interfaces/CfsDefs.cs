@@ -256,4 +256,12 @@ namespace Iface.Oik.Tm.Interfaces
 		ReserveActive = 0x1002,
 		ReserveUndefined = 0x1003,
 	}
+
+	public enum BroadcastServerSignature : uint
+	{
+		None = 0,
+		
+		Sbr = 0x524253,
+		Smt = 0x544d53
+	}
 }

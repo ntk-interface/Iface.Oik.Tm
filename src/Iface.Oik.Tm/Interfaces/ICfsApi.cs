@@ -16,6 +16,11 @@ namespace Iface.Oik.Tm.Interfaces
 		Task<(IntPtr, DateTime)> OpenMasterServiceConfiguration();
 
 		Task<IReadOnlyCollection<CfTreeNode>> GetReserveConfiguration();
+
+		Task<ReserveServerState> ReserveServerTypeIsWorking(CfTreeNode reserveConfNode);
+
+		Task OverrideReservePipe(string pipeName, BroadcastServerSignature signature);
+
 		
 		Task<(MSTreeNode, DateTime)> LoadFullMSTree();
 		Task SaveConfigurationTree(IntPtr treeHandle, string filename);
