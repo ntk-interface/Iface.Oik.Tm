@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Api
@@ -90,7 +91,7 @@ namespace Iface.Oik.Tm.Api
             var descriptionStructSize = Marshal.SizeOf(descriptionStruct);
 
             var descriptionString =
-              EncodingUtil.Win1251ToUtf8(Marshal.PtrToStringAnsi(IntPtr.Add(itemPtr, descriptionStructSize - 1)));
+              TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(IntPtr.Add(itemPtr, descriptionStructSize - 1));
 
             if (descriptionStruct.Text[0] == '*')
             {
