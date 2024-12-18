@@ -2106,7 +2106,7 @@ namespace Iface.Oik.Tm.Api
       return (0, string.Empty);
     }
 
-    public AccessMasksDescriptor SecGetAccessDescriptor(string ProgName)
+    public AccessMasksDescriptor SecGetAccessDescriptor(string progName)
     {
       var ad = new AccessMasksDescriptor();
       Dictionary<string, string> iniSections = new Dictionary<string, string>()
@@ -2119,7 +2119,7 @@ namespace Iface.Oik.Tm.Api
         { MSTreeConsts.pcsrv_old, "serv_dll.ch.TmsSecurity" },
       };
 
-      if (iniSections.TryGetValue(ProgName, out var section))
+      if (iniSections.TryGetValue(progName, out var section))
       {
         var sec_ptr = _native.CfsGetAccessDescriptor("s_setup.ini", section);
         if (sec_ptr == IntPtr.Zero)
@@ -3094,7 +3094,7 @@ namespace Iface.Oik.Tm.Api
       }
     }
 
-    public async Task<(IReadOnlyCollection<string>, uint, string)> DirEnum(string Path)
+    public async Task<(IReadOnlyCollection<string>, uint, string)> DirEnum(string path)
     {
       const int resBufLength = 20480;
       var       resBuf       = new char[resBufLength];
@@ -3103,7 +3103,7 @@ namespace Iface.Oik.Tm.Api
       uint      errCode      = 0;
 
       var result = await Task.Run(() => _native.CfsDirEnum(CfId,
-                                                           EncodingUtil.Utf8ToWin1251Bytes(Path),
+                                                           EncodingUtil.Utf8ToWin1251Bytes(path),
                                                            ref resBuf, resBufLength,
                                                            out errCode, ref errBuf, errBufLength))
                              .ConfigureAwait(false);
@@ -3278,13 +3278,13 @@ namespace Iface.Oik.Tm.Api
       }
     }
 
-    public async Task<(IReadOnlyCollection<string>, string)> EnumPackedFiles(string pkfname)
+    public async Task<(IReadOnlyCollection<string>, string)> EnumPackedFiles(string pkfName)
     {
       const int errBufLength = 1000;
       var       errBuf       = new byte[errBufLength];
 
       var result =
-        await Task.Run(() => _native.PkfEnumPackedFiles(EncodingUtil.Utf8ToWin1251Bytes(pkfname), ref errBuf,
+        await Task.Run(() => _native.PkfEnumPackedFiles(EncodingUtil.Utf8ToWin1251Bytes(pkfName), ref errBuf,
                                                         errBufLength)).ConfigureAwait(false);
       if (result == IntPtr.Zero)
       {
@@ -3298,12 +3298,12 @@ namespace Iface.Oik.Tm.Api
       }
     }
 
-    public async Task<(IReadOnlyCollection<string>, string)> UnPack(string pkfname, string dirname)
+    public async Task<(IReadOnlyCollection<string>, string)> UnPack(string pkfName, string dirname)
     {
       const int errBufLength = 1000;
       var       errBuf       = new byte[errBufLength];
 
-      var result = await Task.Run(() => _native.PkfUnPack(EncodingUtil.Utf8ToWin1251Bytes(pkfname),
+      var result = await Task.Run(() => _native.PkfUnPack(EncodingUtil.Utf8ToWin1251Bytes(pkfName),
                                                           EncodingUtil.Utf8ToWin1251Bytes(dirname), ref errBuf,
                                                           errBufLength)).ConfigureAwait(false);
       if (result == IntPtr.Zero)
@@ -3318,12 +3318,12 @@ namespace Iface.Oik.Tm.Api
       }
     }
 
-    public async Task<(bool, string)> ExtractFile(string pkfname, string filename, string dirname)
+    public async Task<(bool, string)> ExtractFile(string pkfName, string filename, string dirname)
     {
       const int errBufLength = 1000;
       var       errBuf       = new byte[errBufLength];
 
-      var result = await Task.Run(() => _native.PkfExtractFile(EncodingUtil.Utf8ToWin1251Bytes(pkfname),
+      var result = await Task.Run(() => _native.PkfExtractFile(EncodingUtil.Utf8ToWin1251Bytes(pkfName),
                                                                EncodingUtil.Utf8ToWin1251Bytes(filename),
                                                                EncodingUtil.Utf8ToWin1251Bytes(dirname),
                                                                ref errBuf, errBufLength)).ConfigureAwait(false);
@@ -3337,8 +3337,8 @@ namespace Iface.Oik.Tm.Api
       }
     }
 
-    public async Task<(uint, string, UInt64, UInt32)> StartTestTmcalc(string tmsname, string clcname, UInt32 test_way,
-                                                                      UInt32 test_flags)
+    public async Task<(uint, string, UInt64, UInt32)> StartTestTmcalc(string tmsName, string clcName, UInt32 testWay,
+                                                                      UInt32 testFlags)
     {
       const int errBufLength = 1000;
       var       errBuf       = new byte[errBufLength];
@@ -3347,9 +3347,9 @@ namespace Iface.Oik.Tm.Api
       UInt32    pid          = 0;
 
       var result = await Task.Run(() => _native.CfsIfpcTestTmcalc(CfId,
-                                                                  EncodingUtil.Utf8ToWin1251Bytes(tmsname),
-                                                                  EncodingUtil.Utf8ToWin1251Bytes(clcname),
-                                                                  test_way, test_flags,
+                                                                  EncodingUtil.Utf8ToWin1251Bytes(tmsName),
+                                                                  EncodingUtil.Utf8ToWin1251Bytes(clcName),
+                                                                  testWay, testFlags,
                                                                   out handle, out pid,
                                                                   out errCode, ref errBuf, errBufLength
                                                                  )).ConfigureAwait(false);
@@ -3382,62 +3382,70 @@ namespace Iface.Oik.Tm.Api
       }
     }
 
-    public async Task<(bool, string)> PmonCheckProcess(string process_name_args)
+    public async Task<(bool, string)> PmonCheckProcess(string processNameArgs)
     {
       const int errBufLength = 1000;
       var       errBuf       = new byte[errBufLength];
       uint      errCode      = 0;
       var result = await Task.Run(() => _native.СfsPmonCheckProcess(CfId,
-                                                                    EncodingUtil.Utf8ToWin1251Bytes(process_name_args),
+                                                                    EncodingUtil.Utf8ToWin1251Bytes(processNameArgs),
                                                                     out errCode, ref errBuf, errBufLength
                                                                    )).ConfigureAwait(false);
       return (result, EncodingUtil.Win1251BytesToUtf8(errBuf));
     }
 
-    public async Task<(bool, string)> PmonStopProcess(string process_name_args)
+    public async Task<(bool, string)> PmonStopProcess(string processNameArgs)
     {
       const int errBufLength = 1000;
       var       errBuf       = new byte[errBufLength];
       uint      errCode      = 0, pnumfound = 0;
       var result = await Task.Run(() => _native.CfsPmonStopProcess(CfId,
-                                                                   EncodingUtil.Utf8ToWin1251Bytes(process_name_args),
+                                                                   EncodingUtil.Utf8ToWin1251Bytes(processNameArgs),
                                                                    out pnumfound,
                                                                    out errCode, ref errBuf, errBufLength
                                                                   )).ConfigureAwait(false);
       return (result, EncodingUtil.Win1251BytesToUtf8(errBuf));
     }
 
-    public async Task<(bool, string)> PmonRestartProcess(string process_name_args)
+    public async Task<(bool, string)> PmonRestartProcess(string processNameArgs)
     {
       const int errBufLength = 1000;
       var       errBuf       = new byte[errBufLength];
       uint      errCode      = 0;
-      var result = await Task.Run(() => _native.CfsPmonRestartProcess(CfId,
-                                                                      EncodingUtil
-                                                                        .Utf8ToWin1251Bytes(process_name_args),
-                                                                      out errCode, ref errBuf, errBufLength
+      var result = await Task.Run(() => _native.CfsPmonRestartProcess(CfId, 
+                                                                      EncodingUtil.Utf8ToWin1251Bytes(processNameArgs),
+                                                                      out errCode, 
+                                                                      ref errBuf, 
+                                                                      errBufLength
                                                                      )).ConfigureAwait(false);
       return (result, EncodingUtil.Win1251BytesToUtf8(errBuf));
     }
 
-    public async Task<(bool, string)> SwapFnSrvRole(string serverName, Boolean b_pre, string fns_name)
+    public async Task<(bool, string)> SwapFnSrvRole(string encodedCredentials, string fnsName, bool dryRun)
     {
       const int errBufLength = 1000;
       var       errBuf       = new byte[errBufLength];
       uint      errCode      = 0;
-      var result = await Task.Run(() => _native.CfsSwapFnSrvRole(
-                                                                 EncodingUtil.Utf8ToWin1251Bytes(serverName),
-                                                                 b_pre,
-                                                                 EncodingUtil.Utf8ToWin1251Bytes(fns_name),
-                                                                 out errCode, ref errBuf, errBufLength
+      
+      var result = await Task.Run(() => _native.CfsSwapFnSrvRole(EncodingUtil.Utf8ToWin1251Bytes(encodedCredentials),
+                                                                 dryRun,
+                                                                 EncodingUtil.Utf8ToWin1251Bytes(fnsName),
+                                                                 out errCode, 
+                                                                 ref errBuf, 
+                                                                 errBufLength
                                                                 )).ConfigureAwait(false);
-      if (fns_name.IsNullOrEmpty())
-      {
-        // просто проверка поддержки функции
-        return ((errCode == 21201), string.Empty);
-      }
 
       return (result, EncodingUtil.Win1251BytesToUtf8(errBuf));
+    }
+
+    public async Task<(bool, string)> ReserveRoleSwapIsAvailable(string encodedCredentials, string pipeName)
+    {
+      return await SwapFnSrvRole(encodedCredentials, pipeName, true).ConfigureAwait(false);
+    }
+   
+    public async Task<(bool, string)> SwapReserveRole(string encodedCredentials, string pipeName)
+    {
+      return await SwapFnSrvRole(encodedCredentials, pipeName, false).ConfigureAwait(false);
     }
   }
 }
