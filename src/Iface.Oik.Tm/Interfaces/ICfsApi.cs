@@ -149,9 +149,9 @@ namespace Iface.Oik.Tm.Interfaces
                                    string binName,
                                    byte[] binData);
 
-    AccessMasksDescriptor SecGetAccessDescriptor(string progName);
+    AccessMasksDescriptor SecGetAccessDescriptor(string sSetupPath, string progName);
 
-    ExtendedRightsDescriptor SecGetExtendedRightsDescriptor();
+    ExtendedRightsDescriptor SecGetExtendedRightsDescriptor(string sSetupPath);
 
     Task<(IReadOnlyCollection<string>, uint, string)> SecEnumUsers();
 
