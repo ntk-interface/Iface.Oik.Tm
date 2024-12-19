@@ -2106,10 +2106,11 @@ namespace Iface.Oik.Tm.Api
       return (0, string.Empty);
     }
 
-    public AccessMasksDescriptor SecGetAccessDescriptor(string progName)
+    public AccessMasksDescriptor SecGetAccessDescriptor(string sSetupPath, string progName)
     {
-      var ad = new AccessMasksDescriptor();
-      Dictionary<string, string> iniSections = new Dictionary<string, string>()
+      var accessMasksDescriptor = new AccessMasksDescriptor();
+      
+      var iniSections = new Dictionary<string, string>
       {
         { MSTreeConsts.Portcore, "master#1.prp.Security" },
         { MSTreeConsts.master, "master.prp.Security" },
@@ -2119,90 +2120,129 @@ namespace Iface.Oik.Tm.Api
         { MSTreeConsts.pcsrv_old, "serv_dll.ch.TmsSecurity" },
       };
 
-      if (iniSections.TryGetValue(progName, out var section))
+      if (!iniSections.TryGetValue(progName, out var section))
       {
-        var sec_ptr = _native.CfsGetAccessDescriptor("s_setup.ini", section);
-        if (sec_ptr == IntPtr.Zero)
-          throw new Exception("GetAccessDescriptor sec_ptr error");
-        var cfs_ad = Marshal.PtrToStructure<TmNativeDefs.CfsAccessDescriptor>(sec_ptr);
-        _native.CfsFreeMemory(sec_ptr);
+        return null;
+      }
+      
+      var sectionPtr = _native.CfsGetAccessDescriptor(sSetupPath, section);
+      if (sectionPtr == IntPtr.Zero)
+      {
+        throw new Exception("GetAccessDescriptor sec_ptr error");
+      }
+        
+        
+      var cfsAccessDescriptor = Marshal.PtrToStructure<CfsAccessDescriptor>(sectionPtr);
+      _native.CfsFreeMemory(sectionPtr);
 
-        ad.ObjTypeName["ru"] = EncodingUtil.Win1251BytesToUtf8(cfs_ad.ObjTypeName.rus).Replace("&", "");
-        ad.ObjTypeName["en"] = EncodingUtil.Win1251BytesToUtf8(cfs_ad.ObjTypeName.eng).Replace("&", "");
-        var pre = cfs_ad.NamePrefix.Split('$');
-        if (pre.Length > 1)
-          ad.NamePrefix = pre[0] + "$";
-        else
-          ad.NamePrefix = cfs_ad.NamePrefix;
-
-        for (int bit = 0; bit < 32; bit++)
-        {
-          if (cfs_ad.Bit[bit].Mask != 0xffffffff)
-          {
-            var newMask = new AccessMask() { Mask = cfs_ad.Bit[bit].Mask };
-            newMask.Description["ru"] = EncodingUtil.Win1251BytesToUtf8(cfs_ad.Bit[bit].rus).Replace("&", "");
-            newMask.Description["en"] = EncodingUtil.Win1251BytesToUtf8(cfs_ad.Bit[bit].eng).Replace("&", "");
-            ad.AccessMasks.Add(newMask);
-          }
-        }
-
-        return ad;
+      accessMasksDescriptor.ObjTypeName["ru"] = EncodingUtil.Win1251BytesToUtf8(cfsAccessDescriptor.ObjTypeName.rus)
+                                                            .Replace("&", "");
+      accessMasksDescriptor.ObjTypeName["en"] = EncodingUtil.Win1251BytesToUtf8(cfsAccessDescriptor.ObjTypeName.eng)
+                                                            .Replace("&", "");
+        
+      var pre = cfsAccessDescriptor.NamePrefix.Split('$');
+      if (pre.Length > 1)
+      {
+        accessMasksDescriptor.NamePrefix = pre[0] + "$";
       }
       else
-        return null;
+      {
+        accessMasksDescriptor.NamePrefix = cfsAccessDescriptor.NamePrefix;
+      }
+
+      for (var bit = 0; bit < 32; bit++)
+      {
+        if (cfsAccessDescriptor.Bit[bit].Mask == 0xffffffff)
+        {
+          continue;
+        }
+          
+        var newMask = new AccessMask
+        {
+          Mask = cfsAccessDescriptor.Bit[bit].Mask,
+          Description =
+          {
+            ["ru"] = EncodingUtil.Win1251BytesToUtf8(cfsAccessDescriptor.Bit[bit].rus).Replace("&", ""),
+            ["en"] = EncodingUtil.Win1251BytesToUtf8(cfsAccessDescriptor.Bit[bit].eng).Replace("&", "")
+          }
+        };
+          
+        accessMasksDescriptor.AccessMasks.Add(newMask);
+      }
+
+      return accessMasksDescriptor;
     }
 
-    public ExtendedRightsDescriptor SecGetExtendedRightsDescriptor()
+    public ExtendedRightsDescriptor SecGetExtendedRightsDescriptor(string sSetupPath)
     {
       var ret     = new ExtendedRightsDescriptor();
-      var ext_ptr = _native.CfsGetExtendedUserRightsDescriptor("s_setup.ini", "TmsExtRights", 0);
-      if (ext_ptr == IntPtr.Zero)
+      var extendedRightsPtr = _native.CfsGetExtendedUserRightsDescriptor(sSetupPath, "TmsExtRights", 0);
+      
+      if (extendedRightsPtr == IntPtr.Zero)
+      {
         return null;
+      }
 
-      var er = Marshal.PtrToStructure<TmNativeDefs.CfsExtSrvrtDescriptor>(ext_ptr);
-      _native.CfsFreeMemory(ext_ptr);
+      var extendedRights = Marshal.PtrToStructure<CfsExtSrvrtDescriptor>(extendedRightsPtr);
+      _native.CfsFreeMemory(extendedRightsPtr);
 
-      ret.DoUserID   = er.DoUserID;
-      ret.DoUserPwd  = er.DoUserPwd;
-      ret.DoUserNick = er.DoUserNick;
-      ret.MaxUserID  = er.MaxUserID;
-      ret.DoGroup    = er.DoGroup;
-      ret.DoKeyID    = er.DoKeyID;
-      var strRights = TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(er.Rights, 10240);
+      ret.DoUserID   = extendedRights.DoUserID;
+      ret.DoUserPwd  = extendedRights.DoUserPwd;
+      ret.DoUserNick = extendedRights.DoUserNick;
+      ret.MaxUserID  = extendedRights.MaxUserID;
+      ret.DoGroup    = extendedRights.DoGroup;
+      ret.DoKeyID    = extendedRights.DoKeyID;
+      
+      var strRights = TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(extendedRights.Rights, 
+                                                                                  10240);
+      
       foreach (var item in strRights)
       {
         if (item.Length < 2) continue;
 
-        var Right = new ExtendedRight();
+        var right = new ExtendedRight();
 
-        if (item[0] == 'B')
+        switch (item[0])
         {
-          Right.IsHeader = true;
-          var Descriptions = item.Substring(1).Split('`');
-          if (Descriptions.Length == 2)
+          case 'B':
           {
-            Right.Description["ru"] = Descriptions[1];
-            Right.Description["en"] = Descriptions[0];
-            ret.Rights.Add(Right);
-          }
-        }
-        else if (item[0] == 'R')
-        {
-          Right.IsHeader = false;
-          var BitAndDesc = item.Substring(1).Split('-');
-          if (BitAndDesc.Length == 2)
-          {
-            if (byte.TryParse(BitAndDesc[0], out byte bn))
+            right.IsHeader = true;
+            var descriptions = item.Substring(1).Split('`');
+          
+            if (descriptions.Length != 2)
             {
-              Right.ByteIndex = bn;
-              var Descriptions = BitAndDesc[1].Split('`');
-              if (Descriptions.Length == 2)
-              {
-                Right.Description["ru"] = Descriptions[1];
-                Right.Description["en"] = Descriptions[0];
-                ret.Rights.Add(Right);
-              }
+              continue;
             }
+          
+            right.Description["ru"] = descriptions[1];
+            right.Description["en"] = descriptions[0];
+          
+            ret.Rights.Add(right);
+            break;
+          }
+          case 'R':
+          {
+            right.IsHeader = false;
+            var bitAndDesc = item.Substring(1).Split('-');
+            
+            if (bitAndDesc.Length != 2 || !byte.TryParse(bitAndDesc[0], out var bn))
+            {
+              continue;
+            }
+
+            right.ByteIndex = bn;
+            var descriptions = bitAndDesc[1].Split('`');
+            if (descriptions.Length != 2)
+            {
+              continue;
+            }
+            
+            right.Description["ru"] = descriptions[1];
+            right.Description["en"] = descriptions[0];
+            
+            ret.Rights.Add(right);
+            
+            break;
           }
         }
       }
