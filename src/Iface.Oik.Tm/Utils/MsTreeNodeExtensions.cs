@@ -7,7 +7,7 @@ namespace Iface.Oik.Tm.Utils
 {
     public static class MsTreeNodeExtensions
     {
-        public static IEnumerable<MSTreeNode> FindNodesByProps<T>(this MSTreeNode root) where T: MSTreeNodeProperties
+        public static IEnumerable<MSTreeNode> FindNodesByProps<T>(this MSTreeNode root) where T: BaseNodeProperties
         {
             var result = new List<MSTreeNode>();
 

@@ -508,7 +508,7 @@ namespace Iface.Oik.Tm.Api
         }
       }
 
-      await SaveConfigurationTree(res_handle, TmNativeDefs.HotStanbyConfFile).ConfigureAwait(false);
+      await SaveConfigurationTree(res_handle, HotStanbyConfFile).ConfigureAwait(false);
       FreeConfigurationTreeHandle(res_handle);
 
       // Другие конфигурации (rb, tmcalc)
@@ -622,7 +622,7 @@ namespace Iface.Oik.Tm.Api
 
     public async Task SaveMasterServiceConfiguration(IntPtr treeHandle)
     {
-      await SaveConfigurationTree(treeHandle, TmNativeDefs.MasterConfFile).ConfigureAwait(false);
+      await SaveConfigurationTree(treeHandle, MasterConfFile).ConfigureAwait(false);
     }
 
     public void FreeMasterServiceConfigurationHandle(IntPtr handle)
@@ -798,7 +798,7 @@ namespace Iface.Oik.Tm.Api
           return false;
       }
 
-      if (node.Properties.NoStart)
+      if (node.Properties is MSTreeNodeProperties props && props.NoStart)
       {
         if (!SetNodeProperty(nodeHandle, MSTreeConsts.NoStart, "1")) return false;
       }
@@ -807,16 +807,33 @@ namespace Iface.Oik.Tm.Api
       {
         case MasterNodeProperties _:
           if (!CreateMasterNodeProperties(nodeHandle, node))
+          {
             return false;
+          }
+          
           break;
         case NewTmsNodeProperties _:
           if (!CreateNewTmsNodeProperties(nodeHandle, node))
+          {
             return false;
+          }
+          
           break;
         case ExternalTaskNodeProperties _:
           if (!CreateExternalTaskNodeProperties(nodeHandle, node))
+          {
             return false;
+          }
           break;
+        case AutoBackupProperties autoBackupProperties:
+        {
+          if (!CreateAutoBackupNodeProperties(nodeHandle, autoBackupProperties))
+          {
+            return false;
+          } 
+          
+          break;
+        }
         default:
           if (!CreateChildNodeProperties(nodeHandle, node))
             return false;
@@ -855,14 +872,11 @@ namespace Iface.Oik.Tm.Api
       var props = (NewTmsNodeProperties)node.Properties;
 
       if (!CreateChildNodeProperties(nodeHandle, node))
-        return false;
-      if (!props.PassiveMode)
       {
-        if (!SetNodeProperty(nodeHandle, MSTreeConsts.PassiveMode, Convert.ToInt32(props.PassiveMode).ToString()))
-          return false;
+        return false;
       }
-
-      return true;
+      
+      return props.PassiveMode || SetNodeProperty(nodeHandle, MSTreeConsts.PassiveMode, Convert.ToInt32(props.PassiveMode).ToString());
     }
 
     private bool CreateExternalTaskNodeProperties(IntPtr nodeHandle, MSTreeNode node)
@@ -870,17 +884,46 @@ namespace Iface.Oik.Tm.Api
       var props = (ExternalTaskNodeProperties)node.Properties;
 
       if (!CreateChildNodeProperties(nodeHandle, node))
+      {
         return false;
+      }
 
       // Зачем то в пути внешней задачи пробелы замеяются на табуляции
       if (!SetNodeProperty(nodeHandle, MSTreeConsts.TaskPath, props.TaskPath.Replace(' ', '\t')))
+      {
         return false;
+      }
 
       if (!SetNodeProperty(nodeHandle, MSTreeConsts.TaskArguments, props.TaskArguments))
+      {
         return false;
+      }
 
       if (!SetNodeProperty(nodeHandle, MSTreeConsts.ConfFilePath, props.ConfigurationFilePath))
+      {
         return false;
+      }
+
+      return true;
+    }
+
+    private bool CreateAutoBackupNodeProperties(IntPtr nodeHandle, 
+                                                AutoBackupProperties properties)
+    {
+      if (!SetNodeProperty(nodeHandle, MSTreeConsts.ExecutionHour, $"{properties.ExecutionHour}"))
+      {
+        return false;
+      }
+      
+      if (!SetNodeProperty(nodeHandle, MSTreeConsts.BackupDirectory, properties.BackupsDirectory))
+      {
+        return false;
+      }
+      
+      if (!SetNodeProperty(nodeHandle, MSTreeConsts.ExcludeArchives, properties.ExcludeArchives ? "1" : "0"))
+      {
+        return false;
+      }
 
       return true;
     }
