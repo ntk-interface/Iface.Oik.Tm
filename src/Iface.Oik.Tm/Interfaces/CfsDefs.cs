@@ -264,4 +264,11 @@ namespace Iface.Oik.Tm.Interfaces
 		Sbr = 0x524253,
 		Smt = 0x544d53
 	}
+
+	public enum PasswordDigestState
+	{
+		NotSupported,
+		DoesNotExists,
+		Exists,
+	}
 }
