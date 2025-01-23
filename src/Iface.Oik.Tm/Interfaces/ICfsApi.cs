@@ -128,6 +128,9 @@ namespace Iface.Oik.Tm.Interfaces
     Task<int> GetRedirectorPort(string pipeName, int portIndex);
 
 
+    Task<PasswordDigestState> GetBackupPasswordDigestState();
+
+
     Task<byte[]> GetBin(string uName,
                         string oName,
                         string binName);

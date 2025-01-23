@@ -2049,6 +2049,20 @@ namespace Iface.Oik.Tm.Api
       return port;
     }
 
+    public async Task<PasswordDigestState> GetBackupPasswordDigestState()
+    {
+      var binData = await GetBin(".cfs.", ".", "exp_bk")
+                          .ConfigureAwait(false);
+
+      if (!binData.Any())
+      {
+        return PasswordDigestState.NotSupported;
+      }
+      
+      var stateString = EncodingUtil.Win1251BytesToUtf8(binData);
+      
+      return stateString == "yes" ? PasswordDigestState.Exists : PasswordDigestState.DoesNotExists;
+    }
 
     public async Task<byte[]> GetBin(string uName,
                                      string oName,
@@ -2056,14 +2070,7 @@ namespace Iface.Oik.Tm.Api
     {
       (var binData, uint errCode, _) = await SecGetBin(uName, oName, binName).ConfigureAwait(false);
 
-      if (errCode == 0)
-      {
-        return binData;
-      }
-      else
-      {
-        return Array.Empty<byte>();
-      }
+      return errCode == 0 ? binData : Array.Empty<byte>();
     }
 
     public async Task<(byte[], uint, string)> SecGetBin(string uName,
