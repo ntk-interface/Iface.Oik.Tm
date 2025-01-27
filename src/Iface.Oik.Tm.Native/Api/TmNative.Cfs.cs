@@ -790,14 +790,24 @@ namespace Iface.Oik.Tm.Native.Api
                                     ref byte[] errBuf,
                                     uint       maxErrs)
     {
-      return cfsIsReserveWorking(connId, 
-                                 ipAddress, 
-                                 ipBcPort, 
-                                 ipPort, sType, 
-                                 out working, 
-                                 sName, 
-                                 out errCode, 
+      return cfsIsReserveWorking(connId,
+                                 ipAddress,
+                                 ipBcPort,
+                                 ipPort, sType,
+                                 out working,
+                                 sName,
+                                 out errCode,
                                  errBuf, maxErrs);
+    }
+
+
+    public bool CfsIfpcSetAbkParms(IntPtr     connId,
+                                   byte[]     pwd,
+                                   out UInt32 errCode,
+                                   ref byte[] errBuf,
+                                   UInt32     maxErrs)
+    {
+      return cfsIfpcSetAbkParms(connId, pwd, out errCode, errBuf, maxErrs);
     }
   }
 }

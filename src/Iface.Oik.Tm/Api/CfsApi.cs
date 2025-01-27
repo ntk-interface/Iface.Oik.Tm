@@ -3537,5 +3537,21 @@ namespace Iface.Oik.Tm.Api
     {
       return await SwapFnSrvRole(encodedCredentials, pipeName, false).ConfigureAwait(false);
     }
+
+
+    public async Task<(bool, int, string)> AddPasswordToAutoBackupDigest(string password)
+    {
+      const int responseMsgBufLength = 1000;
+      var       responseMsgBuf       = new byte[responseMsgBufLength];
+      uint      responseCode      = 0;
+
+      var result = await Task.Run(() => _native.CfsIfpcSetAbkParms(CfId,
+                                                                   EncodingUtil.Utf8ToWin1251Bytes(password),
+                                                                   out responseCode,
+                                                                   ref responseMsgBuf,
+                                                                   responseMsgBufLength)).ConfigureAwait(false);
+
+      return (result, (int) responseCode, EncodingUtil.Win1251BytesToUtf8(responseMsgBuf));
+    }
   }
 }

@@ -239,5 +239,7 @@ namespace Iface.Oik.Tm.Interfaces
     Task<(bool, string)> ReserveRoleSwapIsAvailable(string encodedCredentials, string pipeName);
 
     Task<(bool, string)> SwapReserveRole(string encodedCredentials, string pipeName);
+
+    Task<(bool, int, string)> AddPasswordToAutoBackupDigest(string password);
   }
 }

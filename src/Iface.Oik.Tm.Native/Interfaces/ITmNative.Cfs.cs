@@ -524,5 +524,12 @@ namespace Iface.Oik.Tm.Native.Interfaces
                              out uint   errCode,
                              ref byte[] errBuf,
                              uint       maxErrs);
+
+    
+    bool CfsIfpcSetAbkParms(IntPtr     connId,
+                            byte[]     pwd,
+                            out UInt32 errCode,
+                            ref byte[] errBuf,
+                            UInt32     maxErrs);
   }
 }
