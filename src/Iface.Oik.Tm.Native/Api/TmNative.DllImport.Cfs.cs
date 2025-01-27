@@ -627,5 +627,13 @@ namespace Iface.Oik.Tm.Native.Api
                                                      out       UInt32  errCode,
                                                      [In, Out] byte[]  errBuf,
                                                      UInt32            maxErrs);
+    
+    
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public static extern Boolean cfsIfpcSetAbkParms(IntPtr           connId, 
+                                                    byte[]           pwd,
+                                                    out       UInt32 errCode,
+                                                    [In, Out] byte[] errBuf,
+                                                    UInt32           maxErrs);
   }
 }
