@@ -1668,8 +1668,10 @@ namespace Iface.Oik.Tm.Api
     private static string GetWhereEventTmAddr(TmEventFilter filter)
     {
       if (filter.TmAddrList.IsNullOrEmpty()) return "";
-
-      return " AND fulltma = ANY(@FullTmaArray)";
+      
+      var tmAddrListList = filter.TmAddrList.Select(tmAddr => $"(fulltma = {tmAddr.ToSqlFullTma()})");
+      
+      return $" AND ({string.Join(" OR ", tmAddrListList)})";
     }
 
 
@@ -1704,7 +1706,7 @@ namespace Iface.Oik.Tm.Api
       {
         return "";
       }
-      return $" AND importance IN({string.Join(",", importances)})";
+      return $" AND ({string.Join(" OR ", importances.Select(imp => $"(importance = {imp})"))})";
     }
 
 
