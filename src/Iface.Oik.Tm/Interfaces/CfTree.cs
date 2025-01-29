@@ -25,14 +25,14 @@ namespace Iface.Oik.Tm.Interfaces
 
   public class MSTreeNode
   {
-    public string               ProgName   { get; }
-    public MSTreeNode           Parent     { get; }
-    public List<MSTreeNode>     Children   { get; set; } = new List<MSTreeNode>();
+    public string             ProgName   { get; }
+    public MSTreeNode         Parent     { get; }
+    public List<MSTreeNode>   Children   { get; set; } = new List<MSTreeNode>();
     public BaseNodeProperties Properties { get; protected set; }
 
-    public MSTreeNode(string               progName,
+    public MSTreeNode(string             progName,
                       BaseNodeProperties properties,
-                      MSTreeNode           parent = null)
+                      MSTreeNode         parent = null)
     {
       ProgName   = progName;
       Parent     = parent;
@@ -53,7 +53,7 @@ namespace Iface.Oik.Tm.Interfaces
         Properties = new MasterNodeProperties
         {
           LogFileSize = int.Parse(cftNode.CfProperties.ValueOrDefault(MSTreeConsts.LogFileSize, "0x80000")),
-          WorkDir     = cftNode.CfProperties.ValueOrDefault(MSTreeConsts.WorkDir, String.Empty)
+          InstallationName     = cftNode.CfProperties.ValueOrDefault(MSTreeConsts.InstallationName, String.Empty)
         };
       }
       else
@@ -154,7 +154,7 @@ namespace Iface.Oik.Tm.Interfaces
   public class MasterNodeProperties : MSTreeNodeProperties
   {
     public int    LogFileSize { get; set; }
-    public string WorkDir     { get; set; }
+    public string InstallationName     { get; set; }
   }
 
   public class ChildNodeProperties : MSTreeNodeProperties
@@ -219,36 +219,36 @@ namespace Iface.Oik.Tm.Interfaces
 
   public static class MSTreeConsts
   {
-    public const string LogFileSize     = "LogFileSize";
-    public const string NoStart         = "Отмена запуска";
-    public const string WorkDir         = "Рабочий каталог";
-    public const string ProgName        = "ProgName";
-    public const string PipeName        = "PipeName";
-    public const string PassiveMode     = "Пассивный режим";
-    public const string TaskPath        = "Args";
-    public const string TaskArguments   = "Аргументы";
-    public const string ConfFilePath    = "Конф. файл";
-    public const string Portcore        = "portcore";
-    public const string master          = "_master_.exe";
-    public const string TmServer        = "pcsrv";
-    public const string RBaseServer     = "rbsrv";
-    public const string pcsrv_old       = "tmserv.dll";
-    public const string rbsrv_old       = "rbase.dll";
-    public const string delta           = "delta_pc";
-    public const string delta_old       = "delta_nt.exe";
-    public const string TmCalc          = "tmcalc_pc";
-    public const string tmcalc_old      = "tmcalc.exe";
-    public const string ExternalTask    = "_ext_pc";
-    public const string ext_task_old    = "_extern";
-    public const string toposrv         = "ElectricTopology";
-    public const string gensrv          = "_srv_.exe";
-    public const string RBS_Parameters  = "Parameters";
-    public const string RBS_ClientParms = "ClientParms";
-    public const string RBS_PGParms     = "PGParms";
-    public const string Tmcalc_FUnr     = "##FUnr";
-    public const string Tmcalc_SRel     = "##SRel";
-    public const string Tmcalc_Disabled = "Disabled";
-    public const string Tmcalc_Value    = "Value";
+    public const string LogFileSize      = "LogFileSize";
+    public const string NoStart          = "Отмена запуска";
+    public const string InstallationName = "Место установки системы";
+    public const string ProgName         = "ProgName";
+    public const string PipeName         = "PipeName";
+    public const string PassiveMode      = "Пассивный режим";
+    public const string TaskPath         = "Args";
+    public const string TaskArguments    = "Аргументы";
+    public const string ConfFilePath     = "Конф. файл";
+    public const string Portcore         = "portcore";
+    public const string master           = "_master_.exe";
+    public const string TmServer         = "pcsrv";
+    public const string RBaseServer      = "rbsrv";
+    public const string pcsrv_old        = "tmserv.dll";
+    public const string rbsrv_old        = "rbase.dll";
+    public const string delta            = "delta_pc";
+    public const string delta_old        = "delta_nt.exe";
+    public const string TmCalc           = "tmcalc_pc";
+    public const string tmcalc_old       = "tmcalc.exe";
+    public const string ExternalTask     = "_ext_pc";
+    public const string ext_task_old     = "_extern";
+    public const string toposrv          = "ElectricTopology";
+    public const string gensrv           = "_srv_.exe";
+    public const string RBS_Parameters   = "Parameters";
+    public const string RBS_ClientParms  = "ClientParms";
+    public const string RBS_PGParms      = "PGParms";
+    public const string Tmcalc_FUnr      = "##FUnr";
+    public const string Tmcalc_SRel      = "##SRel";
+    public const string Tmcalc_Disabled  = "Disabled";
+    public const string Tmcalc_Value     = "Value";
 
     public const string AutoBackup      = "abku_pc";
     public const string BackupDirectory = "Каталог назначения";
