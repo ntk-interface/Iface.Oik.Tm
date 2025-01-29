@@ -848,23 +848,18 @@ namespace Iface.Oik.Tm.Api
       var props = (MasterNodeProperties)node.Properties;
 
       if (!SetNodeProperty(nodeHandle, MSTreeConsts.LogFileSize, props.LogFileSize.ToString()))
+      {
         return false;
+      }
 
-      if (node.ProgName.Equals(MSTreeConsts.Portcore))
-        if (!SetNodeProperty(nodeHandle, MSTreeConsts.WorkDir, props.WorkDir))
-          return false;
-
-      return true;
+      return !node.ProgName.Equals(MSTreeConsts.Portcore) || SetNodeProperty(nodeHandle, MSTreeConsts.InstallationName, props.InstallationName);
     }
 
     private bool CreateChildNodeProperties(IntPtr nodeHandle, MSTreeNode node)
     {
       var props = (ChildNodeProperties)node.Properties;
 
-      if (!SetNodeProperty(nodeHandle, MSTreeConsts.PipeName, props.PipeName))
-        return false;
-
-      return true;
+      return SetNodeProperty(nodeHandle, MSTreeConsts.PipeName, props.PipeName);
     }
 
     private bool CreateNewTmsNodeProperties(IntPtr nodeHandle, MSTreeNode node)
