@@ -1964,6 +1964,17 @@ namespace Iface.Oik.Tm.Api
     {
       if (tmEvents.IsNullOrEmpty()) return false;
 
+      var whereQueryStringArray          = new List<string>(tmEvents.Count);
+      var whereQueryParametersDictionary = new Dictionary<string, object>(tmEvents.Count);
+      var tmEventsDictionary             = new Dictionary<TmEventElix, TmEvent>(tmEvents.Count);
+
+      for (var i = 0; i < tmEvents.Count; i++)
+      {
+        whereQueryStringArray.Add($"(elix = @Elix{i})");
+        whereQueryParametersDictionary.Add($"@Elix{i}", tmEvents[i].Elix.ToByteArray());
+        tmEventsDictionary.Add(tmEvents[i].Elix, tmEvents[i]);
+      }
+
       try
       {
         bool changesFound = false;
@@ -1971,25 +1982,26 @@ namespace Iface.Oik.Tm.Api
         using (var sql = _createOikSqlConnection())
         {
           await sql.OpenAsync().ConfigureAwait(false);
-          var commandText = @"SELECT ack_time, ack_user
-            FROM oik_event_log_elix
-              RIGHT JOIN UNNEST(@ElixArray) WITH ORDINALITY t (e,i)
-              ON elix = t.e
-            ORDER BY t.i";
-          var parameters = new {ElixArray = tmEvents.Select(e => e.Elix.ToByteArray()).ToArray()};
+          var commandText = $@"SELECT elix, ack_time, ack_user
+                               FROM oik_event_log_elix
+                               WHERE {string.Join(" OR ", whereQueryStringArray)}";
+          var parameters = new DynamicParameters(whereQueryParametersDictionary);
           var dtos = await sql.DbConnection
                               .QueryAsync<TmEventDto>(commandText, parameters)
                               .ConfigureAwait(false);
 
-          dtos.ForEach((dto, idx) =>
+          foreach (var dto in dtos)
           {
             if (DateUtil.NullIfEpoch(dto.AckTime) != null)
             {
-              tmEvents[idx].AckTime = dto.AckTime;
-              tmEvents[idx].AckUser = dto.AckUser;
-              changesFound          = true;
+              if (tmEventsDictionary.TryGetValue(TmEventElix.CreateFromByteArray(dto.Elix), out var initialEvent))
+              {
+                initialEvent.AckTime = dto.AckTime;
+                initialEvent.AckUser = dto.AckUser;
+                changesFound         = true;
+              }
             }
-          });
+          }
         }
         return changesFound;
       }
