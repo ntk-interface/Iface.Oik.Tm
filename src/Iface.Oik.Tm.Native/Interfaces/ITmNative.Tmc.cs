@@ -547,6 +547,11 @@ namespace Iface.Oik.Tm.Native.Interfaces
                                         UInt32     bufSize);
 
 
+    Boolean TmcEventLogAdditionalDataByElixList(Int32                   cid,
+                                                TmNativeDefs.TTMSElix[] elixList,
+                                                UInt32                  count);
+
+
     IntPtr TmcComtradeEnumDays(Int32 cid);
 
 

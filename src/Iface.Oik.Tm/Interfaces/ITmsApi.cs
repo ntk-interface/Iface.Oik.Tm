@@ -326,6 +326,8 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<TmTag>> GetTagsByGroup(TmType tmType,
                                                     string groupName);
 
+    Task<bool> UpdateAckedEventsIfAny(IReadOnlyList<TmEvent> tmEvents);
+
 
     Task<bool> BlockTagEventsTemporarily(TmTag tmTag,
                                          int   minutesToBlock);

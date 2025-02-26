@@ -873,10 +873,10 @@ namespace Iface.Oik.Tm.Api
     public async Task<bool> UpdateAckedEventsIfAny(IReadOnlyList<TmEvent> tmEvents,
                                                    PreferApi              prefer = PreferApi.Auto)
     {
-      var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
       {
-        throw new NotImplementedException();
+        return await _tms.UpdateAckedEventsIfAny(tmEvents).ConfigureAwait(false);
       }
       else if (api == ApiSelection.Sql)
       {

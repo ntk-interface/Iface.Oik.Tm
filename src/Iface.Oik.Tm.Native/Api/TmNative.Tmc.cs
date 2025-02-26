@@ -812,6 +812,14 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public Boolean TmcEventLogAdditionalDataByElixList(Int32                   cid,
+                                                       TmNativeDefs.TTMSElix[] elixList,
+                                                       UInt32                  count)
+    {
+      return tmcEventLogAdditionalDataByElixList(cid, elixList, count);
+    }
+
+
     public IntPtr TmcComtradeEnumDays(Int32 cid)
     {
       return tmcComtradeEnumDays(cid);
