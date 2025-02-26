@@ -671,6 +671,12 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Boolean tmcEventLogAdditionalDataByElixList(Int32                        cid,
+                                                                     [In] TmNativeDefs.TTMSElix[] elixList,
+                                                                     UInt32                       count);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern IntPtr tmcComtradeEnumDays(Int32 cid);
 
 

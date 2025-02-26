@@ -3748,8 +3748,46 @@ namespace Iface.Oik.Tm.Api
       
       return tmEvent;
     }
-    
-    
+
+
+    public async Task<bool> UpdateAckedEventsIfAny(IReadOnlyList<TmEvent> tmEvents)
+    {
+      if (tmEvents.IsNullOrEmpty()) return false;
+
+      var elixList = new TmNativeDefs.TTMSElix[tmEvents.Count];
+      for (var i = 0; i < tmEvents.Count; i++)
+      {
+        elixList[i] = new TmNativeDefs.TTMSElix
+        {
+          R = tmEvents[i].Elix.R,
+          M = tmEvents[i].Elix.M
+        };
+      }
+
+      await Task.Run(() => _native.TmcEventLogAdditionalDataByElixList(_cid, elixList, (uint) elixList.Length))
+                .ConfigureAwait(false);
+
+      const int bufSize      = 1000;
+      var       extraDataBytes = new byte[bufSize];
+
+      var changesFound = false;
+      for (var i = 0; i < tmEvents.Count; i++)
+      {
+        _native.TmcEventGetAdditionalRecData((uint)i, ref extraDataBytes, bufSize);
+        var extraData = TmNativeUtil.GetEventAddData(extraDataBytes);
+        
+        if (extraData.AckSec != 0)
+        {
+          tmEvents[i].AckTime = DateUtil.GetDateTimeFromTimestamp(extraData.AckSec, extraData.AckMs);
+          tmEvents[i].AckUser = extraData.UserName;
+          changesFound        = true;
+        }
+      }
+
+      return changesFound;
+    }
+
+
 
     private string GetObjectName(TmAddr tmAddr)
     {
