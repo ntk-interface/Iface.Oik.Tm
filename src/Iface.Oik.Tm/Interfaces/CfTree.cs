@@ -210,7 +210,7 @@ namespace Iface.Oik.Tm.Interfaces
     public bool   StopInactive { get; set; }
   }
 
-  public class AutoBackupProperties : BaseNodeProperties
+  public class AutoBackupProperties : MSTreeNodeProperties
   {
     public int    ExecutionHour    { get; set; }
     public string BackupsDirectory { get; set; } = string.Empty;
