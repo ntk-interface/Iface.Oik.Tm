@@ -2035,6 +2035,24 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task InputTelecontrolPassword(string    password,
+                                               PreferApi prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        await _tms.InputTelecontrolPassword(password).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+      }
+    }
+
+
     public async Task<bool> SwitchStatusManually(TmStatus  status,
                                                  bool      alsoBlockManually = false,
                                                  PreferApi prefer            = PreferApi.Auto)

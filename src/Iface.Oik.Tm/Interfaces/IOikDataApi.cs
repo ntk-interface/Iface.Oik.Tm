@@ -369,6 +369,10 @@ namespace Iface.Oik.Tm.Interfaces
                                                   PreferApi prefer = PreferApi.Auto);
 
 
+    Task InputTelecontrolPassword(string password,
+                                  PreferApi prefer = PreferApi.Auto);
+
+
     Task<bool> SwitchStatusManually(TmStatus  status,
                                     bool      alsoBlockManually = false,
                                     PreferApi prefer            = PreferApi.Auto);

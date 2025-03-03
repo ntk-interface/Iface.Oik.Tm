@@ -273,6 +273,10 @@ namespace Iface.Oik.Tm.Native.Interfaces
                                 Int16  point,
                                 Byte   regType,
                                 IntPtr regData);
+    
+    
+    Boolean TmcSetTcPwd(Int32  cid,
+                        byte[] pwd);
 
 
     Int16 TmcSetStatusNormal(Int32  cid,
