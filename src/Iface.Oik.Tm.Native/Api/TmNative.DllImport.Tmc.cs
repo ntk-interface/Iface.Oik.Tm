@@ -381,6 +381,11 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Boolean tmcSetTcPwd(Int32  cid,
+                                             byte[] pwd);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcSetStatusNormal(Int32  cid,
                                                   Int16  ch,
                                                   Int16  rtu,

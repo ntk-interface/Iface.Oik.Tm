@@ -424,6 +424,13 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public Boolean TmcSetTcPwd(Int32  cid,
+                            byte[] pwd)
+    {
+      return tmcSetTcPwd(cid, pwd);
+    }
+
+
     public Int16 TmcSetStatusNormal(Int32  cid,
                                     Int16  ch,
                                     Int16  rtu,

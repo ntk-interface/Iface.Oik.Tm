@@ -19,6 +19,7 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Автоматика")]                   Automation                 = 103,
     [Description("Лампа")]                        Lamp                       = 106,
     [Description("Блинкер")]                      Blinker                    = 115,
+    [Description("Ручка")]                        Handle                     = 118, // орган управления
     [Description("Кнопка")]                       Button                     = 119,
     [Description("Разъединитель")]                Disconnector               = 162, // Модус 5.2
     [Description("Короткозамыкатель без земли")]  ShortCircuitorWithoutEarth = 163, // Модус 5.2

@@ -322,6 +322,7 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Оконечное устройство занято другой операцией")]                   Busy                   = -16,
     [Description("Отказано: нет захвата ТУ")]                                       NoControlCapture       = -17,
     [Description("Переключение не произошло в заданное время")]                     SwitchTimeout          = -18,
+    [Description("Для выполнения ТУ нужно ввести верный пароль")]                   NeedPassword           = -19,
 
     [Description("МЭК850: причина неизвестна")]                                Iec850Error850 = -850,
     [Description("МЭК850: не поддерживается")]                                 Iec850Error851 = -851,
