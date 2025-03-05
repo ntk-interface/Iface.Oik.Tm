@@ -171,5 +171,11 @@ namespace Iface.Oik.Tm.Services
       }
       return await _api.TeleregulateByValue(analog, value).ConfigureAwait(false);
     }
+
+
+    public async Task InputTelecontrolPassword(string password)
+    {
+      await _api.InputTelecontrolPassword(password).ConfigureAwait(false);
+    }
   }
 }

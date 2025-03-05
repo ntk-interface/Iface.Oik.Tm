@@ -33,5 +33,7 @@ namespace Iface.Oik.Tm.Interfaces
     Task<TmTelecontrolResult> TeleregulateByCode(TmAnalog analog, int code, bool overrideScript = false);
 
     Task<TmTelecontrolResult> TeleregulateByValue(TmAnalog analog, float value, bool overrideScript = false);
+
+    Task InputTelecontrolPassword(string password);
   }
 }
