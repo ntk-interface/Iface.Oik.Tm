@@ -1668,8 +1668,7 @@ namespace Iface.Oik.Tm.Api
 
     public async Task InputTelecontrolPassword(string password)
     {
-      await Task.Run(() => _native.TmcSetTcPwd(_cid, 
-                                               EncodingUtil.Utf8ToWin1251Bytes(password)));
+      await Task.Run(() => _native.TmcSetTcPwd(_cid, EncodingUtil.Utf8ToWin1251Bytes(password))).ConfigureAwait(false);
     }
 
 
