@@ -365,6 +365,16 @@ namespace Iface.Oik.Tm.Native.Api
     {
       return tmcSetTimedValues(cid, count, values);
     }
+
+
+    public Boolean TmcPerspPutAnalogs(Int32                 cid,
+                                      UInt32                time,
+                                      UInt32                count,
+                                      TmNativeDefs.TAdrTm[] addr,
+                                      Single[]              pVal)
+    {
+      return tmcPerspPutAnalogs(cid, time, count, addr, pVal);
+    }
     
 
     public Int32 TmcExecuteControlScript(Int32 cid,

@@ -223,6 +223,16 @@ namespace Iface.Oik.Tm.Interfaces
     Task SetTagsFlags(IEnumerable<TmTag> tmTags, TmFlags flags);
 
     Task ClearTagsFlags(IEnumerable<TmTag> tmTags, TmFlags flags);
+    
+    
+    Task<bool> BackdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs,
+                               IReadOnlyList<float>    values,
+                               DateTime                time);
+
+    
+    Task<bool> PostdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs,
+                               IReadOnlyList<float>    values,
+                               DateTime                time);
 
     Task<bool> SetAnalogManually(TmAnalog tmAnalog, float value, bool alsoBlockManually = false);
 

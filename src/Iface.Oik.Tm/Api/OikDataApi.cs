@@ -2146,6 +2146,48 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<bool> BackdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs,
+                                            IReadOnlyList<float>    values,
+                                            DateTime                time,
+                                            PreferApi               prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.BackdateAnalogs(tmAnalogs, values, time).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+        return false;
+      }
+    }
+
+
+    public async Task<bool> PostdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs,
+                                            IReadOnlyList<float>    values,
+                                            DateTime                time,
+                                            PreferApi               prefer = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.PostdateAnalogs(tmAnalogs, values, time).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+        return false;
+      }
+    }
+
+
     public async Task<bool> SetAnalogManually(TmAnalog  analog,
                                               float     value,
                                               bool      alsoBlockManually = false,

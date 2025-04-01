@@ -424,6 +424,18 @@ namespace Iface.Oik.Tm.Interfaces
                         PreferApi          prefer = PreferApi.Auto);
 
 
+    Task<bool> BackdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs,
+                               IReadOnlyList<float>    values,
+                               DateTime                time,
+                               PreferApi               prefer = PreferApi.Auto);
+
+
+    Task<bool> PostdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs,
+                               IReadOnlyList<float>    values,
+                               DateTime                time,
+                               PreferApi               prefer = PreferApi.Auto);
+
+
     Task<bool> SetAnalogManually(TmAnalog  analog,
                                  float     value,
                                  bool      alsoBlockManually = false,
