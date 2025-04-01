@@ -2371,6 +2371,74 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<bool> BackdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs,
+                                            IReadOnlyList<float>    values,
+                                            DateTime                time)
+    {
+      if (tmAnalogs.IsNullOrEmpty() || values.IsNullOrEmpty())
+      {
+        return false;
+      }
+      if (tmAnalogs.Count != values.Count)
+      {
+        return false;
+      }
+      
+      var utcTime       = DateUtil.GetUtcTimestampFromDateTime(time);
+      var serverUtcTime = _native.UxGmTime2UxTime(utcTime);
+      
+      var tvf           = new TmNativeDefs.TTimedValueAndFlags[tmAnalogs.Count];
+      for (var i = 0; i < tmAnalogs.Count; i++)
+      {
+        tvf[i] = new TmNativeDefs.TTimedValueAndFlags
+        {
+          Vf =
+          {
+            Adr = tmAnalogs[i].TmAddr.ToAdrTm(),
+            Type = (byte)TmNativeDefs.VfType.AnalogFloat +
+                   (byte)TmNativeDefs.VfType.AlwaysSetValue,
+            Bits  = 32,
+            Value = BitConverter.ToUInt32(BitConverter.GetBytes(values[i]), 0), // функция требует значение DWORD
+          },
+          Xt =
+          {
+            Sec = (uint)serverUtcTime,
+          }
+        };
+      }
+
+      var result = await Task.Run(() => _native.TmcSetTimedValues(_cid, (uint) tvf.Length, tvf))
+                             .ConfigureAwait(false);
+
+      return result > 0;
+    }
+
+
+    public async Task<bool> PostdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs,
+                                            IReadOnlyList<float>    values,
+                                            DateTime                time)
+    {
+      if (tmAnalogs.IsNullOrEmpty() || values.IsNullOrEmpty())
+      {
+        return false;
+      }
+      if (tmAnalogs.Count != values.Count)
+      {
+        return false;
+      }
+      
+      var utcTime       = DateUtil.GetUtcTimestampFromDateTime(time);
+      var serverUtcTime = _native.UxGmTime2UxTime(utcTime);
+
+      return await Task.Run(() => _native.TmcPerspPutAnalogs(_cid,
+                                                             (uint)serverUtcTime,
+                                                             (uint)tmAnalogs.Count,
+                                                             tmAnalogs.Select(a => a.TmAddr.ToAdrTm()).ToArray(),
+                                                             values.ToArray()))
+                       .ConfigureAwait(false);
+    }
+
+
     public async Task<bool> SetAnalogManually(TmAnalog tmAnalog, float value, bool alsoBlockManually = false)
     {
       if (tmAnalog == null) return false;

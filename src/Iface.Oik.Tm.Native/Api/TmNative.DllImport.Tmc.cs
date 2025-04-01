@@ -329,10 +329,19 @@ namespace Iface.Oik.Tm.Native.Api
                                                  UInt32                                  count,
                                                  [In] TmNativeDefs.TTimedValueAndFlags[] values);
 
+    
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcSetTimedValues(Int32                                        cid,
                                                  UInt32                                       count,
                                                  [In] TmNativeDefs.TTimedValueAndFlagsUnion[] values);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Boolean tmcPerspPutAnalogs(Int32                      cid,
+                                                    UInt32                     time,
+                                                    UInt32                     count,
+                                                    [In] TmNativeDefs.TAdrTm[] addr,
+                                                    [In] Single[]              pVal);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]

@@ -231,9 +231,17 @@ namespace Iface.Oik.Tm.Native.Interfaces
                             UInt32                             count,
                             TmNativeDefs.TTimedValueAndFlags[] values);
 
+    
     Int16 TmcSetTimedValuesUnion(Int32                                   cid,
                                  UInt32                                  count,
                                  TmNativeDefs.TTimedValueAndFlagsUnion[] values);
+
+
+    Boolean TmcPerspPutAnalogs(Int32                 cid,
+                               UInt32                time,
+                               UInt32                count,
+                               TmNativeDefs.TAdrTm[] addr,
+                               Single[]              pVal);
 
 
     Int32 TmcExecuteControlScript(Int32 cid,
