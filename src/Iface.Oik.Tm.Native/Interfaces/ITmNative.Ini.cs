@@ -5,7 +5,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 {
   public partial interface ITmNative
   {
-    IntPtr IniOpen(string filePath);
+    IntPtr IniOpen(Byte[] filePath);
 
 
     void IniFlush(IntPtr filePointer);
@@ -17,28 +17,30 @@ namespace Iface.Oik.Tm.Native.Interfaces
     void IniReload(IntPtr filePointer);
 
 
-    UInt32 IniReadString(IntPtr            filePointer,
-                         string            section,
-                         string            key,
-                         string            defaultResponse,
-                         byte[] buf,
-                         UInt32            bufSize);
+    UInt32 IniReadString(IntPtr filePointer,
+                         Byte[] section,
+                         Byte[] key,
+                         Byte[] defaultResponse,
+                         Byte[] buf,
+                         UInt32 bufSize);
 
 
     Int32 IniReadInteger(IntPtr filePointer,
-                         string section,
-                         string key,
+                         Byte[] section,
+                         Byte[] key,
                          Int32  defaultResponse);
 
 
     UInt32 IniReadSection(IntPtr filePointer,
-                          string section,
-                          byte[] buf,
+                          Byte[] section,
+                          Byte[] buf,
                           UInt32 bufSize);
+
+
     UInt32 IniReadStruct(IntPtr filePointer,
-                          string section,
-                          string key,
-                          byte[] buf,
-                          UInt32 bufSize);
+                         Byte[] section,
+                         Byte[] key,
+                         Byte[] buf,
+                         UInt32 bufSize);
   }
 }

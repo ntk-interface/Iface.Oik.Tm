@@ -336,20 +336,20 @@ namespace Iface.Oik.Tm.Native.Interfaces
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct TCommonPoint
     {
-      [MarshalAs(UnmanagedType.LPStr)] public string name;
-      public                                  Byte   cp_flags;
-      public                                  Byte   res1;
-      public                                  UInt16 Type;
-      public                                  UInt16 Ch;
-      public                                  UInt16 RTU;
-      public                                  UInt16 Point;
-      public                                  UInt32 TM_Flags;
-      public                                  UInt16 tm_s2;
-      public                                  UInt16 tm_flags2;
-      public                                  UInt32 tm_local_ut;
-      public                                  UInt32 tm_remote_ut;
-      public                                  UInt16 tm_local_ms;
-      public                                  UInt16 tm_remote_ms;
+      public Byte[] name;
+      public Byte   cp_flags;
+      public Byte   res1;
+      public UInt16 Type;
+      public UInt16 Ch;
+      public UInt16 RTU;
+      public UInt16 Point;
+      public UInt32 TM_Flags;
+      public UInt16 tm_s2;
+      public UInt16 tm_flags2;
+      public UInt32 tm_local_ut;
+      public UInt32 tm_remote_ut;
+      public UInt16 tm_local_ms;
+      public UInt16 tm_remote_ms;
 
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
       public byte[] Data;

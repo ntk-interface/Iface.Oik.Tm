@@ -442,7 +442,8 @@ namespace Iface.Oik.Tm.Api
 
         var tempConfFile = Path.GetTempFileName();
 
-        var result = await Task.Run(() => _native.TmcDntGetConfig(_cid, tempConfFile))
+        var result = await Task.Run(() => _native.TmcDntGetConfig(_cid, 
+                                                                  EncodingUtil.Utf8ToWin1251Bytes(tempConfFile)))
                                .ConfigureAwait(false);
         if (!result)
         {

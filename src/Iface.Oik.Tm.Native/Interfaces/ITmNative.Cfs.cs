@@ -6,8 +6,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
 {
   public partial interface ITmNative
   {
-    bool CfsInitLibrary(string baseDir = null,
-                        string extArg  = null);
+    bool CfsInitLibrary(byte[] baseDir = null,
+                        byte[] extArg  = null);
 
 
     void CfsSetUser(byte[] user,
@@ -25,8 +25,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
     IntPtr CfsMakeInprocCrd(byte[] machine, byte[] user, byte[] pwd);
 
     UInt32 CfsGetExtendedUserData(IntPtr cfCid,
-                                  string serverType,
-                                  string serverName,
+                                  byte[] serverType,
+                                  byte[] serverName,
                                   IntPtr buf,
                                   UInt32 bufSize);
 
@@ -389,10 +389,10 @@ namespace Iface.Oik.Tm.Native.Interfaces
                        ref byte[] errBuf,
                        UInt32     maxErrs);
 
-    IntPtr CfsGetAccessDescriptor(string ini, string section);
+    IntPtr CfsGetAccessDescriptor(byte[] ini, byte[] section);
 
 
-    IntPtr CfsGetExtendedUserRightsDescriptor(string ini, string section, uint fCheck);
+    IntPtr CfsGetExtendedUserRightsDescriptor(byte[] ini, byte[] section, uint fCheck);
 
 
     IntPtr СfsIfpcEnumUsers(IntPtr   connId,

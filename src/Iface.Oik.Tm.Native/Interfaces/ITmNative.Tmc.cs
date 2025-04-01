@@ -6,9 +6,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
 {
   public partial interface ITmNative
   {
-    Int32 TmcConnect(string           server,
-                     string           pipe,
-                     string           user,
+    Int32 TmcConnect(Byte[]           server,
+                     Byte[]           pipe,
+                     Byte[]           user,
                      TmNativeCallback callback,
                      IntPtr           callbackParameter);
 
@@ -26,9 +26,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
     bool TmcGetCurrentServer(int        cid,
-                             ref byte[] machineBuf,
+                             ref Byte[] machineBuf,
                              uint       cbMachine,
-                             ref byte[] pipeBuf,
+                             ref Byte[] pipeBuf,
                              uint       cbPipe);
 
 
@@ -43,7 +43,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
     IntPtr TmcGetKnownxCfgPath(Int32  cid,
-                               string appTag,
+                               Byte[] appTag,
                                UInt32 index);
 
 
@@ -86,7 +86,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
     short TmcSystemTime(int        cid,
-                        ref byte[] timeBuf,
+                        ref Byte[] timeBuf,
                         IntPtr     tmStruct);
 
 
@@ -98,7 +98,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
     bool TmcGetUserInfoEx(int                        cid,
                           uint                       userId,
                           ref TmNativeDefs.TUserInfo userInfo,
-                          ref byte[]                 appxBuf,
+                          ref Byte[]                 appxBuf,
                           uint                       cbAppx);
 
 
@@ -130,7 +130,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
                      Int16  ch,
                      Int16  rtu,
                      Int16  point,
-                     string dateTime,
+                     Byte[] dateTime,
                      Int16  retroNum);
 
 
@@ -139,7 +139,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
                         Int16                         rtu,
                         Int16                         point,
                         ref TmNativeDefs.TAnalogPoint analogPoint,
-                        string                        dateTime,
+                        Byte[]                        dateTime,
                         Int16                         retroNum);
 
 
@@ -162,13 +162,13 @@ namespace Iface.Oik.Tm.Native.Interfaces
                           UInt32     tmFlagsSet,
                           UInt32     tmFlagsClr,
                           Byte       qFlags,
-                          string     groupName,
+                          Byte[]     groupName,
                           UInt32     dwUt,
                           out UInt32 pCount);
 
 
     IntPtr TmcRetroGetNamedAnalogGrpFull(Int32      cid,
-                                         string     groupName,
+                                         Byte[]     groupName,
                                          UInt32     qryFlags,
                                          UInt32     dwUt,
                                          UInt32     dwStepBack,
@@ -186,8 +186,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
                               Byte   unixHund,
                               Byte   importance,
                               UInt32 sourceTag,
-                              string str,
-                              byte[] bin,
+                              Byte[] str,
+                              Byte[] bin,
                               UInt32 cbBin);
 
 
@@ -400,7 +400,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
                        Int16  rtu,
                        Int16  point,
                        Byte   value,
-                       string dateTime,
+                       Byte[] dateTime,
                        Int16  hund);
 
 
@@ -423,7 +423,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
                        Int16  rtu,
                        Int16  point,
                        Single value,
-                       string dateTime);
+                       Byte[] dateTime);
 
 
     Int16 TmcSetAnalogFlags(Int32 cid,
@@ -452,7 +452,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
                            short  rtu,
                            short  point,
                            float  value,
-                           string dateTime);
+                           Byte[] dateTime);
     
 
     Int16 TmcSetAccumFlags(Int32 cid,
@@ -501,7 +501,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
                            UInt32                        cbStats);
 
 
-    UInt32 String2Utime_(string dateTime);
+    UInt32 String2Utime_(Byte[] dateTime);
 
 
     Byte TmcEnumObjects(Int32        cid,
@@ -567,10 +567,10 @@ namespace Iface.Oik.Tm.Native.Interfaces
     IntPtr TmcComtradeEnumDays(Int32 cid);
 
 
-    IntPtr TmcComtradeEnumFiles(Int32 cid, string date);
+    IntPtr TmcComtradeEnumFiles(Int32 cid, Byte[] date);
 
 
-    Boolean TmcComtradeGetFile(Int32 cid, string fileName, string localDirectory);
+    Boolean TmcComtradeGetFile(Int32 cid, Byte[] fileName, Byte[] localDirectory);
 
 
     Boolean TmcSetTracer(Int32  cid,
@@ -581,9 +581,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
                          UInt16 msgFilter);
 
 
-    Int32 TmcConnectEx(string           server,
-                       string           pipe,
-                       string           user,
+    Int32 TmcConnectEx(Byte[]           server,
+                       Byte[]           pipe,
+                       Byte[]           user,
                        TmNativeCallback callback,
                        IntPtr           callbackParameter,
                        UInt32           propsCount,
@@ -606,7 +606,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
     Boolean TmcDntGetConfig(Int32  cid,
-                            string fileName);
+                            Byte[] fileName);
 
 
     Int32 TmcDntTreeChange(Int32 cid);
@@ -684,7 +684,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     IntPtr TmcTextSearch(Int32      cid,
                          UInt16     type,
-                         string     text,
+                         Byte[]     text,
                          out UInt32 pCount);
 
 
@@ -694,17 +694,17 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
 
     Boolean TmcPubSubscribe(Int32  cid,
-                            string topic,
+                            Byte[] topic,
                             UInt32 subscriptionId,
                             Byte   qos);
 
     Boolean TmcPubUnsubscribe(Int32  cid,
-                              string topic,
+                              Byte[] topic,
                               UInt32 subscriptionId);
 
 
     Boolean TmcPubPublish(Int32  cid,
-                          string topic,
+                          Byte[] topic,
                           UInt32 lifeTimeSec,
                           Byte   qos,
                           Byte[] data,
@@ -712,7 +712,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
 
     
     Boolean TmcPubPublishEx(Int32  cid,
-                            string topic,
+                            Byte[] topic,
                             UInt32 lifeTimeSec,
                             Byte   qos,
                             Byte[] data,
@@ -721,7 +721,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
     
 
     Boolean TmcPubAck(Int32  cid,
-                      string topic,
+                      Byte[] topic,
                       UInt32 subscriptionId,
                       Byte   qos,
                       UInt32 userId,

@@ -265,7 +265,7 @@ namespace Iface.Oik.Tm.Api
                                                                  (short)rtu,
                                                                  (short)point,
                                                                  ref analogPoint,
-                                                                 time.ToTmString(),
+                                                                 time.ToTmByteArray(),
                                                                  (short)retroNum))
                                 .ConfigureAwait(false);
       if (isSuccess == 0)
@@ -301,7 +301,7 @@ namespace Iface.Oik.Tm.Api
                                                                  (short)rtu,
                                                                  (short)point,
                                                                  ref accumPoint,
-                                                                 time.ToTmString()))
+                                                                 time.ToTmByteArray()))
                                 .ConfigureAwait(false);
       if (isSuccess == 0)
       {
@@ -412,8 +412,7 @@ namespace Iface.Oik.Tm.Api
                                                                 rtu,
                                                                 point,
                                                                 ref tmcAnalogPoint,
-                                                                time.ToString("dd.MM.yyyy HH:mm:ss",
-                                                                              CultureInfo.InvariantCulture),
+                                                                time.ToTmByteArray(),
                                                                 (short)retroNum))
                                .ConfigureAwait(false);
 
@@ -1910,7 +1909,7 @@ namespace Iface.Oik.Tm.Api
                                   (byte)unixTimeMs,
                                   importance,
                                   sourceLongTag,
-                                  message,
+                                  EncodingUtil.Utf8ToWin1251Bytes(message),
                                   binaryPayload,
                                   (uint)binaryPayload.Length);
       }).ConfigureAwait(false);
@@ -2780,7 +2779,8 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<IReadOnlyCollection<string>> GetComtradeFilesByDay(string day)
     {
-      var ptr = await Task.Run(() => _native.TmcComtradeEnumFiles(_cid, day)).ConfigureAwait(false);
+      var ptr = await Task.Run(() => _native.TmcComtradeEnumFiles(_cid, EncodingUtil.Utf8ToWin1251Bytes(day)))
+                          .ConfigureAwait(false);
 
       return TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(ptr, 8192);
     }
@@ -2788,7 +2788,10 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<bool> DownloadComtradeFile(string filename, string localPath)
     {
-      if (!await Task.Run(() => _native.TmcComtradeGetFile(_cid, filename, localPath)).ConfigureAwait(false))
+      if (!await Task.Run(() => _native.TmcComtradeGetFile(_cid, 
+                                                           EncodingUtil.Utf8ToWin1251Bytes(filename), 
+                                                             EncodingUtil.Utf8ToWin1251Bytes(localPath)))
+                     .ConfigureAwait(false))
       {
         Console.WriteLine($"Ошибка при скачивании файла: {GetLastTmcError()}");
         return false;
@@ -3415,7 +3418,7 @@ namespace Iface.Oik.Tm.Api
                                                                            0,
                                                                            0,
                                                                            0,
-                                                                           groupName,
+                                                                           EncodingUtil.Utf8ToWin1251Bytes(groupName),
                                                                            0,
                                                                            out count))
                                          .ConfigureAwait(false);
@@ -3556,7 +3559,7 @@ namespace Iface.Oik.Tm.Api
       uint count = 0;
       var tagTAdrTmListPointer = await Task.Run(() => _native.TmcTextSearch(_cid,
                                                                             (ushort)tmType.ToNativeType(),
-                                                                            pattern,
+                                                                            EncodingUtil.Utf8ToWin1251Bytes(pattern),
                                                                             out count))
                                            .ConfigureAwait(false);
 
@@ -4043,7 +4046,7 @@ namespace Iface.Oik.Tm.Api
       if (topic.VariableHeader.IsNullOrEmpty())
       {
         return _native.TmcPubPublish(_cid,
-                                     topic.Topic,
+                                     EncodingUtil.Utf8ToWin1251Bytes(topic.Topic),
                                      topic.LifetimeSec,
                                      (byte)topic.QoS,
                                      payload,
@@ -4054,7 +4057,7 @@ namespace Iface.Oik.Tm.Api
         var addListPtr = TmNativeUtil.GetDoubleNullTerminatedPointerFromStringList(topic.VariableHeader.Select(
           x => $"{x.Key}={x.Value}"));
         return _native.TmcPubPublishEx(_cid,
-                                       topic.Topic,
+                                       EncodingUtil.Utf8ToWin1251Bytes(topic.Topic),
                                        topic.LifetimeSec,
                                        (byte)topic.QoS,
                                        payload,
@@ -4067,7 +4070,7 @@ namespace Iface.Oik.Tm.Api
     private bool MqttSubscribeSync(MqttSubscriptionTopic topic)
     {
       return _native.TmcPubSubscribe(_cid,
-                                     topic.Topic,
+                                     EncodingUtil.Utf8ToWin1251Bytes(topic.Topic),
                                      (uint)topic.SubscriptionId,
                                      (byte)topic.QoS);
     }
@@ -4076,7 +4079,7 @@ namespace Iface.Oik.Tm.Api
     private bool MqttUnsubscribeSync(MqttSubscriptionTopic topic)
     {
       return _native.TmcPubUnsubscribe(_cid,
-                                       topic.Topic,
+                                       EncodingUtil.Utf8ToWin1251Bytes(topic.Topic),
                                        (uint)topic.SubscriptionId);
     }
 

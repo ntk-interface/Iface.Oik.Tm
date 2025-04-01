@@ -5,7 +5,7 @@ namespace Iface.Oik.Tm.Native.Api
 {
   public partial class TmNative
   {
-    public IntPtr IniOpen(string filePath)
+    public IntPtr IniOpen(byte[] filePath)
     {
       return ini_Open(filePath);
     }
@@ -27,34 +27,34 @@ namespace Iface.Oik.Tm.Native.Api
       ini_Reload(filePointer);
     }
 
-    public UInt32 IniReadString(IntPtr            filePointer,
-                                string            section,
-                                string            key,
-                                string            defaultResponse,
+    public UInt32 IniReadString(IntPtr filePointer,
+                                byte[] section,
+                                byte[] key,
+                                byte[] defaultResponse,
                                 byte[] buf,
-                                UInt32            bufSize)
+                                UInt32 bufSize)
     {
       return ini_ReadString(filePointer, section, key, defaultResponse, buf, bufSize);
     }
 
     public Int32 IniReadInteger(IntPtr filePointer,
-                                string section,
-                                string key,
+                                byte[] section,
+                                byte[] key,
                                 Int32  defaultResponse)
     {
       return ini_ReadInteger(filePointer, section, key, defaultResponse);
     }
     
     
-    public uint IniReadSection(IntPtr filePointer, string section, byte[] buf, uint bufSize)
+    public uint IniReadSection(IntPtr filePointer, byte[] section, byte[] buf, uint bufSize)
     {
       return ini_ReadSection(filePointer, section, buf, bufSize);
     }
 
 
     public UInt32 IniReadStruct(IntPtr filePointer,
-                                string section,
-                                string key,
+                                byte[] section,
+                                byte[] key,
                                 byte[] buf,
                                 UInt32 bufSize)
     {

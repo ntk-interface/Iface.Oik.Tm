@@ -7,9 +7,9 @@ namespace Iface.Oik.Tm.Native.Api
 {
   public partial class TmNative : ITmNative
   {
-    public Int32 TmcConnect(string           server,
-                            string           pipe,
-                            string           user,
+    public Int32 TmcConnect(byte[]           server,
+                            byte[]           pipe,
+                            byte[]           user,
                             TmNativeCallback callback,
                             IntPtr           callbackParameter)
     {
@@ -71,7 +71,7 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     public IntPtr TmcGetKnownxCfgPath(Int32  cid,
-                                      string appTag,
+                                      byte[] appTag,
                                       UInt32 index)
     {
       return tmcGetKnownxCfgPath(cid, appTag, index);
@@ -209,7 +209,7 @@ namespace Iface.Oik.Tm.Native.Api
                             Int16  ch,
                             Int16  rtu,
                             Int16  point,
-                            string dateTime,
+                            byte[] dateTime,
                             Int16  retroNum)
     {
       return tmcAnalog(cid, ch, rtu, point, dateTime, retroNum);
@@ -221,7 +221,7 @@ namespace Iface.Oik.Tm.Native.Api
                                Int16                         rtu,
                                Int16                         point,
                                ref TmNativeDefs.TAnalogPoint analogPoint,
-                               string                        dateTime,
+                               byte[]                        dateTime,
                                Int16                         retroNum)
     {
       return tmcAnalogFull(cid, ch, rtu, point, ref analogPoint, dateTime, retroNum);
@@ -253,7 +253,7 @@ namespace Iface.Oik.Tm.Native.Api
                                  UInt32     tmFlagsSet,
                                  UInt32     tmFlagsClr,
                                  Byte       qFlags,
-                                 string     groupName,
+                                 byte[]     groupName,
                                  UInt32     dwUt,
                                  out UInt32 pCount)
     {
@@ -262,7 +262,7 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     public IntPtr TmcRetroGetNamedAnalogGrpFull(Int32      cid,
-                                                string     groupName,
+                                                byte[]     groupName,
                                                 UInt32     qryFlags,
                                                 UInt32     dwUt,
                                                 UInt32     dwStepBack,
@@ -287,7 +287,7 @@ namespace Iface.Oik.Tm.Native.Api
                                      Byte   unixHund,
                                      Byte   importance,
                                      UInt32 sourceTag,
-                                     string str,
+                                     byte[] str,
                                      Byte[] bin,
                                      UInt32 cbBin)
     {
@@ -602,7 +602,7 @@ namespace Iface.Oik.Tm.Native.Api
                               Int16  rtu,
                               Int16  point,
                               Byte   value,
-                              string dateTime,
+                              Byte[] dateTime,
                               Int16  hund)
     {
       return tmcSetStatus(cid, ch, rtu, point, value, dateTime, hund);
@@ -634,7 +634,7 @@ namespace Iface.Oik.Tm.Native.Api
                               Int16  rtu,
                               Int16  point,
                               Single value,
-                              string dateTime)
+                              Byte[] dateTime)
     {
       return tmcSetAnalog(cid, ch, rtu, point, value, dateTime);
     }
@@ -673,7 +673,7 @@ namespace Iface.Oik.Tm.Native.Api
                                   short  rtu,
                                   short  point,
                                   float  value,
-                                  string dateTime)
+                                  Byte[] dateTime)
     {
       return tmcSetAccumValue(cid, ch, rtu, point, value, dateTime);
     }
@@ -742,7 +742,7 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public UInt32 String2Utime_(string dateTime)
+    public UInt32 String2Utime_(Byte[] dateTime)
     {
       return String2Utime(dateTime);
     }
@@ -843,13 +843,13 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public IntPtr TmcComtradeEnumFiles(Int32 cid, string date)
+    public IntPtr TmcComtradeEnumFiles(Int32 cid, Byte[] date)
     {
       return tmcComtradeEnumFiles(cid, date);
     }
 
 
-    public Boolean TmcComtradeGetFile(Int32 cid, string fileName, string localDirectory)
+    public Boolean TmcComtradeGetFile(Int32 cid, Byte[] fileName, Byte[] localDirectory)
     {
       return tmcComtradeGetFile(cid, fileName, localDirectory);
     }
@@ -866,9 +866,9 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public Int32 TmcConnectEx(string           server,
-                              string           pipe,
-                              string           user,
+    public Int32 TmcConnectEx(Byte[]           server,
+                              Byte[]           pipe,
+                              Byte[]           user,
                               TmNativeCallback callback,
                               IntPtr           callbackParameter,
                               UInt32           propsCount,
@@ -902,7 +902,7 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public bool TmcDntGetConfig(Int32 cid, string fileName)
+    public bool TmcDntGetConfig(Int32 cid, Byte[] fileName)
     {
       return tmcDntGetConfig(cid, fileName);
     }
@@ -1032,7 +1032,7 @@ namespace Iface.Oik.Tm.Native.Api
 
     public IntPtr TmcTextSearch(Int32      cid,
                                 UInt16     type,
-                                string     text,
+                                Byte[]     text,
                                 out UInt32 pCount)
     {
       return tmcTextSearch(cid, type, text, out pCount);
@@ -1048,7 +1048,7 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     public Boolean TmcPubPublish(Int32  cid,
-                                 string topic,
+                                 Byte[] topic,
                                  UInt32 lifeTimeSec,
                                  Byte   qos,
                                  Byte[] data,
@@ -1057,21 +1057,21 @@ namespace Iface.Oik.Tm.Native.Api
       return tmcPubPublish(cid, topic, lifeTimeSec, qos, data, cbData);
     }
 
-    
-    public Boolean TmcPubPublishEx(Int32 cid,
-                                 string  topic,
-                                 UInt32  lifeTimeSec,
-                                 Byte    qos,
-                                 Byte[]  data,
-                                 UInt32  cbData, 
-                                 IntPtr  addListPtr)
+
+    public Boolean TmcPubPublishEx(Int32  cid,
+                                   Byte[] topic,
+                                   UInt32 lifeTimeSec,
+                                   Byte   qos,
+                                   Byte[] data,
+                                   UInt32 cbData,
+                                   IntPtr addListPtr)
     {
       return tmcPubPublishEx(cid, topic, lifeTimeSec, qos, data, cbData, addListPtr);
     }
     
 
     public Boolean TmcPubSubscribe(Int32  cid,
-                                   string topic,
+                                   Byte[] topic,
                                    UInt32 subscriptionId,
                                    Byte   qos)
     {
@@ -1079,16 +1079,16 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
     public Boolean TmcPubUnsubscribe(Int32  cid,
-                                     string topic,
+                                     Byte[] topic,
                                      UInt32 subscriptionId)
     {
       return tmcPubUnsubscribe(cid, topic, subscriptionId);
     }
 
     public Boolean TmcPubAck(Int32  cid, 
-                             string topic, 
+                             Byte[] topic, 
                              UInt32 subscriptionId, 
-                             Byte qos, 
+                             Byte   qos, 
                              UInt32 userId, 
                              Byte[] ackData,
                              UInt32 cbAckData)

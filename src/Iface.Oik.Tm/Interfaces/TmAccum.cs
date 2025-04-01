@@ -374,7 +374,7 @@ namespace Iface.Oik.Tm.Interfaces
       tmAccum.Precision = (byte) (tmcAccumPoint.Format >> 4);
       tmAccum.Unit      = EncodingUtil.Cp866BytesToUtf8String(tmcAccumPoint.Unit);
 
-      tmAccum.Name = tmcCommonPoint.name;
+      tmAccum.Name = EncodingUtil.Win1251BytesToUtf8(tmcCommonPoint.name);
 
       return tmAccum;
     }

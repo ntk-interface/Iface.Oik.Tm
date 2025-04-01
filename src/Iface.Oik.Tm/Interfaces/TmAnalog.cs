@@ -543,7 +543,7 @@ namespace Iface.Oik.Tm.Interfaces
 
       tmAnalog.Unit = EncodingUtil.Cp866BytesToUtf8String(tmcAnalogPoint.Unit);
 
-      tmAnalog.Name = tmcCommonPoint.name;
+      tmAnalog.Name = EncodingUtil.Win1251BytesToUtf8(tmcCommonPoint.name);
 
       return tmAnalog;
     }

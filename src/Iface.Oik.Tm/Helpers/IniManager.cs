@@ -19,7 +19,7 @@ namespace Iface.Oik.Tm.Helpers
 		{
 			_native = new TmNative();
 
-			_filePointer = _native.IniOpen(filePath);
+			_filePointer = _native.IniOpen(EncodingUtil.Utf8ToWin1251Bytes(filePath));
 		}
 
 
@@ -31,7 +31,12 @@ namespace Iface.Oik.Tm.Helpers
 			{
 				bufSize += BuffSizeStep;
 				buf = new byte[bufSize];
-				_native.IniReadString(_filePointer, section, key, defaultResponse, buf, bufSize);
+				_native.IniReadString(_filePointer, 
+				                      EncodingUtil.Utf8ToWin1251Bytes(section), 
+				                      EncodingUtil.Utf8ToWin1251Bytes(key), 
+				                      EncodingUtil.Utf8ToWin1251Bytes(defaultResponse), 
+				                      buf, 
+				                      bufSize);
 			} while (buf[buf.Length - 2] != 0 && bufSize < BufSizeLimit);
 
 
@@ -43,12 +48,18 @@ namespace Iface.Oik.Tm.Helpers
 		{
 			var buf = new byte[BuffSizeStep];
 
-			var returnSize = _native.IniReadSection(_filePointer, section, buf, BuffSizeStep);
+			var returnSize = _native.IniReadSection(_filePointer, 
+			                                        EncodingUtil.Utf8ToWin1251Bytes(section), 
+			                                        buf, 
+			                                        BuffSizeStep);
 
 			if (buf.Length < returnSize)
 			{
 				buf = new byte[returnSize];
-				_native.IniReadSection(_filePointer, section, buf, returnSize);
+				_native.IniReadSection(_filePointer, 
+				                       EncodingUtil.Utf8ToWin1251Bytes(section), 
+				                       buf, 
+				                       returnSize);
 			}
 
 			var significantBytes = new byte[returnSize];
@@ -74,12 +85,19 @@ namespace Iface.Oik.Tm.Helpers
 		{
 			var buf = new byte[bufSize];
 
-			var returnSize = _native.IniReadStruct(_filePointer, section, key, buf, bufSize);
+			var returnSize = _native.IniReadStruct(_filePointer, 
+			                                       EncodingUtil.Utf8ToWin1251Bytes(section), 
+			                                       EncodingUtil.Utf8ToWin1251Bytes(key), 
+			                                       buf, 
+			                                       bufSize);
 
 			if (buf.Length < returnSize)
 			{
 				buf = new byte[returnSize];
-				_native.IniReadSection(_filePointer, section, buf, returnSize);
+				_native.IniReadSection(_filePointer, 
+				                       EncodingUtil.Utf8ToWin1251Bytes(section), 
+				                       buf, 
+				                       returnSize);
 			}
 
 			var significantBytes = new byte[returnSize];

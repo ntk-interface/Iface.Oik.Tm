@@ -10,12 +10,12 @@ namespace Iface.Oik.Tm.Native.Api
 {
   public partial class TmNative
   {
-    public bool CfsInitLibrary(string baseDir = null, string extArg = null)
+    public bool CfsInitLibrary(byte[] baseDir = null, byte[] extArg = null)
     {
 #if x86
       return false;
 #else
-      return cfsInitLibrary(baseDir, extArg ?? "nosig");
+      return cfsInitLibrary(baseDir, extArg ?? Encoding.GetEncoding(1251).GetBytes("nosig"));
 #endif
     }
 
@@ -43,8 +43,8 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     public uint CfsGetExtendedUserData(IntPtr cfCid,
-                                       string serverType,
-                                       string serverName,
+                                       byte[] serverType,
+                                       byte[] serverName,
                                        IntPtr buf,
                                        uint   bufSize)
     {
@@ -558,14 +558,14 @@ namespace Iface.Oik.Tm.Native.Api
       return cfsIfpcSetBin(connId, uName, oName, binName, buf, bufLength, out errCode, errBuf, maxErrs);
     }
 
-    public IntPtr CfsGetAccessDescriptor(string ini,
-                                         string section)
+    public IntPtr CfsGetAccessDescriptor(byte[] ini,
+                                         byte[] section)
     {
       return cfsGetAccessDescriptor(ini, section);
     }
 
-    public IntPtr CfsGetExtendedUserRightsDescriptor(string ini,
-                                                     string section,
+    public IntPtr CfsGetExtendedUserRightsDescriptor(byte[] ini,
+                                                     byte[] section,
                                                      uint   fCheck)
     {
       return cfsGetExtendedUserRightsDescriptor(ini, section, fCheck);
