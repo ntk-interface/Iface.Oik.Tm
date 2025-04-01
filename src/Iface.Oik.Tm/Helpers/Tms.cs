@@ -27,7 +27,7 @@ namespace Iface.Oik.Tm.Helpers
 
     public static void InitNativeLibraryAndIgnoreLinuxSignals()
     {
-      Native.CfsInitLibrary(extArg: "nosig");
+      Native.CfsInitLibrary(extArg: EncodingUtil.Utf8ToWin1251Bytes("nosig"));
     }
 
 
@@ -64,7 +64,11 @@ namespace Iface.Oik.Tm.Helpers
                               IntPtr           callbackParameter,
                               bool             returnCidAnyway = false)
     {
-      var tmCid = Native.TmcConnect(host, serverName, applicationName, callback, callbackParameter);
+      var tmCid = Native.TmcConnect(EncodingUtil.Utf8ToWin1251Bytes(host),
+                                    EncodingUtil.Utf8ToWin1251Bytes(serverName),
+                                    EncodingUtil.Utf8ToWin1251Bytes(applicationName),
+                                    callback,
+                                    callbackParameter);
 
       if (!IsConnected(tmCid))
       {
@@ -92,8 +96,14 @@ namespace Iface.Oik.Tm.Helpers
                                       uint[]           propsValues,
                                       bool             returnCidAnyway = false)
     {
-      var tmCid = Native.TmcConnectEx(host, serverName, applicationName, callback,
-                                      callbackParameter, (uint)propsCount, props, propsValues);
+      var tmCid = Native.TmcConnectEx(EncodingUtil.Utf8ToWin1251Bytes(host),
+                                      EncodingUtil.Utf8ToWin1251Bytes(serverName),
+                                      EncodingUtil.Utf8ToWin1251Bytes(applicationName),
+                                      callback,
+                                      callbackParameter,
+                                      (uint)propsCount,
+                                      props,
+                                      propsValues);
       if (!IsConnected(tmCid))
       {
         if (!returnCidAnyway)
@@ -329,23 +339,24 @@ namespace Iface.Oik.Tm.Helpers
       {
         return null;
       }
-	 var nativeUserInfoPtr = Marshal.AllocHGlobal(nativeUserInfoSize);
 
-	 var fetchResult = Native.CfsGetExtendedUserData(cfCid,
-                                                      "tms$",
-                                                      serverName,
+      var nativeUserInfoPtr = Marshal.AllocHGlobal(nativeUserInfoSize);
+
+      var fetchResult = Native.CfsGetExtendedUserData(cfCid,
+                                                      EncodingUtil.Utf8ToWin1251Bytes("tms$"),
+                                                      EncodingUtil.Utf8ToWin1251Bytes(serverName),
                                                       nativeUserInfoPtr,
                                                       (uint)nativeUserInfoSize);
       if (fetchResult == 0)
       {
-		Marshal.FreeHGlobal(nativeUserInfoPtr); // не забываем освобождать память из HGlobal
-		return null;
+        Marshal.FreeHGlobal(nativeUserInfoPtr); // не забываем освобождать память из HGlobal
+        return null;
       }
 
       var extendedUserInfo = Marshal.PtrToStructure<TmNativeDefs.TExtendedUserInfo>(nativeUserInfoPtr);
-	  Marshal.FreeHGlobal(nativeUserInfoPtr); // не забываем освобождать память из HGlobal
+      Marshal.FreeHGlobal(nativeUserInfoPtr); // не забываем освобождать память из HGlobal
 
-	  var userInfo = new TmNativeDefs.TUserInfo();
+      var userInfo = new TmNativeDefs.TUserInfo();
       if (!Native.TmcGetUserInfo(tmCid, 0, ref userInfo))
       {
         return null;
@@ -474,7 +485,9 @@ namespace Iface.Oik.Tm.Helpers
     {
       path = string.Empty;
 
-      var remotePathPtr = Native.TmcGetKnownxCfgPath(tmCid, applicationName, (uint)idx);
+      var remotePathPtr = Native.TmcGetKnownxCfgPath(tmCid, 
+                                                     EncodingUtil.Utf8ToWin1251Bytes(applicationName), 
+                                                     (uint)idx);
       if (remotePathPtr == IntPtr.Zero)
       {
         return false;
@@ -631,9 +644,9 @@ namespace Iface.Oik.Tm.Helpers
       SetUserCredentials(options.User,
                          options.Password);
 
-      var tmCid = Native.TmcConnect(options.Host,
-                                    options.TmServer,
-                                    options.ApplicationName,
+      var tmCid = Native.TmcConnect(EncodingUtil.Utf8ToWin1251Bytes(options.Host),
+                                    EncodingUtil.Utf8ToWin1251Bytes(options.TmServer),
+                                    EncodingUtil.Utf8ToWin1251Bytes(options.ApplicationName),
                                     options.TmCallback,
                                     options.TmCallbackParameters);
       if (tmCid == 0)
@@ -717,7 +730,7 @@ namespace Iface.Oik.Tm.Helpers
       var topic = new MqttSubscriptionTopic(knownTopic);
 
       Native.TmcPubSubscribe(tmCid,
-                             topic.Topic,
+                             EncodingUtil.Utf8ToWin1251Bytes(topic.Topic),
                              (uint)topic.SubscriptionId,
                              (byte)topic.QoS);
     }
@@ -731,7 +744,7 @@ namespace Iface.Oik.Tm.Helpers
         : EncodingUtil.Utf8ToWin1251Bytes(payload);
 
       Native.TmcPubPublish(tmCid,
-                           topic.Topic,
+                           EncodingUtil.Utf8ToWin1251Bytes(topic.Topic),
                            topic.LifetimeSec,
                            (byte)topic.QoS,
                            payloadBytes,
@@ -783,7 +796,8 @@ namespace Iface.Oik.Tm.Helpers
 
     public static bool AckMqttPublications(int tmCid, MqttMessage message)
     {
-      return Native.TmcPubAck(tmCid, message.Topic,
+      return Native.TmcPubAck(tmCid, 
+                              EncodingUtil.Utf8ToWin1251Bytes(message.Topic),
                               (uint)message.SubscriptionId,
                               (byte)message.QoS,
                               message.UserId,

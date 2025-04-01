@@ -2170,7 +2170,8 @@ namespace Iface.Oik.Tm.Api
         return null;
       }
       
-      var sectionPtr = _native.CfsGetAccessDescriptor(sSetupPath, section);
+      var sectionPtr = _native.CfsGetAccessDescriptor(EncodingUtil.Utf8ToWin1251Bytes(sSetupPath), 
+                                                      EncodingUtil.Utf8ToWin1251Bytes(section));
       if (sectionPtr == IntPtr.Zero)
       {
         throw new Exception("GetAccessDescriptor sec_ptr error");
@@ -2221,7 +2222,9 @@ namespace Iface.Oik.Tm.Api
     public ExtendedRightsDescriptor SecGetExtendedRightsDescriptor(string sSetupPath)
     {
       var ret     = new ExtendedRightsDescriptor();
-      var extendedRightsPtr = _native.CfsGetExtendedUserRightsDescriptor(sSetupPath, "TmsExtRights", 0);
+      var extendedRightsPtr = _native.CfsGetExtendedUserRightsDescriptor(EncodingUtil.Utf8ToWin1251Bytes(sSetupPath), 
+                                                                         EncodingUtil.Utf8ToWin1251Bytes("TmsExtRights"), 
+                                                                         0);
       
       if (extendedRightsPtr == IntPtr.Zero)
       {

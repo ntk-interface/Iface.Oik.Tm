@@ -675,7 +675,7 @@ namespace Iface.Oik.Tm.Interfaces
       var tmStatus = new TmStatus(tmcCommonPoint.Ch, tmcCommonPoint.RTU, tmcCommonPoint.Point);
       
       tmStatus.FromTmcCommonPoint(tmcCommonPoint);
-      tmStatus.Name = tmcCommonPoint.name;
+      tmStatus.Name = EncodingUtil.Win1251BytesToUtf8(tmcCommonPoint.name);
 
       return tmStatus;
     }

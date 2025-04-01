@@ -9,9 +9,9 @@ namespace Iface.Oik.Tm.Native.Api
   public partial class TmNative
   {
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Int32 tmcConnect(string                                                  server,
-                                          string                                                  pipe,
-                                          string                                                  user,
+    public static extern Int32 tmcConnect(byte[]                                                  server,
+                                          byte[]                                                  pipe,
+                                          byte[]                                                  user,
                                           [MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback callback,
                                           IntPtr                                                  callbackParameter);
 
@@ -83,9 +83,9 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern IntPtr tmcGetKnownxCfgPath(Int32                                   cid,
-                                                    [MarshalAs(UnmanagedType.LPStr)] string appTag,
-                                                    UInt32                                  index);
+    public static extern IntPtr tmcGetKnownxCfgPath(Int32  cid,
+                                                    byte[] appTag,
+                                                    UInt32 index);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -139,12 +139,12 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Single tmcAnalog(Int32                                   cid,
-                                          Int16                                   ch,
-                                          Int16                                   rtu,
-                                          Int16                                   point,
-                                          [MarshalAs(UnmanagedType.LPStr)] string dateTime,
-                                          Int16                                   retroNum);
+    public static extern Single tmcAnalog(Int32  cid,
+                                          Int16  ch,
+                                          Int16  rtu,
+                                          Int16  point,
+                                          byte[] dateTime,
+                                          Int16  retroNum);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -165,38 +165,38 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Int16 tmcAnalogFull(Int32                                                      cid,
-                                             Int16                                                      ch,
-                                             Int16                                                      rtu,
-                                             Int16                                                      point,
-                                             [In, Out] ref                    TmNativeDefs.TAnalogPoint analogPoint,
-                                             [MarshalAs(UnmanagedType.LPStr)] string                    dateTime,
-                                             Int16                                                      retroNum);
-
-
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Single tmcAccumValue(Int32                                   cid,
-                                              Int16                                   ch,
-                                              Int16                                   rtu,
-                                              Int16                                   point,
-                                              [MarshalAs(UnmanagedType.LPStr)] string dateTime);
-
-
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Single tmcAccumLoad(Int32                                   cid,
+    public static extern Int16 tmcAnalogFull(Int32                                   cid,
                                              Int16                                   ch,
                                              Int16                                   rtu,
                                              Int16                                   point,
-                                             [MarshalAs(UnmanagedType.LPStr)] string dateTime);
+                                             [In, Out] ref TmNativeDefs.TAnalogPoint analogPoint,
+                                             byte[]                                  dateTime,
+                                             Int16                                   retroNum);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Int16 tmcAccumFull(Int32                                                     cid,
-                                            Int16                                                     ch,
-                                            Int16                                                     rtu,
-                                            Int16                                                     point,
-                                            [In, Out] ref                    TmNativeDefs.TAccumPoint accumPoint,
-                                            [MarshalAs(UnmanagedType.LPStr)] string                   dateTime);
+    public static extern Single tmcAccumValue(Int32  cid,
+                                              Int16  ch,
+                                              Int16  rtu,
+                                              Int16  point,
+                                              byte[] dateTime);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Single tmcAccumLoad(Int32  cid,
+                                             Int16  ch,
+                                             Int16  rtu,
+                                             Int16  point,
+                                             byte[] dateTime);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Int16 tmcAccumFull(Int32                                  cid,
+                                            Int16                                  ch,
+                                            Int16                                  rtu,
+                                            Int16                                  point,
+                                            [In, Out] ref TmNativeDefs.TAccumPoint accumPoint,
+                                            byte[]                                 dateTime);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -248,25 +248,25 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern IntPtr tmcGetValuesEx(Int32                                   cid,
-                                               UInt16                                  tmType,
-                                               UInt32                                  tmFlagsSet,
-                                               UInt32                                  tmFlagsClr,
-                                               Byte                                    qFlags,
-                                               [MarshalAs(UnmanagedType.LPStr)] string groupName,
-                                               UInt32                                  dwUt,
-                                               out UInt32                              pCount);
+    public static extern IntPtr tmcGetValuesEx(Int32      cid,
+                                               UInt16     tmType,
+                                               UInt32     tmFlagsSet,
+                                               UInt32     tmFlagsClr,
+                                               Byte       qFlags,
+                                               byte[]     groupName,
+                                               UInt32     dwUt,
+                                               out UInt32 pCount);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern IntPtr tmcRetroGetNamedAnalogGrpFull(Int32                                   cid,
-                                                              [MarshalAs(UnmanagedType.LPStr)] string groupName,
-                                                              UInt32                                  qryFlags,
-                                                              UInt32                                  dwUt,
-                                                              UInt32                                  dwStepBack,
-                                                              UInt32                                  dwStepCnt,
-                                                              IntPtr                                  pAddrs,
-                                                              out UInt32                              pAddrCount);
+    public static extern IntPtr tmcRetroGetNamedAnalogGrpFull(Int32      cid,
+                                                              byte[]     groupName,
+                                                              UInt32     qryFlags,
+                                                              UInt32     dwUt,
+                                                              UInt32     dwStepBack,
+                                                              UInt32     dwStepCnt,
+                                                              IntPtr     pAddrs,
+                                                              out UInt32 pAddrCount);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -280,15 +280,14 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Boolean tmcEvlogPutStrBin(Int32                                        cid,
-                                                   UInt32                                       unixTime,
-                                                   Byte                                         unixHund,
-                                                   Byte                                         importance,
-                                                   UInt32                                       sourceTag,
-                                                   [In] [MarshalAs(UnmanagedType.LPStr)] string str,
-                                                   [In] [MarshalAs(UnmanagedType.LPArray)]
-                                                   Byte[] bin,
-                                                   UInt32 cbBin);
+    public static extern Boolean tmcEvlogPutStrBin(Int32                                          cid,
+                                                   UInt32                                         unixTime,
+                                                   Byte                                           unixHund,
+                                                   Byte                                           importance,
+                                                   UInt32                                         sourceTag,
+                                                   byte[]                                         str,
+                                                   [In] [MarshalAs(UnmanagedType.LPArray)] Byte[] bin,
+                                                   UInt32                                         cbBin);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -494,13 +493,13 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Int16 tmcSetStatus(Int32                                   cid,
-                                            Int16                                   ch,
-                                            Int16                                   rtu,
-                                            Int16                                   point,
-                                            Byte                                    value,
-                                            [MarshalAs(UnmanagedType.LPStr)] string dateTime,
-                                            Int16                                   hund);
+    public static extern Int16 tmcSetStatus(Int32  cid,
+                                            Int16  ch,
+                                            Int16  rtu,
+                                            Int16  point,
+                                            Byte   value,
+                                            byte[] dateTime,
+                                            Int16  hund);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -520,12 +519,12 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Int16 tmcSetAnalog(Int32                                   cid,
-                                            Int16                                   ch,
-                                            Int16                                   rtu,
-                                            Int16                                   point,
-                                            Single                                  value,
-                                            [MarshalAs(UnmanagedType.LPStr)] string dateTime);
+    public static extern Int16 tmcSetAnalog(Int32  cid,
+                                            Int16  ch,
+                                            Int16  rtu,
+                                            Int16  point,
+                                            Single value,
+                                            byte[] dateTime);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -553,12 +552,12 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Int16 tmcSetAccumValue(Int32                                   cid,
-                                                Int16                                   ch,
-                                                Int16                                   rtu,
-                                                Int16                                   point,
-                                                Single                                  value,
-                                                [MarshalAs(UnmanagedType.LPStr)] string dateTime);
+    public static extern Int16 tmcSetAccumValue(Int32  cid,
+                                                Int16  ch,
+                                                Int16  rtu,
+                                                Int16  point,
+                                                Single value,
+                                                byte[] dateTime);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -614,7 +613,7 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern UInt32 String2Utime([MarshalAs(UnmanagedType.LPStr)] string dateTime);
+    public static extern UInt32 String2Utime(byte[] dateTime);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -695,14 +694,14 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern IntPtr tmcComtradeEnumFiles(Int32                                   cid,
-                                                     [MarshalAs(UnmanagedType.LPStr)] string date);
+    public static extern IntPtr tmcComtradeEnumFiles(Int32  cid,
+                                                     byte[] date);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Boolean tmcComtradeGetFile(Int32                                   cid,
-                                                    [MarshalAs(UnmanagedType.LPStr)] string fName,
-                                                    [MarshalAs(UnmanagedType.LPStr)] string locDir);
+    public static extern Boolean tmcComtradeGetFile(Int32  cid,
+                                                    byte[] fName,
+                                                    byte[] locDir);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -715,21 +714,19 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Int32 tmcConnectEx(string                                                  server,
-                                            string                                                  pipe,
-                                            string                                                  user,
+    public static extern Int32 tmcConnectEx(byte[]                                                  server,
+                                            byte[]                                                  pipe,
+                                            byte[]                                                  user,
                                             [MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback callback,
                                             IntPtr                                                  callbackParameter,
                                             UInt32                                                  cbProps,
-                                            [MarshalAs(UnmanagedType.LPArray, SizeConst = 8)]
-                                            UInt32[] pProps,
-                                            [MarshalAs(UnmanagedType.LPArray, SizeConst = 8)]
-                                            UInt32[] pPropValues);
+                                            [MarshalAs(UnmanagedType.LPArray, SizeConst = 8)] UInt32[] pProps,
+                                            [MarshalAs(UnmanagedType.LPArray, SizeConst = 8)] UInt32[] pPropValues);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean tmcDntGetConfig(Int32                                   cid,
-                                                 [MarshalAs(UnmanagedType.LPStr)] string fName);
+    public static extern Boolean tmcDntGetConfig(Int32  cid,
+                                                 byte[] fName);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -841,10 +838,10 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr tmcTextSearch(Int32                                   cid,
-                                              UInt16                                  type,
-                                              [MarshalAs(UnmanagedType.LPStr)] string text,
-                                              out                              UInt32 pCount);
+    public static extern IntPtr tmcTextSearch(Int32      cid,
+                                              UInt16     type,
+                                              byte[]     text,
+                                              out UInt32 pCount);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
@@ -854,45 +851,45 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean tmcPubPublish(Int32                                   cid,
-                                               [MarshalAs(UnmanagedType.LPStr)] string topic,
-                                               UInt32                                  lifeTimeSec,
-                                               Byte                                    qos,
-                                               Byte[]                                  data,
-                                               UInt32                                  cbData);
+    public static extern Boolean tmcPubPublish(Int32  cid,
+                                               byte[] topic,
+                                               UInt32 lifeTimeSec,
+                                               Byte   qos,
+                                               Byte[] data,
+                                               UInt32 cbData);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean tmcPubPublishEx(Int32                                   cid,
-                                                 [MarshalAs(UnmanagedType.LPStr)] string topic,
-                                                 UInt32                                  lifeTimeSec,
-                                                 Byte                                    qos,
-                                                 Byte[]                                  data,
-                                                 UInt32                                  cbData,
-                                                 IntPtr                                  addListPtr);
+    public static extern Boolean tmcPubPublishEx(Int32  cid,
+                                                 byte[] topic,
+                                                 UInt32 lifeTimeSec,
+                                                 Byte   qos,
+                                                 Byte[] data,
+                                                 UInt32 cbData,
+                                                 IntPtr addListPtr);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean tmcPubSubscribe(Int32                                   cid,
-                                                 [MarshalAs(UnmanagedType.LPStr)] string topic,
-                                                 UInt32                                  subscriptionId,
-                                                 Byte                                    qos);
+    public static extern Boolean tmcPubSubscribe(Int32  cid,
+                                                 byte[] topic,
+                                                 UInt32 subscriptionId,
+                                                 Byte   qos);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean tmcPubUnsubscribe(Int32                                   cid,
-                                                   [MarshalAs(UnmanagedType.LPStr)] string topic,
-                                                   UInt32                                  subscriptionId);
+    public static extern Boolean tmcPubUnsubscribe(Int32  cid,
+                                                   byte[] topic,
+                                                   UInt32 subscriptionId);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean tmcPubAck(Int32                                   cid,
-                                           [MarshalAs(UnmanagedType.LPStr)] string topic,
-                                           UInt32                                  subscriptionId,
-                                           Byte                                    qos,
-                                           UInt32                                  userId,
-                                           Byte[]                                  ackData,
-                                           UInt32                                  cbAckData);
+    public static extern Boolean tmcPubAck(Int32  cid,
+                                           byte[] topic,
+                                           UInt32 subscriptionId,
+                                           Byte   qos,
+                                           UInt32 userId,
+                                           Byte[] ackData,
+                                           UInt32 cbAckData);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]

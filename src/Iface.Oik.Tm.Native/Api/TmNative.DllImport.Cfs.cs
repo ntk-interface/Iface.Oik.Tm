@@ -11,8 +11,8 @@ namespace Iface.Oik.Tm.Native.Api
   public partial class TmNative
   {
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
-    public static extern bool cfsInitLibrary([MarshalAs(UnmanagedType.LPStr)] string baseDir,
-                                             [MarshalAs(UnmanagedType.LPStr)] string extArg);
+    public static extern bool cfsInitLibrary(byte[] baseDir,
+                                             byte[] extArg);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
@@ -32,11 +32,11 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern UInt32 cfsGetExtendedUserData(IntPtr                                  cfCid,
-                                                       [MarshalAs(UnmanagedType.LPStr)] string serverType,
-                                                       [MarshalAs(UnmanagedType.LPStr)] string serverName,
-                                                       IntPtr                                  buf,
-                                                       UInt32                                  bufSize);
+    public static extern UInt32 cfsGetExtendedUserData(IntPtr cfCid,
+                                                       byte[] serverType,
+                                                       byte[] serverName,
+                                                       IntPtr buf,
+                                                       UInt32 bufSize);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
@@ -458,13 +458,13 @@ namespace Iface.Oik.Tm.Native.Api
                                                UInt32           maxErrs);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr cfsGetAccessDescriptor([MarshalAs(UnmanagedType.LPStr)] string ini,
-                                                       [MarshalAs(UnmanagedType.LPStr)] string section);
+    public static extern IntPtr cfsGetAccessDescriptor(byte[] ini,
+                                                       byte[] section);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr cfsGetExtendedUserRightsDescriptor([MarshalAs(UnmanagedType.LPStr)] string ini,
-                                                                   [MarshalAs(UnmanagedType.LPStr)] string section,
-                                                                   uint                                    fCheck);
+    public static extern IntPtr cfsGetExtendedUserRightsDescriptor(byte[] ini,
+                                                                   byte[] section,
+                                                                   uint   fCheck);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern IntPtr cfsIfpcEnumUsers(IntPtr           connId,

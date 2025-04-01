@@ -101,8 +101,8 @@ namespace Iface.Oik.Tm.Helpers
 			var nativeUserInfoPtr = Marshal.AllocHGlobal(nativeUserInfoSize);
 
 			var fetchResult = Native.CfsGetExtendedUserData(cfCid,
-															serverType,
-															serverName,
+			                                                EncodingUtil.Utf8ToWin1251Bytes(serverType),
+			                                                EncodingUtil.Utf8ToWin1251Bytes(serverName),
 															nativeUserInfoPtr,
 															(uint)nativeUserInfoSize);
 			if (fetchResult == 0)

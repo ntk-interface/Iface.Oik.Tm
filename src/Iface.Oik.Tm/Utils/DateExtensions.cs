@@ -10,14 +10,10 @@ namespace Iface.Oik.Tm.Utils
       return dateTime.ToString("dd.MM.yyyy HH:mm:ss");
     }
 
-
+    
     public static byte[] ToTmByteArray(this DateTime dateTime)
     {
-      var result = new byte[24];
-      
-      Encoding.Default.GetBytes(dateTime.ToTmString()).CopyTo(result, 0);
-      
-      return result;
+      return EncodingUtil.Utf8ToWin1251Bytes(dateTime.ToTmString());
     }
 
 
