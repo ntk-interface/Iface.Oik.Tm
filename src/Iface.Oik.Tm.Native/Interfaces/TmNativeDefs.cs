@@ -336,7 +336,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct TCommonPoint
     {
-      public Byte[] name;
+      public IntPtr name;
       public Byte   cp_flags;
       public Byte   res1;
       public UInt16 Type;
@@ -1022,8 +1022,8 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt32   AckSec;
       public UInt16   AckMs;
 
-      [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 16)]
-      public string UserName;
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
+      public byte[] UserName;
     }
 
 
