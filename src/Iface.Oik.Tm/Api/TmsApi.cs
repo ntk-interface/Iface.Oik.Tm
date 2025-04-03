@@ -1822,7 +1822,7 @@ namespace Iface.Oik.Tm.Api
                                 TmEventImportances.Imp0, 
                                 0, 
                                 message, 
-                                TmNativeUtil.GetFixedBytesWithTrailingZero(_userInfo?.Name, 16, EncodingUtil.cp1251), 
+                                TmNativeUtil.GetFixedBytesWithTrailingZero(_userInfo?.Name, 16, EncodingUtil.Cp1251), 
                                 tmAddr)
         .ConfigureAwait(false);
     }
@@ -1836,7 +1836,7 @@ namespace Iface.Oik.Tm.Api
                                                     DateTime?          time        = null)
     {
       var binStr = $"pt={tmAddr.Point};t={(uint)tmAddr.Type.ToNativeType()}";
-      var bin    = TmNativeUtil.GetFixedBytesWithTrailingZero(binStr, binStr.Length + 1, EncodingUtil.cp1251);
+      var bin    = TmNativeUtil.GetFixedBytesWithTrailingZero(binStr, binStr.Length + 1, EncodingUtil.Cp1251);
       
       await AddStrBinToEventLog(time,
                                 importances,
@@ -1856,7 +1856,7 @@ namespace Iface.Oik.Tm.Api
     {
       var bin = string.IsNullOrEmpty(binaryString)
         ? Array.Empty<byte>()
-        : TmNativeUtil.GetFixedBytesWithTrailingZero(binaryString, binaryString.Length + 1, EncodingUtil.cp1251);
+        : TmNativeUtil.GetFixedBytesWithTrailingZero(binaryString, binaryString.Length + 1, EncodingUtil.Cp1251);
 
       await AddStrBinToEventLog(time, importances, source, message, bin, tmAddr).ConfigureAwait(false);
     }

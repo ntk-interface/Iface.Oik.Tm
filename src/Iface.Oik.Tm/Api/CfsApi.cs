@@ -2108,7 +2108,7 @@ namespace Iface.Oik.Tm.Api
       var portStr = $"{port}";
       var binData = TmNativeUtil.GetFixedBytesWithTrailingZero(portStr,
                                                                portStr.Length + 1,
-                                                               EncodingUtil.cp1251);
+                                                               EncodingUtil.Cp1251);
 
       return await SetBin(".cfs.",
                           $"rbs${pipeName}",
@@ -2703,7 +2703,7 @@ namespace Iface.Oik.Tm.Api
       byte[] bin;
       uint   errCode,   resErrCode   = 0;
       string errString, resErrString = string.Empty;
-      string enc                     = EncodingUtil.cp1251;
+      string enc                     = EncodingUtil.Cp1251;
 
 
       if (userPolicy.IsBlocked)
@@ -2941,7 +2941,7 @@ namespace Iface.Oik.Tm.Api
       string n;
       uint   errCode,   resErrCode   = 0;
       string errString, resErrString = string.Empty;
-      string enc                     = EncodingUtil.cp1251;
+      string enc                     = EncodingUtil.Cp1251;
 
 
       if (passwordPolicy.AdminPasswordChange)
@@ -3211,7 +3211,7 @@ namespace Iface.Oik.Tm.Api
     {
       uint   bflags;
       bool   result       = false;
-      byte[] reserved_buf = TmNativeUtil.GetFixedBytesWithTrailingZero(directory, 260, EncodingUtil.cp1251);
+      byte[] reserved_buf = TmNativeUtil.GetFixedBytesWithTrailingZero(directory, 260, EncodingUtil.Cp1251);
 
       switch (progName)
       {

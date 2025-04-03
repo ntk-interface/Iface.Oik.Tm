@@ -264,7 +264,7 @@ namespace Iface.Oik.Tm.Interfaces
       manualAnalogSetEvent.TypeString         = "Ручн. ТИТ";
       manualAnalogSetEvent.ExplicitTypeString = "Ручн. ТИТ";
 
-      manualAnalogSetEvent.Username = EncodingUtil.Cp866BytesToUtf8String(analogSetData.UserName);
+      manualAnalogSetEvent.Username = EncodingUtil.Cp866BytesToUtf8(analogSetData.UserName);
 
       manualAnalogSetEvent.StateString = 
         $"{analogSetData.Value.ToString($"N{setAnalog.Precision}")}{(setAnalog.Unit.IsNullOrEmpty() ? "" : $" {setAnalog.Unit}")}";
@@ -288,7 +288,7 @@ namespace Iface.Oik.Tm.Interfaces
         (uint) (tEvent.Point + (tEvent.Rtu << 16) + (tEvent.Ch << 24));
       manualStatusSetEvent.TmAddrType = TmType.Status;
 
-      manualStatusSetEvent.Username = EncodingUtil.Cp866BytesToUtf8String(mSData.UserName);
+      manualStatusSetEvent.Username = EncodingUtil.Cp866BytesToUtf8(mSData.UserName);
 
 
       manualStatusSetEvent.ExplicitTypeString  = "Ручн. ТС";
@@ -375,7 +375,7 @@ namespace Iface.Oik.Tm.Interfaces
 
       acknowledgeEvent.TypeString         = "Квитирование";
       acknowledgeEvent.ExplicitTypeString = "Квитирование";
-      acknowledgeEvent.Username           = EncodingUtil.Cp866BytesToUtf8String(acknowledgeData.UserName);
+      acknowledgeEvent.Username           = EncodingUtil.Cp866BytesToUtf8(acknowledgeData.UserName);
 
       return acknowledgeEvent;
     }
@@ -397,7 +397,7 @@ namespace Iface.Oik.Tm.Interfaces
       controlEvent.TypeString         = "ТУ";
       controlEvent.ExplicitTypeString = "ТУ";
 
-      controlEvent.Username = EncodingUtil.Cp866BytesToUtf8String(controlData.UserName);
+      controlEvent.Username = EncodingUtil.Cp866BytesToUtf8(controlData.UserName);
 
       var result = (TmTelecontrolResult) unchecked((sbyte) controlData.Result);
 

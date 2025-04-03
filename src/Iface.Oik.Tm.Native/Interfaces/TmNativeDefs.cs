@@ -336,7 +336,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct TCommonPoint
     {
-      public Byte[] name;
+      public IntPtr name;
       public Byte   cp_flags;
       public Byte   res1;
       public UInt16 Type;
