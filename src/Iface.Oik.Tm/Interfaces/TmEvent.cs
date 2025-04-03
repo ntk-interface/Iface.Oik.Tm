@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Iface.Oik.Tm.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
@@ -739,7 +740,8 @@ namespace Iface.Oik.Tm.Interfaces
       if (eventAddData.AckSec != 0 && !eventAddData.UserName.IsNullOrEmpty())
       {
         tmEvent.AckTime = DateUtil.GetDateTimeFromTimestamp(eventAddData.AckSec, eventAddData.AckMs);
-        tmEvent.AckUser = eventAddData.UserName;
+        // сервер возвращает мусор после первого нуля в имени, нужно обрезать
+        tmEvent.AckUser = EncodingUtil.Win1251ToUtf8(TmNativeUtil.GetStringFromBytesWithAdditionalPart(eventAddData.UserName));
       }
 
       return tmEvent;

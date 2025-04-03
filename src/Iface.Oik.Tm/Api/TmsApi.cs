@@ -3856,7 +3856,8 @@ namespace Iface.Oik.Tm.Api
         if (extraData.AckSec != 0)
         {
           tmEvents[i].AckTime = DateUtil.GetDateTimeFromTimestamp(extraData.AckSec, extraData.AckMs);
-          tmEvents[i].AckUser = extraData.UserName;
+          // сервер возвращает мусор после первого нуля в имени, нужно обрезать
+          tmEvents[i].AckUser = EncodingUtil.Win1251ToUtf8(TmNativeUtil.GetStringFromBytesWithAdditionalPart(extraData.UserName));
           changesFound        = true;
         }
       }
