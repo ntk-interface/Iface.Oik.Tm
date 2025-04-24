@@ -112,6 +112,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<string> GetExpressionResult(string expression);
 
+    string GetExpressionResultSync(string expression);
+
     Task<IReadOnlyCollection<TmChannel>> GetTmTreeChannels();
 
     Task<IReadOnlyCollection<TmRtu>> GetTmTreeRtus(int channelId);

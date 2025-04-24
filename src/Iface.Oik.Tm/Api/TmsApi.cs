@@ -2813,6 +2813,17 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public string GetExpressionResultSync(string expression)
+    {
+      const int bufSize = 1024;
+
+      var buf = new byte[bufSize];
+      _native.TmcEvaluateExpression(_cid, EncodingUtil.Utf8ToWin1251Bytes(expression), buf, bufSize);
+
+      return EncodingUtil.Win1251BytesToUtf8(buf);
+    }
+
+
     public async Task<IReadOnlyCollection<TmChannel>> GetTmTreeChannels()
     {
       var result = new List<TmChannel>();
