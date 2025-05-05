@@ -271,6 +271,9 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Вызов функции дорасчета - левая кнопка мыши")]    CalcScriptForClick        = 25,
     [Description("Осн. интегральное измерение")]                    MainTmAccum               = 26,
     [Description("Документ - левая кнопка (в уникальной вкладке)")] DocumentForClickUniqueTab = 27,
+    [Description("Видео - контекстное меню")]                       VideoForContextMenu       = 28,
+    [Description("Видео - левая кнопка мыши")]                      VideoForClick             = 29,
+    [Description("Видео - окно телепараметра")]                     VideoForTmTag             = 30,
   }
 
 

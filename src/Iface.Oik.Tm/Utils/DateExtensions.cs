@@ -13,7 +13,9 @@ namespace Iface.Oik.Tm.Utils
     
     public static byte[] ToTmByteArray(this DateTime dateTime)
     {
-      return EncodingUtil.Utf8ToWin1251Bytes(dateTime.ToTmString());
+      var result = new byte[24];
+      EncodingUtil.Utf8ToWin1251Bytes(dateTime.ToTmString()).CopyTo(result, 0);
+      return result;
     }
 
 
