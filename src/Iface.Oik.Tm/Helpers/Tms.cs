@@ -318,6 +318,56 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
+    public static bool TryGetSqlUsernamePassword(int        tmCid,
+                                                 string     tmServerName,
+                                                 out string username,
+                                                 out string password)
+    {
+      username = password = string.Empty;
+
+      var rbServerName = GetLinkedRbServerName(tmCid, tmServerName);
+      if (string.IsNullOrEmpty(rbServerName))
+      {
+        return false;
+      }
+      var cfCid = Native.TmcGetCfsHandle(tmCid);
+      if (cfCid == IntPtr.Zero)
+      {
+        return false;
+      }
+      var       bufSize      = 255u;
+      var       buf          = new byte[bufSize];
+      const int errBufLength = 1000;
+      var       errBuf       = new byte[errBufLength];
+      uint      errCode      = 0;
+      
+      var result = Native.CfsGetIniString(cfCid,
+                                          EncodingUtil.Utf8ToWin1251Bytes("@@"),
+                                          EncodingUtil.Utf8ToWin1251Bytes("LocalPGCrd"),
+                                          EncodingUtil.Utf8ToWin1251Bytes(rbServerName),
+                                          EncodingUtil.Utf8ToWin1251Bytes(string.Empty),
+                                          ref buf,
+                                          out bufSize,
+                                          out errCode,
+                                          ref errBuf,
+                                          errBufLength);
+      if (!result)
+      {
+        return false;
+      }
+      var encodedUserPassword = EncodingUtil.Win1251BytesToUtf8(buf);
+      if (string.IsNullOrEmpty(encodedUserPassword))
+      {
+        return false;
+      }
+      var userPasswordParts = encodedUserPassword.Split('`'); // сервер передает в таком виде: user`pass
+      username = userPasswordParts.ElementAtOrDefault(0) ?? string.Empty;
+      password = userPasswordParts.ElementAtOrDefault(1) ?? string.Empty;
+      
+      return !string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password);
+    }
+
+
     public static TmSecurityAccessFlags GetSecurityAccessFlags(int tmCid)
     {
       if (Native.RbcGetSecurity(tmCid, out var isAdmin, out var accessFlags) == 0)
