@@ -9,6 +9,7 @@ namespace Iface.Oik.Tm.Interfaces
 {
   public class TmAccum : TmTag
   {
+    public static readonly float  InvalidValue       = float.MaxValue;
     public static readonly string InvalidValueString = "???";
 
     private short   _code;
@@ -340,7 +341,7 @@ namespace Iface.Oik.Tm.Interfaces
         return;
       }
 
-      IsInit = (tmcCommonPoint.TM_Flags != 0xFFFF);
+      IsInit = tmcCommonPoint.TM_Flags != 0xFFFF && !tmcAccumPoint.Value.Equals(InvalidValue);
       Value  = tmcAccumPoint.Value;
       Load   = tmcAccumPoint.Load;
       Flags  = (TmFlags) tmcAccumPoint.Flags;
@@ -364,7 +365,7 @@ namespace Iface.Oik.Tm.Interfaces
         return tmAccum;
       }
 
-      tmAccum.IsInit = tmcCommonPoint.TM_Flags != 0xFFFF;
+      tmAccum.IsInit = tmcCommonPoint.TM_Flags != 0xFFFF && !tmcAccumPoint.Value.Equals(InvalidValue);
       tmAccum.Value  = tmcAccumPoint.Value;
       tmAccum.Load   = tmcAccumPoint.Load;
       tmAccum.Flags  = (TmFlags) tmcAccumPoint.Flags;
@@ -419,7 +420,7 @@ namespace Iface.Oik.Tm.Interfaces
     
     public void FromTAccumPoint(TmNativeDefs.TAccumPoint tmcAccumPoint)
     {
-      if (tmcAccumPoint.Flags == -1)
+      if (tmcAccumPoint.Flags == -1 || tmcAccumPoint.Value.Equals(InvalidValue))
       {
         Flags  |= TmFlags.Invalid;
         IsInit =  false;
@@ -448,7 +449,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     public void UpdateWithDto(float value, float load, int flags, DateTime? changeTime)
     {
-      IsInit     = true;
+      IsInit     = !value.Equals(InvalidValue);
       Value      = value;
       Load       = load;
       Flags      = (TmFlags) (flags & 0x0000_FFFF); // 3 и 4 байты флагов - служебные, не для клиента

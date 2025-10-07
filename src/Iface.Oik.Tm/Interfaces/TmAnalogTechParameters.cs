@@ -5,8 +5,6 @@ namespace Iface.Oik.Tm.Interfaces
 {
   public class TmAnalogTechParameters
   {
-    public static readonly float InvalidValue = float.MaxValue;
-
     public float  Min        { get; set; }
     public float  Max        { get; set; }
     public float  Nominal    { get; set; }
@@ -19,10 +17,10 @@ namespace Iface.Oik.Tm.Interfaces
     public bool IsAlarmInUse { get; set; }
 
 
-    public float MinAlarmOrInvalid   => MinAlarm   ?? InvalidValue;
-    public float MinWarningOrInvalid => MinWarning ?? InvalidValue;
-    public float MaxWarningOrInvalid => MaxWarning ?? InvalidValue;
-    public float MaxAlarmOrInvalid   => MaxAlarm   ?? InvalidValue;
+    public float MinAlarmOrInvalid   => MinAlarm   ?? TmAnalog.InvalidValue;
+    public float MinWarningOrInvalid => MinWarning ?? TmAnalog.InvalidValue;
+    public float MaxWarningOrInvalid => MaxWarning ?? TmAnalog.InvalidValue;
+    public float MaxAlarmOrInvalid   => MaxAlarm   ?? TmAnalog.InvalidValue;
 
 
     public TmAnalogTechParameters(float  min,
@@ -64,7 +62,7 @@ namespace Iface.Oik.Tm.Interfaces
     private static float? NullIfInvalid(float? value)
     {
       if (value == null ||
-          value.Value.Equals(InvalidValue))
+          value.Value.Equals(TmAnalog.InvalidValue))
       {
         return null;
       }

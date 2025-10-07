@@ -274,6 +274,7 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Видео - контекстное меню")]                       VideoForContextMenu       = 28,
     [Description("Видео - левая кнопка мыши")]                      VideoForClick             = 29,
     [Description("Видео - окно телепараметра")]                     VideoForTmTag             = 30,
+    [Description("Пользовательский список")]                        TmTagList                 = 31,
   }
 
 
