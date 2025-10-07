@@ -10,6 +10,7 @@ namespace Iface.Oik.Tm.Interfaces
 {
   public class TmAnalog : TmTag
   {
+    public static readonly float  InvalidValue       = float.MaxValue;
     public static readonly string InvalidValueString = "???";
 
     private short                  _code;
@@ -357,7 +358,7 @@ namespace Iface.Oik.Tm.Interfaces
         return;
       }
 
-      IsInit = (tmcCommonPoint.TM_Flags != 0xFFFF);
+      IsInit = (tmcCommonPoint.TM_Flags != 0xFFFF) && !tmcAnalogPoint.AsFloat.Equals(InvalidValue);
       Value  = tmcAnalogPoint.AsFloat;
       Flags  = (TmFlags) tmcAnalogPoint.Flags;
       ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(tmcCommonPoint.tm_local_ut,
@@ -369,7 +370,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     public void FromTAnalogPoint(TmNativeDefs.TAnalogPoint tmcAnalogPoint)
     {
-      if (tmcAnalogPoint.Flags == -1)
+      if (tmcAnalogPoint.Flags == -1 || tmcAnalogPoint.AsFloat.Equals(InvalidValue))
       {
         Flags  |= TmFlags.Invalid;
         IsInit =  false;
@@ -387,9 +388,10 @@ namespace Iface.Oik.Tm.Interfaces
 
     public void FromDatagram(byte[] buf)
     {
-      IsInit = true;
       Value  = BitConverter.ToSingle(buf, 14);
       Flags  = (TmFlags)BitConverter.ToInt16(buf, 18);
+      
+      IsInit = !Value.Equals(InvalidValue);
     }
 
 
@@ -419,7 +421,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     public void UpdateWithDto(float value, int flags, DateTime? changeTime)
     {
-      IsInit     = true;
+      IsInit     = !value.Equals(InvalidValue);
       Value      = value;
       Flags      = (TmFlags) (flags & 0x0000_FFFF); // 3 и 4 байты флагов - служебные, не для клиента
       ChangeTime = changeTime.NullIfEpoch();
@@ -532,7 +534,7 @@ namespace Iface.Oik.Tm.Interfaces
         return tmAnalog;
       }
       
-      tmAnalog.IsInit = (tmcCommonPoint.TM_Flags != 0xFFFF);
+      tmAnalog.IsInit = tmcCommonPoint.TM_Flags != 0xFFFF && !tmcAnalogPoint.AsFloat.Equals(InvalidValue);
       tmAnalog.Value  = tmcAnalogPoint.AsFloat;
       tmAnalog.Code   = tmcAnalogPoint.AsCode;
       tmAnalog.Flags  = (TmFlags) tmcAnalogPoint.Flags;
