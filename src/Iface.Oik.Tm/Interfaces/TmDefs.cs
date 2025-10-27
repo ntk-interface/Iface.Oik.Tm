@@ -275,6 +275,8 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Видео - левая кнопка мыши")]                      VideoForClick             = 29,
     [Description("Видео - окно телепараметра")]                     VideoForTmTag             = 30,
     [Description("Пользовательский список")]                        TmTagList                 = 31,
+    [Description("Метка на карте - контекстное меню")]              MapPlacemarkForContextMenu= 32,
+    [Description("Метка на карте - левая кнопка мыши")]             MapPlacemarkForClick      = 33,
   }
 
 
