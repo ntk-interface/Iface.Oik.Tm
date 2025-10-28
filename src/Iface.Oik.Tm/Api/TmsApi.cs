@@ -3040,6 +3040,35 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<TmEventElix> GetRecentEventsElix(int          recentCount,
+                                                       int          recentHours = 24,
+                                                       TmEventTypes eventTypes  = TmEventTypes.Any)
+    {
+      var utcTime       = DateUtil.GetUtcTimestampFromDateTime(DateTime.Now.Subtract(TimeSpan.FromHours(recentHours)));
+      var serverUtcTime = _native.UxGmTime2UxTime(utcTime);
+      
+      var startElix  = new TmNativeDefs.TTMSElix(); // передаём пустой, тогда вернутся последние события
+      var resultElix = new TmNativeDefs.TTMSElix();
+      if (!await Task.Run(() => _native.TmcFindPrevElix(_cid,
+                                                        ref startElix,
+                                                        ref resultElix,
+                                                        (uint)recentCount,
+                                                        (uint)serverUtcTime,
+                                                        0,
+                                                        (ushort)eventTypes))
+                     .ConfigureAwait(false))
+      {
+        return null;
+      }
+      if (resultElix.R == 0 && resultElix.M == 0)
+      {
+        return null;
+      }
+
+      return new TmEventElix(resultElix.R, resultElix.M);
+    }
+
+
     public async Task SetTagFlagsExplicitly(TmTag tag, TmFlags flags)
     {
       var (ch, rtu, point) = tag.TmAddr.GetTupleShort();

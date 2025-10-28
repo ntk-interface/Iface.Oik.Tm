@@ -109,6 +109,10 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<Tob>> GetTechObjects(TobFilter filter);
 
     Task<TmEventElix> GetCurrentEventsElix();
+    
+    Task<TmEventElix> GetRecentEventsElix(int          recentCount,
+                                          int          recentHours = 24,
+                                          TmEventTypes eventTypes  = TmEventTypes.Any);
 
     Task<string> GetExpressionResult(string expression);
 

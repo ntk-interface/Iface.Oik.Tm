@@ -185,6 +185,12 @@ namespace Iface.Oik.Tm.Interfaces
     Task<TmEventElix> GetCurrentEventsElix(PreferApi prefer = PreferApi.Auto);
 
 
+    Task<TmEventElix> GetRecentEventsElix(int          recentCount,
+                                          int          recentHours = 24,
+                                          TmEventTypes eventTypes  = TmEventTypes.Any,
+                                          PreferApi    prefer      = PreferApi.Auto);
+
+
     Task<(IReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix,
                                                                        PreferApi   prefer = PreferApi.Auto);
 

@@ -205,6 +205,15 @@ namespace Iface.Oik.Tm.Native.Interfaces
                              UInt32                    endUnixTime);
 
 
+    Boolean TmcFindPrevElix(Int32                     cid,
+                            ref TmNativeDefs.TTMSElix startElix,
+                            ref TmNativeDefs.TTMSElix prevElix,
+                            UInt32                    notMoreThan,
+                            UInt32                    notBeforeUt,
+                            UInt16                    notBeforeMs,
+                            UInt16                    eventMask);
+
+
     Boolean TmcGetCurrentElix(Int32                     cid,
                               ref TmNativeDefs.TTMSElix elix);
 

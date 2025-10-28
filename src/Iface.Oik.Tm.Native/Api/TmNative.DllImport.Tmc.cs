@@ -307,6 +307,16 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
+    public static extern Boolean tmcFindPrevElix(Int32                               cid,
+                                                 [In] ref      TmNativeDefs.TTMSElix startElix,
+                                                 [In, Out] ref TmNativeDefs.TTMSElix prevElix,
+                                                 UInt32                              notMoreThan,
+                                                 UInt32                              notBeforeUt,
+                                                 UInt16                              notBeforeMs,
+                                                 UInt16                              eventMask);
+
+
+    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Boolean tmcAlertListRemove(Int32                                 cid,
                                                     [In, Out] TmNativeDefs.TAlertListId[] listIds);
 

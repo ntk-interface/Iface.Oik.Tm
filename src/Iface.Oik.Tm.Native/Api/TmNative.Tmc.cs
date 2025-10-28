@@ -315,6 +315,18 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
+    public Boolean TmcFindPrevElix(Int32                     cid,
+                                   ref TmNativeDefs.TTMSElix startElix,
+                                   ref TmNativeDefs.TTMSElix prevElix,
+                                   UInt32                    notMoreThan,
+                                   UInt32                    notBeforeUt,
+                                   UInt16                    notBeforeMs,
+                                   UInt16                    eventMask)
+    {
+      return tmcFindPrevElix(cid, ref startElix, ref prevElix, notMoreThan, notBeforeUt, notBeforeMs, eventMask);
+    }
+
+
     public Boolean TmcGetCurrentElix(Int32                     cid,
                                      ref TmNativeDefs.TTMSElix elix)
     {

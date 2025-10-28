@@ -851,6 +851,27 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task<TmEventElix> GetRecentEventsElix(int          recentCount,
+                                                       int          recentHours = 24,
+                                                       TmEventTypes eventTypes  = TmEventTypes.Any,
+                                                       PreferApi    prefer      = PreferApi.Auto)
+    {
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
+      if (api == ApiSelection.Tms)
+      {
+        return await _tms.GetRecentEventsElix(recentCount, recentHours, eventTypes).ConfigureAwait(false);
+      }
+      else if (api == ApiSelection.Sql)
+      {
+        throw new NotImplementedException();
+      }
+      else
+      {
+        return null;
+      }
+    }
+
+
     public async Task<(IReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix,
                                                                                     PreferApi   prefer = PreferApi.Auto)
     {
