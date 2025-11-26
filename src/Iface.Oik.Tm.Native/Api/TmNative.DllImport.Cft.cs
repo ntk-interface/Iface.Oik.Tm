@@ -17,8 +17,14 @@ namespace Iface.Oik.Tm.Native.Api
     
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
     public static extern IntPtr cftNodeEnumAll(IntPtr id, Int32 idx);
+    
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
+    public static extern IntPtr cftNodeGetNext(IntPtr id);
 
-
+    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
+    public static extern IntPtr cftNodeGetNextAll(IntPtr id);
+    
+    
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern IntPtr cftNodeGetName(IntPtr                                         id,
                                                [In, Out] byte[] buf,

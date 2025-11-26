@@ -18,7 +18,16 @@ namespace Iface.Oik.Tm.Native.Api
       return cftNodeEnumAll(id, idx);
     }
     
+    public IntPtr CftNodeGetNext(IntPtr id)
+    {
+      return cftNodeGetNext(id);
+    }
 
+    public IntPtr CftNodeGetNextAll(IntPtr id)
+    {
+      return cftNodeGetNextAll(id);
+    }
+    
     public void CftNodeFreeTree(IntPtr id)
     {
       cftNodeFreeTree(id);
