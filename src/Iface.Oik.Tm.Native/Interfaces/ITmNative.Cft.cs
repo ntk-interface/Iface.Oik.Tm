@@ -15,6 +15,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
     IntPtr CftNodeEnumAll(IntPtr id,
                           Int32  count);
     
+    IntPtr CftNodeGetNext(IntPtr id);
+    
+    IntPtr CftNodeGetNextAll(IntPtr id);
     
     IntPtr CftNodeGetName(IntPtr     id,
                           byte[] buf,

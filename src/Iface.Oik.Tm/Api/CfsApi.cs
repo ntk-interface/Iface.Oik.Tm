@@ -649,16 +649,25 @@ namespace Iface.Oik.Tm.Api
     {
       var children = new List<CfTreeNode>();
 
+      var childHandle = IntPtr.Zero;
+      
       for (var i = 0;; i++)
       {
-        var childHandle = _native.CftNodeEnumAll(parentHandle, i);
+        childHandle = i == 0 
+                            ? _native.CftNodeEnumAll(parentHandle, 0) 
+                            : _native.CftNodeGetNextAll(childHandle);
+        
         if (childHandle == IntPtr.Zero)
+        {
           break;
+        }
+        
         var nodeChild = new CfTreeNode(GetNodeName(childHandle), parent)
         {
           Disabled     = !_native.CftNodeIsEnabled(childHandle),
           CfProperties = GetNodeProps(childHandle),
         };
+        
         nodeChild.Children = GetNodeChildren(childHandle, nodeChild);
         children.Add(nodeChild);
       }
