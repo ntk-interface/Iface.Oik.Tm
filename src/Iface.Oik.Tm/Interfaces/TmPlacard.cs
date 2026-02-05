@@ -14,6 +14,8 @@ namespace Iface.Oik.Tm.Interfaces
     public Tob               Tob         { get; set; }
     public float             Scale       { get; set; } = 1.0f;
     public TmPlacardPosition Position    { get; set; } = TmPlacardPosition.Center;
+    public int               OffsetX     { get; set; }
+    public int               OffsetY     { get; set; }
 
 
     public bool IsPseudoPlacardPermittedGround { get; set; }
@@ -53,6 +55,8 @@ namespace Iface.Oik.Tm.Interfaces
              Index    == comparison.Index    &&
              Comment  == comparison.Comment  &&
              Position == comparison.Position &&
+             OffsetX  == comparison.OffsetX  &&
+             OffsetY  == comparison.OffsetY  &&
              Scale.Equals(comparison.Scale);
     }
 
