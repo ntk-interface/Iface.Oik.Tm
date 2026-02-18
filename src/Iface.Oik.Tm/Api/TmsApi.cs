@@ -1796,16 +1796,41 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<bool> AckEvent(TmEvent tmEvent)
     {
-      if (tmEvent == null) return false;
-
-      var nativeElix = new TmNativeDefs.TTMSElix
+      if (tmEvent == null)
       {
-        M = tmEvent.Elix.M,
-        R = tmEvent.Elix.R,
+        return false;
+      }
+      var nativeElix = new[]
+      {
+        new TmNativeDefs.TTMSElix
+        {
+          M = tmEvent.Elix.M,
+          R = tmEvent.Elix.R,
+        }
       };
-      var result = await Task.Run(() => _native.TmcEventLogAckRecords(_cid, ref nativeElix, 1))
+      var result = await Task.Run(() => _native.TmcEventLogAckRecords(_cid, nativeElix, 1))
                              .ConfigureAwait(false);
+      return result;
+    }
 
+
+    public async Task<bool> AckEvents(IReadOnlyList<TmEvent> tmEvents)
+    {
+      if (tmEvents.IsNullOrEmpty())
+      {
+        return false;
+      }
+      var nativeElixes = new TmNativeDefs.TTMSElix[tmEvents.Count];
+      for (var i = 0; i < tmEvents.Count; i++)
+      {
+        nativeElixes[i] = new TmNativeDefs.TTMSElix
+        {
+          M = tmEvents[i].Elix.M,
+          R = tmEvents[i].Elix.R,
+        };
+      }
+      var result = await Task.Run(() => _native.TmcEventLogAckRecords(_cid, nativeElixes, (uint) tmEvents.Count))
+                             .ConfigureAwait(false);
       return result;
     }
 

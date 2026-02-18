@@ -427,9 +427,9 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Boolean tmcEventLogAckRecords(Int32                          cid,
-                                                       [In] ref TmNativeDefs.TTMSElix elix,
-                                                       UInt32                         count);
+    public static extern Boolean tmcEventLogAckRecords(Int32                        cid,
+                                                       [In] TmNativeDefs.TTMSElix[] elix,
+                                                       UInt32                       count);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]

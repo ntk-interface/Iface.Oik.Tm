@@ -495,6 +495,10 @@ namespace Iface.Oik.Tm.Interfaces
                         PreferApi prefer = PreferApi.Auto);
 
 
+    Task<bool> AckEvents(IReadOnlyList<TmEvent> tmEvents,
+                         PreferApi              prefer = PreferApi.Auto);
+
+
     Task AddStringToEventLog(string    str,
                              TmAddr    tmAddr = null,
                              DateTime? time   = null,

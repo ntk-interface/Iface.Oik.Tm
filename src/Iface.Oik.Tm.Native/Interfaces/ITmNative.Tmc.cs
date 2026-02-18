@@ -316,9 +316,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
                         Int16  command);
 
 
-    Boolean TmcEventLogAckRecords(Int32                     cid,
-                                  ref TmNativeDefs.TTMSElix elix,
-                                  UInt32                    count);
+    Boolean TmcEventLogAckRecords(Int32                   cid,
+                                  TmNativeDefs.TTMSElix[] elix,
+                                  UInt32                  count);
 
 
     void TmcStatusByList(Int32                       cid,

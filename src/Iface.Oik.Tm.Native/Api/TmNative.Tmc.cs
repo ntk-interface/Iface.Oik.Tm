@@ -482,11 +482,11 @@ namespace Iface.Oik.Tm.Native.Api
     }
 
 
-    public Boolean TmcEventLogAckRecords(Int32                     cid,
-                                         ref TmNativeDefs.TTMSElix elix,
-                                         UInt32                    count)
+    public Boolean TmcEventLogAckRecords(Int32                   cid,
+                                         TmNativeDefs.TTMSElix[] elix,
+                                         UInt32                  count)
     {
-      return tmcEventLogAckRecords(cid, ref elix, count);
+      return tmcEventLogAckRecords(cid, elix, count);
     }
 
 
