@@ -194,6 +194,8 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<bool> AckEvent(TmEvent tmEvent);
 
+    Task<bool> AckEvents(IReadOnlyList<TmEvent> tmEvents);
+
 
     Task AddStringToEventLog(string    str,
                              TmAddr    tmAddr = null,
