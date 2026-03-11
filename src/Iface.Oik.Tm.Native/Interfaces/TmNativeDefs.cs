@@ -1098,11 +1098,11 @@ namespace Iface.Oik.Tm.Native.Interfaces
     {
       public UInt16 Type;
 
-      [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
-      public string Name;
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
+      public byte[] Name;
 
-      [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 30)]
-      public string Description;
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 30)]
+      public byte[] Description;
 
       public UInt32 Period;
       public UInt32 Capacity;
