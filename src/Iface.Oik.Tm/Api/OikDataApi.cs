@@ -716,7 +716,7 @@ namespace Iface.Oik.Tm.Api
     public async Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags,
                                                        PreferApi            prefer = PreferApi.Auto)
     {
-      var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: true, isSqlImplemented: true);
+      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
       if (api == ApiSelection.Tms)
       {
         await _tms.UpdateTagsPropertiesAndClassData(tags).ConfigureAwait(false);
