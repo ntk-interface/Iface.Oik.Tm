@@ -1,14 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <Platforms>x86;AnyCPU</Platforms>
-        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-        <Version>1.0.2</Version>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Platform)' == 'x86'">
         <DefineConstants>x86</DefineConstants>
     </PropertyGroup>
-    
 	<ItemGroup Condition="'$(Platform)' == 'x86'">
         <None Include="..\..\lib\cfshare.dll" CopyToOutputDirectory="PreserveNewest" />
         <None Include="..\..\lib\tmconn.dll" CopyToOutputDirectory="PreserveNewest" />
@@ -17,18 +14,4 @@
         <None Include="..\..\lib\libif_cfs.so" CopyToOutputDirectory="PreserveNewest" />
         <None Include="..\..\lib\libif_cfs.dll" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
-	
-	<ItemGroup>
-		<Content Include="runtimes\**" PackagePath="runtimes" Visible="false" />
-	</ItemGroup>
-	
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(OS)' == 'Windows_NT' ">
-        <Exec Command="mkdir runtimes\unix\native\" IgnoreExitCode="true" />
-        <Exec Command="mkdir runtimes\win-x64\native\" IgnoreExitCode="true" />
-        <Exec Command="mkdir runtimes\win-x86\native\" IgnoreExitCode="true" />
-	    <Exec Command="copy ..\..\lib\libif_cfs.so .\runtimes\unix\native\" />
-  	    <Exec Command="copy ..\..\lib\libif_cfs.dll .\runtimes\win-x64\native\" />
-		<Exec Command="copy ..\..\lib\cfshare.dll .\runtimes\win-x86\native\" />
-		<Exec Command="copy ..\..\lib\tmconn.dll .\runtimes\win-x86\native\" />
-	</Target>
 </Project>

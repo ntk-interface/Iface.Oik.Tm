@@ -1,9 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <Platforms>x86;AnyCPU</Platforms>
-        <Version>1.0.2</Version>
-        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="ConfigureAwaitChecker.Analyzer" Version="4.0.0" />
@@ -12,8 +10,5 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Iface.Oik.Tm.Native\Iface.Oik.Tm.Native.csproj" />
-    </ItemGroup>
-    <ItemGroup>
-      <Compile Remove="Interfaces\TmAlertEventArgs.cs" />
     </ItemGroup>
 </Project>
