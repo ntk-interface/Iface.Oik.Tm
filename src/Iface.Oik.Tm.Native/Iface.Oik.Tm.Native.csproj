@@ -2,6 +2,7 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <Platforms>x86;AnyCPU</Platforms>
+        <Version>2.0.0</Version>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Platform)' == 'x86'">
         <DefineConstants>x86</DefineConstants>
