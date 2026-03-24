@@ -10,6 +10,11 @@ namespace Iface.Oik.Tm.Native.Api
 {
   public partial class TmNative
   {
+    public void CfsSetUtf8Encoding(bool bSet)
+    {
+      cfsSetUtf8Encoding(bSet);
+    }
+    
     public bool CfsInitLibrary(byte[] baseDir = null, byte[] extArg = null)
     {
 #if x86

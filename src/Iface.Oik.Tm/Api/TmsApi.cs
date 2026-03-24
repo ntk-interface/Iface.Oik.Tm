@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -3023,10 +3024,17 @@ namespace Iface.Oik.Tm.Api
     {
       if (channelId < 0 || channelId > 254) return null;
 
-      var buf = new byte[1024];
+      Span<byte> buf = stackalloc byte[1024];
       _native.TmcGetObjectName(_cid, (ushort)TmNativeDefs.TmDataTypes.Channel, (short)channelId, 0, 0,
-                               ref buf, 1024);
-      return EncodingUtil.Win1251BytesToUtf8(buf);
+                               buf, buf.Length);
+      
+      var len = buf.IndexOf((byte)0);
+      if (len < 0)
+      {
+        len = buf.Length;
+      }
+
+      return Encoding.UTF8.GetString(buf[..len]); 
     }
 
 
@@ -3044,11 +3052,17 @@ namespace Iface.Oik.Tm.Api
         return null;
       }
 
-      var buf = new byte[1024];
+      Span<byte> buf = stackalloc byte[1024];
       _native.TmcGetObjectName(_cid, (ushort)TmNativeDefs.TmDataTypes.Rtu, (short)channelId, (short)rtuId, 0,
-                               ref buf, 1024);
+                               buf, buf.Length);
 
-      return EncodingUtil.Win1251BytesToUtf8(buf);
+      var len = buf.IndexOf((byte)0);
+      if (len < 0)
+      {
+        len = buf.Length;
+      }
+
+      return Encoding.UTF8.GetString(buf[..len]); 
     }
 
 
@@ -3934,18 +3948,24 @@ namespace Iface.Oik.Tm.Api
 
     private string GetObjectName(TmAddr tmAddr)
     {
-      const int bufSize = 1024;
-      var       buf     = new byte[bufSize];
 
+      Span<byte> buf = stackalloc byte[1024];
+      
       _native.TmcGetObjectName(_cid,
                                (ushort)tmAddr.Type.ToNativeType(),
                                (short)tmAddr.Ch,
                                (short)tmAddr.Rtu,
                                (short)tmAddr.Point,
-                               ref buf,
-                               bufSize);
+                               buf,
+                               buf.Length);
 
-      return EncodingUtil.Win1251BytesToUtf8(buf);
+      var len = buf.IndexOf((byte)0);
+      if (len < 0)
+      {
+        len = buf.Length;
+      }
+
+      return Encoding.UTF8.GetString(buf[..len]);
     }
 
 

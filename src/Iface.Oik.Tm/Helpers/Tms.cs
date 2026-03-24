@@ -19,6 +19,11 @@ namespace Iface.Oik.Tm.Helpers
     public static readonly TmNativeCallback EmptyTmCallbackDelegate = delegate { };
 
 
+    public static void SetNativeLibraryEncodingUtf8()
+    {
+      Native.CfsSetUtf8Encoding(true);
+    }
+    
     public static void InitNativeLibrary()
     {
       Native.CfsInitLibrary();

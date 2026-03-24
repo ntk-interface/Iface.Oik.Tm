@@ -777,7 +777,7 @@ namespace Iface.Oik.Tm.Native.Api
                                   Int16      ch,
                                   Int16      rtu,
                                   Int16      point,
-                                  ref byte[] buf,
+                                  Span<Byte> buf,
                                   Int32      bufSize)
     {
       return tmcGetObjectName(cid, objectType, ch, rtu, point, buf, bufSize);

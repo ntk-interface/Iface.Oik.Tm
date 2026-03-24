@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -10,6 +11,11 @@ namespace Iface.Oik.Tm.Native.Api
 {
   public partial class TmNative
   {
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial void cfsSetUtf8Encoding([MarshalAs(UnmanagedType.Bool)] Boolean bSet);
+    
+    
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
     public static extern bool cfsInitLibrary(byte[] baseDir,
                                              byte[] extArg);

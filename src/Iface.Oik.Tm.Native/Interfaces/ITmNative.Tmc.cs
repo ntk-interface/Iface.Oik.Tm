@@ -527,7 +527,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
                            Int16      ch,
                            Int16      rtu,
                            Int16      point,
-                           ref byte[] buf,
+                           Span<Byte> buf,
                            Int32      bufSize);
 
 

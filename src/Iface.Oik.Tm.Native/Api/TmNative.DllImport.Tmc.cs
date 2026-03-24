@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using Iface.Oik.Tm.Native.Interfaces;
@@ -636,14 +637,15 @@ namespace Iface.Oik.Tm.Native.Api
                                              Int16              point);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Byte tmcGetObjectName(Int32            cid,
-                                               UInt16           objectType,
-                                               Int16            ch,
-                                               Int16            rtu,
-                                               Int16            point,
-                                               [In, Out] byte[] buf,
-                                               Int32            bufSize);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static  partial Byte tmcGetObjectName(Int32            cid,
+                                                 UInt16           objectType,
+                                                 Int16            ch,
+                                                 Int16            rtu,
+                                                 Int16            point,
+                                                 Span<Byte>       buf,
+                                                 Int32            bufSize);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]

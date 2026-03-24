@@ -6,6 +6,9 @@ namespace Iface.Oik.Tm.Native.Interfaces
 {
   public partial interface ITmNative
   {
+    void CfsSetUtf8Encoding(bool bSet);
+    
+    
     bool CfsInitLibrary(byte[] baseDir = null,
                         byte[] extArg  = null);
 
