@@ -22,6 +22,7 @@ namespace Iface.Oik.Tm.Api
     {
       _createOikSqlConnection = createOikSqlConnection;
       
+      AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true); // Npgsql 
       DefaultTypeMap.MatchNamesWithUnderscores = true; // Dapper
     }
 
