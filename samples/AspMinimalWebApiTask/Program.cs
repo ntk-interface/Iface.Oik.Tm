@@ -13,7 +13,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
+// TODO убрать после перехода кодировок
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // требуется для работы с кодировкой Win-1251
+    
+Tms.InitNativeLibrary();
 
 var builder = WebApplication.CreateBuilder(args);
 // регистрация зависимостей ОИК

@@ -16,6 +16,7 @@ var password = commandLineArgs.ElementAtOrDefault(4) ?? "";
 
 try
 {
+  // TODO убрать после перехода кодировок
   Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // требуется для работы с кодировкой Win-1251
   
   Tms.InitNativeLibrary();

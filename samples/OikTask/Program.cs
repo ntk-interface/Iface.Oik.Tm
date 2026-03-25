@@ -12,7 +12,10 @@ namespace OikTask
   {
     public static void Main(string[] args)
     {
+      // TODO убрать после перехода кодировок
       Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // требуется для работы с кодировкой Win-1251
+    
+      Tms.InitNativeLibrary();
       
       var app = CreateHostBuilder(args).Build();
       using (var scope = app.Services.CreateScope())

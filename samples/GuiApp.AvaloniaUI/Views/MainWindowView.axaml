@@ -1,10 +1,11 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="clr-namespace:GuiApp.Shared.ViewModels;assembly=GuiApp.Shared"
+        xmlns:vm="clr-namespace:GuiApp.AvaloniaUI.ViewModels"
         x:Class="GuiApp.AvaloniaUI.Views.MainWindowView"
         Title="Avalonia UI пример"
         Width="1000"
-        Height="800">
+        Height="800"
+        x:DataType="vm:MainWindowViewModel">
     
     <Design.DataContext>
         <vm:MainWindowViewModel/>
@@ -75,18 +76,18 @@
                         Margin="8"
                         IsVisible="{Binding IsConnected}">
                 <Button Content="Отсоединиться"
-                        Command="{Binding Disconnect}" />
+                        Command="{Binding DisconnectCommand}" />
 
                 <Button Content="Время на сервере"
-                        Command="{Binding GetServerTime}"
+                        Command="{Binding GetServerTimeCommand}"
                         Margin="0,16,0,0" />
 
                 <Button Content="Активные АПС"
-                        Command="{Binding GetPresentAps}"
+                        Command="{Binding GetPresentApsCommand}"
                         Margin="0,8,0,0" />
 
                 <Button Content="Активные уставки"
-                        Command="{Binding GetPresentAlarms}"
+                        Command="{Binding GetPresentAlarmsCommand}"
                         Margin="0,8,0,0" />
 
                 <StackPanel Orientation="Horizontal"
@@ -103,22 +104,22 @@
                 </StackPanel>
 
                 <Button Content="Состояние сигнала"
-                        Command="{Binding GetStatus}"
+                        Command="{Binding GetStatusCommand}"
                         Margin="0,8,0,0" />
 
                 <Button Content="Значение измерения"
-                        Command="{Binding GetAnalog}"
+                        Command="{Binding GetAnalogCommand}"
                         Margin="0,8,0,0" />
 
                 <Button Content="Очистить лог"
-                        Command="{Binding ClearLog}"
+                        Command="{Binding ClearLogCommand}"
                         Margin="0,16,0,0" />
             </StackPanel>
         </Grid>
 
         <ListBox Grid.Row="0"
                  Grid.Column="1"
-                 Items="{Binding Log}"
+                 ItemsSource="{Binding Log}"
                  Margin="8">
             <ListBox.ItemTemplate>
                 <DataTemplate>
