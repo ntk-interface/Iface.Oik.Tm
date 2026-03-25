@@ -3,24 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AspWebApi.Model;
-using AutoMapper;
 using Iface.Oik.Tm.Interfaces;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AspWebApi.Controllers
+namespace AspWebApiTask.Controllers
 {
   [Route("api/tm")]
   [ApiController]
   public class TmController : Controller
   {
     private readonly IOikDataApi _api;
-    private readonly IMapper     _mapper;
 
 
-    public TmController(IOikDataApi api, IMapper mapper)
+    public TmController(IOikDataApi api)
     {
-      _api    = api;
-      _mapper = mapper;
+      _api = api;
     }
 
 
@@ -33,10 +31,10 @@ namespace AspWebApi.Controllers
 
       try
       {
-        tmStatuses = statuses?.Split(',')
+        tmStatuses = statuses.Split(',')
                              .Select(tmAddrString => new TmStatus(TmAddr.Parse(tmAddrString, TmType.Status)))
                              .ToList();
-        tmAnalogs = analogs?.Split(',')
+        tmAnalogs = analogs.Split(',')
                            .Select(tmAddrString => new TmAnalog(TmAddr.Parse(tmAddrString, TmType.Analog)))
                            .ToList();
       }
@@ -52,16 +50,16 @@ namespace AspWebApi.Controllers
 
       return Ok(new
       {
-        s = _mapper.Map<IEnumerable<TmStatusDto>>(tmStatuses),
-        a = _mapper.Map<IEnumerable<TmAnalogDto>>(tmAnalogs),
+        s = tmStatuses.Adapt<List<TmStatusDto>>(),
+        a = tmAnalogs.Adapt<List<TmAnalogDto>>(),
       });
     }
 
 
-    [HttpGet("ts/{id}")]
-    public async Task<IActionResult> ShowTs(string id)
+    [HttpGet("ts/{status}")]
+    public async Task<IActionResult> ShowTs(string status)
     {
-      if (!TmAddr.TryParse(id, out var tmAddr, TmType.Status))
+      if (!TmAddr.TryParse(status, out var tmAddr, TmType.Status))
       {
         return NotFound();
       }
@@ -69,14 +67,14 @@ namespace AspWebApi.Controllers
       await Task.WhenAll(_api.UpdateTagPropertiesAndClassData(tmStatus),
                          _api.UpdateStatus(tmStatus));
 
-      return Ok(_mapper.Map<TmStatusDto>(tmStatus));
+      return Ok(tmStatus.Adapt<TmStatusDto>());
     }
 
 
-    [HttpGet("ti/{id}")]
-    public async Task<IActionResult> ShowTi(string id)
+    [HttpGet("ti/{analog}")]
+    public async Task<IActionResult> ShowTi(string analog)
     {
-      if (!TmAddr.TryParse(id, out var tmAddr, TmType.Analog))
+      if (!TmAddr.TryParse(analog, out var tmAddr, TmType.Analog))
       {
         return NotFound();
       }
@@ -84,7 +82,7 @@ namespace AspWebApi.Controllers
       await Task.WhenAll(_api.UpdateTagPropertiesAndClassData(tmAnalog),
                          _api.UpdateAnalog(tmAnalog));
 
-      return Ok(_mapper.Map<TmAnalogDto>(tmAnalog));
+      return Ok(tmAnalog.Adapt<TmAnalogDto>());
     }
   }
 }

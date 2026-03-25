@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -9,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
+using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
@@ -19,16 +19,9 @@ namespace Iface.Oik.Tm.Api
   {
     private int _cid;
 
-    private readonly ITmNative _native;
-
     private readonly Regex _portStatsRegex = new
       Regex(@"@=(\d*),0=(\d*),1=(\d*),2=(\d*),3=(\d*)",
             RegexOptions.Compiled);
-
-    public DeltaApi(ITmNative native)
-    {
-      _native = native;
-    }
 
 
     public void SetCid(int cid)
@@ -55,16 +48,16 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<int> GetTreeChangeValue()
     {
-      return await Task.Run(() => _native.TmcDntTreeChange(_cid))
+      return await Task.Run(() => TmNative.tmcDntTreeChange(_cid))
                        .ConfigureAwait(false);
     }
 
 
     public async Task<(IReadOnlyCollection<DeltaItem>, string)> GetComponentsItems(DeltaComponent component)
     {
-      var componentItemsPtr = await Task.Run(() => _native.TmcDntOpenItem(_cid,
-                                                                          (uint) component.TraceChain.Length,
-                                                                          component.TraceChain))
+      var componentItemsPtr = await Task.Run(() => TmNative.tmcDntOpenItem(_cid,
+                                                                           (uint) component.TraceChain.Length,
+                                                                           component.TraceChain))
                                         .ConfigureAwait(false);
 
       if (componentItemsPtr == IntPtr.Zero)
@@ -78,7 +71,7 @@ namespace Iface.Oik.Tm.Api
 
       while (true)
       {
-        var itemPtr = _native.TmcDntGetNextItem(componentItemsPtr);
+        var itemPtr = TmNative.tmcDntGetNextItem(componentItemsPtr);
 
         if (itemPtr == IntPtr.Zero) break;
 
@@ -304,7 +297,7 @@ namespace Iface.Oik.Tm.Api
         }
       }
 
-      _native.TmcDntCloseItem(componentItemsPtr);
+      TmNative.tmcDntCloseItem(componentItemsPtr);
       
       return (items, description);
     }
@@ -330,13 +323,13 @@ namespace Iface.Oik.Tm.Api
     
     public async Task<bool> RegisterTracer()
     {
-      return await Task.Run(() => _native.TmcDntRegisterUser(_cid)).ConfigureAwait(false);
+      return await Task.Run(() => TmNative.tmcDntRegisterUser(_cid)).ConfigureAwait(false);
     }
 
 
     public async Task UnRegisterTracer()
     {
-      await Task.Run(() => _native.TmcDntUnRegisterUser(_cid)).ConfigureAwait(false);
+      await Task.Run(() => TmNative.tmcDntUnRegisterUser(_cid)).ConfigureAwait(false);
     }
 
 
@@ -356,33 +349,33 @@ namespace Iface.Oik.Tm.Api
         traceChain[0] = ~traceChain[0];
       }
 
-      await Task.Run(() => _native.TmcDntBeginTraceEx(_cid,
-                                                      (uint) traceChain.Length,
-                                                      traceChain,
-                                                      (uint) traceFlag,
-                                                      0,
-                                                      0))
+      await Task.Run(() => TmNative.tmcDntBeginTraceEx(_cid,
+                                                       (uint) traceChain.Length,
+                                                       traceChain,
+                                                       (uint) traceFlag,
+                                                       0,
+                                                       0))
                 .ConfigureAwait(false);
     }
 
 
     public async Task StartDebug()
     {
-      await Task.Run(() => _native.TmcDntBeginDebug(_cid))
+      await Task.Run(() => TmNative.tmcDntBeginDebug(_cid))
                 .ConfigureAwait(false);
     }
 
 
     public async Task StopDebug()
     {
-      await Task.Run(() => _native.TmcDntStopDebug(_cid))
+      await Task.Run(() => TmNative.tmcDntStopDebug(_cid))
                 .ConfigureAwait(false);
     }
 
 
     public async Task StopTrace()
     {
-      await Task.Run(() => _native.TmcDntStopTrace(_cid)).ConfigureAwait(false);
+      await Task.Run(() => TmNative.tmcDntStopTrace(_cid)).ConfigureAwait(false);
     }
 
 
@@ -397,11 +390,11 @@ namespace Iface.Oik.Tm.Api
           case 2:
           case 3:
             uint data = 5;
-            var result = await Task.Run(() => _native.TmcDntGetLiveInfo(_cid,
-                                                                        (uint) node.Level,
-                                                                        node.TraceChain,
-                                                                        out data,
-                                                                        sizeof(uint)))
+            var result = await Task.Run(() => TmNative.tmcDntGetLiveInfo(_cid,
+                                                                         (uint) node.Level,
+                                                                         node.TraceChain,
+                                                                         out data,
+                                                                         sizeof(uint)))
                                    .ConfigureAwait(false);
             if (result < sizeof(uint))
             {
@@ -442,8 +435,8 @@ namespace Iface.Oik.Tm.Api
 
         var tempConfFile = Path.GetTempFileName();
 
-        var result = await Task.Run(() => _native.TmcDntGetConfig(_cid, 
-                                                                  EncodingUtil.Utf8ToWin1251Bytes(tempConfFile)))
+        var result = await Task.Run(() => TmNative.tmcDntGetConfig(_cid, 
+                                                                   EncodingUtil.Utf8ToWin1251Bytes(tempConfFile)))
                                .ConfigureAwait(false);
         if (!result)
         {
@@ -506,13 +499,13 @@ namespace Iface.Oik.Tm.Api
       const int bufSize = 1024;
       var       buf     = new byte[bufSize];
 
-      await Task.Run(() => _native.TmcDntGetObjectName(_cid,
-                                                       (ushort) tmAddr.Type.ToNativeType(),
-                                                       (short) tmAddr.Ch,
-                                                       (short) tmAddr.Rtu,
-                                                       (short) tmAddr.Point,
-                                                       ref buf,
-                                                       bufSize))
+      await Task.Run(() => TmNative.tmcDntGetObjectName(_cid,
+                                                        (ushort) tmAddr.Type.ToNativeType(),
+                                                        (short) tmAddr.Ch,
+                                                        (short) tmAddr.Rtu,
+                                                        (short) tmAddr.Point,
+                                                        buf,
+                                                        bufSize))
                 .ConfigureAwait(false);
       return EncodingUtil.Win1251BytesToUtf8(buf);
     }
@@ -522,11 +515,10 @@ namespace Iface.Oik.Tm.Api
       const int bufLength = 1024;
       var       buf       = new byte[bufLength];
 
-      var result = await Task.Run(() =>
-                                    _native.TmcDntGetPortStats(_cid,
-                                                               component.TraceChain,
-                                                               ref buf,
-                                                               bufLength))
+      var result = await Task.Run(() => TmNative.tmcDntGetPortStats(_cid,
+                                                                    component.TraceChain,
+                                                                    buf,
+                                                                    bufLength))
                              .ConfigureAwait(false);
 
       var portStatsString = EncodingUtil.Win1251BytesToUtf8(buf);

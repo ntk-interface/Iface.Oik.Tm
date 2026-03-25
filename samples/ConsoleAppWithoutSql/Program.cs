@@ -3,8 +3,6 @@ using System.Text;
 using Iface.Oik.Tm.Api;
 using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
-using Iface.Oik.Tm.Native.Api;
-using Iface.Oik.Tm.Native.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -38,7 +36,6 @@ namespace ConsoleAppWithoutSql
           .ConfigureServices((hostContext, services) =>
           {
             // регистрация сервисов ОИК
-            services.AddSingleton<ITmNative, TmNative>();
             services.AddSingleton<ITmsApi, TmsApi>();
             services.AddSingleton<IOikSqlApi, OikSqlApi>();
             services.AddSingleton<IOikDataApi, OikDataApi>();

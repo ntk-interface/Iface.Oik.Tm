@@ -4,7 +4,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Api;
 using Iface.Oik.Tm.Helpers;
-using Iface.Oik.Tm.Native.Api;
 
 const string applicationName = "SimpleConsoleAppWithoutSql";
 
@@ -33,7 +32,7 @@ try
     throw new Exception("Нет связи с сервером!");
   }
 
-  var api = new TmsApi(new TmNative());
+  var api = new TmsApi();
   api.SetCidAndUserInfo(tmCid, Tms.GetUserInfo(tmCid, tmServer));
 
   while (true)

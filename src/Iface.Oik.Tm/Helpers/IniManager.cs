@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Iface.Oik.Tm.Native.Api;
-using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Helpers
@@ -12,14 +9,11 @@ namespace Iface.Oik.Tm.Helpers
 	{
 		private const uint BuffSizeStep = 1024;
 		private const uint BufSizeLimit = 0x200000;
-		private readonly ITmNative _native;
 		private IntPtr _filePointer;
 
 		public IniManager(string filePath)
 		{
-			_native = new TmNative();
-
-			_filePointer = _native.IniOpen(EncodingUtil.Utf8ToWin1251Bytes(filePath));
+			_filePointer = TmNative.ini_Open(EncodingUtil.Utf8ToWin1251Bytes(filePath));
 		}
 
 
@@ -31,12 +25,12 @@ namespace Iface.Oik.Tm.Helpers
 			{
 				bufSize += BuffSizeStep;
 				buf = new byte[bufSize];
-				_native.IniReadString(_filePointer, 
-				                      EncodingUtil.Utf8ToWin1251Bytes(section), 
-				                      EncodingUtil.Utf8ToWin1251Bytes(key), 
-				                      EncodingUtil.Utf8ToWin1251Bytes(defaultResponse), 
-				                      buf, 
-				                      bufSize);
+				TmNative.ini_ReadString(_filePointer, 
+				                        EncodingUtil.Utf8ToWin1251Bytes(section), 
+				                        EncodingUtil.Utf8ToWin1251Bytes(key), 
+				                        EncodingUtil.Utf8ToWin1251Bytes(defaultResponse), 
+				                        buf, 
+				                        bufSize);
 			} while (buf[buf.Length - 2] != 0 && bufSize < BufSizeLimit);
 
 
@@ -48,18 +42,18 @@ namespace Iface.Oik.Tm.Helpers
 		{
 			var buf = new byte[BuffSizeStep];
 
-			var returnSize = _native.IniReadSection(_filePointer, 
-			                                        EncodingUtil.Utf8ToWin1251Bytes(section), 
-			                                        buf, 
-			                                        BuffSizeStep);
+			var returnSize = TmNative.ini_ReadSection(_filePointer, 
+			                                          EncodingUtil.Utf8ToWin1251Bytes(section), 
+			                                          buf, 
+			                                          BuffSizeStep);
 
 			if (buf.Length < returnSize)
 			{
 				buf = new byte[returnSize];
-				_native.IniReadSection(_filePointer, 
-				                       EncodingUtil.Utf8ToWin1251Bytes(section), 
-				                       buf, 
-				                       returnSize);
+				TmNative.ini_ReadSection(_filePointer, 
+				                         EncodingUtil.Utf8ToWin1251Bytes(section), 
+				                         buf, 
+				                         returnSize);
 			}
 
 			var significantBytes = new byte[returnSize];
@@ -85,19 +79,19 @@ namespace Iface.Oik.Tm.Helpers
 		{
 			var buf = new byte[bufSize];
 
-			var returnSize = _native.IniReadStruct(_filePointer, 
-			                                       EncodingUtil.Utf8ToWin1251Bytes(section), 
-			                                       EncodingUtil.Utf8ToWin1251Bytes(key), 
-			                                       buf, 
-			                                       bufSize);
+			var returnSize = TmNative.ini_ReadStruct(_filePointer, 
+			                                         EncodingUtil.Utf8ToWin1251Bytes(section), 
+			                                         EncodingUtil.Utf8ToWin1251Bytes(key), 
+			                                         buf, 
+			                                         bufSize);
 
 			if (buf.Length < returnSize)
 			{
 				buf = new byte[returnSize];
-				_native.IniReadSection(_filePointer, 
-				                       EncodingUtil.Utf8ToWin1251Bytes(section), 
-				                       buf, 
-				                       returnSize);
+				TmNative.ini_ReadSection(_filePointer, 
+				                         EncodingUtil.Utf8ToWin1251Bytes(section), 
+				                         buf, 
+				                         returnSize);
 			}
 
 			var significantBytes = new byte[returnSize];
@@ -109,7 +103,7 @@ namespace Iface.Oik.Tm.Helpers
 
 		public void Dispose()
 		{
-			_native.IniClose(_filePointer);
+			TmNative.ini_Close(_filePointer);
 			_filePointer = IntPtr.Zero;
 		}
 	}

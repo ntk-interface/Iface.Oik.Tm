@@ -2,8 +2,6 @@
 using Iface.Oik.Tm.Api;
 using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
-using Iface.Oik.Tm.Native.Api;
-using Iface.Oik.Tm.Native.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GuiApp.Shared
@@ -14,7 +12,6 @@ namespace GuiApp.Shared
     {
       var services = new ServiceCollection();
       
-      services.AddSingleton<ITmNative, TmNative>();
       services.AddSingleton<ITmsApi, TmsApi>();
       services.AddSingleton<IOikSqlApi, OikSqlApi>();
       services.AddSingleton<IOikDataApi, OikDataApi>();

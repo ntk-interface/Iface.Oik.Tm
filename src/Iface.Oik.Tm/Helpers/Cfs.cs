@@ -15,31 +15,29 @@ namespace Iface.Oik.Tm.Helpers
 
 		public const string ServerTypeTms = "tms$";
 
-		public static readonly ITmNative Native = new TmNative();
-
 		public static void InitializeCfsLibrary()
 		{
-			Native.CfsInitLibrary();
+			TmNative.cfsInitLibrary(null, null);
 		}
 
 		public static void SetUserCredentials(string user,
 											  string password)
 		{
-			Native.CfsSetUser(EncodingUtil.Utf8ToWin1251Bytes(user), EncodingUtil.Utf8ToWin1251Bytes(password));
+			TmNative.cfsSetUser(EncodingUtil.Utf8ToWin1251Bytes(user), EncodingUtil.Utf8ToWin1251Bytes(password));
 		}
 		
 		public static string MakeInprocCrd(string host, string user, string pwd)
 		{
-			var ptr = Native.CfsMakeInprocCrd(EncodingUtil.Utf8ToWin1251Bytes(host),
-			                                  EncodingUtil.Utf8ToWin1251Bytes(user),
-			                                  EncodingUtil.Utf8ToWin1251Bytes(pwd));
+			var ptr = TmNative.cfsMakeInprocCrd(EncodingUtil.Utf8ToWin1251Bytes(host),
+			                                    EncodingUtil.Utf8ToWin1251Bytes(user),
+			                                    EncodingUtil.Utf8ToWin1251Bytes(pwd));
 			if (ptr == IntPtr.Zero)
 			{
 				return string.Empty;
 			}
 			
 			var res = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(ptr);
-			Native.CfsFreeMemory(ptr);
+			TmNative.cfsFreeMemory(ptr);
 			return res;
 
 		}
@@ -50,7 +48,7 @@ namespace Iface.Oik.Tm.Helpers
 			var errBuf = new byte[errStringLength];
 
 			var cfId =
-			  Native.CfsConnect(EncodingUtil.Utf8ToWin1251Bytes(host), out uint errCode, ref errBuf, errStringLength);
+			  TmNative.cfsConnect(EncodingUtil.Utf8ToWin1251Bytes(host), out uint errCode, errBuf, errStringLength);
 
 			if (cfId == IntPtr.Zero)
 			{
@@ -100,11 +98,11 @@ namespace Iface.Oik.Tm.Helpers
 			var nativeUserInfoSize = Marshal.SizeOf(typeof(TmNativeDefs.TExtendedUserInfo));
 			var nativeUserInfoPtr = Marshal.AllocHGlobal(nativeUserInfoSize);
 
-			var fetchResult = Native.CfsGetExtendedUserData(cfCid,
-			                                                EncodingUtil.Utf8ToWin1251Bytes(serverType),
-			                                                EncodingUtil.Utf8ToWin1251Bytes(serverName),
-															nativeUserInfoPtr,
-															(uint)nativeUserInfoSize);
+			var fetchResult = TmNative.cfsGetExtendedUserData(cfCid,
+			                                                  EncodingUtil.Utf8ToWin1251Bytes(serverType),
+			                                                  EncodingUtil.Utf8ToWin1251Bytes(serverName),
+															  nativeUserInfoPtr,
+															  (uint)nativeUserInfoSize);
 			if (fetchResult == 0)
 			{
 				Marshal.FreeHGlobal(nativeUserInfoPtr); // не забываем освобождать память из HGlobal
@@ -124,7 +122,7 @@ namespace Iface.Oik.Tm.Helpers
 
 		public static void CloseCfsConnection(IntPtr cfId)
 		{
-			Native.CfsDisconnect(cfId);
+			TmNative.cfsDisconnect(cfId);
 		}
 
 
@@ -134,7 +132,7 @@ namespace Iface.Oik.Tm.Helpers
 			var       errBuf       = new byte[errBufLength];
 			uint      errCode      = 0;
 
-			var hasNus = Native.CfsIfpcNewUserSystemAvaliable(cfCid, out var nusFlags, out errCode, ref errBuf, errBufLength);
+			var hasNus = TmNative.cfsIfpcNewUserSystemAvaliable(cfCid, out var nusFlags, out errCode, errBuf, errBufLength);
 			return (hasNus, (TmNativeDefs.NewUserSystem)nusFlags);
 		}
 	}

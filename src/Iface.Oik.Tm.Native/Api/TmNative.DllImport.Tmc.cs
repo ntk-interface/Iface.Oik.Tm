@@ -276,8 +276,8 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Int16 tmcRegEvent(Int32                        cid,
-                                           [In] ref TmNativeDefs.TEvent tmEvent);
+    public static extern Int16 tmcRegEvent(Int32                    cid,
+                                           [In] TmNativeDefs.TEvent tmEvent);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -292,11 +292,11 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern IntPtr tmcEventLogEx(Int32                                  cid,
-                                              UInt16                                 eventMask,
-                                              UInt32                                 startUnixTime,
-                                              UInt32                                 endUnixTime,
-                                              [In] ref TmNativeDefs.TEventExCriteria criteria);
+    public static extern IntPtr tmcEventLogEx(Int32                              cid,
+                                              UInt16                             eventMask,
+                                              UInt32                             startUnixTime,
+                                              UInt32                             endUnixTime,
+                                              [In] TmNativeDefs.TEventExCriteria criteria);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -689,10 +689,8 @@ namespace Iface.Oik.Tm.Native.Api
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern UInt32 tmcEventGetAdditionalRecData(UInt32 idx,
-                                                             [MarshalAs(UnmanagedType.LPArray)] [In, Out]
-                                                             byte[] buf,
-                                                             UInt32
-                                                               bufSize);
+                                                             [MarshalAs(UnmanagedType.LPArray)] [In, Out] ref byte[] buf,
+                                                             UInt32 bufSize);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AspWebApi.Model;
-using AutoMapper;
 using Iface.Oik.Tm.Interfaces;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspWebApiTask.Controllers
@@ -12,13 +12,11 @@ namespace AspWebApiTask.Controllers
   public class ApsController : Controller
   {
     private readonly IOikDataApi _api;
-    private readonly IMapper     _mapper;
 
 
-    public ApsController(IOikDataApi api, IMapper mapper)
+    public ApsController(IOikDataApi api)
     {
-      _api    = api;
-      _mapper = mapper;
+      _api = api;
     }
 
 
@@ -27,7 +25,7 @@ namespace AspWebApiTask.Controllers
     {
       var statuses = await _api.GetPresentAps();
 
-      return Ok(_mapper.Map<IEnumerable<TmStatusDto>>(statuses));
+      return Ok(statuses.Adapt<List<TmStatusDto>>());
     }
   }
 }

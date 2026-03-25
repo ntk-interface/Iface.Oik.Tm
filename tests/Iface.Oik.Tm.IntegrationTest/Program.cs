@@ -47,7 +47,6 @@ public class Program
     Host.CreateDefaultBuilder(args)
         .ConfigureServices(services =>
         {
-          services.AddSingleton<ITmNative, TmNative>();
           services.AddSingleton<ITmsApi, TmsApi>();
           services.AddSingleton<IOikSqlApi, OikSqlApi>();
           services.AddSingleton<IOikDataApi, OikDataApi>();

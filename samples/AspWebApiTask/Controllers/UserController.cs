@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Iface.Oik.Tm.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,28 +17,28 @@ namespace AspWebApiTask.Controllers
 
 
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public IActionResult Index()
     {
       return Ok(_infr.TmUserInfo);
     }
 
 
     [HttpGet("name")]
-    public async Task<IActionResult> ShowName()
+    public IActionResult ShowName()
     {
       return Ok(_infr.TmUserInfo?.Name);
     }
 
 
     [HttpGet("id")]
-    public async Task<IActionResult> ShowId()
+    public IActionResult ShowId()
     {
       return Ok(_infr.TmUserInfo?.Id);
     }
 
 
     [HttpGet("group")]
-    public async Task<IActionResult> ShowGroup()
+    public IActionResult ShowGroup()
     {
       return Ok(_infr.TmUserInfo?.GroupId);
     }

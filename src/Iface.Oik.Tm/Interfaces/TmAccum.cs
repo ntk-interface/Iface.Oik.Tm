@@ -371,9 +371,9 @@ namespace Iface.Oik.Tm.Interfaces
       tmAccum.Flags  = (TmFlags) tmcAccumPoint.Flags;
       tmAccum.ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(tmcCommonPoint.tm_local_ut,
                                                                            tmcCommonPoint.tm_local_ms);
-      tmAccum.Width    = (byte) (tmcAccumPoint.Format & 0x0F);
+      tmAccum.Width     = (byte) (tmcAccumPoint.Format & 0x0F);
       tmAccum.Precision = (byte) (tmcAccumPoint.Format >> 4);
-      tmAccum.Unit      = EncodingUtil.Cp866BytesToUtf8(tmcAccumPoint.Unit);
+      tmAccum.Unit      = EncodingUtil.Cp866BytesToUtf8(tmcAccumPoint.Unit); // TODO уточнить у старшего, что тут делать
 
       tmAccum.Name = EncodingUtil.Win1251IntPtrToUtf8(tmcCommonPoint.name);
 
