@@ -15,22 +15,17 @@ namespace Iface.Oik.Tm.Helpers
   public static class Tms
   {
     public static readonly TmNativeCallback EmptyTmCallbackDelegate = delegate { };
-
-
-    public static void SetNativeLibraryEncodingUtf8()
-    {
-      TmNative.cfsSetUtf8Encoding(true);
-    }
     
-    public static void InitNativeLibrary()
+    
+    public static void InitNativeLibrary(bool isUtf8 = true, bool ignoreLinuxSignals = false)
     {
-      TmNative.cfsInitLibrary(null, null);
-    }
+      if (isUtf8)
+      {
+        TmNative.cfsSetUtf8Encoding(true);
+      }
 
-
-    public static void InitNativeLibraryAndIgnoreLinuxSignals()
-    {
-      TmNative.cfsInitLibrary(null, EncodingUtil.Utf8ToWin1251Bytes("nosig"));
+      TmNative.cfsInitLibrary(null, 
+                              ignoreLinuxSignals ? EncodingUtil.Utf8ToWin1251Bytes("nosig") : null);
     }
 
 
