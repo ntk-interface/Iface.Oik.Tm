@@ -436,7 +436,7 @@ namespace Iface.Oik.Tm.Api
         var tempConfFile = Path.GetTempFileName();
 
         var result = await Task.Run(() => TmNative.tmcDntGetConfig(_cid, 
-                                                                   EncodingUtil.Utf8ToWin1251Bytes(tempConfFile)))
+                                                                   EncodingUtil.StringToBytes(tempConfFile)))
                                .ConfigureAwait(false);
         if (!result)
         {
@@ -495,19 +495,29 @@ namespace Iface.Oik.Tm.Api
 
     private async Task<string> GetObjectName(TmAddr tmAddr)
     {
-      if (tmAddr == null || tmAddr.Type == TmType.Unknown) return "";
-      const int bufSize = 1024;
-      var       buf     = new byte[bufSize];
+      return await Task.Run(() => GetObjectNameSync(tmAddr))
+                       .ConfigureAwait(false);
+    }
 
-      await Task.Run(() => TmNative.tmcDntGetObjectName(_cid,
-                                                        (ushort) tmAddr.Type.ToNativeType(),
-                                                        (short) tmAddr.Ch,
-                                                        (short) tmAddr.Rtu,
-                                                        (short) tmAddr.Point,
-                                                        buf,
-                                                        bufSize))
-                .ConfigureAwait(false);
-      return EncodingUtil.Win1251BytesToUtf8(buf);
+    private string GetObjectNameSync(TmAddr tmAddr)
+    {
+      if (tmAddr == null || tmAddr.Type == TmType.Unknown) 
+      {
+        return "";
+      }
+
+      const int bufSize = 1024;
+      Span<byte> buf    = stackalloc byte[bufSize];
+
+      TmNative.tmcDntGetObjectName(_cid,
+                                  (ushort) tmAddr.Type.ToNativeType(),
+                                  (short) tmAddr.Ch,
+                                  (short) tmAddr.Rtu,
+                                  (short) tmAddr.Point,
+                                  buf,
+                                  bufSize);
+
+      return EncodingUtil.BytesToString(buf);
     }
 
     private async Task UpdateDeltaComponentPortStats(DeltaComponent component)
@@ -515,13 +525,8 @@ namespace Iface.Oik.Tm.Api
       const int bufLength = 1024;
       var       buf       = new byte[bufLength];
 
-      var result = await Task.Run(() => TmNative.tmcDntGetPortStats(_cid,
-                                                                    component.TraceChain,
-                                                                    buf,
-                                                                    bufLength))
-                             .ConfigureAwait(false);
-
-      var portStatsString = EncodingUtil.Win1251BytesToUtf8(buf);
+      var (result, portStatsString) = await Task.Run(() => GetPortStatsSync(component.TraceChain))
+                                                .ConfigureAwait(false);
       
       if (result == 0 || portStatsString.IsNullOrEmpty()) return;
 
@@ -535,6 +540,20 @@ namespace Iface.Oik.Tm.Api
 
       component.UpdatePerformanceStatsAndString(ticks, statusCount, analogCount, accumCount, messagesCount);
     }
+
+    private (uint, string) GetPortStatsSync(uint[] traceChain)
+    {
+      const int bufLength = 1024;
+      Span<byte> buf      = stackalloc byte[bufLength];
+
+      var result = TmNative.tmcDntGetPortStats(_cid,
+                                               traceChain,
+                                               buf,
+                                               bufLength);
+
+      return (result, EncodingUtil.BytesToString(buf));
+    }
+
 
     private (long, long, long, long, long) ParsePortStatsString(string portStatsString)
     {

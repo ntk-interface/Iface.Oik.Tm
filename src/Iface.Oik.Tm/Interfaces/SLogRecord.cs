@@ -34,14 +34,14 @@ namespace Iface.Oik.Tm.Interfaces
 		{
 			var result = new SLogRecord();
 
-			if (!strings.Any())
+			if (strings.Count == 0)
 			{
 				return null;
 			}
 
 			foreach (var str in strings)
 			{
-				var payload = str.Substring(1);
+				var payload = str[1..];
 				if (!string.IsNullOrEmpty(payload))
 				{
 					switch (str[0])

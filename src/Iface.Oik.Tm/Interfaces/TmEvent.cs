@@ -506,7 +506,7 @@ namespace Iface.Oik.Tm.Interfaces
                                                               statusDataEx.OldFlags, 
                                                               elix);
 
-      statusChangeExtendedEvent.Username = EncodingUtil.Win1251BytesToUtf8(statusDataEx.UserName);
+      statusChangeExtendedEvent.Username = EncodingUtil.BytesToString(statusDataEx.UserName);
       return statusChangeExtendedEvent;
     }
 
@@ -614,7 +614,7 @@ namespace Iface.Oik.Tm.Interfaces
                                                     TmType.Status, 
                                                     flagsChangeDataStatus.OldFlags, 
                                                     flagsChangeDataStatus.NewFlags,
-                                                    EncodingUtil.Win1251BytesToUtf8(flagsChangeDataStatus.UserName), 
+                                                    EncodingUtil.BytesToString(flagsChangeDataStatus.UserName), 
                                                     elix);
       
       flagsChangeEvent.TypeString = $"Изм. флагов {(sourceStatus.ClassName.IsNullOrEmpty() ? $"{(sourceStatus.IsAps ? "АПС" : "ТС")}" : sourceStatus.ClassName)}";
@@ -636,7 +636,7 @@ namespace Iface.Oik.Tm.Interfaces
                                                     TmType.Analog, 
                                                     flagsChangeDataAnalog.OldFlags, 
                                                     flagsChangeDataAnalog.NewFlags,
-                                                    EncodingUtil.Win1251BytesToUtf8(flagsChangeDataAnalog.UserName), 
+                                                    EncodingUtil.BytesToString(flagsChangeDataAnalog.UserName), 
                                                     elix);
 
       flagsChangeEvent.TypeString = "Изм. флагов ТИ";
@@ -718,7 +718,7 @@ namespace Iface.Oik.Tm.Interfaces
 
       TmEventElix tmEventElix = null;
       
-      if (elix is TmNativeDefs.TTMSElix ttmsElix)
+      if (elix is { } ttmsElix)
       {
         tmEventElix = new TmEventElix(ttmsElix.R, ttmsElix.M);
       }
@@ -726,12 +726,14 @@ namespace Iface.Oik.Tm.Interfaces
       var hash = tmEventElix is null 
                    ? (tEvent.Ch, tEvent.Rtu, tEvent.Point, tEvent.Data, tEvent.DateTime).ToTuple().GetHashCode() 
                    : BitConverter.ToInt32(tmEventElix.ToByteArray(), 8);
+
+      var dtString = TmNativeUtil.GetStringFromBytesWithAdditionalPart(tEvent.DateTime);
+      var dt = DateUtil.GetDateTimeFromExtendedTmString(dtString);
       
       var tmEvent = new TmEvent(hash)
                     {
-                      Elix = tmEventElix,
-                      Time =
-                        DateUtil.GetDateTime(Encoding.Default.GetString(tEvent.DateTime)),
+                      Elix       = tmEventElix,
+                      Time       = dt,
                       Type       = tmEventType,
                       Importance = tEvent.Imp,
                       Text       = sourceObjectName,
@@ -741,7 +743,7 @@ namespace Iface.Oik.Tm.Interfaces
       {
         tmEvent.AckTime = DateUtil.GetDateTimeFromTimestamp(eventAddData.AckSec, eventAddData.AckMs);
         // сервер возвращает мусор после первого нуля в имени, нужно обрезать
-        tmEvent.AckUser = EncodingUtil.Win1251ToUtf8(TmNativeUtil.GetStringFromBytesWithAdditionalPart(eventAddData.UserName));
+        tmEvent.AckUser = eventAddData.UserName;
       }
 
       return tmEvent;

@@ -36,7 +36,7 @@ namespace Iface.Oik.Tm.Interfaces
                RecordTypes  = ParseRecordType(cfsLogRecord.MsgType),
                SourceServer = cfsLogRecord.Name,
                ThreadId     = Convert.ToInt32(cfsLogRecord.ThreadId, 16),
-               DateTime     = DateUtil.GetDateTime($"{cfsLogRecord.Date} {cfsLogRecord.Time}")
+               DateTime     = DateUtil.GetDateTimeFromExtendedTmString($"{cfsLogRecord.Date} {cfsLogRecord.Time}")
              };
     }
 

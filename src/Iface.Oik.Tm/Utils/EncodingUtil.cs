@@ -6,29 +6,29 @@ namespace Iface.Oik.Tm.Utils
 {
   public static class EncodingUtil
   {
-	public const string Cp1251 = "windows-1251";
+    public const string Cp1251 = "windows-1251";
 
-	public static string Utf8ToWin1251(string src)
+    public static string Utf8ToWin1251(string src)
     {
       if (src == null)
       {
         return null;
       }
-      var utf8    = Encoding.UTF8;
+      var utf8 = Encoding.UTF8;
       var win1251 = Encoding.GetEncoding(1251);
       return win1251.GetString(Encoding.Convert(utf8, win1251, utf8.GetBytes(src)));
     }
-    
 
-  public static byte[] Utf8ToWin1251Bytes(string src)
-  {
-    if (src == null)
+
+    public static byte[] StringToBytes(string src)
     {
-      return null;
+      if (src == null)
+      {
+        return null;
+      }
+
+      return Encoding.UTF8.GetBytes(src);
     }
-    var win1251 = Encoding.GetEncoding(1251);
-    return win1251.GetBytes(src);
-  }
 
 
     public static string Win1251ToUtf8(string src)
@@ -38,21 +38,27 @@ namespace Iface.Oik.Tm.Utils
         return null;
       }
       var win1251 = Encoding.GetEncoding(1251);
-      return Win1251BytesToUtf8(win1251.GetBytes(src));
+      return BytesToString(win1251.GetBytes(src));
     }
-    
 
-    public static string Win1251BytesToUtf8(byte[] src)
+
+    public static string BytesToString(Span<byte> src, Encoding encoding = null)
     {
+      encoding ??= Encoding.UTF8;
+      
       if (src == null)
       {
         return null;
       }
-      var utf8   = Encoding.UTF8;
-      var cp1251 = Encoding.GetEncoding(1251);
-      return utf8.GetString(Encoding.Convert(cp1251, utf8, src)).Trim('\0');
+
+      var len = src.IndexOf((byte)0);
+      if (len < 0)
+      {
+        len = src.Length;
+      }
+
+      return encoding.GetString(src[..len]);
     }
-    
 
     public static string Win1251IntPtrToUtf8(IntPtr stringPtr)
     {
@@ -63,8 +69,8 @@ namespace Iface.Oik.Tm.Utils
       }
       return Win1251ToUtf8(win1251Str);
     }
-    
-    
+
+
     public static string Cp866ToUtf8(string src)
     {
       if (src == null)
@@ -82,7 +88,7 @@ namespace Iface.Oik.Tm.Utils
       {
         return null;
       }
-      var utf8  = Encoding.UTF8;
+      var utf8 = Encoding.UTF8;
       var cp866 = Encoding.GetEncoding(866);
       return utf8.GetString(Encoding.Convert(cp866, utf8, src)).Trim('\0');
     }

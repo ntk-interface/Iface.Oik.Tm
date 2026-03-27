@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -24,18 +25,19 @@ namespace Iface.Oik.Tm.Native.Api
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
     public static extern IntPtr cftNodeGetNextAll(IntPtr id);
     
-    
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr cftNodeGetName(IntPtr                                         id,
-                                               [In, Out] byte[] buf,
-                                               UInt32                                         count);
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial IntPtr cftNodeGetName(IntPtr    id,
+                                               Span<byte> buf,
+                                               UInt32     count);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr cftNPropEnum(IntPtr           id,
-                                             Int32            idx,
-                                             [In, Out] byte[] buf,
-                                             UInt32           count);
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial IntPtr cftNPropEnum(IntPtr    id,
+                                             Int32      idx,
+                                             Span<byte> buf,
+                                             UInt32     count);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]

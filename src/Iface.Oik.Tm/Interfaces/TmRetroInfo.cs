@@ -25,8 +25,8 @@ namespace Iface.Oik.Tm.Interfaces
     {
       var tmRetroInfo = new TmRetroInfo
       {
-        Name = EncodingUtil.Win1251BytesToUtf8(info.Name),
-        Description = EncodingUtil.Win1251BytesToUtf8(info.Description),
+        Name = EncodingUtil.BytesToString(info.Name),
+        Description = EncodingUtil.BytesToString(info.Description),
         Period = info.Period,
         Capacity = info.Capacity,
         StartTime = DateUtil.GetDateTimeFromTimestamp(info.Start),

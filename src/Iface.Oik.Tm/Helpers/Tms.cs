@@ -25,14 +25,14 @@ namespace Iface.Oik.Tm.Helpers
       }
 
       TmNative.cfsInitLibrary(null, 
-                              ignoreLinuxSignals ? EncodingUtil.Utf8ToWin1251Bytes("nosig") : null);
+                              ignoreLinuxSignals ? EncodingUtil.StringToBytes("nosig") : null);
     }
 
 
     public static void SetUserCredentials(string user,
                                           string password)
     {
-      TmNative.cfsSetUser(EncodingUtil.Utf8ToWin1251Bytes(user), EncodingUtil.Utf8ToWin1251Bytes(password));
+      TmNative.cfsSetUser(EncodingUtil.StringToBytes(user), EncodingUtil.StringToBytes(password));
     }
 
 
@@ -45,7 +45,7 @@ namespace Iface.Oik.Tm.Helpers
     public static void SetUserCredentialsForThread(string user,
                                                    string password)
     {
-      TmNative.cfsSetUserForThread(EncodingUtil.Utf8ToWin1251Bytes(user), EncodingUtil.Utf8ToWin1251Bytes(password));
+      TmNative.cfsSetUserForThread(EncodingUtil.StringToBytes(user), EncodingUtil.StringToBytes(password));
     }
 
 
@@ -62,9 +62,9 @@ namespace Iface.Oik.Tm.Helpers
                               IntPtr           callbackParameter,
                               bool             returnCidAnyway = false)
     {
-      var tmCid = TmNative.tmcConnect(EncodingUtil.Utf8ToWin1251Bytes(host),
-                                      EncodingUtil.Utf8ToWin1251Bytes(serverName),
-                                      EncodingUtil.Utf8ToWin1251Bytes(applicationName),
+      var tmCid = TmNative.tmcConnect(EncodingUtil.StringToBytes(host),
+                                      EncodingUtil.StringToBytes(serverName),
+                                      EncodingUtil.StringToBytes(applicationName),
                                       callback,
                                       callbackParameter);
 
@@ -94,9 +94,9 @@ namespace Iface.Oik.Tm.Helpers
                                       uint[]           propsValues,
                                       bool             returnCidAnyway = false)
     {
-      var tmCid = TmNative.tmcConnectEx(EncodingUtil.Utf8ToWin1251Bytes(host),
-                                        EncodingUtil.Utf8ToWin1251Bytes(serverName),
-                                        EncodingUtil.Utf8ToWin1251Bytes(applicationName),
+      var tmCid = TmNative.tmcConnectEx(EncodingUtil.StringToBytes(host),
+                                        EncodingUtil.StringToBytes(serverName),
+                                        EncodingUtil.StringToBytes(applicationName),
                                         callback,
                                         callbackParameter,
                                         (uint)propsCount,
@@ -148,9 +148,9 @@ namespace Iface.Oik.Tm.Helpers
 
     public static string GetSystemTimeString(int tmCid)
     {
-      var tmcTime = new byte[80];
+      Span<byte> tmcTime = stackalloc byte[80];
       TmNative.tmcSystemTime(tmCid, tmcTime, IntPtr.Zero);
-      return EncodingUtil.Win1251BytesToUtf8(tmcTime);
+      return EncodingUtil.BytesToString(tmcTime);
     }
 
 
@@ -187,11 +187,11 @@ namespace Iface.Oik.Tm.Helpers
     public static string GetConnectionErrorText(int tmCid)
     {
       const uint bufSize = 256;
-      var        buf     = new byte[bufSize];
+      Span<byte> buf     = stackalloc byte[(int)bufSize];
 
       var result = TmNative.tmcGetConnectErrorText(tmCid, buf, bufSize);
 
-      return result ? EncodingUtil.Win1251BytesToUtf8(buf).Trim() : "Неизвестная ошибка";
+      return result ? EncodingUtil.BytesToString(buf).Trim() : "Неизвестная ошибка";
     }
 
 
@@ -252,22 +252,21 @@ namespace Iface.Oik.Tm.Helpers
         return (false, "Ошибка получения идентификатора пользователя");
       }
 
-      const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
+      const int  errBufLength = 1000;
+      Span<byte> errBuf       = stackalloc byte[errBufLength];
 
       if (!username.StartsWith("*")) // сервер требует в начале имени звездочку
       {
         username = "*" + username;
       }
 
-      if (TmNative.cfsIfpcSetUserPwd(cfCid, EncodingUtil.Utf8ToWin1251Bytes(username), EncodingUtil.Utf8ToWin1251Bytes(password), out errCode, errBuf, errBufLength))
+      if (TmNative.cfsIfpcSetUserPwd(cfCid, EncodingUtil.StringToBytes(username), EncodingUtil.StringToBytes(password), out uint errCode, errBuf, errBufLength))
       {
         return (true, string.Empty);
       }
       else
       {
-        return (false, EncodingUtil.Win1251BytesToUtf8(errBuf));
+        return (false, EncodingUtil.BytesToString(errBuf));
       }
     }
 
@@ -280,8 +279,8 @@ namespace Iface.Oik.Tm.Helpers
         return false;
       }
       return TmNative.cfsCheckUserCred(cfCid, 
-                                       EncodingUtil.Utf8ToWin1251Bytes(username),
-                                       EncodingUtil.Utf8ToWin1251Bytes(password));
+                                       EncodingUtil.StringToBytes(username),
+                                       EncodingUtil.StringToBytes(password));
     }
 
 
@@ -292,27 +291,26 @@ namespace Iface.Oik.Tm.Helpers
       {
         return string.Empty;
       }
-      var       bufSize      = 255u;
-      var       buf          = new byte[bufSize];
-      const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
+      var        bufSize      = 255u;
+      Span<byte> buf          = stackalloc byte[(int)bufSize];
+      const int  errBufLength = 1000;
+      Span<byte> errBuf       = stackalloc byte[errBufLength];
 
       var result = TmNative.cfsGetIniString(cfCid,
-                                            EncodingUtil.Utf8ToWin1251Bytes("@@"),
-                                            EncodingUtil.Utf8ToWin1251Bytes("LinkedServer"),
-                                            EncodingUtil.Utf8ToWin1251Bytes(tmServerName),
-                                            EncodingUtil.Utf8ToWin1251Bytes(string.Empty),
+                                            EncodingUtil.StringToBytes("@@"),
+                                            EncodingUtil.StringToBytes("LinkedServer"),
+                                            EncodingUtil.StringToBytes(tmServerName),
+                                            EncodingUtil.StringToBytes(string.Empty),
                                             buf,
                                             out bufSize,
-                                            out errCode,
+                                            out uint errCode,
                                             errBuf,
                                             errBufLength);
       if (!result)
       {
         return string.Empty;
       }
-      return EncodingUtil.Win1251BytesToUtf8(buf);
+      return EncodingUtil.BytesToString(buf);
     }
 
 
@@ -333,27 +331,26 @@ namespace Iface.Oik.Tm.Helpers
       {
         return false;
       }
-      var       bufSize      = 255u;
-      var       buf          = new byte[bufSize];
-      const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
-      
+      var        bufSize      = 255u;
+      Span<byte> buf          = stackalloc byte[(int)bufSize];
+      const int  errBufLength = 1000;
+      Span<byte> errBuf       = stackalloc byte[errBufLength];
+
       var result = TmNative.cfsGetIniString(cfCid,
-                                            EncodingUtil.Utf8ToWin1251Bytes("@@"),
-                                            EncodingUtil.Utf8ToWin1251Bytes("LocalPGCrd"),
-                                            EncodingUtil.Utf8ToWin1251Bytes(rbServerName),
-                                            EncodingUtil.Utf8ToWin1251Bytes(string.Empty),
+                                            EncodingUtil.StringToBytes("@@"),
+                                            EncodingUtil.StringToBytes("LocalPGCrd"),
+                                            EncodingUtil.StringToBytes(rbServerName),
+                                            EncodingUtil.StringToBytes(string.Empty),
                                             buf,
                                             out bufSize,
-                                            out errCode,
+                                            out uint errCode,
                                             errBuf,
                                             errBufLength);
       if (!result)
       {
         return false;
       }
-      var encodedUserPassword = EncodingUtil.Win1251BytesToUtf8(buf);
+      var encodedUserPassword = EncodingUtil.BytesToString(buf);
       if (string.IsNullOrEmpty(encodedUserPassword))
       {
         return false;
@@ -380,7 +377,7 @@ namespace Iface.Oik.Tm.Helpers
     public static TmUserInfo GetUserInfo(int    tmCid,
                                          string serverName)
     {
-      var nativeUserInfoSize = Marshal.SizeOf(typeof(TmNativeDefs.TExtendedUserInfo));
+      var nativeUserInfoSize = Marshal.SizeOf(typeof(TmNativeDefsUnsafe.TExtendedUserInfo));
 
       var cfCid = TmNative.tmcGetCfsHandle(tmCid);
       if (cfCid == IntPtr.Zero)
@@ -391,8 +388,8 @@ namespace Iface.Oik.Tm.Helpers
       var nativeUserInfoPtr = Marshal.AllocHGlobal(nativeUserInfoSize);
 
       var fetchResult = TmNative.cfsGetExtendedUserData(cfCid,
-                                                        EncodingUtil.Utf8ToWin1251Bytes("tms$"),
-                                                        EncodingUtil.Utf8ToWin1251Bytes(serverName),
+                                                        EncodingUtil.StringToBytes("tms$"),
+                                                        EncodingUtil.StringToBytes(serverName),
                                                         nativeUserInfoPtr,
                                                         (uint)nativeUserInfoSize);
       if (fetchResult == 0)
@@ -401,19 +398,20 @@ namespace Iface.Oik.Tm.Helpers
         return null;
       }
 
-      var extendedUserInfo = Marshal.PtrToStructure<TmNativeDefs.TExtendedUserInfo>(nativeUserInfoPtr);
+      var extendedUserInfo = Marshal.PtrToStructure<TmNativeDefsUnsafe.TExtendedUserInfo>(nativeUserInfoPtr)
+                                    .ToManaged();
       Marshal.FreeHGlobal(nativeUserInfoPtr); // не забываем освобождать память из HGlobal
 
-      var userInfo = new TmNativeDefs.TUserInfo();
-      if (!TmNative.tmcGetUserInfo(tmCid, 0, ref userInfo))
+      var userInfoUnsafe = new TmNativeDefsUnsafe.TUserInfo();
+      if (!TmNative.tmcGetUserInfo(tmCid, 0, ref userInfoUnsafe))
       {
         return null;
       }
 
       return new TmUserInfo(extendedUserInfo.UserId,
-                            Encoding.GetEncoding(1251).GetString(extendedUserInfo.UserName).Trim('\0'),
-                            Encoding.GetEncoding(1251).GetString(userInfo.UserCategory).Trim('\0'),
-                            Encoding.GetEncoding(1251).GetString(extendedUserInfo.KeyId).Trim('\0'),
+                            extendedUserInfo.UserName,
+                            userInfoUnsafe.GetUserCategory(),
+                            extendedUserInfo.KeyId,
                             extendedUserInfo.Group,
                             extendedUserInfo.Rights);
     }
@@ -421,12 +419,12 @@ namespace Iface.Oik.Tm.Helpers
 
     public static string GetUserName(int tmCid, int userId)
     {
-      var userInfo = new TmNativeDefs.TUserInfo();
+      var userInfo = new TmNativeDefsUnsafe.TUserInfo();
       if (!TmNative.tmcGetUserInfo(tmCid, (uint) userId, ref userInfo))
       {
         return string.Empty;
       }
-      return Encoding.GetEncoding(1251).GetString(userInfo.UserName).Trim('\0');
+      return userInfo.GetUserName();
     }
 
 
@@ -511,13 +509,13 @@ namespace Iface.Oik.Tm.Helpers
       switch (level)
       {
         case TmPrintLevel.Debug:
-          TmNative.d_printf(new byte[] { 37, 115, 0 }, EncodingUtil.Utf8ToWin1251Bytes(messageString));
+          TmNative.d_printf(new byte[] { 37, 115, 0 }, EncodingUtil.StringToBytes(messageString));
           break;
         case TmPrintLevel.Message:
-          TmNative.m_printf(new byte[] { 37, 115, 0 }, EncodingUtil.Utf8ToWin1251Bytes(messageString));
+          TmNative.m_printf(new byte[] { 37, 115, 0 }, EncodingUtil.StringToBytes(messageString));
           break;
         case TmPrintLevel.Error:
-          TmNative.e_printf(new byte[] { 37, 115, 0 }, EncodingUtil.Utf8ToWin1251Bytes(messageString));
+          TmNative.e_printf(new byte[] { 37, 115, 0 }, EncodingUtil.StringToBytes(messageString));
           break;
       }
     }
@@ -534,7 +532,7 @@ namespace Iface.Oik.Tm.Helpers
       path = string.Empty;
 
       var remotePathPtr = TmNative.tmcGetKnownxCfgPath(tmCid, 
-                                                       EncodingUtil.Utf8ToWin1251Bytes(applicationName), 
+                                                       EncodingUtil.StringToBytes(applicationName), 
                                                        (uint)idx);
       if (remotePathPtr == IntPtr.Zero)
       {
@@ -554,7 +552,7 @@ namespace Iface.Oik.Tm.Helpers
       var     errString       = new byte[errStringLength];
       uint    errCode         = 0;
 
-      if (!TmNative.cfsFileGet(cfCid, EncodingUtil.Utf8ToWin1251Bytes(remotePath), EncodingUtil.Utf8ToWin1251Bytes(localPath), 30000, ref fileTime,
+      if (!TmNative.cfsFileGet(cfCid, EncodingUtil.StringToBytes(remotePath), EncodingUtil.StringToBytes(localPath), 30000, ref fileTime,
                                out errCode, errString, errStringLength))
       {
         return false;
@@ -692,9 +690,9 @@ namespace Iface.Oik.Tm.Helpers
       SetUserCredentials(options.User,
                          options.Password);
 
-      var tmCid = TmNative.tmcConnect(EncodingUtil.Utf8ToWin1251Bytes(options.Host),
-                                      EncodingUtil.Utf8ToWin1251Bytes(options.TmServer),
-                                      EncodingUtil.Utf8ToWin1251Bytes(options.ApplicationName),
+      var tmCid = TmNative.tmcConnect(EncodingUtil.StringToBytes(options.Host),
+                                      EncodingUtil.StringToBytes(options.TmServer),
+                                      EncodingUtil.StringToBytes(options.ApplicationName),
                                       options.TmCallback,
                                       options.TmCallbackParameters);
       if (tmCid == 0)
@@ -778,7 +776,7 @@ namespace Iface.Oik.Tm.Helpers
       var topic = new MqttSubscriptionTopic(knownTopic);
 
       TmNative.tmcPubSubscribe(tmCid,
-                               EncodingUtil.Utf8ToWin1251Bytes(topic.Topic),
+                               EncodingUtil.StringToBytes(topic.Topic),
                                (uint)topic.SubscriptionId,
                                (byte)topic.QoS);
     }
@@ -789,10 +787,10 @@ namespace Iface.Oik.Tm.Helpers
       var topic = new MqttPublishTopic(knownTopic);
       var payloadBytes = string.IsNullOrWhiteSpace(payload) 
         ? Array.Empty<byte>() 
-        : EncodingUtil.Utf8ToWin1251Bytes(payload);
+        : EncodingUtil.StringToBytes(payload);
 
       TmNative.tmcPubPublish(tmCid,
-                             EncodingUtil.Utf8ToWin1251Bytes(topic.Topic),
+                             EncodingUtil.StringToBytes(topic.Topic),
                              topic.LifetimeSec,
                              (byte)topic.QoS,
                              payloadBytes,
@@ -845,7 +843,7 @@ namespace Iface.Oik.Tm.Helpers
     public static bool AckMqttPublications(int tmCid, MqttMessage message)
     {
       return TmNative.tmcPubAck(tmCid, 
-                                EncodingUtil.Utf8ToWin1251Bytes(message.Topic),
+                                EncodingUtil.StringToBytes(message.Topic),
                                 (uint)message.SubscriptionId,
                                 (byte)message.QoS,
                                 message.UserId,

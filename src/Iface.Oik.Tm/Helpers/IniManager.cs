@@ -13,7 +13,7 @@ namespace Iface.Oik.Tm.Helpers
 
 		public IniManager(string filePath)
 		{
-			_filePointer = TmNative.ini_Open(EncodingUtil.Utf8ToWin1251Bytes(filePath));
+			_filePointer = TmNative.ini_Open(EncodingUtil.StringToBytes(filePath));
 		}
 
 
@@ -26,15 +26,15 @@ namespace Iface.Oik.Tm.Helpers
 				bufSize += BuffSizeStep;
 				buf = new byte[bufSize];
 				TmNative.ini_ReadString(_filePointer, 
-				                        EncodingUtil.Utf8ToWin1251Bytes(section), 
-				                        EncodingUtil.Utf8ToWin1251Bytes(key), 
-				                        EncodingUtil.Utf8ToWin1251Bytes(defaultResponse), 
+				                        EncodingUtil.StringToBytes(section), 
+				                        EncodingUtil.StringToBytes(key), 
+				                        EncodingUtil.StringToBytes(defaultResponse), 
 				                        buf, 
 				                        bufSize);
 			} while (buf[buf.Length - 2] != 0 && bufSize < BufSizeLimit);
 
 
-			return EncodingUtil.Win1251BytesToUtf8(buf);
+			return EncodingUtil.BytesToString(buf);
 		}
 
 
@@ -43,7 +43,7 @@ namespace Iface.Oik.Tm.Helpers
 			var buf = new byte[BuffSizeStep];
 
 			var returnSize = TmNative.ini_ReadSection(_filePointer, 
-			                                          EncodingUtil.Utf8ToWin1251Bytes(section), 
+			                                          EncodingUtil.StringToBytes(section), 
 			                                          buf, 
 			                                          BuffSizeStep);
 
@@ -51,7 +51,7 @@ namespace Iface.Oik.Tm.Helpers
 			{
 				buf = new byte[returnSize];
 				TmNative.ini_ReadSection(_filePointer, 
-				                         EncodingUtil.Utf8ToWin1251Bytes(section), 
+				                         EncodingUtil.StringToBytes(section), 
 				                         buf, 
 				                         returnSize);
 			}
@@ -59,8 +59,8 @@ namespace Iface.Oik.Tm.Helpers
 			var significantBytes = new byte[returnSize];
 			Array.Copy(buf, significantBytes, returnSize);
 
-			var content = EncodingUtil.Win1251BytesToUtf8(significantBytes)
-			 		       .Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
+			var content = EncodingUtil.BytesToString(significantBytes)
+			 		                      .Split(['\0'], StringSplitOptions.RemoveEmptyEntries);
 
 			var result = new Dictionary<string, string>();
 			foreach(var line in content)
@@ -68,7 +68,7 @@ namespace Iface.Oik.Tm.Helpers
 				var equalSingIndex = line.IndexOf('=');
 				if(equalSingIndex != -1)
 				{
-					result.Add(line.Substring(0, equalSingIndex), line.Substring(equalSingIndex+1));
+					result.Add(line[..equalSingIndex], line[(equalSingIndex + 1)..]);
 				}
 			}
 			return result;
@@ -80,8 +80,8 @@ namespace Iface.Oik.Tm.Helpers
 			var buf = new byte[bufSize];
 
 			var returnSize = TmNative.ini_ReadStruct(_filePointer, 
-			                                         EncodingUtil.Utf8ToWin1251Bytes(section), 
-			                                         EncodingUtil.Utf8ToWin1251Bytes(key), 
+			                                         EncodingUtil.StringToBytes(section), 
+			                                         EncodingUtil.StringToBytes(key), 
 			                                         buf, 
 			                                         bufSize);
 
@@ -89,7 +89,7 @@ namespace Iface.Oik.Tm.Helpers
 			{
 				buf = new byte[returnSize];
 				TmNative.ini_ReadSection(_filePointer, 
-				                         EncodingUtil.Utf8ToWin1251Bytes(section), 
+				                         EncodingUtil.StringToBytes(section), 
 				                         buf, 
 				                         returnSize);
 			}

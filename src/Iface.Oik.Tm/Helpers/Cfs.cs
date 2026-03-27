@@ -15,22 +15,28 @@ namespace Iface.Oik.Tm.Helpers
 
 		public const string ServerTypeTms = "tms$";
 
-		public static void InitializeCfsLibrary()
-		{
-			TmNative.cfsInitLibrary(null, null);
-		}
+    public static void InitNativeLibrary(bool isUtf8 = true, bool ignoreLinuxSignals = false)
+    {
+      if (isUtf8)
+      {
+        TmNative.cfsSetUtf8Encoding(true);
+      }
+
+      TmNative.cfsInitLibrary(null, 
+                              ignoreLinuxSignals ? EncodingUtil.StringToBytes("nosig") : null);
+    }
 
 		public static void SetUserCredentials(string user,
 											  string password)
 		{
-			TmNative.cfsSetUser(EncodingUtil.Utf8ToWin1251Bytes(user), EncodingUtil.Utf8ToWin1251Bytes(password));
+			TmNative.cfsSetUser(EncodingUtil.StringToBytes(user), EncodingUtil.StringToBytes(password));
 		}
 		
 		public static string MakeInprocCrd(string host, string user, string pwd)
 		{
-			var ptr = TmNative.cfsMakeInprocCrd(EncodingUtil.Utf8ToWin1251Bytes(host),
-			                                    EncodingUtil.Utf8ToWin1251Bytes(user),
-			                                    EncodingUtil.Utf8ToWin1251Bytes(pwd));
+			var ptr = TmNative.cfsMakeInprocCrd(EncodingUtil.StringToBytes(host),
+			                                    EncodingUtil.StringToBytes(user),
+			                                    EncodingUtil.StringToBytes(pwd));
 			if (ptr == IntPtr.Zero)
 			{
 				return string.Empty;
@@ -45,17 +51,17 @@ namespace Iface.Oik.Tm.Helpers
 		public static (IntPtr cfId, string errString, int errorCode) ConnectToCfs(string host)
 		{
 			const int errStringLength = 1000;
-			var errBuf = new byte[errStringLength];
+			Span<byte> errBuf = stackalloc byte[errStringLength];
 
 			var cfId =
-			  TmNative.cfsConnect(EncodingUtil.Utf8ToWin1251Bytes(host), out uint errCode, errBuf, errStringLength);
+			  TmNative.cfsConnect(EncodingUtil.StringToBytes(host), out uint errCode, errBuf, errStringLength);
 
 			if (cfId == IntPtr.Zero)
 			{
-				Console.WriteLine($"Ошибка соединения с мастер-сервисом: {errCode} - {EncodingUtil.Win1251BytesToUtf8(errBuf)}");
+				Console.WriteLine($"Ошибка соединения с мастер-сервисом: {errCode} - {EncodingUtil.BytesToString(errBuf)}");
 			}
 
-			return (cfId, EncodingUtil.Win1251BytesToUtf8(errBuf), Convert.ToInt32(errCode));
+			return (cfId, EncodingUtil.BytesToString(errBuf), Convert.ToInt32(errCode));
 		}
 
 		public static (IntPtr, CfsDefs.InitializeConnectionResult) InitializeConnection(CfsOptions options)
@@ -95,12 +101,12 @@ namespace Iface.Oik.Tm.Helpers
 											 string serverName,
 											 string serverType)
 		{
-			var nativeUserInfoSize = Marshal.SizeOf(typeof(TmNativeDefs.TExtendedUserInfo));
+			var nativeUserInfoSize = Marshal.SizeOf(typeof(TmNativeDefsUnsafe.TExtendedUserInfo));
 			var nativeUserInfoPtr = Marshal.AllocHGlobal(nativeUserInfoSize);
 
 			var fetchResult = TmNative.cfsGetExtendedUserData(cfCid,
-			                                                  EncodingUtil.Utf8ToWin1251Bytes(serverType),
-			                                                  EncodingUtil.Utf8ToWin1251Bytes(serverName),
+			                                                  EncodingUtil.StringToBytes(serverType),
+			                                                  EncodingUtil.StringToBytes(serverName),
 															  nativeUserInfoPtr,
 															  (uint)nativeUserInfoSize);
 			if (fetchResult == 0)
@@ -109,15 +115,15 @@ namespace Iface.Oik.Tm.Helpers
 				return null;
 			}
 
-			var nativeUserInfo = Marshal.PtrToStructure<TmNativeDefs.TExtendedUserInfo>(nativeUserInfoPtr);
+			var nativeUserInfo = Marshal.PtrToStructure<TmNativeDefsUnsafe.TExtendedUserInfo>(nativeUserInfoPtr).ToManaged();
 			Marshal.FreeHGlobal(nativeUserInfoPtr); // не забываем освобождать память из HGlobal
 
 			return new TmUserInfo(nativeUserInfo.UserId,
-								  Encoding.GetEncoding(1251).GetString(nativeUserInfo.UserName).Trim('\0'),
-								  string.Empty, // todo надо ли сделать получать категорию
-								  Encoding.GetEncoding(1251).GetString(nativeUserInfo.KeyId).Trim('\0'),
-								  nativeUserInfo.Group,
-								  nativeUserInfo.Rights);
+			                      nativeUserInfo.UserName,
+			                      string.Empty, // todo надо ли сделать получать категорию
+			                      nativeUserInfo.KeyId,
+			                      nativeUserInfo.Group,
+			                      nativeUserInfo.Rights);
 		}
 
 		public static void CloseCfsConnection(IntPtr cfId)

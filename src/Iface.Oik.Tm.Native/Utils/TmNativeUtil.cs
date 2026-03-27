@@ -130,7 +130,7 @@ namespace Iface.Oik.Tm.Native.Utils
 
       return (infoDictionary, payloadBytes);
     }
-    
+
 
     public static byte[] GetDoubleNullTerminatedBytesFromStringList(IEnumerable<string> list,
                                                                     int                 maxSize = 1024)
@@ -355,16 +355,39 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static TmNativeDefs.TTMSEventAddData GetEventAddData(byte[] addDataBytes)
+    public static TmNativeDefs.TTMSEventAddData GetEventAddData(Span<byte> addDataBytes)
     {
       if (addDataBytes == null)
       {
         throw new ArgumentException("Массив байтов пуст");
       }
 
-      return FromBytes<TmNativeDefs.TTMSEventAddData>(addDataBytes);
+      unsafe
+      {
+        fixed (byte* basePtr = addDataBytes)
+        {
+          var native = *(TmNativeDefsUnsafe.TTMSEventAddData*)basePtr;
+          var strPtr = basePtr + sizeof(TmNativeDefsUnsafe.TTMSEventAddData);
+
+          return new TmNativeDefs.TTMSEventAddData
+          {
+            Elix = new TmNativeDefs.TTMSElix
+            {
+              M = native.Elix.M,
+              R = native.Elix.R
+            },
+            AckMs    = native.AckMs,
+            AckSec   = native.AckSec,
+            UserName = GetStringWithUnknownLengthFromBytePtr(strPtr)
+          };
+        }
+      }
     }
 
+    public static T FromByteSpan<T>(Span<byte> bytes) where T : struct
+    {
+      return MemoryMarshal.Read<T>(bytes);
+    }
 
     public static byte[] GetBytes<T>(T structure) where T : struct
     {
@@ -392,154 +415,153 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static string GetStringFromBytesWithAdditionalPart(byte[] bytes)
+    public static string GetStringFromBytesWithAdditionalPart(byte[] bytes, Encoding encoding = null)
     {
-      return Encoding.GetEncoding(1251)
-                     .GetString(bytes)
-                     .Split(new[] { '\0' })
-                     .FirstOrDefault()?
-                     .Trim('\n');
+      encoding ??= Encoding.UTF8;
+
+      return encoding
+             .GetString(bytes)
+             .Split(new[] { '\0' })
+             .FirstOrDefault()?
+             .Trim('\n');
     }
 
-    public static string GetStringWithUnknownLengthFromIntPtr(IntPtr ptr)
+    public static string GetStringWithUnknownLengthFromIntPtr(nint ptr, Encoding encoding = null)
     {
-      const int bufferStep = 512;
-      var       bufSize    = bufferStep;
-
-      var stringBuf    = new byte[bufSize];
-      var marshalBytes = new byte[1];
-
-      for (var i = 0; i < bufSize; i++)
+      unsafe
       {
-        Marshal.Copy(new IntPtr(ptr.ToInt64() + i), marshalBytes, 0, 1);
-        if (marshalBytes[0] == 0) break;
-        stringBuf[i] = marshalBytes[0];
+        if (ptr == nint.Zero) return string.Empty;
 
-        if (i != bufSize - 1) continue;
+        encoding ??= Encoding.UTF8; // default
 
-        bufSize += bufferStep;
-        var oldStrBuffer = stringBuf;
-        stringBuf = new byte[bufSize];
-        Array.Copy(oldStrBuffer, stringBuf, oldStrBuffer.Length);
+        var p      = (byte*)ptr.ToPointer();
+        var length = 0;
+
+        while (p[length] != 0)
+        {
+          length++;
+        }
+
+        return encoding.GetString(p, length);
       }
-
-      return Encoding.GetEncoding(1251)
-                     .GetString(stringBuf)
-                     .Trim('\0');
     }
 
 
-    public static IReadOnlyCollection<string> GetUnknownLengthStringListFromDoubleNullTerminatedPointer(IntPtr ptr)
+    private static unsafe string GetStringWithUnknownLengthFromBytePtr(byte* ptr, Encoding encoding = null)
     {
-      const int bufferStep = 512;
-      var       bufSize    = bufferStep;
-
-      if (ptr == IntPtr.Zero)
+      if (ptr[0] == 0)
       {
-        return Array.Empty<string>();
+        return string.Empty;
       }
 
+      encoding ??= Encoding.UTF8; // default
+
+      var length = 0;
+
+      while (ptr[length] != 0)
+      {
+        length++;
+      }
+
+      return encoding.GetString(ptr, length);
+    }
+
+
+    public static IReadOnlyCollection<string> GetUnknownLengthStringListFromDoubleNullTerminatedPointer(nint ptr,
+      Encoding encoding = null)
+    {
       var result = new List<string>();
 
-      var marshalBytes = new byte[1];
-
-      var stringBytes = new byte[bufSize];
-
-      var stringCursor = 0;
-      var isNullFound  = false;
-      for (var i = 0; i < bufSize; i++)
+      unsafe
       {
-        Marshal.Copy(new IntPtr(ptr.ToInt64() + i), marshalBytes, 0, 1);
-        if (marshalBytes[0] == 0)
+        if (ptr == nint.Zero)
         {
-          if (isNullFound) // второй ноль - выходим
+          return result;
+        }
+
+        encoding ??= Encoding.UTF8; // default
+
+        var p      = (byte*)ptr.ToPointer();
+        var length = 0;
+
+        while (true)
+        {
+          while (p[length] != 0)
+          {
+            length++;
+          }
+
+          result.Add(encoding.GetString(p, length));
+
+          length++;
+
+          if (p[length] == 0)
           {
             break;
           }
 
-          result.Add(Encoding.GetEncoding(1251)
-                             .GetString(stringBytes)
-                             .Trim('\0'));
-          Array.Clear(stringBytes, 0, bufSize);
-          stringCursor = 0;
-          isNullFound  = true;
-          continue;
+          p      += length;
+          length =  0;
         }
 
-        stringBytes[stringCursor++] = marshalBytes[0];
-        isNullFound                 = false;
-
-        if (i != bufSize - 1) continue;
-
-        bufSize += bufferStep;
-        var oldStrBuffer = stringBytes;
-        stringBytes = new byte[bufSize];
-        Array.Copy(oldStrBuffer, stringBytes, oldStrBuffer.Length);
+        return result;
       }
+    }
 
-      return result;
+    public static (IReadOnlyCollection<string> strings, nint nextPtr) GetStringsListWithOffsetPointer(nint ptr,
+      Encoding encoding = null)
+    {
+      var result = new List<string>();
+
+      unsafe
+      {
+        if (ptr == nint.Zero)
+        {
+          return (result, nint.Zero);
+        }
+
+        encoding ??= Encoding.UTF8; // default
+
+        var p      = (byte*)ptr.ToPointer();
+        var length = 0;
+
+        while (true)
+        {
+          while (p[length] != 0)
+          {
+            length++;
+          }
+
+          result.Add(encoding.GetString(p, length));
+          length++;
+
+          if (p[length] == 0)
+          {
+            break;
+          }
+
+          p      += length;
+          length =  0;
+        }
+
+        return (result, (nint)p + length + 1);
+      }
     }
 
 
-    public static bool PointerValueIsNull(IntPtr ptr)
+    public static bool PointerValueIsNull(nint ptr)
     {
-      if (ptr == IntPtr.Zero)
+      if (ptr == nint.Zero)
       {
         throw new ArgumentException("Нулевой указатель");
       }
 
-      var marshalBytes = new byte[1];
-
-      Marshal.Copy(ptr, marshalBytes, 0, 1);
-
-      return marshalBytes[0] == 0;
-    }
-
-
-    public static int GetDoubleNullTerminatorIndexFromPointer(IntPtr ptr)
-    {
-      const int bufferStep  = 512;
-      const int bufferLimit = 2048;
-      var       bufSize     = bufferStep;
-
-      var result = -1;
-
-      if (ptr == IntPtr.Zero)
+      unsafe
       {
-        return result;
+        var p = (byte*)ptr.ToPointer();
+
+        return p[0] == 0;
       }
-
-      var marshalBytes = new byte[1];
-
-      var isNullFound = false;
-      for (var i = 0; i < bufSize; i++)
-      {
-        if (i >= bufferLimit)
-        {
-          break;
-        }
-
-        Marshal.Copy(new IntPtr(ptr.ToInt64() + i), marshalBytes, 0, 1);
-        if (marshalBytes[0] == 0)
-        {
-          if (isNullFound) // второй ноль - выходим
-          {
-            result = i;
-            break;
-          }
-
-          isNullFound = true;
-          continue;
-        }
-
-        isNullFound = false;
-
-        if (i != bufSize - 1) continue;
-
-        bufSize += bufferStep;
-      }
-
-      return result;
     }
 
 
@@ -568,7 +590,7 @@ namespace Iface.Oik.Tm.Native.Utils
         {
           Ch       = eventHeader.Ch,
           Data     = dataBuf,
-          DateTime = eventHeader.DateTime,
+          DateTime = new byte[] { }, /* eventHeader.DateTime,*/
           Id       = eventHeader.Id,
           Imp      = eventHeader.Imp,
           Point    = eventHeader.Point,
@@ -578,9 +600,47 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static TmNativeDefs.TEventEx TEventExFromIntPtr(IntPtr pTEventEx)
+    public static TmNativeDefs.TEventEx TEventExFromIntPtr(nint pTEventEx)
     {
-      var tEventOffset    = Marshal.SizeOf<TmNativeDefs.TEventExHeader>();
+      unsafe
+      {
+        var basePtr = (byte*)pTEventEx;
+
+        // Read header directly (no marshalling)
+        var header = *(TmNativeDefsUnsafe.TEventExHeader*)basePtr;
+
+        var tEventOffset    = sizeof(TmNativeDefsUnsafe.TEventExHeader);
+        var eventHeaderSize = sizeof(TmNativeDefsUnsafe.TEventHeader);
+        var dataOffset      = tEventOffset + eventHeaderSize;
+
+        var eventHeader = *(TmNativeDefsUnsafe.TEventHeader*)(basePtr + tEventOffset);
+
+
+        var dataSize = (int)(header.EventSize - eventHeaderSize);
+        var dataBuf  = new byte[dataSize];
+        fixed (byte* dest = dataBuf)
+        {
+          Buffer.MemoryCopy(basePtr + dataOffset, dest, dataSize, dataSize);
+        }
+
+        return new TmNativeDefs.TEventEx
+        {
+          Next      = header.Next,
+          EventSize = header.EventSize,
+          Event = new TmNativeDefs.TEvent
+          {
+            Ch       = eventHeader.Ch,
+            Data     = dataBuf,
+            DateTime = new ReadOnlySpan<byte>(eventHeader.DateTime, TmNativeDefsUnsafe.TEventDateTimeSize).ToArray(),
+            Id       = eventHeader.Id,
+            Imp      = eventHeader.Imp,
+            Point    = eventHeader.Point,
+            Rtu      = eventHeader.Rtu
+          }
+        };
+      }
+
+      /*var tEventOffset    = Marshal.SizeOf<TmNativeDefs.TEventExHeader>();
       var eventHeaderSize = Marshal.SizeOf<TmNativeDefs.TEventHeader>();
       var dataOffset      = tEventOffset + eventHeaderSize;
 
@@ -588,7 +648,7 @@ namespace Iface.Oik.Tm.Native.Utils
 
       var dataSize = (int)(header.EventSize - eventHeaderSize);
 
-      var eventHeader = Marshal.PtrToStructure<TmNativeDefs.TEventHeader>(IntPtr.Add(pTEventEx, tEventOffset));
+      var eventHeader = Marshal.PtrToStructure<TmNativeDefs.TEventHeader>(nint.Add(pTEventEx, tEventOffset));
 
       var dataBuf = new byte[dataSize];
 
@@ -608,7 +668,7 @@ namespace Iface.Oik.Tm.Native.Utils
           Point    = eventHeader.Point,
           Rtu      = eventHeader.Rtu
         }
-      };
+      };*/
     }
 
 
@@ -638,6 +698,7 @@ namespace Iface.Oik.Tm.Native.Utils
         {
           return 0;
         }
+
         partsList.Add(part);
       }
 
@@ -664,6 +725,20 @@ namespace Iface.Oik.Tm.Native.Utils
       }
 
       return ipAddr;
+    }
+
+    public static unsafe string BytePtrToString(byte* buffer, int size)
+    {
+      var span         = new ReadOnlySpan<byte>(buffer, size);
+      var len          = span.IndexOf((byte)0);
+      if (len < 0) len = size;
+
+      return Encoding.UTF8.GetString(span[..len]);
+    }
+
+    public static unsafe byte[] BytePtrToArray(byte* ptr, int length)
+    {
+      return new ReadOnlySpan<byte>(ptr, length).ToArray();
     }
   }
 }

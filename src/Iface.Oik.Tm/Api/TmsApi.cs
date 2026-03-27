@@ -100,11 +100,11 @@ namespace Iface.Oik.Tm.Api
     public string GetConnectionErrorText()
     {
       const uint bufSize = 256;
-      var        buf     = new byte[bufSize];
+      Span<byte> buf     = stackalloc byte[(int)bufSize];
 
       var result = TmNative.tmcGetConnectErrorText(_cid, buf, bufSize);
 
-      return result ? EncodingUtil.Win1251BytesToUtf8(buf) : "Неизвестная ошибка";
+      return result ? EncodingUtil.BytesToString(buf) : "Неизвестная ошибка";
     }
 
 
@@ -116,18 +116,29 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<string> GetSystemTimeString()
     {
-      var tmcTime = new byte[80];
-      await Task.Run(() => TmNative.tmcSystemTime(_cid, tmcTime, IntPtr.Zero))
-                .ConfigureAwait(false);
-      return EncodingUtil.Win1251BytesToUtf8(tmcTime);
+      return await Task.Run(() => GetSystemTimeStringSync())
+                       .ConfigureAwait(false);
+    }
+
+    public string GetSystemTimeStringSync()
+    {
+      Span<byte> tmcTime = stackalloc byte[80];
+      TmNative.tmcSystemTime(_cid, tmcTime, IntPtr.Zero);
+      return EncodingUtil.BytesToString(tmcTime);
     }
 
 
     public async Task<(string host, string server)> GetCurrentServerName()
     {
-      const int bufSize = 255;
-      var       host    = new byte[bufSize];
-      var       server  = new byte[bufSize];
+      return await Task.Run(() => GetCurrentServerNameSync())
+                       .ConfigureAwait(false);
+    }
+
+    public (string host, string server) GetCurrentServerNameSync()
+    {
+      const int  bufSize = 255;
+      Span<byte> host    = stackalloc byte[bufSize];
+      Span<byte> server  = stackalloc byte[bufSize];
 
       // todo al сейчас всегда приходит 0
       /*if (!await Task.Run(() => _native.TmcGetCurrentServer(_cid, ref host, bufSize, ref server, bufSize))
@@ -135,33 +146,36 @@ namespace Iface.Oik.Tm.Api
       {
         return (null, null);
       }*/
-      await Task.Run(() => TmNative.tmcGetCurrentServer(_cid, host, bufSize, server, bufSize))
-                .ConfigureAwait(false);
-      return (EncodingUtil.Win1251BytesToUtf8(host), EncodingUtil.Win1251BytesToUtf8(server));
+      TmNative.tmcGetCurrentServer(_cid, host, bufSize, server, bufSize);
+      return (EncodingUtil.BytesToString(host), EncodingUtil.BytesToString(server));
     }
 
 
     public async Task<(string user, string password)> GenerateTokenForExternalApp()
     {
-      const int tokenLength = 64;
-      var       user        = new byte[tokenLength];
-      var       password    = new byte[tokenLength];
-
-      const int errStringLength = 1000;
-      var       errString       = new byte[errStringLength];
-      uint      errCode         = 0;
-
       var cfCid = await GetCfCid().ConfigureAwait(false);
 
-      await Task.Run(() => TmNative.cfsIfpcGetLogonToken(cfCid, 
-                                                         user, 
-                                                         password,
-                                                         out errCode, 
-                                                         errString, 
-                                                         errStringLength))
-                .ConfigureAwait(false);
+      return await Task.Run(() => GenerateTokenForExternalAppSync(cfCid))
+                       .ConfigureAwait(false);
+    }
 
-      return (EncodingUtil.Win1251BytesToUtf8(user), EncodingUtil.Win1251BytesToUtf8(password));
+    public (string user, string password) GenerateTokenForExternalAppSync(nint cfCid)
+    {
+      const int tokenLength = 64;
+      Span<byte>       user        = stackalloc byte[tokenLength];
+      Span<byte>       password    = stackalloc byte[tokenLength];
+
+      const int errStringLength  = 1000;
+      Span<byte>       errString = stackalloc byte[errStringLength];
+
+      TmNative.cfsIfpcGetLogonToken(cfCid,
+                                    user,
+                                    password,
+                                    out uint errCode,
+                                    errString,
+                                    errStringLength);
+
+      return (EncodingUtil.BytesToString(user), EncodingUtil.BytesToString(password));
     }
 
 
@@ -958,7 +972,7 @@ namespace Iface.Oik.Tm.Api
 
     private void UpdateTagPropertiesSynchronously(TmTag tag)
     {
-      var sb = new byte[1024];
+      Span<byte> sb = stackalloc byte[1024];
       var (ch, rtu, point) = tag.TmAddr.GetTupleShort();
       TmNative.tmcGetObjectProperties(_cid,
                                       tag.NativeType,
@@ -967,23 +981,29 @@ namespace Iface.Oik.Tm.Api
                                       point,
                                       sb,
                                       1024);
-      tag.SetTmcObjectProperties(EncodingUtil.Win1251BytesToUtf8(sb));
+      tag.SetTmcObjectProperties(EncodingUtil.BytesToString(sb));
     }
     
     
     private async Task<TmTag> FindTmTagReserveTag(TmTag tmTag)
     {
-      var sb = new byte[1024];
+      return await Task.Run(() => FindTmTagReserveTagSync(tmTag))
+                       .ConfigureAwait(false);
+    }
+
+    private TmTag FindTmTagReserveTagSync(TmTag tmTag)
+    {
+      Span<byte> sb = stackalloc byte[1024];
       var (ch, rtu, point) = tmTag.TmAddr.GetTupleShort();
-      await Task.Run(() => TmNative.tmcGetObjectProperties(_cid,
-                                                           (ushort)tmTag.Type.ToNativeType(),
-                                                           ch,
-                                                           rtu,
-                                                           point,
-                                                           sb,
-                                                           1024)).ConfigureAwait(false);
+      TmNative.tmcGetObjectProperties(_cid,
+                                      (ushort)tmTag.Type.ToNativeType(),
+                                      ch,
+                                      rtu,
+                                      point,
+                                      sb,
+                                      1024);
       
-      var props = EncodingUtil.Win1251BytesToUtf8(sb).Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
+      var props = EncodingUtil.BytesToString(sb).Split(["\r\n"], StringSplitOptions.RemoveEmptyEntries);
       foreach (var prop in props)
       {
         var kvp = prop.Split('=');
@@ -1654,7 +1674,7 @@ namespace Iface.Oik.Tm.Api
 
     public async Task InputTelecontrolPassword(string password)
     {
-      await Task.Run(() => TmNative.tmcSetTcPwd(_cid, EncodingUtil.Utf8ToWin1251Bytes(password))).ConfigureAwait(false);
+      await Task.Run(() => TmNative.tmcSetTcPwd(_cid, EncodingUtil.StringToBytes(password))).ConfigureAwait(false);
     }
 
 
@@ -1921,7 +1941,7 @@ namespace Iface.Oik.Tm.Api
                                    (byte)unixTimeMs,
                                    importance,
                                    sourceLongTag,
-                                   EncodingUtil.Utf8ToWin1251Bytes(message),
+                                   EncodingUtil.StringToBytes(message),
                                    binaryPayload,
                                    (uint)binaryPayload.Length);
       }).ConfigureAwait(false);
@@ -2722,7 +2742,7 @@ namespace Iface.Oik.Tm.Api
       var        errString       = new byte[errStringLength];
       uint       errCode         = 0;
       if (!await Task.Run(() => TmNative.cfsDirEnum(cfCid,
-                                                    EncodingUtil.Utf8ToWin1251Bytes(path),
+                                                    EncodingUtil.StringToBytes(path),
                                                     buf,
                                                     bufLength,
                                                     out errCode,
@@ -2731,7 +2751,7 @@ namespace Iface.Oik.Tm.Api
                      .ConfigureAwait(false))
       {
         Console.WriteLine(
-          $"Ошибка при запросе списка файлов: {errCode} - {EncodingUtil.Win1251BytesToUtf8(errString)}");
+          $"Ошибка при запросе списка файлов: {errCode} - {EncodingUtil.BytesToString(errString)}");
         return null;
       }
 
@@ -2752,8 +2772,8 @@ namespace Iface.Oik.Tm.Api
       var       errString       = new byte[errStringLength];
       uint      errCode         = 0;
       if (!await Task.Run(() => TmNative.cfsFileGet(cfCid,
-                                                    EncodingUtil.Utf8ToWin1251Bytes(remotePath),
-                                                    EncodingUtil.Utf8ToWin1251Bytes(localPath),
+                                                    EncodingUtil.StringToBytes(remotePath),
+                                                    EncodingUtil.StringToBytes(localPath),
                                                     60000,
                                                     ref fileTime,
                                                     out errCode,
@@ -2761,7 +2781,7 @@ namespace Iface.Oik.Tm.Api
                                                     errStringLength))
                      .ConfigureAwait(false))
       {
-        Console.WriteLine($"Ошибка при скачивании файла: {errCode} - {EncodingUtil.Win1251BytesToUtf8(errString)}");
+        Console.WriteLine($"Ошибка при скачивании файла: {errCode} - {EncodingUtil.BytesToString(errString)}");
         return false;
       }
 
@@ -2785,7 +2805,7 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<IReadOnlyCollection<string>> GetComtradeFilesByDay(string day)
     {
-      var ptr = await Task.Run(() => TmNative.tmcComtradeEnumFiles(_cid, EncodingUtil.Utf8ToWin1251Bytes(day)))
+      var ptr = await Task.Run(() => TmNative.tmcComtradeEnumFiles(_cid, EncodingUtil.StringToBytes(day)))
                           .ConfigureAwait(false);
 
       return TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(ptr, 8192);
@@ -2795,8 +2815,8 @@ namespace Iface.Oik.Tm.Api
     public async Task<bool> DownloadComtradeFile(string filename, string localPath)
     {
       if (!await Task.Run(() => TmNative.tmcComtradeGetFile(_cid, 
-                                                            EncodingUtil.Utf8ToWin1251Bytes(filename), 
-                                                            EncodingUtil.Utf8ToWin1251Bytes(localPath)))
+                                                            EncodingUtil.StringToBytes(filename), 
+                                                            EncodingUtil.StringToBytes(localPath)))
                      .ConfigureAwait(false))
       {
         Console.WriteLine($"Ошибка при скачивании файла: {GetLastTmcError()}");
@@ -2809,13 +2829,8 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<string> GetExpressionResult(string expression)
     {
-      const int bufSize = 1024;
-
-      var buf = new byte[bufSize];
-      await Task.Run(() => TmNative.tmcEvaluateExpression(_cid, EncodingUtil.Utf8ToWin1251Bytes(expression), buf, bufSize))
+      return await Task.Run(() => GetExpressionResultSync(expression))
                 .ConfigureAwait(false);
-
-      return EncodingUtil.Win1251BytesToUtf8(buf);
     }
 
 
@@ -2823,10 +2838,10 @@ namespace Iface.Oik.Tm.Api
     {
       const int bufSize = 1024;
 
-      var buf = new byte[bufSize];
-      TmNative.tmcEvaluateExpression(_cid, EncodingUtil.Utf8ToWin1251Bytes(expression), buf, bufSize);
+      Span<byte> buf = stackalloc byte[bufSize];
+      TmNative.tmcEvaluateExpression(_cid, EncodingUtil.StringToBytes(expression), buf, bufSize);
 
-      return EncodingUtil.Win1251BytesToUtf8(buf);
+      return EncodingUtil.BytesToString(buf);
     }
 
 
@@ -2843,8 +2858,7 @@ namespace Iface.Oik.Tm.Api
         for (int i = 0; i < count; i++)
         {
           var channelId = itemsIndexes[i];
-          result.Add(new TmChannel(channelId,
-                                   GetChannelNameSync(channelId)));
+          result.Add(new TmChannel(channelId, GetChannelNameSync(channelId)));
         }
       }).ConfigureAwait(false);
 
@@ -3008,13 +3022,7 @@ namespace Iface.Oik.Tm.Api
       TmNative.tmcGetObjectName(_cid, (ushort)TmNativeDefs.TmDataTypes.Channel, (short)channelId, 0, 0,
                                 buf, buf.Length);
       
-      var len = buf.IndexOf((byte)0);
-      if (len < 0)
-      {
-        len = buf.Length;
-      }
-
-      return Encoding.UTF8.GetString(buf[..len]); 
+      return EncodingUtil.BytesToString(buf); 
     }
 
 
@@ -3036,13 +3044,7 @@ namespace Iface.Oik.Tm.Api
       TmNative.tmcGetObjectName(_cid, (ushort)TmNativeDefs.TmDataTypes.Rtu, (short)channelId, (short)rtuId, 0,
                                 buf, buf.Length);
 
-      var len = buf.IndexOf((byte)0);
-      if (len < 0)
-      {
-        len = buf.Length;
-      }
-
-      return Encoding.UTF8.GetString(buf[..len]); 
+      return EncodingUtil.BytesToString(buf); 
     }
 
 
@@ -3166,19 +3168,19 @@ namespace Iface.Oik.Tm.Api
                                                               (uint)endTime, 
                                                               criteria);
 
-                         if (tEventPtr == IntPtr.Zero)
+                         if (tEventPtr == nint.Zero)
                          {
                            return;
                          }
 
                          var curPtr = tEventPtr;
 
-                         while (curPtr != IntPtr.Zero)
+                         while (curPtr != nint.Zero)
                          {
                            var tEventEx = TmNativeUtil.TEventExFromIntPtr(curPtr);
                            
-                           TmNative.tmcEventGetAdditionalRecData((uint)i, ref addDataBytes, bufSize);
-                           var addData = TmNativeUtil.GetEventAddData(addDataBytes);
+                          
+                           var addData = GetEventAddRecData(i);
 
                            var tmEvent = CreateEvent(tEventEx.Event,
                                                      addData,
@@ -3201,7 +3203,16 @@ namespace Iface.Oik.Tm.Api
       
       return events;
     }
-    
+
+    public TmNativeDefs.TTMSEventAddData GetEventAddRecData(int index)
+    {
+      const int  bufSize = 512;
+      Span<byte> buf     = stackalloc byte[bufSize];
+
+      TmNative.tmcEventGetAdditionalRecData((uint)index, buf, bufSize);
+        
+      return TmNativeUtil.GetEventAddData(buf);
+    }
 
     public async Task<IReadOnlyCollection<TmEvent>> GetEventsArchiveByElix(TmEventFilter filter) // TODO unit test
     {
@@ -3404,11 +3415,11 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<TmUserInfo> GetUserInfo(uint userId)
     {
-      var tUserInfo = new TmNativeDefs.TUserInfo();
+      var tUserInfo = new TmNativeDefsUnsafe.TUserInfo();
 
       if (await Task.Run(() => TmNative.tmcGetUserInfo(_cid, userId, ref tUserInfo)).ConfigureAwait(false))
       {
-        return new TmUserInfo((int)userId, tUserInfo, string.Empty);
+        return new TmUserInfo((int)userId, tUserInfo.ToManaged(), string.Empty);
       }
 
       Console.WriteLine($"Ошибка получения информации о пользователе с ID {userId}");
@@ -3418,14 +3429,19 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<TmUserInfo> GetExtendedUserInfo(int userId)
     {
-      const int bufSize          = 1000;
-      var       extendedInfoBuff = new byte[bufSize];
-      var       tUserInfo        = new TmNativeDefs.TUserInfo();
+      return await Task.Run(() => GetExtendedUserInfoSync(userId))
+                       .ConfigureAwait(false);
+    }
 
-      if (await Task.Run(() => TmNative.tmcGetUserInfoEx(_cid, (uint)userId, ref tUserInfo, extendedInfoBuff,
-                                                         bufSize)).ConfigureAwait(false))
+    public TmUserInfo GetExtendedUserInfoSync(int userId)
+    {
+      const int  bufSize          = 1000;
+      Span<byte> extendedInfoBuff = stackalloc byte[bufSize];
+      var        tUserInfo        = new TmNativeDefsUnsafe.TUserInfo();
+
+      if (TmNative.tmcGetUserInfoEx(_cid, (uint)userId, ref tUserInfo, extendedInfoBuff, bufSize))
       {
-        return new TmUserInfo(userId, tUserInfo, EncodingUtil.Win1251BytesToUtf8(extendedInfoBuff));
+        return new TmUserInfo(userId, tUserInfo.ToManaged(), EncodingUtil.BytesToString(extendedInfoBuff));
       }
 
       Console.WriteLine($"Ошибка получения расширенной информации о пользователе с ID {userId}");
@@ -3477,7 +3493,7 @@ namespace Iface.Oik.Tm.Api
                                                                             0,
                                                                             0,
                                                                             0,
-                                                                            EncodingUtil.Utf8ToWin1251Bytes(groupName),
+                                                                            EncodingUtil.StringToBytes(groupName),
                                                                             0,
                                                                             out count))
                                          .ConfigureAwait(false);
@@ -3618,7 +3634,7 @@ namespace Iface.Oik.Tm.Api
       uint count = 0;
       var tagTAdrTmListPointer = await Task.Run(() => TmNative.tmcTextSearch(_cid,
                                                                              (ushort)tmType.ToNativeType(),
-                                                                             EncodingUtil.Utf8ToWin1251Bytes(pattern),
+                                                                             EncodingUtil.StringToBytes(pattern),
                                                                              out count))
                                            .ConfigureAwait(false);
 
@@ -3712,16 +3728,12 @@ namespace Iface.Oik.Tm.Api
 
                     if (tmcEventsElixPtr == IntPtr.Zero) return;
                     var currentPtr = tmcEventsElixPtr;
-
-                    const int bufSize      = 1000;
-                    var       addDataBytes = new byte[bufSize];
-
+                    
                     while (currentPtr != IntPtr.Zero)
                     {
                       var tmcEventElix = TmNativeUtil.EventElixFromIntPtr(currentPtr);
-
-                      TmNative.tmcEventGetAdditionalRecData((uint)i, ref addDataBytes, bufSize);
-                      var addData = TmNativeUtil.GetEventAddData(addDataBytes);
+                      
+                      var addData = GetEventAddRecData(i);
 
                       var tmEvent = CreateEvent(tmcEventElix.Event,
                                                 addData,
@@ -3909,14 +3921,14 @@ namespace Iface.Oik.Tm.Api
       var changesFound = false;
       for (var i = 0; i < tmEvents.Count; i++)
       {
-        TmNative.tmcEventGetAdditionalRecData((uint)i, ref extraDataBytes, bufSize);
-        var extraData = TmNativeUtil.GetEventAddData(extraDataBytes);
+        //TmNative.tmcEventGetAdditionalRecData((uint)i, ref extraDataBytes, bufSize);
+        var extraData = GetEventAddRecData(i);
         
         if (extraData.AckSec != 0)
         {
           tmEvents[i].AckTime = DateUtil.GetDateTimeFromTimestamp(extraData.AckSec, extraData.AckMs);
           // сервер возвращает мусор после первого нуля в имени, нужно обрезать
-          tmEvents[i].AckUser = EncodingUtil.Win1251ToUtf8(TmNativeUtil.GetStringFromBytesWithAdditionalPart(extraData.UserName));
+          tmEvents[i].AckUser = extraData.UserName;
           changesFound        = true;
         }
       }
@@ -3939,13 +3951,7 @@ namespace Iface.Oik.Tm.Api
                                 buf,
                                 buf.Length);
 
-      var len = buf.IndexOf((byte)0);
-      if (len < 0)
-      {
-        len = buf.Length;
-      }
-
-      return Encoding.UTF8.GetString(buf[..len]);
+      return EncodingUtil.BytesToString(buf); 
     }
 
 
@@ -3953,8 +3959,8 @@ namespace Iface.Oik.Tm.Api
                                          ushort                   subItemId,
                                          TmNativeDefs.TmDataTypes tmDataType)
     {
-      const int bufSize = 1024;
-      var       buf     = new byte[bufSize];
+      const int  bufSize = 1024;
+      Span<byte> buf     = stackalloc byte[bufSize];
 
       TmNative.tmcGetObjectNameEx(_cid,
                                   (ushort)tmDataType,
@@ -3965,7 +3971,7 @@ namespace Iface.Oik.Tm.Api
                                   buf,
                                   bufSize);
 
-      return EncodingUtil.Win1251BytesToUtf8(buf);
+      return EncodingUtil.BytesToString(buf);
     }
 
 
@@ -4112,7 +4118,7 @@ namespace Iface.Oik.Tm.Api
       if (topic.VariableHeader.IsNullOrEmpty())
       {
         return TmNative.tmcPubPublish(_cid,
-                                      EncodingUtil.Utf8ToWin1251Bytes(topic.Topic),
+                                      EncodingUtil.StringToBytes(topic.Topic),
                                       topic.LifetimeSec,
                                       (byte)topic.QoS,
                                       payload,
@@ -4123,7 +4129,7 @@ namespace Iface.Oik.Tm.Api
         var addListPtr = TmNativeUtil.GetDoubleNullTerminatedPointerFromStringList(topic.VariableHeader.Select(
           x => $"{x.Key}={x.Value}"));
         return TmNative.tmcPubPublishEx(_cid,
-                                        EncodingUtil.Utf8ToWin1251Bytes(topic.Topic),
+                                        EncodingUtil.StringToBytes(topic.Topic),
                                         topic.LifetimeSec,
                                         (byte)topic.QoS,
                                         payload,
@@ -4136,7 +4142,7 @@ namespace Iface.Oik.Tm.Api
     private bool MqttSubscribeSync(MqttSubscriptionTopic topic)
     {
       return TmNative.tmcPubSubscribe(_cid,
-                                      EncodingUtil.Utf8ToWin1251Bytes(topic.Topic),
+                                      EncodingUtil.StringToBytes(topic.Topic),
                                       (uint)topic.SubscriptionId,
                                       (byte)topic.QoS);
     }
@@ -4145,7 +4151,7 @@ namespace Iface.Oik.Tm.Api
     private bool MqttUnsubscribeSync(MqttSubscriptionTopic topic)
     {
       return TmNative.tmcPubUnsubscribe(_cid,
-                                        EncodingUtil.Utf8ToWin1251Bytes(topic.Topic),
+                                        EncodingUtil.StringToBytes(topic.Topic),
                                         (uint)topic.SubscriptionId);
     }
 
@@ -4185,14 +4191,14 @@ namespace Iface.Oik.Tm.Api
       return await MqttPublish(topic,
                                string.IsNullOrWhiteSpace(payload)
                                  ? Array.Empty<byte>()
-                                 : EncodingUtil.Utf8ToWin1251Bytes(payload))
+                                 : EncodingUtil.StringToBytes(payload))
         .ConfigureAwait(false);
     }
     
 
     public async Task<bool> MqttPublish(MqttPublishTopic topic, string payload)
     {
-      return await MqttPublish(topic, EncodingUtil.Utf8ToWin1251Bytes(payload)).ConfigureAwait(false);
+      return await MqttPublish(topic, EncodingUtil.StringToBytes(payload)).ConfigureAwait(false);
     }
 
 
