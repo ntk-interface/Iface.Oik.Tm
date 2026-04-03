@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
@@ -413,6 +414,18 @@ namespace Iface.Oik.Tm.Interfaces
       }
 
       return string.Join(" И ", filters);
+    }
+
+    public TmNativeEventFilter ToNative()
+    {
+      return new TmNativeEventFilter
+      {
+        Types = (ushort)Types,
+        StartTime = DateUtil.GetUtcTimestampFromDateTime(StartTime ?? DateTime.Now.AddDays(-1)),
+        EndTime   = DateUtil.GetUtcTimestampFromDateTime(EndTime ?? DateTime.Now.AddDays(1)),
+        OutputLimit = (uint)OutputLimit,
+        Importances = (TmNativeEventImportances) Importances
+      };
     }
   }
 }

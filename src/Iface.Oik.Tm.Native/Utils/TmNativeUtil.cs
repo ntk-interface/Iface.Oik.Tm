@@ -266,6 +266,40 @@ namespace Iface.Oik.Tm.Native.Utils
       return FromBytes<TmNativeDefs.StatusDataEx>(tEvent.Data);
     }
 
+    public static (TmNativeDefs.StatusDataEx, string userRef) GetStatusDataExFromBytes(Span<byte> bytes)
+    {
+      if (bytes == null)
+      {
+        throw new ArgumentException("Отсутствует Data в TEvent");
+      }
+
+      unsafe
+      {
+        fixed (byte* ptr = bytes)
+        {
+          var offset = sizeof(TmNativeDefsUnsafe.StatusDataEx);
+          var native = *(TmNativeDefsUnsafe.StatusDataEx*)ptr;
+
+          var userRef = GetStringWithUnknownLengthFromBytePtr(ptr + offset);
+
+          return (new TmNativeDefs.StatusDataEx()
+                   {
+                     Class    = native.Class,
+                     ExtSig   = native.ExtSig,
+                     S2       = native.S2,
+                     FixMS    = native.FixMS,
+                     FixUT    = native.FixUT,
+                     Flags    = native.Flags,
+                     OldFlags = native.OldFlags,
+                     ResCh    = native.ResCh,
+                     ResPoint = native.ResPoint,
+                     ResRtu   = native.ResRtu,
+                     State    = native.State
+                   }, userRef);
+        }
+      }
+    }
+
 
     public static TmNativeDefs.AlarmData GetAlarmDataFromTEvent(TmNativeDefs.TEvent tEvent)
     {
@@ -384,9 +418,22 @@ namespace Iface.Oik.Tm.Native.Utils
       }
     }
 
-    public static T FromByteSpan<T>(Span<byte> bytes) where T : struct
+    public static string BytesToString(Span<byte> src, Encoding encoding = null)
     {
-      return MemoryMarshal.Read<T>(bytes);
+      encoding ??= Encoding.UTF8;
+
+      if (src == null)
+      {
+        return null;
+      }
+
+      var len = src.IndexOf((byte)0);
+      if (len < 0)
+      {
+        len = src.Length;
+      }
+
+      return encoding.GetString(src[..len]);
     }
 
     public static byte[] GetBytes<T>(T structure) where T : struct
@@ -447,7 +494,7 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    private static unsafe string GetStringWithUnknownLengthFromBytePtr(byte* ptr, Encoding encoding = null)
+    public static unsafe string GetStringWithUnknownLengthFromBytePtr(byte* ptr, Encoding encoding = null)
     {
       if (ptr[0] == 0)
       {
@@ -600,13 +647,12 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static TmNativeDefs.TEventEx TEventExFromIntPtr(nint pTEventEx)
+    public static TmNativeDefsUnsafe.TEventEx UnsafeTEventExFromIntPtr(nint pTEventEx)
     {
       unsafe
       {
         var basePtr = (byte*)pTEventEx;
 
-        // Read header directly (no marshalling)
         var header = *(TmNativeDefsUnsafe.TEventExHeader*)basePtr;
 
         var tEventOffset    = sizeof(TmNativeDefsUnsafe.TEventExHeader);
@@ -615,7 +661,6 @@ namespace Iface.Oik.Tm.Native.Utils
 
         var eventHeader = *(TmNativeDefsUnsafe.TEventHeader*)(basePtr + tEventOffset);
 
-
         var dataSize = (int)(header.EventSize - eventHeaderSize);
         var dataBuf  = new byte[dataSize];
         fixed (byte* dest = dataBuf)
@@ -623,52 +668,29 @@ namespace Iface.Oik.Tm.Native.Utils
           Buffer.MemoryCopy(basePtr + dataOffset, dest, dataSize, dataSize);
         }
 
-        return new TmNativeDefs.TEventEx
+        if (eventHeader.Id == 0x0001)
+        {
+          var buf  = new Span<byte>(basePtr + dataOffset, dataSize);
+          var data = GetStatusDataExFromBytes(buf);
+        }
+
+
+        return new TmNativeDefsUnsafe.TEventEx
         {
           Next      = header.Next,
           EventSize = header.EventSize,
-          Event = new TmNativeDefs.TEvent
+          Event = new TmNativeDefsUnsafe.TEvent
           {
-            Ch       = eventHeader.Ch,
-            Data     = dataBuf,
-            DateTime = new ReadOnlySpan<byte>(eventHeader.DateTime, TmNativeDefsUnsafe.TEventDateTimeSize).ToArray(),
-            Id       = eventHeader.Id,
-            Imp      = eventHeader.Imp,
-            Point    = eventHeader.Point,
-            Rtu      = eventHeader.Rtu
+            Ch      = eventHeader.Ch,
+            DataPtr = (nint)(basePtr + dataOffset),
+            //DateTime = eventHeader.DateTime,
+            Id    = eventHeader.Id,
+            Imp   = eventHeader.Imp,
+            Point = eventHeader.Point,
+            Rtu   = eventHeader.Rtu
           }
         };
       }
-
-      /*var tEventOffset    = Marshal.SizeOf<TmNativeDefs.TEventExHeader>();
-      var eventHeaderSize = Marshal.SizeOf<TmNativeDefs.TEventHeader>();
-      var dataOffset      = tEventOffset + eventHeaderSize;
-
-      var header = Marshal.PtrToStructure<TmNativeDefs.TEventExHeader>(pTEventEx);
-
-      var dataSize = (int)(header.EventSize - eventHeaderSize);
-
-      var eventHeader = Marshal.PtrToStructure<TmNativeDefs.TEventHeader>(nint.Add(pTEventEx, tEventOffset));
-
-      var dataBuf = new byte[dataSize];
-
-      Marshal.Copy(IntPtr.Add(pTEventEx, dataOffset), dataBuf, 0, dataSize);
-
-      return new TmNativeDefs.TEventEx
-      {
-        Next      = header.Next,
-        EventSize = header.EventSize,
-        Event = new TmNativeDefs.TEvent
-        {
-          Ch       = eventHeader.Ch,
-          Data     = dataBuf,
-          DateTime = eventHeader.DateTime,
-          Id       = eventHeader.Id,
-          Imp      = eventHeader.Imp,
-          Point    = eventHeader.Point,
-          Rtu      = eventHeader.Rtu
-        }
-      };*/
     }
 
 
@@ -727,7 +749,7 @@ namespace Iface.Oik.Tm.Native.Utils
       return ipAddr;
     }
 
-    public static unsafe string BytePtrToString(byte* buffer, int size)
+    internal static unsafe string BytePtrToString(byte* buffer, int size)
     {
       var span         = new ReadOnlySpan<byte>(buffer, size);
       var len          = span.IndexOf((byte)0);
@@ -736,9 +758,25 @@ namespace Iface.Oik.Tm.Native.Utils
       return Encoding.UTF8.GetString(span[..len]);
     }
 
-    public static unsafe byte[] BytePtrToArray(byte* ptr, int length)
+    internal static unsafe byte[] BytePtrToArray(byte* ptr, int length)
     {
       return new ReadOnlySpan<byte>(ptr, length).ToArray();
+    }
+
+    internal static unsafe T FromBytesPtr<T>(byte* ptr, int availableBytes)
+      where T : unmanaged
+    {
+      if (ptr == null)
+      {
+        throw new ArgumentNullException(nameof(ptr));
+      }
+
+      if (availableBytes < sizeof(T))
+      {
+        throw new ArgumentException($"Buffer too small for {typeof(T).Name}");
+      }
+
+      return *(T*)ptr;
     }
   }
 }

@@ -1,0 +1,215 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using Iface.Oik.Tm.Native.Dto;
+using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Native.Utils;
+
+namespace Iface.Oik.Tm.Native.Api;
+
+public static partial class TmNativeApi
+{
+  public static List<T> GetEventsArchive<T>(int cid, TmNativeEventFilter filter)
+    where T : TmEventBase, new()
+  {
+    var startTime = TmNative.uxgmtime2uxtime(filter.StartTime);
+    var endTime   = TmNative.uxgmtime2uxtime(filter.EndTime);
+
+    var criteria = new TmNativeDefs.TEventExCriteria
+    {
+      ItemsLimit = filter.OutputLimit,
+      HStop      = nint.Zero,
+      EvlArch    = true
+    };
+
+    var tEventPtr = TmNative.tmcEventLogEx(cid,
+                                           filter.Types,
+                                           (uint)startTime,
+                                           (uint)endTime,
+                                           criteria);
+
+    if (tEventPtr == nint.Zero)
+    {
+      return [];
+    }
+
+    var curPtr = tEventPtr;
+    var i      = 0;
+
+    var events = new List<T>();
+
+    var tmTagCache = new Dictionary<int, TagPropsAndClassData>();
+
+    while (curPtr != nint.Zero)
+    {
+      (var evnt, curPtr) = CreateEvent<T>(curPtr, i, cid, tmTagCache);
+      events.Add(evnt);
+      i++;
+    }
+
+    TmNative.tmcFreeMemory(tEventPtr);
+
+    return events;
+  }
+
+  internal static unsafe (T evnt, nint next) CreateEvent<T>(nint                                  pTEventEx,
+                                                            int                                   addDataIndex,
+                                                            int                                   cid,
+                                                            Dictionary<int, TagPropsAndClassData> cache)
+    where T : TmEventBase, new()
+  {
+    var basePtr = (byte*)pTEventEx;
+
+    var eventHeaderSize = sizeof(TmNativeDefsUnsafe.TEventHeader);
+    var header          = *(TmNativeDefsUnsafe.TEventExHeader*)basePtr;
+
+    var tEventOffset = sizeof(TmNativeDefsUnsafe.TEventExHeader);
+    var eventHeader  = *(TmNativeDefsUnsafe.TEventHeader*)(basePtr + tEventOffset);
+
+    var dataOffset = tEventOffset + eventHeaderSize;
+
+    var addData = GetEventAddData(addDataIndex);
+
+
+    T evnt;
+    switch ((TmNativeDefs.EventTypes)eventHeader.Id)
+    {
+      case TmNativeDefs.EventTypes.StatusChange:
+      {
+        var classDataAndProps = GetAndCacheUpdatedEventTagData(cid,
+                                                               TmNativeDefs.TmDataTypes.Status,
+                                                               (short)eventHeader.Ch,
+                                                               (short)eventHeader.Rtu,
+                                                               (short)eventHeader.Point,
+                                                               cache);
+
+        if (classDataAndProps is not StatusPropsAndClassData statusPropsAndClassData)
+        {
+          throw new Exception("Недопустимый формат данных");
+        }
+
+        if (header.EventSize >= TmNativeDefs.ExtendedStatusChangedEventSize)
+        {
+          var (statusData, userName) = GetStatusDataExFromBytes(basePtr + dataOffset, cid);
+          evnt = TmEventBase.CreateStatusChangeExtendedEvent<T>(eventHeader, statusData,
+                                                                userName,
+                                                                addData,
+                                                                statusPropsAndClassData);
+        }
+        else
+        {
+          evnt = TmEventBase.CreateStatusChangeEvent<T>(eventHeader,
+                                                        GetStatusDataFromBytes(basePtr + dataOffset),
+                                                        addData,
+                                                        statusPropsAndClassData);
+        }
+
+        break;
+      }
+      default:
+        evnt = new T();
+        break;
+    }
+
+    return (evnt, header.Next);
+  }
+
+  public static unsafe TmNativeDefs.TTMSEventAddData GetEventAddData(int index)
+  {
+    const int  bufSize = 512;
+    Span<byte> buf     = stackalloc byte[bufSize];
+
+    TmNative.tmcEventGetAdditionalRecData((uint)index, buf, bufSize);
+
+    fixed (byte* basePtr = buf)
+    {
+      var native = *(TmNativeDefsUnsafe.TTMSEventAddData*)basePtr;
+      var strPtr = basePtr + sizeof(TmNativeDefsUnsafe.TTMSEventAddData);
+
+      return new TmNativeDefs.TTMSEventAddData
+      {
+        Elix = new TmNativeDefs.TTMSElix
+        {
+          M = native.Elix.M,
+          R = native.Elix.R
+        },
+        AckMs    = native.AckMs,
+        AckSec   = native.AckSec,
+        UserName = TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(strPtr)
+      };
+    }
+  }
+
+  internal static unsafe TmNativeDefsUnsafe.StatusData GetStatusDataFromBytes(byte* ptr)
+  {
+    return TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.StatusData>(ptr,
+                                                                    sizeof(TmNativeDefsUnsafe.StatusDataEx));
+  }
+
+  internal static unsafe (TmNativeDefsUnsafe.StatusDataEx, string userRef) GetStatusDataExFromBytes(byte* ptr, int cid)
+  {
+    var offset = sizeof(TmNativeDefsUnsafe.StatusDataEx);
+
+    var native   = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.StatusDataEx>(ptr, offset);
+    var userName = GetTextByRef(ptr + offset, cid);
+
+    return (native, userName);
+  }
+
+  internal static unsafe string GetTextByRef(byte* ptr, int cid)
+  {
+    const int bufSize = 128;
+
+    switch (ptr[0])
+    {
+      case 0:
+        return string.Empty;
+      case 0x40:
+      {
+        Span<byte> buf = stackalloc byte[bufSize];
+        TmNative.tmcGetTextByRef(cid, (nint)ptr, buf, bufSize);
+
+        return TmNativeUtil.BytesToString(buf);
+      }
+      default:
+        return TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(ptr);
+    }
+  }
+
+  private static TagPropsAndClassData GetAndCacheUpdatedEventTagData(int                                   cid,
+                                                                     TmNativeDefs.TmDataTypes              type,
+                                                                     short                                 ch,
+                                                                     short                                 rtu,
+                                                                     short                                 point,
+                                                                     Dictionary<int, TagPropsAndClassData> cache)
+  {
+    var tmTagHash = (cid, type, ch, rtu, point).ToTuple().GetHashCode();
+
+    if (cache.TryGetValue(tmTagHash, out var cachedData))
+    {
+      return cachedData;
+    }
+
+    var classDataStr = GetTagClassData(cid, type, ch, rtu, point);
+    var tagName      = TmEventBase.GetTagName(GetTagProperties(cid, type, ch, rtu, point));
+
+    switch (type)
+    {
+      case TmNativeDefs.TmDataTypes.Status:
+      {
+        cachedData      = TmEventBase.GetStatusClassData(classDataStr);
+        cachedData.Name = string.IsNullOrEmpty(tagName) ? $"#TC{ch}:{rtu}:{point}": tagName;
+        break;
+      }
+      default:
+      {
+        cachedData = new TagPropsAndClassData();
+        break;
+      }
+    }
+
+    cache.Add(tmTagHash, cachedData);
+
+    return cachedData;
+  }
+}

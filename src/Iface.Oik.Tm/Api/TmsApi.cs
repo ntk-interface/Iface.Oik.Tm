@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -3162,7 +3163,9 @@ namespace Iface.Oik.Tm.Api
 
       await Task.Run(() =>
                      {
-                       var tEventPtr = TmNative.tmcEventLogEx(_cid,
+                       events = TmNativeApi.GetEventsArchive<TmEvent>(_cid, filter.ToNative());
+
+                       /*var tEventPtr = TmNative.tmcEventLogEx(_cid,
                                                               (ushort)filterTypes,
                                                               (uint)startTime,
                                                               (uint)endTime, 
@@ -3177,15 +3180,21 @@ namespace Iface.Oik.Tm.Api
 
                          while (curPtr != nint.Zero)
                          {
-                           var tEventEx = TmNativeUtil.TEventExFromIntPtr(curPtr);
-                           
+                           var tEventEx = TmNativeUtil.UnsafeTEventExFromIntPtr(curPtr);
+
+                           if (tEventEx.Event.Id == 0x0001)
+                           {
+                             
+                           }
                           
                            var addData = GetEventAddRecData(i);
 
-                           var tmEvent = CreateEvent(tEventEx.Event,
+                           var tmEvent = new TmEvent(123);
+                           
+                           /*var tmEvent = CreateEvent(tEventEx.Event,
                                                      addData,
                                                      tEventEx.EventSize,
-                                                     cache);
+                                                     cache);#1#
 
                            if (filterImportances.HasFlag(tmEvent.ImportanceFlag))
                            {
@@ -3196,7 +3205,7 @@ namespace Iface.Oik.Tm.Api
                            i++;
                          }
                          
-                         TmNative.tmcFreeMemory(tEventPtr);
+                         TmNative.tmcFreeMemory(tEventPtr);*/
 
                      }).ConfigureAwait(false);
       

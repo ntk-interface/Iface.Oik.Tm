@@ -968,5 +968,13 @@ namespace Iface.Oik.Tm.Native.Api
                                                   Int32                                                   hCancel,
                                                   [MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback prog_fn,
                                                   IntPtr                                                  prog_parm);
+
+    [LibraryImport(Tmconn, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial Boolean tmcGetTextByRef(int cid, 
+                                                  nint text, 
+                                                  Span<byte> buf, 
+                                                  uint cBuf);
   }
 }

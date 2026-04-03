@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace Iface.Oik.Tm.Native.Interfaces;
 
-public static class TmNativeDefsUnsafe
+public static partial class TmNativeDefsUnsafe
 {
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public unsafe struct TUserInfo
@@ -27,8 +27,8 @@ public static class TmNativeDefsUnsafe
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public unsafe struct TExtendedUserInfo
   {
-    public int RecNum;
-    public int UserId;
+    public int  RecNum;
+    public int  UserId;
     public byte Group;
 
     public fixed byte KeyId[16];
@@ -39,6 +39,8 @@ public static class TmNativeDefsUnsafe
 
 
   public const int TEventDateTimeSize = 24;
+  public const int TEventDataSize     = 24;
+
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public unsafe struct TEventHeader
   {
@@ -62,8 +64,7 @@ public static class TmNativeDefsUnsafe
     public ushort Rtu;
     public ushort Point;
 
-    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2048)]
-    public fixed byte  Data[2048];
+    public nint DataPtr;
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -76,25 +77,56 @@ public static class TmNativeDefsUnsafe
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public struct TEventEx
   {
-    public nint Next;
-    public uint EventSize;
+    public nint   Next;
+    public uint   EventSize;
     public TEvent Event;
   }
-  
+
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public struct TTMSElix
   {
-    public UInt64 R;
-    public UInt64 M;
+    public ulong R;
+    public ulong M;
   }
-  
+
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public struct TTMSEventAddData
   {
     public TTMSElix Elix;
     public UInt32   AckSec;
     public UInt16   AckMs;
-    
+
     //UserName byte[] неизвестной длинны
+  }
+
+  [StructLayout(LayoutKind.Sequential, Pack = 1)]
+  public struct StatusData
+  {
+    public byte   State;
+    public byte   Class;
+    public uint   ExtSig;
+    public byte   ResCh;
+    public byte   ResRtu;
+    public ushort ResPoint;
+    public uint   FixUT;
+    public ushort S2;
+    public uint   Flags;
+    public ushort FixMS;
+  }
+
+  [StructLayout(LayoutKind.Sequential, Pack = 1)]
+  public struct StatusDataEx
+  {
+    public byte   State;
+    public byte   Class;
+    public uint   ExtSig;
+    public byte   ResCh;
+    public byte   ResRtu;
+    public ushort ResPoint;
+    public uint   FixUT;
+    public ushort S2;
+    public uint   Flags;
+    public ushort FixMS;
+    public uint   OldFlags;
   }
 }
