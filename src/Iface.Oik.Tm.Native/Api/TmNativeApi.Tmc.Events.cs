@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Iface.Oik.Tm.Native.Dto;
@@ -30,7 +31,8 @@ public static partial class TmNativeApi
 
     if (tEventPtr == nint.Zero)
     {
-      return [];
+      return []
+      ;
     }
 
     var curPtr = tEventPtr;
@@ -82,28 +84,48 @@ public static partial class TmNativeApi
                                                                (short)eventHeader.Rtu,
                                                                (short)eventHeader.Point,
                                                                cache);
-
-        if (classDataAndProps is not StatusPropsAndClassData statusPropsAndClassData)
-        {
-          throw new Exception("Недопустимый формат данных");
-        }
-
+        
         if (header.EventSize >= TmNativeDefs.ExtendedStatusChangedEventSize)
         {
           var (statusData, userName) = GetStatusDataExFromBytes(basePtr + dataOffset, cid);
-          evnt = TmEventBase.CreateStatusChangeExtendedEvent<T>(eventHeader, statusData,
+          evnt = TmEventBase.CreateStatusChangeExtendedEvent<T>(eventHeader, 
+                                                                statusData,
                                                                 userName,
                                                                 addData,
-                                                                statusPropsAndClassData);
+                                                                classDataAndProps);
         }
         else
         {
           evnt = TmEventBase.CreateStatusChangeEvent<T>(eventHeader,
                                                         GetStatusDataFromBytes(basePtr + dataOffset),
                                                         addData,
-                                                        statusPropsAndClassData);
+                                                        classDataAndProps);
         }
 
+        break;
+      }
+      case TmNativeDefs.EventTypes.Alarm:
+      {
+        var alarmData = GetAlarmDataFromBytes(basePtr + dataOffset);
+        var alarmTypeName = GetExtendedObjectName(cid,
+                                                  (short)eventHeader.Ch,
+                                                  (short)eventHeader.Rtu,
+                                                  (short)eventHeader.Point,
+                                                  (short)alarmData.AlarmID,
+                                                  TmNativeDefs.TmDataTypes.AnalogAlarm);
+
+        var classDataAndProps = GetAndCacheUpdatedEventTagData(cid,
+                                                               TmNativeDefs.TmDataTypes.Analog,
+                                                               (short)eventHeader.Ch,
+                                                               (short)eventHeader.Rtu,
+                                                               (short)eventHeader.Point,
+                                                               cache);
+
+        evnt = TmEventBase.CreateAlarmEvent<T>(eventHeader,
+                                               alarmData,
+                                               addData,
+                                               alarmTypeName,
+                                               classDataAndProps);
         break;
       }
       default:
@@ -156,6 +178,12 @@ public static partial class TmNativeApi
     return (native, userName);
   }
 
+  internal static unsafe TmNativeDefsUnsafe.AlarmData GetAlarmDataFromBytes(byte* ptr)
+  {
+    return TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.AlarmData>(ptr,
+                                                                   sizeof(TmNativeDefsUnsafe.AlarmData));
+  }
+
   internal static unsafe string GetTextByRef(byte* ptr, int cid)
   {
     const int bufSize = 128;
@@ -190,6 +218,8 @@ public static partial class TmNativeApi
       return cachedData;
     }
 
+    Console.WriteLine("Тут");
+    
     var classDataStr = GetTagClassData(cid, type, ch, rtu, point);
     var tagName      = TmEventBase.GetTagName(GetTagProperties(cid, type, ch, rtu, point));
 
@@ -198,11 +228,21 @@ public static partial class TmNativeApi
       case TmNativeDefs.TmDataTypes.Status:
       {
         cachedData      = TmEventBase.GetStatusClassData(classDataStr);
-        cachedData.Name = string.IsNullOrEmpty(tagName) ? $"#TC{ch}:{rtu}:{point}": tagName;
+        cachedData.Name = string.IsNullOrEmpty(tagName) ? $"#TC{ch}:{rtu}:{point}" : tagName;
+        break;
+      }
+      case TmNativeDefs.TmDataTypes.Analog:
+      {
+        cachedData = new TagPropsAndClassData
+        {
+          Name = string.IsNullOrEmpty(tagName) ? $"#ТТ{ch}:{rtu}:{point}" : tagName
+        };
+        
         break;
       }
       default:
       {
+        
         cachedData = new TagPropsAndClassData();
         break;
       }
@@ -211,5 +251,37 @@ public static partial class TmNativeApi
     cache.Add(tmTagHash, cachedData);
 
     return cachedData;
+  }
+
+  private static string GetExtendedObjectName(int                      cid,
+                                              short                    ch,
+                                              short                    rtu,
+                                              short                    point,
+                                              short                    subItemId,
+                                              TmNativeDefs.TmDataTypes tmDataType)
+  {
+    const int bufSize = 1024;
+    var       pool    = ArrayPool<byte>.Shared;
+    var       buf     = pool.Rent(bufSize);
+
+
+    try
+    {
+      TmNative.tmcGetObjectNameEx(cid,
+                                  (ushort)tmDataType,
+                                  ch,
+                                  rtu,
+                                  point,
+                                  subItemId,
+                                  buf,
+                                  bufSize);
+    }
+    finally
+    {
+      ArrayPool<byte>.Shared.Return(buf);
+    }
+
+
+    return TmNativeUtil.BytesToString(buf);
   }
 }

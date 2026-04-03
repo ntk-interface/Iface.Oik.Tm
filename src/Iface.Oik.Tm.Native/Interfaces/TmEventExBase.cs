@@ -10,7 +10,7 @@ public abstract class TmEventBase
                                                               TmNativeDefsUnsafe.StatusDataEx data,
                                                               string                          operatorName,
                                                               TmNativeDefs.TTMSEventAddData   ackData,
-                                                              StatusPropsAndClassData         propsAndClassData)
+                                                              TagPropsAndClassData            propsAndClassData)
     where T : TmEventBase, new()
   {
     var evnt = new T();
@@ -46,7 +46,7 @@ public abstract class TmEventBase
   internal static unsafe T CreateStatusChangeEvent<T>(TmNativeDefsUnsafe.TEventHeader header,
                                                       TmNativeDefsUnsafe.StatusData   data,
                                                       TmNativeDefs.TTMSEventAddData   ackData,
-                                                      StatusPropsAndClassData         propsAndClassData)
+                                                      TagPropsAndClassData            propsAndClassData)
     where T : TmEventBase, new()
   {
     var evnt = new T();
@@ -73,6 +73,37 @@ public abstract class TmEventBase
     };
 
     evnt.InitializeStatusChangeEvent(dto);
+
+    return evnt;
+  }
+
+  internal static unsafe T CreateAlarmEvent<T>(TmNativeDefsUnsafe.TEventHeader header,
+                                               TmNativeDefsUnsafe.AlarmData    data,
+                                               TmNativeDefs.TTMSEventAddData   ackData,
+                                               string                          typeName,
+                                               TagPropsAndClassData            propsAndClassData)
+    where T : TmEventBase, new()
+  {
+    var evnt = new T();
+
+    var dto = new InitializeAlarmTmEventDto
+    {
+      Id                = header.Id,
+      StatusCh          = header.Ch,
+      StatusRtu         = header.Rtu,
+      StatusPoint       = header.Point,
+      StatusImp         = header.Imp,
+      PropsAndClassData = propsAndClassData,
+      DateTimeStr       = TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(header.DateTime),
+      AckSec            = ackData.AckSec,
+      AckMs             = ackData.AckMs,
+      AckUser           = ackData.UserName,
+      TurnedOn          = data.State > 0,
+      Value             = data.Val,
+      TypeName          = typeName
+    };
+
+    evnt.InitializeAlarmTmEvent(dto);
 
     return evnt;
   }
@@ -122,7 +153,7 @@ public abstract class TmEventBase
     return string.Empty;
   }
 
-  internal static StatusPropsAndClassData GetStatusClassData(string classDataString)
+  internal static TagPropsAndClassData GetStatusClassData(string classDataString)
   {
     var span = classDataString.AsSpan();
 
@@ -183,7 +214,7 @@ public abstract class TmEventBase
       }
     }
 
-    return new StatusPropsAndClassData
+    return new TagPropsAndClassData
     {
       ClassName          = className,
       CaptionOn          = captionOn,
@@ -196,6 +227,8 @@ public abstract class TmEventBase
   protected abstract void InitializeTmEvent(InitializeTmEventDto dto);
 
   protected abstract void InitializeStatusChangeEvent(InitializeStatusChangeEventDto dto);
+
+  protected abstract void InitializeAlarmTmEvent(InitializeAlarmTmEventDto dto);
 
   protected record InitializeTmEventDto
   {
@@ -225,7 +258,12 @@ public abstract class TmEventBase
     public ushort StatusS2       { get; init; }
     public uint   StatusFlags    { get; init; }
     public uint?  StatusOldFlags { get; init; }
+  }
 
-    public StatusPropsAndClassData StatusPropsAndClassData => (StatusPropsAndClassData)PropsAndClassData;
+  protected record InitializeAlarmTmEventDto : InitializeTmEventDto
+  {
+    public string TypeName { get; init; } = string.Empty;
+    public bool   TurnedOn { get; init; }
+    public float  Value    { get; init; }
   }
 }

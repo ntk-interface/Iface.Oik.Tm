@@ -253,6 +253,33 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
+    protected override void InitializeAlarmTmEvent(InitializeAlarmTmEventDto dto)
+    {
+      InitializeTmEvent(dto);
+
+      TmAddrString = $"#TT{dto.StatusCh}:{dto.StatusRtu}:{dto.StatusPoint}";
+      TmAddrComplexInteger =
+        (uint)(dto.StatusPoint + (dto.StatusRtu << 16) + (dto.StatusCh << 24));
+      TmAddrType = TmType.Analog;
+
+      TypeString                    = dto.TypeName;
+      ExplicitTypeString = "Уставка";
+
+      if (dto.TurnedOn/*dto.State > 0*/)
+      {
+        StateString = "Взведена";
+        Reference   = dto.Value;
+      }
+      else
+      {
+        StateString = "Снята";
+      }
+
+      ExplicitStateString = $"{dto.Value} - {StateString}";
+    }
+    
+
+
     public static TmEvent CreateManualAnalogSetEvent(TmNativeDefs.TEvent           tEvent,
                                                      TmNativeDefs.TTMSEventAddData eventAddData,
                                                      TmAnalog                      setAnalog,
@@ -683,14 +710,14 @@ namespace Iface.Oik.Tm.Interfaces
 
       if (s2Flags == 0)
       {
-        StateString = dto.State == 1 ? dto.StatusPropsAndClassData.CaptionOn : dto.StatusPropsAndClassData.CaptionOff;
+        StateString = dto.State == 1 ? dto.PropsAndClassData.CaptionOn : dto.PropsAndClassData.CaptionOff;
         ExplicitStateString = isS2Only
                                 ? "ИЗМ. АТРИБУТОВ - НОРМА"
                                 : $"{(dto.State == 1 ? "ВКЛ" : "ОТКЛ")}";
       }
       else
       {
-        StateString = GetS2StatusString(s2Flags, dto.StatusPropsAndClassData.CaptionBreak, dto.StatusPropsAndClassData.CaptionBreak);
+        StateString = GetS2StatusString(s2Flags, dto.PropsAndClassData.CaptionBreak, dto.PropsAndClassData.CaptionBreak);
         ExplicitStateString =
           $"{(isS2Only ? "ИЗМ. АТРИБУТОВ" : $"{(dto.State == 1 ? "ВКЛ" : "ОТКЛ")}")} {GetS2StatusString(s2Flags)}";
       }

@@ -129,4 +129,13 @@ public static partial class TmNativeDefsUnsafe
     public ushort FixMS;
     public uint   OldFlags;
   }
+  
+  [StructLayout(LayoutKind.Sequential, Pack = 1)]
+  public struct AlarmData
+  {
+    public float  Val;
+    public ushort AlarmID;
+    public byte   State;
+  }
+
 }
