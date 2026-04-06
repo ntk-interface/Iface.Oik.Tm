@@ -25,4 +25,7 @@ public class TagPropsAndClassData
   public string Flag4Name       { get; init; } = string.Empty;
   public string CaptionFlag4On  { get; init; } = string.Empty;
   public string CaptionFlag4Off { get; init; } = string.Empty;
+
+  public string Units     { get; init; } = string.Empty;
+  public byte   Precision { get; init; } 
 }

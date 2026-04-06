@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 
@@ -38,20 +39,59 @@ public static partial class TmNativeApi
   }
 
   private static string GetTagProperties(int                      cid,
-                                       TmNativeDefs.TmDataTypes type,
-                                       short                    ch,
-                                       short                    rtu,
-                                       short                    point)
+                                         TmNativeDefs.TmDataTypes type,
+                                         short                    ch,
+                                         short                    rtu,
+                                         short                    point)
   {
-    Span<byte> sb = stackalloc byte[1024];
+    const int bufSize = 1024;
+    var       pool    = ArrayPool<byte>.Shared;
+    var       buf     = pool.Rent(bufSize);
+    
+    try
+    {
+      TmNative.tmcGetObjectProperties(cid,
+                                      (ushort)type,
+                                      ch,
+                                      rtu,
+                                      point,
+                                      buf,
+                                      bufSize);
+    }
+    finally
+    {
+      ArrayPool<byte>.Shared.Return(buf);
+    }
+    
+    return TmNativeUtil.BytesToString(buf);
+  }
 
-    TmNative.tmcGetObjectProperties(cid,
-                                    (ushort)type,
-                                    ch,
-                                    rtu,
-                                    point,
-                                    sb,
-                                    1024);
-    return TmNativeUtil.BytesToString(sb);
+  private static unsafe TmNativeDefsUnsafe.TAnalogPoint GetTAnalogPoint(int cid,
+    short                                                                            ch,
+    short                                                                            rtu,
+    short                                                                            point)
+  {
+    var tmAddr = new TmNativeDefs.TAdrTm
+    {
+      Ch    = ch,
+      RTU   = rtu,
+      Point = point
+    };
+    
+    var tmcCommonPointsPtr = TmNative.tmcTMValuesByListEx(cid, 
+                                                          (ushort)TmNativeDefs.TmDataTypes.Analog, 0,
+                                                          1,
+                                                          new []{tmAddr});
+    if (tmcCommonPointsPtr == nint.Zero)
+    {
+      throw new TmNativeException($"Ошибка получения точности и единиц #ТТ{ch}:{rtu}:{point}");
+    }
+
+    var tPoint = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.TAnalogPoint>((byte*)tmcCommonPointsPtr,
+                                                                            sizeof(TmNativeDefsUnsafe.TAnalogPoint));
+    
+    TmNative.tmcFreeMemory(tmcCommonPointsPtr);
+
+    return tPoint;
   }
 }

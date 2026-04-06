@@ -159,7 +159,7 @@ public static partial class TmNativeApi
                                    (short)eventHeader.Point,
                                    ackData.TmType)
         };
-        
+
         evnt = TmEventBase.CreateAcknowledgeEventDto<T>(eventHeader,
                                                         ackData,
                                                         addData,
@@ -176,6 +176,7 @@ public static partial class TmNativeApi
                                                                (short)eventHeader.Rtu,
                                                                (short)eventHeader.Point,
                                                                cache);
+        
         evnt = TmEventBase.CreateManualStatusSetEvent<T>(eventHeader,
                                                          controlData,
                                                          addData,
@@ -183,6 +184,26 @@ public static partial class TmNativeApi
                                                          classDataAndProps);
         break;
       }
+      case TmNativeDefs.EventTypes.ManualAnalogSet:
+      {
+        var (analogSetData, operatorName) = GetAnalogSetDataFromBytes(basePtr + dataOffset, cid);
+
+        var classDataAndProps = GetAndCacheUpdatedEventTagData(cid,
+                                                               TmNativeDefs.TmDataTypes.Analog,
+                                                               (short)eventHeader.Ch,
+                                                               (short)eventHeader.Rtu,
+                                                               (short)eventHeader.Point,
+                                                               cache);
+
+        evnt = TmEventBase.CreateManualAnalogSetEvent<T>(eventHeader,
+                                                          analogSetData,
+                                                          addData,
+                                                          operatorName,
+                                                          classDataAndProps);
+        
+        break;
+      }
+
       default:
         evnt = new T();
         break;
@@ -258,6 +279,18 @@ public static partial class TmNativeApi
     return (native, operatorName);
   }
 
+  internal static unsafe (TmNativeDefsUnsafe.AnalogSetData data, string operatorName) GetAnalogSetDataFromBytes(
+    byte* ptr, int cid)
+  {
+    var native = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.AnalogSetData>(ptr,
+                                                                             sizeof(
+                                                                               TmNativeDefsUnsafe.AnalogSetData));
+
+    var operatorName = GetTextByRef(native.UserName, cid);
+
+    return (native, operatorName);
+  }
+
   internal static unsafe string GetTextByRef(byte* ptr, int cid)
   {
     const int bufSize = 128;
@@ -278,12 +311,12 @@ public static partial class TmNativeApi
     }
   }
 
-  private static TagPropsAndClassData GetAndCacheUpdatedEventTagData(int                                   cid,
-                                                                     TmNativeDefs.TmDataTypes              type,
-                                                                     short                                 ch,
-                                                                     short                                 rtu,
-                                                                     short                                 point,
-                                                                     Dictionary<int, TagPropsAndClassData> cache)
+  private static unsafe TagPropsAndClassData GetAndCacheUpdatedEventTagData(int                                   cid,
+                                                                            TmNativeDefs.TmDataTypes              type,
+                                                                            short                                 ch,
+                                                                            short                                 rtu,
+                                                                            short                                 point,
+                                                                            Dictionary<int, TagPropsAndClassData> cache)
   {
     var tmTagHash = (cid, type, ch, rtu, point).ToTuple().GetHashCode();
 
@@ -305,9 +338,13 @@ public static partial class TmNativeApi
       }
       case TmNativeDefs.TmDataTypes.Analog:
       {
+        var tAnalogPoint = GetTAnalogPoint(cid, ch, rtu, point);
+
         cachedData = new TagPropsAndClassData
         {
-          Name = string.IsNullOrEmpty(tagName) ? $"#ТТ{ch}:{rtu}:{point}" : tagName
+          Name      = string.IsNullOrEmpty(tagName) ? $"#ТТ{ch}:{rtu}:{point}" : tagName,
+          Units     = GetTextByRef(tAnalogPoint.Unit, cid),
+          Precision = (byte)(tAnalogPoint.Format >> 4),
         };
 
         break;
@@ -334,7 +371,7 @@ public static partial class TmNativeApi
     const int bufSize = 1024;
     var       pool    = ArrayPool<byte>.Shared;
     var       buf     = pool.Rent(bufSize);
-    
+
     try
     {
       TmNative.tmcGetObjectNameEx(cid,
@@ -364,7 +401,7 @@ public static partial class TmNativeApi
     const int bufSize = 1024;
     var       pool    = ArrayPool<byte>.Shared;
     var       buf     = pool.Rent(bufSize);
-    
+
     try
     {
       TmNative.tmcGetObjectName(cid,

@@ -307,6 +307,27 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
+    protected override void InitializeManualAnalogSetEvent(InitializeManualAnalogSetEventDto dto)
+    { 
+      InitializeTmEvent(dto);
+      
+      TmAddrString = $"#TT{dto.Ch}:{dto.Rtu}:{dto.Point}";
+      TmAddrComplexInteger =
+        (uint)(dto.Point + (dto.Rtu << 16) + (dto.Ch << 24));
+      TmAddrType = TmType.Analog;
+
+      TypeString         = "Ручн. ТИТ";
+      ExplicitTypeString = "Ручн. ТИТ";
+
+      StateString =
+        $"{dto.Value.ToString($"N{dto.PropsAndClassData.Precision}")}{(string.IsNullOrEmpty(dto.PropsAndClassData.Units) 
+                                                                         ? string.Empty 
+                                                                         : $" {dto.PropsAndClassData.Units}")}";
+      ExplicitStateString =
+        $"{dto.Value} - {(dto.Command ? "Установлено" : "Снято" )}";
+    }
+
+
     public static TmEvent CreateManualStatusSetEvent(TmNativeDefs.TEvent           tEvent,
                                                      TmNativeDefs.TTMSEventAddData eventAddData,
                                                      TmStatus                      setStatus,
@@ -995,8 +1016,7 @@ namespace Iface.Oik.Tm.Interfaces
       }*/
 
       _hashCode = tmEventElix is null
-                    ? (StatusCh: dto.Ch, StatusRtu: dto.Rtu, StatusPoint: dto.Point, /*tEvent.Data,*/ dto.DateTimeStr).ToTuple()
-                                                                                                                            .GetHashCode()
+                    ? (dto.Ch, dto.Rtu, dto.Point, /*tEvent.Data,*/ dto.DateTimeStr).ToTuple().GetHashCode()
                     : BitConverter.ToInt32(tmEventElix.ToByteArray(), 8);
 
       Elix       = tmEventElix;

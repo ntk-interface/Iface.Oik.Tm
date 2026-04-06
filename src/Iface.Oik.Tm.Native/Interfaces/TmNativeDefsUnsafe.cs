@@ -162,4 +162,14 @@ public static partial class TmNativeDefsUnsafe
     
     public fixed byte UserName[TEventUserNameSize];
   }
+  
+  public const int AnalogSetDataDummyBytes = 2027;
+  [StructLayout(LayoutKind.Sequential, Pack = 1)]
+  public unsafe struct AnalogSetData
+  {
+    public float Value;
+    public byte   Cmd; // выданная команда
+    
+    public fixed byte UserName[16];
+  }
 }
