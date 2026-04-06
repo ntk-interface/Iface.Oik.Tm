@@ -18,10 +18,10 @@ public abstract class TmEventBase
     var dto = new InitializeStatusChangeEventDto
     {
       Id                = header.Id,
-      StatusCh          = header.Ch,
-      StatusRtu         = header.Rtu,
-      StatusPoint       = header.Point,
-      StatusImp         = header.Imp,
+      Ch                = header.Ch,
+      Rtu               = header.Rtu,
+      Point             = header.Point,
+      Imp               = header.Imp,
       PropsAndClassData = propsAndClassData,
       DateTimeStr       = TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(header.DateTime),
       AckSec            = ackData.AckSec,
@@ -54,10 +54,10 @@ public abstract class TmEventBase
     var dto = new InitializeStatusChangeEventDto
     {
       Id                = header.Id,
-      StatusCh          = header.Ch,
-      StatusRtu         = header.Rtu,
-      StatusPoint       = header.Point,
-      StatusImp         = header.Imp,
+      Ch                = header.Ch,
+      Rtu               = header.Rtu,
+      Point             = header.Point,
+      Imp               = header.Imp,
       PropsAndClassData = propsAndClassData,
       DateTimeStr       = TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(header.DateTime),
       AckSec            = ackData.AckSec,
@@ -86,13 +86,13 @@ public abstract class TmEventBase
   {
     var evnt = new T();
 
-    var dto = new InitializeAlarmTmEventDto
+    var dto = new InitializeAlarmEventDto
     {
       Id                = header.Id,
-      StatusCh          = header.Ch,
-      StatusRtu         = header.Rtu,
-      StatusPoint       = header.Point,
-      StatusImp         = header.Imp,
+      Ch                = header.Ch,
+      Rtu               = header.Rtu,
+      Point             = header.Point,
+      Imp               = header.Imp,
       PropsAndClassData = propsAndClassData,
       DateTimeStr       = TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(header.DateTime),
       AckSec            = ackData.AckSec,
@@ -103,8 +103,39 @@ public abstract class TmEventBase
       TypeName          = typeName
     };
 
-    evnt.InitializeAlarmTmEvent(dto);
+    evnt.InitializeAlarmEvent(dto);
 
+    return evnt;
+  }
+
+  internal static unsafe T CreateControlEvent<T>(TmNativeDefsUnsafe.TEventHeader header,
+                                                 TmNativeDefsUnsafe.ControlData  data,
+                                                 TmNativeDefs.TTMSEventAddData   ackData,
+                                                 string                          operatorName,
+                                                 TagPropsAndClassData            propsAndClassData)
+    where T : TmEventBase, new()
+  {
+    var evnt = new T();
+
+    var dto = new InitializeControlEventDto
+    {
+      Id                = header.Id,
+      Ch                = header.Ch,
+      Rtu               = header.Rtu,
+      Point             = header.Point,
+      Imp               = header.Imp,
+      PropsAndClassData = propsAndClassData,
+      DateTimeStr       = TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(header.DateTime),
+      AckSec            = ackData.AckSec,
+      AckMs             = ackData.AckMs,
+      AckUser           = ackData.UserName,
+      OperatorName      = operatorName,
+      Result            = unchecked((sbyte)data.Result),
+      Command           = data.Cmd == 1
+    };
+    
+    evnt.InitializeControlEvent(dto);
+    
     return evnt;
   }
 
@@ -228,15 +259,17 @@ public abstract class TmEventBase
 
   protected abstract void InitializeStatusChangeEvent(InitializeStatusChangeEventDto dto);
 
-  protected abstract void InitializeAlarmTmEvent(InitializeAlarmTmEventDto dto);
+  protected abstract void InitializeAlarmEvent(InitializeAlarmEventDto dto);
+
+  protected abstract void InitializeControlEvent(InitializeControlEventDto dto);
 
   protected record InitializeTmEventDto
   {
     public ushort Id           { get; init; }
-    public ushort StatusCh     { get; init; }
-    public ushort StatusRtu    { get; init; }
-    public ushort StatusPoint  { get; init; }
-    public ushort StatusImp    { get; init; }
+    public ushort Ch           { get; init; }
+    public ushort Rtu          { get; init; }
+    public ushort Point        { get; init; }
+    public ushort Imp          { get; init; }
     public string DateTimeStr  { get; init; } = string.Empty;
     public uint   AckSec       { get; init; }
     public ushort AckMs        { get; init; }
@@ -260,10 +293,16 @@ public abstract class TmEventBase
     public uint?  StatusOldFlags { get; init; }
   }
 
-  protected record InitializeAlarmTmEventDto : InitializeTmEventDto
+  protected record InitializeAlarmEventDto : InitializeTmEventDto
   {
     public string TypeName { get; init; } = string.Empty;
     public bool   TurnedOn { get; init; }
     public float  Value    { get; init; }
+  }
+
+  protected record InitializeControlEventDto : InitializeTmEventDto
+  {
+    public sbyte Result  { get; init; }
+    public bool  Command { get; init; }
   }
 }

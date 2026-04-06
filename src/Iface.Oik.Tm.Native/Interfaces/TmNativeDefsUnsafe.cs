@@ -39,7 +39,7 @@ public static partial class TmNativeDefsUnsafe
 
 
   public const int TEventDateTimeSize = 24;
-  public const int TEventDataSize     = 24;
+  public const int TEventUserNameSize = 16;
 
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public unsafe struct TEventHeader
@@ -90,13 +90,13 @@ public static partial class TmNativeDefsUnsafe
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
-  public struct TTMSEventAddData
+  public unsafe struct TTMSEventAddData
   {
     public TTMSElix Elix;
     public UInt32   AckSec;
     public UInt16   AckMs;
 
-    //UserName byte[] неизвестной длинны
+    public fixed byte UserName[TEventUserNameSize];
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -115,21 +115,23 @@ public static partial class TmNativeDefsUnsafe
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
-  public struct StatusDataEx
+  public unsafe struct StatusDataEx
   {
-    public byte   State;
-    public byte   Class;
-    public uint   ExtSig;
-    public byte   ResCh;
-    public byte   ResRtu;
-    public ushort ResPoint;
-    public uint   FixUT;
-    public ushort S2;
-    public uint   Flags;
-    public ushort FixMS;
-    public uint   OldFlags;
+    public       byte   State;
+    public       byte   Class;
+    public       uint   ExtSig;
+    public       byte   ResCh;
+    public       byte   ResRtu;
+    public       ushort ResPoint;
+    public       uint   FixUT;
+    public       ushort S2;
+    public       uint   Flags;
+    public       ushort FixMS;
+    public       uint   OldFlags;
+    
+    public fixed byte   UserName[TEventUserNameSize];
   }
-  
+
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public struct AlarmData
   {
@@ -138,4 +140,16 @@ public static partial class TmNativeDefsUnsafe
     public byte   State;
   }
 
+  private const int ControlDataDummyBytes = 2026;
+  [StructLayout(LayoutKind.Sequential, Pack = 1)]
+  public unsafe struct ControlData // параметры выданного телеуправления
+  {
+    public byte   Ch;
+    public byte   Rtu;
+    public ushort Point;
+    public byte   Cmd;    // выданная команда
+    public byte   Result; // == SUCCESS если ТУ успешно, иначе FAILURE
+
+    public fixed byte UserName[TEventUserNameSize]; // пользователь, выдавший ТУ
+  }
 }

@@ -31,8 +31,7 @@ public static partial class TmNativeApi
 
     if (tEventPtr == nint.Zero)
     {
-      return []
-      ;
+      return [] ;
     }
 
     var curPtr = tEventPtr;
@@ -128,6 +127,23 @@ public static partial class TmNativeApi
                                                classDataAndProps);
         break;
       }
+      case TmNativeDefs.EventTypes.Control:
+      {
+        var (controlData, operatorName) = GetControlDataFromBytes(basePtr + dataOffset, cid);
+        var classDataAndProps = GetAndCacheUpdatedEventTagData(cid,
+                                                               TmNativeDefs.TmDataTypes.Status,
+                                                               (short)eventHeader.Ch,
+                                                               (short)eventHeader.Rtu,
+                                                               (short)eventHeader.Point,
+                                                               cache);
+        evnt = TmEventBase.CreateControlEvent<T>(eventHeader,
+                                                 controlData,
+                                                 addData,
+                                                 operatorName,
+                                                 classDataAndProps);
+        
+        break;
+      }
       default:
         evnt = new T();
         break;
@@ -136,7 +152,7 @@ public static partial class TmNativeApi
     return (evnt, header.Next);
   }
 
-  public static unsafe TmNativeDefs.TTMSEventAddData GetEventAddData(int index)
+  internal static unsafe TmNativeDefs.TTMSEventAddData GetEventAddData(int index)
   {
     const int  bufSize = 512;
     Span<byte> buf     = stackalloc byte[bufSize];
@@ -146,7 +162,6 @@ public static partial class TmNativeApi
     fixed (byte* basePtr = buf)
     {
       var native = *(TmNativeDefsUnsafe.TTMSEventAddData*)basePtr;
-      var strPtr = basePtr + sizeof(TmNativeDefsUnsafe.TTMSEventAddData);
 
       return new TmNativeDefs.TTMSEventAddData
       {
@@ -157,7 +172,7 @@ public static partial class TmNativeApi
         },
         AckMs    = native.AckMs,
         AckSec   = native.AckSec,
-        UserName = TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(strPtr)
+        UserName = TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(native.UserName)
       };
     }
   }
@@ -173,7 +188,7 @@ public static partial class TmNativeApi
     var offset = sizeof(TmNativeDefsUnsafe.StatusDataEx);
 
     var native   = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.StatusDataEx>(ptr, offset);
-    var userName = GetTextByRef(ptr + offset, cid);
+    var userName = GetTextByRef(native.UserName, cid);
 
     return (native, userName);
   }
@@ -182,6 +197,14 @@ public static partial class TmNativeApi
   {
     return TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.AlarmData>(ptr,
                                                                    sizeof(TmNativeDefsUnsafe.AlarmData));
+  }
+
+  internal static unsafe (TmNativeDefsUnsafe.ControlData data, string operatorName) GetControlDataFromBytes(byte* ptr, int cid)
+  {
+    var native = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.ControlData>(ptr,
+                                                                           sizeof(TmNativeDefsUnsafe.ControlData));
+    var operatorName = GetTextByRef(native.UserName, cid);
+    return (native, operatorName);
   }
 
   internal static unsafe string GetTextByRef(byte* ptr, int cid)
@@ -218,8 +241,6 @@ public static partial class TmNativeApi
       return cachedData;
     }
 
-    Console.WriteLine("Тут");
-    
     var classDataStr = GetTagClassData(cid, type, ch, rtu, point);
     var tagName      = TmEventBase.GetTagName(GetTagProperties(cid, type, ch, rtu, point));
 

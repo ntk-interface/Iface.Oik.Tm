@@ -253,13 +253,13 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    protected override void InitializeAlarmTmEvent(InitializeAlarmTmEventDto dto)
+    protected override void InitializeAlarmEvent(InitializeAlarmEventDto dto)
     {
       InitializeTmEvent(dto);
 
-      TmAddrString = $"#TT{dto.StatusCh}:{dto.StatusRtu}:{dto.StatusPoint}";
+      TmAddrString = $"#TT{dto.Ch}:{dto.Rtu}:{dto.Point}";
       TmAddrComplexInteger =
-        (uint)(dto.StatusPoint + (dto.StatusRtu << 16) + (dto.StatusCh << 24));
+        (uint)(dto.Point + (dto.Rtu << 16) + (dto.Ch << 24));
       TmAddrType = TmType.Analog;
 
       TypeString                    = dto.TypeName;
@@ -447,6 +447,33 @@ namespace Iface.Oik.Tm.Interfaces
       }
 
       return controlEvent;
+    }
+
+    protected override void InitializeControlEvent(InitializeControlEventDto dto)
+    { 
+      InitializeTmEvent(dto);
+      
+      TmAddrString = $"#TC{dto.Ch}:{dto.Rtu}:{dto.Point}";
+      TmAddrComplexInteger =
+        (uint)(dto.Point + (dto.Rtu << 16) + (dto.Ch << 24));
+      TmAddrType = TmType.Status;
+
+      TypeString         = "ТУ";
+      ExplicitTypeString = "ТУ";
+
+      var result = (TmTelecontrolResult)dto.Result;
+
+      if (result != TmTelecontrolResult.Success)
+      {
+        ExplicitStateString = $"{(dto.Command ? "ВКЛ" : "ОТКЛ")} ОШИБКА {(int)result}";
+        StateString         = result.GetDescription();
+      }
+      else
+      {
+        ExplicitStateString = dto.Command ? "ВКЛ" : "ОТКЛ";
+        StateString =
+          $"Команда {(dto.Command ? dto.PropsAndClassData.CaptionOn : dto.PropsAndClassData.CaptionOff)}";
+      }
     }
 
 
@@ -646,9 +673,9 @@ namespace Iface.Oik.Tm.Interfaces
       var                  isS2Only = false;
       TmNativeDefs.S2Flags s2Flags  = 0x0000;
 
-      TmAddrString = $"#TC{dto.StatusCh}:{dto.StatusRtu}:{dto.StatusPoint}";
+      TmAddrString = $"#TC{dto.Ch}:{dto.Rtu}:{dto.Point}";
       TmAddrComplexInteger =
-        (uint)(dto.StatusPoint + (dto.StatusRtu << 16) + (dto.StatusCh << 24));
+        (uint)(dto.Point + (dto.Rtu << 16) + (dto.Ch << 24));
       TmAddrType = TmType.Status;
 
       TypeString = string.IsNullOrEmpty(dto.PropsAndClassData.ClassName)
@@ -880,14 +907,14 @@ namespace Iface.Oik.Tm.Interfaces
       }*/
 
       _hashCode = tmEventElix is null
-                    ? (dto.StatusCh, dto.StatusRtu, dto.StatusPoint, /*tEvent.Data,*/ dto.DateTimeStr).ToTuple()
-                    .GetHashCode()
+                    ? (StatusCh: dto.Ch, StatusRtu: dto.Rtu, StatusPoint: dto.Point, /*tEvent.Data,*/ dto.DateTimeStr).ToTuple()
+                                                                                                                            .GetHashCode()
                     : BitConverter.ToInt32(tmEventElix.ToByteArray(), 8);
 
       Elix       = tmEventElix;
       Time       = DateUtil.GetDateTimeFromExtendedTmString(dto.DateTimeStr);
       Type       = (TmEventTypes)dto.Id;
-      Importance = dto.StatusImp;
+      Importance = dto.Imp;
       Username   = dto.OperatorName;
       TmAddrType = Type switch
                    {
