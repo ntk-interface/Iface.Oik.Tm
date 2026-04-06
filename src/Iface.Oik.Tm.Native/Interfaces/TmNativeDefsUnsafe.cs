@@ -140,7 +140,7 @@ public static partial class TmNativeDefsUnsafe
     public byte   State;
   }
 
-  private const int ControlDataDummyBytes = 2026;
+  public const int ControlDataDummyBytes = 2026;
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public unsafe struct ControlData // параметры выданного телеуправления
   {
@@ -151,5 +151,15 @@ public static partial class TmNativeDefsUnsafe
     public byte   Result; // == SUCCESS если ТУ успешно, иначе FAILURE
 
     public fixed byte UserName[TEventUserNameSize]; // пользователь, выдавший ТУ
+  }
+  
+  [StructLayout(LayoutKind.Sequential)]
+  public unsafe struct AcknowledgeData
+  {
+    public ushort TmType;
+    public ushort Res1;
+    public ushort Res2;
+    
+    public fixed byte UserName[TEventUserNameSize];
   }
 }

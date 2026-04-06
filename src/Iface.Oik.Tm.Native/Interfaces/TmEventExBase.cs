@@ -133,8 +133,39 @@ public abstract class TmEventBase
       Result            = unchecked((sbyte)data.Result),
       Command           = data.Cmd == 1
     };
-    
+
     evnt.InitializeControlEvent(dto);
+
+    return evnt;
+  }
+
+
+  internal static unsafe T CreateAcknowledgeEventDto<T>(TmNativeDefsUnsafe.TEventHeader    header,
+                                                        TmNativeDefsUnsafe.AcknowledgeData data,
+                                                        TmNativeDefs.TTMSEventAddData      ackData,
+                                                        string                             operatorName,
+                                                        TagPropsAndClassData               propsAndClassData)
+    where T : TmEventBase, new()
+  {
+    var evnt = new T();
+
+    var dto = new InitializeAcknowledgeEventDto
+    {
+      Id           = header.Id,
+      Ch           = header.Ch,
+      Rtu          = header.Rtu,
+      Point        = header.Point,
+      Imp          = header.Imp,
+      DateTimeStr  = TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(header.DateTime),
+      AckSec       = ackData.AckSec,
+      AckMs        = ackData.AckMs,
+      AckUser      = ackData.UserName,
+      OperatorName = operatorName,
+      PropsAndClassData = propsAndClassData,
+      TargetTmType = data.TmType
+    };
+
+    evnt.InitializeAcknowledgeEvent(dto);
     
     return evnt;
   }
@@ -263,6 +294,8 @@ public abstract class TmEventBase
 
   protected abstract void InitializeControlEvent(InitializeControlEventDto dto);
 
+  protected abstract void InitializeAcknowledgeEvent(InitializeAcknowledgeEventDto dto);
+
   protected record InitializeTmEventDto
   {
     public ushort Id           { get; init; }
@@ -276,7 +309,7 @@ public abstract class TmEventBase
     public string OperatorName { get; init; } = string.Empty;
     public string AckUser      { get; init; }
 
-    public TagPropsAndClassData PropsAndClassData { get; init; }
+    public TagPropsAndClassData PropsAndClassData { get; init; } = new();
 
     public bool NotAcked => AckSec == 0 || string.IsNullOrEmpty(OperatorName);
   }
@@ -304,5 +337,10 @@ public abstract class TmEventBase
   {
     public sbyte Result  { get; init; }
     public bool  Command { get; init; }
+  }
+
+  protected record InitializeAcknowledgeEventDto : InitializeTmEventDto
+  {
+    public ushort TargetTmType { get; init; }
   }
 }

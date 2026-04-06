@@ -413,6 +413,53 @@ namespace Iface.Oik.Tm.Interfaces
       return acknowledgeEvent;
     }
 
+    protected override void InitializeAcknowledgeEvent(InitializeAcknowledgeEventDto dto)
+    {
+      InitializeTmEvent(dto);
+      
+      TmAddrComplexInteger =
+        (uint)(dto.Point + (dto.Rtu << 16) + (dto.Ch << 24));
+
+      TmAddrType = ((TmNativeDefs.TmDataTypes)dto.TargetTmType).ToTmType();
+
+      switch (TmAddrType)
+      {
+        case TmType.Status:
+          if (dto.Point == 0)
+          {
+            Text = "Общее квитирование ТС";
+          }
+          else
+          {
+            TmAddrString = $"#TC{dto.Ch}:{dto.Rtu}:{dto.Point}";
+          }
+
+          break;
+        case TmType.Analog:
+
+          if (dto.Point == 0)
+          {
+            Text = "Общее квитирование ТИ";
+          }
+          else
+          {
+            TmAddrString = $"#TT{dto.Ch}:{dto.Rtu}:{dto.Point}";
+          }
+
+          break;
+        default:
+          if (dto.Point == 0)
+          {
+            Text = "Общее квитирование";
+          }
+
+          break;
+      }
+
+      TypeString         = "Квитирование";
+      ExplicitTypeString = "Квитирование";
+    }
+
 
     public static TmEvent CreateControlEvent(TmNativeDefs.TEvent           tEvent,
                                              TmNativeDefs.TTMSEventAddData eventAddData,
