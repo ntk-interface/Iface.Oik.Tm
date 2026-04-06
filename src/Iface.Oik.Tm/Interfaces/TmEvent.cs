@@ -358,6 +358,47 @@ namespace Iface.Oik.Tm.Interfaces
       return manualStatusSetEvent;
     }
 
+    protected override void InitializeManualStatusSetEvent(InitializeManualStatusSetEventDto dto)
+    {
+      InitializeTmEvent(dto);
+      
+      TmAddrString = $"#TС{dto.Ch}:{dto.Rtu}:{dto.Point}";
+      TmAddrComplexInteger =
+        (uint)(dto.Point + (dto.Rtu << 16) + (dto.Ch << 24));
+      TmAddrType = TmType.Status;
+
+      ExplicitTypeString  = "Ручн. ТС";
+      ExplicitStateString = dto.Command ? "ВКЛ" : "ОТКЛ";
+
+      if (dto.ACh == -1)
+      {
+        switch (dto.ARtu)
+        {
+          case 1:
+            TypeString  = dto.PropsAndClassData.Flag1Name;
+            StateString = dto.Command ? dto.PropsAndClassData.CaptionFlag1On : dto.PropsAndClassData.CaptionFlag1Off;
+            break;
+          case 2:
+            TypeString  = dto.PropsAndClassData.Flag2Name;
+            StateString = dto.Command ? dto.PropsAndClassData.CaptionFlag2On : dto.PropsAndClassData.CaptionFlag2Off;
+            break;
+          case 3:
+            TypeString  = dto.PropsAndClassData.Flag3Name;
+            StateString = dto.Command ? dto.PropsAndClassData.CaptionFlag3On : dto.PropsAndClassData.CaptionFlag3Off;
+            break;
+          case 4:
+            TypeString  = dto.PropsAndClassData.Flag4Name;
+            StateString = dto.Command ? dto.PropsAndClassData.CaptionFlag4On : dto.PropsAndClassData.CaptionFlag4Off;
+            break;
+        }
+      }
+      else
+      {
+        TypeString  = "Ручн. ТС";
+        StateString = dto.Command ? dto.PropsAndClassData.CaptionOn : dto.PropsAndClassData.CaptionOff;
+      }
+    }
+    
 
     public static TmEvent CreateAcknowledgeEvent(TmNativeDefs.TEvent           tEvent,
                                                  TmNativeDefs.TTMSEventAddData eventAddData,

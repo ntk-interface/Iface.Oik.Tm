@@ -170,6 +170,37 @@ public abstract class TmEventBase
     return evnt;
   }
 
+
+  internal static unsafe T CreateManualStatusSetEvent<T>(TmNativeDefsUnsafe.TEventHeader header,
+                                                         TmNativeDefsUnsafe.ControlData  data,
+                                                         TmNativeDefs.TTMSEventAddData   ackData,
+                                                         string                          operatorName,
+                                                         TagPropsAndClassData            propsAndClassData) 
+    where T : TmEventBase, new()
+  {
+    var evnt = new T();
+
+    var dto = new InitializeManualStatusSetEventDto
+    {
+      Id                = header.Id,
+      Ch                = header.Ch,
+      Rtu               = header.Rtu,
+      Point             = header.Point,
+      Imp               = header.Imp,
+      PropsAndClassData = propsAndClassData,
+      DateTimeStr       = TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(header.DateTime),
+      AckSec            = ackData.AckSec,
+      AckMs             = ackData.AckMs,
+      AckUser           = ackData.UserName,
+      OperatorName      = operatorName,
+      Command           = data.Cmd == 1
+    };
+
+    evnt.InitializeManualStatusSetEvent(dto);
+    
+    return evnt;
+  }
+  
   internal static string GetTagName(string propertiesString)
   {
     var span = propertiesString.AsSpan();
@@ -225,6 +256,22 @@ public abstract class TmEventBase
     var captionBreak       = string.Empty;
     var captionMalfunction = string.Empty;
 
+    var flag1Name       = string.Empty;
+    var captionFlag1On  = string.Empty;
+    var captionFlag1Off = string.Empty;
+    
+    var flag2Name       = string.Empty;
+    var captionFlag2On  = string.Empty;
+    var captionFlag2Off = string.Empty;
+    
+    var flag3Name       = string.Empty;
+    var captionFlag3On  = string.Empty;
+    var captionFlag3Off = string.Empty;
+    
+    var flag4Name       = string.Empty;
+    var captionFlag4On  = string.Empty;
+    var captionFlag4Off = string.Empty;
+
     while (!span.IsEmpty)
     {
       var lineEnd = span.IndexOf("\r\n");
@@ -271,6 +318,47 @@ public abstract class TmEventBase
         case "MTxt":
           captionMalfunction = line[(eq + 1)..].ToString();
           break;
+        
+        case "F1Name":
+          flag1Name = line[(eq + 1)..].ToString();
+          break;
+        case "F10Txt":
+          captionFlag1Off = line[(eq + 1)..].ToString();
+          break;
+        case "F11Txt":
+          captionFlag1On = line[(eq + 1)..].ToString();
+          break;
+
+        case "F2Name":
+          flag2Name = line[(eq + 1)..].ToString();
+          break;
+        case "F20Txt":
+          captionFlag2Off = line[(eq + 1)..].ToString();
+          break;
+        case "F21Txt":
+          captionFlag2On = line[(eq + 1)..].ToString();
+          break;
+        
+        case "F3Name":
+          flag3Name = line[(eq + 1)..].ToString();
+          break;
+        case "F30Txt":
+          captionFlag3Off = line[(eq + 1)..].ToString();
+          break;
+        case "F31Txt":
+          captionFlag3On = line[(eq + 1)..].ToString();
+          break;
+        
+        case "F4Name":
+          flag4Name = line[(eq + 1)..].ToString();
+          break;
+        case "F40Txt":
+          captionFlag4Off = line[(eq + 1)..].ToString();
+          break;
+        case "F41Txt":
+          captionFlag4On = line[(eq + 1)..].ToString();
+          break;
+        
         default:
           continue;
       }
@@ -283,6 +371,22 @@ public abstract class TmEventBase
       CaptionOff         = captionOff,
       CaptionBreak       = captionBreak,
       CaptionMalfunction = captionMalfunction,
+      
+      Flag1Name = flag1Name,
+      CaptionFlag1Off = captionFlag1Off,
+      CaptionFlag1On = captionFlag1On,
+      
+      Flag2Name = flag2Name,
+      CaptionFlag2Off = captionFlag2Off,
+      CaptionFlag2On = captionFlag2On,
+      
+      Flag3Name = flag3Name,
+      CaptionFlag3Off = captionFlag3Off,
+      CaptionFlag3On = captionFlag3On,
+      
+      Flag4Name = flag4Name,
+      CaptionFlag4Off = captionFlag4Off,
+      CaptionFlag4On = captionFlag4On
     };
   }
 
@@ -295,6 +399,8 @@ public abstract class TmEventBase
   protected abstract void InitializeControlEvent(InitializeControlEventDto dto);
 
   protected abstract void InitializeAcknowledgeEvent(InitializeAcknowledgeEventDto dto);
+  
+  protected abstract void InitializeManualStatusSetEvent(InitializeManualStatusSetEventDto dto);
 
   protected record InitializeTmEventDto
   {
@@ -342,5 +448,12 @@ public abstract class TmEventBase
   protected record InitializeAcknowledgeEventDto : InitializeTmEventDto
   {
     public ushort TargetTmType { get; init; }
+  }
+  
+  protected record InitializeManualStatusSetEventDto : InitializeTmEventDto
+  {
+    public bool Command { get; init; }
+    public short  ACh      { get; init; }
+    public short  ARtu      { get; init; }
   }
 }

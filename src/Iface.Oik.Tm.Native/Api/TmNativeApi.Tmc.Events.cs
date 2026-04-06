@@ -167,6 +167,22 @@ public static partial class TmNativeApi
                                                         propsAndClassData);
         break;
       }
+      case TmNativeDefs.EventTypes.ManualStatusSet:
+      {
+        var (controlData, operatorName) = GetControlDataFromBytes(basePtr + dataOffset, cid);
+        var classDataAndProps = GetAndCacheUpdatedEventTagData(cid,
+                                                               TmNativeDefs.TmDataTypes.Status,
+                                                               (short)eventHeader.Ch,
+                                                               (short)eventHeader.Rtu,
+                                                               (short)eventHeader.Point,
+                                                               cache);
+        evnt = TmEventBase.CreateManualStatusSetEvent<T>(eventHeader,
+                                                         controlData,
+                                                         addData,
+                                                         operatorName,
+                                                         classDataAndProps);
+        break;
+      }
       default:
         evnt = new T();
         break;
