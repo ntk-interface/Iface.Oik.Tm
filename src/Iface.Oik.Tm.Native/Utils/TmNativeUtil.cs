@@ -42,7 +42,7 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static string[] GetStringListFromDoubleNullTerminatedChars(char[] chars)
+    public static string[] GetStringListFromDoubleNullTerminatedChars(char[]? chars)
     {
       if (chars == null)
       {
@@ -60,7 +60,7 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static string[] GetStringListFromDoubleNullTerminatedBytes(byte[] bytes)
+    public static string[] GetStringListFromDoubleNullTerminatedBytes(byte[]? bytes)
     {
       if (bytes == null)
       {
@@ -84,7 +84,7 @@ namespace Iface.Oik.Tm.Native.Utils
                      .Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
     }
 
-    public static (IEnumerable<KeyValuePair<string, string>>, byte[]) SplitMqttMessageDatagram(byte[] datagram)
+    public static (IEnumerable<KeyValuePair<string, string>>, byte[]) SplitMqttMessageDatagram(byte[]? datagram)
     {
       if (datagram == null || datagram[0] != 'p' && datagram[1] != 'o')
       {
@@ -132,8 +132,8 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static byte[] GetDoubleNullTerminatedBytesFromStringList(IEnumerable<string> list,
-                                                                    int                 maxSize = 1024)
+    public static byte[] GetDoubleNullTerminatedBytesFromStringList(IEnumerable<string>? list,
+                                                                    int                  maxSize = 1024)
     {
       if (list == null)
       {
@@ -160,10 +160,10 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static IReadOnlyCollection<string> GetStringListFromDoubleNullTerminatedPointer(IntPtr ptr,
-      int                                                                                         maxSize)
+    public static IReadOnlyCollection<string> GetStringListFromDoubleNullTerminatedPointer(nint ptr, 
+      int maxSize)
     {
-      if (ptr == IntPtr.Zero)
+      if (ptr == nint.Zero)
       {
         return Array.Empty<string>();
       }
@@ -204,7 +204,7 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static IntPtr GetDoubleNullTerminatedPointerFromStringList(IEnumerable<string> list)
+    public static nint GetDoubleNullTerminatedPointerFromStringList(IEnumerable<string>? list)
     {
       if (list == null)
       {
@@ -230,12 +230,9 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static byte[] GetFixedBytesWithTrailingZero(string s, int size, string encoding)
+    public static byte[] GetFixedBytesWithTrailingZero(string? s, int size, string encoding)
     {
-      if (s == null)
-      {
-        s = string.Empty;
-      }
+      s ??= string.Empty;
 
       var result = new byte[size];
       Array.Copy(Encoding.GetEncoding(encoding).GetBytes(s),
@@ -245,157 +242,12 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static TmNativeDefs.StatusData GetStatusDataFromTEvent(TmNativeDefs.TEvent tEvent)
-    {
-      if (tEvent.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в TEvent");
-      }
-
-      return FromBytes<TmNativeDefs.StatusData>(tEvent.Data);
-    }
-
-
-    public static TmNativeDefs.StatusDataEx GetStatusDataExFromTEvent(TmNativeDefs.TEvent tEvent)
-    {
-      if (tEvent.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в TEvent");
-      }
-
-      return FromBytes<TmNativeDefs.StatusDataEx>(tEvent.Data);
-    }
-
-    public static (TmNativeDefs.StatusDataEx, string userRef) GetStatusDataExFromBytes(Span<byte> bytes)
-    {
-      if (bytes == null)
-      {
-        throw new ArgumentException("Отсутствует Data в TEvent");
-      }
-
-      unsafe
-      {
-        fixed (byte* ptr = bytes)
-        {
-          var offset = sizeof(TmNativeDefsUnsafe.StatusDataEx);
-          var native = *(TmNativeDefsUnsafe.StatusDataEx*)ptr;
-
-          var userRef = GetStringWithUnknownLengthFromBytePtr(ptr + offset);
-
-          return (new TmNativeDefs.StatusDataEx()
-                   {
-                     Class    = native.Class,
-                     ExtSig   = native.ExtSig,
-                     S2       = native.S2,
-                     FixMS    = native.FixMS,
-                     FixUT    = native.FixUT,
-                     Flags    = native.Flags,
-                     OldFlags = native.OldFlags,
-                     ResCh    = native.ResCh,
-                     ResPoint = native.ResPoint,
-                     ResRtu   = native.ResRtu,
-                     State    = native.State
-                   }, userRef);
-        }
-      }
-    }
-
-
-    public static TmNativeDefs.AlarmData GetAlarmDataFromTEvent(TmNativeDefs.TEvent tEvent)
-    {
-      if (tEvent.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в TEvent");
-      }
-
-      return FromBytes<TmNativeDefs.AlarmData>(tEvent.Data);
-    }
-
-
-    public static TmNativeDefs.AnalogSetData GetAnalogSetDataFromTEvent(TmNativeDefs.TEvent tEvent)
-    {
-      if (tEvent.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в TEvent");
-      }
-
-      return FromBytes<TmNativeDefs.AnalogSetData>(tEvent.Data);
-    }
-
-
-    public static TmNativeDefs.ControlData GetControlDataFromTEvent(TmNativeDefs.TEvent tEvent)
-    {
-      if (tEvent.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в TEvent");
-      }
-
-      return FromBytes<TmNativeDefs.ControlData>(tEvent.Data);
-    }
-
-
-    public static TmNativeDefs.AcknowledgeData GetAcknowledgeDataFromTEvent(TmNativeDefs.TEvent tEvent)
-    {
-      if (tEvent.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в TEvent");
-      }
-
-      return FromBytes<TmNativeDefs.AcknowledgeData>(tEvent.Data);
-    }
-
-
-    public static TmNativeDefs.StrBinData GetStrBinData(TmNativeDefs.TEvent tEvent)
-    {
-      if (tEvent.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в TEvent");
-      }
-
-      return FromBytes<TmNativeDefs.StrBinData>(tEvent.Data);
-    }
-
-
-    public static TmNativeDefs.FlagsChangeData GetFlagsChangeData(TmNativeDefs.TEvent tEvent)
-    {
-      if (tEvent.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в TEvent");
-      }
-
-      return FromBytes<TmNativeDefs.FlagsChangeData>(tEvent.Data);
-    }
-
-
-    public static TmNativeDefs.FlagsChangeDataStatus GetFlagsChangeDataStatus(TmNativeDefs.TEvent tEvent)
-    {
-      if (tEvent.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в TEvent");
-      }
-
-      return FromBytes<TmNativeDefs.FlagsChangeDataStatus>(tEvent.Data);
-    }
-
-
-    public static TmNativeDefs.FlagsChangeDataAnalog GetFlagsChangeDataAnalog(TmNativeDefs.TEvent tEvent)
-    {
-      if (tEvent.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в TEvent");
-      }
-
-      return FromBytes<TmNativeDefs.FlagsChangeDataAnalog>(tEvent.Data);
-    }
-
-
     public static TmNativeDefs.TTMSEventAddData GetEventAddData(Span<byte> addDataBytes)
     {
       if (addDataBytes == null)
       {
         throw new ArgumentException("Массив байтов пуст");
       }
-
       unsafe
       {
         fixed (byte* basePtr = addDataBytes)
@@ -418,15 +270,10 @@ namespace Iface.Oik.Tm.Native.Utils
       }
     }
 
-    public static string BytesToString(Span<byte> src, Encoding encoding = null)
+    public static string BytesToString(Span<byte> src, Encoding? encoding = null)
     {
       encoding ??= Encoding.UTF8;
-
-      if (src == null)
-      {
-        return null;
-      }
-
+      
       var len = src.IndexOf((byte)0);
       if (len < 0)
       {
@@ -462,7 +309,7 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static string GetStringFromBytesWithAdditionalPart(byte[] bytes, Encoding encoding = null)
+    public static string GetStringFromBytesWithAdditionalPart(byte[] bytes, Encoding? encoding = null)
     {
       encoding ??= Encoding.UTF8;
 
@@ -473,7 +320,7 @@ namespace Iface.Oik.Tm.Native.Utils
              .Trim('\n');
     }
 
-    public static string GetStringWithUnknownLengthFromIntPtr(nint ptr, Encoding encoding = null)
+    public static string GetStringWithUnknownLengthFromIntPtr(nint ptr, Encoding? encoding = null)
     {
       unsafe
       {
@@ -494,7 +341,7 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static unsafe string GetStringWithUnknownLengthFromBytePtr(byte* ptr, Encoding encoding = null)
+    public static unsafe string GetStringWithUnknownLengthFromBytePtr(byte* ptr, Encoding? encoding = null)
     {
       if (ptr[0] == 0)
       {
@@ -515,7 +362,7 @@ namespace Iface.Oik.Tm.Native.Utils
 
 
     public static IReadOnlyCollection<string> GetUnknownLengthStringListFromDoubleNullTerminatedPointer(nint ptr,
-      Encoding encoding = null)
+      Encoding? encoding = null)
     {
       var result = new List<string>();
 
@@ -556,7 +403,7 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
     public static (IReadOnlyCollection<string> strings, nint nextPtr) GetStringsListWithOffsetPointer(nint ptr,
-      Encoding encoding = null)
+      Encoding? encoding = null)
     {
       var result = new List<string>();
 
@@ -610,42 +457,7 @@ namespace Iface.Oik.Tm.Native.Utils
         return p[0] == 0;
       }
     }
-
-
-    public static TmNativeDefs.TEventElix EventElixFromIntPtr(IntPtr pTEventElix)
-    {
-      var tEventOffset    = Marshal.SizeOf<TmNativeDefs.TEventElixHeader>();
-      var eventHeaderSize = Marshal.SizeOf<TmNativeDefs.TEventHeader>();
-      var dataOffset      = tEventOffset + eventHeaderSize;
-
-      var header = Marshal.PtrToStructure<TmNativeDefs.TEventElixHeader>(pTEventElix);
-
-      var dataSize = (int)(header.EventSize - eventHeaderSize);
-
-      var eventHeader = Marshal.PtrToStructure<TmNativeDefs.TEventHeader>(IntPtr.Add(pTEventElix, tEventOffset));
-
-      var dataBuf = new byte[dataSize];
-
-      Marshal.Copy(IntPtr.Add(pTEventElix, dataOffset), dataBuf, 0, dataSize);
-
-      return new TmNativeDefs.TEventElix
-      {
-        Next      = header.Next,
-        Elix      = header.Elix,
-        EventSize = header.EventSize,
-        Event = new TmNativeDefs.TEvent
-        {
-          Ch       = eventHeader.Ch,
-          Data     = dataBuf,
-          DateTime = new byte[] { }, /* eventHeader.DateTime,*/
-          Id       = eventHeader.Id,
-          Imp      = eventHeader.Imp,
-          Point    = eventHeader.Point,
-          Rtu      = eventHeader.Rtu
-        }
-      };
-    }
-
+    
 
     private static T FromBytes<T>(byte[] bytes) where T : struct
     {
