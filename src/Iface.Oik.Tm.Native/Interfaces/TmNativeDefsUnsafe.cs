@@ -117,19 +117,19 @@ public static partial class TmNativeDefsUnsafe
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public unsafe struct StatusDataEx
   {
-    public       byte   State;
-    public       byte   Class;
-    public       uint   ExtSig;
-    public       byte   ResCh;
-    public       byte   ResRtu;
-    public       ushort ResPoint;
-    public       uint   FixUT;
-    public       ushort S2;
-    public       uint   Flags;
-    public       ushort FixMS;
-    public       uint   OldFlags;
-    
-    public fixed byte   UserName[TEventUserNameSize];
+    public byte   State;
+    public byte   Class;
+    public uint   ExtSig;
+    public byte   ResCh;
+    public byte   ResRtu;
+    public ushort ResPoint;
+    public uint   FixUT;
+    public ushort S2;
+    public uint   Flags;
+    public ushort FixMS;
+    public uint   OldFlags;
+
+    public fixed byte UserName[TEventUserNameSize];
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -141,6 +141,7 @@ public static partial class TmNativeDefsUnsafe
   }
 
   public const int ControlDataDummyBytes = 2026;
+
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public unsafe struct ControlData // параметры выданного телеуправления
   {
@@ -152,24 +153,33 @@ public static partial class TmNativeDefsUnsafe
 
     public fixed byte UserName[TEventUserNameSize]; // пользователь, выдавший ТУ
   }
-  
+
   [StructLayout(LayoutKind.Sequential)]
   public unsafe struct AcknowledgeData
   {
     public ushort TmType;
     public ushort Res1;
     public ushort Res2;
-    
+
     public fixed byte UserName[TEventUserNameSize];
   }
-  
+
   public const int AnalogSetDataDummyBytes = 2027;
+
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public unsafe struct AnalogSetData
   {
     public float Value;
-    public byte   Cmd; // выданная команда
-    
+    public byte  Cmd; // выданная команда
+
     public fixed byte UserName[16];
+  }
+
+  [StructLayout(LayoutKind.Sequential, Pack = 1)]
+  public unsafe struct StrBinData
+  {
+    public UInt32 Source;
+
+    public fixed byte StrBin[2044];
   }
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text;
+using System.Text.RegularExpressions;
 using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Utils;
 
@@ -228,6 +230,81 @@ public abstract class TmEventBase
     };
 
 
+    evnt.InitializeManualAnalogSetEvent(dto);
+
+    return evnt;
+  }
+
+  internal static unsafe T CreateExtendedEvent<T>(TmNativeDefsUnsafe.TEventHeader header,
+                                                  TmNativeDefsUnsafe.StrBinData   data,
+                                                  TmNativeDefs.TTMSEventAddData   ackData)
+    where T : TmEventBase, new()
+  {
+    var evnt = new T();
+
+    var (text, operatorName) = GetMessageAndUserFromStrBinBytes(data.StrBin);
+
+    var extendedType = (TmNativeDefs.ExtendedEventTypes)header.Ch;
+
+    string reference;
+    string    tmAddrString = null;
+
+    switch (extendedType)
+    {
+        case TmNativeDefs.ExtendedEventTypes.Message when data.Source < 0x10000:
+        {
+          reference = $"Источник: {data.Source}";
+          break;
+        }
+        case TmNativeDefs.ExtendedEventTypes.Message:
+        {
+          tmAddrString =
+            $"#XX{(data.Source & 0xff00_0000) >> 24}:{(data.Source & 0x00ff_0000) >> 16}:0";
+          reference =
+            $"Ист: {data.Source & 0x0000_ffff}, "        +
+            $"К: {(data.Source  & 0xff00_0000) >> 24}, " +
+            $"КП: {(data.Source & 0x00ff_0000) >> 16}";
+          
+          break;
+        }
+        
+        case TmNativeDefs.ExtendedEventTypes.Model:
+          reference = $"Источник: {data.Source}";
+          break;
+        default:
+          reference = "???";
+          break;
+    }
+    
+    
+    var dto = new InitializeExtendedEventDto
+    {
+      Id    = header.Id,
+      Ch    = header.Ch,
+      Rtu   = header.Rtu,
+      Point = header.Point,
+      Imp   = header.Imp,
+      PropsAndClassData = new TagPropsAndClassData
+      {
+        Name = text,
+      },
+      DateTimeStr  = TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(header.DateTime),
+      AckSec       = ackData.AckSec,
+      AckMs        = ackData.AckMs,
+      AckUser      = ackData.UserName,
+      OperatorName = operatorName,
+      TypeString = extendedType switch
+                   {
+                     TmNativeDefs.ExtendedEventTypes.Message => "Сообщение",
+                     TmNativeDefs.ExtendedEventTypes.Model => "Модель",
+                     _ => "???"
+                   },
+      Reference = reference,
+      TmAddrString = tmAddrString
+    };
+
+    evnt.InitializeExtendedEvent(dto);
+
     return evnt;
   }
 
@@ -420,6 +497,45 @@ public abstract class TmEventBase
     };
   }
 
+  private static unsafe (string, string) GetMessageAndUserFromStrBinBytes(byte* ptr, Encoding encoding = null)
+  {
+    var message = string.Empty;
+    var user    = string.Empty;
+    encoding ??= Encoding.UTF8;
+
+    if (ptr[0] == 0)
+    {
+      return (message, user);
+    }
+
+    var length = 0;
+
+    var curPtr = ptr;
+
+    for (var i = 0; i < 2; i++)
+    {
+      while (curPtr[length] != 0)
+      {
+        length++;
+      }
+
+      switch (i)
+      {
+        case 0:
+          message = encoding.GetString(curPtr, length);
+          break;
+        case 1 when length > 0:
+          user = encoding.GetString(curPtr, length);
+          break;
+      }
+
+      curPtr += length + 1;
+      length =  0;
+    }
+
+    return (message, user);
+  }
+
   protected abstract void InitializeTmEvent(InitializeTmEventDto dto);
 
   protected abstract void InitializeStatusChangeEvent(InitializeStatusChangeEventDto dto);
@@ -433,6 +549,8 @@ public abstract class TmEventBase
   protected abstract void InitializeManualStatusSetEvent(InitializeManualStatusSetEventDto dto);
 
   protected abstract void InitializeManualAnalogSetEvent(InitializeManualAnalogSetEventDto dto);
+
+  protected abstract void InitializeExtendedEvent(InitializeExtendedEventDto dto);
 
   protected record InitializeTmEventDto
   {
@@ -493,5 +611,12 @@ public abstract class TmEventBase
   {
     public float Value   { get; init; }
     public bool  Command { get; init; }
+  }
+
+  protected record InitializeExtendedEventDto : InitializeTmEventDto
+  {
+    public string TypeString   { get; init; } = string.Empty;
+    public string Reference    { get; init; } = string.Empty;
+    public string TmAddrString { get; init; } = string.Empty;
   }
 }

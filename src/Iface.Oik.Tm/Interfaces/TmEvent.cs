@@ -633,6 +633,20 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
+    protected override void InitializeExtendedEvent(InitializeExtendedEventDto dto)
+    {
+      InitializeTmEvent(dto);
+
+      TmAddrString         = dto.TmAddrString;
+      TmAddrComplexInteger = 0;
+      TmAddrType           = TmType.Unknown;
+
+      TypeString                                   = dto.TypeString;
+      ExplicitTypeString                           = dto.TypeString;
+
+      Reference = dto.Reference;
+    }
+    
     public static TmEvent CreateStatusChangeEvent(TmNativeDefs.TEvent           tEvent,
                                                   TmNativeDefs.TTMSEventAddData eventAddData,
                                                   TmStatus                      changedStatus,

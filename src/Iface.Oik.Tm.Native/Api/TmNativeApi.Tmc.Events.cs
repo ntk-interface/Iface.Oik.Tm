@@ -68,7 +68,7 @@ public static partial class TmNativeApi
     var tEventOffset = sizeof(TmNativeDefsUnsafe.TEventExHeader);
     var eventHeader  = *(TmNativeDefsUnsafe.TEventHeader*)(basePtr + tEventOffset);
 
-    var dataOffset = tEventOffset + eventHeaderSize;
+    var dataOffset = basePtr + tEventOffset + eventHeaderSize;
 
     var addData = GetEventAddData(addDataIndex);
 
@@ -87,7 +87,7 @@ public static partial class TmNativeApi
 
         if (header.EventSize >= TmNativeDefs.ExtendedStatusChangedEventSize)
         {
-          var (statusData, operatorName) = GetStatusDataExFromBytes(basePtr + dataOffset, cid);
+          var (statusData, operatorName) = GetStatusDataExFromBytes(dataOffset, cid);
           evnt = TmEventBase.CreateStatusChangeExtendedEvent<T>(eventHeader,
                                                                 statusData,
                                                                 operatorName,
@@ -97,7 +97,7 @@ public static partial class TmNativeApi
         else
         {
           evnt = TmEventBase.CreateStatusChangeEvent<T>(eventHeader,
-                                                        GetStatusDataFromBytes(basePtr + dataOffset),
+                                                        GetStatusDataFromBytes(dataOffset),
                                                         addData,
                                                         classDataAndProps);
         }
@@ -106,7 +106,7 @@ public static partial class TmNativeApi
       }
       case TmNativeDefs.EventTypes.Alarm:
       {
-        var alarmData = GetAlarmDataFromBytes(basePtr + dataOffset);
+        var alarmData = GetAlarmDataFromBytes(dataOffset);
         var alarmTypeName = GetExtendedObjectName(cid,
                                                   (short)eventHeader.Ch,
                                                   (short)eventHeader.Rtu,
@@ -130,7 +130,7 @@ public static partial class TmNativeApi
       }
       case TmNativeDefs.EventTypes.Control:
       {
-        var (controlData, operatorName) = GetControlDataFromBytes(basePtr + dataOffset, cid);
+        var (controlData, operatorName) = GetControlDataFromBytes(dataOffset, cid);
         var classDataAndProps = GetAndCacheUpdatedEventTagData(cid,
                                                                TmNativeDefs.TmDataTypes.Status,
                                                                (short)eventHeader.Ch,
@@ -147,7 +147,7 @@ public static partial class TmNativeApi
       }
       case TmNativeDefs.EventTypes.Acknowledge:
       {
-        var (ackData, operatorName) = GetAcknowledgeDataFromBytes(basePtr + dataOffset, cid);
+        var (ackData, operatorName) = GetAcknowledgeDataFromBytes(dataOffset, cid);
 
         var propsAndClassData = new TagPropsAndClassData
         {
@@ -169,14 +169,14 @@ public static partial class TmNativeApi
       }
       case TmNativeDefs.EventTypes.ManualStatusSet:
       {
-        var (controlData, operatorName) = GetControlDataFromBytes(basePtr + dataOffset, cid);
+        var (controlData, operatorName) = GetControlDataFromBytes(dataOffset, cid);
         var classDataAndProps = GetAndCacheUpdatedEventTagData(cid,
                                                                TmNativeDefs.TmDataTypes.Status,
                                                                (short)eventHeader.Ch,
                                                                (short)eventHeader.Rtu,
                                                                (short)eventHeader.Point,
                                                                cache);
-        
+
         evnt = TmEventBase.CreateManualStatusSetEvent<T>(eventHeader,
                                                          controlData,
                                                          addData,
@@ -186,7 +186,7 @@ public static partial class TmNativeApi
       }
       case TmNativeDefs.EventTypes.ManualAnalogSet:
       {
-        var (analogSetData, operatorName) = GetAnalogSetDataFromBytes(basePtr + dataOffset, cid);
+        var (analogSetData, operatorName) = GetAnalogSetDataFromBytes(dataOffset, cid);
 
         var classDataAndProps = GetAndCacheUpdatedEventTagData(cid,
                                                                TmNativeDefs.TmDataTypes.Analog,
@@ -196,10 +196,17 @@ public static partial class TmNativeApi
                                                                cache);
 
         evnt = TmEventBase.CreateManualAnalogSetEvent<T>(eventHeader,
-                                                          analogSetData,
-                                                          addData,
-                                                          operatorName,
-                                                          classDataAndProps);
+                                                         analogSetData,
+                                                         addData,
+                                                         operatorName,
+                                                         classDataAndProps);
+
+        break;
+      }
+      case TmNativeDefs.EventTypes.Extended:
+      {
+        var strBinData = GetStrBinDataFromBytes(dataOffset);
+        evnt = TmEventBase.CreateExtendedEvent<T>(eventHeader, strBinData, addData);
         
         break;
       }
@@ -289,6 +296,11 @@ public static partial class TmNativeApi
     var operatorName = GetTextByRef(native.UserName, cid);
 
     return (native, operatorName);
+  }
+
+  internal static unsafe TmNativeDefsUnsafe.StrBinData GetStrBinDataFromBytes(byte* ptr)
+  {
+    return TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.StrBinData>(ptr, sizeof(TmNativeDefsUnsafe.StrBinData));
   }
 
   internal static unsafe string GetTextByRef(byte* ptr, int cid)
