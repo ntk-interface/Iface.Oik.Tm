@@ -184,11 +184,11 @@ public static partial class TmNativeApi
   }
 
   internal static unsafe T CreateEvent<T>(nint                                  pTEventEx,
-                                          TmNativeDefsUnsafe.GenericEventHeader header,
-                                          int                                   addDataIndex,
-                                          int                                   cid,
-                                          Dictionary<int, TagPropsAndClassData> cache,
-                                          TmNativeDefsUnsafe.TTMSElix?          elix = null)
+                                         TmNativeDefsUnsafe.GenericEventHeader header,
+                                         int                                   addDataIndex,
+                                         int                                   cid,
+                                         Dictionary<int, TagPropsAndClassData> cache,
+                                         TmNativeDefsUnsafe.TTMSElix?          elix = null)
     where T : TmEventBase, new()
   {
     var basePtr    = (byte*)pTEventEx;
@@ -555,7 +555,7 @@ public static partial class TmNativeApi
     }
   }
 
-  private static unsafe TagPropsAndClassData GetAndCacheUpdatedEventTagData(int                                   cid,
+  internal static unsafe TagPropsAndClassData GetAndCacheUpdatedEventTagData(int                                   cid,
                                                                             TmNativeDefs.TmDataTypes              type,
                                                                             short                                 ch,
                                                                             short                                 rtu,
@@ -605,7 +605,7 @@ public static partial class TmNativeApi
     return cachedData;
   }
 
-  private static string GetExtendedObjectName(int                      cid,
+  internal static string GetExtendedObjectName(int                      cid,
                                               short                    ch,
                                               short                    rtu,
                                               short                    point,
@@ -636,7 +636,7 @@ public static partial class TmNativeApi
     return TmNativeUtil.BytesToString(buf);
   }
 
-  private static string GetObjectName(int    cid,
+  internal static string GetObjectName(int    cid,
                                       short  ch,
                                       short  rtu,
                                       short  point,
