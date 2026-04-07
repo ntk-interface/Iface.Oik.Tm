@@ -748,7 +748,7 @@ public abstract class TmEventBase
     public uint   AckSec       { get; init; }
     public ushort AckMs        { get; init; }
     public string OperatorName { get; init; } = string.Empty;
-    public string AckUser      { get; init; }
+    public string AckUser      { get; init; } = string.Empty;
 
     public TagPropsAndClassData PropsAndClassData { get; init; } = new();
     public ElixDto?             Elix              { get; init; } = null;
