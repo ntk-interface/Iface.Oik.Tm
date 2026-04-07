@@ -1002,7 +1002,7 @@ namespace Iface.Oik.Tm.Api
                                       sb,
                                       1024);
       
-      var props = EncodingUtil.BytesToString(sb).Split(["\r\n"], StringSplitOptions.RemoveEmptyEntries);
+      var props = EncodingUtil.BytesToString(sb).Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
       foreach (var prop in props)
       {
         var kvp = prop.Split('=');

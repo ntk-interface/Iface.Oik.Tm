@@ -166,14 +166,6 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<TmClassAnalog>> GetAnalogsClasses(PreferApi prefer = PreferApi.Auto);
 
 
-    Task UpdateTechObjects(IReadOnlyList<Tob> techObjects,
-                           PreferApi          prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<Tob>> GetTechObjects(TobFilter filter,
-                                                  PreferApi prefer = PreferApi.Auto);
-
-
     Task<IReadOnlyCollection<TmUserAction>> GetUserActionsArchive(TmEventFilter filter,
                                                                 PreferApi     prefer = PreferApi.Auto);
 
@@ -517,24 +509,6 @@ namespace Iface.Oik.Tm.Interfaces
                                string                    binString = "",
                                TmAddr                    tmAddr    = null,
                                PreferApi                 prefer    = PreferApi.Auto);
-    
-    
-    Task SetTechObjectsProperties(IReadOnlyCollection<Tob> tobs,
-                                  PreferApi                prefer = PreferApi.Auto);
-
-
-    Task SetTechObjectProperties(int                                 scheme,
-                                 int                                 type,
-                                 int                                 obj,
-                                 IReadOnlyDictionary<string, string> properties,
-                                 PreferApi                           prefer = PreferApi.Auto);
-
-
-    Task ClearTechObjectProperties(int                 scheme,
-                                   int                 type,
-                                   int                 obj,
-                                   IEnumerable<string> properties,
-                                   PreferApi           prefer = PreferApi.Auto);
 
 
     Task<IReadOnlyCollection<string>> GetFilesInDirectory(string    path,

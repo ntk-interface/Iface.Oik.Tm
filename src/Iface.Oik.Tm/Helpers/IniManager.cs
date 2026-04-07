@@ -60,7 +60,7 @@ namespace Iface.Oik.Tm.Helpers
 			Array.Copy(buf, significantBytes, returnSize);
 
 			var content = EncodingUtil.BytesToString(significantBytes)
-			 		                      .Split(['\0'], StringSplitOptions.RemoveEmptyEntries);
+			 		                      .Split('\0', StringSplitOptions.RemoveEmptyEntries);
 
 			var result = new Dictionary<string, string>();
 			foreach(var line in content)
