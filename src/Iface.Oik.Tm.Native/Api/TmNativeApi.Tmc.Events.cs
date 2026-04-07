@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
@@ -207,10 +206,73 @@ public static partial class TmNativeApi
       {
         var strBinData = GetStrBinDataFromBytes(dataOffset);
         evnt = TmEventBase.CreateExtendedEvent<T>(eventHeader, strBinData, addData);
-        
+
         break;
       }
+      case TmNativeDefs.EventTypes.FlagsChange:
+      {
+        var flagsChangeData = GetFlagsChangeDataFromBytes(dataOffset);
+        var sourceType      = (TmNativeDefs.TmDataTypes)flagsChangeData.TmType;
 
+        switch (sourceType)
+        {
+          case TmNativeDefs.TmDataTypes.Status:
+          {
+            var (data, operatorName) = GetStatusFlagsChangeDataFromBytes(dataOffset, cid);
+
+            var classDataAndProps = GetAndCacheUpdatedEventTagData(cid,
+                                                                   sourceType,
+                                                                   (short)eventHeader.Ch,
+                                                                   (short)eventHeader.Rtu,
+                                                                   (short)eventHeader.Point,
+                                                                   cache);
+
+            evnt = TmEventBase.CreateStatusFlagsChangeEvent<T>(eventHeader,
+                                                               data,
+                                                               addData,
+                                                               operatorName,
+                                                               classDataAndProps);
+            break;
+          }
+          case TmNativeDefs.TmDataTypes.Analog:
+          {
+            var (data, operatorName) = GetAnalogFlagsChangeDataFromBytes(dataOffset, cid);
+
+            var classDataAndProps = GetAndCacheUpdatedEventTagData(cid,
+                                                                   sourceType,
+                                                                   (short)eventHeader.Ch,
+                                                                   (short)eventHeader.Rtu,
+                                                                   (short)eventHeader.Point,
+                                                                   cache);
+
+            evnt = TmEventBase.CreateAnalogFlagsChangeEvent<T>(eventHeader,
+                                                               data,
+                                                               addData,
+                                                               operatorName,
+                                                               classDataAndProps);
+            break;
+          }
+          case TmNativeDefs.TmDataTypes.Accum:
+            var sourceAccumName = GetObjectName(cid,
+                                                (short)eventHeader.Ch,
+                                                (short)eventHeader.Rtu,
+                                                (short)eventHeader.Point,
+                                                (ushort)sourceType);
+
+            evnt = TmEventBase.CreateAccumFlagsChangeEvent<T>(eventHeader,
+                                                              flagsChangeData,
+                                                              addData,
+                                                              sourceAccumName);
+            break;
+          default:
+          {
+            throw new
+              TmNativeException($"Неподдерживаемый ТМ-тип события {TmNativeDefs.EventTypes.FlagsChange} - {sourceType}");
+          }
+        }
+
+        break;
+      }
       default:
         evnt = TmEventBase.CreateUnknownEvent<T>(eventHeader, addData);
         break;
@@ -301,6 +363,34 @@ public static partial class TmNativeApi
   internal static unsafe TmNativeDefsUnsafe.StrBinData GetStrBinDataFromBytes(byte* ptr)
   {
     return TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.StrBinData>(ptr, sizeof(TmNativeDefsUnsafe.StrBinData));
+  }
+
+  internal static unsafe TmNativeDefsUnsafe.FlagsChangeData GetFlagsChangeDataFromBytes(byte* ptr)
+  {
+    return TmNativeUtil
+      .FromBytesPtr<TmNativeDefsUnsafe.FlagsChangeData>(ptr, sizeof(TmNativeDefsUnsafe.FlagsChangeData));
+  }
+
+  internal static unsafe (TmNativeDefsUnsafe.FlagsChangeDataStatus data, string operatorName)
+    GetStatusFlagsChangeDataFromBytes(byte* ptr, int cid)
+  {
+    var native = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.FlagsChangeDataStatus>(ptr,
+      sizeof(
+        TmNativeDefsUnsafe.FlagsChangeDataStatus));
+    var operatorName = GetTextByRef(native.UserName, cid);
+
+    return (native, operatorName);
+  }
+
+  internal static unsafe (TmNativeDefsUnsafe.FlagsChangeDataAnalog data, string operatorName)
+    GetAnalogFlagsChangeDataFromBytes(byte* ptr, int cid)
+  {
+    var native = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.FlagsChangeDataAnalog>(ptr,
+      sizeof(
+        TmNativeDefsUnsafe.FlagsChangeDataAnalog));
+    var operatorName = GetTextByRef(native.UserName, cid);
+
+    return (native, operatorName);
   }
 
   internal static unsafe string GetTextByRef(byte* ptr, int cid)
@@ -417,7 +507,7 @@ public static partial class TmNativeApi
     try
     {
       TmNative.tmcGetObjectName(cid,
-                                (ushort)tmDataType,
+                                tmDataType,
                                 ch,
                                 rtu,
                                 point,

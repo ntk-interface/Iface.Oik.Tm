@@ -971,14 +971,46 @@ namespace Iface.Oik.Tm.Interfaces
           flagsChangeEvent.TmAddrType         = TmType.Accum;
           break;
       }
-
-
+      
       flagsChangeEvent.ExplicitStateString = $"${oldFlags:X8}X -> ${newFlags:X8}X";
       flagsChangeEvent.StateString         = $"${oldFlags:X8}X -> ${newFlags:X8}X";
 
       return flagsChangeEvent;
     }
 
+    protected override void InitializeFlagsChangeEvent(InitializeFlagsChangeEventDto dto)
+    {
+      InitializeTmEvent(dto);
+      
+      TmAddrComplexInteger = (uint)(dto.Point + (dto.Rtu << 16) + (dto.Ch << 24));
+      
+      Username = dto.OperatorName;
+
+      var tmType = dto.TmType.ToTmType();
+      
+      switch (tmType)
+      {
+        case TmType.Status:
+          TmAddrString       = $"#TC{dto.Ch}:{dto.Rtu}:{dto.Point}";
+          ExplicitTypeString = "Изм. флагов ТС";
+          TmAddrType         = tmType;
+          break;
+        case TmType.Analog:
+          TmAddrString       = $"#TТ{dto.Ch}:{dto.Rtu}:{dto.Point}";
+          ExplicitTypeString = "Изм. флагов ТИТ";
+          TmAddrType         = tmType;
+          break;
+        case TmType.Accum:
+          TmAddrString       = $"#TИ{dto.Ch}:{dto.Rtu}:{dto.Point}";
+          ExplicitTypeString = "Изм. флагов ТИИ";
+          TmAddrType         = tmType;
+          break;
+      }
+
+
+      ExplicitStateString = $"${dto.OldFlags:X8}X -> ${dto.NewFlags:X8}X";
+      StateString         = $"${dto.OldFlags:X8}X -> ${dto.NewFlags:X8}X";
+    }
 
     public static TmEvent CreateFromTEvent(TmNativeDefs.TEvent           tEvent,
                                            TmNativeDefs.TTMSEventAddData eventAddData,

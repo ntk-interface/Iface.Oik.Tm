@@ -247,36 +247,36 @@ public abstract class TmEventBase
     var extendedType = (TmNativeDefs.ExtendedEventTypes)header.Ch;
 
     string reference;
-    string    tmAddrString = null;
+    string tmAddrString = null;
 
     switch (extendedType)
     {
-        case TmNativeDefs.ExtendedEventTypes.Message when data.Source < 0x10000:
-        {
-          reference = $"Источник: {data.Source}";
-          break;
-        }
-        case TmNativeDefs.ExtendedEventTypes.Message:
-        {
-          tmAddrString =
-            $"#XX{(data.Source & 0xff00_0000) >> 24}:{(data.Source & 0x00ff_0000) >> 16}:0";
-          reference =
-            $"Ист: {data.Source & 0x0000_ffff}, "        +
-            $"К: {(data.Source  & 0xff00_0000) >> 24}, " +
-            $"КП: {(data.Source & 0x00ff_0000) >> 16}";
-          
-          break;
-        }
-        
-        case TmNativeDefs.ExtendedEventTypes.Model:
-          reference = $"Источник: {data.Source}";
-          break;
-        default:
-          reference = "???";
-          break;
+      case TmNativeDefs.ExtendedEventTypes.Message when data.Source < 0x10000:
+      {
+        reference = $"Источник: {data.Source}";
+        break;
+      }
+      case TmNativeDefs.ExtendedEventTypes.Message:
+      {
+        tmAddrString =
+          $"#XX{(data.Source & 0xff00_0000) >> 24}:{(data.Source & 0x00ff_0000) >> 16}:0";
+        reference =
+          $"Ист: {data.Source & 0x0000_ffff}, "        +
+          $"К: {(data.Source  & 0xff00_0000) >> 24}, " +
+          $"КП: {(data.Source & 0x00ff_0000) >> 16}";
+
+        break;
+      }
+
+      case TmNativeDefs.ExtendedEventTypes.Model:
+        reference = $"Источник: {data.Source}";
+        break;
+      default:
+        reference = "???";
+        break;
     }
-    
-    
+
+
     var dto = new InitializeExtendedEventDto
     {
       Id    = header.Id,
@@ -296,10 +296,10 @@ public abstract class TmEventBase
       TypeString = extendedType switch
                    {
                      TmNativeDefs.ExtendedEventTypes.Message => "Сообщение",
-                     TmNativeDefs.ExtendedEventTypes.Model => "Модель",
-                     _ => "???"
+                     TmNativeDefs.ExtendedEventTypes.Model   => "Модель",
+                     _                                       => "???"
                    },
-      Reference = reference,
+      Reference    = reference,
       TmAddrString = tmAddrString
     };
 
@@ -308,12 +308,109 @@ public abstract class TmEventBase
     return evnt;
   }
 
-  internal static unsafe T CreateUnknownEvent<T>(TmNativeDefsUnsafe.TEventHeader header,
-                                            TmNativeDefs.TTMSEventAddData   ackData) 
-    where T: TmEventBase, new()
+  internal static unsafe T CreateStatusFlagsChangeEvent<T>(TmNativeDefsUnsafe.TEventHeader          header,
+                                                           TmNativeDefsUnsafe.FlagsChangeDataStatus data,
+                                                           TmNativeDefs.TTMSEventAddData            ackData,
+                                                           string                                   operatorName,
+                                                           TagPropsAndClassData                     propsAndClassData)
+    where T : TmEventBase, new()
   {
     var evnt = new T();
-    
+
+    var dto = new InitializeFlagsChangeEventDto
+    {
+      Id                = header.Id,
+      Ch                = header.Ch,
+      Rtu               = header.Rtu,
+      Point             = header.Point,
+      Imp               = header.Imp,
+      PropsAndClassData = propsAndClassData,
+      DateTimeStr       = TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(header.DateTime),
+      AckSec            = ackData.AckSec,
+      AckMs             = ackData.AckMs,
+      AckUser           = ackData.UserName,
+      OperatorName      = operatorName,
+      TmType            = TmNativeDefs.TmDataTypes.Status,
+      OldFlags          = data.OldFlags,
+      NewFlags          = data.NewFlags
+    };
+
+    evnt.InitializeFlagsChangeEvent(dto);
+
+    return evnt;
+  }
+
+  internal static unsafe T CreateAnalogFlagsChangeEvent<T>(TmNativeDefsUnsafe.TEventHeader          header,
+                                                           TmNativeDefsUnsafe.FlagsChangeDataAnalog data,
+                                                           TmNativeDefs.TTMSEventAddData            ackData,
+                                                           string                                   operatorName,
+                                                           TagPropsAndClassData                     propsAndClassData)
+    where T : TmEventBase, new()
+  {
+    var evnt = new T();
+
+    var dto = new InitializeFlagsChangeEventDto
+    {
+      Id                = header.Id,
+      Ch                = header.Ch,
+      Rtu               = header.Rtu,
+      Point             = header.Point,
+      Imp               = header.Imp,
+      PropsAndClassData = propsAndClassData,
+      DateTimeStr       = TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(header.DateTime),
+      AckSec            = ackData.AckSec,
+      AckMs             = ackData.AckMs,
+      AckUser           = ackData.UserName,
+      OperatorName      = operatorName,
+      TmType            = TmNativeDefs.TmDataTypes.Analog,
+      OldFlags          = data.OldFlags,
+      NewFlags          = data.NewFlags
+    };
+
+    evnt.InitializeFlagsChangeEvent(dto);
+
+    return evnt;
+  }
+
+  internal static unsafe T CreateAccumFlagsChangeEvent<T>(TmNativeDefsUnsafe.TEventHeader    header,
+                                                          TmNativeDefsUnsafe.FlagsChangeData data,
+                                                          TmNativeDefs.TTMSEventAddData      ackData,
+                                                          string                             objectName)
+    where T : TmEventBase, new()
+  {
+    var evnt = new T();
+
+    var dto = new InitializeFlagsChangeEventDto
+    {
+      Id    = header.Id,
+      Ch    = header.Ch,
+      Rtu   = header.Rtu,
+      Point = header.Point,
+      Imp   = header.Imp,
+      PropsAndClassData = new TagPropsAndClassData
+      {
+        Name = objectName
+      },
+      DateTimeStr = TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(header.DateTime),
+      AckSec      = ackData.AckSec,
+      AckMs       = ackData.AckMs,
+      AckUser     = ackData.UserName,
+      TmType      = TmNativeDefs.TmDataTypes.Accum,
+      OldFlags    = data.OldFlags,
+      NewFlags    = data.NewFlags
+    };
+
+    evnt.InitializeFlagsChangeEvent(dto);
+
+    return evnt;
+  }
+
+  internal static unsafe T CreateUnknownEvent<T>(TmNativeDefsUnsafe.TEventHeader header,
+                                                 TmNativeDefs.TTMSEventAddData   ackData)
+    where T : TmEventBase, new()
+  {
+    var evnt = new T();
+
     var dto = new InitializeTmEventDto
     {
       Id    = header.Id,
@@ -332,10 +429,10 @@ public abstract class TmEventBase
     };
 
     evnt.InitializeTmEvent(dto);
-    
+
     return evnt;
   }
-  
+
   internal static string GetTagName(string propertiesString)
   {
     var span = propertiesString.AsSpan();
@@ -580,6 +677,8 @@ public abstract class TmEventBase
 
   protected abstract void InitializeExtendedEvent(InitializeExtendedEventDto dto);
 
+  protected abstract void InitializeFlagsChangeEvent(InitializeFlagsChangeEventDto dto);
+
   protected record InitializeTmEventDto
   {
     public ushort Id           { get; init; }
@@ -646,5 +745,12 @@ public abstract class TmEventBase
     public string TypeString   { get; init; } = string.Empty;
     public string Reference    { get; init; } = string.Empty;
     public string TmAddrString { get; init; } = string.Empty;
+  }
+
+  protected record InitializeFlagsChangeEventDto : InitializeTmEventDto
+  {
+    public TmNativeDefs.TmDataTypes TmType   { get; init; }
+    public uint                     OldFlags { get; init; }
+    public uint                     NewFlags { get; init; }
   }
 }

@@ -415,7 +415,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2048)]
       public byte[] Data;
     }
-    
+
     public struct TEventHeader
     {
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 24)]
@@ -824,7 +824,7 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt32[] Reserved;
     }
 
-    public  struct TUserInfo
+    public struct TUserInfo
     {
       public bool   Valid;
       public string UserName;
@@ -837,14 +837,14 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public string UserCategory;
       public string OldUserName;
     }
-    
-    
+
+
     public struct TExtendedUserInfo
     {
-      public int RecNum;
-      public int UserId;
-      public byte  Group;
-      
+      public int  RecNum;
+      public int  UserId;
+      public byte Group;
+
       public string KeyId;
       public string UserName;
       public string UserPwd;
@@ -987,14 +987,14 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public IntPtr hMap;
       public IntPtr pData;
     }
-    
-    
+
+
     public struct TTMSEventAddData
     {
       public TTMSElix Elix;
       public UInt32   AckSec;
       public UInt16   AckMs;
-      
+
       public string UserName;
     }
 
