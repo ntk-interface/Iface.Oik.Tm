@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using System.Text.RegularExpressions;
 using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Utils;
 
@@ -8,11 +7,12 @@ namespace Iface.Oik.Tm.Native.Interfaces;
 
 public abstract class TmEventBase
 {
-  internal static unsafe T CreateStatusChangeExtendedEvent<T>(TmNativeDefsUnsafe.TEventHeader header,
-                                                              TmNativeDefsUnsafe.StatusDataEx data,
-                                                              string                          operatorName,
-                                                              TmNativeDefs.TTMSEventAddData   ackData,
-                                                              TagPropsAndClassData            propsAndClassData)
+  internal static unsafe T CreateStatusChangeExtendedEvent<T>(TmNativeDefsUnsafe.GenericEventHeader header,
+                                                              TmNativeDefsUnsafe.StatusDataEx       data,
+                                                              string                                operatorName,
+                                                              TmNativeDefs.TTMSEventAddData         ackData,
+                                                              TagPropsAndClassData                  propsAndClassData,
+                                                              TmNativeDefsUnsafe.TTMSElix?          elix = null)
     where T : TmEventBase, new()
   {
     var evnt = new T();
@@ -38,6 +38,13 @@ public abstract class TmEventBase
       StatusS2          = data.S2,
       StatusFlags       = data.Flags,
       StatusOldFlags    = data.OldFlags,
+      Elix = elix is {} el
+               ? new ElixDto
+               {
+                 M = el.M,
+                 R = el.R
+               } 
+               : null
     };
 
     evnt.InitializeStatusChangeEvent(dto);
@@ -45,10 +52,11 @@ public abstract class TmEventBase
     return evnt;
   }
 
-  internal static unsafe T CreateStatusChangeEvent<T>(TmNativeDefsUnsafe.TEventHeader header,
-                                                      TmNativeDefsUnsafe.StatusData   data,
-                                                      TmNativeDefs.TTMSEventAddData   ackData,
-                                                      TagPropsAndClassData            propsAndClassData)
+  internal static unsafe T CreateStatusChangeEvent<T>(TmNativeDefsUnsafe.GenericEventHeader header,
+                                                      TmNativeDefsUnsafe.StatusData         data,
+                                                      TmNativeDefs.TTMSEventAddData         ackData,
+                                                      TagPropsAndClassData                  propsAndClassData,
+                                                      TmNativeDefsUnsafe.TTMSElix?          elix = null)
     where T : TmEventBase, new()
   {
     var evnt = new T();
@@ -72,6 +80,13 @@ public abstract class TmEventBase
       FixMs             = data.FixMS,
       StatusS2          = data.S2,
       StatusFlags       = data.Flags,
+      Elix = elix is {} el
+               ? new ElixDto
+               {
+                 M = el.M,
+                 R = el.R
+               } 
+               : null
     };
 
     evnt.InitializeStatusChangeEvent(dto);
@@ -79,11 +94,12 @@ public abstract class TmEventBase
     return evnt;
   }
 
-  internal static unsafe T CreateAlarmEvent<T>(TmNativeDefsUnsafe.TEventHeader header,
-                                               TmNativeDefsUnsafe.AlarmData    data,
-                                               TmNativeDefs.TTMSEventAddData   ackData,
-                                               string                          typeName,
-                                               TagPropsAndClassData            propsAndClassData)
+  internal static unsafe T CreateAlarmEvent<T>(TmNativeDefsUnsafe.GenericEventHeader header,
+                                               TmNativeDefsUnsafe.AlarmData          data,
+                                               TmNativeDefs.TTMSEventAddData         ackData,
+                                               string                                typeName,
+                                               TagPropsAndClassData                  propsAndClassData,
+                                               TmNativeDefsUnsafe.TTMSElix?          elix = null)
     where T : TmEventBase, new()
   {
     var evnt = new T();
@@ -102,7 +118,14 @@ public abstract class TmEventBase
       AckUser           = ackData.UserName,
       TurnedOn          = data.State > 0,
       Value             = data.Val,
-      TypeName          = typeName
+      TypeName          = typeName,
+      Elix = elix is {} el
+               ? new ElixDto
+               {
+                 M = el.M,
+                 R = el.R
+               } 
+               : null
     };
 
     evnt.InitializeAlarmEvent(dto);
@@ -110,11 +133,12 @@ public abstract class TmEventBase
     return evnt;
   }
 
-  internal static unsafe T CreateControlEvent<T>(TmNativeDefsUnsafe.TEventHeader header,
-                                                 TmNativeDefsUnsafe.ControlData  data,
-                                                 TmNativeDefs.TTMSEventAddData   ackData,
-                                                 string                          operatorName,
-                                                 TagPropsAndClassData            propsAndClassData)
+  internal static unsafe T CreateControlEvent<T>(TmNativeDefsUnsafe.GenericEventHeader header,
+                                                 TmNativeDefsUnsafe.ControlData        data,
+                                                 TmNativeDefs.TTMSEventAddData         ackData,
+                                                 string                                operatorName,
+                                                 TagPropsAndClassData                  propsAndClassData,
+                                                 TmNativeDefsUnsafe.TTMSElix?          elix = null)
     where T : TmEventBase, new()
   {
     var evnt = new T();
@@ -133,7 +157,14 @@ public abstract class TmEventBase
       AckUser           = ackData.UserName,
       OperatorName      = operatorName,
       Result            = unchecked((sbyte)data.Result),
-      Command           = data.Cmd == 1
+      Command           = data.Cmd == 1,
+      Elix = elix is {} el
+               ? new ElixDto
+               {
+                 M = el.M,
+                 R = el.R
+               } 
+               : null
     };
 
     evnt.InitializeControlEvent(dto);
@@ -142,11 +173,12 @@ public abstract class TmEventBase
   }
 
 
-  internal static unsafe T CreateAcknowledgeEventDto<T>(TmNativeDefsUnsafe.TEventHeader    header,
-                                                        TmNativeDefsUnsafe.AcknowledgeData data,
-                                                        TmNativeDefs.TTMSEventAddData      ackData,
-                                                        string                             operatorName,
-                                                        TagPropsAndClassData               propsAndClassData)
+  internal static unsafe T CreateAcknowledgeEventDto<T>(TmNativeDefsUnsafe.GenericEventHeader header,
+                                                        TmNativeDefsUnsafe.AcknowledgeData    data,
+                                                        TmNativeDefs.TTMSEventAddData         ackData,
+                                                        string                                operatorName,
+                                                        TagPropsAndClassData                  propsAndClassData,
+                                                        TmNativeDefsUnsafe.TTMSElix?          elix = null)
     where T : TmEventBase, new()
   {
     var evnt = new T();
@@ -164,7 +196,14 @@ public abstract class TmEventBase
       AckUser           = ackData.UserName,
       OperatorName      = operatorName,
       PropsAndClassData = propsAndClassData,
-      TargetTmType      = data.TmType
+      TargetTmType      = data.TmType,
+      Elix = elix is {} el
+               ? new ElixDto
+               {
+                 M = el.M,
+                 R = el.R
+               } 
+               : null
     };
 
     evnt.InitializeAcknowledgeEvent(dto);
@@ -173,11 +212,12 @@ public abstract class TmEventBase
   }
 
 
-  internal static unsafe T CreateManualStatusSetEvent<T>(TmNativeDefsUnsafe.TEventHeader header,
-                                                         TmNativeDefsUnsafe.ControlData  data,
-                                                         TmNativeDefs.TTMSEventAddData   ackData,
-                                                         string                          operatorName,
-                                                         TagPropsAndClassData            propsAndClassData)
+  internal static unsafe T CreateManualStatusSetEvent<T>(TmNativeDefsUnsafe.GenericEventHeader header,
+                                                         TmNativeDefsUnsafe.ControlData        data,
+                                                         TmNativeDefs.TTMSEventAddData         ackData,
+                                                         string                                operatorName,
+                                                         TagPropsAndClassData                  propsAndClassData,
+                                                         TmNativeDefsUnsafe.TTMSElix?          elix = null)
     where T : TmEventBase, new()
   {
     var evnt = new T();
@@ -195,7 +235,14 @@ public abstract class TmEventBase
       AckMs             = ackData.AckMs,
       AckUser           = ackData.UserName,
       OperatorName      = operatorName,
-      Command           = data.Cmd == 1
+      Command           = data.Cmd == 1,
+      Elix = elix is {} el
+               ? new ElixDto
+               {
+                 M = el.M,
+                 R = el.R
+               } 
+               : null
     };
 
     evnt.InitializeManualStatusSetEvent(dto);
@@ -203,11 +250,12 @@ public abstract class TmEventBase
     return evnt;
   }
 
-  internal static unsafe T CreateManualAnalogSetEvent<T>(TmNativeDefsUnsafe.TEventHeader  header,
-                                                         TmNativeDefsUnsafe.AnalogSetData data,
-                                                         TmNativeDefs.TTMSEventAddData    ackData,
-                                                         string                           operatorName,
-                                                         TagPropsAndClassData             propsAndClassData)
+  internal static unsafe T CreateManualAnalogSetEvent<T>(TmNativeDefsUnsafe.GenericEventHeader header,
+                                                         TmNativeDefsUnsafe.AnalogSetData      data,
+                                                         TmNativeDefs.TTMSEventAddData         ackData,
+                                                         string                                operatorName,
+                                                         TagPropsAndClassData                  propsAndClassData,
+                                                         TmNativeDefsUnsafe.TTMSElix?          elix = null)
     where T : TmEventBase, new()
   {
     var evnt = new T();
@@ -226,7 +274,14 @@ public abstract class TmEventBase
       AckUser           = ackData.UserName,
       OperatorName      = operatorName,
       Command           = data.Cmd == 1,
-      Value             = data.Value
+      Value             = data.Value,
+      Elix = elix is {} el
+               ? new ElixDto
+               {
+                 M = el.M,
+                 R = el.R
+               } 
+               : null
     };
 
 
@@ -235,9 +290,10 @@ public abstract class TmEventBase
     return evnt;
   }
 
-  internal static unsafe T CreateExtendedEvent<T>(TmNativeDefsUnsafe.TEventHeader header,
-                                                  TmNativeDefsUnsafe.StrBinData   data,
-                                                  TmNativeDefs.TTMSEventAddData   ackData)
+  internal static unsafe T CreateExtendedEvent<T>(TmNativeDefsUnsafe.GenericEventHeader header,
+                                                  TmNativeDefsUnsafe.StrBinData         data,
+                                                  TmNativeDefs.TTMSEventAddData         ackData,
+                                                  TmNativeDefsUnsafe.TTMSElix?          elix = null)
     where T : TmEventBase, new()
   {
     var evnt = new T();
@@ -247,7 +303,7 @@ public abstract class TmEventBase
     var extendedType = (TmNativeDefs.ExtendedEventTypes)header.Ch;
 
     string reference;
-    string tmAddrString = null;
+    var tmAddrString = string.Empty;
 
     switch (extendedType)
     {
@@ -300,7 +356,14 @@ public abstract class TmEventBase
                      _                                       => "???"
                    },
       Reference    = reference,
-      TmAddrString = tmAddrString
+      TmAddrString = tmAddrString,
+      Elix = elix is {} el
+               ? new ElixDto
+               {
+                 M = el.M,
+                 R = el.R
+               } 
+               : null
     };
 
     evnt.InitializeExtendedEvent(dto);
@@ -308,11 +371,12 @@ public abstract class TmEventBase
     return evnt;
   }
 
-  internal static unsafe T CreateStatusFlagsChangeEvent<T>(TmNativeDefsUnsafe.TEventHeader          header,
+  internal static unsafe T CreateStatusFlagsChangeEvent<T>(TmNativeDefsUnsafe.GenericEventHeader    header,
                                                            TmNativeDefsUnsafe.FlagsChangeDataStatus data,
                                                            TmNativeDefs.TTMSEventAddData            ackData,
                                                            string                                   operatorName,
-                                                           TagPropsAndClassData                     propsAndClassData)
+                                                           TagPropsAndClassData                     propsAndClassData,
+                                                           TmNativeDefsUnsafe.TTMSElix?             elix = null)
     where T : TmEventBase, new()
   {
     var evnt = new T();
@@ -332,7 +396,14 @@ public abstract class TmEventBase
       OperatorName      = operatorName,
       TmType            = TmNativeDefs.TmDataTypes.Status,
       OldFlags          = data.OldFlags,
-      NewFlags          = data.NewFlags
+      NewFlags          = data.NewFlags,
+      Elix = elix is {} el
+               ? new ElixDto
+               {
+                 M = el.M,
+                 R = el.R
+               } 
+               : null
     };
 
     evnt.InitializeFlagsChangeEvent(dto);
@@ -340,11 +411,12 @@ public abstract class TmEventBase
     return evnt;
   }
 
-  internal static unsafe T CreateAnalogFlagsChangeEvent<T>(TmNativeDefsUnsafe.TEventHeader          header,
+  internal static unsafe T CreateAnalogFlagsChangeEvent<T>(TmNativeDefsUnsafe.GenericEventHeader    header,
                                                            TmNativeDefsUnsafe.FlagsChangeDataAnalog data,
                                                            TmNativeDefs.TTMSEventAddData            ackData,
                                                            string                                   operatorName,
-                                                           TagPropsAndClassData                     propsAndClassData)
+                                                           TagPropsAndClassData                     propsAndClassData,
+                                                           TmNativeDefsUnsafe.TTMSElix?             elix = null)
     where T : TmEventBase, new()
   {
     var evnt = new T();
@@ -364,7 +436,14 @@ public abstract class TmEventBase
       OperatorName      = operatorName,
       TmType            = TmNativeDefs.TmDataTypes.Analog,
       OldFlags          = data.OldFlags,
-      NewFlags          = data.NewFlags
+      NewFlags          = data.NewFlags,
+      Elix = elix is {} el
+               ? new ElixDto
+               {
+                 M = el.M,
+                 R = el.R
+               } 
+               : null
     };
 
     evnt.InitializeFlagsChangeEvent(dto);
@@ -372,10 +451,11 @@ public abstract class TmEventBase
     return evnt;
   }
 
-  internal static unsafe T CreateAccumFlagsChangeEvent<T>(TmNativeDefsUnsafe.TEventHeader    header,
-                                                          TmNativeDefsUnsafe.FlagsChangeData data,
-                                                          TmNativeDefs.TTMSEventAddData      ackData,
-                                                          string                             objectName)
+  internal static unsafe T CreateAccumFlagsChangeEvent<T>(TmNativeDefsUnsafe.GenericEventHeader header,
+                                                          TmNativeDefsUnsafe.FlagsChangeData    data,
+                                                          TmNativeDefs.TTMSEventAddData         ackData,
+                                                          string                                objectName,
+                                                          TmNativeDefsUnsafe.TTMSElix?          elix = null)
     where T : TmEventBase, new()
   {
     var evnt = new T();
@@ -397,7 +477,14 @@ public abstract class TmEventBase
       AckUser     = ackData.UserName,
       TmType      = TmNativeDefs.TmDataTypes.Accum,
       OldFlags    = data.OldFlags,
-      NewFlags    = data.NewFlags
+      NewFlags    = data.NewFlags,
+      Elix = elix is {} el
+               ? new ElixDto
+               {
+                 M = el.M,
+                 R = el.R
+               } 
+               : null
     };
 
     evnt.InitializeFlagsChangeEvent(dto);
@@ -405,8 +492,9 @@ public abstract class TmEventBase
     return evnt;
   }
 
-  internal static unsafe T CreateUnknownEvent<T>(TmNativeDefsUnsafe.TEventHeader header,
-                                                 TmNativeDefs.TTMSEventAddData   ackData)
+  internal static unsafe T CreateUnknownEvent<T>(TmNativeDefsUnsafe.GenericEventHeader header,
+                                                 TmNativeDefs.TTMSEventAddData         ackData,
+                                                 TmNativeDefsUnsafe.TTMSElix?          elix = null)
     where T : TmEventBase, new()
   {
     var evnt = new T();
@@ -426,6 +514,13 @@ public abstract class TmEventBase
       AckSec      = ackData.AckSec,
       AckMs       = ackData.AckMs,
       AckUser     = ackData.UserName,
+      Elix = elix is {} el
+               ? new ElixDto
+               {
+                 M = el.M,
+                 R = el.R
+               } 
+               : null
     };
 
     evnt.InitializeTmEvent(dto);
@@ -661,6 +756,11 @@ public abstract class TmEventBase
     return (message, user);
   }
 
+  internal static TmNativeEventImportances ImportanceToFlag(int importance)
+  {
+    return (TmNativeEventImportances)(1 << importance);
+  }
+
   protected abstract void InitializeTmEvent(InitializeTmEventDto dto);
 
   protected abstract void InitializeStatusChangeEvent(InitializeStatusChangeEventDto dto);
@@ -693,6 +793,7 @@ public abstract class TmEventBase
     public string AckUser      { get; init; }
 
     public TagPropsAndClassData PropsAndClassData { get; init; } = new();
+    public ElixDto?             Elix              { get; init; } = null;
 
     public bool NotAcked => AckSec == 0 || string.IsNullOrEmpty(OperatorName);
   }
@@ -752,5 +853,11 @@ public abstract class TmEventBase
     public TmNativeDefs.TmDataTypes TmType   { get; init; }
     public uint                     OldFlags { get; init; }
     public uint                     NewFlags { get; init; }
+  }
+
+  protected record ElixDto
+  {
+    public ulong R { get; init; }
+    public ulong M { get; init; }
   }
 }

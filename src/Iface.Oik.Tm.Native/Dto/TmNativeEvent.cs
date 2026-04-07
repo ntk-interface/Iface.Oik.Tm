@@ -7,7 +7,7 @@ public record TmNativeEventFilter
   public ushort                   Types       { get; init; }
   public long                     StartTime   { get; init; }
   public long                     EndTime     { get; init; }
-  public uint                     OutputLimit { get; init; }
+  public int                     OutputLimit { get; init; }
   public TmNativeEventImportances Importances { get; init; }
 }
 

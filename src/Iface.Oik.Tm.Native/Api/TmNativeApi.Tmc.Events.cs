@@ -17,7 +17,7 @@ public static partial class TmNativeApi
 
     var criteria = new TmNativeDefs.TEventExCriteria
     {
-      ItemsLimit = filter.OutputLimit,
+      ItemsLimit = (ushort)filter.OutputLimit,
       HStop      = nint.Zero,
       EvlArch    = true
     };
@@ -43,8 +43,14 @@ public static partial class TmNativeApi
 
     while (curPtr != nint.Zero)
     {
-      (var evnt, curPtr) = CreateEvent<T>(curPtr, i, cid, tmTagCache);
+      var (exHeader, offset) = GetEventExHeaderAndOffset(curPtr);
+      var header = GetGenericEventHeader(curPtr, offset);
+
+      var evnt = CreateEvent<T>(curPtr + offset, header, i, cid, tmTagCache);
+
       events.Add(evnt);
+      curPtr = exHeader.Next;
+
       i++;
     }
 
@@ -53,52 +59,173 @@ public static partial class TmNativeApi
     return events;
   }
 
-  internal static unsafe (T evnt, nint next) CreateEvent<T>(nint                                  pTEventEx,
-                                                            int                                   addDataIndex,
-                                                            int                                   cid,
-                                                            Dictionary<int, TagPropsAndClassData> cache)
+
+  public static List<T> GetEventsArchiveByElix<T>(int cid, TmNativeEventFilter filter)
     where T : TmEventBase, new()
   {
-    var basePtr = (byte*)pTEventEx;
+    var startTime = TmNative.uxgmtime2uxtime(filter.StartTime);
+    var endTime   = TmNative.uxgmtime2uxtime(filter.EndTime);
 
-    var eventHeaderSize = sizeof(TmNativeDefsUnsafe.TEventHeader);
-    var header          = *(TmNativeDefsUnsafe.TEventExHeader*)basePtr;
+    var events = new List<T>();
+    var elix   = new TmNativeDefsUnsafe.TTMSElix();
+    var cache  = new Dictionary<int, TagPropsAndClassData>();
 
-    var tEventOffset = sizeof(TmNativeDefsUnsafe.TEventExHeader);
-    var eventHeader  = *(TmNativeDefsUnsafe.TEventHeader*)(basePtr + tEventOffset);
+    while (true)
+    {
+      var (eventsBatchList, lastElix) = GetEventsBatchByElix<T>(cid,
+                                                                elix,
+                                                                filter.Types,
+                                                                startTime,
+                                                                endTime,
+                                                                cache,
+                                                                filter.Importances);
 
-    var dataOffset = basePtr + tEventOffset + eventHeaderSize;
+      if (eventsBatchList.Count == 0)
+      {
+        break;
+      }
+
+      if (filter.OutputLimit > 0 &&
+          events.Count       > filter.OutputLimit)
+      {
+        events.RemoveRange(filter.OutputLimit, events.Count - filter.OutputLimit);
+        break;
+      }
+
+      elix = lastElix;
+    }
+
+    return events;
+  }
+
+  public static (List<T>, TmNativeDefs.TTMSElix) GetCurrentEvents<T>(int cid, ulong elixR, ulong elixM)
+    where T : TmEventBase, new()
+  {
+    var currentElix = new TmNativeDefsUnsafe.TTMSElix
+    {
+      M = elixM,
+      R = elixR
+    };
+
+    var cache  = new Dictionary<int, TagPropsAndClassData>();
+    var events = new List<T>();
+
+    while (true)
+    {
+      var (eventsBatchList, lastBatchElix) = GetEventsBatchByElix<T>(cid,
+                                                                  currentElix,
+                                                                  0xFFFF,
+                                                                  0,
+                                                                  0xFFFFFFFF,
+                                                                  cache);
+      if (eventsBatchList.Count == 0)
+      {
+        break;
+      }
+
+      events.AddRange(eventsBatchList);
+      currentElix = lastBatchElix;
+    }
+
+    return (events, new TmNativeDefs.TTMSElix { R = currentElix.R, M = currentElix.M });
+  }
+
+
+  internal static (List<T>, TmNativeDefsUnsafe.TTMSElix)
+    GetEventsBatchByElix<T>(int                                   cid,
+                            TmNativeDefsUnsafe.TTMSElix           elix,
+                            ushort                                type,
+                            long                                  startTime,
+                            long                                  endTime,
+                            Dictionary<int, TagPropsAndClassData> cache,
+                            TmNativeEventImportances?             filter = null)
+    where T : TmEventBase, new()
+  {
+    var lastElix = elix;
+
+    var tmcEventsElixPtr = TmNative.tmcEventLogByElix(cid,
+                                                      ref lastElix,
+                                                      type,
+                                                      (uint)startTime,
+                                                      (uint)endTime);
+
+    if (tmcEventsElixPtr == nint.Zero)
+    {
+      return ([],
+      lastElix);
+    }
+
+    var curPtr = tmcEventsElixPtr;
+    var events = new List<T>();
+    var i      = 0;
+
+    while (curPtr != nint.Zero)
+    {
+      var (elixHeader, offset) = GetEventElixHeaderAndOffset(curPtr);
+      var header = GetGenericEventHeader(curPtr, offset);
+
+
+      switch (filter)
+      {
+        case null:
+        case not null when filter.Value.HasFlag(TmEventBase.ImportanceToFlag(header.Id)):
+          var evnt = CreateEvent<T>(curPtr + offset, header, i, cid, cache, elixHeader.Elix);
+          events.Add(evnt);
+          break;
+      }
+
+      curPtr = elixHeader.Next;
+      i++;
+    }
+
+    TmNative.tmcFreeMemory(tmcEventsElixPtr);
+
+    return (events, lastElix);
+  }
+
+  internal static unsafe T CreateEvent<T>(nint                                  pTEventEx,
+                                          TmNativeDefsUnsafe.GenericEventHeader header,
+                                          int                                   addDataIndex,
+                                          int                                   cid,
+                                          Dictionary<int, TagPropsAndClassData> cache,
+                                          TmNativeDefsUnsafe.TTMSElix?          elix = null)
+    where T : TmEventBase, new()
+  {
+    var basePtr    = (byte*)pTEventEx;
+    var dataOffset = basePtr + sizeof(TmNativeDefsUnsafe.GenericEventHeader);
 
     var addData = GetEventAddData(addDataIndex);
 
 
     T evnt;
-    switch ((TmNativeDefs.EventTypes)eventHeader.Id)
+    switch ((TmNativeDefs.EventTypes)header.Id)
     {
       case TmNativeDefs.EventTypes.StatusChange:
       {
         var classDataAndProps = GetAndCacheUpdatedEventTagData(cid,
                                                                TmNativeDefs.TmDataTypes.Status,
-                                                               (short)eventHeader.Ch,
-                                                               (short)eventHeader.Rtu,
-                                                               (short)eventHeader.Point,
+                                                               (short)header.Ch,
+                                                               (short)header.Rtu,
+                                                               (short)header.Point,
                                                                cache);
 
         if (header.EventSize >= TmNativeDefs.ExtendedStatusChangedEventSize)
         {
           var (statusData, operatorName) = GetStatusDataExFromBytes(dataOffset, cid);
-          evnt = TmEventBase.CreateStatusChangeExtendedEvent<T>(eventHeader,
+          evnt = TmEventBase.CreateStatusChangeExtendedEvent<T>(header,
                                                                 statusData,
                                                                 operatorName,
                                                                 addData,
-                                                                classDataAndProps);
+                                                                classDataAndProps,
+                                                                elix);
         }
         else
         {
-          evnt = TmEventBase.CreateStatusChangeEvent<T>(eventHeader,
+          evnt = TmEventBase.CreateStatusChangeEvent<T>(header,
                                                         GetStatusDataFromBytes(dataOffset),
                                                         addData,
-                                                        classDataAndProps);
+                                                        classDataAndProps,
+                                                        elix);
         }
 
         break;
@@ -107,24 +234,25 @@ public static partial class TmNativeApi
       {
         var alarmData = GetAlarmDataFromBytes(dataOffset);
         var alarmTypeName = GetExtendedObjectName(cid,
-                                                  (short)eventHeader.Ch,
-                                                  (short)eventHeader.Rtu,
-                                                  (short)eventHeader.Point,
+                                                  (short)header.Ch,
+                                                  (short)header.Rtu,
+                                                  (short)header.Point,
                                                   (short)alarmData.AlarmID,
                                                   TmNativeDefs.TmDataTypes.AnalogAlarm);
 
         var classDataAndProps = GetAndCacheUpdatedEventTagData(cid,
                                                                TmNativeDefs.TmDataTypes.Analog,
-                                                               (short)eventHeader.Ch,
-                                                               (short)eventHeader.Rtu,
-                                                               (short)eventHeader.Point,
+                                                               (short)header.Ch,
+                                                               (short)header.Rtu,
+                                                               (short)header.Point,
                                                                cache);
 
-        evnt = TmEventBase.CreateAlarmEvent<T>(eventHeader,
+        evnt = TmEventBase.CreateAlarmEvent<T>(header,
                                                alarmData,
                                                addData,
                                                alarmTypeName,
-                                               classDataAndProps);
+                                               classDataAndProps,
+                                               elix);
         break;
       }
       case TmNativeDefs.EventTypes.Control:
@@ -132,15 +260,16 @@ public static partial class TmNativeApi
         var (controlData, operatorName) = GetControlDataFromBytes(dataOffset, cid);
         var classDataAndProps = GetAndCacheUpdatedEventTagData(cid,
                                                                TmNativeDefs.TmDataTypes.Status,
-                                                               (short)eventHeader.Ch,
-                                                               (short)eventHeader.Rtu,
-                                                               (short)eventHeader.Point,
+                                                               (short)header.Ch,
+                                                               (short)header.Rtu,
+                                                               (short)header.Point,
                                                                cache);
-        evnt = TmEventBase.CreateControlEvent<T>(eventHeader,
+        evnt = TmEventBase.CreateControlEvent<T>(header,
                                                  controlData,
                                                  addData,
                                                  operatorName,
-                                                 classDataAndProps);
+                                                 classDataAndProps,
+                                                 elix);
 
         break;
       }
@@ -150,20 +279,21 @@ public static partial class TmNativeApi
 
         var propsAndClassData = new TagPropsAndClassData
         {
-          Name = eventHeader.Point == 0
+          Name = header.Point == 0
                    ? string.Empty
                    : GetObjectName(cid,
-                                   (short)eventHeader.Ch,
-                                   (short)eventHeader.Rtu,
-                                   (short)eventHeader.Point,
+                                   (short)header.Ch,
+                                   (short)header.Rtu,
+                                   (short)header.Point,
                                    ackData.TmType)
         };
 
-        evnt = TmEventBase.CreateAcknowledgeEventDto<T>(eventHeader,
+        evnt = TmEventBase.CreateAcknowledgeEventDto<T>(header,
                                                         ackData,
                                                         addData,
                                                         operatorName,
-                                                        propsAndClassData);
+                                                        propsAndClassData,
+                                                        elix);
         break;
       }
       case TmNativeDefs.EventTypes.ManualStatusSet:
@@ -171,16 +301,17 @@ public static partial class TmNativeApi
         var (controlData, operatorName) = GetControlDataFromBytes(dataOffset, cid);
         var classDataAndProps = GetAndCacheUpdatedEventTagData(cid,
                                                                TmNativeDefs.TmDataTypes.Status,
-                                                               (short)eventHeader.Ch,
-                                                               (short)eventHeader.Rtu,
-                                                               (short)eventHeader.Point,
+                                                               (short)header.Ch,
+                                                               (short)header.Rtu,
+                                                               (short)header.Point,
                                                                cache);
 
-        evnt = TmEventBase.CreateManualStatusSetEvent<T>(eventHeader,
+        evnt = TmEventBase.CreateManualStatusSetEvent<T>(header,
                                                          controlData,
                                                          addData,
                                                          operatorName,
-                                                         classDataAndProps);
+                                                         classDataAndProps,
+                                                         elix);
         break;
       }
       case TmNativeDefs.EventTypes.ManualAnalogSet:
@@ -189,23 +320,24 @@ public static partial class TmNativeApi
 
         var classDataAndProps = GetAndCacheUpdatedEventTagData(cid,
                                                                TmNativeDefs.TmDataTypes.Analog,
-                                                               (short)eventHeader.Ch,
-                                                               (short)eventHeader.Rtu,
-                                                               (short)eventHeader.Point,
+                                                               (short)header.Ch,
+                                                               (short)header.Rtu,
+                                                               (short)header.Point,
                                                                cache);
 
-        evnt = TmEventBase.CreateManualAnalogSetEvent<T>(eventHeader,
+        evnt = TmEventBase.CreateManualAnalogSetEvent<T>(header,
                                                          analogSetData,
                                                          addData,
                                                          operatorName,
-                                                         classDataAndProps);
+                                                         classDataAndProps,
+                                                         elix);
 
         break;
       }
       case TmNativeDefs.EventTypes.Extended:
       {
         var strBinData = GetStrBinDataFromBytes(dataOffset);
-        evnt = TmEventBase.CreateExtendedEvent<T>(eventHeader, strBinData, addData);
+        evnt = TmEventBase.CreateExtendedEvent<T>(header, strBinData, addData);
 
         break;
       }
@@ -222,16 +354,17 @@ public static partial class TmNativeApi
 
             var classDataAndProps = GetAndCacheUpdatedEventTagData(cid,
                                                                    sourceType,
-                                                                   (short)eventHeader.Ch,
-                                                                   (short)eventHeader.Rtu,
-                                                                   (short)eventHeader.Point,
+                                                                   (short)header.Ch,
+                                                                   (short)header.Rtu,
+                                                                   (short)header.Point,
                                                                    cache);
 
-            evnt = TmEventBase.CreateStatusFlagsChangeEvent<T>(eventHeader,
+            evnt = TmEventBase.CreateStatusFlagsChangeEvent<T>(header,
                                                                data,
                                                                addData,
                                                                operatorName,
-                                                               classDataAndProps);
+                                                               classDataAndProps,
+                                                               elix);
             break;
           }
           case TmNativeDefs.TmDataTypes.Analog:
@@ -240,29 +373,31 @@ public static partial class TmNativeApi
 
             var classDataAndProps = GetAndCacheUpdatedEventTagData(cid,
                                                                    sourceType,
-                                                                   (short)eventHeader.Ch,
-                                                                   (short)eventHeader.Rtu,
-                                                                   (short)eventHeader.Point,
+                                                                   (short)header.Ch,
+                                                                   (short)header.Rtu,
+                                                                   (short)header.Point,
                                                                    cache);
 
-            evnt = TmEventBase.CreateAnalogFlagsChangeEvent<T>(eventHeader,
+            evnt = TmEventBase.CreateAnalogFlagsChangeEvent<T>(header,
                                                                data,
                                                                addData,
                                                                operatorName,
-                                                               classDataAndProps);
+                                                               classDataAndProps,
+                                                               elix);
             break;
           }
           case TmNativeDefs.TmDataTypes.Accum:
             var sourceAccumName = GetObjectName(cid,
-                                                (short)eventHeader.Ch,
-                                                (short)eventHeader.Rtu,
-                                                (short)eventHeader.Point,
+                                                (short)header.Ch,
+                                                (short)header.Rtu,
+                                                (short)header.Point,
                                                 (ushort)sourceType);
 
-            evnt = TmEventBase.CreateAccumFlagsChangeEvent<T>(eventHeader,
+            evnt = TmEventBase.CreateAccumFlagsChangeEvent<T>(header,
                                                               flagsChangeData,
                                                               addData,
-                                                              sourceAccumName);
+                                                              sourceAccumName,
+                                                              elix);
             break;
           default:
           {
@@ -274,11 +409,29 @@ public static partial class TmNativeApi
         break;
       }
       default:
-        evnt = TmEventBase.CreateUnknownEvent<T>(eventHeader, addData);
+        evnt = TmEventBase.CreateUnknownEvent<T>(header, addData);
         break;
     }
 
-    return (evnt, header.Next);
+    return evnt;
+  }
+
+  internal static unsafe (TmNativeDefsUnsafe.TEventExHeader, int) GetEventExHeaderAndOffset(nint pTEventEx)
+  {
+    return (TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.TEventExHeader>((byte*)pTEventEx),
+            sizeof(TmNativeDefsUnsafe.TEventExHeader));
+  }
+
+  internal static unsafe (TmNativeDefsUnsafe.TEventElixHeader, int) GetEventElixHeaderAndOffset(nint pTEventEx)
+  {
+    return (TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.TEventElixHeader>((byte*)pTEventEx),
+            sizeof(TmNativeDefsUnsafe.TEventElixHeader));
+  }
+
+  internal static unsafe TmNativeDefsUnsafe.GenericEventHeader GetGenericEventHeader(nint pTEventEx,
+    int                                                                                   headerOffset)
+  {
+    return TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.GenericEventHeader>((byte*)pTEventEx + headerOffset);
   }
 
   internal static unsafe TmNativeDefs.TTMSEventAddData GetEventAddData(int index)
@@ -308,14 +461,13 @@ public static partial class TmNativeApi
 
   internal static unsafe TmNativeDefsUnsafe.StatusData GetStatusDataFromBytes(byte* ptr)
   {
-    return TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.StatusData>(ptr,
-                                                                    sizeof(TmNativeDefsUnsafe.StatusDataEx));
+    return TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.StatusData>(ptr);
   }
 
   internal static unsafe (TmNativeDefsUnsafe.StatusDataEx, string userRef) GetStatusDataExFromBytes(byte* ptr, int cid)
   {
     var native =
-      TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.StatusDataEx>(ptr, sizeof(TmNativeDefsUnsafe.StatusDataEx));
+      TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.StatusDataEx>(ptr);
     var userName = GetTextByRef(native.UserName, cid);
 
     return (native, userName);
@@ -323,15 +475,13 @@ public static partial class TmNativeApi
 
   internal static unsafe TmNativeDefsUnsafe.AlarmData GetAlarmDataFromBytes(byte* ptr)
   {
-    return TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.AlarmData>(ptr,
-                                                                   sizeof(TmNativeDefsUnsafe.AlarmData));
+    return TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.AlarmData>(ptr);
   }
 
   internal static unsafe (TmNativeDefsUnsafe.ControlData data, string operatorName) GetControlDataFromBytes(
     byte* ptr, int cid)
   {
-    var native = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.ControlData>(ptr,
-                                                                           sizeof(TmNativeDefsUnsafe.ControlData));
+    var native       = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.ControlData>(ptr);
     var operatorName = GetTextByRef(native.UserName, cid);
     return (native, operatorName);
   }
@@ -339,9 +489,7 @@ public static partial class TmNativeApi
   internal static unsafe (TmNativeDefsUnsafe.AcknowledgeData data, string operatorName) GetAcknowledgeDataFromBytes(
     byte* ptr, int cid)
   {
-    var native = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.AcknowledgeData>(ptr,
-                                                                               sizeof(
-                                                                                 TmNativeDefsUnsafe.AcknowledgeData));
+    var native = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.AcknowledgeData>(ptr);
 
     var operatorName = GetTextByRef(native.UserName, cid);
 
@@ -351,9 +499,7 @@ public static partial class TmNativeApi
   internal static unsafe (TmNativeDefsUnsafe.AnalogSetData data, string operatorName) GetAnalogSetDataFromBytes(
     byte* ptr, int cid)
   {
-    var native = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.AnalogSetData>(ptr,
-                                                                             sizeof(
-                                                                               TmNativeDefsUnsafe.AnalogSetData));
+    var native = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.AnalogSetData>(ptr);
 
     var operatorName = GetTextByRef(native.UserName, cid);
 
@@ -362,21 +508,19 @@ public static partial class TmNativeApi
 
   internal static unsafe TmNativeDefsUnsafe.StrBinData GetStrBinDataFromBytes(byte* ptr)
   {
-    return TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.StrBinData>(ptr, sizeof(TmNativeDefsUnsafe.StrBinData));
+    return TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.StrBinData>(ptr);
   }
 
   internal static unsafe TmNativeDefsUnsafe.FlagsChangeData GetFlagsChangeDataFromBytes(byte* ptr)
   {
     return TmNativeUtil
-      .FromBytesPtr<TmNativeDefsUnsafe.FlagsChangeData>(ptr, sizeof(TmNativeDefsUnsafe.FlagsChangeData));
+      .FromBytesPtr<TmNativeDefsUnsafe.FlagsChangeData>(ptr);
   }
 
   internal static unsafe (TmNativeDefsUnsafe.FlagsChangeDataStatus data, string operatorName)
     GetStatusFlagsChangeDataFromBytes(byte* ptr, int cid)
   {
-    var native = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.FlagsChangeDataStatus>(ptr,
-      sizeof(
-        TmNativeDefsUnsafe.FlagsChangeDataStatus));
+    var native       = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.FlagsChangeDataStatus>(ptr);
     var operatorName = GetTextByRef(native.UserName, cid);
 
     return (native, operatorName);
@@ -385,9 +529,7 @@ public static partial class TmNativeApi
   internal static unsafe (TmNativeDefsUnsafe.FlagsChangeDataAnalog data, string operatorName)
     GetAnalogFlagsChangeDataFromBytes(byte* ptr, int cid)
   {
-    var native = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.FlagsChangeDataAnalog>(ptr,
-      sizeof(
-        TmNativeDefsUnsafe.FlagsChangeDataAnalog));
+    var native       = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.FlagsChangeDataAnalog>(ptr);
     var operatorName = GetTextByRef(native.UserName, cid);
 
     return (native, operatorName);

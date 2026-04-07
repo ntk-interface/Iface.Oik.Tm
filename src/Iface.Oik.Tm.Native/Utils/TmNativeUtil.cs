@@ -647,53 +647,6 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static TmNativeDefsUnsafe.TEventEx UnsafeTEventExFromIntPtr(nint pTEventEx)
-    {
-      unsafe
-      {
-        var basePtr = (byte*)pTEventEx;
-
-        var header = *(TmNativeDefsUnsafe.TEventExHeader*)basePtr;
-
-        var tEventOffset    = sizeof(TmNativeDefsUnsafe.TEventExHeader);
-        var eventHeaderSize = sizeof(TmNativeDefsUnsafe.TEventHeader);
-        var dataOffset      = tEventOffset + eventHeaderSize;
-
-        var eventHeader = *(TmNativeDefsUnsafe.TEventHeader*)(basePtr + tEventOffset);
-
-        var dataSize = (int)(header.EventSize - eventHeaderSize);
-        var dataBuf  = new byte[dataSize];
-        fixed (byte* dest = dataBuf)
-        {
-          Buffer.MemoryCopy(basePtr + dataOffset, dest, dataSize, dataSize);
-        }
-
-        if (eventHeader.Id == 0x0001)
-        {
-          var buf  = new Span<byte>(basePtr + dataOffset, dataSize);
-          var data = GetStatusDataExFromBytes(buf);
-        }
-
-
-        return new TmNativeDefsUnsafe.TEventEx
-        {
-          Next      = header.Next,
-          EventSize = header.EventSize,
-          Event = new TmNativeDefsUnsafe.TEvent
-          {
-            Ch      = eventHeader.Ch,
-            DataPtr = (nint)(basePtr + dataOffset),
-            //DateTime = eventHeader.DateTime,
-            Id    = eventHeader.Id,
-            Imp   = eventHeader.Imp,
-            Point = eventHeader.Point,
-            Rtu   = eventHeader.Rtu
-          }
-        };
-      }
-    }
-
-
     private static T FromBytes<T>(byte[] bytes) where T : struct
     {
       T        structure;
@@ -763,17 +716,12 @@ namespace Iface.Oik.Tm.Native.Utils
       return new ReadOnlySpan<byte>(ptr, length).ToArray();
     }
 
-    internal static unsafe T FromBytesPtr<T>(byte* ptr, int availableBytes)
+    internal static unsafe T FromBytesPtr<T>(byte* ptr)
       where T : unmanaged
     {
       if (ptr == null)
       {
         throw new ArgumentNullException(nameof(ptr));
-      }
-
-      if (availableBytes < sizeof(T))
-      {
-        throw new ArgumentException($"Buffer too small for {typeof(T).Name}");
       }
 
       return *(T*)ptr;

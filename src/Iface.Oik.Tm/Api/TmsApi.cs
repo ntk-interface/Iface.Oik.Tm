@@ -3225,47 +3225,8 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<IReadOnlyCollection<TmEvent>> GetEventsArchiveByElix(TmEventFilter filter) // TODO unit test
     {
-      if (filter.StartTime == null)
-      {
-        throw new Exception("Не задано время начала и конца архива событий");
-      }
-
-      var filterTypes = (filter.Types != TmEventTypes.None)
-        ? filter.Types
-        : TmEventTypes.Any;
-      var filterImportances = (filter.Importances != TmEventImportances.None)
-        ? filter.Importances
-        : TmEventImportances.Any;
-
-      var startTime = TmNative.uxgmtime2uxtime(DateUtil.GetUtcTimestampFromDateTime(filter.StartTime.Value));
-      var endTime = TmNative.uxgmtime2uxtime(DateUtil.GetUtcTimestampFromDateTime(filter.EndTime ?? 
-                                               DateTime.Now.AddDays(1)));
-
-      var events = new List<TmEvent>();
-      var elix   = new TmNativeDefs.TTMSElix();
-      var cache  = new Dictionary<string, TmTag>();
-
-      while (true)
-      {
-        var (eventsBatchList, lastElix) = await GetEventsBatchByElix(elix, filterTypes, startTime, endTime, cache)
-          .ConfigureAwait(false);
-
-        if (eventsBatchList.IsNullOrEmpty())
-        {
-          break;
-        }
-
-        events.AddRange(eventsBatchList.Where(e => filterImportances.HasFlag(e.ImportanceFlag)));
-        if (filter.OutputLimit > 0 &&
-            events.Count > filter.OutputLimit)
-        {
-          events.RemoveRange(filter.OutputLimit, events.Count - filter.OutputLimit);
-          break;
-        }
-        elix = lastElix;
-      }
-
-      return events;
+      return await Task.Run(() => TmNativeApi.GetEventsArchiveByElix<TmEvent>(_cid, filter.ToNative()))
+                       .ConfigureAwait(false);
     }
 
 
@@ -3273,33 +3234,11 @@ namespace Iface.Oik.Tm.Api
     {
       if (elix == null) return (null, null);
 
-      var cache = new Dictionary<string, TmTag>();
-      var currentElix = new TmNativeDefs.TTMSElix
-      {
-        R = elix.R,
-        M = elix.M
-      };
+      var (events, nativeElix) = 
+        await Task.Run(() => TmNativeApi.GetCurrentEvents<TmEvent>(_cid, elix.R, elix.M))
+                  .ConfigureAwait(false);
 
-      var events = new List<TmEvent>();
-
-      while (true)
-      {
-        var (eventsBatchList, lastBatchElix) = await GetEventsBatchByElix(currentElix,
-                                                                    TmEventTypes.Any,
-                                                                    0,
-                                                                    0xFFFFFFFF,
-                                                                    cache)
-          .ConfigureAwait(false);
-        if (eventsBatchList.IsNullOrEmpty())
-        {
-          break;
-        }
-
-        events.AddRange(eventsBatchList);
-        currentElix = lastBatchElix;
-      }
-
-      return (events, new TmEventElix(currentElix.R, currentElix.M));
+      return (events, new TmEventElix(nativeElix.R, nativeElix.M));
     }
 
 
@@ -3721,7 +3660,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    private async Task<(IReadOnlyList<TmEvent>, TmNativeDefs.TTMSElix)> GetEventsBatchByElix(TmNativeDefs.TTMSElix elix, 
+    /*private async Task<(IReadOnlyList<TmEvent>, TmNativeDefs.TTMSElix)> GetEventsBatchByElix(TmNativeDefs.TTMSElix elix, 
       TmEventTypes type, long startTime, long endTime, Dictionary<string, TmTag> tmTagsCache)
     {
       var lastElix   = elix;
@@ -3762,7 +3701,7 @@ namespace Iface.Oik.Tm.Api
                 .ConfigureAwait(false);
 
       return (eventsList, lastElix);
-    }
+    }*/
 
 
     private TmEvent CreateEvent(TmNativeDefs.TEvent           tEvent,

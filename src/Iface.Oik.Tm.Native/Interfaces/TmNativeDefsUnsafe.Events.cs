@@ -20,6 +20,33 @@ public static partial class TmNativeDefsUnsafe
     public ushort Point;
   }
 
+  [StructLayout(LayoutKind.Sequential, Pack = 1)]
+  public struct TEventExHeader
+  {
+    public nint Next;
+  }
+
+  [StructLayout(LayoutKind.Sequential, Pack = 1)]
+  public struct TEventElixHeader
+  {
+    public nint     Next;
+    public TTMSElix Elix;
+  }
+
+  [StructLayout(LayoutKind.Sequential, Pack = 1)]
+  public unsafe struct GenericEventHeader
+  {
+    public uint EventSize;
+
+    public fixed byte DateTime[TEventDateTimeSize]; // время события в формате ДД.ММ.ГГГГ ЧЧ:ММ:СС.cc
+
+    public ushort Imp; // уровень важности
+    public ushort Id;  // тип события
+    public ushort Ch;
+    public ushort Rtu;
+    public ushort Point;
+  }
+
   [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
   public unsafe struct TEvent
   {
@@ -32,13 +59,6 @@ public static partial class TmNativeDefsUnsafe
     public ushort Point;
 
     public nint DataPtr;
-  }
-
-  [StructLayout(LayoutKind.Sequential, Pack = 1)]
-  public struct TEventExHeader
-  {
-    public nint Next;
-    public uint EventSize;
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 1)]

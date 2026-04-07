@@ -87,8 +87,7 @@ public static partial class TmNativeApi
       throw new TmNativeException($"Ошибка получения точности и единиц #ТТ{ch}:{rtu}:{point}");
     }
 
-    var tPoint = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.TAnalogPoint>((byte*)tmcCommonPointsPtr,
-                                                                            sizeof(TmNativeDefsUnsafe.TAnalogPoint));
+    var tPoint = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.TAnalogPoint>((byte*)tmcCommonPointsPtr);
     
     TmNative.tmcFreeMemory(tmcCommonPointsPtr);
 

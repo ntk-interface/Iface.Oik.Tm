@@ -1056,13 +1056,13 @@ namespace Iface.Oik.Tm.Interfaces
     {
       TmEventElix tmEventElix = null;
 
-      /*if (elix is { } ttmsElix)
+      if (dto.Elix is { } elix)
       {
-        tmEventElix = new TmEventElix(ttmsElix.R, ttmsElix.M);
-      }*/
+        tmEventElix = new TmEventElix(elix.R, elix.M);
+      }
 
       _hashCode = tmEventElix is null
-                    ? (dto.Ch, dto.Rtu, dto.Point, /*tEvent.Data,*/ dto.DateTimeStr).ToTuple().GetHashCode()
+                    ? (dto.Ch, dto.Rtu, dto.Point, dto.DateTimeStr, dto.AckSec, dto.AckMs).ToTuple().GetHashCode()
                     : BitConverter.ToInt32(tmEventElix.ToByteArray(), 8);
 
       Elix       = tmEventElix;
@@ -1070,12 +1070,7 @@ namespace Iface.Oik.Tm.Interfaces
       Type       = (TmEventTypes)dto.Id;
       Importance = dto.Imp;
       Username   = dto.OperatorName;
-      TmAddrType = Type switch
-                   {
-                     TmEventTypes.StatusChange => TmType.Status,
-                     _                         => TmType.Unknown
-                   };
-      
+
       Text = dto.PropsAndClassData.Name;
 
       if (dto.NotAcked)

@@ -4,6 +4,7 @@
         <Platforms>x86;AnyCPU</Platforms>
         <Version>2.0.0</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Platform)' == 'x86'">
         <DefineConstants>x86</DefineConstants>

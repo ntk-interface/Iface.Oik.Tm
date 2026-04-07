@@ -423,7 +423,7 @@ namespace Iface.Oik.Tm.Interfaces
         Types = (ushort)Types,
         StartTime = DateUtil.GetUtcTimestampFromDateTime(StartTime ?? DateTime.Now.AddDays(-1)),
         EndTime   = DateUtil.GetUtcTimestampFromDateTime(EndTime ?? DateTime.Now.AddDays(1)),
-        OutputLimit = (uint)OutputLimit,
+        OutputLimit = OutputLimit,
         Importances = (TmNativeEventImportances) Importances
       };
     }

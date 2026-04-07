@@ -306,12 +306,13 @@ namespace Iface.Oik.Tm.Native.Api
                                               [In] TmNativeDefs.TEventExCriteria criteria);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern IntPtr tmcEventLogByElix(Int32                               cid,
-                                                  [In, Out] ref TmNativeDefs.TTMSElix elix,
-                                                  UInt16                              eventMask,
-                                                  UInt32                              startUnixTime,
-                                                  UInt32                              endUnixTime);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial nint tmcEventLogByElix(Int32                            cid,
+                                                  ref TmNativeDefsUnsafe.TTMSElix elix,
+                                                  UInt16                          eventMask,
+                                                  UInt32                          startUnixTime,
+                                                  UInt32                          endUnixTime);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
