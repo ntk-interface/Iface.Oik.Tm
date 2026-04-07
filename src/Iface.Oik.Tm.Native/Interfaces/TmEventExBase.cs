@@ -308,6 +308,34 @@ public abstract class TmEventBase
     return evnt;
   }
 
+  internal static unsafe T CreateUnknownEvent<T>(TmNativeDefsUnsafe.TEventHeader header,
+                                            TmNativeDefs.TTMSEventAddData   ackData) 
+    where T: TmEventBase, new()
+  {
+    var evnt = new T();
+    
+    var dto = new InitializeTmEventDto
+    {
+      Id    = header.Id,
+      Ch    = header.Ch,
+      Rtu   = header.Rtu,
+      Point = header.Point,
+      Imp   = header.Imp,
+      PropsAndClassData = new TagPropsAndClassData
+      {
+        Name = "???",
+      },
+      DateTimeStr = TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(header.DateTime),
+      AckSec      = ackData.AckSec,
+      AckMs       = ackData.AckMs,
+      AckUser     = ackData.UserName,
+    };
+
+    evnt.InitializeTmEvent(dto);
+    
+    return evnt;
+  }
+  
   internal static string GetTagName(string propertiesString)
   {
     var span = propertiesString.AsSpan();

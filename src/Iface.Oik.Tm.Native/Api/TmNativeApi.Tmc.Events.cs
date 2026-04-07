@@ -212,7 +212,7 @@ public static partial class TmNativeApi
       }
 
       default:
-        evnt = new T();
+        evnt = TmEventBase.CreateUnknownEvent<T>(eventHeader, addData);
         break;
     }
 
