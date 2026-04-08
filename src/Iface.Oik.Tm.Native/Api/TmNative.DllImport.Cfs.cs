@@ -37,7 +37,7 @@ namespace Iface.Oik.Tm.Native.Api
                                                byte[] pwd);
 
 
-    [LibraryImport("Cfshare", StringMarshalling = StringMarshalling.Utf8)]
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
     internal static partial UInt32 cfsGetExtendedUserData(nint                                     cfCid,
                                                           string                                   serverType,
