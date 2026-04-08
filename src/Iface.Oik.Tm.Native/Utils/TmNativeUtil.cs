@@ -529,10 +529,7 @@ namespace Iface.Oik.Tm.Native.Utils
       
       fixed (byte* dest = result)
       {
-        Buffer.MemoryCopy(ptr, 
-                          dest, 
-                          TmNativeDefsUnsafe.TExtendedUserInfoRightsSize, 
-                          TmNativeDefsUnsafe.TExtendedUserInfoRightsSize);
+        Buffer.MemoryCopy(ptr, dest, length, length);
       }
 
       return result;
