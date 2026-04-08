@@ -49,7 +49,7 @@ namespace Iface.Oik.Tm.Native.Utils
         return Array.Empty<string>();
       }
 
-      var s          = new string(chars);
+      var s = new string(chars);
       int doubleNull = s.IndexOf("\0\0", StringComparison.Ordinal);
       if (doubleNull != -1)
       {
@@ -111,7 +111,7 @@ namespace Iface.Oik.Tm.Native.Utils
                                            });
 
       byte[] payloadBytes;
-      var    payloadIndex = doubleNull + 2;
+      var payloadIndex = doubleNull + 2;
 
       if (payloadIndex > datagram.Length)
       {
@@ -133,14 +133,14 @@ namespace Iface.Oik.Tm.Native.Utils
 
 
     public static byte[] GetDoubleNullTerminatedBytesFromStringList(IEnumerable<string>? list,
-                                                                    int                  maxSize = 1024)
+                                                                    int maxSize = 1024)
     {
       if (list == null)
       {
         return Array.Empty<byte>();
       }
 
-      var bytes  = new byte[maxSize];
+      var bytes = new byte[maxSize];
       var cursor = 0;
 
       foreach (var str in list)
@@ -160,7 +160,7 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static IReadOnlyCollection<string> GetStringListFromDoubleNullTerminatedPointer(nint ptr, 
+    public static IReadOnlyCollection<string> GetStringListFromDoubleNullTerminatedPointer(nint ptr,
       int maxSize)
     {
       if (ptr == nint.Zero)
@@ -173,10 +173,10 @@ namespace Iface.Oik.Tm.Native.Utils
       var marshalBytes = new byte[1];
 
       const int stringBytesSize = 1024;
-      var       stringBytes     = new byte[stringBytesSize];
+      var stringBytes = new byte[stringBytesSize];
 
       var stringCursor = 0;
-      var isNullFound  = false;
+      var isNullFound = false;
       for (var i = 0; i < maxSize; i++)
       {
         Marshal.Copy(new IntPtr(ptr.ToInt64() + i), marshalBytes, 0, 1);
@@ -192,12 +192,12 @@ namespace Iface.Oik.Tm.Native.Utils
                              .Trim('\0'));
           Array.Clear(stringBytes, 0, stringBytesSize);
           stringCursor = 0;
-          isNullFound  = true;
+          isNullFound = true;
           continue;
         }
 
         stringBytes[stringCursor++] = marshalBytes[0];
-        isNullFound                 = false;
+        isNullFound = false;
       }
 
       return result;
@@ -223,7 +223,7 @@ namespace Iface.Oik.Tm.Native.Utils
       byteList.Add(0);
 
       var handle = GCHandle.Alloc(byteList.ToArray(), GCHandleType.Pinned);
-      var ptr    = handle.AddrOfPinnedObject();
+      var ptr = handle.AddrOfPinnedObject();
       handle.Free();
 
       return ptr;
@@ -262,8 +262,8 @@ namespace Iface.Oik.Tm.Native.Utils
               M = native.Elix.M,
               R = native.Elix.R
             },
-            AckMs    = native.AckMs,
-            AckSec   = native.AckSec,
+            AckMs = native.AckMs,
+            AckSec = native.AckSec,
             UserName = GetStringWithUnknownLengthFromBytePtr(strPtr)
           };
         }
@@ -273,7 +273,7 @@ namespace Iface.Oik.Tm.Native.Utils
     public static string BytesToString(Span<byte> src, Encoding? encoding = null)
     {
       encoding ??= Encoding.UTF8;
-      
+
       var len = src.IndexOf((byte)0);
       if (len < 0)
       {
@@ -285,8 +285,8 @@ namespace Iface.Oik.Tm.Native.Utils
 
     public static byte[] GetBytes<T>(T structure) where T : struct
     {
-      int size   = Marshal.SizeOf(structure);
-      var bytes  = new byte[size];
+      int size = Marshal.SizeOf(structure);
+      var bytes = new byte[size];
       var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
       try
       {
@@ -328,7 +328,7 @@ namespace Iface.Oik.Tm.Native.Utils
 
         encoding ??= Encoding.UTF8; // default
 
-        var p      = (byte*)ptr.ToPointer();
+        var p = (byte*)ptr.ToPointer();
         var length = 0;
 
         while (p[length] != 0)
@@ -375,7 +375,7 @@ namespace Iface.Oik.Tm.Native.Utils
 
         encoding ??= Encoding.UTF8; // default
 
-        var p      = (byte*)ptr.ToPointer();
+        var p = (byte*)ptr.ToPointer();
         var length = 0;
 
         while (true)
@@ -394,8 +394,8 @@ namespace Iface.Oik.Tm.Native.Utils
             break;
           }
 
-          p      += length;
-          length =  0;
+          p += length;
+          length = 0;
         }
 
         return result;
@@ -416,7 +416,7 @@ namespace Iface.Oik.Tm.Native.Utils
 
         encoding ??= Encoding.UTF8; // default
 
-        var p      = (byte*)ptr.ToPointer();
+        var p = (byte*)ptr.ToPointer();
         var length = 0;
 
         while (true)
@@ -434,8 +434,8 @@ namespace Iface.Oik.Tm.Native.Utils
             break;
           }
 
-          p      += length;
-          length =  0;
+          p += length;
+          length = 0;
         }
 
         return (result, (nint)p + length + 1);
@@ -457,11 +457,11 @@ namespace Iface.Oik.Tm.Native.Utils
         return p[0] == 0;
       }
     }
-    
+
 
     private static T FromBytes<T>(byte[] bytes) where T : struct
     {
-      T        structure;
+      T structure;
       GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
       try
       {
@@ -516,18 +516,41 @@ namespace Iface.Oik.Tm.Native.Utils
 
     internal static unsafe string BytePtrToString(byte* buffer, int size)
     {
-      var span         = new ReadOnlySpan<byte>(buffer, size);
-      var len          = span.IndexOf((byte)0);
+      var span = new ReadOnlySpan<byte>(buffer, size);
+      var len = span.IndexOf((byte)0);
       if (len < 0) len = size;
 
       return Encoding.UTF8.GetString(span[..len]);
     }
 
-    internal static unsafe byte[] BytePtrToArray(byte* ptr, int length)
+    internal static unsafe byte[] PtrToArray(byte* ptr, int length)
     {
+      if (ptr == null || length <= 0)
+      {
+        return [];
+      }
+
       var result = new byte[length];
-      
+
       fixed (byte* dest = result)
+      {
+        Buffer.MemoryCopy(ptr, dest, length, length);
+      }
+
+      return result;
+    }
+
+
+    internal static unsafe uint[] PtrToArray(uint* ptr, int length)
+    {
+      if (ptr == null || length <= 0)
+      {
+        return [];
+      }
+
+      var result = new uint[length];
+
+      fixed (uint* dest = result)
       {
         Buffer.MemoryCopy(ptr, dest, length, length);
       }

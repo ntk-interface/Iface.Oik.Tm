@@ -1,6 +1,5 @@
-using System;
-using System.Runtime.InteropServices;
 using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Native.Utils;
 
 namespace Iface.Oik.Tm.Native.Dto;
 
@@ -20,22 +19,10 @@ public record TDomainInfoDto
     {
       PrimaryDomainError = domInfo.PrimaryDomainError,
       PrimaryDomainName  = new string(domInfo.PrimaryDomainName),
-      PrimaryDomainSid   = Copy(domInfo.PrimaryDomainSid, 100),
+      PrimaryDomainSid   = TmNativeUtil.PtrToArray(domInfo.PrimaryDomainSid, 100),
       AccountDomainError = domInfo.AccountDomainError,
       AccountDomainName  = new string(domInfo.AccountDomainName),
-      AccountDomainSid   = Copy(domInfo.AccountDomainSid, 100)
+      AccountDomainSid   = TmNativeUtil.PtrToArray(domInfo.AccountDomainSid, 100)
     };
-  }
-
-  private static unsafe byte[] Copy(byte* ptr, int length)
-  {
-    if (ptr == null || length <= 0)
-    {
-      return Array.Empty<byte>();
-    }
-
-    var result = new byte[length];
-    Marshal.Copy((nint)ptr, result, 0, length);
-    return result;
   }
 }

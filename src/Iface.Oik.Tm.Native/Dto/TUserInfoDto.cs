@@ -71,7 +71,7 @@ public record TUserInfoDto
       UserCategory    = string.Empty,
       KeyId           = TmNativeUtil.BytePtrToString(userInfo.KeyId, 16),
       GroupId         = userInfo.Group,
-      PermissionBytes = TmNativeUtil.BytePtrToArray(userInfo.Rights, TmNativeDefsUnsafe.TExtendedUserInfoRightsSize)
+      PermissionBytes = TmNativeUtil.PtrToArray(userInfo.Rights, TmNativeDefsUnsafe.TExtendedUserInfoRightsSize)
     };
   }
 
@@ -85,7 +85,7 @@ public record TUserInfoDto
       UserCategory = TmNativeUtil.BytePtrToString(userInfo.UserCategory,     64),
       KeyId        = TmNativeUtil.BytePtrToString(extendedUserInfo.KeyId,    16),
       GroupId      = extendedUserInfo.Group,
-      PermissionBytes = TmNativeUtil.BytePtrToArray(extendedUserInfo.Rights, 
+      PermissionBytes = TmNativeUtil.PtrToArray(extendedUserInfo.Rights, 
                                                     TmNativeDefsUnsafe.TExtendedUserInfoRightsSize)
     };
   }

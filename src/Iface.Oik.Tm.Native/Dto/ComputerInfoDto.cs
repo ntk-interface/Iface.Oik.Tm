@@ -1,22 +1,20 @@
-using System;
-using System.Runtime.InteropServices;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 
 namespace Iface.Oik.Tm.Native.Dto;
 
-public record TComputerInfoDto
+public record ComputerInfoDto
 {
   public uint Len { get; init; }
 
   public string ComputerName { get; init; } = string.Empty;
 
-  public uint NtVerMaj { get; init; }
-  public uint NtVerMin { get; init; }
-  public uint NtBuild  { get; init; }
+  public int  NtVerMaj { get; init; }
+  public int  NtVerMin { get; init; }
+  public int  NtBuild  { get; init; }
   public uint Acp      { get; init; }
 
-  public ulong Uptime        { get; init; }
+  public long Uptime        { get; init; }
   public byte  UptimeAbs     { get; init; }
   public byte  NtProductType { get; init; }
   public bool  Win64         { get; init; }
@@ -30,8 +28,8 @@ public record TComputerInfoDto
   public byte Copyright { get; init; }
   public byte Endianness { get; init; }
 
-  public uint CfsVerMaj { get; init; }
-  public uint CfsVerMin { get; init; }
+  public int CfsVerMaj { get; init; }
+  public int CfsVerMin { get; init; }
 
   public TDomainInfoDto DomainInfo { get; init; } = new();
 
@@ -43,24 +41,24 @@ public record TComputerInfoDto
 
   public uint AccessMask { get; init; }
 
-  internal static unsafe TComputerInfoDto Create(TmNativeDefsUnsafe.ComputerInfoS info)
+  internal static unsafe ComputerInfoDto Create(TmNativeDefsUnsafe.ComputerInfoS info)
   {
-    return new TComputerInfoDto
+    return new ComputerInfoDto
     {
       Len          = info.Len,
       ComputerName = TmNativeUtil.BytePtrToString(info.ComputerName, 64),
 
-      NtVerMaj = info.NtVerMaj,
-      NtVerMin = info.NtVerMin,
-      NtBuild  = info.NtBuild,
+      NtVerMaj = (int)info.NtVerMaj,
+      NtVerMin = (int)info.NtVerMin,
+      NtBuild  = (int)info.NtBuild,
       Acp      = info.Acp,
 
-      Uptime        = info.Uptime,
+      Uptime        = (long)info.Uptime,
       UptimeAbs     = info.UptimeAbs,
       NtProductType = info.NtProductType,
       Win64         = info.Win64 != 0,
 
-      SoftwareKeyOctets = Copy(info.LOctet, 8),
+      SoftwareKeyOctets = TmNativeUtil.PtrToArray(info.LOctet, 8),
 
       CurrentGMT = info.CurrentGMT,
       CurrentMs  = info.CurrentMs,
@@ -69,8 +67,8 @@ public record TComputerInfoDto
       Copyright  = info.Copyright,
       Endianness = info.Endianness,
 
-      CfsVerMaj = info.CfsVerMaj,
-      CfsVerMin = info.CfsVerMin,
+      CfsVerMaj = (int)info.CfsVerMaj,
+      CfsVerMin = (int)info.CfsVerMin,
 
       DomainInfo = TDomainInfoDto.Create(info.DomInfo),
 
@@ -78,37 +76,9 @@ public record TComputerInfoDto
       UserAddr = TmNativeUtil.BytePtrToString(info.UserAddr, 64),
 
       UserIfIp = info.UserIfIp,
-      IpAddrs  = Copy(info.IpAddrs, 8),
+      IpAddrs  = TmNativeUtil.PtrToArray(info.IpAddrs, 8),
 
       AccessMask = info.AccessMask
     };
-  }
-
-  private static unsafe byte[] Copy(byte* ptr, int length)
-  {
-    if (ptr == null || length <= 0)
-    {
-      return Array.Empty<byte>();
-    }
-
-    var result = new byte[length];
-    Marshal.Copy((nint)ptr, result, 0, length);
-    return result;
-  }
-
-  private static unsafe uint[] Copy(uint* ptr, int length)
-  {
-    if (ptr == null || length <= 0)
-    {
-      return Array.Empty<uint>();
-    }
-
-    var result = new uint[length];
-    fixed (uint* dest = result)
-    {
-      Buffer.MemoryCopy(ptr, dest, length * sizeof(uint), length * sizeof(uint));
-    }
-
-    return result;
   }
 }
