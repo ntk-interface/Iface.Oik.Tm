@@ -37,12 +37,13 @@ namespace Iface.Oik.Tm.Native.Api
                                                byte[] pwd);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern UInt32 cfsGetExtendedUserData(IntPtr cfCid,
-                                                       byte[] serverType,
-                                                       byte[] serverName,
-                                                       IntPtr buf,
-                                                       UInt32 bufSize);
+    [LibraryImport("Cfshare", StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static partial UInt32 cfsGetExtendedUserData(nint cfCid,
+                                                        string serverType,
+                                                        string serverName,
+                                                        ref TmNativeDefsUnsafe.TExtendedUserInfo userInfo,
+                                                        uint bufSize);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]

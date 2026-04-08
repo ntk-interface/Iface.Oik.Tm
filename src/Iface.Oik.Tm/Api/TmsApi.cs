@@ -3288,38 +3288,22 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<TmUserInfo> GetUserInfo(uint userId)
     {
-      var tUserInfo = new TmNativeDefsUnsafe.TUserInfo();
 
-      if (await Task.Run(() => TmNative.tmcGetUserInfo(_cid, userId, ref tUserInfo)).ConfigureAwait(false))
-      {
-        return new TmUserInfo((int)userId, tUserInfo.ToManaged(), string.Empty);
-      }
+      var dto = await Task.Run(() => TmNativeApi.GetUserInfo(_cid, userId))
+                                .ConfigureAwait(false);
 
-      Console.WriteLine($"Ошибка получения информации о пользователе с ID {userId}");
-      return null;
+      return new TmUserInfo(dto);
     }
 
 
     public async Task<TmUserInfo> GetExtendedUserInfo(int userId)
     {
-      return await Task.Run(() => GetExtendedUserInfoSync(userId))
-                       .ConfigureAwait(false);
+      var dto = await Task.Run(() => TmNativeApi.GetExtendedUserInfo(_cid, (uint)userId))
+                          .ConfigureAwait(false);
+
+       return new TmUserInfo(dto);
     }
 
-    public TmUserInfo GetExtendedUserInfoSync(int userId)
-    {
-      const int  bufSize          = 1000;
-      Span<byte> extendedInfoBuff = stackalloc byte[bufSize];
-      var        tUserInfo        = new TmNativeDefsUnsafe.TUserInfo();
-
-      if (TmNative.tmcGetUserInfoEx(_cid, (uint)userId, ref tUserInfo, extendedInfoBuff, bufSize))
-      {
-        return new TmUserInfo(userId, tUserInfo.ToManaged(), EncodingUtil.BytesToString(extendedInfoBuff));
-      }
-
-      Console.WriteLine($"Ошибка получения расширенной информации о пользователе с ID {userId}");
-      return null;
-    }
 
 
     public async Task<IReadOnlyCollection<TmStatus>> GetPresentAps()
