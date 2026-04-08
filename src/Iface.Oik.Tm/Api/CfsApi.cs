@@ -3307,7 +3307,8 @@ namespace Iface.Oik.Tm.Api
 
     public async Task BackupSecurity(string directory, string pwd = "")
     {
-      await Task.Run(() => TmNativeApi.BackupSecurity(CfId, directory, pwd));
+      await Task.Run(() => TmNativeApi.BackupSecurity(CfId, directory, pwd))
+                .ConfigureAwait(false);
     }
 
     public async Task<(uint, string)> RestoreSecurity(string filename, string pwd)
