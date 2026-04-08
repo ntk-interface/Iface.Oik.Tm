@@ -80,7 +80,7 @@ namespace Iface.Oik.Tm.Helpers
     protected virtual string BuildConnectionString()
     {
       return _connectionString ??
-             $"Host=127.0.0.1;Port={_rbPort};Database=oikdb;Timeout=10;Username=postgres";
+             $"Host=127.0.0.1;Port={_rbPort};Database=oikdb;Timeout=10;Username=postgres;SslMode=Disable;GssEncryptionMode=Disable";
     }
 
 
