@@ -3,7 +3,7 @@ using Iface.Oik.Tm.Native.Utils;
 
 namespace Iface.Oik.Tm.Native.Api;
 
-public static partial  class TmNativeApi
+public static partial class TmNativeApi
 {
   internal static unsafe string GetTextByRef(byte* ptr, int cid)
   {
