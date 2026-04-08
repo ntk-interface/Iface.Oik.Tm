@@ -3311,26 +3311,10 @@ namespace Iface.Oik.Tm.Api
                 .ConfigureAwait(false);
     }
 
-    public async Task<(uint, string)> RestoreSecurity(string filename, string pwd)
+    public async Task RestoreSecurity(string filename, string pwd)
     {
-      const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
-      string    snp          = "\x2";
-
-      await Task.Run(() => TmNative.cfsIfpcRestoreSecurity(CfId,
-                                                           EncodingUtil.StringToBytes(snp),
-                                                           EncodingUtil.StringToBytes(pwd),
-                                                           EncodingUtil.StringToBytes(filename),
-                                                           out errCode, errBuf, errBufLength)).ConfigureAwait(false);
-      if (errCode != 0)
-      {
-        return (errCode, EncodingUtil.BytesToString(errBuf));
-      }
-      else
-      {
-        return (0, string.Empty);
-      }
+      await Task.Run(() => TmNativeApi.RestoreSecurity(CfId, filename, pwd))
+                .ConfigureAwait(false);
     }
 
     public async Task<(IReadOnlyCollection<string>, string)> EnumPackedFiles(string pkfName)

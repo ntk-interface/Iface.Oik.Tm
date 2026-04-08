@@ -209,7 +209,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task BackupSecurity(string directory, string pwd = "");
 
-    Task<(uint, string)> RestoreSecurity(string filename, string pwd);
+    Task RestoreSecurity(string filename, string pwd);
 
     Task<(IReadOnlyCollection<string>, string)> EnumPackedFiles(string pkfName);
 

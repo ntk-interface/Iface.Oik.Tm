@@ -40,6 +40,33 @@ public static partial class TmNativeApi
     BackupSecurity(cfCid, snp, pwd, Path.Combine(directory, fileName));
   }
 
+  public static void RestoreSecurity(nint cfCid, string filename, string pwd)
+  {
+    var          pool   = ArrayPool<byte>.Shared;
+    var          errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+    const string snp    = "\x2";
+
+    try
+    {
+      TmNative.cfsIfpcRestoreSecurity(cfCid, 
+                                      snp, 
+                                      pwd, 
+                                      filename, 
+                                      out var errCode, 
+                                      errBuf,
+                                      TmNativeDefsUnsafe.ErrorBufSize);
+
+      if (errCode != 0)
+      {
+        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
+      }
+    }
+    finally
+    {
+      ArrayPool<byte>.Shared.Return(errBuf);
+    }
+  }
+  
   internal static void BackupSecurity(nint cfCid, 
                                       string snp, 
                                       string pwd, 
