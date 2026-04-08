@@ -207,7 +207,7 @@ namespace Iface.Oik.Tm.Interfaces
                                        TmNativeCallback callback          = null,
                                        IntPtr           callbackParameter = default);
 
-    Task<(uint, string)> BackupSecurity(string directory, string pwd = "");
+    Task BackupSecurity(string directory, string pwd = "");
 
     Task<(uint, string)> RestoreSecurity(string filename, string pwd);
 
