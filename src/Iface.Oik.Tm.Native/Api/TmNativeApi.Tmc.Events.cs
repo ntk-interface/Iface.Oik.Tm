@@ -535,32 +535,12 @@ public static partial class TmNativeApi
     return (native, operatorName);
   }
 
-  internal static unsafe string GetTextByRef(byte* ptr, int cid)
-  {
-    const int bufSize = 128;
-
-    switch (ptr[0])
-    {
-      case 0:
-        return string.Empty;
-      case 0x40:
-      {
-        Span<byte> buf = stackalloc byte[bufSize];
-        TmNative.tmcGetTextByRef(cid, (nint)ptr, buf, bufSize);
-
-        return TmNativeUtil.BytesToString(buf);
-      }
-      default:
-        return TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(ptr);
-    }
-  }
-
   internal static unsafe TagPropsAndClassData GetAndCacheUpdatedEventTagData(int                                   cid,
-                                                                            TmNativeDefs.TmDataTypes              type,
-                                                                            short                                 ch,
-                                                                            short                                 rtu,
-                                                                            short                                 point,
-                                                                            Dictionary<int, TagPropsAndClassData> cache)
+                                                                             TmNativeDefs.TmDataTypes              type,
+                                                                             short                                 ch,
+                                                                             short                                 rtu,
+                                                                             short                                 point,
+                                                                             Dictionary<int, TagPropsAndClassData> cache)
   {
     var tmTagHash = (cid, type, ch, rtu, point).ToTuple().GetHashCode();
 

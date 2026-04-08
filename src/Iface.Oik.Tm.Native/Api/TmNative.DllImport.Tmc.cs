@@ -120,7 +120,7 @@ namespace Iface.Oik.Tm.Native.Api
     [LibraryImport(Tmconn)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial Boolean tmcGetUserInfo(Int32                                cid,
+    internal static partial Boolean tmcGetUserInfo(Int32                                cid,
                                                  UInt32                               usid,
                                                  ref TmNativeDefsUnsafe.TUserInfo     userInfoUnsafe);
 
@@ -128,7 +128,7 @@ namespace Iface.Oik.Tm.Native.Api
     [LibraryImport(Tmconn)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial Boolean tmcGetUserInfoEx(Int32                            cid,
+    internal static partial Boolean tmcGetUserInfoEx(Int32                            cid,
                                                    UInt32                           userId,
                                                    ref TmNativeDefsUnsafe.TUserInfo userInfoUnsafe,
                                                    Span<byte>                       appxBuf,
@@ -308,7 +308,7 @@ namespace Iface.Oik.Tm.Native.Api
 
     [LibraryImport(Tmconn)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
-    public static partial nint tmcEventLogByElix(Int32                            cid,
+    internal static partial nint tmcEventLogByElix(Int32                            cid,
                                                   ref TmNativeDefsUnsafe.TTMSElix elix,
                                                   UInt16                          eventMask,
                                                   UInt32                          startUnixTime,

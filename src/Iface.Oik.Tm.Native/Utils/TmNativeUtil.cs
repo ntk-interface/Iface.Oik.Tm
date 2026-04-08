@@ -525,7 +525,17 @@ namespace Iface.Oik.Tm.Native.Utils
 
     internal static unsafe byte[] BytePtrToArray(byte* ptr, int length)
     {
-      return new ReadOnlySpan<byte>(ptr, length).ToArray();
+      var result = new byte[length];
+      
+      fixed (byte* dest = result)
+      {
+        Buffer.MemoryCopy(ptr, 
+                          dest, 
+                          TmNativeDefsUnsafe.TExtendedUserInfoRightsSize, 
+                          TmNativeDefsUnsafe.TExtendedUserInfoRightsSize);
+      }
+
+      return result;
     }
 
     internal static unsafe T FromBytesPtr<T>(byte* ptr)
