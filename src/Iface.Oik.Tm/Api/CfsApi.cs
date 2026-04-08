@@ -3048,75 +3048,60 @@ namespace Iface.Oik.Tm.Api
       return (resErrCode, resErrString);
     }
 
-    public async Task<(ComputerInfo, uint, string)> GetComputerInfo()
+    public async Task<ComputerInfo> GetComputerInfo()
     {
-      const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
+      var dto = await Task.Run(() => TmNativeApi.GetServerComputerInfo(CfId));
 
-      var _computerInfoS = new ComputerInfoS()
+      var computerInfo = new ComputerInfo
       {
-        Len = (uint)Marshal.SizeOf(typeof(ComputerInfoS))
+        ComputerName      = dto.ComputerName,
+        PrimaryDomainName = dto.DomainInfo.PrimaryDomainName,
+        OS_ProductType    = $"ostype{dto.NtProductType}",
+        OS_Version        = $"{dto.NtVerMaj}.{dto.NtVerMin} build {dto.NtBuild}",
+        Architecture      = dto.Win64 ? "x64" : "x86",
+        Acp               = dto.Acp,
+
+        ServerTimeGMT = DateUtil.GetDateTimeFromTimestamp(dto.CurrentGMT, dto.CurrentMs),
+        Uptime        = (ulong)dto.Uptime,
+
+        Copyright = $"oiktype{dto.Copyright}",
+        CfsVer    = $"{dto.CfsVerMaj}.{dto.CfsVerMin}",
+
+        UserName   = dto.UserName,
+        UserAddr   = dto.UserAddr,
+        AccessMask = dto.AccessMask,
+        IpAddrs    = new List<string>()
       };
-      await Task.Run(() => TmNative.cfsGetComputerInfo(CfId, ref _computerInfoS, out errCode, errBuf, errBufLength))
-                .ConfigureAwait(false);
-      if (errCode != 0)
+      foreach (var addr in dto.IpAddrs)
       {
-        return (null, errCode, EncodingUtil.BytesToString(errBuf));
+        if (addr == 0)
+          break;
+        computerInfo.IpAddrs.Add(new IPAddress(addr).ToString());
       }
-      else
+
+      computerInfo.SoftwareKeyID = BitConverter.ToString(dto.SoftwareKeyOctets).Replace("-", "");
+
+      // читаем дату билда и установки отдельно
+      try
       {
-        var computerInfo = new ComputerInfo
+        computerInfo.BuildDate = await GetIniString("@@", "IInfo", "BuildTime").ConfigureAwait(false);
+        if (computerInfo.BuildDate.Equals(string.Empty))
         {
-          ComputerName      = _computerInfoS.ComputerName,
-          PrimaryDomainName = _computerInfoS.DomInfo.PrimaryDomainName,
-          OS_ProductType    = $"ostype{_computerInfoS.NtProductType}",
-          OS_Version        = $"{_computerInfoS.NtVerMaj}.{_computerInfoS.NtVerMin} build {_computerInfoS.NtBuild}",
-          Architecture      = (_computerInfoS.Win64 == 1) ? "x64" : "x86",
-          Acp               = _computerInfoS.Acp,
-
-          ServerTimeGMT = DateUtil.GetDateTimeFromTimestamp(_computerInfoS.CurrentGMT, _computerInfoS.CurrentMs),
-          Uptime        = _computerInfoS.Uptime,
-
-          Copyright = $"oiktype{_computerInfoS.Copyright}",
-          CfsVer    = $"{_computerInfoS.CfsVerMaj}.{_computerInfoS.CfsVerMin}",
-
-          UserName   = _computerInfoS.UserName,
-          UserAddr   = _computerInfoS.UserAddr,
-          AccessMask = _computerInfoS.AccessMask,
-          IpAddrs    = new List<string>()
-        };
-        foreach (var addr in _computerInfoS.IpAddrs)
-        {
-          if (addr == 0)
-            break;
-          computerInfo.IpAddrs.Add(new IPAddress(addr).ToString());
+          // если попали на старый сервер
+          var path = Path.Combine(await GetBasePath().ConfigureAwait(false),
+                                  "dispserv.ini");
+          computerInfo.BuildDate   = await GetIniString(path, "Info", "BuildTime").ConfigureAwait(false);
+          computerInfo.InstallDate = await GetIniString(path, "Info", "InstTime").ConfigureAwait(false);
         }
-
-        computerInfo.SoftwareKeyID = BitConverter.ToString(_computerInfoS.LOctet).Replace("-", "");
-
-        // читаем дату билда и установки отдельно
-        try
-        {
-          computerInfo.BuildDate = await GetIniString("@@", "IInfo", "BuildTime").ConfigureAwait(false);
-          if (computerInfo.BuildDate.Equals(string.Empty))
-          {
-            // если попали на старый сервер
-            var path = Path.Combine(await GetBasePath().ConfigureAwait(false),
-                                    "dispserv.ini");
-            computerInfo.BuildDate   = await GetIniString(path, "Info", "BuildTime").ConfigureAwait(false);
-            computerInfo.InstallDate = await GetIniString(path, "Info", "InstTime").ConfigureAwait(false);
-          }
-          else
-            computerInfo.InstallDate = await GetIniString("@@", "IInfo", "InstTime").ConfigureAwait(false);
-        }
-        catch
-        {
-        }
-
-
-        return (computerInfo, 0, string.Empty);
+        else
+          computerInfo.InstallDate = await GetIniString("@@", "IInfo", "InstTime").ConfigureAwait(false);
       }
+      catch
+      {
+      }
+
+
+      return computerInfo;
     }
 
     private static readonly string BackupDateFormat = "dd_MM_yyyy (HH.mm.ss)";
@@ -3320,87 +3305,16 @@ namespace Iface.Oik.Tm.Api
         return (result, "error");
     }
 
-    public async Task<(uint, string)> BackupSecurity(string directory, string pwd = "")
+    public async Task BackupSecurity(string directory, string pwd = "")
     {
-      const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
-      string    fileName     = "", snp = "";
-
-      if (String.IsNullOrEmpty(pwd))
-      {
-        snp = "\x1";
-        var _computerInfoS = new ComputerInfoS()
-        {
-          Len = (uint)Marshal.SizeOf(typeof(ComputerInfoS))
-        };
-        await Task
-              .Run(() => TmNative.cfsGetComputerInfo(CfId, ref _computerInfoS, out errCode, errBuf, errBufLength))
-              .ConfigureAwait(false);
-        if (errCode != 0)
-        {
-          return (errCode, EncodingUtil.BytesToString(errBuf));
-        }
-
-        switch (_computerInfoS.SecType)
-        {
-          case 0:
-            fileName = "users.ini";
-            break;
-          case 1:
-            fileName = "users.01";
-            break;
-          case 2:
-            fileName = "users.02";
-            break;
-          default:
-            return (1001, "Unknown security type");
-        }
-
-        fileName += " " + DateTime.Now.ToString(BackupDateFormat) + ".bbk";
-      }
-      else
-      {
-        snp      = "\x2";
-        fileName = "Security-" + DateTime.Now.ToString(BackupDateFormat) + ".sbk";
-      }
-
-      await Task.Run(() => TmNative.cfsIfpcBackupSecurity(CfId,
-                                                          EncodingUtil.StringToBytes(snp),
-                                                          EncodingUtil.StringToBytes(pwd),
-                                                          EncodingUtil.StringToBytes(Path.Combine(directory,
-                                                            fileName)),
-                                                          out errCode, errBuf, errBufLength)).ConfigureAwait(false);
-      if (errCode != 0)
-      {
-        return (errCode, EncodingUtil.BytesToString(errBuf));
-      }
-      else
-      {
-        return (0, string.Empty);
-      }
+      await Task.Run(() => TmNativeApi.BackupSecurity(CfId, directory, pwd))
+                .ConfigureAwait(false);
     }
 
-    public async Task<(uint, string)> RestoreSecurity(string filename, string pwd)
+    public async Task RestoreSecurity(string filename, string pwd)
     {
-      const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
-      string    snp          = "\x2";
-
-      await Task.Run(() => TmNative.cfsIfpcRestoreSecurity(CfId,
-                                                           EncodingUtil.StringToBytes(snp),
-                                                           EncodingUtil.StringToBytes(pwd),
-                                                           EncodingUtil.StringToBytes(filename),
-                                                           out errCode, errBuf, errBufLength)).ConfigureAwait(false);
-      if (errCode != 0)
-      {
-        return (errCode, EncodingUtil.BytesToString(errBuf));
-      }
-      else
-      {
-        return (0, string.Empty);
-      }
+      await Task.Run(() => TmNativeApi.RestoreSecurity(CfId, filename, pwd))
+                .ConfigureAwait(false);
     }
 
     public async Task<(IReadOnlyCollection<string>, string)> EnumPackedFiles(string pkfName)

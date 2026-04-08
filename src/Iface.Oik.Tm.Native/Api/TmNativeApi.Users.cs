@@ -82,7 +82,8 @@ public static partial class TmNativeApi
   }
   
   internal static unsafe TmNativeDefsUnsafe.TExtendedUserInfo GetTExtendedUserInfo(nint cfCid,
-    string                                                                              serverName, string serverType)
+    string                                                                              serverName, 
+    string serverType)
   {
     var tExtendedUserInfo = new TmNativeDefsUnsafe.TExtendedUserInfo();
 

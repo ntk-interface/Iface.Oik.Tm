@@ -39,38 +39,10 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<TmServerComputerInfo> GetServerComputerInfo()
     {
-      var cfCid = await GetCfCid().ConfigureAwait(false);
-      if (cfCid == IntPtr.Zero)
-      {
-        Console.WriteLine("Ошибка при получении cfCid"); // todo
-        return null;
-      }
-
-      const int errStringLength = 1000;
-      var cis = new TmNativeDefs.ComputerInfoS
-      {
-        Len = (uint)Marshal.SizeOf(typeof(TmNativeDefs.ComputerInfoS))
-      };
-      var  errString = new byte[errStringLength];
-      uint errCode   = 0;
-
-      if (!await Task.Run(() => TmNative.cfsGetComputerInfo(cfCid,
-                                                            ref cis,
-                                                            out errCode,
-                                                            errString,
-                                                            errStringLength))
-                     .ConfigureAwait(false))
-      {
-        return null;
-      }
-
-      return new TmServerComputerInfo(cis.ComputerName,
-                                      (int)cis.CfsVerMaj,
-                                      (int)cis.CfsVerMin,
-                                      (int)cis.NtVerMaj,
-                                      (int)cis.NtVerMin,
-                                      (int)cis.NtBuild,
-                                      (long)cis.Uptime);
+      var dto = await Task.Run(() => TmNativeApi.GetServerComputerInfo(_cid))
+                          .ConfigureAwait(false);
+      
+      return new TmServerComputerInfo(dto);
     }
 
 

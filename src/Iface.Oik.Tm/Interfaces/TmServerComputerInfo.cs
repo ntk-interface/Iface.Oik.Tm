@@ -1,4 +1,5 @@
 using System;
+using Iface.Oik.Tm.Native.Dto;
 
 namespace Iface.Oik.Tm.Interfaces
 {
@@ -22,21 +23,15 @@ namespace Iface.Oik.Tm.Interfaces
     public DateTime StartedAt => DateTime.Now.Subtract(TimeSpan.FromSeconds(UptimeSeconds));
 
 
-    public TmServerComputerInfo(string computerName,
-                        int    versionMajor,
-                        int    versionMinor,
-                        int    windowsNtVersionMajor,
-                        int    windowsNtVersionMinor,
-                        int    windowsNtBuildNumber,
-                        long   uptimeSeconds)
+    public TmServerComputerInfo(ComputerInfoDto dto)
     {
-      ComputerName          = computerName;
-      VersionMajor          = versionMajor;
-      VersionMinor          = versionMinor;
-      WindowsNtVersionMajor = windowsNtVersionMajor;
-      WindowsNtVersionMinor = windowsNtVersionMinor;
-      WindowsNtBuildNumber  = windowsNtBuildNumber;
-      UptimeSeconds         = uptimeSeconds;
+      ComputerName          = dto.ComputerName;
+      VersionMajor          = dto.CfsVerMaj;
+      VersionMinor          = dto.CfsVerMin;
+      WindowsNtVersionMajor = dto.NtVerMaj;
+      WindowsNtVersionMinor = dto.NtVerMin;
+      WindowsNtBuildNumber  = dto.NtBuild;
+      UptimeSeconds         = dto.Uptime;
     }
   }
 }
