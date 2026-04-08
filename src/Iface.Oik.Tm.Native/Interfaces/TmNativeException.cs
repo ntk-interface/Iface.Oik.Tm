@@ -2,7 +2,17 @@
 
 namespace Iface.Oik.Tm.Native.Interfaces;
 
-public class TmNativeException (string message) : Exception(message)
+public class TmNativeException : Exception
 {
+  public uint Code { get; }
+
+  public TmNativeException(string message) : base(message)
+  {
+    
+  }
   
+  public TmNativeException(string message, uint code) : base(message)
+  {
+    Code = code;
+  }
 }
