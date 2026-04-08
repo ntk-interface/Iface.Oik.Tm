@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace Iface.Oik.Tm.Native.Interfaces;
 
-public static partial class TmNativeDefsUnsafe
+internal static partial class TmNativeDefsUnsafe
 {
   public const int TEventDateTimeSize = 24;
   public const int TEventUserNameSize = 16;

@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
@@ -377,54 +375,16 @@ namespace Iface.Oik.Tm.Helpers
     public static TmUserInfo GetUserInfo(int    tmCid,
                                          string serverName)
     {
-      var nativeUserInfoSize = Marshal.SizeOf(typeof(TmNativeDefsUnsafe.TExtendedUserInfo));
 
-      var cfCid = TmNative.tmcGetCfsHandle(tmCid);
-      if (cfCid == IntPtr.Zero)
-      {
-        return null;
-      }
+      var dto = TmNativeApi.GetUserInfo(tmCid, serverName);
 
-      var nativeUserInfoPtr = Marshal.AllocHGlobal(nativeUserInfoSize);
-
-      var fetchResult = TmNative.cfsGetExtendedUserData(cfCid,
-                                                        EncodingUtil.StringToBytes("tms$"),
-                                                        EncodingUtil.StringToBytes(serverName),
-                                                        nativeUserInfoPtr,
-                                                        (uint)nativeUserInfoSize);
-      if (fetchResult == 0)
-      {
-        Marshal.FreeHGlobal(nativeUserInfoPtr); // не забываем освобождать память из HGlobal
-        return null;
-      }
-
-      var extendedUserInfo = Marshal.PtrToStructure<TmNativeDefsUnsafe.TExtendedUserInfo>(nativeUserInfoPtr)
-                                    .ToManaged();
-      Marshal.FreeHGlobal(nativeUserInfoPtr); // не забываем освобождать память из HGlobal
-
-      var userInfoUnsafe = new TmNativeDefsUnsafe.TUserInfo();
-      if (!TmNative.tmcGetUserInfo(tmCid, 0, ref userInfoUnsafe))
-      {
-        return null;
-      }
-
-      return new TmUserInfo(extendedUserInfo.UserId,
-                            extendedUserInfo.UserName,
-                            userInfoUnsafe.GetUserCategory(),
-                            extendedUserInfo.KeyId,
-                            extendedUserInfo.Group,
-                            extendedUserInfo.Rights);
+      return new TmUserInfo(dto);
     }
 
 
     public static string GetUserName(int tmCid, int userId)
     {
-      var userInfo = new TmNativeDefsUnsafe.TUserInfo();
-      if (!TmNative.tmcGetUserInfo(tmCid, (uint) userId, ref userInfo))
-      {
-        return string.Empty;
-      }
-      return userInfo.GetUserName();
+      return TmNativeApi.GetUserName(tmCid, userId);
     }
 
 

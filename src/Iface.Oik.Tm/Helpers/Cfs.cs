@@ -10,10 +10,9 @@ using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Helpers
 {
-	public static class Cfs
-	{
-
-		public const string ServerTypeTms = "tms$";
+  public static class Cfs
+  {
+    public const string ServerTypeTms = "tms$";
 
     public static void InitNativeLibrary(bool isUtf8 = true, bool ignoreLinuxSignals = false)
     {
@@ -22,124 +21,104 @@ namespace Iface.Oik.Tm.Helpers
         TmNative.cfsSetUtf8Encoding(true);
       }
 
-      TmNative.cfsInitLibrary(null, 
+      TmNative.cfsInitLibrary(null,
                               ignoreLinuxSignals ? EncodingUtil.StringToBytes("nosig") : null);
     }
 
-		public static void SetUserCredentials(string user,
-											  string password)
-		{
-			TmNative.cfsSetUser(EncodingUtil.StringToBytes(user), EncodingUtil.StringToBytes(password));
-		}
-		
-		public static string MakeInprocCrd(string host, string user, string pwd)
-		{
-			var ptr = TmNative.cfsMakeInprocCrd(EncodingUtil.StringToBytes(host),
-			                                    EncodingUtil.StringToBytes(user),
-			                                    EncodingUtil.StringToBytes(pwd));
-			if (ptr == IntPtr.Zero)
-			{
-				return string.Empty;
-			}
-			
-			var res = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(ptr);
-			TmNative.cfsFreeMemory(ptr);
-			return res;
+    public static void SetUserCredentials(string user,
+                                          string password)
+    {
+      TmNative.cfsSetUser(EncodingUtil.StringToBytes(user), EncodingUtil.StringToBytes(password));
+    }
 
-		}
+    public static string MakeInprocCrd(string host, string user, string pwd)
+    {
+      var ptr = TmNative.cfsMakeInprocCrd(EncodingUtil.StringToBytes(host),
+                                          EncodingUtil.StringToBytes(user),
+                                          EncodingUtil.StringToBytes(pwd));
+      if (ptr == IntPtr.Zero)
+      {
+        return string.Empty;
+      }
 
-		public static (IntPtr cfId, string errString, int errorCode) ConnectToCfs(string host)
-		{
-			const int errStringLength = 1000;
-			Span<byte> errBuf = stackalloc byte[errStringLength];
+      var res = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(ptr);
+      TmNative.cfsFreeMemory(ptr);
+      return res;
+    }
 
-			var cfId =
-			  TmNative.cfsConnect(EncodingUtil.StringToBytes(host), out uint errCode, errBuf, errStringLength);
+    public static (nint cfId, string errString, int errorCode) ConnectToCfs(string host)
+    {
+      const int  errStringLength = 1000;
+      Span<byte> errBuf          = stackalloc byte[errStringLength];
 
-			if (cfId == IntPtr.Zero)
-			{
-				Console.WriteLine($"Ошибка соединения с мастер-сервисом: {errCode} - {EncodingUtil.BytesToString(errBuf)}");
-			}
+      var cfId =
+        TmNative.cfsConnect(EncodingUtil.StringToBytes(host), out uint errCode, errBuf, errStringLength);
 
-			return (cfId, EncodingUtil.BytesToString(errBuf), Convert.ToInt32(errCode));
-		}
+      if (cfId == nint.Zero)
+      {
+        Console.WriteLine($"Ошибка соединения с мастер-сервисом: {errCode} - {EncodingUtil.BytesToString(errBuf)}");
+      }
 
-		public static (IntPtr, CfsDefs.InitializeConnectionResult) InitializeConnection(CfsOptions options)
-		{
-			SetUserCredentials(options.User, options.Password);
+      return (cfId, EncodingUtil.BytesToString(errBuf), Convert.ToInt32(errCode));
+    }
 
-			var (cfsCid, errString, errorCode) = ConnectToCfs(options.Host);
+    public static (nint, CfsDefs.InitializeConnectionResult) InitializeConnection(CfsOptions options)
+    {
+      SetUserCredentials(options.User, options.Password);
 
-			switch (errorCode)
-			{
-				case 0:
-					return (cfsCid, CfsDefs.InitializeConnectionResult.Ok);
-				case 87:
-					Console.WriteLine("Соединение не установлено. " + errString);
-					return (cfsCid, CfsDefs.InitializeConnectionResult.InvalidLoginOrPassword);
-				default:
-					Console.WriteLine("Соединение не установлено. " + errString);
-					return (cfsCid, CfsDefs.InitializeConnectionResult.NonSpecifiedError);
-			}
-		}
+      var (cfsCid, errString, errorCode) = ConnectToCfs(options.Host);
 
-		public static bool IsConnected(IntPtr cfsCid)
-		{
-			return cfsCid != IntPtr.Zero;
-		}
+      switch (errorCode)
+      {
+        case 0:
+          return (cfsCid, CfsDefs.InitializeConnectionResult.Ok);
+        case 87:
+          Console.WriteLine("Соединение не установлено. " + errString);
+          return (cfsCid, CfsDefs.InitializeConnectionResult.InvalidLoginOrPassword);
+        default:
+          Console.WriteLine("Соединение не установлено. " + errString);
+          return (cfsCid, CfsDefs.InitializeConnectionResult.NonSpecifiedError);
+      }
+    }
 
-		public class CfsOptions
-		{
-			public string Host { get; set; }
-			public string User { get; set; }
-			public string Password { get; set; }
-		}
+    public static bool IsConnected(IntPtr cfsCid)
+    {
+      return cfsCid != IntPtr.Zero;
+    }
 
-		// todo надо ли вообще здесь такую реализацию
-		
-		public static TmUserInfo GetUserInfo(IntPtr cfCid,
-											 string serverName,
-											 string serverType)
-		{
-			var nativeUserInfoSize = Marshal.SizeOf(typeof(TmNativeDefsUnsafe.TExtendedUserInfo));
-			var nativeUserInfoPtr = Marshal.AllocHGlobal(nativeUserInfoSize);
+    public class CfsOptions
+    {
+      public string Host     { get; set; }
+      public string User     { get; set; }
+      public string Password { get; set; }
+    }
 
-			var fetchResult = TmNative.cfsGetExtendedUserData(cfCid,
-			                                                  EncodingUtil.StringToBytes(serverType),
-			                                                  EncodingUtil.StringToBytes(serverName),
-															  nativeUserInfoPtr,
-															  (uint)nativeUserInfoSize);
-			if (fetchResult == 0)
-			{
-				Marshal.FreeHGlobal(nativeUserInfoPtr); // не забываем освобождать память из HGlobal
-				return null;
-			}
+    // todo надо ли вообще здесь такую реализацию
 
-			var nativeUserInfo = Marshal.PtrToStructure<TmNativeDefsUnsafe.TExtendedUserInfo>(nativeUserInfoPtr).ToManaged();
-			Marshal.FreeHGlobal(nativeUserInfoPtr); // не забываем освобождать память из HGlobal
+    public static TmUserInfo GetUserInfo(nint cfCid,
+                                         string serverName,
+                                         string serverType)
+    {
+      
+      var dto = TmNativeApi.GetUserInfoCfs(cfCid, serverName, serverType);
 
-			return new TmUserInfo(nativeUserInfo.UserId,
-			                      nativeUserInfo.UserName,
-			                      string.Empty, // todo надо ли сделать получать категорию
-			                      nativeUserInfo.KeyId,
-			                      nativeUserInfo.Group,
-			                      nativeUserInfo.Rights);
-		}
+      return new TmUserInfo(dto);
+    }
 
-		public static void CloseCfsConnection(IntPtr cfId)
-		{
-			TmNative.cfsDisconnect(cfId);
-		}
+    public static void CloseCfsConnection(nint cfId)
+    {
+      TmNative.cfsDisconnect(cfId);
+    }
 
 
-		public static (bool hasNus, TmNativeDefs.NewUserSystem nusFlags) GetNewUserSystemFlags(IntPtr cfCid)
-		{
-			const int errBufLength = 1000;
-			var       errBuf       = new byte[errBufLength];
-			uint      errCode      = 0;
+    public static (bool hasNus, TmNativeDefs.NewUserSystem nusFlags) GetNewUserSystemFlags(nint cfCid)
+    {
+      const int errBufLength = 1000;
+      var       errBuf       = new byte[errBufLength];
+      uint      errCode      = 0;
 
-			var hasNus = TmNative.cfsIfpcNewUserSystemAvaliable(cfCid, out var nusFlags, out errCode, errBuf, errBufLength);
-			return (hasNus, (TmNativeDefs.NewUserSystem)nusFlags);
-		}
-	}
+      var hasNus = TmNative.cfsIfpcNewUserSystemAvaliable(cfCid, out var nusFlags, out errCode, errBuf, errBufLength);
+      return (hasNus, (TmNativeDefs.NewUserSystem)nusFlags);
+    }
+  }
 }

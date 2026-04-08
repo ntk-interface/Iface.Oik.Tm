@@ -38,12 +38,12 @@ public abstract class TmEventBase
       StatusS2          = data.S2,
       StatusFlags       = data.Flags,
       StatusOldFlags    = data.OldFlags,
-      Elix = elix is {} el
+      Elix = elix is { } el
                ? new ElixDto
                {
                  M = el.M,
                  R = el.R
-               } 
+               }
                : null
     };
 
@@ -80,12 +80,12 @@ public abstract class TmEventBase
       FixMs             = data.FixMS,
       StatusS2          = data.S2,
       StatusFlags       = data.Flags,
-      Elix = elix is {} el
+      Elix = elix is { } el
                ? new ElixDto
                {
                  M = el.M,
                  R = el.R
-               } 
+               }
                : null
     };
 
@@ -119,12 +119,12 @@ public abstract class TmEventBase
       TurnedOn          = data.State > 0,
       Value             = data.Val,
       TypeName          = typeName,
-      Elix = elix is {} el
+      Elix = elix is { } el
                ? new ElixDto
                {
                  M = el.M,
                  R = el.R
-               } 
+               }
                : null
     };
 
@@ -158,12 +158,12 @@ public abstract class TmEventBase
       OperatorName      = operatorName,
       Result            = unchecked((sbyte)data.Result),
       Command           = data.Cmd == 1,
-      Elix = elix is {} el
+      Elix = elix is { } el
                ? new ElixDto
                {
                  M = el.M,
                  R = el.R
-               } 
+               }
                : null
     };
 
@@ -197,12 +197,12 @@ public abstract class TmEventBase
       OperatorName      = operatorName,
       PropsAndClassData = propsAndClassData,
       TargetTmType      = data.TmType,
-      Elix = elix is {} el
+      Elix = elix is { } el
                ? new ElixDto
                {
                  M = el.M,
                  R = el.R
-               } 
+               }
                : null
     };
 
@@ -236,12 +236,12 @@ public abstract class TmEventBase
       AckUser           = ackData.UserName,
       OperatorName      = operatorName,
       Command           = data.Cmd == 1,
-      Elix = elix is {} el
+      Elix = elix is { } el
                ? new ElixDto
                {
                  M = el.M,
                  R = el.R
-               } 
+               }
                : null
     };
 
@@ -275,12 +275,12 @@ public abstract class TmEventBase
       OperatorName      = operatorName,
       Command           = data.Cmd == 1,
       Value             = data.Value,
-      Elix = elix is {} el
+      Elix = elix is { } el
                ? new ElixDto
                {
                  M = el.M,
                  R = el.R
-               } 
+               }
                : null
     };
 
@@ -298,12 +298,10 @@ public abstract class TmEventBase
   {
     var evnt = new T();
 
-    var (text, operatorName) = GetMessageAndUserFromStrBinBytes(data.StrBin);
-
     var extendedType = (TmNativeDefs.ExtendedEventTypes)header.Ch;
 
     string reference;
-    var tmAddrString = string.Empty;
+    var    tmAddrString = string.Empty;
 
     switch (extendedType)
     {
@@ -342,13 +340,12 @@ public abstract class TmEventBase
       Imp   = header.Imp,
       PropsAndClassData = new TagPropsAndClassData
       {
-        Name = text,
+        Name = TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(data.StrBin),
       },
-      DateTimeStr  = TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(header.DateTime),
-      AckSec       = ackData.AckSec,
-      AckMs        = ackData.AckMs,
-      AckUser      = ackData.UserName,
-      OperatorName = operatorName,
+      DateTimeStr = TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(header.DateTime),
+      AckSec      = ackData.AckSec,
+      AckMs       = ackData.AckMs,
+      AckUser     = ackData.UserName,
       TypeString = extendedType switch
                    {
                      TmNativeDefs.ExtendedEventTypes.Message => "Сообщение",
@@ -357,12 +354,12 @@ public abstract class TmEventBase
                    },
       Reference    = reference,
       TmAddrString = tmAddrString,
-      Elix = elix is {} el
+      Elix = elix is { } el
                ? new ElixDto
                {
                  M = el.M,
                  R = el.R
-               } 
+               }
                : null
     };
 
@@ -397,12 +394,12 @@ public abstract class TmEventBase
       TmType            = TmNativeDefs.TmDataTypes.Status,
       OldFlags          = data.OldFlags,
       NewFlags          = data.NewFlags,
-      Elix = elix is {} el
+      Elix = elix is { } el
                ? new ElixDto
                {
                  M = el.M,
                  R = el.R
-               } 
+               }
                : null
     };
 
@@ -437,12 +434,12 @@ public abstract class TmEventBase
       TmType            = TmNativeDefs.TmDataTypes.Analog,
       OldFlags          = data.OldFlags,
       NewFlags          = data.NewFlags,
-      Elix = elix is {} el
+      Elix = elix is { } el
                ? new ElixDto
                {
                  M = el.M,
                  R = el.R
-               } 
+               }
                : null
     };
 
@@ -478,12 +475,12 @@ public abstract class TmEventBase
       TmType      = TmNativeDefs.TmDataTypes.Accum,
       OldFlags    = data.OldFlags,
       NewFlags    = data.NewFlags,
-      Elix = elix is {} el
+      Elix = elix is { } el
                ? new ElixDto
                {
                  M = el.M,
                  R = el.R
-               } 
+               }
                : null
     };
 
@@ -514,12 +511,12 @@ public abstract class TmEventBase
       AckSec      = ackData.AckSec,
       AckMs       = ackData.AckMs,
       AckUser     = ackData.UserName,
-      Elix = elix is {} el
+      Elix = elix is { } el
                ? new ElixDto
                {
                  M = el.M,
                  R = el.R
-               } 
+               }
                : null
     };
 
@@ -717,45 +714,6 @@ public abstract class TmEventBase
     };
   }
 
-  private static unsafe (string, string) GetMessageAndUserFromStrBinBytes(byte* ptr, Encoding encoding = null)
-  {
-    var message = string.Empty;
-    var user    = string.Empty;
-    encoding ??= Encoding.UTF8;
-
-    if (ptr[0] == 0)
-    {
-      return (message, user);
-    }
-
-    var length = 0;
-
-    var curPtr = ptr;
-
-    for (var i = 0; i < 2; i++)
-    {
-      while (curPtr[length] != 0)
-      {
-        length++;
-      }
-
-      switch (i)
-      {
-        case 0:
-          message = encoding.GetString(curPtr, length);
-          break;
-        case 1 when length > 0:
-          user = encoding.GetString(curPtr, length);
-          break;
-      }
-
-      curPtr += length + 1;
-      length =  0;
-    }
-
-    return (message, user);
-  }
-
   internal static TmNativeEventImportances ImportanceToFlag(int importance)
   {
     return (TmNativeEventImportances)(1 << importance);
@@ -790,7 +748,7 @@ public abstract class TmEventBase
     public uint   AckSec       { get; init; }
     public ushort AckMs        { get; init; }
     public string OperatorName { get; init; } = string.Empty;
-    public string AckUser      { get; init; }
+    public string AckUser      { get; init; } = string.Empty;
 
     public TagPropsAndClassData PropsAndClassData { get; init; } = new();
     public ElixDto?             Elix              { get; init; } = null;

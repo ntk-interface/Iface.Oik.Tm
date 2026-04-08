@@ -1,9 +1,8 @@
-﻿using System;
 using System.Runtime.InteropServices;
 
 namespace Iface.Oik.Tm.Native.Interfaces;
 
-public static partial class TmNativeDefsUnsafe
+internal static partial class TmNativeDefsUnsafe
 {
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public unsafe struct TUserInfo
@@ -24,16 +23,17 @@ public static partial class TmNativeDefsUnsafe
     public fixed byte Reserved[16];
   }
 
+  public const int TExtendedUserInfoRightsSize = 250;
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public unsafe struct TExtendedUserInfo
   {
-    public int  RecNum;
-    public int  UserId;
+    public int RecNum;
+    public int UserId;
     public byte Group;
 
     public fixed byte KeyId[16];
     public fixed byte UserName[16];
     public fixed byte UserPwd[8];
-    public fixed byte Rights[250];
+    public fixed byte Rights[TExtendedUserInfoRightsSize];
   }
 }

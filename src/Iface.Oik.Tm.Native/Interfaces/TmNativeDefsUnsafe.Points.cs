@@ -2,7 +2,7 @@
 
 namespace Iface.Oik.Tm.Native.Interfaces;
 
-public static partial class TmNativeDefsUnsafe
+internal static partial class TmNativeDefsUnsafe
 {
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public struct TAdrTm
