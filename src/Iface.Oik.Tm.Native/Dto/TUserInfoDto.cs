@@ -19,7 +19,7 @@ public record TUserInfoDto
   public string OldUserName                { get; init; } = string.Empty;
   public string AdditionalParametersString { get; init; } = string.Empty;
 
-  public string KeyId           { get; init; }
+  public string KeyId           { get; init; } = string.Empty;
   public int    GroupId         { get; init; }
   public byte[] PermissionBytes { get; init; } =  [];
 
