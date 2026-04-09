@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Collections.Generic;
+using System.Linq;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 
@@ -95,5 +97,44 @@ public static partial class TmNativeApi
     TmNative.tmcFreeMemory(tmcCommonPointsPtr);
 
     return tAnalogPoint;
+  }
+
+
+  public static IReadOnlyList<TmNativeDefs.TCommonPoint> GetTmTagNamedSetUpdatedValues(
+    int                      cid,
+    TmNativeDefs.TmDataTypes type,
+    Span<byte>               name)
+  {
+    return GetTmTagNamedSetUpdatedValuesUnsafe(cid, type, name).Select(point => point.ToManaged()).ToList();
+  }
+  
+  
+  private static unsafe TmNativeDefsUnsafe.TCommonPoint[] GetTmTagNamedSetUpdatedValuesUnsafe(
+    int                      cid,
+    TmNativeDefs.TmDataTypes type,
+    Span<byte>               name)
+  {
+    TmNativeDefsUnsafe.TCommonPoint* ptr = null;
+    try
+    {
+      ptr = TmNative.tmcTmvUserSetGet(cid,
+                                      (ushort)type,
+                                      changesOnly: true,
+                                      name,
+                                      out var count);
+      if (count == 0 || ptr == null)
+      {
+        return Array.Empty<TmNativeDefsUnsafe.TCommonPoint>();
+      }
+
+      return new ReadOnlySpan<TmNativeDefsUnsafe.TCommonPoint>(ptr, (int)count).ToArray();
+    }
+    finally
+    {
+      if (ptr != null)
+      {
+        TmNative.tmcFreeMemory((IntPtr) ptr);
+      }
+    }
   }
 }

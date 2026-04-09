@@ -41,3 +41,35 @@ internal static class TUserInfoExtensions
     }
   }
 }
+
+
+public static class TCommonPointExtensions
+{
+  public static TmNativeDefs.TCommonPoint ToManaged(this TmNativeDefsUnsafe.TCommonPoint point)
+  {
+    unsafe
+    {
+      var managedPoint = new TmNativeDefs.TCommonPoint
+      {
+        name         = point.name,
+        cp_flags     = point.cp_flags,
+        res1         = point.res1,
+        Type         = point.Type,
+        Ch           = point.Ch,
+        RTU          = point.RTU,
+        Point        = point.Point,
+        TM_Flags     = point.TM_Flags,
+        tm_s2        = point.tm_s2,
+        tm_flags2    = point.tm_flags2,
+        tm_local_ut  = point.tm_local_ut,
+        tm_remote_ut = point.tm_remote_ut,
+        tm_local_ms  = point.tm_local_ms,
+        tm_remote_ms = point.tm_remote_ms,
+        Data         = new byte[TmNativeDefsUnsafe.TCommonPointDataSize],
+      };
+      new ReadOnlySpan<byte>(point.Data, TmNativeDefsUnsafe.TCommonPointDataSize).CopyTo(managedPoint.Data);
+
+      return managedPoint;
+    }
+  }
+}

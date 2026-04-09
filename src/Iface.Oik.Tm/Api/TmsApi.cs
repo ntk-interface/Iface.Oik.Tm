@@ -935,67 +935,34 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetUpdatedValues(string name)
     {
-      var count = 0u;
-      var tmcCommonPointsPtr = await Task.Run(() => TmNative.tmcTmvUserSetGet(_cid,
-                                                                              (ushort) TmNativeDefs.TmDataTypes.Status,
-                                                                              changesOnly: true,
-                                                                              EncodingUtil.StringToBytes(name),
-                                                                              out count))
-                                         .ConfigureAwait(false);
-      try
-      {
-        return TmNativeUtil.ParsePointsFromTmcCommonPointPtr(tmcCommonPointsPtr, (int)count)
-                           .Select(TmStatusRecord.CreateFromTmcCommonPoint)
-                           .ToList();
-      }
-      finally
-      {
-        TmNative.tmcFreeMemory(tmcCommonPointsPtr);
-      }
+      var commonPoints = await Task.Run(() => TmNativeApi.GetTmTagNamedSetUpdatedValues(
+                                          _cid,
+                                          TmNativeDefs.TmDataTypes.Status,
+                                          EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
+      return commonPoints.Select(TmStatusRecord.CreateFromTmcCommonPoint)
+                         .ToList();
     }
 
 
     public async Task<IReadOnlyCollection<TmAnalogRecord>> GetTmAnalogNamedSetUpdatedValues(string name)
     {
-      var count = 0u;
-      var tmcCommonPointsPtr = await Task.Run(() => TmNative.tmcTmvUserSetGet(_cid,
-                                                                              (ushort) TmNativeDefs.TmDataTypes.Analog,
-                                                                              changesOnly: true,
-                                                                              EncodingUtil.StringToBytes(name),
-                                                                              out count))
-                                         .ConfigureAwait(false);
-      try
-      {
-        return TmNativeUtil.ParsePointsFromTmcCommonPointPtr(tmcCommonPointsPtr, (int)count)
-                           .Select(TmAnalogRecord.CreateFromTmcCommonPoint)
-                           .ToList();
-      }
-      finally
-      {
-        TmNative.tmcFreeMemory(tmcCommonPointsPtr);
-      }
+      var commonPoints = await Task.Run(() => TmNativeApi.GetTmTagNamedSetUpdatedValues(
+                                          _cid,
+                                          TmNativeDefs.TmDataTypes.Analog,
+                                          EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
+      return commonPoints.Select(TmAnalogRecord.CreateFromTmcCommonPoint)
+                         .ToList();
     }
 
 
     public async Task<IReadOnlyCollection<TmAccumRecord>> GetTmAccumNamedSetUpdatedValues(string name)
     {
-      var count = 0u;
-      var tmcCommonPointsPtr = await Task.Run(() => TmNative.tmcTmvUserSetGet(_cid,
-                                                                              (ushort) TmNativeDefs.TmDataTypes.Accum,
-                                                                              changesOnly: true,
-                                                                              EncodingUtil.StringToBytes(name),
-                                                                              out count))
-                                         .ConfigureAwait(false);
-      try
-      {
-        return TmNativeUtil.ParsePointsFromTmcCommonPointPtr(tmcCommonPointsPtr, (int)count)
-                           .Select(TmAccumRecord.CreateFromTmcCommonPoint)
-                           .ToList();
-      }
-      finally
-      {
-        TmNative.tmcFreeMemory(tmcCommonPointsPtr);
-      }
+      var commonPoints = await Task.Run(() => TmNativeApi.GetTmTagNamedSetUpdatedValues(
+                                          _cid,
+                                          TmNativeDefs.TmDataTypes.Accum,
+                                          EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
+      return commonPoints.Select(TmAccumRecord.CreateFromTmcCommonPoint)
+                         .ToList();
     }
 
 
