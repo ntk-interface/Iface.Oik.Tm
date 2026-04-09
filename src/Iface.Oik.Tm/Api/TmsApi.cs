@@ -939,7 +939,7 @@ namespace Iface.Oik.Tm.Api
                                           _cid,
                                           TmNativeDefs.TmDataTypes.Status,
                                           EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
-      return commonPoints.Select(TmStatusRecord.CreateFromTmcCommonPoint)
+      return commonPoints.Select(TmStatusRecord.CreateFromNativeDto)
                          .ToList();
     }
 
@@ -950,7 +950,7 @@ namespace Iface.Oik.Tm.Api
                                           _cid,
                                           TmNativeDefs.TmDataTypes.Analog,
                                           EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
-      return commonPoints.Select(TmAnalogRecord.CreateFromTmcCommonPoint)
+      return commonPoints.Select(TmAnalogRecord.CreateFromNativeDto)
                          .ToList();
     }
 
@@ -961,7 +961,7 @@ namespace Iface.Oik.Tm.Api
                                           _cid,
                                           TmNativeDefs.TmDataTypes.Accum,
                                           EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
-      return commonPoints.Select(TmAccumRecord.CreateFromTmcCommonPoint)
+      return commonPoints.Select(TmAccumRecord.CreateFromNativeDto)
                          .ToList();
     }
 

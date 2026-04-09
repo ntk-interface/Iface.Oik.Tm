@@ -261,12 +261,12 @@ namespace Iface.Oik.Tm.Native.Api
 
     [LibraryImport(Tmconn)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
-    public static unsafe partial TmNativeDefsUnsafe.TCommonPoint* tmcTmvUserSetGet(
+    internal static unsafe partial TmNativeDefsUnsafe.TCommonPoint* tmcTmvUserSetGet(
       Int32                                   cid,
       UInt16                                  tmType,
       [MarshalAs(UnmanagedType.Bool)] Boolean changesOnly,
       Span<byte>                              name,
-      out UInt32                              pCount); // returns TCommonPoint*
+      out UInt32                              pCount);
 
 
     [LibraryImport(Tmconn)]

@@ -514,18 +514,6 @@ namespace Iface.Oik.Tm.Native.Utils
       return ipAddr;
     }
 
-
-    public static IEnumerable<TmNativeDefs.TCommonPoint> ParsePointsFromTmcCommonPointPtr(IntPtr ptr, int count)
-    {
-      var structSize = Marshal.SizeOf(typeof(TmNativeDefs.TCommonPoint));
-
-      for (var i = 0; i < count; i++)
-      {
-        var currentPtr = new IntPtr(ptr.ToInt64() + i * structSize);
-        yield return Marshal.PtrToStructure<TmNativeDefs.TCommonPoint>(currentPtr);
-      }
-    }
-
     
     internal static unsafe string BytePtrToString(byte* buffer, int size)
     {

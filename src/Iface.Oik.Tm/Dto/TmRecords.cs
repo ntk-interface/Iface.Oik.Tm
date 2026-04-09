@@ -1,7 +1,7 @@
 ﻿using System;
 using Iface.Oik.Tm.Interfaces;
+using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
-using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Dto;
@@ -14,26 +14,20 @@ public record struct TmStatusRecord(ushort    Ch,
                                     TmS2Flags S2Flags,
                                     DateTime? ChangeTime)
 {
-  public static TmStatusRecord CreateFromTmcCommonPoint(TmNativeDefs.TCommonPoint tmcCommonPoint)
+  public static TmStatusRecord CreateFromNativeDto(TCommonPointDto dto)
   {
-    TmNativeDefs.TStatusPoint tmcStatusPoint;
-    try
+    if (dto.StatusPointDto == null)
     {
-      tmcStatusPoint = TmNativeUtil.GetStatusPointFromCommonPoint(tmcCommonPoint);
+      throw new TmNativeException("Ошибка разбора TStatusPointDto");
     }
-    catch (ArgumentException)
-    {
-      throw new TmNativeException("Отсутствует StatusPoint внутри CommonPoint");
-    }
-
-    return new TmStatusRecord(tmcCommonPoint.Ch,
-                              tmcCommonPoint.RTU,
-                              tmcCommonPoint.Point,
-                              tmcStatusPoint.Status,
-                              (TmFlags)tmcStatusPoint.Flags,
-                              (TmS2Flags)tmcCommonPoint.tm_s2,
-                              DateUtil.GetDateTimeFromTimestampWithEpochCheck(tmcCommonPoint.tm_local_ut,
-                                                                              tmcCommonPoint.tm_local_ms));
+    return new TmStatusRecord(dto.Ch,
+                              dto.Rtu,
+                              dto.Point,
+                              dto.StatusPointDto.Value.Status,
+                              (TmFlags)dto.StatusPointDto.Value.Flags,
+                              (TmS2Flags)dto.TmS2,
+                              DateUtil.GetDateTimeFromTimestampWithEpochCheck(dto.TmLocalUt,
+                                                                              dto.TmLocalMs));
   }
 }
 
@@ -45,25 +39,19 @@ public record struct TmAnalogRecord(ushort    Ch,
                                     TmFlags   Flags,
                                     DateTime? ChangeTime)
 {
-  public static TmAnalogRecord CreateFromTmcCommonPoint(TmNativeDefs.TCommonPoint tmcCommonPoint)
+  public static TmAnalogRecord CreateFromNativeDto(TCommonPointDto dto)
   {
-    TmNativeDefs.TAnalogPoint tmcAnalogPoint;
-    try
+    if (dto.AnalogPointDto == null)
     {
-      tmcAnalogPoint = TmNativeUtil.GetAnalogPointFromCommonPoint(tmcCommonPoint);
+      throw new TmNativeException("Ошибка разбора TAnalogPointDto");
     }
-    catch (ArgumentException)
-    {
-      throw new TmNativeException("Отсутствует AnalogPoint внутри CommonPoint");
-    }
-
-    return new TmAnalogRecord(tmcCommonPoint.Ch,
-                              tmcCommonPoint.RTU,
-                              tmcCommonPoint.Point,
-                              tmcAnalogPoint.AsFloat,
-                              (TmFlags)tmcAnalogPoint.Flags,
-                              DateUtil.GetDateTimeFromTimestampWithEpochCheck(tmcCommonPoint.tm_local_ut,
-                                                                              tmcCommonPoint.tm_local_ms));
+    return new TmAnalogRecord(dto.Ch,
+                              dto.Rtu,
+                              dto.Point,
+                              dto.AnalogPointDto.Value.AsFloat,
+                              (TmFlags)dto.AnalogPointDto.Value.Flags,
+                              DateUtil.GetDateTimeFromTimestampWithEpochCheck(dto.TmLocalUt,
+                                                                              dto.TmLocalMs));
   }
 }
 
@@ -76,25 +64,19 @@ public record struct TmAccumRecord(ushort    Ch,
                                    TmFlags   Flags,
                                    DateTime? ChangeTime)
 {
-  public static TmAccumRecord CreateFromTmcCommonPoint(TmNativeDefs.TCommonPoint tmcCommonPoint)
+  public static TmAccumRecord CreateFromNativeDto(TCommonPointDto dto)
   {
-    TmNativeDefs.TAccumPoint tmcAccumPoint;
-    try
+    if (dto.AccumPointDto == null)
     {
-      tmcAccumPoint = TmNativeUtil.GetAccumPointFromCommonPoint(tmcCommonPoint);
+      throw new TmNativeException("Ошибка разбора TAccumPointDto");
     }
-    catch (ArgumentException)
-    {
-      throw new TmNativeException("Отсутствует AccumPoint внутри CommonPoint");
-    }
-
-    return new TmAccumRecord(tmcCommonPoint.Ch,
-                             tmcCommonPoint.RTU,
-                             tmcCommonPoint.Point,
-                             tmcAccumPoint.Value,
-                             tmcAccumPoint.Load,
-                             (TmFlags)tmcAccumPoint.Flags,
-                             DateUtil.GetDateTimeFromTimestampWithEpochCheck(tmcCommonPoint.tm_local_ut,
-                                                                             tmcCommonPoint.tm_local_ms));
+    return new TmAccumRecord(dto.Ch,
+                              dto.Rtu,
+                              dto.Point,
+                              dto.AccumPointDto.Value.Value,
+                              dto.AccumPointDto.Value.Load,
+                              (TmFlags)dto.AccumPointDto.Value.Flags,
+                              DateUtil.GetDateTimeFromTimestampWithEpochCheck(dto.TmLocalUt,
+                                                                              dto.TmLocalMs));
   }
 }

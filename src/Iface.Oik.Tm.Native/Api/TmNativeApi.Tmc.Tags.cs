@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.Generic;
 using System.Linq;
+using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 
@@ -100,12 +101,11 @@ public static partial class TmNativeApi
   }
 
 
-  public static IReadOnlyList<TmNativeDefs.TCommonPoint> GetTmTagNamedSetUpdatedValues(
-    int                      cid,
-    TmNativeDefs.TmDataTypes type,
-    Span<byte>               name)
+  public static IReadOnlyList<TCommonPointDto> GetTmTagNamedSetUpdatedValues(int                      cid,
+                                                                             TmNativeDefs.TmDataTypes type,
+                                                                             Span<byte>               name)
   {
-    return GetTmTagNamedSetUpdatedValuesUnsafe(cid, type, name).Select(point => point.ToManaged()).ToList();
+    return GetTmTagNamedSetUpdatedValuesUnsafe(cid, type, name).Select(TCommonPointDto.Create).ToList();
   }
   
   
