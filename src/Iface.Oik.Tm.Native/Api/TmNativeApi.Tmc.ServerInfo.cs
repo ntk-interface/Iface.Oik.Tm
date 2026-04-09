@@ -1,3 +1,4 @@
+using System;
 using System.Buffers;
 using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
@@ -24,6 +25,30 @@ public static partial class TmNativeApi
     return ComputerInfoDto.Create(GetComputerInfoS(cfCid));
   }
 
+  public static string GetSystemTimeString(int tmCid)
+  {
+    Span<byte> tmcTime = stackalloc byte[80];
+    TmNative.tmcSystemTime(tmCid, tmcTime, nint.Zero);
+    return TmNativeUtil.BytesToString(tmcTime);
+  }
+  
+  public static (string host, string server) GetCurrentTmServerName(int tmCid)
+  {
+    const int  bufSize = 255;
+    Span<byte> host    = stackalloc byte[bufSize];
+    Span<byte> server  = stackalloc byte[bufSize];
+
+    // todo al сейчас всегда приходит 0
+    /*if (!TmNative.tmcGetCurrentServer(_cid, ref host, bufSize, ref server, bufSize))
+    {
+      return (string.Empty, string.Empty);
+    }*/
+    TmNative.tmcGetCurrentServer(tmCid, host, bufSize, server, bufSize);
+    
+    return (TmNativeUtil.BytesToString(host), TmNativeUtil.BytesToString(server));
+  }
+
+  
   internal static unsafe TmNativeDefsUnsafe.ComputerInfoS GetComputerInfoS(nint cfCid)
   {
     var pool   = ArrayPool<byte>.Shared;

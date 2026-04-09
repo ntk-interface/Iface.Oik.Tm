@@ -48,34 +48,21 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<int> GetLastTmcError()
     {
-      return (int)await Task.Run(() => TmNative.tmcGetLastError())
-                            .ConfigureAwait(false);
+      return await Task.Run(TmNativeApi.GetLastTmcError)
+                       .ConfigureAwait(false);
     }
 
 
     public async Task<string> GetLastTmcErrorText()
     {
-      var bufPtr = Marshal.AllocHGlobal(1024);
-      await Task.Run(() => TmNative.tmcGetLastErrorText(_cid, bufPtr))
-                .ConfigureAwait(false);
-
-      var singleBufPtr = Marshal.PtrToStructure<IntPtr>(bufPtr); // массив строк, а не просто строка
-  	  Marshal.FreeHGlobal(bufPtr); // не забываем освобождать память из HGlobal
-	    var str = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(singleBufPtr);
-      TmNative.tmcFreeMemory(singleBufPtr);
-
-      return str;
+      return await Task.Run(() => TmNativeApi.GetLastTmcErrorText(_cid))
+                       .ConfigureAwait(false);
     }
 
-
+    
     public string GetConnectionErrorText()
     {
-      const uint bufSize = 256;
-      Span<byte> buf     = stackalloc byte[(int)bufSize];
-
-      var result = TmNative.tmcGetConnectErrorText(_cid, buf, bufSize);
-
-      return result ? EncodingUtil.BytesToString(buf) : "Неизвестная ошибка";
+      return TmNativeApi.GetTmcConnectionErrorText(_cid);
     }
 
 
@@ -87,38 +74,14 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<string> GetSystemTimeString()
     {
-      return await Task.Run(() => GetSystemTimeStringSync())
+      return await Task.Run(() => TmNativeApi.GetSystemTimeString(_cid))
                        .ConfigureAwait(false);
     }
-
-    public string GetSystemTimeStringSync()
-    {
-      Span<byte> tmcTime = stackalloc byte[80];
-      TmNative.tmcSystemTime(_cid, tmcTime, IntPtr.Zero);
-      return EncodingUtil.BytesToString(tmcTime);
-    }
-
 
     public async Task<(string host, string server)> GetCurrentServerName()
     {
-      return await Task.Run(() => GetCurrentServerNameSync())
+      return await Task.Run(() => TmNativeApi.GetCurrentTmServerName(_cid))
                        .ConfigureAwait(false);
-    }
-
-    public (string host, string server) GetCurrentServerNameSync()
-    {
-      const int  bufSize = 255;
-      Span<byte> host    = stackalloc byte[bufSize];
-      Span<byte> server  = stackalloc byte[bufSize];
-
-      // todo al сейчас всегда приходит 0
-      /*if (!await Task.Run(() => _native.TmcGetCurrentServer(_cid, ref host, bufSize, ref server, bufSize))
-                     .ConfigureAwait(false))
-      {
-        return (null, null);
-      }*/
-      TmNative.tmcGetCurrentServer(_cid, host, bufSize, server, bufSize);
-      return (EncodingUtil.BytesToString(host), EncodingUtil.BytesToString(server));
     }
 
 
