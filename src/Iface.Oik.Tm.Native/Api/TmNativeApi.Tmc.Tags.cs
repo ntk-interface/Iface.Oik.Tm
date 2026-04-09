@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections.Generic;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 
@@ -47,7 +48,7 @@ public static partial class TmNativeApi
     const int bufSize = 1024;
     var       pool    = ArrayPool<byte>.Shared;
     var       buf     = pool.Rent(bufSize);
-    
+
     try
     {
       TmNative.tmcGetObjectProperties(cid,
@@ -62,14 +63,14 @@ public static partial class TmNativeApi
     {
       ArrayPool<byte>.Shared.Return(buf);
     }
-    
+
     return TmNativeUtil.BytesToString(buf);
   }
 
-  private static unsafe TmNativeDefsUnsafe.TAnalogPoint GetTAnalogPoint(int cid,
-    short                                                                            ch,
-    short                                                                            rtu,
-    short                                                                            point)
+  private static unsafe TmNativeDefsUnsafe.TAnalogPoint GetTAnalogPoint(int   cid,
+                                                                        short ch,
+                                                                        short rtu,
+                                                                        short point)
   {
     var tmAddr = new TmNativeDefs.TAdrTm
     {
@@ -77,20 +78,22 @@ public static partial class TmNativeApi
       RTU   = rtu,
       Point = point
     };
-    
-    var tmcCommonPointsPtr = TmNative.tmcTMValuesByListEx(cid, 
+
+    var tmcCommonPointsPtr = TmNative.tmcTMValuesByListEx(cid,
                                                           (ushort)TmNativeDefs.TmDataTypes.Analog, 0,
                                                           1,
-                                                          new []{tmAddr});
+                                                          new[] { tmAddr });
+
     if (tmcCommonPointsPtr == nint.Zero)
     {
-      throw new TmNativeException($"Ошибка получения точности и единиц #ТТ{ch}:{rtu}:{point}");
+      throw new TmNativeException($"Ошибка получения tCommonPoint для тэга #TT:{ch}:{rtu}:{point}");
     }
-
-    var tPoint = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.TAnalogPoint>((byte*)tmcCommonPointsPtr);
+    
+    var tCommonPoint = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.TCommonPoint>((byte*)tmcCommonPointsPtr);
+    var tAnalogPoint = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.TAnalogPoint>(tCommonPoint.Data);
     
     TmNative.tmcFreeMemory(tmcCommonPointsPtr);
 
-    return tPoint;
+    return tAnalogPoint;
   }
 }
