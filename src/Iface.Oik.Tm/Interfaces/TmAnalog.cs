@@ -294,17 +294,13 @@ namespace Iface.Oik.Tm.Interfaces
         return TmTeleregulation.None;
       }
 
-      switch ((TmNativeDefs.AnalogRegulationFlag) flag)
-      {
-        case TmNativeDefs.AnalogRegulationFlag.Step:
-          return TmTeleregulation.Step;
-        case TmNativeDefs.AnalogRegulationFlag.Code:
-          return TmTeleregulation.Code;
-        case TmNativeDefs.AnalogRegulationFlag.Value:
-          return TmTeleregulation.Value;
-        default:
-          return TmTeleregulation.None;
-      }
+      return (TmNativeDefs.AnalogRegulationFlag)flag switch
+             {
+               TmNativeDefs.AnalogRegulationFlag.Step  => TmTeleregulation.Step,
+               TmNativeDefs.AnalogRegulationFlag.Code  => TmTeleregulation.Code,
+               TmNativeDefs.AnalogRegulationFlag.Value => TmTeleregulation.Value,
+               _                                       => TmTeleregulation.None
+             };
     }
     
 

@@ -283,25 +283,13 @@ namespace Iface.Oik.Tm.Interfaces
 
     public override string ToString()
     {
-      string type;
-      switch (_type)
-      {
-        case TmType.Status:
-          type = "#TC";
-          break;
-
-        case TmType.Analog:
-          type = "#TT";
-          break;
-
-        case TmType.Accum:
-          type = "#TI";
-          break;
-
-        default:
-          type = "#??";
-          break;
-      }
+      var type = _type switch
+                 {
+                   TmType.Status => "#TC",
+                   TmType.Analog => "#TT",
+                   TmType.Accum  => "#TI",
+                   _             => "#??"
+                 };
 
       return $"{type}{Ch}:{Rtu}:{Point}";
     }

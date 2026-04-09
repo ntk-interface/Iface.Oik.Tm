@@ -249,6 +249,33 @@ namespace Iface.Oik.Tm.Native.Api
                                                     [In] TmNativeDefs.TAdrTm[] addr);
 
 
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial Boolean tmcTmvUserSetDefine(Int32         cid,
+                                                      UInt16        tmType,
+                                                      Span<byte>    name,
+                                                      [In] UInt32[] tma,
+                                                      UInt32        tmaCount);
+
+
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial IntPtr tmcTmvUserSetGet(Int32 cid,
+                                                  UInt16 tmType,
+                                                  [MarshalAs(UnmanagedType.Bool)] Boolean changesOnly,
+                                                  Span<byte> name,
+                                                  out UInt32 pCount); // returns TCommonPoint*
+
+
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial Boolean tmcTmvUserSetDelete(Int32         cid,
+                                                      UInt16        tmType,
+                                                      Span<byte>    name);
+
+    
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern IntPtr tmcGetValuesByFlagMask(Int32      cid,
                                                        UInt16     tmType,

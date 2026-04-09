@@ -315,71 +315,30 @@ namespace Iface.Oik.Tm.Interfaces
 
     public string GetClassCaption(ClassCaption type)
     {
-      switch (type)
-      {
-        case ClassCaption.Off:
-          return GetClassDataValue("0Txt", (IsAps) ? "СНЯТ" : "ОТКЛ");
-
-        case ClassCaption.On:
-          return GetClassDataValue("1Txt", (IsAps) ? "ВЗВЕДЕН" : "ВКЛ");
-
-        case ClassCaption.Break:
-          return GetClassDataValue("BTxt", "00-Обрыв");
-
-        case ClassCaption.Malfunction:
-          return GetClassDataValue("MTxt", "11-Неисправность");
-
-        case ClassCaption.Intermediate:
-          return GetClassDataValue("ITxt", "Промежуточное");
-
-        case ClassCaption.Flag1:
-          return GetClassDataValue("F1Name");
-
-        case ClassCaption.Flag2:
-          return GetClassDataValue("F2Name");
-
-        case ClassCaption.Flag3:
-          return GetClassDataValue("F3Name");
-
-        case ClassCaption.Flag4:
-          return GetClassDataValue("F4Name");
-
-        case ClassCaption.Flag1Off:
-          return GetClassDataValue("F10Txt");
-
-        case ClassCaption.Flag1On:
-          return GetClassDataValue("F11Txt");
-
-        case ClassCaption.Flag2Off:
-          return GetClassDataValue("F20Txt");
-
-        case ClassCaption.Flag2On:
-          return GetClassDataValue("F21Txt");
-
-        case ClassCaption.Flag3Off:
-          return GetClassDataValue("F30Txt");
-
-        case ClassCaption.Flag3On:
-          return GetClassDataValue("F31Txt");
-
-        case ClassCaption.Flag4Off:
-          return GetClassDataValue("F40Txt");
-
-        case ClassCaption.Flag4On:
-          return GetClassDataValue("F41Txt");
-        
-        case ClassCaption.ClassName:
-          return GetClassDataValue("ClassName");
-        
-        case ClassCaption.CommandOff:
-          return GetClassDataValue("CtlOffTxt", "Отключить");
-        
-        case ClassCaption.CommandOn:
-          return GetClassDataValue("CtlOnTxt", "Включить");
-
-        default:
-          return "";
-      }
+      return type switch
+             {
+               ClassCaption.Off          => GetClassDataValue("0Txt", (IsAps) ? "СНЯТ" : "ОТКЛ"),
+               ClassCaption.On           => GetClassDataValue("1Txt", (IsAps) ? "ВЗВЕДЕН" : "ВКЛ"),
+               ClassCaption.Break        => GetClassDataValue("BTxt", "00-Обрыв"),
+               ClassCaption.Malfunction  => GetClassDataValue("MTxt", "11-Неисправность"),
+               ClassCaption.Intermediate => GetClassDataValue("ITxt", "Промежуточное"),
+               ClassCaption.Flag1        => GetClassDataValue("F1Name"),
+               ClassCaption.Flag2        => GetClassDataValue("F2Name"),
+               ClassCaption.Flag3        => GetClassDataValue("F3Name"),
+               ClassCaption.Flag4        => GetClassDataValue("F4Name"),
+               ClassCaption.Flag1Off     => GetClassDataValue("F10Txt"),
+               ClassCaption.Flag1On      => GetClassDataValue("F11Txt"),
+               ClassCaption.Flag2Off     => GetClassDataValue("F20Txt"),
+               ClassCaption.Flag2On      => GetClassDataValue("F21Txt"),
+               ClassCaption.Flag3Off     => GetClassDataValue("F30Txt"),
+               ClassCaption.Flag3On      => GetClassDataValue("F31Txt"),
+               ClassCaption.Flag4Off     => GetClassDataValue("F40Txt"),
+               ClassCaption.Flag4On      => GetClassDataValue("F41Txt"),
+               ClassCaption.ClassName    => GetClassDataValue("ClassName"),
+               ClassCaption.CommandOff   => GetClassDataValue("CtlOffTxt", "Отключить"),
+               ClassCaption.CommandOn    => GetClassDataValue("CtlOnTxt",  "Включить"),
+               _                         => ""
+             };
     }
 
 
@@ -626,27 +585,27 @@ namespace Iface.Oik.Tm.Interfaces
     
     public string GetCustomFlagName(TmFlags flag)
     {
-      switch (flag)
-      {
-        case TmFlags.LevelA: return Flag1Name;
-        case TmFlags.LevelB: return Flag2Name;
-        case TmFlags.LevelC: return Flag3Name;
-        case TmFlags.LevelD: return Flag4Name;
-        default:             return string.Empty;
-      }
+      return flag switch
+             {
+               TmFlags.LevelA => Flag1Name,
+               TmFlags.LevelB => Flag2Name,
+               TmFlags.LevelC => Flag3Name,
+               TmFlags.LevelD => Flag4Name,
+               _              => string.Empty
+             };
     }
     
     
     public string GetCustomFlagStatus(TmFlags flag)
     {
-      switch (flag)
-      {
-        case TmFlags.LevelA: return Flag1Status;
-        case TmFlags.LevelB: return Flag2Status;
-        case TmFlags.LevelC: return Flag3Status;
-        case TmFlags.LevelD: return Flag4Status;
-        default:             return string.Empty;
-      }
+      return flag switch
+             {
+               TmFlags.LevelA => Flag1Status,
+               TmFlags.LevelB => Flag2Status,
+               TmFlags.LevelC => Flag3Status,
+               TmFlags.LevelD => Flag4Status,
+               _              => string.Empty
+             };
     }
     
 

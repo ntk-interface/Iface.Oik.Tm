@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Iface.Oik.Tm.Dto;
 using Iface.Oik.Tm.Interfaces;
 
 namespace Iface.Oik.Tm.Api;
@@ -299,5 +300,60 @@ public partial class OikDataApi
     {
       return null;
     }
+  }
+
+
+  public async Task CreateTmTagNamedSet(string                     name,
+                                        TmType                     tmType,
+                                        IReadOnlyCollection<TmTag> tmTags,
+                                        PreferApi                  prefer = PreferApi.Auto)
+  {
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.CreateTmTagNamedSet(name, tmType, tmTags),
+                  null)
+     .ConfigureAwait(false);
+  }
+
+
+  public async Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetUpdatedValues(string name, PreferApi prefer = PreferApi.Auto)
+  {
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetTmStatusNamedSetUpdatedValues(name),
+                         null)
+            .ConfigureAwait(false);
+  }
+
+
+  public async Task<IReadOnlyCollection<TmAnalogRecord>> GetTmAnalogNamedSetUpdatedValues(string name, PreferApi prefer = PreferApi.Auto)
+  {
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetTmAnalogNamedSetUpdatedValues(name),
+                         null)
+            .ConfigureAwait(false);
+  }
+
+
+  public async Task<IReadOnlyCollection<TmAccumRecord>> GetTmAccumNamedSetUpdatedValues(string name, PreferApi prefer = PreferApi.Auto)
+  {
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetTmAccumNamedSetUpdatedValues(name),
+                         null)
+            .ConfigureAwait(false);
+  }
+
+
+  public async Task DeleteTmTagNamedSet(string    name,
+                                        TmType    tmType,
+                                        PreferApi prefer = PreferApi.Auto)
+  {
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.DeleteTmTagNamedSet(name, tmType),
+                  null)
+     .ConfigureAwait(false);
   }
 }

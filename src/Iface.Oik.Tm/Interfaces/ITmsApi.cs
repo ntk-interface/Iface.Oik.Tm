@@ -98,7 +98,16 @@ namespace Iface.Oik.Tm.Interfaces
     Task UpdateTagPropertiesAndClassData(TmTag tag);
 
     Task UpdateTagsClassDataExplicitly(IReadOnlyList<TmTag> tags);
-    Task UpdateTagProperties(TmTag                          tag);
+    
+    Task UpdateTagProperties(TmTag tag);
+    
+    Task CreateTmTagNamedSet(string name, TmType tmType, IReadOnlyCollection<TmTag> tmTags);
+    
+    Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetUpdatedValues(string name);
+    Task<IReadOnlyCollection<TmAnalogRecord>> GetTmAnalogNamedSetUpdatedValues(string name);
+    Task<IReadOnlyCollection<TmAccumRecord>>  GetTmAccumNamedSetUpdatedValues(string name);
+    
+    Task DeleteTmTagNamedSet(string name, TmType tmType);
     
     Task UpdateAnalogsClassDataExplicitly(IReadOnlyList<TmAnalog> tmAnalogs);
 

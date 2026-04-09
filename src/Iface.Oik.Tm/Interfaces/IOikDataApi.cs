@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Iface.Oik.Tm.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
 
 namespace Iface.Oik.Tm.Interfaces
@@ -159,6 +160,19 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task UpdateTagPropertiesAndClassData(TmTag     tag,
                                          PreferApi prefer = PreferApi.Auto);
+    
+    Task CreateTmTagNamedSet(string name, TmType tmType, IReadOnlyCollection<TmTag> tmTags, PreferApi prefer = PreferApi.Auto);
+    
+    Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetUpdatedValues(string name, 
+                                                                               PreferApi prefer = PreferApi.Auto);
+    
+    Task<IReadOnlyCollection<TmAnalogRecord>> GetTmAnalogNamedSetUpdatedValues(string    name, 
+                                                                               PreferApi prefer = PreferApi.Auto);
+    
+    Task<IReadOnlyCollection<TmAccumRecord>> GetTmAccumNamedSetUpdatedValues(string    name, 
+                                                                             PreferApi prefer = PreferApi.Auto);
+    
+    Task DeleteTmTagNamedSet(string name, TmType tmType, PreferApi prefer = PreferApi.Auto);
 
 
     Task<IReadOnlyCollection<TmClassStatus>> GetStatusesClasses(PreferApi prefer = PreferApi.Auto);

@@ -7,33 +7,21 @@ namespace Iface.Oik.Tm.Utils
   {
     public static TmNativeDefs.TmDataTypes ToNativeType(this TmType tmType)
     {
-      switch (tmType)
-      {
-        case TmType.Status:
-          return TmNativeDefs.TmDataTypes.Status;
-        case TmType.Analog:
-          return TmNativeDefs.TmDataTypes.Analog;
-        case TmType.Accum:
-          return TmNativeDefs.TmDataTypes.Accum;
-        case TmType.Channel:
-          return TmNativeDefs.TmDataTypes.Channel;
-        case TmType.Rtu:
-          return TmNativeDefs.TmDataTypes.Rtu;
-        case TmType.StatusGroup:
-          return TmNativeDefs.TmDataTypes.StatusGroup;
-        case TmType.AnalogGroup:
-          return TmNativeDefs.TmDataTypes.AnalogGroup;
-        case TmType.AccumGroup:
-          return TmNativeDefs.TmDataTypes.AccumGroup;
-        case TmType.RetroStatus:
-          return TmNativeDefs.TmDataTypes.RetroStatus;
-        case TmType.RetroAnalog:
-          return TmNativeDefs.TmDataTypes.RetroAnalog;
-        case TmType.RetroAccum:
-          return TmNativeDefs.TmDataTypes.RetroAccum;
-        default:
-          return 0;
-      }
+      return tmType switch
+             {
+               TmType.Status      => TmNativeDefs.TmDataTypes.Status,
+               TmType.Analog      => TmNativeDefs.TmDataTypes.Analog,
+               TmType.Accum       => TmNativeDefs.TmDataTypes.Accum,
+               TmType.Channel     => TmNativeDefs.TmDataTypes.Channel,
+               TmType.Rtu         => TmNativeDefs.TmDataTypes.Rtu,
+               TmType.StatusGroup => TmNativeDefs.TmDataTypes.StatusGroup,
+               TmType.AnalogGroup => TmNativeDefs.TmDataTypes.AnalogGroup,
+               TmType.AccumGroup  => TmNativeDefs.TmDataTypes.AccumGroup,
+               TmType.RetroStatus => TmNativeDefs.TmDataTypes.RetroStatus,
+               TmType.RetroAnalog => TmNativeDefs.TmDataTypes.RetroAnalog,
+               TmType.RetroAccum  => TmNativeDefs.TmDataTypes.RetroAccum,
+               _                  => 0
+             };
     }
   }
 }

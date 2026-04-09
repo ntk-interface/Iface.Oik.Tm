@@ -83,43 +83,24 @@ namespace Iface.Oik.Tm.Interfaces
     public bool IsClassDataLoaded => ClassId.HasValue ||
                                      ClassData != null;
 
-    public ushort NativeType
-    {
-      get
-      {
-        switch (Type)
-        {
-          case TmType.Status:
-            return (ushort) TmNativeDefs.TmDataTypes.Status;
-          case TmType.Analog:
-            return (ushort) TmNativeDefs.TmDataTypes.Analog;
-          case TmType.Accum:
-            return (ushort) TmNativeDefs.TmDataTypes.Accum;
-          default:
-            return 0;
-        }
-      }
-    }
+    public ushort NativeType => Type switch
+                                {
+                                  TmType.Status => (ushort)TmNativeDefs.TmDataTypes.Status,
+                                  TmType.Analog => (ushort)TmNativeDefs.TmDataTypes.Analog,
+                                  TmType.Accum  => (ushort)TmNativeDefs.TmDataTypes.Accum,
+                                  _             => 0
+                                };
 
 
-    public string TypeName
-    {
-      get
-      {
-        switch (Type)
-        {
-          case TmType.Status:
-            return "Сигнал";
-          case TmType.Analog:
-            return "Измерение";
-          case TmType.Accum:
-            return "Интегральное измерение";
-          default:
-            return "???";
-        }
-      }
-    }
+    public string TypeName => Type switch
+                              {
+                                TmType.Status => "Сигнал",
+                                TmType.Analog => "Измерение",
+                                TmType.Accum  => "Интегральное измерение",
+                                _             => "???"
+                              };
 
+    
     public object Reference { get; set; } // ссылка на связанный объект, например для схемы - выключатель, прибор и т.п.
 
 
@@ -153,35 +134,25 @@ namespace Iface.Oik.Tm.Interfaces
     {
       if (addr == null) return null;
 
-      switch (addr.Type)
-      {
-        case TmType.Analog:
-          return new TmAnalog(addr);
-        case TmType.Status:
-          return new TmStatus(addr);
-        case TmType.Accum:
-          return new TmAccum(addr);
-        default:
-          return null;
-      }
+      return addr.Type switch
+             {
+               TmType.Analog => new TmAnalog(addr),
+               TmType.Status => new TmStatus(addr),
+               TmType.Accum  => new TmAccum(addr),
+               _             => null
+             };
     }
 
 
     public static TmTag CreateFromTmcCommonPoint(TmNativeDefs.TCommonPoint commonPoint)
     {
-      switch (((TmNativeDefs.TmDataTypes) commonPoint.Type).ToTmType())
-      {
-        case TmType.Accum:
-          return TmAccum.CreateFromTmcCommonPointEx(commonPoint);
-        
-        case TmType.Analog:
-          return TmAnalog.CreateFromTmcCommonPointEx(commonPoint);;
-        
-        case TmType.Status:
-          return TmStatus.CreateFromTmcCommonPointEx(commonPoint);
-        default:
-          return null;
-      }
+      return ((TmNativeDefs.TmDataTypes)commonPoint.Type).ToTmType() switch
+             {
+               TmType.Status => TmStatus.CreateFromTmcCommonPointEx(commonPoint),
+               TmType.Analog => TmAnalog.CreateFromTmcCommonPointEx(commonPoint),
+               TmType.Accum  => TmAccum.CreateFromTmcCommonPointEx(commonPoint),
+               _             => null,
+             };
     }
 
 

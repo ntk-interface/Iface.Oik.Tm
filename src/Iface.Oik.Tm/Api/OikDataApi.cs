@@ -222,6 +222,55 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    private async Task<T> Execute<T>(PreferApi     userPreference,
+                                     PreferApi     defaultPreference,
+                                     Func<Task<T>> tmsAction,
+                                     Func<Task<T>> sqlAction,
+                                     Func<T>       errorAction = null)
+    {
+      var api = SelectApi(userPreference, defaultPreference, tmsAction != null, sqlAction != null);
+
+      if (api == ApiSelection.Tms && tmsAction != null)
+      {
+        return await tmsAction().ConfigureAwait(false);
+      }
+      if (api == ApiSelection.Sql && sqlAction != null)
+      {
+        return await sqlAction().ConfigureAwait(false);
+      }
+      
+      if (errorAction != null)
+      {
+        return errorAction();
+      }
+      return default; // TODO throw exception
+    }
+
+
+    private async Task Execute(PreferApi  userPreference,
+                               PreferApi  defaultPreference,
+                               Func<Task> tmsAction,
+                               Func<Task> sqlAction,
+                               Action     errorAction = null)
+    {
+      var api = SelectApi(userPreference, defaultPreference, tmsAction != null, sqlAction != null);
+
+      if (api == ApiSelection.Tms && tmsAction != null)
+      {
+        await tmsAction().ConfigureAwait(false);
+      }
+      if (api == ApiSelection.Sql && sqlAction != null)
+      {
+        await sqlAction().ConfigureAwait(false);
+      }
+      if (errorAction != null)
+      {
+        errorAction();
+      }
+      // TODO throw exception
+    }
+
+
     public async Task<int> GetLastTmcError(PreferApi prefer = PreferApi.Auto)
     {
       var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);

@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Iface.Oik.Tm.Dto;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
@@ -916,6 +917,95 @@ namespace Iface.Oik.Tm.Api
                                       sb,
                                       1024);
       tag.SetTmcObjectProperties(EncodingUtil.BytesToString(sb));
+    }
+
+
+    public async Task CreateTmTagNamedSet(string                     name,
+                                          TmType                     tmType,
+                                          IReadOnlyCollection<TmTag> tmTags)
+    {
+      var r = await Task.Run(() => TmNative.tmcTmvUserSetDefine(_cid,
+                                                        (ushort)tmType.ToNativeType(),
+                                                        EncodingUtil.StringToBytes(name),
+                                                        tmTags.Select(t => t.TmAddr.ToIntegerWithoutPadding()).ToArray(),
+                                                        (uint) tmTags.Count)).ConfigureAwait(false);
+      Console.WriteLine(r);
+    }
+
+
+    public async Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetUpdatedValues(string name)
+    {
+      var count = 0u;
+      var tmcCommonPointsPtr = await Task.Run(() => TmNative.tmcTmvUserSetGet(_cid,
+                                                                              (ushort) TmNativeDefs.TmDataTypes.Status,
+                                                                              changesOnly: true,
+                                                                              EncodingUtil.StringToBytes(name),
+                                                                              out count))
+                                         .ConfigureAwait(false);
+      try
+      {
+        return TmNativeUtil.ParsePointsFromTmcCommonPointPtr(tmcCommonPointsPtr, (int)count)
+                           .Select(TmStatusRecord.CreateFromTmcCommonPoint)
+                           .ToList();
+      }
+      finally
+      {
+        TmNative.tmcFreeMemory(tmcCommonPointsPtr);
+      }
+    }
+
+
+    public async Task<IReadOnlyCollection<TmAnalogRecord>> GetTmAnalogNamedSetUpdatedValues(string name)
+    {
+      var count = 0u;
+      var tmcCommonPointsPtr = await Task.Run(() => TmNative.tmcTmvUserSetGet(_cid,
+                                                                              (ushort) TmNativeDefs.TmDataTypes.Analog,
+                                                                              changesOnly: true,
+                                                                              EncodingUtil.StringToBytes(name),
+                                                                              out count))
+                                         .ConfigureAwait(false);
+      try
+      {
+        return TmNativeUtil.ParsePointsFromTmcCommonPointPtr(tmcCommonPointsPtr, (int)count)
+                           .Select(TmAnalogRecord.CreateFromTmcCommonPoint)
+                           .ToList();
+      }
+      finally
+      {
+        TmNative.tmcFreeMemory(tmcCommonPointsPtr);
+      }
+    }
+
+
+    public async Task<IReadOnlyCollection<TmAccumRecord>> GetTmAccumNamedSetUpdatedValues(string name)
+    {
+      var count = 0u;
+      var tmcCommonPointsPtr = await Task.Run(() => TmNative.tmcTmvUserSetGet(_cid,
+                                                                              (ushort) TmNativeDefs.TmDataTypes.Accum,
+                                                                              changesOnly: true,
+                                                                              EncodingUtil.StringToBytes(name),
+                                                                              out count))
+                                         .ConfigureAwait(false);
+      try
+      {
+        return TmNativeUtil.ParsePointsFromTmcCommonPointPtr(tmcCommonPointsPtr, (int)count)
+                           .Select(TmAccumRecord.CreateFromTmcCommonPoint)
+                           .ToList();
+      }
+      finally
+      {
+        TmNative.tmcFreeMemory(tmcCommonPointsPtr);
+      }
+    }
+
+
+    public async Task DeleteTmTagNamedSet(string name,
+                                          TmType tmType)
+    {
+      var r = await Task.Run(() => TmNative.tmcTmvUserSetDelete(_cid,
+                                                                (ushort)tmType.ToNativeType(),
+                                                                EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
+      Console.WriteLine(r);
     }
     
     
