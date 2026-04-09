@@ -72,13 +72,15 @@ namespace Iface.Oik.Tm.Native.Api
     public static extern void tmcFreeMemory(IntPtr memory);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern UInt32 tmcGetLastError();
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial uint tmcGetLastError();
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Int32 tmcGetLastErrorText(Int32  cid,
-                                                   IntPtr buf);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static unsafe partial int tmcGetLastErrorText(int    cid,
+                                                         byte** buf);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]

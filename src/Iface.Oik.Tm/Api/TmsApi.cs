@@ -48,34 +48,21 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<int> GetLastTmcError()
     {
-      return (int)await Task.Run(() => TmNative.tmcGetLastError())
-                            .ConfigureAwait(false);
+      return await Task.Run(TmNativeApi.GetLastTmcError)
+                       .ConfigureAwait(false);
     }
 
 
     public async Task<string> GetLastTmcErrorText()
     {
-      var bufPtr = Marshal.AllocHGlobal(1024);
-      await Task.Run(() => TmNative.tmcGetLastErrorText(_cid, bufPtr))
-                .ConfigureAwait(false);
-
-      var singleBufPtr = Marshal.PtrToStructure<IntPtr>(bufPtr); // массив строк, а не просто строка
-  	  Marshal.FreeHGlobal(bufPtr); // не забываем освобождать память из HGlobal
-	    var str = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(singleBufPtr);
-      TmNative.tmcFreeMemory(singleBufPtr);
-
-      return str;
+      return await Task.Run(() => TmNativeApi.GetLastTmcErrorText(_cid))
+                       .ConfigureAwait(false);
     }
 
-
+    
     public string GetConnectionErrorText()
     {
-      const uint bufSize = 256;
-      Span<byte> buf     = stackalloc byte[(int)bufSize];
-
-      var result = TmNative.tmcGetConnectErrorText(_cid, buf, bufSize);
-
-      return result ? EncodingUtil.BytesToString(buf) : "Неизвестная ошибка";
+      return TmNativeApi.GetTmcConnectionErrorText(_cid);
     }
 
 
