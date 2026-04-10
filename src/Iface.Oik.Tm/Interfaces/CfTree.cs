@@ -27,7 +27,7 @@ namespace Iface.Oik.Tm.Interfaces
   {
     public string             ProgName   { get; }
     public MSTreeNode         Parent     { get; }
-    public List<MSTreeNode>   Children   { get; set; } = new List<MSTreeNode>();
+    public List<MSTreeNode>   Children   { get; set; } = new();
     public BaseNodeProperties Properties { get; protected set; }
 
     public MSTreeNode(string             progName,

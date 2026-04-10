@@ -30,7 +30,7 @@ public static partial class TmNativeApi
 
     if (tEventPtr == nint.Zero)
     {
-      return new List<T>();
+      return new List<T>(0);
     }
 
     var curPtr = tEventPtr;
@@ -150,7 +150,7 @@ public static partial class TmNativeApi
 
     if (tmcEventsElixPtr == nint.Zero)
     {
-      return (new List<T>(), lastElix);
+      return (new List<T>(0), lastElix);
     }
 
     var curPtr = tmcEventsElixPtr;

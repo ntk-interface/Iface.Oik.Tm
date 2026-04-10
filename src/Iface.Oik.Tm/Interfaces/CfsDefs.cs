@@ -132,19 +132,19 @@ namespace Iface.Oik.Tm.Interfaces
 	public class AccessMask
 	{
 		public uint Mask { get; set; }
-		public Dictionary<string, string> Description { get; set; } = new Dictionary<string, string>();
+		public Dictionary<string, string> Description { get; set; } = new();
 	}
 	public class AccessMasksDescriptor
 	{
-		public string NamePrefix = "";
-		public Dictionary<string, string> ObjTypeName { get; set; } = new Dictionary<string, string>();
-		public List<AccessMask> AccessMasks { get; set; } = new List<AccessMask>();
+		public string                     NamePrefix = "";
+		public Dictionary<string, string> ObjTypeName { get; set; } = new();
+		public List<AccessMask>           AccessMasks { get; set; } = new();
 	}
 	public class ExtendedRight
 	{
 		public bool IsHeader { get; set; }
 		public byte ByteIndex { get; set; }
-		public Dictionary<string, string> Description { get; set; } = new Dictionary<string, string>();
+		public Dictionary<string, string> Description { get; set; } = new();
 	}
 	public class ExtendedRightsDescriptor
 	{
@@ -154,7 +154,7 @@ namespace Iface.Oik.Tm.Interfaces
 		public byte DoKeyID { get; set; }
 		public byte DoUserNick { get; set; }
 		public byte DoUserPwd { get; set; }
-		public List<ExtendedRight> Rights { get; set; } = new List<ExtendedRight>();
+		public List<ExtendedRight> Rights { get; set; } = new();
 	}
 	public class ExtendedUserData
 	{

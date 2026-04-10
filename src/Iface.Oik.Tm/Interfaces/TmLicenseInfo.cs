@@ -11,12 +11,12 @@ namespace Iface.Oik.Tm.Interfaces
     private readonly Regex _dataStringRegex = new
       Regex(@".*=.*", RegexOptions.Compiled);
 
-    public string                ActiveKeyId      { get; } // .1
-    public LicenseDataItem       Error            { get; } = new LicenseDataItem(); // .2
-    public LicenseDataItem       Addition1        { get; } = new LicenseDataItem(); // .3
-    public LicenseDataItem       Addition2        { get; } = new LicenseDataItem(); // .4
+    public string                ActiveKeyId      { get; }          // .1
+    public LicenseDataItem       Error            { get; } = new(); // .2
+    public LicenseDataItem       Addition1        { get; } = new(); // .3
+    public LicenseDataItem       Addition2        { get; } = new(); // .4
     public TmLicenseKey          ActiveKey        { get; }
-    public List<LicenseDataItem> LicenseDataItems { get; } = new List<LicenseDataItem>();
+    public List<LicenseDataItem> LicenseDataItems { get; } = new();
     
     public string ActiveKeyIdString => $"Активный ключ {(ActiveKeyId.IsNullOrEmpty() ? "???" : ActiveKeyId)}";
 

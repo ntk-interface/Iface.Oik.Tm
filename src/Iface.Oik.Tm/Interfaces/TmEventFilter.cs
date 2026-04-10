@@ -18,7 +18,7 @@ namespace Iface.Oik.Tm.Interfaces
     public DateTime?          EndTime             { get; set; }
     public TmEventTypes       Types               { get; set; }
     public TmEventImportances Importances         { get; set; }
-    public List<TmAddr>       TmAddrList          { get; } = new List<TmAddr>();
+    public List<TmAddr>       TmAddrList          { get; } = new();
     public List<int>          TmStatusClassIdList { get; set; }
     public bool               ExcludeFromReserve  { get; set; }
 
@@ -26,7 +26,7 @@ namespace Iface.Oik.Tm.Interfaces
     public Dictionary<int, HashSet<int>> ChannelAndRtuCollection { get; set; }
 
 
-    public List<TmUserActionCategory> Categories { get; } = new List<TmUserActionCategory>();
+    public List<TmUserActionCategory> Categories { get; } = new();
     
     public int OutputLimit { get; set; }
 
@@ -85,13 +85,13 @@ namespace Iface.Oik.Tm.Interfaces
 
     public List<int> EnsureTmStatusClassIdList()
     {
-      return TmStatusClassIdList ?? (TmStatusClassIdList = new List<int>());
+      return TmStatusClassIdList ??= new List<int>();
     }
 
 
     public Dictionary<int, HashSet<int>> EnsureChannelAndRtuCollection()
     {
-      return ChannelAndRtuCollection ?? (ChannelAndRtuCollection = new Dictionary<int, HashSet<int>>());
+      return ChannelAndRtuCollection ??= new Dictionary<int, HashSet<int>>();
     }
 
 

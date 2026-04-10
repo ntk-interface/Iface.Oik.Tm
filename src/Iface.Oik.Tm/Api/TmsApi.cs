@@ -1521,9 +1521,7 @@ namespace Iface.Oik.Tm.Api
       }
       else
       {
-        return (false, new List<TmControlScriptCondition> { 
-                   new TmControlScriptCondition(false, "Не определено регулирование") 
-                 });
+        return (false, new List<TmControlScriptCondition> { new(false, "Не определено регулирование") });
       }
 
       var handle = GCHandle.Alloc(0, GCHandleType.Pinned);
