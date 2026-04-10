@@ -35,8 +35,6 @@ namespace Iface.Oik.Tm.Interfaces
     Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags);
 
     Task UpdateTagPropertiesAndClassData(TmTag tag);
-    
-    Task UpdateTechObjectsProperties(IReadOnlyList<Tob> techObjects);
 
     Task<IReadOnlyCollection<ITmAnalogRetro[]>> GetAnalogsMicroSeries(IReadOnlyList<TmAnalog> analogs);
 

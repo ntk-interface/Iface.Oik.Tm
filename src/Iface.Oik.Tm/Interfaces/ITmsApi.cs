@@ -113,10 +113,6 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task UpdateStatusesClassDataExplicitly(IReadOnlyList<TmStatus> tmStatus);
 
-    Task UpdateTechObjectsProperties(IReadOnlyList<Tob> techObjects);
-
-    Task<IReadOnlyCollection<Tob>> GetTechObjects(TobFilter filter);
-
     Task<TmEventElix> GetCurrentEventsElix();
     
     Task<TmEventElix> GetRecentEventsElix(int          recentCount,
