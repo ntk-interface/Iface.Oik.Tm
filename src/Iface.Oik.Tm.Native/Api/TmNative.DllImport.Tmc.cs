@@ -241,12 +241,14 @@ namespace Iface.Oik.Tm.Native.Api
                                              UInt32                               time);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern IntPtr tmcTMValuesByListEx(Int32                      cid,
-                                                    UInt16                     tmType,
-                                                    Byte                       qFlags,
-                                                    UInt32                     count,
-                                                    [In] TmNativeDefs.TAdrTm[] addr);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static unsafe partial TmNativeDefsUnsafe.TCommonPoint* tmcTMValuesByListEx(
+      Int32                      cid,
+      UInt16                     tmType,
+      Byte                       qFlags,
+      UInt32                     count,
+      [In] TmNativeDefs.TAdrTm[] addr);
 
 
     [LibraryImport(Tmconn)]

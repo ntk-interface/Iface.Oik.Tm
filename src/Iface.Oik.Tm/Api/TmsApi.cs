@@ -924,12 +924,11 @@ namespace Iface.Oik.Tm.Api
                                           TmType                     tmType,
                                           IReadOnlyCollection<TmTag> tmTags)
     {
-      var r = await Task.Run(() => TmNative.tmcTmvUserSetDefine(_cid,
+      await Task.Run(() => TmNative.tmcTmvUserSetDefine(_cid,
                                                         (ushort)tmType.ToNativeType(),
                                                         EncodingUtil.StringToBytes(name),
                                                         tmTags.Select(t => t.TmAddr.ToIntegerWithoutPadding()).ToArray(),
                                                         (uint) tmTags.Count)).ConfigureAwait(false);
-      Console.WriteLine(r);
     }
 
 
@@ -939,7 +938,7 @@ namespace Iface.Oik.Tm.Api
                                           _cid,
                                           TmNativeDefs.TmDataTypes.Status,
                                           EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
-      return commonPoints.Select(TmStatusRecord.CreateFromNativeDto)
+      return commonPoints.Select(TmStatusRecord.CreateFromCommonPointDto)
                          .ToList();
     }
 
@@ -950,7 +949,7 @@ namespace Iface.Oik.Tm.Api
                                           _cid,
                                           TmNativeDefs.TmDataTypes.Analog,
                                           EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
-      return commonPoints.Select(TmAnalogRecord.CreateFromNativeDto)
+      return commonPoints.Select(TmAnalogRecord.CreateFromCommonPointDto)
                          .ToList();
     }
 
@@ -961,7 +960,7 @@ namespace Iface.Oik.Tm.Api
                                           _cid,
                                           TmNativeDefs.TmDataTypes.Accum,
                                           EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
-      return commonPoints.Select(TmAccumRecord.CreateFromNativeDto)
+      return commonPoints.Select(TmAccumRecord.CreateFromCommonPointDto)
                          .ToList();
     }
 
@@ -969,10 +968,9 @@ namespace Iface.Oik.Tm.Api
     public async Task DeleteTmTagNamedSet(string name,
                                           TmType tmType)
     {
-      var r = await Task.Run(() => TmNative.tmcTmvUserSetDelete(_cid,
-                                                                (ushort)tmType.ToNativeType(),
-                                                                EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
-      Console.WriteLine(r);
+      await Task.Run(() => TmNative.tmcTmvUserSetDelete(_cid,
+                                                        (ushort)tmType.ToNativeType(),
+                                                        EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
     }
     
     
@@ -3609,31 +3607,19 @@ namespace Iface.Oik.Tm.Api
     {
       if (statuses.IsNullOrEmpty()) return;
 
-      var count       = statuses.Count;
-      var tmcAddrList = new TmNativeDefs.TAdrTm[count];
-
-      for (var i = 0; i < count; i++)
+      var tmcAddrList = new TmNativeDefs.TAdrTm[statuses.Count];
+      for (var i = 0; i < statuses.Count; i++)
       {
         tmcAddrList[i] = statuses[i].TmAddr.ToAdrTm();
       }
 
-      var tmcCommonPointsPtr = TmNative.tmcTMValuesByListEx(_cid, (ushort)TmNativeDefs.TmDataTypes.Status, 0,
-                                                            (uint)count,
-                                                            tmcAddrList);
-      if (tmcCommonPointsPtr == IntPtr.Zero)
+      var commonPoints = TmNativeApi.GetTmValuesByListEx(_cid,
+                                                         TmNativeDefs.TmDataTypes.Status,
+                                                         tmcAddrList);
+      for (var i = 0; i < statuses.Count; i++)
       {
-        return;
+        statuses[i].FromCommonPointDto(commonPoints[i]);
       }
-
-      var structSize = Marshal.SizeOf(typeof(TmNativeDefs.TCommonPoint));
-      for (var i = 0; i < count; i++)
-      {
-        var currentPtr     = new IntPtr(tmcCommonPointsPtr.ToInt64() + i * structSize);
-        var tmcCommonPoint = Marshal.PtrToStructure<TmNativeDefs.TCommonPoint>(currentPtr);
-        statuses[i].FromTmcCommonPoint(tmcCommonPoint);
-      }
-
-      TmNative.tmcFreeMemory(tmcCommonPointsPtr);
     }
 
 
@@ -3647,31 +3633,19 @@ namespace Iface.Oik.Tm.Api
     {
       if (analogs.IsNullOrEmpty()) return;
 
-      var count       = analogs.Count;
-      var tmcAddrList = new TmNativeDefs.TAdrTm[count];
-
-      for (var i = 0; i < count; i++)
+      var tmcAddrList = new TmNativeDefs.TAdrTm[analogs.Count];
+      for (var i = 0; i < analogs.Count; i++)
       {
         tmcAddrList[i] = analogs[i].TmAddr.ToAdrTm();
       }
 
-      var tmcCommonPointsPtr = TmNative.tmcTMValuesByListEx(_cid, (ushort)TmNativeDefs.TmDataTypes.Analog, 0,
-                                                            (uint)count,
-                                                            tmcAddrList);
-      if (tmcCommonPointsPtr == IntPtr.Zero)
+      var commonPoints = TmNativeApi.GetTmValuesByListEx(_cid,
+                                                         TmNativeDefs.TmDataTypes.Analog,
+                                                         tmcAddrList);
+      for (var i = 0; i < analogs.Count; i++)
       {
-        return;
+        analogs[i].FromCommonPointDto(commonPoints[i]);
       }
-
-      var structSize = Marshal.SizeOf(typeof(TmNativeDefs.TCommonPoint));
-      for (var i = 0; i < count; i++)
-      {
-        var currentPtr     = new IntPtr(tmcCommonPointsPtr.ToInt64() + i * structSize);
-        var tmcCommonPoint = Marshal.PtrToStructure<TmNativeDefs.TCommonPoint>(currentPtr);
-        analogs[i].FromTmcCommonPoint(tmcCommonPoint);
-      }
-
-      TmNative.tmcFreeMemory(tmcCommonPointsPtr);
     }
     
     private void UpdateAccumSynchronously(TmAccum accum)
@@ -3683,32 +3657,20 @@ namespace Iface.Oik.Tm.Api
     private void UpdateAccumsSynchronously(IReadOnlyList<TmAccum> accums)
     {
       if (accums.IsNullOrEmpty()) return;
-
-      var count       = accums.Count;
-      var tmcAddrList = new TmNativeDefs.TAdrTm[count];
-
-      for (var i = 0; i < count; i++)
+      
+      var tmcAddrList = new TmNativeDefs.TAdrTm[accums.Count];
+      for (var i = 0; i < accums.Count; i++)
       {
         tmcAddrList[i] = accums[i].TmAddr.ToAdrTm();
       }
 
-      var tmcCommonPointsPtr = TmNative.tmcTMValuesByListEx(_cid, (ushort)TmNativeDefs.TmDataTypes.Accum, 0,
-                                                            (uint)count,
-                                                            tmcAddrList);
-      if (tmcCommonPointsPtr == IntPtr.Zero)
+      var commonPoints = TmNativeApi.GetTmValuesByListEx(_cid,
+                                                         TmNativeDefs.TmDataTypes.Accum,
+                                                         tmcAddrList);
+      for (var i = 0; i < accums.Count; i++)
       {
-        return;
+        accums[i].FromCommonPointDto(commonPoints[i]);
       }
-
-      var structSize = Marshal.SizeOf(typeof(TmNativeDefs.TCommonPoint));
-      for (var i = 0; i < count; i++)
-      {
-        var currentPtr     = new IntPtr(tmcCommonPointsPtr.ToInt64() + i * structSize);
-        var tmcCommonPoint = Marshal.PtrToStructure<TmNativeDefs.TCommonPoint>(currentPtr);
-        accums[i].FromTmcCommonPoint(tmcCommonPoint);
-      }
-
-      TmNative.tmcFreeMemory(tmcCommonPointsPtr);
     }
 
 

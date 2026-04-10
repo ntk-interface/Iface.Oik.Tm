@@ -27,8 +27,8 @@ public static partial class TmNativeApi
     var classDataPtr = type switch
                        {
                          TmNativeDefs.TmDataTypes.Status => TmNative.tmcGetStatusClassData(cid, 1, [tmAddr]),
-    TmNativeDefs.TmDataTypes.Analog => TmNative.tmcGetAnalogClassData(cid, 1, [tmAddr]),
-    _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+                         TmNativeDefs.TmDataTypes.Analog => TmNative.tmcGetAnalogClassData(cid, 1, [tmAddr]),
+                         _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
     };
 
     if (classDataPtr == nint.Zero)
@@ -75,29 +75,22 @@ public static partial class TmNativeApi
                                                                         short rtu,
                                                                         short point)
   {
-    var tmAddr = new TmNativeDefs.TAdrTm
-    {
-      Ch    = ch,
-      RTU   = rtu,
-      Point = point
-    };
-
-    var tmcCommonPointsPtr = TmNative.tmcTMValuesByListEx(cid,
-                                                          (ushort)TmNativeDefs.TmDataTypes.Analog, 0,
-                                                          1,
-                                                          new[] { tmAddr });
-
-    if (tmcCommonPointsPtr == nint.Zero)
+    var tCommonPoints = GetTmValuesByListExUnsafe(cid,
+                                                  TmNativeDefs.TmDataTypes.Analog,
+                                                  new[] { new TmNativeDefs.TAdrTm
+                                                  {
+                                                    Ch    = ch,
+                                                    RTU   = rtu,
+                                                    Point = point
+                                                  } });
+    if (tCommonPoints.Length == 0)
     {
       throw new TmNativeException($"Ошибка получения tCommonPoint для тэга #TT:{ch}:{rtu}:{point}");
     }
-    
-    var tCommonPoint = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.TCommonPoint>((byte*)tmcCommonPointsPtr);
-    var tAnalogPoint = TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.TAnalogPoint>(tCommonPoint.Data);
-    
-    TmNative.tmcFreeMemory(tmcCommonPointsPtr);
 
-    return tAnalogPoint;
+    var tCommonPoint = tCommonPoints[0];
+
+    return TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.TAnalogPoint>(tCommonPoint.Data);
   }
 
 
@@ -128,6 +121,45 @@ public static partial class TmNativeApi
       }
 
       return new ReadOnlySpan<TmNativeDefsUnsafe.TCommonPoint>(ptr, (int)count).ToArray();
+    }
+    finally
+    {
+      if (ptr != null)
+      {
+        TmNative.tmcFreeMemory((IntPtr) ptr);
+      }
+    }
+  }
+
+
+  public static IReadOnlyList<TCommonPointDto> GetTmValuesByListEx(int                                      cid,
+                                                                   TmNativeDefs.TmDataTypes                 type,
+                                                                   IReadOnlyCollection<TmNativeDefs.TAdrTm> addrList)
+  {
+    return GetTmValuesByListExUnsafe(cid, type, addrList).Select(TCommonPointDto.Create).ToList();
+  }
+  
+  
+  private static unsafe TmNativeDefsUnsafe.TCommonPoint[] GetTmValuesByListExUnsafe(
+    int                                      cid,
+    TmNativeDefs.TmDataTypes                 type,
+    IReadOnlyCollection<TmNativeDefs.TAdrTm> addrList)
+  {
+    TmNativeDefsUnsafe.TCommonPoint* ptr = null;
+    
+    try
+    {
+      ptr = TmNative.tmcTMValuesByListEx(cid,
+                                         (ushort) type,
+                                         0,
+                                         (uint) addrList.Count, 
+                                         addrList.ToArray());
+      if (ptr == null)
+      {
+        return Array.Empty<TmNativeDefsUnsafe.TCommonPoint>();
+      }
+
+      return new ReadOnlySpan<TmNativeDefsUnsafe.TCommonPoint>(ptr, addrList.Count).ToArray();
     }
     finally
     {

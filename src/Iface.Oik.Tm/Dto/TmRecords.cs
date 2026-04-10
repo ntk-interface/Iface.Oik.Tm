@@ -14,7 +14,7 @@ public record struct TmStatusRecord(ushort    Ch,
                                     TmS2Flags S2Flags,
                                     DateTime? ChangeTime)
 {
-  public static TmStatusRecord CreateFromNativeDto(TCommonPointDto dto)
+  public static TmStatusRecord CreateFromCommonPointDto(TCommonPointDto dto)
   {
     if (dto.StatusPointDto == null)
     {
@@ -39,7 +39,7 @@ public record struct TmAnalogRecord(ushort    Ch,
                                     TmFlags   Flags,
                                     DateTime? ChangeTime)
 {
-  public static TmAnalogRecord CreateFromNativeDto(TCommonPointDto dto)
+  public static TmAnalogRecord CreateFromCommonPointDto(TCommonPointDto dto)
   {
     if (dto.AnalogPointDto == null)
     {
@@ -64,7 +64,7 @@ public record struct TmAccumRecord(ushort    Ch,
                                    TmFlags   Flags,
                                    DateTime? ChangeTime)
 {
-  public static TmAccumRecord CreateFromNativeDto(TCommonPointDto dto)
+  public static TmAccumRecord CreateFromCommonPointDto(TCommonPointDto dto)
   {
     if (dto.AccumPointDto == null)
     {

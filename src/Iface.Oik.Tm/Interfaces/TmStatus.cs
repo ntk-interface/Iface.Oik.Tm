@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Iface.Oik.Tm.Dto;
+using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
@@ -396,6 +397,21 @@ namespace Iface.Oik.Tm.Interfaces
           break;
         }
       }
+    }
+    
+    
+    public void FromCommonPointDto(TCommonPointDto dto)
+    {
+      if (dto.StatusPointDto == null)
+      {
+        return;
+      }
+      IsInit  = (dto.TmFlags != 0xFFFF);
+      Status  = dto.StatusPointDto.Value.Status;
+      Flags   = (TmFlags) dto.StatusPointDto.Value.Flags;
+      S2Flags = (TmS2Flags) dto.TmS2;
+      ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(dto.TmLocalUt,
+                                                                   dto.TmLocalMs);
     }
 
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Iface.Oik.Tm.Dto;
+using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
@@ -327,29 +328,22 @@ namespace Iface.Oik.Tm.Interfaces
     {
       return fakeLoad.ToString(format);
     }
-
-
-    public void FromTmcCommonPoint(TmNativeDefs.TCommonPoint tmcCommonPoint)
+    
+    
+    public void FromCommonPointDto(TCommonPointDto dto)
     {
-      TmNativeDefs.TAccumPoint tmcAccumPoint;
-      try
-      {
-        tmcAccumPoint = TmNativeUtil.GetAccumPointFromCommonPoint(tmcCommonPoint);
-      }
-      catch (ArgumentException)
+      if (dto.AccumPointDto == null)
       {
         return;
       }
-
-      IsInit = tmcCommonPoint.TM_Flags != 0xFFFF && !tmcAccumPoint.Value.Equals(InvalidValue);
-      Value  = tmcAccumPoint.Value;
-      Load   = tmcAccumPoint.Load;
-      Flags  = (TmFlags) tmcAccumPoint.Flags;
-      ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(tmcCommonPoint.tm_local_ut,
-                                                                   tmcCommonPoint.tm_local_ms);
-      Width     = (byte) (tmcAccumPoint.Format & 0x0F);
-      Precision = (byte) (tmcAccumPoint.Format >> 4);
+      IsInit = (dto.TmFlags != 0xFFFF) && !dto.AccumPointDto.Value.Value.Equals(InvalidValue);
+      Value  = dto.AccumPointDto.Value.Value;
+      Load   = dto.AccumPointDto.Value.Load;
+      Flags  = (TmFlags) dto.AccumPointDto.Value.Flags;
+      ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(dto.TmLocalUt,
+                                                                   dto.TmLocalMs);
     }
+    
 
     public static TmAccum CreateFromTmcCommonPointEx(TmNativeDefs.TCommonPoint tmcCommonPoint)
     {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using Iface.Oik.Tm.Dto;
+using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
@@ -340,27 +341,19 @@ namespace Iface.Oik.Tm.Interfaces
         }
       }
     }
-
-
-    public void FromTmcCommonPoint(TmNativeDefs.TCommonPoint tmcCommonPoint)
+    
+    
+    public void FromCommonPointDto(TCommonPointDto dto)
     {
-      TmNativeDefs.TAnalogPoint tmcAnalogPoint;
-      try
-      {
-        tmcAnalogPoint = TmNativeUtil.GetAnalogPointFromCommonPoint(tmcCommonPoint);
-      }
-      catch (ArgumentException)
+      if (dto.AnalogPointDto == null)
       {
         return;
       }
-
-      IsInit = (tmcCommonPoint.TM_Flags != 0xFFFF) && !tmcAnalogPoint.AsFloat.Equals(InvalidValue);
-      Value  = tmcAnalogPoint.AsFloat;
-      Flags  = (TmFlags) tmcAnalogPoint.Flags;
-      ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(tmcCommonPoint.tm_local_ut,
-                                                                   tmcCommonPoint.tm_local_ms);
-      Width     = (byte) (tmcAnalogPoint.Format & 0x0F);
-      Precision = (byte) (tmcAnalogPoint.Format >> 4);
+      IsInit  = (dto.TmFlags != 0xFFFF) && !dto.AnalogPointDto.Value.AsFloat.Equals(InvalidValue);
+      Value  = dto.AnalogPointDto.Value.AsFloat;
+      Flags   = (TmFlags) dto.AnalogPointDto.Value.Flags;
+      ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(dto.TmLocalUt,
+                                                                   dto.TmLocalMs);
     }
 
 
