@@ -569,5 +569,10 @@ namespace Iface.Oik.Tm.Native.Utils
 
       return *(T*)ptr;
     }
+    
+    public static long GetUtcTimestampFromDateTime(DateTime dateTime)
+    {
+      return ((DateTimeOffset) dateTime).ToUnixTimeSeconds();
+    }
   }
 }
