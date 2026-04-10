@@ -91,33 +91,14 @@ namespace Iface.Oik.Tm.Api
     {
       var cfCid = await GetCfCid().ConfigureAwait(false);
 
-      return await Task.Run(() => GenerateTokenForExternalAppSync(cfCid))
+      return await Task.Run(() => TmNativeApi.GenerateTokenForExternalApp(cfCid))
                        .ConfigureAwait(false);
     }
 
-    public (string user, string password) GenerateTokenForExternalAppSync(nint cfCid)
+
+    public async Task<nint> GetCfCid()
     {
-      const int tokenLength = 64;
-      Span<byte>       user        = stackalloc byte[tokenLength];
-      Span<byte>       password    = stackalloc byte[tokenLength];
-
-      const int errStringLength  = 1000;
-      Span<byte>       errString = stackalloc byte[errStringLength];
-
-      TmNative.cfsIfpcGetLogonToken(cfCid,
-                                    user,
-                                    password,
-                                    out uint errCode,
-                                    errString,
-                                    errStringLength);
-
-      return (EncodingUtil.BytesToString(user), EncodingUtil.BytesToString(password));
-    }
-
-
-    public async Task<IntPtr> GetCfCid()
-    {
-      return await Task.Run(() => TmNative.tmcGetCfsHandle(_cid))
+      return await Task.Run(() => TmNativeApi.GetCfCid(_cid))
                        .ConfigureAwait(false);
     }
 
@@ -137,8 +118,8 @@ namespace Iface.Oik.Tm.Api
 
 
     public async Task<IReadOnlyCollection<TmStatusRetro>> GetStatusRetroEx(TmStatus            status,
-                                                                          TmStatusRetroFilter filter,
-                                                                          bool                getRealTelemetry = false)
+                                                                           TmStatusRetroFilter filter,
+                                                                           bool                getRealTelemetry = false)
     {
       var (ch, rtu, point) = status.TmAddr.GetTupleShort();
 
