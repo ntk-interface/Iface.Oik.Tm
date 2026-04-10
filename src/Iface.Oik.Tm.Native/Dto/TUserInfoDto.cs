@@ -21,7 +21,7 @@ public record TUserInfoDto
 
   public string KeyId           { get; init; } = string.Empty;
   public int    GroupId         { get; init; }
-  public byte[] PermissionBytes { get; init; } =  [];
+  public byte[] PermissionBytes { get; init; } = Array.Empty<byte>();
 
   internal static unsafe TUserInfoDto Create(uint id, TmNativeDefsUnsafe.TUserInfo userInfo)
   {

@@ -2098,8 +2098,7 @@ namespace Iface.Oik.Tm.Api
     {
       (var binData, uint errCode, _) = await SecGetBin(uName, oName, binName).ConfigureAwait(false);
 
-      return errCode == 0 ? binData : []
-      ;
+      return errCode == 0 ? binData : Array.Empty<byte>();
     }
 
     public async Task<(byte[], uint, string)> SecGetBin(string uName,

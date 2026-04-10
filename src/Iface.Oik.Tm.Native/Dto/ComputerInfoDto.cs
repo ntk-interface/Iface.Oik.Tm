@@ -1,3 +1,4 @@
+using System;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 
@@ -19,7 +20,7 @@ public record ComputerInfoDto
   public byte  NtProductType { get; init; }
   public bool  Win64         { get; init; }
 
-  public byte[] SoftwareKeyOctets { get; init; } = [];
+  public byte[] SoftwareKeyOctets { get; init; } = Array.Empty<byte>();
 
   public uint   CurrentGMT { get; init; }
   public ushort CurrentMs  { get; init; }
@@ -37,7 +38,7 @@ public record ComputerInfoDto
   public string UserAddr { get; init; } = string.Empty;
 
   public uint   UserIfIp { get; init; }
-  public uint[] IpAddrs  { get; init; } = [];
+  public uint[] IpAddrs  { get; init; } = Array.Empty<uint>();
 
   public uint AccessMask { get; init; }
 

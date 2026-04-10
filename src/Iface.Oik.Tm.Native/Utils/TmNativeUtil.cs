@@ -528,7 +528,7 @@ namespace Iface.Oik.Tm.Native.Utils
     {
       if (ptr == null || length <= 0)
       {
-        return [];
+        return Array.Empty<byte>();
       }
 
       var result = new byte[length];
@@ -546,7 +546,7 @@ namespace Iface.Oik.Tm.Native.Utils
     {
       if (ptr == null || length <= 0)
       {
-        return [];
+        return Array.Empty<uint>();
       }
 
       var result = new uint[length];

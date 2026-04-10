@@ -1,3 +1,4 @@
+using System;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 
@@ -7,11 +8,11 @@ public record TDomainInfoDto
 {
   public uint   PrimaryDomainError { get; init; }
   public string PrimaryDomainName  { get; init; } = string.Empty;
-  public byte[] PrimaryDomainSid   { get; init; } = [];
+  public byte[] PrimaryDomainSid   { get; init; } = Array.Empty<byte>();
 
   public uint   AccountDomainError { get; init; }
   public string AccountDomainName  { get; init; } = string.Empty;
-  public byte[] AccountDomainSid   { get; init; } = [];
+  public byte[] AccountDomainSid   { get; init; } = Array.Empty<byte>();
 
   internal static unsafe TDomainInfoDto Create(TmNativeDefsUnsafe.DomainInfoS domInfo)
   {

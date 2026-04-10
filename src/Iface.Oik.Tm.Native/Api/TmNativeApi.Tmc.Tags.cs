@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Collections.Generic;
 using System.Linq;
 using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
@@ -26,9 +25,9 @@ public static partial class TmNativeApi
 
     var classDataPtr = type switch
                        {
-                         TmNativeDefs.TmDataTypes.Status => TmNative.tmcGetStatusClassData(cid, 1, [tmAddr]),
-                         TmNativeDefs.TmDataTypes.Analog => TmNative.tmcGetAnalogClassData(cid, 1, [tmAddr]),
-                         _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+                         TmNativeDefs.TmDataTypes.Status => TmNative.tmcGetStatusClassData(cid, 1, new [] {tmAddr}),
+                         TmNativeDefs.TmDataTypes.Analog => TmNative.tmcGetAnalogClassData(cid, 1, new [] {tmAddr}),
+                         _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
     };
 
     if (classDataPtr == nint.Zero)
