@@ -47,45 +47,27 @@ namespace Iface.Oik.Tm.Interfaces
 
     public static TmAlarm CreateFromDto(TmAlarmDto dto)
     {
-      switch ((TmAlarmType) dto.Typ)
-      {
-        case TmAlarmType.Value:
-          return TmAlarmValue.CreateTmAlarmValueFromDto(dto);
-
-        case TmAlarmType.Analog:
-          return TmAlarmAnalog.CreateTmAlarmAnalogFromDto(dto);
-
-        case TmAlarmType.Expression:
-          return TmAlarmExpression.CreateTmAlarmExpressionFromDto(dto);
-
-        case TmAlarmType.Zonal:
-          return TmAlarmZonal.CreateTmAlarmZonalFromDto(dto);
-
-        default:
-          return null;
-      }
+      return (TmAlarmType)dto.Typ switch
+             {
+               TmAlarmType.Value      => TmAlarmValue.CreateTmAlarmValueFromDto(dto),
+               TmAlarmType.Analog     => TmAlarmAnalog.CreateTmAlarmAnalogFromDto(dto),
+               TmAlarmType.Expression => TmAlarmExpression.CreateTmAlarmExpressionFromDto(dto),
+               TmAlarmType.Zonal      => TmAlarmZonal.CreateTmAlarmZonalFromDto(dto),
+               _                      => null
+             };
     }
 
 
     public static TmAlarm CreateFromDto(TmAlarmDto dto, TmAnalog tmAnalog)
     {
-      switch ((TmAlarmType) dto.Typ)
-      {
-        case TmAlarmType.Value:
-          return TmAlarmValue.CreateTmAlarmValueFromDto(dto, tmAnalog);
-        
-        case TmAlarmType.Expression:
-          return TmAlarmExpression.CreateTmAlarmExpressionFromDto(dto, tmAnalog);
-
-        case TmAlarmType.Analog:
-          return TmAlarmAnalog.CreateTmAlarmAnalogFromDto(dto, tmAnalog);
-
-        case TmAlarmType.Zonal:
-          return TmAlarmZonal.CreateTmAlarmZonalFromDto(dto, tmAnalog);
-
-        default:
-          return null;
-      }
+      return (TmAlarmType)dto.Typ switch
+             {
+               TmAlarmType.Value      => TmAlarmValue.CreateTmAlarmValueFromDto(dto, tmAnalog),
+               TmAlarmType.Expression => TmAlarmExpression.CreateTmAlarmExpressionFromDto(dto, tmAnalog),
+               TmAlarmType.Analog     => TmAlarmAnalog.CreateTmAlarmAnalogFromDto(dto, tmAnalog),
+               TmAlarmType.Zonal      => TmAlarmZonal.CreateTmAlarmZonalFromDto(dto, tmAnalog),
+               _                      => null
+             };
     }
   }
 }

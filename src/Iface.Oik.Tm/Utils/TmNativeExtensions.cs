@@ -7,33 +7,21 @@ namespace Iface.Oik.Tm.Utils
   {
     public static TmType ToTmType(this TmNativeDefs.TmDataTypes nativeType)
     {
-      switch (nativeType)
-      {
-        case TmNativeDefs.TmDataTypes.Status:
-          return TmType.Status;
-        case TmNativeDefs.TmDataTypes.Analog:
-          return TmType.Analog;
-        case TmNativeDefs.TmDataTypes.Accum:
-          return TmType.Accum;
-        case TmNativeDefs.TmDataTypes.Channel:
-          return TmType.Channel;
-        case TmNativeDefs.TmDataTypes.Rtu:
-          return TmType.Rtu;
-        case TmNativeDefs.TmDataTypes.StatusGroup:
-          return TmType.StatusGroup;
-        case TmNativeDefs.TmDataTypes.AnalogGroup:
-          return TmType.AnalogGroup;
-        case TmNativeDefs.TmDataTypes.AccumGroup:
-          return TmType.AccumGroup;
-        case TmNativeDefs.TmDataTypes.RetroStatus:
-          return TmType.RetroStatus;
-        case TmNativeDefs.TmDataTypes.RetroAnalog:
-          return TmType.RetroAnalog;
-        case TmNativeDefs.TmDataTypes.RetroAccum:
-          return TmType.RetroAccum;
-        default:
-          return TmType.Unknown;
-      }
+      return nativeType switch
+             {
+               TmNativeDefs.TmDataTypes.Status      => TmType.Status,
+               TmNativeDefs.TmDataTypes.Analog      => TmType.Analog,
+               TmNativeDefs.TmDataTypes.Accum       => TmType.Accum,
+               TmNativeDefs.TmDataTypes.Channel     => TmType.Channel,
+               TmNativeDefs.TmDataTypes.Rtu         => TmType.Rtu,
+               TmNativeDefs.TmDataTypes.StatusGroup => TmType.StatusGroup,
+               TmNativeDefs.TmDataTypes.AnalogGroup => TmType.AnalogGroup,
+               TmNativeDefs.TmDataTypes.AccumGroup  => TmType.AccumGroup,
+               TmNativeDefs.TmDataTypes.RetroStatus => TmType.RetroStatus,
+               TmNativeDefs.TmDataTypes.RetroAnalog => TmType.RetroAnalog,
+               TmNativeDefs.TmDataTypes.RetroAccum  => TmType.RetroAccum,
+               _                                    => TmType.Unknown
+             };
     }
   }
 }

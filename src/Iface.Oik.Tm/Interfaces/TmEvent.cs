@@ -1099,37 +1099,27 @@ namespace Iface.Oik.Tm.Interfaces
 
     public static string ImportanceToAlias(int importance)
     {
-      switch (importance)
-      {
-        case 0:
-          return "ОС";
-        case 1:
-          return "ПС2";
-        case 2:
-          return "ПС1";
-        case 3:
-          return "АС";
-        default:
-          return string.Empty;
-      }
+      return importance switch
+             {
+               0 => "ОС",
+               1 => "ПС2",
+               2 => "ПС1",
+               3 => "АС",
+               _ => string.Empty
+             };
     }
 
 
     public static string ImportanceToName(int importance)
     {
-      switch (importance)
-      {
-        case 0:
-          return "Оперативного состояния";
-        case 1:
-          return "Предупредительные 2";
-        case 2:
-          return "Предупредительные 1";
-        case 3:
-          return "Аварийные";
-        default:
-          return string.Empty;
-      }
+      return importance switch
+             {
+               0 => "Оперативного состояния",
+               1 => "Предупредительные 2",
+               2 => "Предупредительные 1",
+               3 => "Аварийные",
+               _ => string.Empty
+             };
     }
 
 

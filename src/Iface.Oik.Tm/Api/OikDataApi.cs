@@ -109,47 +109,24 @@ namespace Iface.Oik.Tm.Api
 
     private void HandleTmsCallbackAlerts(byte reason, byte importance)
     {
-      var eventArgs = new TmAlertEventArgs();
-
-      switch ((char) reason)
+      TmAlertsChanged.Invoke(this, new TmAlertEventArgs
       {
-        case 'a':
-          eventArgs.Reason = TmAlertEventReason.Added;
-          break;
-
-        case 'r':
-          eventArgs.Reason = TmAlertEventReason.Removed;
-          break;
-
-        default:
-          eventArgs.Reason = TmAlertEventReason.Unknown;
-          break;
-      }
-
-      switch ((char) importance)
-      {
-        case '0':
-          eventArgs.Importance = TmEventImportances.Imp0;
-          break;
-
-        case '1':
-          eventArgs.Importance = TmEventImportances.Imp1;
-          break;
-
-        case '2':
-          eventArgs.Importance = TmEventImportances.Imp2;
-          break;
-
-        case '3':
-          eventArgs.Importance = TmEventImportances.Imp3;
-          break;
-
-        default:
-          eventArgs.Importance = TmEventImportances.None;
-          break;
-      }
-
-      TmAlertsChanged.Invoke(this, eventArgs);
+        Reason = (char)reason switch
+                 {
+                   'a' => TmAlertEventReason.Added,
+                   'r' => TmAlertEventReason.Removed,
+                   _   => TmAlertEventReason.Unknown
+                 },
+        
+        Importance = (char)importance switch
+                     {
+                       '0' => TmEventImportances.Imp0,
+                       '1' => TmEventImportances.Imp1,
+                       '2' => TmEventImportances.Imp2,
+                       '3' => TmEventImportances.Imp3,
+                       _   => TmEventImportances.None
+                     }
+      });
     }
 
 
