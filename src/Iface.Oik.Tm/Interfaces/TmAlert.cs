@@ -108,7 +108,7 @@ namespace Iface.Oik.Tm.Interfaces
                          dto.AckTime,
                          dto.AckUser,
                          dto.ClassId ?? 0,
-                         TmAddr.CreateFromSqlTmaAndTmaType((ushort) (dto.TmType ?? 0), dto.Tma),
+                         TmAddr.CreateFromTmaAndTmaType((ushort) (dto.TmType ?? 0), dto.Tma),
                          dto.MapToTmAnalogMicroSeriesDto().MapToITmAnalogRetroArray(),
                          TmAnalogTechParameters.CreateFromDto(dto.MapToTmAnalogTechParametersDto())
       );

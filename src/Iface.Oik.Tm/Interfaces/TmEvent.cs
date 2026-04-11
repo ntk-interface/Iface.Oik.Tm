@@ -26,7 +26,7 @@ namespace Iface.Oik.Tm.Interfaces
     public int          Importance           { get; private set; }
     public int          TmClassId            { get; private set; }
     public TmType       TmAddrType           { get; private set; }
-    public uint         TmAddrComplexInteger { get; private set; } // sql: tma // one-based, 0=none
+    public int          TmAddrTma            { get; private set; }
     public string       TmAddrString         { get; private set; }
     public object       Reference            { get; private set; }
     public DateTime?    FixTime              { get; private set; }
@@ -129,7 +129,7 @@ namespace Iface.Oik.Tm.Interfaces
                                         string    typeString,
                                         string    username,
                                         short     importance,
-                                        int       tmAddrComplexInteger, // one-based, 0=none
+                                        int       tma,
                                         string    tmAddrString,
                                         string    tmTypeString,
                                         short?    tmAddrNativeType,
@@ -194,7 +194,7 @@ namespace Iface.Oik.Tm.Interfaces
         Importance           = importance,
         TmClassId            = classId ?? -1,
         TmAddrType           = ((TmNativeDefs.TmDataTypes)(ushort)(tmAddrNativeType ?? 0)).ToTmType(),
-        TmAddrComplexInteger = (uint)tmAddrComplexInteger,
+        TmAddrTma            = tma,
         AckTime              = ackTime.NullIfEpoch(),
         AckUser              = ackUser,
         IsFromReserve        = tsExtraFlags != null && tsExtraFlags.Count > 4 && tsExtraFlags[4] == true,
@@ -206,7 +206,7 @@ namespace Iface.Oik.Tm.Interfaces
         tmEvent.Elix = TmEventElix.CreateFromByteArray(elixBytes);
       }
 
-      if (tmAddrComplexInteger != 0)
+      if (tma != 0)
       {
         tmEvent.TmAddrString = tmAddrString;
       }
@@ -229,10 +229,9 @@ namespace Iface.Oik.Tm.Interfaces
     {
       var alarmEvent = CreateFromTEvent(tEvent, eventAddData, sourceAnalog.Name, elix);
 
-      alarmEvent.TmAddrString = $"#TT{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
-      alarmEvent.TmAddrComplexInteger =
-        (uint)(tEvent.Point + (tEvent.Rtu << 16) + (tEvent.Ch << 24));
-      alarmEvent.TmAddrType = TmType.Analog;
+      alarmEvent.TmAddrString = TmAddr.EncodeString(TmType.Analog, tEvent.Ch, tEvent.Rtu, tEvent.Point);
+      alarmEvent.TmAddrTma    = TmAddr.EncodeTma(tEvent.Ch, tEvent.Rtu, tEvent.Point);
+      alarmEvent.TmAddrType   = TmType.Analog;
 
       alarmEvent.TypeString         = alarmTypeName;
       alarmEvent.ExplicitTypeString = "Уставка";
@@ -257,10 +256,9 @@ namespace Iface.Oik.Tm.Interfaces
     {
       InitializeTmEvent(dto);
 
-      TmAddrString = $"#TT{dto.Ch}:{dto.Rtu}:{dto.Point}";
-      TmAddrComplexInteger =
-        (uint)(dto.Point + (dto.Rtu << 16) + (dto.Ch << 24));
-      TmAddrType = TmType.Analog;
+      TmAddrString = TmAddr.EncodeString(TmType.Analog, dto.Ch, dto.Rtu, dto.Point);
+      TmAddrTma    = TmAddr.EncodeTma(dto.Ch, dto.Rtu, dto.Point);
+      TmAddrType   = TmType.Analog;
 
       TypeString                    = dto.TypeName;
       ExplicitTypeString = "Уставка";
@@ -288,10 +286,9 @@ namespace Iface.Oik.Tm.Interfaces
     {
       var manualAnalogSetEvent = CreateFromTEvent(tEvent, eventAddData, setAnalog.Name, elix);
 
-      manualAnalogSetEvent.TmAddrString = $"#TT{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
-      manualAnalogSetEvent.TmAddrComplexInteger =
-        (uint)(tEvent.Point + (tEvent.Rtu << 16) + (tEvent.Ch << 24));
-      manualAnalogSetEvent.TmAddrType = TmType.Analog;
+      manualAnalogSetEvent.TmAddrString = TmAddr.EncodeString(TmType.Analog, tEvent.Ch, tEvent.Rtu, tEvent.Point);
+      manualAnalogSetEvent.TmAddrTma    = TmAddr.EncodeTma(tEvent.Ch, tEvent.Rtu, tEvent.Point);
+      manualAnalogSetEvent.TmAddrType   = TmType.Analog;
 
       manualAnalogSetEvent.TypeString         = "Ручн. ТИТ";
       manualAnalogSetEvent.ExplicitTypeString = "Ручн. ТИТ";
@@ -311,10 +308,9 @@ namespace Iface.Oik.Tm.Interfaces
     { 
       InitializeTmEvent(dto);
       
-      TmAddrString = $"#TT{dto.Ch}:{dto.Rtu}:{dto.Point}";
-      TmAddrComplexInteger =
-        (uint)(dto.Point + (dto.Rtu << 16) + (dto.Ch << 24));
-      TmAddrType = TmType.Analog;
+      TmAddrString = TmAddr.EncodeString(TmType.Analog, dto.Ch, dto.Rtu, dto.Point);
+      TmAddrTma    = TmAddr.EncodeTma(dto.Ch, dto.Rtu, dto.Point);
+      TmAddrType   = TmType.Analog;
 
       TypeString         = "Ручн. ТИТ";
       ExplicitTypeString = "Ручн. ТИТ";
@@ -336,10 +332,9 @@ namespace Iface.Oik.Tm.Interfaces
     {
       var manualStatusSetEvent = CreateFromTEvent(tEvent, eventAddData, setStatus.Name, elix);
 
-      manualStatusSetEvent.TmAddrString = $"#TС{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
-      manualStatusSetEvent.TmAddrComplexInteger =
-        (uint)(tEvent.Point + (tEvent.Rtu << 16) + (tEvent.Ch << 24));
-      manualStatusSetEvent.TmAddrType = TmType.Status;
+      manualStatusSetEvent.TmAddrString = TmAddr.EncodeString(TmType.Status, tEvent.Ch, tEvent.Rtu, tEvent.Point);
+      manualStatusSetEvent.TmAddrTma    = TmAddr.EncodeTma(tEvent.Ch, tEvent.Rtu, tEvent.Point);
+      manualStatusSetEvent.TmAddrType   = TmType.Status;
 
       manualStatusSetEvent.Username = EncodingUtil.Cp866BytesToUtf8(mSData.UserName);
 
@@ -383,10 +378,9 @@ namespace Iface.Oik.Tm.Interfaces
     {
       InitializeTmEvent(dto);
       
-      TmAddrString = $"#TС{dto.Ch}:{dto.Rtu}:{dto.Point}";
-      TmAddrComplexInteger =
-        (uint)(dto.Point + (dto.Rtu << 16) + (dto.Ch << 24));
-      TmAddrType = TmType.Status;
+      TmAddrString = TmAddr.EncodeString(TmType.Status, dto.Ch, dto.Rtu, dto.Point);
+      TmAddrTma    = TmAddr.EncodeTma(dto.Ch, dto.Rtu, dto.Point);
+      TmAddrType   = TmType.Status;
 
       ExplicitTypeString  = "Ручн. ТС";
       ExplicitStateString = dto.Command ? "ВКЛ" : "ОТКЛ";
@@ -429,8 +423,7 @@ namespace Iface.Oik.Tm.Interfaces
     {
       var acknowledgeEvent = CreateFromTEvent(tEvent, eventAddData, sourceObjectName, elix);
 
-      acknowledgeEvent.TmAddrComplexInteger =
-        (uint)(tEvent.Point + (tEvent.Rtu << 16) + (tEvent.Ch << 24));
+      acknowledgeEvent.TmAddrTma = TmAddr.EncodeTma(tEvent.Ch, tEvent.Rtu, tEvent.Point);
 
       acknowledgeEvent.TmAddrType = ((TmNativeDefs.TmDataTypes)acknowledgeData.TmType).ToTmType();
 
@@ -443,7 +436,7 @@ namespace Iface.Oik.Tm.Interfaces
           }
           else
           {
-            acknowledgeEvent.TmAddrString = $"#TC{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
+            acknowledgeEvent.TmAddrString = TmAddr.EncodeString(TmType.Status, tEvent.Ch, tEvent.Rtu, tEvent.Point);
           }
 
           break;
@@ -455,7 +448,7 @@ namespace Iface.Oik.Tm.Interfaces
           }
           else
           {
-            acknowledgeEvent.TmAddrString = $"#TT{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
+            acknowledgeEvent.TmAddrString = TmAddr.EncodeString(TmType.Analog, tEvent.Ch, tEvent.Rtu, tEvent.Point);
           }
 
           break;
@@ -479,8 +472,7 @@ namespace Iface.Oik.Tm.Interfaces
     {
       InitializeTmEvent(dto);
       
-      TmAddrComplexInteger =
-        (uint)(dto.Point + (dto.Rtu << 16) + (dto.Ch << 24));
+      TmAddrTma = TmAddr.EncodeTma(dto.Ch, dto.Rtu, dto.Point);
 
       TmAddrType = ((TmNativeDefs.TmDataTypes)dto.TargetTmType).ToTmType();
 
@@ -493,7 +485,7 @@ namespace Iface.Oik.Tm.Interfaces
           }
           else
           {
-            TmAddrString = $"#TC{dto.Ch}:{dto.Rtu}:{dto.Point}";
+            TmAddrString = TmAddr.EncodeString(TmType.Status, dto.Ch, dto.Rtu, dto.Point);
           }
 
           break;
@@ -505,7 +497,7 @@ namespace Iface.Oik.Tm.Interfaces
           }
           else
           {
-            TmAddrString = $"#TT{dto.Ch}:{dto.Rtu}:{dto.Point}";
+            TmAddrString = TmAddr.EncodeString(TmType.Analog, dto.Ch, dto.Rtu, dto.Point);
           }
 
           break;
@@ -531,10 +523,9 @@ namespace Iface.Oik.Tm.Interfaces
     {
       var controlEvent = CreateFromTEvent(tEvent, eventAddData, controlStatus.Name, elix);
 
-      controlEvent.TmAddrString = $"#TC{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
-      controlEvent.TmAddrComplexInteger =
-        (uint)(tEvent.Point + (tEvent.Rtu << 16) + (tEvent.Ch << 24));
-      controlEvent.TmAddrType = TmType.Status;
+      controlEvent.TmAddrString = TmAddr.EncodeString(TmType.Status, tEvent.Ch, tEvent.Rtu, tEvent.Point);
+      controlEvent.TmAddrTma    = TmAddr.EncodeTma(tEvent.Ch, tEvent.Rtu, tEvent.Point);
+      controlEvent.TmAddrType   = TmType.Status;
 
       controlEvent.TypeString         = "ТУ";
       controlEvent.ExplicitTypeString = "ТУ";
@@ -562,10 +553,9 @@ namespace Iface.Oik.Tm.Interfaces
     { 
       InitializeTmEvent(dto);
       
-      TmAddrString = $"#TC{dto.Ch}:{dto.Rtu}:{dto.Point}";
-      TmAddrComplexInteger =
-        (uint)(dto.Point + (dto.Rtu << 16) + (dto.Ch << 24));
-      TmAddrType = TmType.Status;
+      TmAddrString = TmAddr.EncodeString(TmType.Status, dto.Ch, dto.Rtu, dto.Point);
+      TmAddrTma    = TmAddr.EncodeTma(dto.Ch, dto.Rtu, dto.Point);
+      TmAddrType   = TmType.Status;
 
       TypeString         = "ТУ";
       ExplicitTypeString = "ТУ";
@@ -596,7 +586,7 @@ namespace Iface.Oik.Tm.Interfaces
       var extendedType = (TmNativeDefs.ExtendedEventTypes)tEvent.Ch;
 
       extendedEvent.TmAddrString         = null;
-      extendedEvent.TmAddrComplexInteger = 0;
+      extendedEvent.TmAddrTma = 0;
       extendedEvent.TmAddrType           = TmType.Unknown;
 
       extendedEvent.TypeString                     = GetTypeStringByExtendedTypeString(extendedType);
@@ -638,7 +628,7 @@ namespace Iface.Oik.Tm.Interfaces
       InitializeTmEvent(dto);
 
       TmAddrString         = dto.TmAddrString;
-      TmAddrComplexInteger = 0;
+      TmAddrTma = 0;
       TmAddrType           = TmType.Unknown;
 
       TypeString                                   = dto.TypeString;
@@ -710,10 +700,9 @@ namespace Iface.Oik.Tm.Interfaces
       var                  isS2Only = false;
       TmNativeDefs.S2Flags s2Flags  = 0x0000;
 
-      statusChangeEvent.TmAddrString = $"#TC{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
-      statusChangeEvent.TmAddrComplexInteger =
-        (uint)(tEvent.Point + (tEvent.Rtu << 16) + (tEvent.Ch << 24));
-      statusChangeEvent.TmAddrType = TmType.Status;
+      statusChangeEvent.TmAddrString = TmAddr.EncodeString(TmType.Status, tEvent.Ch, tEvent.Rtu, tEvent.Point);
+      statusChangeEvent.TmAddrTma    = TmAddr.EncodeTma(tEvent.Ch, tEvent.Rtu, tEvent.Point);
+      statusChangeEvent.TmAddrType   = TmType.Status;
 
       statusChangeEvent.TypeString = changedStatus.ClassName.IsNullOrEmpty()
                                        ? $"{(changedStatus.IsAps ? "АПС" : "ТС")}"
@@ -796,10 +785,9 @@ namespace Iface.Oik.Tm.Interfaces
       var                  isS2Only = false;
       TmNativeDefs.S2Flags s2Flags  = 0x0000;
 
-      TmAddrString = $"#TC{dto.Ch}:{dto.Rtu}:{dto.Point}";
-      TmAddrComplexInteger =
-        (uint)(dto.Point + (dto.Rtu << 16) + (dto.Ch << 24));
-      TmAddrType = TmType.Status;
+      TmAddrString = TmAddr.EncodeString(TmType.Status, dto.Ch, dto.Rtu, dto.Point);
+      TmAddrTma    = TmAddr.EncodeTma(dto.Ch, dto.Rtu, dto.Point);
+      TmAddrType   = TmType.Status;
 
       TypeString = string.IsNullOrEmpty(dto.PropsAndClassData.ClassName)
                      ? $"{(dto.StatusClass == 1 ? "АПС" : "ТС")}"
@@ -949,24 +937,23 @@ namespace Iface.Oik.Tm.Interfaces
     {
       var flagsChangeEvent = CreateFromTEvent(tEvent, eventAddData, sourceObjectName);
 
-      flagsChangeEvent.TmAddrComplexInteger =
-        (uint)(tEvent.Point + (tEvent.Rtu << 16) + (tEvent.Ch << 24));
-      flagsChangeEvent.Username = username;
+      flagsChangeEvent.TmAddrTma = TmAddr.EncodeTma(tEvent.Ch, tEvent.Rtu, tEvent.Point);
+      flagsChangeEvent.Username  = username;
 
       switch (sourceDataType)
       {
         case TmType.Status:
-          flagsChangeEvent.TmAddrString       = $"#TC{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
+          flagsChangeEvent.TmAddrString       = TmAddr.EncodeString(TmType.Status, tEvent.Ch, tEvent.Rtu, tEvent.Point);
           flagsChangeEvent.ExplicitTypeString = "Изм. флагов ТС";
           flagsChangeEvent.TmAddrType         = TmType.Status;
           break;
         case TmType.Analog:
-          flagsChangeEvent.TmAddrString       = $"#TТ{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
+          flagsChangeEvent.TmAddrString       = TmAddr.EncodeString(TmType.Analog, tEvent.Ch, tEvent.Rtu, tEvent.Point);
           flagsChangeEvent.ExplicitTypeString = "Изм. флагов ТИТ";
           flagsChangeEvent.TmAddrType         = TmType.Analog;
           break;
         case TmType.Accum:
-          flagsChangeEvent.TmAddrString       = $"#TИ{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
+          flagsChangeEvent.TmAddrString       = TmAddr.EncodeString(TmType.Accum, tEvent.Ch, tEvent.Rtu, tEvent.Point);
           flagsChangeEvent.ExplicitTypeString = "Изм. флагов ТИИ";
           flagsChangeEvent.TmAddrType         = TmType.Accum;
           break;
@@ -982,7 +969,7 @@ namespace Iface.Oik.Tm.Interfaces
     {
       InitializeTmEvent(dto);
       
-      TmAddrComplexInteger = (uint)(dto.Point + (dto.Rtu << 16) + (dto.Ch << 24));
+      TmAddrTma = TmAddr.EncodeTma(dto.Ch, dto.Rtu, dto.Point);
       
       Username = dto.OperatorName;
 
@@ -991,17 +978,17 @@ namespace Iface.Oik.Tm.Interfaces
       switch (tmType)
       {
         case TmType.Status:
-          TmAddrString       = $"#TC{dto.Ch}:{dto.Rtu}:{dto.Point}";
+          TmAddrString       = TmAddr.EncodeString(tmType, dto.Ch, dto.Rtu, dto.Point);
           ExplicitTypeString = "Изм. флагов ТС";
           TmAddrType         = tmType;
           break;
         case TmType.Analog:
-          TmAddrString       = $"#TТ{dto.Ch}:{dto.Rtu}:{dto.Point}";
+          TmAddrString       = TmAddr.EncodeString(tmType, dto.Ch, dto.Rtu, dto.Point);
           ExplicitTypeString = "Изм. флагов ТИТ";
           TmAddrType         = tmType;
           break;
         case TmType.Accum:
-          TmAddrString       = $"#TИ{dto.Ch}:{dto.Rtu}:{dto.Point}";
+          TmAddrString       = TmAddr.EncodeString(tmType, dto.Ch, dto.Rtu, dto.Point);
           ExplicitTypeString = "Изм. флагов ТИИ";
           TmAddrType         = tmType;
           break;

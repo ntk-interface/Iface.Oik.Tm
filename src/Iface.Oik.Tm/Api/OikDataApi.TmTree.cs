@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Interfaces;
 
@@ -9,38 +8,24 @@ public partial class OikDataApi
 {
   public async Task<IReadOnlyCollection<TmChannel>> GetTmTreeChannels(PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetTmTreeChannels().ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      return await _sql.GetTmTreeChannels().ConfigureAwait(false);
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Sql,
+                         () => _tms.GetTmTreeChannels(),
+                         () => _sql.GetTmTreeChannels(),
+                         () => null)
+            .ConfigureAwait(false);
   }
 
 
   public async Task<IReadOnlyCollection<TmRtu>> GetTmTreeRtus(int       channelId,
                                                               PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetTmTreeRtus(channelId).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      return await _sql.GetTmTreeRtus(channelId).ConfigureAwait(false);
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Sql,
+                         () => _tms.GetTmTreeRtus(channelId),
+                         () => _sql.GetTmTreeRtus(channelId),
+                         () => null)
+            .ConfigureAwait(false);
   }
 
 
@@ -48,19 +33,12 @@ public partial class OikDataApi
                                                                      int       rtuId,
                                                                      PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetTmTreeStatuses(channelId, rtuId).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      return await _sql.GetTmTreeStatuses(channelId, rtuId).ConfigureAwait(false);
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Sql,
+                         () => _tms.GetTmTreeStatuses(channelId, rtuId),
+                         () => _sql.GetTmTreeStatuses(channelId, rtuId),
+                         () => null)
+            .ConfigureAwait(false);
   }
 
 
@@ -68,19 +46,12 @@ public partial class OikDataApi
                                                                     int       rtuId,
                                                                     PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetTmTreeAnalogs(channelId, rtuId).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      return await _sql.GetTmTreeAnalogs(channelId, rtuId).ConfigureAwait(false);
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Sql,
+                         () => _tms.GetTmTreeAnalogs(channelId, rtuId),
+                         () => _sql.GetTmTreeAnalogs(channelId, rtuId),
+                         () => null)
+            .ConfigureAwait(false);
   }
 
 
@@ -107,19 +78,12 @@ public partial class OikDataApi
   public async Task<string> GetChannelName(int       channelId,
                                            PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetChannelName(channelId).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      return await _sql.GetChannelName(channelId).ConfigureAwait(false);
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetChannelName(channelId),
+                         () => _sql.GetChannelName(channelId),
+                         () => string.Empty)
+            .ConfigureAwait(false);
   }
 
 
@@ -127,93 +91,58 @@ public partial class OikDataApi
                                        int       rtuId,
                                        PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetRtuName(channelId, rtuId).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      return await _sql.GetRtuName(channelId, rtuId).ConfigureAwait(false);
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetRtuName(channelId, rtuId),
+                         () => _sql.GetRtuName(channelId, rtuId),
+                         () => string.Empty)
+            .ConfigureAwait(false);
   }
 
 
   public async Task<IReadOnlyCollection<TmClassStatus>> GetStatusesClasses(PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetStatusesClasses().ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetStatusesClasses(),
+                         null,
+                         () => null)
+            .ConfigureAwait(false);
   }
 
 
   public async Task<IReadOnlyCollection<TmClassAnalog>> GetAnalogsClasses(PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetAnalogsClasses().ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetAnalogsClasses(),
+                         null,
+                         () => null)
+            .ConfigureAwait(false);
   }
 
 
   public async Task<IReadOnlyCollection<TmStatus>> LookupStatuses(TmStatusFilter filter,
                                                                   PreferApi      prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      throw new NotImplementedException();
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      return await _sql.LookupStatuses(filter).ConfigureAwait(false);
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Sql,
+                         null,
+                         () => _sql.LookupStatuses(filter),
+                         () => null)
+            .ConfigureAwait(false);
   }
 
 
   public async Task<IReadOnlyCollection<TmAnalog>> LookupAnalogs(TmAnalogFilter filter,
                                                                  PreferApi      prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      throw new NotImplementedException();
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      return await _sql.LookupAnalogs(filter).ConfigureAwait(false);
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Sql,
+                         null,
+                         () => _sql.LookupAnalogs(filter),
+                         () => null)
+            .ConfigureAwait(false);
   }
 
 
@@ -221,18 +150,11 @@ public partial class OikDataApi
                                                                string    groupName,
                                                                PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetTagsByGroup(tmType, groupName).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetTagsByGroup(tmType, groupName),
+                         null,
+                         () => null)
+            .ConfigureAwait(false);
   }
 }

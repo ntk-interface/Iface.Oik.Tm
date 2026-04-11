@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Dto;
 using Iface.Oik.Tm.Interfaces;
@@ -13,19 +12,12 @@ public partial class OikDataApi
                                    int       point,
                                    PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetStatus(ch, rtu, point).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      return await _sql.GetStatus(ch, rtu, point).ConfigureAwait(false);
-    }
-    else
-    {
-      return -1;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetStatus(ch, rtu, point),
+                         () => _sql.GetStatus(ch, rtu, point),
+                         () => -1)
+            .ConfigureAwait(false);
   }
 
 
@@ -35,18 +27,11 @@ public partial class OikDataApi
                               int       status,
                               PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.SetStatus(ch, rtu, point, status).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.SetStatus(ch, rtu, point, status),
+                  null)
+     .ConfigureAwait(false);
   }
 
 
@@ -55,19 +40,12 @@ public partial class OikDataApi
                                      int       point,
                                      PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetAnalog(ch, rtu, point).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      return await _sql.GetAnalog(ch, rtu, point).ConfigureAwait(false);
-    }
-    else
-    {
-      return -1;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetAnalog(ch, rtu, point),
+                         () => _sql.GetAnalog(ch, rtu, point),
+                         () => TmAnalog.InvalidValue)
+            .ConfigureAwait(false);
   }
 
 
@@ -77,18 +55,11 @@ public partial class OikDataApi
                               float     value,
                               PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.SetAnalog(ch, rtu, point, value).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.SetAnalog(ch, rtu, point, value),
+                  null)
+     .ConfigureAwait(false);
   }
 
 
@@ -97,19 +68,12 @@ public partial class OikDataApi
                                     int       point,
                                     PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetAccum(ch, rtu, point).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      return await _sql.GetAccum(ch, rtu, point).ConfigureAwait(false);
-    }
-    else
-    {
-      return -1;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetAccum(ch, rtu, point),
+                         () => _sql.GetAccum(ch, rtu, point),
+                         () => TmAccum.InvalidValue)
+            .ConfigureAwait(false);
   }
 
 
@@ -118,188 +82,186 @@ public partial class OikDataApi
                                         int       point,
                                         PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetAccumLoad(ch, rtu, point).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      return await _sql.GetAccumLoad(ch, rtu, point).ConfigureAwait(false);
-    }
-    else
-    {
-      return -1;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetAccumLoad(ch, rtu, point),
+                         () => _sql.GetAccumLoad(ch, rtu, point),
+                         () => TmAccum.InvalidValue)
+            .ConfigureAwait(false);
   }
 
 
-  public async Task UpdateStatus(TmStatus  status,
+  public async Task UpdateStatus(TmStatus  tmStatus,
                                  PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.UpdateStatus(status).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      await _sql.UpdateStatus(status).ConfigureAwait(false);
-    }
-    else
-    {
-      status.IsInit = false;
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.UpdateStatus(tmStatus),
+                  () => _sql.UpdateStatus(tmStatus),
+                  () => tmStatus.IsInit = false)
+     .ConfigureAwait(false);
   }
 
 
-  public async Task UpdateAnalog(TmAnalog  analog,
+  public async Task UpdateAnalog(TmAnalog  tmAnalog,
                                  PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.UpdateAnalog(analog).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      await _sql.UpdateAnalog(analog).ConfigureAwait(false);
-    }
-    else
-    {
-      analog.IsInit = false;
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.UpdateAnalog(tmAnalog),
+                  () => _sql.UpdateAnalog(tmAnalog),
+                  () => tmAnalog.IsInit = false)
+     .ConfigureAwait(false);
   }
 
 
-  public async Task UpdateAccum(TmAccum   accum,
+  public async Task UpdateAccum(TmAccum   tmAccum,
                                 PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.UpdateAccum(accum).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      await _sql.UpdateAccum(accum).ConfigureAwait(false);
-    }
-    else
-    {
-      accum.IsInit = false;
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.UpdateAccum(tmAccum),
+                  () => _sql.UpdateAccum(tmAccum),
+                  () => tmAccum.IsInit = false)
+     .ConfigureAwait(false);
   }
 
 
-  public async Task UpdateStatuses(IReadOnlyList<TmStatus> statuses,
+  public async Task UpdateStatuses(IReadOnlyList<TmStatus> tmStatuses,
                                    PreferApi               prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.UpdateStatuses(statuses).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      await _sql.UpdateStatuses(statuses).ConfigureAwait(false);
-    }
-    else
-    {
-      // todo IsInit = false;
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.UpdateStatuses(tmStatuses),
+                  () => _sql.UpdateStatuses(tmStatuses))
+     .ConfigureAwait(false);
+    // todo IsInit = false;
   }
 
 
-  public async Task UpdateAnalogs(IReadOnlyList<TmAnalog> analogs,
+  public async Task UpdateStatuses(IReadOnlyDictionary<int, TmStatus> tmStatuses,
+                                   PreferApi                          prefer = PreferApi.Auto)
+  {
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.UpdateStatuses(tmStatuses),
+                  () => _sql.UpdateStatuses(tmStatuses))
+     .ConfigureAwait(false);
+    // todo IsInit = false;
+  }
+
+
+  public async Task UpdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs,
                                   PreferApi               prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.UpdateAnalogs(analogs).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      await _sql.UpdateAnalogs(analogs).ConfigureAwait(false);
-    }
-    else
-    {
-      // todo IsInit = false;
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.UpdateAnalogs(tmAnalogs),
+                  () => _sql.UpdateAnalogs(tmAnalogs))
+     .ConfigureAwait(false);
+    // todo IsInit = false;
   }
 
 
-  public async Task UpdateAccums(IReadOnlyList<TmAccum> accums,
+  public async Task UpdateAnalogs(IReadOnlyDictionary<int, TmAnalog> tmAnalogs,
+                                  PreferApi                          prefer = PreferApi.Auto)
+  {
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.UpdateAnalogs(tmAnalogs),
+                  () => _sql.UpdateAnalogs(tmAnalogs))
+     .ConfigureAwait(false);
+    // todo IsInit = false;
+  }
+
+
+  public async Task UpdateAccums(IReadOnlyList<TmAccum> tmAccums,
                                  PreferApi              prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.UpdateAccums(accums).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      await _sql.UpdateAccums(accums).ConfigureAwait(false);
-    }
-    else
-    {
-      // todo IsInit = false;
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.UpdateAccums(tmAccums),
+                  () => _sql.UpdateAccums(tmAccums))
+     .ConfigureAwait(false);
+    // todo IsInit = false;
   }
 
 
-  public async Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags,
+  public async Task UpdateAccums(IReadOnlyDictionary<int, TmAccum> tmAccums,
+                                 PreferApi                         prefer = PreferApi.Auto)
+  {
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.UpdateAccums(tmAccums),
+                  () => _sql.UpdateAccums(tmAccums))
+     .ConfigureAwait(false);
+    // todo IsInit = false;
+  }
+
+
+  public async Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tmTags,
                                                      PreferApi            prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.UpdateTagsPropertiesAndClassData(tags).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      await _sql.UpdateTagsPropertiesAndClassData(tags).ConfigureAwait(false);
-    }
-    else
-    {
-    }
+    await Execute(prefer,
+                  PreferApi.Sql,
+                  () => _tms.UpdateTagsPropertiesAndClassData(tmTags),
+                  () => _sql.UpdateTagsPropertiesAndClassData(tmTags))
+     .ConfigureAwait(false);
   }
 
 
-  public async Task UpdateTagPropertiesAndClassData(TmTag     tag,
+  public async Task UpdateStatusesPropertiesAndClassData(IReadOnlyDictionary<int, TmStatus> statuses,
+                                                         PreferApi                          prefer = PreferApi.Auto)
+  {
+    await Execute(prefer,
+                  PreferApi.Sql,
+                  () => _tms.UpdateStatusesPropertiesAndClassData(statuses),
+                  () => _sql.UpdateStatusesPropertiesAndClassData(statuses))
+     .ConfigureAwait(false);
+  }
+
+
+  public async Task UpdateAnalogsPropertiesAndClassData(IReadOnlyDictionary<int, TmAnalog> analogs,
+                                                         PreferApi                         prefer = PreferApi.Auto)
+  {
+    await Execute(prefer,
+                  PreferApi.Sql,
+                  () => _tms.UpdateAnalogsPropertiesAndClassData(analogs),
+                  () => _sql.UpdateAnalogsPropertiesAndClassData(analogs))
+     .ConfigureAwait(false);
+  }
+
+
+  public async Task UpdateAccumsPropertiesAndClassData(IReadOnlyDictionary<int, TmAccum> accums,
+                                                        PreferApi                        prefer = PreferApi.Auto)
+  {
+    await Execute(prefer,
+                  PreferApi.Sql,
+                  () => _tms.UpdateAccumsPropertiesAndClassData(accums),
+                  () => _sql.UpdateAccumsPropertiesAndClassData(accums))
+     .ConfigureAwait(false);
+  }
+
+
+  public async Task UpdateTagPropertiesAndClassData(TmTag     tmTag,
                                                     PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.UpdateTagPropertiesAndClassData(tag).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      await _sql.UpdateTagPropertiesAndClassData(tag).ConfigureAwait(false);
-    }
-    else
-    {
-    }
+    await Execute(prefer,
+                  PreferApi.Sql,
+                  () => _tms.UpdateTagPropertiesAndClassData(tmTag),
+                  () => _sql.UpdateTagPropertiesAndClassData(tmTag))
+     .ConfigureAwait(false);
   }
 
 
   public async Task<IReadOnlyCollection<TmAlarm>> GetAnalogAlarms(TmAnalog  analog,
                                                                   PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      throw new NotImplementedException();
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      return await _sql.GetAnalogAlarms(analog).ConfigureAwait(false);
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Sql,
+                         null,
+                         () => _sql.GetAnalogAlarms(analog))
+            .ConfigureAwait(false);
   }
 
 

@@ -502,10 +502,10 @@ namespace Iface.Oik.Tm.Interfaces
     {
       if (dto?.Name == null) return null;
 
-      var analog = new TmAccum(dto.Ch, dto.Rtu, dto.Point);
-      analog.UpdateWithTmTreeDto(dto);
+      var accum = new TmAccum(TmAddr.CreateFromTma(TmType.Accum, dto.Tma));
+      accum.UpdateWithTmTreeDto(dto);
 
-      return analog;
+      return accum;
     }
 
 

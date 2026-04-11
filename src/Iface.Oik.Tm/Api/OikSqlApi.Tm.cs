@@ -6,7 +6,6 @@ using Dapper;
 using Iface.Oik.Tm.Dto;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Utils;
-using Npgsql;
 
 namespace Iface.Oik.Tm.Api;
 
@@ -16,23 +15,17 @@ public partial class OikSqlApi
   {
     try
     {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = @"SELECT v_code
-                              FROM oik_cur_ts
-                              WHERE ch = @Ch AND rtu = @Rtu AND point = @Point";
-        var parameters = new { Ch = ch, Rtu = rtu, Point = point };
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = @"SELECT v_code
+                          FROM oik_cur_ts
+                          WHERE tma = @Tma";
+      var parameters = new { Tma = TmAddr.EncodeTma(ch, rtu, point) };
 
-        return await sql.DbConnection
-                        .QueryFirstOrDefaultAsync<int>(commandText, parameters)
-                        .ConfigureAwait(false);
-      }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
-      return -1;
+      return await sql.DbConnection
+                      .QueryFirstOrDefaultAsync<int>(commandText, parameters)
+                      .ConfigureAwait(false);
     }
     catch (Exception ex)
     {
@@ -46,23 +39,17 @@ public partial class OikSqlApi
   {
     try
     {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = @"SELECT v_val
-                              FROM oik_cur_tt
-                              WHERE ch = @Ch AND rtu = @Rtu AND point = @Point";
-        var parameters = new { Ch = ch, Rtu = rtu, Point = point };
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = @"SELECT v_val
+                          FROM oik_cur_tt
+                          WHERE tma = @Tma";
+      var parameters = new { Tma = TmAddr.EncodeTma(ch, rtu, point) };
 
-        return await sql.DbConnection
-                        .QueryFirstOrDefaultAsync<float>(commandText, parameters)
-                        .ConfigureAwait(false);
-      }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
-      return -1;
+      return await sql.DbConnection
+                      .QueryFirstOrDefaultAsync<float>(commandText, parameters)
+                      .ConfigureAwait(false);
     }
     catch (Exception ex)
     {
@@ -76,23 +63,17 @@ public partial class OikSqlApi
   {
     try
     {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = @"SELECT v_val
-                              FROM oik_cur_ti
-                              WHERE ch = @Ch AND rtu = @Rtu AND point = @Point";
-        var parameters = new { Ch = ch, Rtu = rtu, Point = point };
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = @"SELECT v_val
+                          FROM oik_cur_ti
+                          WHERE tma = @Tma";
+      var parameters = new { Tma = TmAddr.EncodeTma(ch, rtu, point) };
 
-        return await sql.DbConnection
-                        .QueryFirstOrDefaultAsync<float>(commandText, parameters)
-                        .ConfigureAwait(false);
-      }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
-      return -1;
+      return await sql.DbConnection
+                      .QueryFirstOrDefaultAsync<float>(commandText, parameters)
+                      .ConfigureAwait(false);
     }
     catch (Exception ex)
     {
@@ -106,23 +87,17 @@ public partial class OikSqlApi
   {
     try
     {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = @"SELECT v_load
-                              FROM oik_cur_ti
-                              WHERE ch = @Ch AND rtu = @Rtu AND point = @Point";
-        var parameters = new { Ch = ch, Rtu = rtu, Point = point };
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = @"SELECT v_load
+                          FROM oik_cur_ti
+                          WHERE tma = @Tma";
+      var parameters = new { Tma = TmAddr.EncodeTma(ch, rtu, point) };
 
-        return await sql.DbConnection
-                        .QueryFirstOrDefaultAsync<float>(commandText, parameters)
-                        .ConfigureAwait(false);
-      }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
-      return -1;
+      return await sql.DbConnection
+                      .QueryFirstOrDefaultAsync<float>(commandText, parameters)
+                      .ConfigureAwait(false);
     }
     catch (Exception ex)
     {
@@ -132,29 +107,25 @@ public partial class OikSqlApi
   }
 
 
-  public async Task UpdateStatus(TmStatus status)
+  public async Task UpdateStatus(TmStatus tmStatus)
   {
-    if (status == null) return;
+    if (tmStatus == null) return;
 
     try
     {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = @"SELECT v_code, flags, v_s2, change_time
-                              FROM oik_cur_ts
-                              WHERE tma = @Tma";
-        var parameters = new { Tma = status.TmAddr.ToSqlTma() };
-        var dto = await sql.DbConnection
-                           .QueryFirstOrDefaultAsync<TmStatusDto>(commandText, parameters)
-                           .ConfigureAwait(false);
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = @"SELECT v_code, flags, v_s2, change_time
+                          FROM oik_cur_ts
+                          WHERE tma = @Tma";
+      var parameters = new { Tma = tmStatus.TmAddr.ToTma() };
+      
+      var dto = await sql.DbConnection
+                         .QueryFirstOrDefaultAsync<TmStatusDto>(commandText, parameters)
+                         .ConfigureAwait(false);
 
-        status.UpdateWithDto(dto);
-      }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
+      tmStatus.UpdateWithDto(dto);
     }
     catch (Exception ex)
     {
@@ -163,29 +134,25 @@ public partial class OikSqlApi
   }
 
 
-  public async Task UpdateAnalog(TmAnalog analog)
+  public async Task UpdateAnalog(TmAnalog tmAnalog)
   {
-    if (analog == null) return;
+    if (tmAnalog == null) return;
 
     try
     {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = @"SELECT v_val, flags, change_time
-                              FROM oik_cur_tt
-                              WHERE tma = @Tma";
-        var parameters = new { Tma = analog.TmAddr.ToSqlTma() };
-        var dto = await sql.DbConnection
-                           .QueryFirstOrDefaultAsync<TmAnalogDto>(commandText, parameters)
-                           .ConfigureAwait(false);
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = @"SELECT v_val, flags, change_time
+                          FROM oik_cur_tt
+                          WHERE tma = @Tma";
+      var parameters = new { Tma = tmAnalog.TmAddr.ToTma() };
+      
+      var dto = await sql.DbConnection
+                         .QueryFirstOrDefaultAsync<TmAnalogDto>(commandText, parameters)
+                         .ConfigureAwait(false);
 
-        analog.UpdateWithDto(dto);
-      }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
+      tmAnalog.UpdateWithDto(dto);
     }
     catch (Exception ex)
     {
@@ -194,29 +161,25 @@ public partial class OikSqlApi
   }
 
 
-  public async Task UpdateAccum(TmAccum accum)
+  public async Task UpdateAccum(TmAccum tmAccum)
   {
-    if (accum == null) return;
+    if (tmAccum == null) return;
 
     try
     {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = @"SELECT v_val, v_load, flags, change_time
-                              FROM oik_cur_ti
-                              WHERE tma = @Tma";
-        var parameters = new { Tma = accum.TmAddr.ToSqlTma() };
-        var dto = await sql.DbConnection
-                           .QueryFirstOrDefaultAsync<TmAccumDto>(commandText, parameters)
-                           .ConfigureAwait(false);
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = @"SELECT v_val, v_load, flags, change_time
+                          FROM oik_cur_ti
+                          WHERE tma = @Tma";
+      var parameters = new { Tma = tmAccum.TmAddr.ToTma() };
+      
+      var dto = await sql.DbConnection
+                         .QueryFirstOrDefaultAsync<TmAccumDto>(commandText, parameters)
+                         .ConfigureAwait(false);
 
-        accum.UpdateWithDto(dto);
-      }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
+      tmAccum.UpdateWithDto(dto);
     }
     catch (Exception ex)
     {
@@ -225,31 +188,37 @@ public partial class OikSqlApi
   }
 
 
-  public async Task UpdateStatuses(IReadOnlyList<TmStatus> statuses)
+  public async Task UpdateStatuses(IReadOnlyList<TmStatus> tmStatuses)
   {
-    if (statuses.IsNullOrEmpty()) return;
+    await UpdateStatuses(tmStatuses.ToDictionary(s => s.TmAddr.ToTma())).ConfigureAwait(false);
+  }
+
+
+  public async Task UpdateStatuses(IReadOnlyDictionary<int, TmStatus> tmStatuses)
+  {
+    if (tmStatuses.IsNullOrEmpty()) return;
 
     try
     {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = @"SELECT v_code, flags, v_s2, change_time
-              FROM oik_cur_ts
-                RIGHT JOIN UNNEST(@TmaArray) WITH ORDINALITY t (a,i)
-                ON tma = t.a
-              ORDER BY t.i";
-        var parameters = new { TmaArray = statuses.Select(tag => tag.TmAddr.ToSqlTma()).ToArray() };
-        var dtos = await sql.DbConnection
-                            .QueryAsync<TmStatusDto>(commandText, parameters)
-                            .ConfigureAwait(false);
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = @"SELECT tma, v_code, flags, v_s2, change_time
+                          FROM oik_cur_ts
+                          WHERE tma = ANY(@TmaArray)";
+      var parameters = new { TmaArray = tmStatuses.Keys.ToArray() };
+      
+      var dtos = await sql.DbConnection
+                          .QueryAsync<TmStatusDto>(commandText, parameters)
+                          .ConfigureAwait(false);
 
-        dtos.ForEach((dto, idx) => statuses[idx].UpdateWithDto(dto));
+      foreach (var dto in dtos)
+      {
+        if (tmStatuses.TryGetValue(dto.Tma, out var tmStatus))
+        {
+          tmStatus.UpdateWithDto(dto);
+        }
       }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
     }
     catch (Exception ex)
     {
@@ -258,31 +227,37 @@ public partial class OikSqlApi
   }
 
 
-  public async Task UpdateAnalogs(IReadOnlyList<TmAnalog> analogs)
+  public async Task UpdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs)
   {
-    if (analogs.IsNullOrEmpty()) return;
+    await UpdateAnalogs(tmAnalogs.ToDictionary(s => s.TmAddr.ToTma())).ConfigureAwait(false);
+  }
+
+
+  public async Task UpdateAnalogs(IReadOnlyDictionary<int, TmAnalog> tmAnalogs)
+  {
+    if (tmAnalogs.IsNullOrEmpty()) return;
 
     try
     {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = @"SELECT v_val, flags, change_time
-            FROM oik_cur_tt
-              RIGHT JOIN UNNEST(@TmaArray) WITH ORDINALITY t (a,i)
-              ON tma = t.a
-            ORDER BY t.i";
-        var parameters = new { TmaArray = analogs.Select(tag => tag.TmAddr.ToSqlTma()).ToArray() };
-        var dtos = await sql.DbConnection
-                            .QueryAsync<TmAnalogDto>(commandText, parameters)
-                            .ConfigureAwait(false);
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = @"SELECT tma, v_val, flags, change_time
+                          FROM oik_cur_tt
+                          WHERE tma = ANY(@TmaArray)";
+      var parameters = new { TmaArray = tmAnalogs.Keys.ToArray() };
+      
+      var dtos = await sql.DbConnection
+                          .QueryAsync<TmAnalogDto>(commandText, parameters)
+                          .ConfigureAwait(false);
 
-        dtos.ForEach((dto, idx) => analogs[idx].UpdateWithDto(dto));
+      foreach (var dto in dtos)
+      {
+        if (tmAnalogs.TryGetValue(dto.Tma, out var tmAnalog))
+        {
+          tmAnalog.UpdateWithDto(dto);
+        }
       }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
     }
     catch (Exception ex)
     {
@@ -291,31 +266,38 @@ public partial class OikSqlApi
   }
 
 
-  public async Task UpdateAccums(IReadOnlyList<TmAccum> accums)
+  public async Task UpdateAccums(IReadOnlyList<TmAccum> tmAccums)
   {
-    if (accums.IsNullOrEmpty()) return;
+    await UpdateAccums(tmAccums.ToDictionary(s => s.TmAddr.ToTma())).ConfigureAwait(false);
+  }
+
+
+  public async Task UpdateAccums(IReadOnlyDictionary<int, TmAccum> tmAccums)
+  {
+    if (tmAccums.IsNullOrEmpty()) return;
 
     try
     {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = @"SELECT v_val, v_load, flags, change_time
-            FROM oik_cur_ti
-              RIGHT JOIN UNNEST(@TmaArray) WITH ORDINALITY t (a,i)
-              ON tma = t.a
-            ORDER BY t.i";
-        var parameters = new { TmaArray = accums.Select(tag => tag.TmAddr.ToSqlTma()).ToArray() };
-        var dtos = await sql.DbConnection
-                            .QueryAsync<TmAccumDto>(commandText, parameters)
-                            .ConfigureAwait(false);
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = @"SELECT tma, v_val, v_load, flags, change_time
+                          FROM oik_cur_ti
+                          WHERE tma = ANY(@TmaArray)";
+      var parameters = new { TmaArray = tmAccums.Keys.ToArray() };
+      
+      var dtos = await sql.DbConnection
+                          .QueryAsync<TmAccumDto>(commandText, parameters)
+                          .ConfigureAwait(false);
 
-        dtos.ForEach((dto, idx) => accums[idx].UpdateWithDto(dto));
+
+      foreach (var dto in dtos)
+      {
+        if (tmAccums.TryGetValue(dto.Tma, out var tmAccum))
+        {
+          tmAccum.UpdateWithDto(dto);
+        }
       }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
     }
     catch (Exception ex)
     {
@@ -324,182 +306,63 @@ public partial class OikSqlApi
   }
 
 
-  public async Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags)
+  public async Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tmTags)
   {
-    if (tags == null) return;
-
-    switch (tags)
+    if (tmTags.IsNullOrEmpty())
     {
-      case IReadOnlyList<TmStatus> statuses:
-        await UpdateStatusesPropertiesAndClassData(statuses).ConfigureAwait(false);
+      return;
+    }
+
+    switch (tmTags.ElementAtOrDefault(0))
+    {
+      case TmStatus:
+        await UpdateStatusesPropertiesAndClassData(tmTags.ToDictionary(t => t.TmAddr.ToTma(),
+                                                                       t => t as TmStatus)).ConfigureAwait(false);
         return;
-
-      case IReadOnlyList<TmAnalog> analogs:
-        await UpdateAnalogsPropertiesAndClassData(analogs).ConfigureAwait(false);
+      
+      case TmAnalog:
+        await UpdateAnalogsPropertiesAndClassData(tmTags.ToDictionary(t => t.TmAddr.ToTma(),
+                                                                      t => t as TmAnalog)).ConfigureAwait(false);
         return;
-
-      case IReadOnlyList<TmAccum> accums:
-        await UpdateAccumsPropertiesAndClassData(accums).ConfigureAwait(false);
-        return;
-    }
-  }
-
-
-  private async Task UpdateStatusesPropertiesAndClassData(IReadOnlyList<TmStatus> statuses)
-  {
-    if (statuses.IsNullOrEmpty()) return;
-
-    try
-    {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = @"SELECT name, v_importance, v_normalstate, class_id, provider, 
-                               cl_text0, cl_text1, cl_break_text, cl_malfun_text, 
-                               cl_fla_name, cl_flb_name, cl_flc_name, cl_fld_name,
-                               cl_fla_text0, cl_flb_text0, cl_flc_text0, cl_fld_text0, 
-                               cl_fla_text1, cl_flb_text1, cl_flc_text1, cl_fld_text1,
-                               cl_ctltext_off, cl_ctltext_on
-              FROM oik_cur_ts
-                RIGHT JOIN UNNEST(@TmaArray) WITH ORDINALITY t (a,i)
-                ON tma = t.a
-              ORDER BY t.i";
-        var parameters = new { TmaArray = statuses.Select(tag => tag.TmAddr.ToSqlTma()).ToArray() };
-        var dtos = await sql.DbConnection
-                            .QueryAsync<TmStatusPropertiesDto>(commandText, parameters)
-                            .ConfigureAwait(false);
-
-        dtos.ForEach((dto, idx) => statuses[idx].UpdatePropertiesWithDto(dto));
-      }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
-    }
-    catch (Exception ex)
-    {
-      HandleException(ex);
-    }
-  }
-
-
-  private async Task UpdateAnalogsPropertiesAndClassData(IReadOnlyList<TmAnalog> analogs)
-  {
-    if (analogs.IsNullOrEmpty()) return;
-
-    try
-    {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = @"SELECT name, v_unit, v_format, class_id, provider,
-                                     tpr_min_val, tpr_max_val, tpr_nominal, tpr_alr_present, tpr_alr_inuse,
-                                     tpr_zone_d_low, tpr_zone_c_low, tpr_zone_c_high, tpr_zone_d_high
-                              FROM oik_cur_tt
-                                RIGHT JOIN UNNEST(@TmaArray) WITH ORDINALITY t (a,i)
-                                  ON tma = t.a
-                              ORDER BY t.i";
-        var parameters = new { TmaArray = analogs.Select(tag => tag.TmAddr.ToSqlTma()).ToArray() };
-        var dtos = await sql.DbConnection
-                            .QueryAsync<TmAnalogPropertiesDto>(commandText, parameters)
-                            .ConfigureAwait(false);
-
-        dtos.ForEach((dto, idx) => analogs[idx].UpdatePropertiesWithDto(dto));
-      }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
-    }
-    catch (Exception ex)
-    {
-      HandleException(ex);
-    }
-  }
-
-
-  private async Task UpdateAccumsPropertiesAndClassData(IReadOnlyList<TmAccum> accums)
-  {
-    if (accums.IsNullOrEmpty()) return;
-
-    try
-    {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = @"SELECT name, v_unit, v_format, v_counter_format, provider
-                              FROM oik_cur_ti
-                                RIGHT JOIN UNNEST(@TmaArray) WITH ORDINALITY t (a,i)
-                                  ON tma = t.a
-                              ORDER BY t.i";
-        var parameters = new { TmaArray = accums.Select(tag => tag.TmAddr.ToSqlTma()).ToArray() };
-        var dtos = await sql.DbConnection
-                            .QueryAsync<TmAccumPropertiesDto>(commandText, parameters)
-                            .ConfigureAwait(false);
-
-        dtos.ForEach((dto, idx) => accums[idx].UpdatePropertiesWithDto(dto));
-      }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
-    }
-    catch (Exception ex)
-    {
-      HandleException(ex);
-    }
-  }
-
-
-  public async Task UpdateTagPropertiesAndClassData(TmTag tag)
-  {
-    if (tag == null) return;
-
-    switch (tag)
-    {
-      case TmStatus status:
-        await UpdateStatusPropertiesAndClassData(status).ConfigureAwait(false);
-        return;
-
-      case TmAnalog analog:
-        await UpdateAnalogPropertiesAndClassData(analog).ConfigureAwait(false);
-        return;
-
-      case TmAccum accum:
-        await UpdateAccumPropertiesAndClassData(accum).ConfigureAwait(false);
+      
+      case TmAccum:
+        await UpdateAccumsPropertiesAndClassData(tmTags.ToDictionary(t => t.TmAddr.ToTma(),
+                                                                     t => t as TmAccum)).ConfigureAwait(false);
         return;
     }
   }
 
 
-  private async Task UpdateStatusPropertiesAndClassData(TmStatus status)
+  public async Task UpdateStatusesPropertiesAndClassData(IReadOnlyDictionary<int, TmStatus> tmStatuses)
   {
-    if (status == null) return;
+    if (tmStatuses.IsNullOrEmpty()) return;
 
     try
     {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = @"SELECT name, v_importance, v_normalstate, class_id, provider, 
-                               cl_text0, cl_text1, cl_break_text, cl_malfun_text, 
-                               cl_fla_name, cl_flb_name, cl_flc_name, cl_fld_name,
-                               cl_fla_text0, cl_flb_text0, cl_flc_text0, cl_fld_text0, 
-                               cl_fla_text1, cl_flb_text1, cl_flc_text1, cl_fld_text1,
-                               cl_ctltext_off, cl_ctltext_on
-              FROM oik_cur_ts
-              WHERE tma = @Tma";
-        var parameters = new { Tma = status.TmAddr.ToSqlTma() };
-        var dto = await sql.DbConnection
-                           .QueryFirstAsync<TmStatusPropertiesDto>(commandText, parameters)
-                           .ConfigureAwait(false);
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = @"SELECT tma, name, v_importance, v_normalstate, class_id, provider, 
+                                 cl_text0, cl_text1, cl_break_text, cl_malfun_text, 
+                                 cl_fla_name, cl_flb_name, cl_flc_name, cl_fld_name,
+                                 cl_fla_text0, cl_flb_text0, cl_flc_text0, cl_fld_text0, 
+                                 cl_fla_text1, cl_flb_text1, cl_flc_text1, cl_fld_text1,
+                                 cl_ctltext_off, cl_ctltext_on
+                          FROM oik_cur_ts
+                          WHERE tma = ANY(@TmaArray)";
+      var parameters = new { TmaArray = tmStatuses.Keys.ToArray() };
+      
+      var dtos = await sql.DbConnection
+                          .QueryAsync<TmStatusPropertiesDto>(commandText, parameters)
+                          .ConfigureAwait(false);
 
-        status.UpdatePropertiesWithDto(dto);
+      foreach (var dto in dtos)
+      {
+        if (tmStatuses.TryGetValue(dto.Tma, out var tmStatus))
+        {
+          tmStatus.UpdatePropertiesWithDto(dto);
+        }
       }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
     }
     catch (Exception ex)
     {
@@ -508,31 +371,33 @@ public partial class OikSqlApi
   }
 
 
-  private async Task UpdateAnalogPropertiesAndClassData(TmAnalog analog)
+  public async Task UpdateAnalogsPropertiesAndClassData(IReadOnlyDictionary<int, TmAnalog> tmAnalogs)
   {
-    if (analog == null) return;
+    if (tmAnalogs.IsNullOrEmpty()) return;
 
     try
     {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = @"SELECT name, v_unit, v_format, class_id, provider,
-                                     tpr_min_val, tpr_max_val, tpr_nominal, tpr_alr_present, tpr_alr_inuse,
-                                     tpr_zone_d_low, tpr_zone_c_low, tpr_zone_c_high, tpr_zone_d_high
-                              FROM oik_cur_tt
-                              WHERE tma = @Tma";
-        var parameters = new { Tma = analog.TmAddr.ToSqlTma() };
-        var dto = await sql.DbConnection
-                           .QueryFirstAsync<TmAnalogPropertiesDto>(commandText, parameters)
-                           .ConfigureAwait(false);
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = @"SELECT tma, name, v_unit, v_format, class_id, provider,
+                                 tpr_min_val, tpr_max_val, tpr_nominal, tpr_alr_present, tpr_alr_inuse,
+                                 tpr_zone_d_low, tpr_zone_c_low, tpr_zone_c_high, tpr_zone_d_high
+                          FROM oik_cur_tt
+                          WHERE tma = ANY(@TmaArray)";
+      var parameters = new { TmaArray = tmAnalogs.Keys.ToArray() };
+      
+      var dtos = await sql.DbConnection
+                          .QueryAsync<TmAnalogPropertiesDto>(commandText, parameters)
+                          .ConfigureAwait(false);
 
-        analog.UpdatePropertiesWithDto(dto);
+      foreach (var dto in dtos)
+      {
+        if (tmAnalogs.TryGetValue(dto.Tma, out var tmAnalog))
+        {
+          tmAnalog.UpdatePropertiesWithDto(dto);
+        }
       }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
     }
     catch (Exception ex)
     {
@@ -541,29 +406,31 @@ public partial class OikSqlApi
   }
 
 
-  private async Task UpdateAccumPropertiesAndClassData(TmAccum analog)
+  public async Task UpdateAccumsPropertiesAndClassData(IReadOnlyDictionary<int, TmAccum> tmAccums)
   {
-    if (analog == null) return;
+    if (tmAccums.IsNullOrEmpty()) return;
 
     try
     {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = @"SELECT name, v_unit, v_format, v_counter_format, provider
-                              FROM oik_cur_ti
-                              WHERE tma = @Tma";
-        var parameters = new { Tma = analog.TmAddr.ToSqlTma() };
-        var dto = await sql.DbConnection
-                           .QueryFirstAsync<TmAccumPropertiesDto>(commandText, parameters)
-                           .ConfigureAwait(false);
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = @"SELECT tma, name, v_unit, v_format, v_counter_format, provider
+                          FROM oik_cur_ti
+                          WHERE tma = ANY(@TmaArray)";
+      var parameters = new { TmaArray = tmAccums.Keys.ToArray() };
+      
+      var dtos = await sql.DbConnection
+                          .QueryAsync<TmAccumPropertiesDto>(commandText, parameters)
+                          .ConfigureAwait(false);
 
-        analog.UpdatePropertiesWithDto(dto);
+      foreach (var dto in dtos)
+      {
+        if (tmAccums.TryGetValue(dto.Tma, out var tmAccum))
+        {
+          tmAccum.UpdatePropertiesWithDto(dto);
+        }
       }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
     }
     catch (Exception ex)
     {
@@ -572,34 +439,138 @@ public partial class OikSqlApi
   }
 
 
-  public async Task<IReadOnlyCollection<TmAlarm>> GetAnalogAlarms(TmAnalog analog)
+  public async Task UpdateTagPropertiesAndClassData(TmTag tmTag)
   {
-    if (analog == null)
+    if (tmTag == null) return;
+
+    switch (tmTag)
+    {
+      case TmStatus tmStatus:
+        await UpdateStatusPropertiesAndClassData(tmStatus).ConfigureAwait(false);
+        return;
+
+      case TmAnalog tmAnalog:
+        await UpdateAnalogPropertiesAndClassData(tmAnalog).ConfigureAwait(false);
+        return;
+
+      case TmAccum tmAccum:
+        await UpdateAccumPropertiesAndClassData(tmAccum).ConfigureAwait(false);
+        return;
+    }
+  }
+
+
+  private async Task UpdateStatusPropertiesAndClassData(TmStatus tmStatus)
+  {
+    if (tmStatus == null) return;
+
+    try
+    {
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = @"SELECT name, v_importance, v_normalstate, class_id, provider, 
+                                 cl_text0, cl_text1, cl_break_text, cl_malfun_text, 
+                                 cl_fla_name, cl_flb_name, cl_flc_name, cl_fld_name,
+                                 cl_fla_text0, cl_flb_text0, cl_flc_text0, cl_fld_text0, 
+                                 cl_fla_text1, cl_flb_text1, cl_flc_text1, cl_fld_text1,
+                                 cl_ctltext_off, cl_ctltext_on
+                          FROM oik_cur_ts
+                          WHERE tma = @Tma";
+      var parameters = new { Tma = tmStatus.TmAddr.ToTma() };
+      
+      var dto = await sql.DbConnection
+                         .QueryFirstAsync<TmStatusPropertiesDto>(commandText, parameters)
+                         .ConfigureAwait(false);
+
+      tmStatus.UpdatePropertiesWithDto(dto);
+    }
+    catch (Exception ex)
+    {
+      HandleException(ex);
+    }
+  }
+
+
+  private async Task UpdateAnalogPropertiesAndClassData(TmAnalog tmAnalog)
+  {
+    if (tmAnalog == null) return;
+
+    try
+    {
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = @"SELECT name, v_unit, v_format, class_id, provider,
+                                 tpr_min_val, tpr_max_val, tpr_nominal, tpr_alr_present, tpr_alr_inuse,
+                                 tpr_zone_d_low, tpr_zone_c_low, tpr_zone_c_high, tpr_zone_d_high
+                          FROM oik_cur_tt
+                          WHERE tma = @Tma";
+      var parameters = new { Tma = tmAnalog.TmAddr.ToTma() };
+      
+      var dto = await sql.DbConnection
+                         .QueryFirstAsync<TmAnalogPropertiesDto>(commandText, parameters)
+                         .ConfigureAwait(false);
+
+      tmAnalog.UpdatePropertiesWithDto(dto);
+    }
+    catch (Exception ex)
+    {
+      HandleException(ex);
+    }
+  }
+
+
+  private async Task UpdateAccumPropertiesAndClassData(TmAccum tmAccum)
+  {
+    if (tmAccum == null) return;
+
+    try
+    {
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = @"SELECT name, v_unit, v_format, v_counter_format, provider
+                          FROM oik_cur_ti
+                          WHERE tma = @Tma";
+      var parameters = new { Tma = tmAccum.TmAddr.ToTma() };
+      
+      var dto = await sql.DbConnection
+                         .QueryFirstAsync<TmAccumPropertiesDto>(commandText, parameters)
+                         .ConfigureAwait(false);
+
+      tmAccum.UpdatePropertiesWithDto(dto);
+    }
+    catch (Exception ex)
+    {
+      HandleException(ex);
+    }
+  }
+
+
+  public async Task<IReadOnlyCollection<TmAlarm>> GetAnalogAlarms(TmAnalog tmAnalog)
+  {
+    if (tmAnalog == null)
     {
       return null;
     }
 
     try
     {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = @"SELECT alarm_id, alarm_name, importance, in_use, active, cmp_val, cmp_sign, expr, typ
-                              FROM oik_alarms
-                              WHERE tma = @Tma";
-        var parameters = new { Tma = analog.TmAddr.ToSqlTma() };
-        var dtos = await sql.DbConnection
-                            .QueryAsync<TmAlarmDto>(commandText, parameters)
-                            .ConfigureAwait(false);
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = @"SELECT alarm_id, alarm_name, importance, in_use, active, cmp_val, cmp_sign, expr, typ
+                          FROM oik_alarms
+                          WHERE tma = @Tma";
+      var parameters = new { Tma = tmAnalog.TmAddr.ToTma() };
+      
+      var dtos = await sql.DbConnection
+                          .QueryAsync<TmAlarmDto>(commandText, parameters)
+                          .ConfigureAwait(false);
 
-        return dtos.Select(dto => TmAlarm.CreateFromDto(dto, analog))
-                   .ToList();
-      }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
-      return null;
+      return dtos.Select(dto => TmAlarm.CreateFromDto(dto, tmAnalog))
+                 .ToList();
     }
     catch (Exception ex)
     {

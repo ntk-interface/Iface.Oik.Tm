@@ -193,7 +193,7 @@ namespace Iface.Oik.Tm.Interfaces
       }
 
       if (ChannelAndRtuCollection != null &&
-          !IsConformTmAddrComplexInteger(ev.TmAddrComplexInteger))
+          !IsConformTmAddrTma(ev.TmAddrTma))
       {
         return false;
       }
@@ -246,7 +246,7 @@ namespace Iface.Oik.Tm.Interfaces
       }
 
       if (ChannelAndRtuCollection != null &&
-          !IsConformTmAddrComplexInteger(userAction.TmAddrComplexInteger))
+          !IsConformTmAddrTma(userAction.TmAddrTma))
       {
         return false;
       }
@@ -265,7 +265,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public bool IsConformTmAddrComplexInteger(uint tma)
+    public bool IsConformTmAddrTma(int tma)
     {
       if (ChannelAndRtuCollection.IsNullOrEmpty()) return true;
 
@@ -275,8 +275,8 @@ namespace Iface.Oik.Tm.Interfaces
         var rtuList   = chAndRtu.Value;
         if (rtuList == null)
         {
-          var (tmaStart, tmaEnd) = TmChannel.GetSqlTmaRange(channelId);
-          if (tma >= (uint) tmaStart && tma <= (uint) tmaEnd)
+          var (tmaStart, tmaEnd) = TmChannel.GetTmaRange(channelId);
+          if (tma >= tmaStart && tma <= tmaEnd)
           {
             return true;
           }
@@ -285,8 +285,8 @@ namespace Iface.Oik.Tm.Interfaces
         {
           foreach (var rtuId in rtuList)
           {
-            var (tmaStart, tmaEnd) = TmRtu.GetSqlTmaRange(channelId, rtuId);
-            if (tma >= (uint) tmaStart && tma <= (uint) tmaEnd)
+            var (tmaStart, tmaEnd) = TmRtu.GetTmaRange(channelId, rtuId);
+            if (tma >= tmaStart && tma <= tmaEnd)
             {
               return true;
             }

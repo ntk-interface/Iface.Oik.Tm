@@ -29,7 +29,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     public static TmAlarmExpression CreateTmAlarmExpressionFromDto(TmAlarmDto dto)
     {
-      return CreateTmAlarmExpressionFromDto(dto, new TmAnalog(TmAddr.CreateFromSqlTma(TmType.Analog, dto.Tma)));
+      return CreateTmAlarmExpressionFromDto(dto, new TmAnalog(TmAddr.CreateFromTma(TmType.Analog, dto.Tma)));
     }
 
 

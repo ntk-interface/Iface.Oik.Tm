@@ -629,7 +629,7 @@ namespace Iface.Oik.Tm.Interfaces
     {
       if (dto?.Name == null) return null;
 
-      var status = new TmStatus(dto.Ch, dto.Rtu, dto.Point);
+      var status = new TmStatus(TmAddr.CreateFromTma(TmType.Status, dto.Tma));
       status.UpdateWithTmTreeDto(dto);
 
       return status;

@@ -72,17 +72,23 @@ namespace Iface.Oik.Tm.Interfaces
                                 uint                   time             = 0,
                                 bool                   getRealTelemetry = false);
 
-    Task UpdateStatuses(IReadOnlyList<TmStatus> statuses);
+    Task UpdateStatuses(IReadOnlyList<TmStatus> tmStatuses);
+
+    Task UpdateStatuses(IReadOnlyDictionary<int, TmStatus> tmStatuses);
 
     Task UpdateStatusesFromRetro(IReadOnlyList<TmStatus> statuses, DateTime time);
 
     Task UpdateStatusesExplicitly(IReadOnlyList<TmStatus> statuses, bool getRealTelemetry = false);
 
-    Task UpdateAnalogs(IReadOnlyList<TmAnalog> analogs);
+    Task UpdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs);
+
+    Task UpdateAnalogs(IReadOnlyDictionary<int, TmAnalog> tmAnalogs);
 
     Task UpdateAnalogsFromRetro(IReadOnlyList<TmAnalog> analogs, DateTime time, int retroNum = 0);
 
-    Task UpdateAccums(IReadOnlyList<TmAccum> accums);
+    Task UpdateAccums(IReadOnlyList<TmAccum> tmAccums);
+
+    Task UpdateAccums(IReadOnlyDictionary<int, TmAccum> tmAccums);
 
     Task UpdateAccumsFromRetro(IReadOnlyList<TmAccum> accums, DateTime time);
 
@@ -94,6 +100,12 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags);
+
+    Task UpdateStatusesPropertiesAndClassData(IReadOnlyDictionary<int, TmStatus> statuses);
+
+    Task UpdateAnalogsPropertiesAndClassData(IReadOnlyDictionary<int, TmAnalog> analogs);
+
+    Task UpdateAccumsPropertiesAndClassData(IReadOnlyDictionary<int, TmAccum> accums);
 
     Task UpdateTagPropertiesAndClassData(TmTag tag);
 

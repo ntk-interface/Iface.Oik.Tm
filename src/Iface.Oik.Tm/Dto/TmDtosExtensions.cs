@@ -24,6 +24,7 @@ namespace Iface.Oik.Tm.Dto
     {
       return new TmStatusDto
       {
+        Tma        = dto.Tma,
         VCode      = dto.VCode,
         Flags      = dto.Flags,
         VS2        = dto.VS2,
@@ -36,6 +37,7 @@ namespace Iface.Oik.Tm.Dto
     {
       return new TmStatusPropertiesDto
       {
+        Tma          = dto.Tma,
         Name         = dto.Name,
         VImportance  = dto.VImportance,
         VNormalState = dto.VNormalState,
@@ -65,6 +67,7 @@ namespace Iface.Oik.Tm.Dto
     {
       return new TmAnalogDto
       {
+        Tma        = dto.Tma,
         VVal       = dto.VVal,
         Flags      = dto.Flags,
         ChangeTime = dto.ChangeTime,
@@ -76,6 +79,7 @@ namespace Iface.Oik.Tm.Dto
     {
       return new TmAnalogPropertiesDto
       {
+        Tma      = dto.Tma,
         Name     = dto.Name,
         VUnit    = dto.VUnit,
         VFormat  = dto.VFormat,
@@ -89,6 +93,7 @@ namespace Iface.Oik.Tm.Dto
     {
       return new TmAccumDto
       {
+        Tma        = dto.Tma,
         VVal       = dto.VVal,
         VLoad      = dto.VLoad,
         Flags      = dto.Flags,
@@ -101,6 +106,7 @@ namespace Iface.Oik.Tm.Dto
     {
       return new TmAccumPropertiesDto
       {
+        Tma            = dto.Tma,
         Name           = dto.Name,
         VUnit          = dto.VUnit,
         VFormat        = dto.VFormat,

@@ -493,7 +493,7 @@ namespace Iface.Oik.Tm.Interfaces
     {
       if (dto?.Name == null) return null;
 
-      var analog = new TmAnalog(dto.Ch, dto.Rtu, dto.Point);
+      var analog = new TmAnalog(TmAddr.CreateFromTma(TmType.Analog, dto.Tma));
       analog.UpdateWithTmTreeDto(dto);
 
       return analog;

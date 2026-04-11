@@ -413,7 +413,7 @@ namespace Iface.Oik.Tm.Api
 
       uint count = 0;
       var tmcImpulseArchivePtr = await Task.Run(() => TmNative.tmcAanReadArchive(_cid,
-                                                                                analog.TmAddr.ToIntegerWithoutPadding(),
+                                                                                (uint) analog.TmAddr.ToTma(),
                                                                                 (uint)TmNative.uxgmtime2uxtime(startTime),
                                                                                 (uint)TmNative.uxgmtime2uxtime(endTime),
                                                                                 step,
@@ -469,7 +469,7 @@ namespace Iface.Oik.Tm.Api
 
       uint count = 0;
       var tmcImpulseArchivePtr = await Task.Run(() => TmNative.tmcAanReadArchive(_cid,
-                                                                                analog.TmAddr.ToIntegerWithoutPadding(),
+                                                                                (uint)analog.TmAddr.ToTma(),
                                                                                 (uint)TmNative.uxgmtime2uxtime(startTime),
                                                                                 (uint)TmNative.uxgmtime2uxtime(endTime),
                                                                                 (uint)step,
@@ -556,7 +556,7 @@ namespace Iface.Oik.Tm.Api
 
             uint count = 0;
             var tmcImpulseArchivePtr = await Task.Run(() => TmNative.tmcAanReadArchive(_cid,
-                                                                                      analog.TmAddr.ToIntegerWithoutPadding(),
+                                                                                      (uint)analog.TmAddr.ToTma(),
                                                                                       (uint)TmNative.uxgmtime2uxtime(startTime),
                                                                                       (uint)TmNative.uxgmtime2uxtime(endTime),
                                                                                       (uint)step,
@@ -647,9 +647,15 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task UpdateStatuses(IReadOnlyList<TmStatus> statuses)
+    public async Task UpdateStatuses(IReadOnlyList<TmStatus> tmStatuses)
     {
-      await Task.Run(() => UpdateStatusesSynchronously(statuses)).ConfigureAwait(false);
+      await Task.Run(() => UpdateStatusesSynchronously(tmStatuses)).ConfigureAwait(false);
+    }
+
+
+    public async Task UpdateStatuses(IReadOnlyDictionary<int, TmStatus> tmStatuses)
+    {
+      await Task.Run(() => UpdateStatuses(tmStatuses.Values.ToList())).ConfigureAwait(false);
     }
 
 
@@ -711,9 +717,15 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task UpdateAnalogs(IReadOnlyList<TmAnalog> analogs)
+    public async Task UpdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs)
     {
-      await Task.Run(() => UpdateAnalogsSynchronously(analogs)).ConfigureAwait(false);
+      await Task.Run(() => UpdateAnalogsSynchronously(tmAnalogs)).ConfigureAwait(false);
+    }
+
+
+    public async Task UpdateAnalogs(IReadOnlyDictionary<int, TmAnalog> tmAnalogs)
+    {
+      await Task.Run(() => UpdateAnalogs(tmAnalogs.Values.ToList())).ConfigureAwait(false);
     }
 
 
@@ -781,9 +793,15 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task UpdateAccums(IReadOnlyList<TmAccum> accums)
+    public async Task UpdateAccums(IReadOnlyList<TmAccum> tmAccums)
     {
-      await Task.Run(() => UpdateAccumsSynchronously(accums)).ConfigureAwait(false);
+      await Task.Run(() => UpdateAccumsSynchronously(tmAccums)).ConfigureAwait(false);
+    }
+
+
+    public async Task UpdateAccums(IReadOnlyDictionary<int, TmAccum> tmAccums)
+    {
+      await Task.Run(() => UpdateAccums(tmAccums.Values.ToList())).ConfigureAwait(false);
     }
 
     
@@ -881,6 +899,24 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    public async Task UpdateStatusesPropertiesAndClassData(IReadOnlyDictionary<int, TmStatus> statuses)
+    {
+      await UpdateTagsPropertiesAndClassData(statuses.Values.ToList()).ConfigureAwait(false);
+    }
+
+
+    public async Task UpdateAnalogsPropertiesAndClassData(IReadOnlyDictionary<int, TmAnalog> analogs)
+    {
+      await UpdateTagsPropertiesAndClassData(analogs.Values.ToList()).ConfigureAwait(false);
+    }
+
+
+    public async Task UpdateAccumsPropertiesAndClassData(IReadOnlyDictionary<int, TmAccum> accums)
+    {
+      await UpdateTagsPropertiesAndClassData(accums.Values.ToList()).ConfigureAwait(false);
+    }
+
+
     public async Task UpdateTagPropertiesAndClassData(TmTag tag)
     {
       var taskProperties           = UpdateTagProperties(tag);
@@ -927,7 +963,7 @@ namespace Iface.Oik.Tm.Api
       await Task.Run(() => TmNative.tmcTmvUserSetDefine(_cid,
                                                         (ushort)tmType.ToNativeType(),
                                                         EncodingUtil.StringToBytes(name),
-                                                        tmTags.Select(t => t.TmAddr.ToIntegerWithoutPadding()).ToArray(),
+                                                        tmTags.Select(t => (uint)t.TmAddr.ToTma()).ToArray(),
                                                         (uint) tmTags.Count)).ConfigureAwait(false);
     }
 

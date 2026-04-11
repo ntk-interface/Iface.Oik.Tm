@@ -15,15 +15,15 @@
     }
 
 
-    public static int ToSqlTma(int channelId, int rtuId)
+    public static int ToTma(int channelId, int rtuId)
     {
       return (rtuId << 16) + (channelId << 24);
     }
 
 
-    public static (int, int) GetSqlTmaRange(int channelId, int rtuId)
+    public static (int, int) GetTmaRange(int channelId, int rtuId)
     {
-      return (ToSqlTma(channelId, rtuId) + 1, ToSqlTma(channelId, rtuId + 1) - 1);
+      return (ToTma(channelId, rtuId) + 1, ToTma(channelId, rtuId + 1) - 1);
     }
   }
 }

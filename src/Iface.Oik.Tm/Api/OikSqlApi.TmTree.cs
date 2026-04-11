@@ -7,7 +7,6 @@ using Dapper;
 using Iface.Oik.Tm.Dto;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Utils;
-using Npgsql;
 
 namespace Iface.Oik.Tm.Api;
 
@@ -17,22 +16,17 @@ public partial class OikSqlApi
   {
     try
     {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = "SELECT ch AS ChannelId, name AS Name FROM oik_chn ORDER BY ch";
-        var dtos = await sql.DbConnection
-                            .QueryAsync<TmChannelDto>(commandText)
-                            .ConfigureAwait(false);
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = "SELECT ch AS ChannelId, name AS Name FROM oik_chn ORDER BY ch";
+      
+      var dtos = await sql.DbConnection
+                          .QueryAsync<TmChannelDto>(commandText)
+                          .ConfigureAwait(false);
 
-        return dtos.Select(dto => dto.MapToTmChannel())
-                   .ToList();
-      }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
-      return null;
+      return dtos.Select(dto => dto.MapToTmChannel())
+                 .ToList();
     }
     catch (Exception ex)
     {
@@ -48,23 +42,18 @@ public partial class OikSqlApi
 
     try
     {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = "SELECT @Ch AS ChannelId, rtu AS RtuId, name AS Name FROM oik_rtu WHERE ch = @Ch";
-        var parameters  = new { Ch = channelId };
-        var dtos = await sql.DbConnection
-                            .QueryAsync<TmRtuDto>(commandText, parameters)
-                            .ConfigureAwait(false);
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = "SELECT @Ch AS ChannelId, rtu AS RtuId, name AS Name FROM oik_rtu WHERE ch = @Ch";
+      var parameters  = new { Ch = channelId };
+      
+      var dtos = await sql.DbConnection
+                          .QueryAsync<TmRtuDto>(commandText, parameters)
+                          .ConfigureAwait(false);
 
-        return dtos.Select(dto => dto.MapToTmRtu())
-                   .ToList();
-      }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
-      return null;
+      return dtos.Select(dto => dto.MapToTmRtu())
+                 .ToList();
     }
     catch (Exception ex)
     {
@@ -84,31 +73,26 @@ public partial class OikSqlApi
 
     try
     {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = @"SELECT @Ch AS ch, @Rtu AS rtu, point, 
-                                name, v_importance, v_normalstate, class_id, provider, 
-                                cl_text0, cl_text1, cl_break_text, cl_malfun_text, 
-                                cl_fla_name, cl_flb_name, cl_flc_name, cl_fld_name,
-                                cl_fla_text0, cl_flb_text0, cl_flc_text0, cl_fld_text0, 
-                                cl_fla_text1, cl_flb_text1, cl_flc_text1, cl_fld_text1,
-                                v_code, flags, v_s2, change_time
-                              FROM oik_cur_ts
-                              WHERE ch = @Ch AND rtu = @Rtu";
-        var parameters = new { Ch = channelId, Rtu = rtuId };
-        var dtos = await sql.DbConnection
-                            .QueryAsync<TmStatusTmTreeDto>(commandText, parameters)
-                            .ConfigureAwait(false);
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = @"SELECT tma, 
+                                 name, v_importance, v_normalstate, class_id, provider, 
+                                 cl_text0, cl_text1, cl_break_text, cl_malfun_text, 
+                                 cl_fla_name, cl_flb_name, cl_flc_name, cl_fld_name,
+                                 cl_fla_text0, cl_flb_text0, cl_flc_text0, cl_fld_text0, 
+                                 cl_fla_text1, cl_flb_text1, cl_flc_text1, cl_fld_text1,
+                                 v_code, flags, v_s2, change_time
+                          FROM oik_cur_ts
+                          WHERE ch = @Ch AND rtu = @Rtu";
+      var parameters = new { Ch = channelId, Rtu = rtuId };
+      
+      var dtos = await sql.DbConnection
+                          .QueryAsync<TmStatusTmTreeDto>(commandText, parameters)
+                          .ConfigureAwait(false);
 
-        return dtos.Select(TmStatus.CreateFromTmTreeDto)
-                   .ToList();
-      }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
-      return null;
+      return dtos.Select(TmStatus.CreateFromTmTreeDto)
+                 .ToList();
     }
     catch (Exception ex)
     {
@@ -128,27 +112,22 @@ public partial class OikSqlApi
 
     try
     {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = @"SELECT @Ch AS ch, @RTU AS rtu, point, 
-                                name, v_unit, v_format, class_id, provider, 
-                                v_val, flags, change_time
-                              FROM oik_cur_tt
-                              WHERE ch = @Ch AND rtu = @Rtu";
-        var parameters = new { Ch = channelId, Rtu = rtuId };
-        var dtos = await sql.DbConnection
-                            .QueryAsync<TmAnalogTmTreeDto>(commandText, parameters)
-                            .ConfigureAwait(false);
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = @"SELECT tma, 
+                                 name, v_unit, v_format, class_id, provider, 
+                                 v_val, flags, change_time
+                          FROM oik_cur_tt
+                          WHERE ch = @Ch AND rtu = @Rtu";
+      var parameters = new { Ch = channelId, Rtu = rtuId };
+      
+      var dtos = await sql.DbConnection
+                          .QueryAsync<TmAnalogTmTreeDto>(commandText, parameters)
+                          .ConfigureAwait(false);
 
-        return dtos.Select(TmAnalog.CreateFromTmTreeDto)
-                   .ToList();
-      }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
-      return null;
+      return dtos.Select(TmAnalog.CreateFromTmTreeDto)
+                 .ToList();
     }
     catch (Exception ex)
     {
@@ -168,27 +147,22 @@ public partial class OikSqlApi
 
     try
     {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = @"SELECT @Ch AS ch, @RTU AS rtu, point, 
-                                name, v_unit, v_format, v_counter_format, provider, 
-                                v_val, v_load, flags, change_time
-                              FROM oik_cur_ti
-                              WHERE ch = @Ch AND rtu = @Rtu";
-        var parameters = new { Ch = channelId, Rtu = rtuId };
-        var dtos = await sql.DbConnection
-                            .QueryAsync<TmAccumTmTreeDto>(commandText, parameters)
-                            .ConfigureAwait(false);
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = @"SELECT tma, 
+                                 name, v_unit, v_format, v_counter_format, provider, 
+                                 v_val, v_load, flags, change_time
+                          FROM oik_cur_ti
+                          WHERE ch = @Ch AND rtu = @Rtu";
+      var parameters = new { Ch = channelId, Rtu = rtuId };
+      
+      var dtos = await sql.DbConnection
+                          .QueryAsync<TmAccumTmTreeDto>(commandText, parameters)
+                          .ConfigureAwait(false);
 
-        return dtos.Select(TmAccum.CreateFromTmTreeDto)
-                   .ToList();
-      }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
-      return null;
+      return dtos.Select(TmAccum.CreateFromTmTreeDto)
+                 .ToList();
     }
     catch (Exception ex)
     {
@@ -204,19 +178,14 @@ public partial class OikSqlApi
 
     try
     {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = "SELECT name FROM oik_chn WHERE ch = @Ch";
-        return await sql.DbConnection.QueryFirstOrDefaultAsync<string>(commandText,
-                                                                       new { Ch = channelId })
-                        .ConfigureAwait(false);
-      }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
-      return null;
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = "SELECT name FROM oik_chn WHERE ch = @Ch";
+      
+      return await sql.DbConnection.QueryFirstOrDefaultAsync<string>(commandText,
+                                                                     new { Ch = channelId })
+                      .ConfigureAwait(false);
     }
     catch (Exception ex)
     {
@@ -236,19 +205,14 @@ public partial class OikSqlApi
 
     try
     {
-      using (var sql = _createOikSqlConnection())
-      {
-        await sql.OpenAsync().ConfigureAwait(false);
-        var commandText = "SELECT name FROM oik_rtu WHERE ch = @Ch AND rtu = @Rtu";
-        return await sql.DbConnection.QueryFirstOrDefaultAsync<string>(commandText,
-                                                                       new { Ch = channelId, Rtu = rtuId })
-                        .ConfigureAwait(false);
-      }
-    }
-    catch (NpgsqlException ex)
-    {
-      HandleNpgsqlException(ex);
-      return null;
+      using var sql = _createOikSqlConnection();
+      await sql.OpenAsync().ConfigureAwait(false);
+      
+      var commandText = "SELECT name FROM oik_rtu WHERE ch = @Ch AND rtu = @Rtu";
+      
+      return await sql.DbConnection.QueryFirstOrDefaultAsync<string>(commandText,
+                                                                     new { Ch = channelId, Rtu = rtuId })
+                      .ConfigureAwait(false);
     }
     catch (Exception ex)
     {
@@ -272,56 +236,50 @@ public partial class OikSqlApi
 
       try
       {
-        using (var sql = _createOikSqlConnection())
+        using var sql = _createOikSqlConnection();
+        await sql.OpenAsync().ConfigureAwait(false); 
+        
+        var commandText = $@"SELECT tma, 
+                                    name, v_importance, v_normalstate, class_id, provider, 
+                                    cl_text0, cl_text1, cl_break_text, cl_malfun_text, 
+                                    cl_fla_name, cl_flb_name, cl_flc_name, cl_fld_name,
+                                    cl_fla_text0, cl_flb_text0, cl_flc_text0, cl_fld_text0, 
+                                    cl_fla_text1, cl_flb_text1, cl_flc_text1, cl_fld_text1,
+                                    v_code, flags, v_s2, change_time
+                             FROM oik_cur_ts
+                             WHERE 1=1 {whereName}{whereFlags}{whereClasses}{whereChangeTime}{whereUpdateTime}{whereStatus}{whereS2Flags}
+                             ORDER BY change_time DESC";
+        var parameters = new DynamicParameters();
+        if (!whereName.IsNullOrEmpty())
         {
-          await sql.OpenAsync().ConfigureAwait(false); 
-          var commandText = $@"SELECT @Ch AS ch, @Rtu AS rtu, point, 
-                                name, v_importance, v_normalstate, class_id, provider, 
-                                cl_text0, cl_text1, cl_break_text, cl_malfun_text, 
-                                cl_fla_name, cl_flb_name, cl_flc_name, cl_fld_name,
-                                cl_fla_text0, cl_flb_text0, cl_flc_text0, cl_fld_text0, 
-                                cl_fla_text1, cl_flb_text1, cl_flc_text1, cl_fld_text1,
-                                v_code, flags, v_s2, change_time
-                              FROM oik_cur_ts
-                              WHERE 1=1 {whereName}{whereFlags}{whereClasses}{whereChangeTime}{whereUpdateTime}{whereStatus}{whereS2Flags}
-                              ORDER BY change_time DESC";
-          var parameters = new DynamicParameters();
-          if (!whereName.IsNullOrEmpty())
-          {
-            parameters.Add("@Name", filter.Name, DbType.String);
-          }
-          if (!whereFlags.IsNullOrEmpty())
-          {
-            parameters.Add("@Flags", (int)filter.Flags, DbType.Int32);
-          }
-          if (!whereChangeTime.IsNullOrEmpty())
-          {
-            parameters.Add("@change_time_minutes", filter.ChangeTimeMinutes, DbType.Int32);
-          }
-          if (!whereUpdateTime.IsNullOrEmpty())
-          {
-            parameters.Add("@update_time_minutes", filter.UpdateTimeMinutes, DbType.Int32);
-          }
-          if (!whereStatus.IsNullOrEmpty())
-          {
-            parameters.Add("@Status", filter.Status, DbType.Int32);
-          }
-          if (!whereS2Flags.IsNullOrEmpty())
-          {
-            parameters.Add("@S2Flags", filter.S2Flags, DbType.Int32);
-          }
-          var dtos = await sql.DbConnection
-                              .QueryAsync<TmStatusTmTreeDto>(commandText, parameters)
-                              .ConfigureAwait(false);
-
-          return dtos.Select(TmStatus.CreateFromTmTreeDto)
-                     .ToList();
+          parameters.Add("@Name", filter.Name, DbType.String);
         }
-      }
-      catch (NpgsqlException ex)
-      {
-        HandleNpgsqlException(ex);
-        return null;
+        if (!whereFlags.IsNullOrEmpty())
+        {
+          parameters.Add("@Flags", (int)filter.Flags, DbType.Int32);
+        }
+        if (!whereChangeTime.IsNullOrEmpty())
+        {
+          parameters.Add("@change_time_minutes", filter.ChangeTimeMinutes, DbType.Int32);
+        }
+        if (!whereUpdateTime.IsNullOrEmpty())
+        {
+          parameters.Add("@update_time_minutes", filter.UpdateTimeMinutes, DbType.Int32);
+        }
+        if (!whereStatus.IsNullOrEmpty())
+        {
+          parameters.Add("@Status", filter.Status, DbType.Int32);
+        }
+        if (!whereS2Flags.IsNullOrEmpty())
+        {
+          parameters.Add("@S2Flags", filter.S2Flags, DbType.Int32);
+        }
+        var dtos = await sql.DbConnection
+                            .QueryAsync<TmStatusTmTreeDto>(commandText, parameters)
+                            .ConfigureAwait(false);
+
+        return dtos.Select(TmStatus.CreateFromTmTreeDto)
+                   .ToList();
       }
       catch (Exception ex)
       {
@@ -413,44 +371,38 @@ public partial class OikSqlApi
 
       try
       {
-        using (var sql = _createOikSqlConnection())
+        using var sql = _createOikSqlConnection();
+        await sql.OpenAsync().ConfigureAwait(false);
+        
+        var commandText = $@"SELECT tma, 
+                                    name, v_unit, v_format, class_id, provider, 
+                                    v_val, flags, change_time
+                             FROM oik_cur_tt
+                             WHERE 1=1 {whereName}{whereFlags}{whereClasses}{whereChangeTime}{whereUpdateTime}
+                             ORDER BY change_time DESC";
+        var parameters = new DynamicParameters();
+        if (!whereName.IsNullOrEmpty())
         {
-          await sql.OpenAsync().ConfigureAwait(false);
-          var commandText = $@"SELECT @Ch AS ch, @RTU AS rtu, point, 
-                                name, v_unit, v_format, class_id, provider, 
-                                v_val, flags, change_time
-                              FROM oik_cur_tt
-                              WHERE 1=1 {whereName}{whereFlags}{whereClasses}{whereChangeTime}{whereUpdateTime}
-                              ORDER BY change_time DESC";
-          var parameters = new DynamicParameters();
-          if (!whereName.IsNullOrEmpty())
-          {
-            parameters.Add("@Name", filter.Name, DbType.String);
-          }
-          if (!whereFlags.IsNullOrEmpty())
-          {
-            parameters.Add("@Flags", (int)filter.Flags, DbType.Int32);
-          }
-          if (!whereChangeTime.IsNullOrEmpty())
-          {
-            parameters.Add("@change_time_minutes", filter.ChangeTimeMinutes, DbType.Int32);
-          }
-          if (!whereUpdateTime.IsNullOrEmpty())
-          {
-            parameters.Add("@update_time_minutes", filter.UpdateTimeMinutes, DbType.Int32);
-          }
-          var dtos = await sql.DbConnection
-                              .QueryAsync<TmAnalogTmTreeDto>(commandText, parameters)
-                              .ConfigureAwait(false);
-
-          return dtos.Select(TmAnalog.CreateFromTmTreeDto)
-                     .ToList();
+          parameters.Add("@Name", filter.Name, DbType.String);
         }
-      }
-      catch (NpgsqlException ex)
-      {
-        HandleNpgsqlException(ex);
-        return null;
+        if (!whereFlags.IsNullOrEmpty())
+        {
+          parameters.Add("@Flags", (int)filter.Flags, DbType.Int32);
+        }
+        if (!whereChangeTime.IsNullOrEmpty())
+        {
+          parameters.Add("@change_time_minutes", filter.ChangeTimeMinutes, DbType.Int32);
+        }
+        if (!whereUpdateTime.IsNullOrEmpty())
+        {
+          parameters.Add("@update_time_minutes", filter.UpdateTimeMinutes, DbType.Int32);
+        }
+        var dtos = await sql.DbConnection
+                            .QueryAsync<TmAnalogTmTreeDto>(commandText, parameters)
+                            .ConfigureAwait(false);
+
+        return dtos.Select(TmAnalog.CreateFromTmTreeDto)
+                   .ToList();
       }
       catch (Exception ex)
       {
