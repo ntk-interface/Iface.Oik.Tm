@@ -398,8 +398,7 @@ namespace Iface.Oik.Tm.Helpers
 
       return new TmServerFeatures(IsCapabilityEnabled(capabilitiesBuf, TmNativeDefs.ServerCap.Comtrade),
                                   IsCapabilityEnabled(capabilitiesBuf, TmNativeDefs.ServerCap.MicroSeries),
-                                  IsImpulseArchiveEnabled(),
-                                  AreTechObjectsEnabled());
+                                  IsImpulseArchiveEnabled());
 
       bool IsCapabilityEnabled(byte[] capabilities, TmNativeDefs.ServerCap capability)
       {
@@ -411,18 +410,6 @@ namespace Iface.Oik.Tm.Helpers
       {
         var stats = new TmNativeDefs.TM_AAN_STATS();
         return TmNative.tmcAanGetStats(tmCid, ref stats, 0);
-      }
-
-      bool AreTechObjectsEnabled()
-      {
-        return true;
-        var tobPtr = TmNative.tmcTechObjEnumValues(tmCid, uint.MaxValue, uint.MaxValue, IntPtr.Zero, out var count);
-        if (tobPtr == IntPtr.Zero)
-        {
-          return false;
-        }
-        TmNative.tmcFreeMemory(tobPtr);
-        return count > 0;
       }
     }
 

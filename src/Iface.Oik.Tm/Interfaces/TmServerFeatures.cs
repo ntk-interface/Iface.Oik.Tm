@@ -5,21 +5,18 @@ namespace Iface.Oik.Tm.Interfaces
     public bool IsComtradeEnabled       { get; }
     public bool AreMicroSeriesEnabled   { get; }
     public bool IsImpulseArchiveEnabled { get; }
-    public bool AreTechObjectsEnabled   { get; }
 
 
-    public static TmServerFeatures Empty => new TmServerFeatures();
+    public static TmServerFeatures Empty => new();
 
 
     public TmServerFeatures(bool isComtradeEnabled       = false,
                             bool areMicroSeriesEnabled   = false,
-                            bool isImpulseArchiveEnabled = false, 
-                            bool areTechObjectsEnabled   = false)
+                            bool isImpulseArchiveEnabled = false)
     {
       IsComtradeEnabled       = isComtradeEnabled;
       AreMicroSeriesEnabled   = areMicroSeriesEnabled;
       IsImpulseArchiveEnabled = isImpulseArchiveEnabled;
-      AreTechObjectsEnabled   = areTechObjectsEnabled;
     }
   }
 }

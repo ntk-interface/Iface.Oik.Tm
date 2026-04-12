@@ -155,10 +155,9 @@ public static class TestStaticTms
     {
       var serverFeatures = Tms.GetTmServerFeatures(tmCid);
       Log.Condition(serverFeatures.AreMicroSeriesEnabled, "Server features");
-      Log.Message($"Comtrade:{serverFeatures.IsComtradeEnabled}");
+      Log.Message($"Comtrade: {serverFeatures.IsComtradeEnabled}");
       Log.Message($"MicroSeries: {serverFeatures.AreMicroSeriesEnabled}");
       Log.Message($"ImpArchive: {serverFeatures.IsImpulseArchiveEnabled}");
-      Log.Message($"TOB: {serverFeatures.AreTechObjectsEnabled}");
     }
     catch (Exception)
     {

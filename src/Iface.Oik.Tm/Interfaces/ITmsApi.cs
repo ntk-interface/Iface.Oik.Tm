@@ -301,21 +301,6 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<bool> SwitchStatusManually(TmStatus tmStatus, bool alsoBlockManually = false);
 
-    Task SetTechObjectsProperties(IReadOnlyCollection<Tob> tobs);
-
-
-    Task SetTechObjectProperties(int                                 scheme,
-                                 int                                 type,
-                                 int                                 obj,
-                                 IReadOnlyDictionary<string, string> properties);
-
-
-    Task ClearTechObjectProperties(int                 scheme,
-                                   int                 type,
-                                   int                 obj,
-                                   IEnumerable<string> properties);
-
-
     Task SetStatusNormalOn(TmStatus status);
 
     Task SetStatusNormalOff(TmStatus status);
