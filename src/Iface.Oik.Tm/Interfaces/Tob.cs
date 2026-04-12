@@ -33,6 +33,10 @@ namespace Iface.Oik.Tm.Interfaces
       get => _topologyState;
       private set => SetPropertyValueAndRefresh(ref _topologyState, value);
     }
+    
+    
+    public object Reference { get; set; } // ссылка на связанный объект, например для схемы - выключатель, прибор и т.п.
+
 
     public string NameOrDefault => !string.IsNullOrEmpty(Name)
       ? Name
