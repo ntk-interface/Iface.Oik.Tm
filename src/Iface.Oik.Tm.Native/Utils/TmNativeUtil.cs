@@ -441,6 +441,16 @@ namespace Iface.Oik.Tm.Native.Utils
         return (result, (nint)p + length + 1);
       }
     }
+    
+    
+    public static Span<byte> StringToBytes(string src, Encoding? encoding = null)
+    {
+      encoding ??= Encoding.UTF8;
+      
+      return string.IsNullOrEmpty(src) 
+               ? Span<byte>.Empty 
+               : encoding.GetBytes(src);
+    }
 
 
     public static bool PointerValueIsNull(nint ptr)

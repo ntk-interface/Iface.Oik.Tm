@@ -123,7 +123,7 @@ namespace Iface.Oik.Tm.Api
     {
       var (ch, rtu, point) = status.TmAddr.GetTupleShort();
 
-      var args = new GetStatusRetroExArgs
+      var args = new GetRetroExArgs
       {
         TmCid             = _cid,
         Ch                = ch,
@@ -142,30 +142,19 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<float> GetAnalog(int ch, int rtu, int point)
     {
-      return await Task.Run(() => TmNative.tmcAnalog(_cid, (short)ch, (short)rtu, (short)point, null, 0))
+      return await Task.Run(() => TmNativeApi.GetAnalog(_cid, ch, rtu, point, null, 0))
                        .ConfigureAwait(false);
     }
 
 
     public async Task<ITmAnalogRetro> GetAnalogFromRetro(int ch, int rtu, int point, DateTime time, int retroNum = 0)
     {
-      var analogPoint = new TmNativeDefs.TAnalogPoint();
-
-      var isSuccess = await Task.Run(() => TmNative.tmcAnalogFull(_cid,
-                                                                  (short)ch,
-                                                                  (short)rtu,
-                                                                  (short)point,
-                                                                  ref analogPoint,
-                                                                  time.ToTmByteArray(),
-                                                                  (short)retroNum))
-                                .ConfigureAwait(false);
-      if (isSuccess == 0)
-      {
-        return TmAnalogRetro.UnreliableValue;
-      }
-      var utcTime       = DateUtil.GetUtcTimestampFromDateTime(time);
-      var serverUtcTime = TmNative.uxgmtime2uxtime(utcTime);
-      return new TmAnalogRetro(analogPoint.AsFloat, analogPoint.Flags, serverUtcTime);
+      var (isSuccess, dto) = await Task.Run(() => TmNativeApi.GetAnalogFromRetro(_cid, ch, rtu, point, time, 0))
+                                       .ConfigureAwait(false);
+      
+      return isSuccess 
+               ? new TmAnalogRetro(dto.Value, dto.Flags, dto.Time) 
+               : TmAnalogRetro.UnreliableValue;
     }
     
 
@@ -281,45 +270,23 @@ namespace Iface.Oik.Tm.Api
                                                                             int retroNum = 0,
                                                                             bool getRealTelemetry = false)
     {
-      if (filter.StartTime >= filter.EndTime)
-      {
-        return null;
-      }
-
       var (ch, rtu, point) = analog.TmAddr.GetTupleShort();
 
-      var tmcAnalogPoint = new TmNativeDefs.TAnalogPoint();
-      var analogRetros   = new List<ITmAnalogRetro>();
-
-      var currentTime = filter.StartTime;
-
-      while (currentTime <= filter.EndTime)
+      var args = new GetRetroExArgs
       {
-        var time = currentTime;
-        var result = await Task.Run(() => TmNative.tmcAnalogFull(_cid,
-                                                                 getRealTelemetry
-                                                                   ? (short)(ch + TmNativeDefs.RealTelemetryFlag)
-                                                                   : ch,
-                                                                 rtu,
-                                                                 point,
-                                                                 ref tmcAnalogPoint,
-                                                                 time.ToTmByteArray(),
-                                                                 (short)retroNum))
-                               .ConfigureAwait(false);
-
-        currentTime = currentTime.AddSeconds(filter.Step);
-
-        if (result != TmNativeDefs.Success)
-        {
-          continue;
-        }
-
-        analogRetros.Add(new TmAnalogRetro(tmcAnalogPoint.AsFloat, tmcAnalogPoint.Flags,
-                                           TmNative.uxgmtime2uxtime(DateUtil.GetUtcTimestampFromDateTime(time)),
-                                           tmcAnalogPoint.AsCode));
-      }
-
-      return analogRetros;
+        TmCid             = _cid,
+        Ch                = ch,
+        Rtu               = rtu,
+        Point             = point,
+        StartTime         = filter.StartTime,
+        EndTime           = filter.EndTime,
+        Step              = filter.Step,
+        RetroNum          = retroNum,
+        UserRealTelemetry = getRealTelemetry
+      };
+      
+      return await Task.Run(() => TmNativeApi.GetAnalogRetroEx<TmAnalogRetro>(args))
+                       .ConfigureAwait(false);
     }
 
 

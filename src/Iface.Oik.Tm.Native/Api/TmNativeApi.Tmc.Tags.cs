@@ -3,7 +3,6 @@ using System.Buffers;
 using System.Collections.Generic;
 using Iface.Oik.Tm.Native.Dto;
 using System.Linq;
-using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 
@@ -26,10 +25,10 @@ public static partial class TmNativeApi
 
     var classDataPtr = type switch
                        {
-                         TmNativeDefs.TmDataTypes.Status => TmNative.tmcGetStatusClassData(cid, 1, new [] {tmAddr}),
-                         TmNativeDefs.TmDataTypes.Analog => TmNative.tmcGetAnalogClassData(cid, 1, new [] {tmAddr}),
+                         TmNativeDefs.TmDataTypes.Status => TmNative.tmcGetStatusClassData(cid, 1, new[] { tmAddr }),
+                         TmNativeDefs.TmDataTypes.Analog => TmNative.tmcGetAnalogClassData(cid, 1, new[] { tmAddr }),
                          _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
-    };
+                       };
 
     if (classDataPtr == nint.Zero)
     {
@@ -44,10 +43,11 @@ public static partial class TmNativeApi
 
   public static int GetStatusFromRetro(int tmCid, int ch, int rtu, int point, DateTime time)
   {
-    var utcTime = TmNativeUtil.GetUtcTimestampFromDateTime(time);
+    var utcTime    = TmNativeUtil.GetUtcTimestampFromDateTime(time);
+    var serverTime = TmNative.uxgmtime2uxtime(utcTime);
 
-    var (isSuccess, statusPoint) = GetStatusFullEx(tmCid, (short)ch, (short)rtu, (short)point, utcTime);
-    
+    var (isSuccess, statusPoint) = GetStatusFullEx(tmCid, (short)ch, (short)rtu, (short)point, serverTime);
+
     var flags = (TmNativeDefs.Flags)statusPoint.Flags;
 
     if (!isSuccess || flags.HasFlag(TmNativeDefs.Flags.UnreliableHdw))
@@ -57,9 +57,9 @@ public static partial class TmNativeApi
 
     return statusPoint.Status;
   }
-  
-  public static IReadOnlyCollection<T> GetStatusRetroEx<T>(GetStatusRetroExArgs args) 
-    where T: TmStatusRetroBase, new()
+
+  public static IReadOnlyCollection<T> GetStatusRetroEx<T>(GetRetroExArgs args)
+    where T : TmStatusRetroBase, new()
   {
     if (args.StartTime >= args.EndTime)
     {
@@ -71,31 +71,118 @@ public static partial class TmNativeApi
 
     while (currentTime <= args.EndTime)
     {
-      var time   = TmNativeUtil.GetUtcTimestampFromDateTime(currentTime);
-      var (isSuccess, point) = GetStatusFullEx(args.TmCid, 
-                                   args.Ch, 
-                                   args.Rtu, 
-                                   args.Point, 
-                                   time, 
-                                   args.UserRealTelemetry);
+      var time       = TmNativeUtil.GetUtcTimestampFromDateTime(currentTime);
+      var serverTime = TmNative.uxgmtime2uxtime(time);
+
+      var (isSuccess, point) = GetStatusFullEx(args.TmCid,
+                                               args.Ch,
+                                               args.Rtu,
+                                               args.Point,
+                                               serverTime,
+                                               args.UserRealTelemetry);
 
       if (isSuccess)
       {
-        retros.Add(TmStatusRetroBase.Create<T>(point, currentTime));
+        retros.Add(TmStatusRetroBase.Create<T>(point, serverTime));
       }
-      
+
       currentTime = currentTime.AddSeconds(args.Step);
     }
 
     return retros;
   }
-  
-  
+
+
+  public static float GetAnalog(int       tmCid,
+                                int       ch,
+                                int       rtu,
+                                int       point,
+                                DateTime? dateTime,
+                                int       retroNum)
+  {
+    var time = dateTime is { } dt
+                 ? dt.ToNativeByteArray()
+                 : Span<byte>.Empty;
+
+    return TmNative.tmcAnalog(tmCid, (short)ch, (short)rtu, (short)point, time, (short)retroNum);
+  }
+
+
+  public static (bool isSuccess, TmAnalogRetroDto dto) GetAnalogFromRetro(int      tmCid,
+                                                                          int      ch,
+                                                                          int      rtu,
+                                                                          int      point,
+                                                                          DateTime dateTime,
+                                                                          int      retroNum)
+  {
+    var analogPoint = new TmNativeDefsUnsafe.TAnalogPoint();
+
+    var result = TmNative.tmcAnalogFull(tmCid,
+                                        (short)ch,
+                                        (short)rtu,
+                                        (short)point,
+                                        ref analogPoint,
+                                        dateTime.ToNativeByteArray(),
+                                        (short)retroNum);
+
+    if (result == 0)
+    {
+      return (false, new TmAnalogRetroDto());
+    }
+
+    var utcTime = TmNativeUtil.GetUtcTimestampFromDateTime(dateTime);
+
+    var dto = new TmAnalogRetroDto
+    {
+      Value = analogPoint.AsFloat,
+      Flags = analogPoint.Flags,
+      Time  = TmNative.uxgmtime2uxtime(utcTime),
+    };
+
+    return (true, dto);
+  }
+
+
+  public static IReadOnlyCollection<T> GetAnalogRetroEx<T>(GetRetroExArgs args)
+    where T : TmAnalogRetroBase, new()
+  {
+    if (args.StartTime >= args.EndTime)
+    {
+      return Array.Empty<T>();
+    }
+    
+    var currentTime  = args.StartTime;
+    var retros = new List<T>();
+
+    while (currentTime <= args.EndTime)
+    {
+      var time = currentTime;
+
+      var (isSuccess, tAnalogPoint) = GetAnalogFull(args.TmCid,
+                                                    args.Ch,
+                                                    args.Rtu,
+                                                    args.Point,
+                                                    time,
+                                                    (short)args.RetroNum,
+                                                    args.UserRealTelemetry);
+      
+      if (isSuccess)
+      {
+        retros.Add(TmAnalogRetroBase.Create<T>(tAnalogPoint, time));
+      }
+
+      currentTime = currentTime.AddSeconds(args.Step);
+    }
+
+    return retros;
+  }
+
+
   internal static string GetTagProperties(int                      cid,
-                                         TmNativeDefs.TmDataTypes type,
-                                         short                    ch,
-                                         short                    rtu,
-                                         short                    point)
+                                          TmNativeDefs.TmDataTypes type,
+                                          short                    ch,
+                                          short                    rtu,
+                                          short                    point)
   {
     const int bufSize = 1024;
     var       pool    = ArrayPool<byte>.Shared;
@@ -118,21 +205,24 @@ public static partial class TmNativeApi
 
     return TmNativeUtil.BytesToString(buf);
   }
-  
-  
+
+
   internal static unsafe TmNativeDefsUnsafe.TAnalogPoint GetTAnalogPoint(int   cid,
-                                                                        short ch,
-                                                                        short rtu,
-                                                                        short point)
+                                                                         short ch,
+                                                                         short rtu,
+                                                                         short point)
   {
     var tCommonPoints = GetTmValuesByListExUnsafe(cid,
                                                   TmNativeDefs.TmDataTypes.Analog,
-                                                  new[] { new TmNativeDefs.TAdrTm
+                                                  new[]
                                                   {
-                                                    Ch    = ch,
-                                                    RTU   = rtu,
-                                                    Point = point
-                                                  } });
+                                                    new TmNativeDefs.TAdrTm
+                                                    {
+                                                      Ch    = ch,
+                                                      RTU   = rtu,
+                                                      Point = point
+                                                    }
+                                                  });
     if (tCommonPoints.Length == 0)
     {
       throw new TmNativeException($"Ошибка получения tCommonPoint для тэга #TT:{ch}:{rtu}:{point}");
@@ -150,8 +240,8 @@ public static partial class TmNativeApi
   {
     return GetTmTagNamedSetUpdatedValuesUnsafe(cid, type, name).Select(TCommonPointDto.Create).ToList();
   }
-  
-  
+
+
   private static unsafe TmNativeDefsUnsafe.TCommonPoint[] GetTmTagNamedSetUpdatedValuesUnsafe(
     int                      cid,
     TmNativeDefs.TmDataTypes type,
@@ -176,7 +266,7 @@ public static partial class TmNativeApi
     {
       if (ptr != null)
       {
-        TmNative.tmcFreeMemory((IntPtr) ptr);
+        TmNative.tmcFreeMemory((IntPtr)ptr);
       }
     }
   }
@@ -188,21 +278,21 @@ public static partial class TmNativeApi
   {
     return GetTmValuesByListExUnsafe(cid, type, addrList).Select(TCommonPointDto.Create).ToList();
   }
-  
-  
+
+
   private static unsafe TmNativeDefsUnsafe.TCommonPoint[] GetTmValuesByListExUnsafe(
     int                                      cid,
     TmNativeDefs.TmDataTypes                 type,
     IReadOnlyCollection<TmNativeDefs.TAdrTm> addrList)
   {
     TmNativeDefsUnsafe.TCommonPoint* ptr = null;
-    
+
     try
     {
       ptr = TmNative.tmcTMValuesByListEx(cid,
-                                         (ushort) type,
+                                         (ushort)type,
                                          0,
-                                         (uint) addrList.Count, 
+                                         (uint)addrList.Count,
                                          addrList.ToArray());
       if (ptr == null)
       {
@@ -215,21 +305,20 @@ public static partial class TmNativeApi
     {
       if (ptr != null)
       {
-        TmNative.tmcFreeMemory((IntPtr) ptr);
+        TmNative.tmcFreeMemory((IntPtr)ptr);
       }
     }
   }
 
-  
+
   internal static (bool isSuccess, TmNativeDefsUnsafe.TStatusPoint point) GetStatusFullEx(int cid,
-    short                                                                                   ch,
-    short                                                                                   rtu,
-    short                                                                                   point,
-    long                                                                                    currentTime,
-    bool                                                                                    getRealTelemetry = false)
+    short                                                                                     ch,
+    short                                                                                     rtu,
+    short                                                                                     point,
+    long                                                                                      time,
+    bool                                                                                      getRealTelemetry = false)
   {
     var tmcStatusPoint = new TmNativeDefsUnsafe.TStatusPoint();
-    var time           = TmNative.uxgmtime2uxtime(currentTime);
 
     var result = TmNative.tmcStatusFullEx(cid,
                                           getRealTelemetry
@@ -241,5 +330,28 @@ public static partial class TmNativeApi
                                           (uint)time);
 
     return (result != TmNativeDefs.Success, tmcStatusPoint);
+  }
+
+  internal static (bool isSuccess, TmNativeDefsUnsafe.TAnalogPoint point) GetAnalogFull(int cid,
+    short                                                                                   ch,
+    short                                                                                   rtu,
+    short                                                                                   point,
+    DateTime                                                                                time,
+    short                                                                                   retroNum         = 0,
+    bool                                                                                    getRealTelemetry = false)
+  {
+    var tmcAnalogPoint = new TmNativeDefsUnsafe.TAnalogPoint();
+
+    var result = TmNative.tmcAnalogFull(cid,
+                                        getRealTelemetry
+                                          ? (short)(ch + TmNativeDefs.RealTelemetryFlag)
+                                          : ch,
+                                        rtu,
+                                        point,
+                                        ref tmcAnalogPoint,
+                                        time.ToNativeByteArray(),
+                                        retroNum);
+    
+    return (result != TmNativeDefs.Success, tmcAnalogPoint);
   }
 }

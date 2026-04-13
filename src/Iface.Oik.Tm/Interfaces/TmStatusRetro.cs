@@ -21,12 +21,12 @@ public class TmStatusRetro : TmStatusRetroBase
     Time   = DateUtil.GetDateTimeFromTimestamp(timestamp);
   }
 
-  protected override void Initialize(short    status,
-                                     short    flags,
-                                     DateTime time)
+  protected override void Initialize(short status,
+                                     short flags,
+                                     long  timestamp)
   {
     Status = status;
     Flags  = (TmFlags)flags;
-    Time   = time;
+    Time   = DateUtil.GetDateTimeFromTimestamp(timestamp);
   }
 }
