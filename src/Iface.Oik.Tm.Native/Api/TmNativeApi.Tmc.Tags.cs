@@ -136,6 +136,7 @@ public static partial class TmNativeApi
     {
       Value = analogPoint.AsFloat,
       Flags = analogPoint.Flags,
+      Code  = analogPoint.AsCode,
       Time  = TmNative.uxgmtime2uxtime(utcTime),
     };
 
@@ -150,9 +151,9 @@ public static partial class TmNativeApi
     {
       return Array.Empty<T>();
     }
-    
-    var currentTime  = args.StartTime;
-    var retros = new List<T>();
+
+    var currentTime = args.StartTime;
+    var retros      = new List<T>();
 
     while (currentTime <= args.EndTime)
     {
@@ -165,7 +166,7 @@ public static partial class TmNativeApi
                                                     time,
                                                     (short)args.RetroNum,
                                                     args.UserRealTelemetry);
-      
+
       if (isSuccess)
       {
         retros.Add(TmAnalogRetroBase.Create<T>(tAnalogPoint, time));
@@ -177,7 +178,7 @@ public static partial class TmNativeApi
     return retros;
   }
 
-  
+
   public static float GetAccumValue(int tmCid, int ch, int rtu, int point)
   {
     return TmNative.tmcAccumValue(tmCid, (short)ch, (short)rtu, (short)point, Span<byte>.Empty);
@@ -188,6 +189,30 @@ public static partial class TmNativeApi
     return TmNative.tmcAccumLoad(tmCid, (short)ch, (short)rtu, (short)point, Span<byte>.Empty);
   }
 
+  public static (bool isSuccess, TmAccumRetroDto dto) GetAccumFromRetro(int      tmCid,
+                                                                        int      ch,
+                                                                        int      rtu,
+                                                                        int      point,
+                                                                        DateTime dateTime)
+  {
+    var (isSuccess, accumPoint) = GetAccumFull(tmCid, (short)ch, (short)rtu, (short)point, dateTime);
+
+    if (!isSuccess)
+    {
+      return(false, new TmAccumRetroDto());
+    }
+
+    var utcTime = TmNativeUtil.GetUtcTimestampFromDateTime(dateTime);
+    var dto = new TmAccumRetroDto
+    {
+      Value = accumPoint.Value,
+      Load = accumPoint.Load,
+      Flags = accumPoint.Flags,
+      Time = TmNative.uxgmtime2uxtime(utcTime)
+    };
+
+    return (true, dto);
+  }
 
   internal static string GetTagProperties(int                      cid,
                                           TmNativeDefs.TmDataTypes type,
@@ -322,7 +347,7 @@ public static partial class TmNativeApi
   }
 
 
-  internal static (bool isSuccess, TmNativeDefsUnsafe.TStatusPoint point) GetStatusFullEx(int cid,
+  internal static (bool isSuccess, TmNativeDefsUnsafe.TStatusPoint point) GetStatusFullEx(int tmCid,
     short                                                                                     ch,
     short                                                                                     rtu,
     short                                                                                     point,
@@ -331,7 +356,7 @@ public static partial class TmNativeApi
   {
     var tmcStatusPoint = new TmNativeDefsUnsafe.TStatusPoint();
 
-    var result = TmNative.tmcStatusFullEx(cid,
+    var result = TmNative.tmcStatusFullEx(tmCid,
                                           getRealTelemetry
                                             ? (short)(ch + TmNativeDefs.RealTelemetryFlag)
                                             : ch,
@@ -343,7 +368,7 @@ public static partial class TmNativeApi
     return (result != TmNativeDefs.Success, tmcStatusPoint);
   }
 
-  internal static (bool isSuccess, TmNativeDefsUnsafe.TAnalogPoint point) GetAnalogFull(int cid,
+  internal static (bool isSuccess, TmNativeDefsUnsafe.TAnalogPoint point) GetAnalogFull(int tmCid,
     short                                                                                   ch,
     short                                                                                   rtu,
     short                                                                                   point,
@@ -353,7 +378,7 @@ public static partial class TmNativeApi
   {
     var tmcAnalogPoint = new TmNativeDefsUnsafe.TAnalogPoint();
 
-    var result = TmNative.tmcAnalogFull(cid,
+    var result = TmNative.tmcAnalogFull(tmCid,
                                         getRealTelemetry
                                           ? (short)(ch + TmNativeDefs.RealTelemetryFlag)
                                           : ch,
@@ -362,7 +387,25 @@ public static partial class TmNativeApi
                                         ref tmcAnalogPoint,
                                         time.ToNativeByteArray(),
                                         retroNum);
-    
+
     return (result != TmNativeDefs.Success, tmcAnalogPoint);
+  }
+
+  internal static (bool isSuccess, TmNativeDefsUnsafe.TAccumPoint point) GetAccumFull(int tmCid,
+    short                                                                                 ch,
+    short                                                                                 rtu,
+    short                                                                                 point,
+    DateTime                                                                              time)
+  {
+    var accumPoint = new TmNativeDefsUnsafe.TAccumPoint();
+
+    var isSuccess = TmNative.tmcAccumFull(tmCid,
+                                          ch,
+                                          rtu,
+                                          point,
+                                          ref accumPoint,
+                                          time.ToNativeByteArray());
+
+    return (isSuccess != 0, accumPoint);
   }
 }

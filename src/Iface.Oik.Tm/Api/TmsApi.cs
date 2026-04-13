@@ -174,22 +174,12 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<ITmAccumRetro> GetAccumFromRetro(int ch, int rtu, int point, DateTime time)
     {
-      var accumPoint = new TmNativeDefs.TAccumPoint();
-
-      var isSuccess = await Task.Run(() => TmNative.tmcAccumFull(_cid,
-                                                                 (short)ch,
-                                                                 (short)rtu,
-                                                                 (short)point,
-                                                                 ref accumPoint,
-                                                                 time.ToTmByteArray()))
-                                .ConfigureAwait(false);
-      if (isSuccess == 0)
-      {
-        return TmAccumRetro.UnreliableValue;
-      }
-      var utcTime       = DateUtil.GetUtcTimestampFromDateTime(time);
-      var serverUtcTime = TmNative.uxgmtime2uxtime(utcTime);
-      return new TmAccumRetro(accumPoint.Value, accumPoint.Load, accumPoint.Flags, serverUtcTime);
+      var (isSuccess, dto) = await Task.Run(() => TmNativeApi.GetAccumFromRetro(_cid, ch, rtu, point, time))
+                                       .ConfigureAwait(false);
+      
+      return isSuccess 
+               ? new TmAccumRetro(dto.Value, dto.Load, dto.Flags, dto.Time) 
+               : TmAccumRetro.UnreliableValue;
     }
 
 

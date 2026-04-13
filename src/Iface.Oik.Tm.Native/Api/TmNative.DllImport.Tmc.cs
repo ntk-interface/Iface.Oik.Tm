@@ -205,13 +205,14 @@ namespace Iface.Oik.Tm.Native.Api
                                              Span<byte> dateTime);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Int16 tmcAccumFull(Int32                                  cid,
-                                            Int16                                  ch,
-                                            Int16                                  rtu,
-                                            Int16                                  point,
-                                            [In, Out] ref TmNativeDefs.TAccumPoint accumPoint,
-                                            byte[]                                 dateTime);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static partial short tmcAccumFull(int                             cid,
+                                            short                              ch,
+                                            short                              rtu,
+                                            short                              point,
+                                            ref TmNativeDefsUnsafe.TAccumPoint accumPoint,
+                                            Span<byte>                         dateTime);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
