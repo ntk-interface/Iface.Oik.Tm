@@ -187,20 +187,22 @@ namespace Iface.Oik.Tm.Native.Api
                                                 short                               retroNum);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Single tmcAccumValue(Int32  cid,
-                                              Int16  ch,
-                                              Int16  rtu,
-                                              Int16  point,
-                                              byte[] dateTime);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial float tmcAccumValue(int  cid,
+                                              short  ch,
+                                              short  rtu,
+                                              short  point,
+                                              Span<byte> dateTime);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Single tmcAccumLoad(Int32  cid,
-                                             Int16  ch,
-                                             Int16  rtu,
-                                             Int16  point,
-                                             byte[] dateTime);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial float tmcAccumLoad(int        cid,
+                                             short      ch,
+                                             short      rtu,
+                                             short      point,
+                                             Span<byte> dateTime);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]

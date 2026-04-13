@@ -177,6 +177,17 @@ public static partial class TmNativeApi
     return retros;
   }
 
+  
+  public static float GetAccumValue(int tmCid, int ch, int rtu, int point)
+  {
+    return TmNative.tmcAccumValue(tmCid, (short)ch, (short)rtu, (short)point, Span<byte>.Empty);
+  }
+
+  public static float GetAccumLoad(int tmCid, int ch, int rtu, int point)
+  {
+    return TmNative.tmcAccumLoad(tmCid, (short)ch, (short)rtu, (short)point, Span<byte>.Empty);
+  }
+
 
   internal static string GetTagProperties(int                      cid,
                                           TmNativeDefs.TmDataTypes type,

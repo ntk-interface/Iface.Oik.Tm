@@ -160,14 +160,14 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<float> GetAccum(int ch, int rtu, int point)
     {
-      return await Task.Run(() => TmNative.tmcAccumValue(_cid, (short)ch, (short)rtu, (short)point, null))
+      return await Task.Run(() => TmNativeApi.GetAccumValue(_cid, ch, rtu, point))
                        .ConfigureAwait(false);
     }
     
 
     public async Task<float> GetAccumLoad(int ch, int rtu, int point)
     {
-      return await Task.Run(() => TmNative.tmcAccumLoad(_cid, (short)ch, (short)rtu, (short)point, null))
+      return await Task.Run(() => TmNativeApi.GetAccumLoad(_cid, ch, rtu, point))
                        .ConfigureAwait(false);
     }
 
