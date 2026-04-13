@@ -114,27 +114,27 @@ namespace Iface.Oik.Tm.Native.Api
 
     [LibraryImport(Tmconn)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
-    public static partial Int16 tmcSystemTime(Int32            cid,
-                                             Span<byte>       time,
-                                             IntPtr tmStruct); // TODO test ref
+    public static partial Int16 tmcSystemTime(Int32      cid,
+                                              Span<byte> time,
+                                              IntPtr     tmStruct); // TODO test ref
 
 
     [LibraryImport(Tmconn)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
     [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial Boolean tmcGetUserInfo(Int32                                cid,
-                                                 UInt32                               usid,
-                                                 ref TmNativeDefsUnsafe.TUserInfo     userInfoUnsafe);
+    internal static partial Boolean tmcGetUserInfo(Int32                            cid,
+                                                   UInt32                           usid,
+                                                   ref TmNativeDefsUnsafe.TUserInfo userInfoUnsafe);
 
 
     [LibraryImport(Tmconn)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial Boolean tmcGetUserInfoEx(Int32                            cid,
-                                                   UInt32                           userId,
-                                                   ref TmNativeDefsUnsafe.TUserInfo userInfoUnsafe,
-                                                   Span<byte>                       appxBuf,
-                                                   uint                             cbAppx);
+                                                     UInt32                           userId,
+                                                     ref TmNativeDefsUnsafe.TUserInfo userInfoUnsafe,
+                                                     Span<byte>                       appxBuf,
+                                                     uint                             cbAppx);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -148,13 +148,14 @@ namespace Iface.Oik.Tm.Native.Api
                                          Int16 point);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Single tmcAnalog(Int32  cid,
-                                          Int16  ch,
-                                          Int16  rtu,
-                                          Int16  point,
-                                          byte[] dateTime,
-                                          Int16  retroNum);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial float tmcAnalog(int        cid,
+                                         short      ch,
+                                         short      rtu,
+                                         short      point,
+                                         Span<byte> dateTime,
+                                         short      retroNum);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -165,23 +166,25 @@ namespace Iface.Oik.Tm.Native.Api
                                              [In, Out] ref TmNativeDefs.TStatusPoint statusPoint);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Int16 tmcStatusFullEx(Int32                                   cid,
-                                               Int16                                   ch,
-                                               Int16                                   rtu,
-                                               Int16                                   point,
-                                               [In, Out] ref TmNativeDefs.TStatusPoint statusPoint,
-                                               UInt32                                  time);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static partial short tmcStatusFullEx(int                                 cid,
+                                                  short                               ch,
+                                                  short                               rtu,
+                                                  short                               point,
+                                                  ref TmNativeDefsUnsafe.TStatusPoint statusPoint,
+                                                  uint                                time);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Int16 tmcAnalogFull(Int32                                   cid,
-                                             Int16                                   ch,
-                                             Int16                                   rtu,
-                                             Int16                                   point,
-                                             [In, Out] ref TmNativeDefs.TAnalogPoint analogPoint,
-                                             byte[]                                  dateTime,
-                                             Int16                                   retroNum);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static partial short tmcAnalogFull(int                                 cid,
+                                                short                               ch,
+                                                short                               rtu,
+                                                short                               point,
+                                                ref TmNativeDefsUnsafe.TAnalogPoint analogPoint,
+                                                Span<byte>                          dateTime,
+                                                short                               retroNum);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -274,11 +277,11 @@ namespace Iface.Oik.Tm.Native.Api
     [LibraryImport(Tmconn)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial Boolean tmcTmvUserSetDelete(Int32         cid,
-                                                      UInt16        tmType,
-                                                      Span<byte>    name);
+    public static partial Boolean tmcTmvUserSetDelete(int        cid,
+                                                      ushort     tmType,
+                                                      Span<byte> name);
 
-    
+
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern IntPtr tmcGetValuesByFlagMask(Int32      cid,
                                                        UInt16     tmType,
@@ -320,14 +323,15 @@ namespace Iface.Oik.Tm.Native.Api
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Boolean tmcEvlogPutStrBin(Int32                                          cid,
-                                                   UInt32                                         unixTime,
-                                                   Byte                                           unixHund,
-                                                   Byte                                           importance,
-                                                   UInt32                                         sourceTag,
-                                                   byte[]                                         str,
-                                                   [In] [MarshalAs(UnmanagedType.LPArray)] Byte[] bin,
-                                                   UInt32                                         cbBin);
+    public static extern Boolean tmcEvlogPutStrBin(Int32  cid,
+                                                   UInt32 unixTime,
+                                                   Byte   unixHund,
+                                                   Byte   importance,
+                                                   UInt32 sourceTag,
+                                                   byte[] str,
+                                                   [In] [MarshalAs(UnmanagedType.LPArray)]
+                                                   Byte[] bin,
+                                                   UInt32 cbBin);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -340,11 +344,11 @@ namespace Iface.Oik.Tm.Native.Api
 
     [LibraryImport(Tmconn)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
-    internal static partial nint tmcEventLogByElix(Int32                            cid,
-                                                  ref TmNativeDefsUnsafe.TTMSElix elix,
-                                                  UInt16                          eventMask,
-                                                  UInt32                          startUnixTime,
-                                                  UInt32                          endUnixTime);
+    internal static partial nint tmcEventLogByElix(Int32                           cid,
+                                                   ref TmNativeDefsUnsafe.TTMSElix elix,
+                                                   UInt16                          eventMask,
+                                                   UInt32                          startUnixTime,
+                                                   UInt32                          endUnixTime);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -379,7 +383,7 @@ namespace Iface.Oik.Tm.Native.Api
                                                  UInt32                                  count,
                                                  [In] TmNativeDefs.TTimedValueAndFlags[] values);
 
-    
+
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
     public static extern Int16 tmcSetTimedValues(Int32                                        cid,
                                                  UInt32                                       count,
@@ -473,16 +477,15 @@ namespace Iface.Oik.Tm.Native.Api
                                                        UInt32                       count);
 
 
-    
     [LibraryImport(Tmconn)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
-    public static partial Int16 tmcGetObjectProperties(Int32            cid,
-                                                      UInt16           objectType,
-                                                      Int16            ch,
-                                                      Int16            rtu,
-                                                      Int16            point,
-                                                      Span<byte>       buf,
-                                                      Int32            bufSize);
+    public static partial Int16 tmcGetObjectProperties(Int32      cid,
+                                                       UInt16     objectType,
+                                                       Int16      ch,
+                                                       Int16      rtu,
+                                                       Int16      point,
+                                                       Span<byte> buf,
+                                                       Int32      bufSize);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -540,10 +543,10 @@ namespace Iface.Oik.Tm.Native.Api
 
     [LibraryImport(Tmconn)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
-    public static partial Int16 tmcEvaluateExpression(Int32     cid,
-                                                     byte[]     expr,
-                                                     Span<byte> res,
-                                                     UInt32     cbBytes);
+    public static partial Int16 tmcEvaluateExpression(Int32      cid,
+                                                      byte[]     expr,
+                                                      Span<byte> res,
+                                                      UInt32     cbBytes);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -682,25 +685,25 @@ namespace Iface.Oik.Tm.Native.Api
 
     [LibraryImport(Tmconn)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
-    public static  partial Byte tmcGetObjectName(Int32            cid,
-                                                 UInt16           objectType,
-                                                 Int16            ch,
-                                                 Int16            rtu,
-                                                 Int16            point,
-                                                 Span<Byte>       buf,
-                                                 Int32            bufSize);
+    public static partial Byte tmcGetObjectName(Int32      cid,
+                                                UInt16     objectType,
+                                                Int16      ch,
+                                                Int16      rtu,
+                                                Int16      point,
+                                                Span<Byte> buf,
+                                                Int32      bufSize);
 
 
     [LibraryImport(Tmconn)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
-    public static partial Byte tmcGetObjectNameEx(Int32            cid,
-                                                  UInt16           objectType,
-                                                  Int16            ch,
-                                                  Int16            rtu,
-                                                  Int16            point,
-                                                  Int16            subObjectId,
-                                                  Span<byte>       buf,
-                                                  Int32            bufSize);
+    public static partial Byte tmcGetObjectNameEx(Int32      cid,
+                                                  UInt16     objectType,
+                                                  Int16      ch,
+                                                  Int16      rtu,
+                                                  Int16      point,
+                                                  Int16      subObjectId,
+                                                  Span<byte> buf,
+                                                  Int32      bufSize);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -733,9 +736,9 @@ namespace Iface.Oik.Tm.Native.Api
 
     [LibraryImport(Tmconn)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
-    public static partial UInt32 tmcEventGetAdditionalRecData(UInt32 idx,
-                                                             Span<byte> buf,
-                                                             UInt32 bufSize);
+    public static partial UInt32 tmcEventGetAdditionalRecData(UInt32     idx,
+                                                              Span<byte> buf,
+                                                              UInt32     bufSize);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -775,8 +778,10 @@ namespace Iface.Oik.Tm.Native.Api
                                             [MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback callback,
                                             IntPtr                                                  callbackParameter,
                                             UInt32                                                  cbProps,
-                                            [MarshalAs(UnmanagedType.LPArray, SizeConst = 8)] UInt32[] pProps,
-                                            [MarshalAs(UnmanagedType.LPArray, SizeConst = 8)] UInt32[] pPropValues);
+                                            [MarshalAs(UnmanagedType.LPArray, SizeConst = 8)]
+                                            UInt32[] pProps,
+                                            [MarshalAs(UnmanagedType.LPArray, SizeConst = 8)]
+                                            UInt32[] pPropValues);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
@@ -807,12 +812,12 @@ namespace Iface.Oik.Tm.Native.Api
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static partial Boolean tmcDntGetObjectName(Int32      cid,
-                                                     UInt16     objectType,
-                                                     Int16      ch,
-                                                     Int16      rtu,
-                                                     Int16      point,
-                                                     Span<byte> buf,
-                                                     Int32      bufSize);
+                                                      UInt16     objectType,
+                                                      Int16      ch,
+                                                      Int16      rtu,
+                                                      Int16      point,
+                                                      Span<byte> buf,
+                                                      Int32      bufSize);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -856,11 +861,11 @@ namespace Iface.Oik.Tm.Native.Api
 
     [LibraryImport(Tmconn)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
-    public static partial UInt32 tmcDntGetPortStats(Int32     cid,
-                                                   [MarshalAs(UnmanagedType.LPArray, SizeConst = 8)]
-                                                   UInt32[]   pDap,
-                                                   Span<byte> buf,
-                                                   Int32      bufSize);
+    public static partial UInt32 tmcDntGetPortStats(Int32 cid,
+                                                    [MarshalAs(UnmanagedType.LPArray, SizeConst = 8)]
+                                                    UInt32[] pDap,
+                                                    Span<byte> buf,
+                                                    Int32      bufSize);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
@@ -978,9 +983,9 @@ namespace Iface.Oik.Tm.Native.Api
     [LibraryImport(Tmconn)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial Boolean tmcGetConnectErrorText(Int32     cid,
-                                                        Span<byte> buf,
-                                                        UInt32     bufSize);
+    public static partial Boolean tmcGetConnectErrorText(Int32      cid,
+                                                         Span<byte> buf,
+                                                         UInt32     bufSize);
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern Boolean tmcBackupServerProcedure(byte[]     machine,
@@ -1005,9 +1010,9 @@ namespace Iface.Oik.Tm.Native.Api
     [LibraryImport(Tmconn, StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial Boolean tmcGetTextByRef(int cid, 
-                                                  nint text, 
-                                                  Span<byte> buf, 
-                                                  uint cBuf);
+    public static partial Boolean tmcGetTextByRef(int        cid,
+                                                  nint       text,
+                                                  Span<byte> buf,
+                                                  uint       cBuf);
   }
 }
