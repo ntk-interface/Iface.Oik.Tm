@@ -115,21 +115,18 @@ public static partial class TmNativeApi
                                                                           DateTime dateTime,
                                                                           int      retroNum)
   {
-    var analogPoint = new TmNativeDefsUnsafe.TAnalogPoint();
+    var (isSuccess, analogPoint) = GetAnalogFull(tmCid, 
+                                                 (short)ch, 
+                                                 (short)rtu, 
+                                                 (short)point, 
+                                                 dateTime, 
+                                                 (short)retroNum);
 
-    var result = TmNative.tmcAnalogFull(tmCid,
-                                        (short)ch,
-                                        (short)rtu,
-                                        (short)point,
-                                        ref analogPoint,
-                                        dateTime.ToNativeByteArray(),
-                                        (short)retroNum);
-
-    if (result == 0)
+    if (!isSuccess)
     {
-      return (false, new TmAnalogRetroDto());
+      return(false, new TmAnalogRetroDto());
     }
-
+    
     var utcTime = TmNativeUtil.GetUtcTimestampFromDateTime(dateTime);
 
     var dto = new TmAnalogRetroDto
