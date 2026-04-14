@@ -1369,7 +1369,7 @@ namespace Iface.Oik.Tm.Api
 
     private IReadOnlyCollection<TmNativeDefs.CfsLogRecord> ParseCfsServerLogRecordPointer(IntPtr ptr)
     {
-      var strList = TmNativeUtil.GetUnknownLengthStringListFromDoubleNullTerminatedPointer(ptr);
+      var strList = TmNativeUtil.GetStringsListFromIntPtr(ptr);
 
       var records = new List<CfsLogRecord>();
 
@@ -1653,14 +1653,14 @@ namespace Iface.Oik.Tm.Api
         return (false, "Ошибка: не указан удалённый путь до файла", DateTime.MinValue);
       }
 
-      var       fileTime        = new TmNativeDefs.FileTime();
+      var       fileTime        = new FileTime();
       const int errStringLength = 1000;
       var       errString       = new byte[errStringLength];
       uint      errCode         = 0;
       if (!await Task.Run(() => TmNative.cfsFileGet(CfId,
                                                     EncodingUtil.StringToBytes(remoteFilePath),
                                                     EncodingUtil.StringToBytes(localFilePath),
-                                                    timeout | TmNativeDefs.FailIfNoConnect,
+                                                    timeout | FailIfNoConnect,
                                                     ref fileTime,
                                                     out errCode,
                                                     errString,

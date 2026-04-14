@@ -361,46 +361,63 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static IReadOnlyCollection<string> GetUnknownLengthStringListFromDoubleNullTerminatedPointer(nint ptr,
+    public static unsafe IReadOnlyCollection<string> GetStringsListFromIntPtr(nint ptr, 
+                                                                              Encoding? encoding = null)
+    {
+      return ptr == nint.Zero 
+               ? Array.Empty<string>() 
+               : GetStringsListBytePtr((byte*)ptr, encoding);
+    }
+
+
+    public static unsafe IReadOnlyCollection<string> GetStringsListFromBytes(Span<byte> bytes, 
+                                                                             Encoding? encoding = null)
+    {
+      fixed (byte* ptr = bytes)
+      {
+        return GetStringsListBytePtr(ptr, encoding); 
+      }
+    }
+    
+    
+    internal static unsafe  IReadOnlyCollection<string> GetStringsListBytePtr(byte* ptr,
       Encoding? encoding = null)
     {
       var result = new List<string>();
 
-      unsafe
+      if (ptr == null)
       {
-        if (ptr == nint.Zero)
-        {
-          return result;
-        }
-
-        encoding ??= Encoding.UTF8; // default
-
-        var p = (byte*)ptr.ToPointer();
-        var length = 0;
-
-        while (true)
-        {
-          while (p[length] != 0)
-          {
-            length++;
-          }
-
-          result.Add(encoding.GetString(p, length));
-
-          length++;
-
-          if (p[length] == 0)
-          {
-            break;
-          }
-
-          p += length;
-          length = 0;
-        }
-
         return result;
       }
+
+      encoding ??= Encoding.UTF8; // default
+
+      var p      = ptr;
+      var length = 0;
+
+      while (true)
+      {
+        while (p[length] != 0)
+        {
+          length++;
+        }
+
+        result.Add(encoding.GetString(p, length));
+
+        length++;
+
+        if (p[length] == 0)
+        {
+          break;
+        }
+
+        p      += length;
+        length =  0;
+      }
+
+      return result;
     }
+    
 
     public static (IReadOnlyCollection<string> strings, nint nextPtr) GetStringsListWithOffsetPointer(nint ptr,
       Encoding? encoding = null)
