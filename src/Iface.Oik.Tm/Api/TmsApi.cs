@@ -190,36 +190,10 @@ namespace Iface.Oik.Tm.Api
         return new[] { Array.Empty<ITmAnalogRetro>() };
       }
 
-      var count      = analogs.Count;
-      var addrList   = new TmNativeDefs.TAdrTm[count];
-      var bufPtrList = new IntPtr[count];
-      for (var i = 0; i < count; i++)
-      {
-        addrList[i] = analogs[i].TmAddr.ToAdrTm();
-      }
-
-      var fetchResult = await Task.Run(() => TmNative.tmcAnalogMicroSeries(_cid, (uint)count, addrList, bufPtrList))
-                                  .ConfigureAwait(false);
-      if (fetchResult != TmNativeDefs.Success)
-      {
-        bufPtrList.ForEach(TmNative.tmcFreeMemory);
-        return new[] { Array.Empty<ITmAnalogRetro>() };
-      }
-
-      var result = new List<ITmAnalogRetro[]>(count);
-      for (var i = 0; i < count; i++)
-      {
-        var analogSeries = Marshal.PtrToStructure<TmNativeDefs.TMSAnalogMSeries>(bufPtrList[i]);
-        result.Add(analogSeries.Elements
-                               .Take(analogSeries.Count)
-                               .Select(el => new TmAnalogMicroSeries(el.Value, el.SFlg, el.Ut))
-                               .Cast<ITmAnalogRetro>()
-                               .ToArray());
-
-        TmNative.tmcFreeMemory(bufPtrList[i]);
-      }
-
-      return result;
+      var address = analogs.Select(x => x.TmAddr.ToAdrTm()).ToArray();
+      
+      return await Task.Run(() => TmNativeApi.GetAnalogMicroseries<TmAnalogMicroSeries>(_cid, address))
+                       .ConfigureAwait(false);
     }
 
 

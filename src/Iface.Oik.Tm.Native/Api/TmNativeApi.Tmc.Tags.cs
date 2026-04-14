@@ -176,6 +176,59 @@ public static partial class TmNativeApi
   }
 
 
+  public static unsafe IReadOnlyCollection<T[]> GetAnalogMicroseries<T>(int cid, Span<TmNativeDefs.TAdrTm> tmAddrs) 
+    where T: TmAnalogMicroSeriesBase, new()
+  {
+    var count      = tmAddrs.Length;
+
+    var bufSize = sizeof(nint) * count;
+    var pool    = ArrayPool<nint>.Shared;
+    var buf     = pool.Rent(bufSize);
+
+    try
+    {
+      var fetchResult = TmNative.tmcAnalogMicroSeries(cid, (uint)count, tmAddrs, buf);
+
+      if (fetchResult != TmNativeDefs.Success)
+      {
+        foreach (var ptr in buf)
+        {
+          TmNative.tmcFreeMemory(ptr);
+        }
+        return new[] { Array.Empty<T>() };
+      }
+
+      var result = new List<T[]>(count);
+      
+      foreach (var ptr in buf)
+      {
+        var series = TmNativeUtil.FromIntPtr<TmNativeDefsUnsafe.TMSAnalogMSeries>(ptr);
+        var elements = 
+          new ReadOnlySpan<TmNativeDefsUnsafe.TMSAnalogMSeriesElement>(series.Elements, series.Count);
+
+        var tSeries = new T[elements.Length];
+
+        for (var i = 0; i < elements.Length; i++)
+        {
+          tSeries[i] = TmAnalogMicroSeriesBase.Create<T>(elements[i].Value,
+                                                         elements[i].SFlg,
+                                                         elements[i].Ut);
+        }
+        
+        result.Add(tSeries);
+        
+        TmNative.tmcFreeMemory(ptr);
+      }
+      
+      return result;
+    }
+    finally
+    {
+      ArrayPool<nint>.Shared.Return(buf);
+    }
+  }
+  
+
   public static float GetAccumValue(int tmCid, int ch, int rtu, int point)
   {
     return TmNative.tmcAccumValue(tmCid, (short)ch, (short)rtu, (short)point, Span<byte>.Empty);

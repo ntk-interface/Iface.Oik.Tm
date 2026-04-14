@@ -525,11 +525,12 @@ namespace Iface.Oik.Tm.Native.Api
                                               [In, Out] TmNativeDefs.TAnalogPointShort[] analogs);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Int16 tmcAnalogMicroSeries(Int32                           cid,
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial Int16 tmcAnalogMicroSeries(Int32                           cid,
                                                     UInt32                          cnt,
-                                                    [In]      TmNativeDefs.TAdrTm[] addrList,
-                                                    [In, Out] IntPtr[]              resultList); // TMSAnalogMSeries**
+                                                    Span<TmNativeDefs.TAdrTm> addrList,
+                                                    Span<nint>              resultList); // TMSAnalogMSeries**
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
