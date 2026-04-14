@@ -100,6 +100,10 @@ public class TestApi : IHostedService
     Log.Condition(retros.Count > 0, $"Analog retros count: {retros.Count}");
     retros.ForEach(r => Log.Message($"Retro {r.Name}"));
     
+    var series = await _api.GetAnalogsMicroSeries(new TmAnalog[] { new(0, 1, 1) }, PreferApi.Tms);
+    Log.Condition(series.Count > 0, $"Analog microseries elements: {series.Count}");
+    series.ForEach(ms => Log.Message(string.Join(", ", ms.Select(x => $"{x.Time:hh:mm:ss} - {x.Value}"))));
+
     // TODO проверить получение измерений из ретро
   }
 

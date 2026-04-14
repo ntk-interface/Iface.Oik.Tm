@@ -180,10 +180,9 @@ public static partial class TmNativeApi
     where T: TmAnalogMicroSeriesBase, new()
   {
     var count      = tmAddrs.Length;
-
-    var bufSize = sizeof(nint) * count;
+    
     var pool    = ArrayPool<nint>.Shared;
-    var buf     = pool.Rent(bufSize);
+    var buf     = pool.Rent(count);
 
     try
     {
@@ -202,19 +201,25 @@ public static partial class TmNativeApi
       
       foreach (var ptr in buf)
       {
-        var series = TmNativeUtil.FromIntPtr<TmNativeDefsUnsafe.TMSAnalogMSeries>(ptr);
-        var elements = 
-          new ReadOnlySpan<TmNativeDefsUnsafe.TMSAnalogMSeriesElement>(series.Elements, series.Count);
+        if (ptr == nint.Zero)
+        {
+          break;
+        }
+        
+        var series   = TmNativeUtil.FromIntPtr<TmNativeDefsUnsafe.TMSAnalogMSeries>(ptr);
+        
+        var elements = new Span<TmNativeDefsUnsafe.TMSAnalogMSeriesElement>(series.Elements, series.Count);
 
         var tSeries = new T[elements.Length];
 
+        
         for (var i = 0; i < elements.Length; i++)
         {
           tSeries[i] = TmAnalogMicroSeriesBase.Create<T>(elements[i].Value,
                                                          elements[i].SFlg,
                                                          elements[i].Ut);
         }
-        
+
         result.Add(tSeries);
         
         TmNative.tmcFreeMemory(ptr);
