@@ -16,12 +16,10 @@ internal static partial class TmNativeDefsUnsafe
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public unsafe struct TMSAnalogMSeries
   {
-    public const int ElementsMaxCount = 10;
-
     public ushort Interval;
     public ushort Count;
     
-    // max - 10
-    public TMSAnalogMSeriesElement* Elements;
+    // TMSAnalogMSeriesElement(size = 9 bytes) variable-size array. Max - 10.  
+    public fixed byte Elements[90];
   }
 }
