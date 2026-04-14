@@ -187,29 +187,32 @@ namespace Iface.Oik.Tm.Native.Api
                                                 short                               retroNum);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Single tmcAccumValue(Int32  cid,
-                                              Int16  ch,
-                                              Int16  rtu,
-                                              Int16  point,
-                                              byte[] dateTime);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial float tmcAccumValue(int  cid,
+                                              short  ch,
+                                              short  rtu,
+                                              short  point,
+                                              Span<byte> dateTime);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Single tmcAccumLoad(Int32  cid,
-                                             Int16  ch,
-                                             Int16  rtu,
-                                             Int16  point,
-                                             byte[] dateTime);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial float tmcAccumLoad(int        cid,
+                                             short      ch,
+                                             short      rtu,
+                                             short      point,
+                                             Span<byte> dateTime);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Int16 tmcAccumFull(Int32                                  cid,
-                                            Int16                                  ch,
-                                            Int16                                  rtu,
-                                            Int16                                  point,
-                                            [In, Out] ref TmNativeDefs.TAccumPoint accumPoint,
-                                            byte[]                                 dateTime);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static partial short tmcAccumFull(int                             cid,
+                                            short                              ch,
+                                            short                              rtu,
+                                            short                              point,
+                                            ref TmNativeDefsUnsafe.TAccumPoint accumPoint,
+                                            Span<byte>                         dateTime);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -522,11 +525,12 @@ namespace Iface.Oik.Tm.Native.Api
                                               [In, Out] TmNativeDefs.TAnalogPointShort[] analogs);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Int16 tmcAnalogMicroSeries(Int32                           cid,
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial Int16 tmcAnalogMicroSeries(Int32                           cid,
                                                     UInt32                          cnt,
-                                                    [In]      TmNativeDefs.TAdrTm[] addrList,
-                                                    [In, Out] IntPtr[]              resultList); // TMSAnalogMSeries**
+                                                    Span<TmNativeDefs.TAdrTm> addrList,
+                                                    Span<nint>              resultList); // TMSAnalogMSeries**
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]

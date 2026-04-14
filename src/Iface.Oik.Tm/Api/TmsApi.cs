@@ -160,36 +160,26 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<float> GetAccum(int ch, int rtu, int point)
     {
-      return await Task.Run(() => TmNative.tmcAccumValue(_cid, (short)ch, (short)rtu, (short)point, null))
+      return await Task.Run(() => TmNativeApi.GetAccumValue(_cid, ch, rtu, point))
                        .ConfigureAwait(false);
     }
     
 
     public async Task<float> GetAccumLoad(int ch, int rtu, int point)
     {
-      return await Task.Run(() => TmNative.tmcAccumLoad(_cid, (short)ch, (short)rtu, (short)point, null))
+      return await Task.Run(() => TmNativeApi.GetAccumLoad(_cid, ch, rtu, point))
                        .ConfigureAwait(false);
     }
 
 
     public async Task<ITmAccumRetro> GetAccumFromRetro(int ch, int rtu, int point, DateTime time)
     {
-      var accumPoint = new TmNativeDefs.TAccumPoint();
-
-      var isSuccess = await Task.Run(() => TmNative.tmcAccumFull(_cid,
-                                                                 (short)ch,
-                                                                 (short)rtu,
-                                                                 (short)point,
-                                                                 ref accumPoint,
-                                                                 time.ToTmByteArray()))
-                                .ConfigureAwait(false);
-      if (isSuccess == 0)
-      {
-        return TmAccumRetro.UnreliableValue;
-      }
-      var utcTime       = DateUtil.GetUtcTimestampFromDateTime(time);
-      var serverUtcTime = TmNative.uxgmtime2uxtime(utcTime);
-      return new TmAccumRetro(accumPoint.Value, accumPoint.Load, accumPoint.Flags, serverUtcTime);
+      var (isSuccess, dto) = await Task.Run(() => TmNativeApi.GetAccumFromRetro(_cid, ch, rtu, point, time))
+                                       .ConfigureAwait(false);
+      
+      return isSuccess 
+               ? new TmAccumRetro(dto.Value, dto.Load, dto.Flags, dto.Time) 
+               : TmAccumRetro.UnreliableValue;
     }
 
 
@@ -200,36 +190,10 @@ namespace Iface.Oik.Tm.Api
         return new[] { Array.Empty<ITmAnalogRetro>() };
       }
 
-      var count      = analogs.Count;
-      var addrList   = new TmNativeDefs.TAdrTm[count];
-      var bufPtrList = new IntPtr[count];
-      for (var i = 0; i < count; i++)
-      {
-        addrList[i] = analogs[i].TmAddr.ToAdrTm();
-      }
-
-      var fetchResult = await Task.Run(() => TmNative.tmcAnalogMicroSeries(_cid, (uint)count, addrList, bufPtrList))
-                                  .ConfigureAwait(false);
-      if (fetchResult != TmNativeDefs.Success)
-      {
-        bufPtrList.ForEach(TmNative.tmcFreeMemory);
-        return new[] { Array.Empty<ITmAnalogRetro>() };
-      }
-
-      var result = new List<ITmAnalogRetro[]>(count);
-      for (var i = 0; i < count; i++)
-      {
-        var analogSeries = Marshal.PtrToStructure<TmNativeDefs.TMSAnalogMSeries>(bufPtrList[i]);
-        result.Add(analogSeries.Elements
-                               .Take(analogSeries.Count)
-                               .Select(el => new TmAnalogMicroSeries(el.Value, el.SFlg, el.Ut))
-                               .Cast<ITmAnalogRetro>()
-                               .ToArray());
-
-        TmNative.tmcFreeMemory(bufPtrList[i]);
-      }
-
-      return result;
+      var address = analogs.Select(x => x.TmAddr.ToAdrTm()).ToArray();
+      
+      return await Task.Run(() => TmNativeApi.GetAnalogMicroseries<TmAnalogMicroSeries>(_cid, address))
+                       .ConfigureAwait(false);
     }
 
 

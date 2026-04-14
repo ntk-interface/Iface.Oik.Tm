@@ -569,6 +569,12 @@ namespace Iface.Oik.Tm.Native.Utils
       return result;
     }
 
+    internal static unsafe T FromIntPtr<T>(nint ptr)
+      where T : unmanaged
+    {
+      return FromBytesPtr<T>((byte*)ptr);
+    }
+    
     internal static unsafe T FromBytesPtr<T>(byte* ptr)
       where T : unmanaged
     {
