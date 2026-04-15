@@ -2950,7 +2950,7 @@ namespace Iface.Oik.Tm.Api
         return null;
       }
 
-      var threadList = TmNativeUtil.GetUnknownLengthStringListFromDoubleNullTerminatedPointer(threadsPtr).Select(x =>
+      var threadList = TmNativeUtil.GetStringsListFromIntPtr(threadsPtr).Select(x =>
                                    {
                                      var regex =
                                        new Regex(@"([0-9]*), (.*?) • ([-+]?[0-9]*) s • ([-+]?[0-9]*\.?[0-9]+) s");

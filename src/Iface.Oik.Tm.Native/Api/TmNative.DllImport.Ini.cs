@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -38,11 +39,12 @@ namespace Iface.Oik.Tm.Native.Api
                                                Int32  defaultResponse);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern UInt32 ini_ReadSection(IntPtr                                    filePointer,
-                                                byte[]                                    section,
-                                                [MarshalAs(UnmanagedType.LPArray)] byte[] buf,
-                                                UInt32                                    bufSize);
+    [LibraryImport(Tmconn, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial uint ini_ReadSection(nint       filePointer,
+                                               string     section,
+                                               Span<byte> buf,
+                                               uint       bufSize);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]

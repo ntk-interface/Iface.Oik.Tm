@@ -137,15 +137,16 @@ namespace Iface.Oik.Tm.Native.Api
     public static extern void cfsDisconnect(IntPtr connId);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr cfsConfFileOpenCid(IntPtr                              connId,
-                                                   byte[]                              serverName,
-                                                   byte[]                              fileName,
-                                                   UInt32                              timeout,
-                                                   [In, Out] ref TmNativeDefs.FileTime fileTime,
-                                                   out           UInt32                errCode,
-                                                   [In, Out]     byte[]                errBuf,
-                                                   UInt32                              maxErrs);
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static partial nint cfsConfFileOpenCid(nint                            connId,
+                                                    string                          serverName,
+                                                    string                          fileName,
+                                                    uint                            timeout,
+                                                    ref TmNativeDefsUnsafe.FileTime fileTime,
+                                                    out uint                        errCode,
+                                                    Span<byte>                      errBuf,
+                                                    uint                            maxErrs);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern bool cfsConfFileSaveAs(IntPtr                              treeHandle,

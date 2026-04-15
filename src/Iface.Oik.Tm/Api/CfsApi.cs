@@ -51,29 +51,10 @@ namespace Iface.Oik.Tm.Api
       }
     }
 
-    public async Task<(IntPtr, DateTime)> OpenConfigurationTree(string fileName)
+    public async Task<(nint, DateTime)> OpenConfigurationTree(string fileName)
     {
-      var       fileTime        = new TmNativeDefs.FileTime();
-      const int errStringLength = 1000;
-      var       errBuf          = new byte[errStringLength];
-      uint      errCode         = 0;
-
-      var cfTreeRoot = await Task.Run(() => TmNative.cfsConfFileOpenCid(CfId,
-                                                                        EncodingUtil.StringToBytes(Host),
-                                                                        EncodingUtil.StringToBytes(fileName),
-                                                                        30000 | TmNativeDefs.FailIfNoConnect,
-                                                                        ref fileTime,
-                                                                        out errCode,
-                                                                        errBuf,
-                                                                        errStringLength))
-                                 .ConfigureAwait(false);
-
-      if (cfTreeRoot == IntPtr.Zero)
-      {
-        throw new Exception($"Ошибка получения конфигурации: {EncodingUtil.BytesToString(errBuf)} Код: {errCode}");
-      }
-
-      return (cfTreeRoot, GetDateTimeFromCustomFileTime(fileTime));
+      return await Task.Run(() => TmNativeApi.OpenConfigurationTree(CfId, Host, fileName)).
+                        ConfigureAwait(false);
     }
 
 
@@ -638,36 +619,37 @@ namespace Iface.Oik.Tm.Api
       TmNative.cftNodeFreeTree(handle);
     }
 
-    private static DateTime GetDateTimeFromCustomFileTime(TmNativeDefs.FileTime fileTime)
+    private static DateTime GetDateTimeFromCustomFileTime(FileTime fileTime)
     {
       return DateTime.FromFileTime((long)fileTime.dwHighDateTime << 32 | (uint)fileTime.dwLowDateTime);
     }
 
-    public async Task<List<CfTreeNode>> GetCfTree(IntPtr rootHandle, CfTreeNode parent = null)
+    
+    public async Task<List<CfTreeNode>> GetCfTree(nint rootHandle, CfTreeNode parent = null)
     {
       return await Task.Run(() => GetNodeChildren(rootHandle, parent)).ConfigureAwait(false);
     }
 
-    private List<CfTreeNode> GetNodeChildren(IntPtr parentHandle, CfTreeNode parent = null)
+    private static List<CfTreeNode> GetNodeChildren(nint parentHandle, CfTreeNode parent = null)
     {
       var children = new List<CfTreeNode>();
 
-      var childHandle = IntPtr.Zero;
+      var childHandle = nint.Zero;
 
       for (var i = 0;; i++)
       {
         childHandle = i == 0
-                        ? TmNative.cftNodeEnumAll(parentHandle, 0)
-                        : TmNative.cftNodeGetNextAll(childHandle);
+                        ? TmNativeApi.NodeEnumAll(parentHandle, 0)
+                        : TmNativeApi.NodeGetNextAll(childHandle);
 
-        if (childHandle == IntPtr.Zero)
+        if (childHandle == nint.Zero)
         {
           break;
         }
 
-        var nodeChild = new CfTreeNode(GetNodeName(childHandle), parent)
+        var nodeChild = new CfTreeNode(TmNativeApi.GetNodeName(childHandle), parent)
         {
-          Disabled     = !TmNative.cftNodeIsEnabled(childHandle),
+          Disabled     = !TmNativeApi.NodeIsEnabled(childHandle),
           CfProperties = GetNodeProps(childHandle),
         };
 
@@ -675,33 +657,25 @@ namespace Iface.Oik.Tm.Api
         children.Add(nodeChild);
       }
 
-      if (children.Count == 0)
-        return null;
-      else
-        return children;
+      return children.Count == 0 
+               ? null 
+               : children;
     }
-
-    private string GetNodeName(IntPtr nodeHandle)
-    {
-      const int  nameBufLength = 200;
-      Span<byte> nameBuf       = stackalloc byte[nameBufLength];
-
-      TmNative.cftNodeGetName(nodeHandle, nameBuf, nameBufLength);
-
-      return EncodingUtil.BytesToString(nameBuf);
-    }
-
-    private Dictionary<string, string> GetNodeProps(IntPtr nodeHandle)
+    
+    private static Dictionary<string, string> GetNodeProps(nint nodeHandle)
     {
       var props = new Dictionary<string, string>();
 
       for (var i = 0;; i++)
       {
-        var propName = GetPropName(nodeHandle, i);
-        if (propName == "")
-          break;
-
-        var propValue = GetPropValue(nodeHandle, propName);
+        var propName = TmNativeApi.GetNodePropertyName(nodeHandle, i);
+        
+        if (propName == string.Empty)
+        {
+          break;  
+        }
+        
+        var propValue = TmNativeApi.GetNodePropertyValue(nodeHandle, propName);
 
         props.Add(propName, propValue);
       }
@@ -709,31 +683,7 @@ namespace Iface.Oik.Tm.Api
       return props;
     }
 
-    private string GetPropName(IntPtr nodeHandle, int idx)
-    {
-      const int  nameBufLength = 200;
-      Span<byte> nameBuf       = stackalloc byte[nameBufLength];
-
-      TmNative.cftNPropEnum(nodeHandle, idx, nameBuf, nameBufLength);
-
-      return EncodingUtil.BytesToString(nameBuf);
-    }
-
-    private string GetPropValue(IntPtr nodeHandle, string propName)
-    {
-      IntPtr ptr = TmNative.cftNPropGetText(nodeHandle, EncodingUtil.StringToBytes(propName), null, 0);
-      if (ptr != IntPtr.Zero)
-      {
-        string ret = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(ptr);
-        TmNative.cfsFreeMemory(ptr);
-        return ret;
-      }
-      else
-      {
-        return string.Empty;
-      }
-    }
-
+    
     private IntPtr CreateNewMasterServiceTree(MSTreeNode msRoot)
     {
       var newTreeHandle = TmNative.cftNodeNewTree();
@@ -1369,7 +1319,7 @@ namespace Iface.Oik.Tm.Api
 
     private IReadOnlyCollection<TmNativeDefs.CfsLogRecord> ParseCfsServerLogRecordPointer(IntPtr ptr)
     {
-      var strList = TmNativeUtil.GetUnknownLengthStringListFromDoubleNullTerminatedPointer(ptr);
+      var strList = TmNativeUtil.GetStringsListFromIntPtr(ptr);
 
       var records = new List<CfsLogRecord>();
 
@@ -1653,14 +1603,14 @@ namespace Iface.Oik.Tm.Api
         return (false, "Ошибка: не указан удалённый путь до файла", DateTime.MinValue);
       }
 
-      var       fileTime        = new TmNativeDefs.FileTime();
+      var       fileTime        = new FileTime();
       const int errStringLength = 1000;
       var       errString       = new byte[errStringLength];
       uint      errCode         = 0;
       if (!await Task.Run(() => TmNative.cfsFileGet(CfId,
                                                     EncodingUtil.StringToBytes(remoteFilePath),
                                                     EncodingUtil.StringToBytes(localFilePath),
-                                                    timeout | TmNativeDefs.FailIfNoConnect,
+                                                    timeout | FailIfNoConnect,
                                                     ref fileTime,
                                                     out errCode,
                                                     errString,
