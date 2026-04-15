@@ -44,43 +44,13 @@ namespace Iface.Oik.Tm.Helpers
 
 		public Dictionary<string, string> GetPrivateSection(string section)
 		{
-			var buf = new byte[BuffSizeStep];
-
-			var returnSize = TmNative.ini_ReadSection(_filePointer, 
-			                                          EncodingUtil.StringToBytes(section), 
-			                                          buf, 
-			                                          BuffSizeStep);
-
-			if (buf.Length < returnSize)
-			{
-				buf = new byte[returnSize];
-				TmNative.ini_ReadSection(_filePointer, 
-				                         EncodingUtil.StringToBytes(section), 
-				                         buf, 
-				                         returnSize);
-			}
-
-			var significantBytes = new byte[returnSize];
-			Array.Copy(buf, significantBytes, returnSize);
-
-			var content = TmNativeUtil.GetStringsListFromBytes(buf, _fileEncoding);
-
-			var result = new Dictionary<string, string>();
-			foreach(var line in content)
-			{ 
-				var equalSingIndex = line.IndexOf('=');
-				if(equalSingIndex != -1)
-				{
-					result.Add(line[..equalSingIndex], line[(equalSingIndex + 1)..]);
-				}
-			}
-			return result;
+			return TmNativeApi.GetPrivateSection(_filePointer, section, _fileEncoding);
 		}
 
 
 		public byte[] GetStruct(string section, string key, uint bufSize = 1024)
 		{
-			var buf = new byte[bufSize];
+			/*var buf = new byte[bufSize];
 
 			var returnSize = TmNative.ini_ReadStruct(_filePointer, 
 			                                         EncodingUtil.StringToBytes(section), 
@@ -95,10 +65,10 @@ namespace Iface.Oik.Tm.Helpers
 				                         EncodingUtil.StringToBytes(section), 
 				                         buf, 
 				                         returnSize);
-			}
+			}*/
 
-			var significantBytes = new byte[returnSize];
-			Array.Copy(buf, significantBytes, returnSize);
+			var significantBytes = new byte[0/*returnSize*/];
+			//Array.Copy(buf, significantBytes, returnSize);
 
 			return significantBytes;
 		}
