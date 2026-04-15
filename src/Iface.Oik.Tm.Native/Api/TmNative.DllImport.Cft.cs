@@ -63,10 +63,12 @@ namespace Iface.Oik.Tm.Native.Api
                                                   byte[] nodeTag);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern bool cftNPropSet(IntPtr id,
-                                          byte[] propName,
-                                          byte[] propText);
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool cftNPropSet(nint   id,
+                                           string propName,
+                                           string propText);
 
 
     [LibraryImport(Cfshare)]

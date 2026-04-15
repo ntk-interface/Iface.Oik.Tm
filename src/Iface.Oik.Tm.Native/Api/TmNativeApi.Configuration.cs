@@ -11,8 +11,8 @@ public static partial class TmNativeApi
   {
     var fileTime = new TmNativeDefsUnsafe.FileTime();
 
-    var pool    = ArrayPool<byte>.Shared;
-    var errBuf  = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+    var pool   = ArrayPool<byte>.Shared;
+    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
 
     try
     {
@@ -84,5 +84,12 @@ public static partial class TmNativeApi
     TmNative.cfsFreeMemory(ptr);
 
     return value;
+  }
+
+  public static bool SetNodeProperty(nint   nodeHandle,
+                                     string propertyName,
+                                     string propertyText)
+  {
+    return TmNative.cftNPropSet(nodeHandle, propertyName, propertyText);
   }
 }
