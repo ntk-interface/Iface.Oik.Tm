@@ -51,29 +51,10 @@ namespace Iface.Oik.Tm.Api
       }
     }
 
-    public async Task<(IntPtr, DateTime)> OpenConfigurationTree(string fileName)
+    public async Task<(nint, DateTime)> OpenConfigurationTree(string fileName)
     {
-      var       fileTime        = new TmNativeDefs.FileTime();
-      const int errStringLength = 1000;
-      var       errBuf          = new byte[errStringLength];
-      uint      errCode         = 0;
-
-      var cfTreeRoot = await Task.Run(() => TmNative.cfsConfFileOpenCid(CfId,
-                                                                        EncodingUtil.StringToBytes(Host),
-                                                                        EncodingUtil.StringToBytes(fileName),
-                                                                        30000 | TmNativeDefs.FailIfNoConnect,
-                                                                        ref fileTime,
-                                                                        out errCode,
-                                                                        errBuf,
-                                                                        errStringLength))
-                                 .ConfigureAwait(false);
-
-      if (cfTreeRoot == IntPtr.Zero)
-      {
-        throw new Exception($"Ошибка получения конфигурации: {EncodingUtil.BytesToString(errBuf)} Код: {errCode}");
-      }
-
-      return (cfTreeRoot, GetDateTimeFromCustomFileTime(fileTime));
+      return await Task.Run(() => TmNativeApi.OpenConfigurationTree(CfId, Host, fileName)).
+                        ConfigureAwait(false);
     }
 
 

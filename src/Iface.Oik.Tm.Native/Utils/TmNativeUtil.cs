@@ -665,5 +665,10 @@ namespace Iface.Oik.Tm.Native.Utils
     {
       return ((DateTimeOffset)dateTime).ToUnixTimeSeconds();
     }
+
+    internal static DateTime GetTimeFromFileTime(TmNativeDefsUnsafe.FileTime fileTime)
+    {
+      return DateTime.FromFileTime((long)fileTime.dwHighDateTime << 32 | (uint)fileTime.dwLowDateTime);
+    }
   }
 }
