@@ -50,7 +50,7 @@ namespace Iface.Oik.Tm.Helpers
 
 		public byte[] GetStruct(string section, string key, uint bufSize = 1024)
 		{
-			/*var buf = new byte[bufSize];
+			var buf = new byte[bufSize];
 
 			var returnSize = TmNative.ini_ReadStruct(_filePointer, 
 			                                         EncodingUtil.StringToBytes(section), 
@@ -62,13 +62,13 @@ namespace Iface.Oik.Tm.Helpers
 			{
 				buf = new byte[returnSize];
 				TmNative.ini_ReadSection(_filePointer, 
-				                         EncodingUtil.StringToBytes(section), 
+				                         section, 
 				                         buf, 
 				                         returnSize);
-			}*/
+			}
 
-			var significantBytes = new byte[0/*returnSize*/];
-			//Array.Copy(buf, significantBytes, returnSize);
+			var significantBytes = new byte[returnSize];
+			Array.Copy(buf, significantBytes, returnSize);
 
 			return significantBytes;
 		}
