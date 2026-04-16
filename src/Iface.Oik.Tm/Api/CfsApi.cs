@@ -70,7 +70,7 @@ namespace Iface.Oik.Tm.Api
       {
         var (resHandle, _) = await OpenConfigurationTree(HotStanbyConfFile).ConfigureAwait(false);
         resTree            = await GetCfTree(resHandle).ConfigureAwait(false);
-        FreeConfigurationTreeHandle(resHandle);
+        TmNativeApi.FreeTreeHandle(resHandle);
       }
       catch (Exception ex)
       {
@@ -239,7 +239,7 @@ namespace Iface.Oik.Tm.Api
       var (handle, time) = await OpenMasterServiceConfiguration().ConfigureAwait(false);
       var tree = await GetCfTree(handle).ConfigureAwait(false);
 
-      FreeConfigurationTreeHandle(handle);
+      TmNativeApi.FreeTreeHandle(handle);
 
       // считаем что дерево мастер-сервиса всегда начинается с одного элемента
       var msRoot = new MSTreeNode(tree.First());
@@ -344,7 +344,7 @@ namespace Iface.Oik.Tm.Api
 
         var rbsTree = await GetCfTree(rbsHandle).ConfigureAwait(false);
 
-        FreeConfigurationTreeHandle(rbsHandle);
+        TmNativeApi.FreeTreeHandle(rbsHandle);
 
         if (rbsTree != null)
         {
@@ -390,7 +390,7 @@ namespace Iface.Oik.Tm.Api
 
         var calcTree = await GetCfTree(calcHandle).ConfigureAwait(false);
 
-        FreeConfigurationTreeHandle(calcHandle);
+        TmNativeApi.FreeTreeHandle(calcHandle);
 
         if (calcTree != null)
         {
@@ -469,7 +469,7 @@ namespace Iface.Oik.Tm.Api
       // Основное дерево мастер-сервиса
       var treeHandle = CreateNewMasterServiceTree(msRoot);
       await SaveMasterServiceConfiguration(treeHandle).ConfigureAwait(false);
-      FreeMasterServiceConfigurationHandle(treeHandle);
+      TmNativeApi.FreeTreeHandle(treeHandle);
 
       // Конфигурация резервирования, перебираем сервера на втором уровне
       var resHandle = TmNativeApi.CreateNewTree();
@@ -499,7 +499,7 @@ namespace Iface.Oik.Tm.Api
       }
 
       await SaveConfigurationTree(resHandle, HotStanbyConfFile).ConfigureAwait(false);
-      FreeConfigurationTreeHandle(resHandle);
+      TmNativeApi.FreeTreeHandle(resHandle);
 
       // Другие конфигурации (rb, tmcalc)
       foreach (var server in msRoot.Children)
@@ -524,7 +524,7 @@ namespace Iface.Oik.Tm.Api
           await SaveConfigurationTree(rbsHandle,
                                       $"{RbsDirectory}\\{rbsP.PipeName}\\{RbsConfFile}")
             .ConfigureAwait(false);
-          FreeConfigurationTreeHandle(rbsHandle);
+          TmNativeApi.FreeTreeHandle(rbsHandle);
 
           // параметры редиректора
           await SetRedirectorPort(rbsP.PipeName, 0, rbsP.RedirectorPort).ConfigureAwait(false);
@@ -550,7 +550,7 @@ namespace Iface.Oik.Tm.Api
 
               var (calcHandle, _) = await OpenConfigurationTree(fileName).ConfigureAwait(false);
               var calcTree = await GetCfTree(calcHandle).ConfigureAwait(false);
-              FreeConfigurationTreeHandle(calcHandle);
+              TmNativeApi.FreeTreeHandle(calcHandle);
               
               calcTree ??= new List<CfTreeNode>();
 
@@ -582,7 +582,7 @@ namespace Iface.Oik.Tm.Api
               if (calcHandle != nint.Zero)
               {
                 await SaveConfigurationTree(calcHandle, fileName).ConfigureAwait(false);
-                FreeConfigurationTreeHandle(calcHandle);
+                TmNativeApi.FreeTreeHandle(calcHandle);
               }
             }
             catch
@@ -598,22 +598,8 @@ namespace Iface.Oik.Tm.Api
 
     public async Task SaveConfigurationTree(nint treeHandle, string filename)
     {
-      var       fileTime        = new FileTime();
-      const int errStringLength = 1000;
-      var       errBuf          = new byte[errStringLength];
-      uint      errCode         = 0;
-
-      var res = await Task.Run(() => TmNative.cfsConfFileSaveAs(treeHandle,
-                                                                EncodingUtil.StringToBytes(Host),
-                                                                EncodingUtil.StringToBytes(filename),
-                                                                30000 | TmNativeDefs.FailIfNoConnect,
-                                                                ref fileTime,
-                                                                out errCode,
-                                                                errBuf,
-                                                                errStringLength))
-                          .ConfigureAwait(false);
-      if (errCode != 0)
-        throw new Exception($"Ошибка записи конфигурации: {EncodingUtil.BytesToString(errBuf)} Код: {errCode}");
+      await Task.Run(() => TmNativeApi.SaveConfigurationTree(treeHandle, Host, filename))
+                .ConfigureAwait(false);
     }
 
     public async Task SaveMasterServiceConfiguration(IntPtr treeHandle)
@@ -621,14 +607,9 @@ namespace Iface.Oik.Tm.Api
       await SaveConfigurationTree(treeHandle, MasterConfFile).ConfigureAwait(false);
     }
 
-    public void FreeMasterServiceConfigurationHandle(IntPtr handle)
+    public void FreeConfigurationTreeHandle(nint handle)
     {
-      TmNative.cftNodeFreeTree(handle);
-    }
-
-    public void FreeConfigurationTreeHandle(IntPtr handle)
-    {
-      TmNative.cftNodeFreeTree(handle);
+      TmNativeApi.FreeTreeHandle(handle);
     }
 
     private static DateTime GetDateTimeFromCustomFileTime(FileTime fileTime)

@@ -7,8 +7,9 @@ namespace Iface.Oik.Tm.Native.Api
 {
   public partial class TmNative
   {
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
-    public static extern void cftNodeFreeTree(IntPtr id);
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static partial void cftNodeFreeTree(nint id);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
@@ -62,7 +63,7 @@ namespace Iface.Oik.Tm.Native.Api
     [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
     internal static partial nint cftNodeInsertDown(nint   id,
-                                                 string nodeTag);
+                                                   string nodeTag);
 
 
     [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
@@ -81,7 +82,7 @@ namespace Iface.Oik.Tm.Native.Api
 
     [LibraryImport(Cfshare)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
-    internal static partial void cftNodeEnable(nint id,
-                                             bool enable);
+    internal static partial void cftNodeEnable(nint                                 id,
+                                               [MarshalAs(UnmanagedType.Bool)] bool enable);
   }
 }

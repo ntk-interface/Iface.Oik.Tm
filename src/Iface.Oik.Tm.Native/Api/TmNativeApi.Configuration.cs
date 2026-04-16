@@ -38,6 +38,43 @@ public static partial class TmNativeApi
     }
   }
 
+  public static bool SaveConfigurationTree(nint treeHandle, string host, string fileName)
+  {
+    var fileTime = new TmNativeDefsUnsafe.FileTime();
+
+    var pool   = ArrayPool<byte>.Shared;
+    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+
+    try
+    {
+      var result = TmNative.cfsConfFileSaveAs(treeHandle,
+                                             host,
+                                             fileName,
+                                             30000 | TmNativeDefs.FailIfNoConnect,
+                                             ref fileTime,
+                                             out var errCode,
+                                             errBuf,
+                                             TmNativeDefsUnsafe.ErrorBufSize);
+
+      if (errCode != 0)
+      {
+        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
+      }
+
+      return result;
+    }
+    finally
+    {
+      pool.Return(errBuf);
+    }
+  }
+
+  public static void FreeTreeHandle(nint nodeHandle)
+  {
+    TmNative.cftNodeFreeTree(nodeHandle);
+  }
+  
+  
   public static nint NodeEnumAll(nint handle, int index)
   {
     return TmNative.cftNodeEnumAll(handle, index);
