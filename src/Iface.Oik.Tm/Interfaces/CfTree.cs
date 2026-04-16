@@ -52,8 +52,8 @@ namespace Iface.Oik.Tm.Interfaces
       {
         Properties = new MasterNodeProperties
         {
-          LogFileSize = int.Parse(cftNode.CfProperties.ValueOrDefault(MSTreeConsts.LogFileSize, "0x80000")),
-          InstallationName     = cftNode.CfProperties.ValueOrDefault(MSTreeConsts.InstallationName, String.Empty)
+          LogFileSize      = int.Parse(cftNode.CfProperties.ValueOrDefault(MSTreeConsts.LogFileSize, "0x80000")),
+          InstallationName = cftNode.CfProperties.ValueOrDefault(MSTreeConsts.InstallationName, String.Empty)
         };
       }
       else
@@ -153,8 +153,8 @@ namespace Iface.Oik.Tm.Interfaces
 
   public class MasterNodeProperties : MSTreeNodeProperties
   {
-    public int    LogFileSize { get; set; }
-    public string InstallationName     { get; set; }
+    public int    LogFileSize      { get; set; }
+    public string InstallationName { get; set; }
   }
 
   public class ChildNodeProperties : MSTreeNodeProperties
@@ -208,6 +208,19 @@ namespace Iface.Oik.Tm.Interfaces
     public short  RetakeTO     { get; set; } = 20;
     public bool   CopyConfig   { get; set; }
     public bool   StopInactive { get; set; }
+
+    public IEnumerable<(string name, string value)> PropertyPairs => new List<(string name, string value)>
+    {
+      (nameof(Type), $"{Type}"),
+      (nameof(BindAddr), $"{BindAddr}"),
+      (nameof(Addr), $"{Addr}"),
+      (nameof(Port), $"{Port}"),
+      (nameof(BPort), $"{BPort}"),
+      (nameof(AbortTO), $"{AbortTO}"),
+      (nameof(RetakeTO), $"{RetakeTO}"),
+      (nameof(CopyConfig), CopyConfig ? "1" : "0"),
+      (nameof(StopInactive), StopInactive ? "1" : "0"),
+    };
   }
 
   public class AutoBackupProperties : MSTreeNodeProperties

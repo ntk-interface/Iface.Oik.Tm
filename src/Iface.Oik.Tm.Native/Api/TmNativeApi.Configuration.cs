@@ -86,6 +86,26 @@ public static partial class TmNativeApi
     return value;
   }
 
+  public static nint CreateNewTree()
+  {
+    return TmNative.cftNodeNewTree();
+  }
+
+  public static nint CreateChildNode(nint   parentHandle,
+                                     string nodeTag)
+  {
+    var childHandle = TmNative.cftNodeInsertDown(parentHandle, nodeTag);
+    
+
+    return childHandle;
+  }
+
+  public static void SetNodeEnabledState(nint nodeHandle, 
+                                         bool isEnabled)
+  {
+    TmNative.cftNodeEnable(nodeHandle, isEnabled);
+  }
+  
   public static bool SetNodeProperty(nint   nodeHandle,
                                      string propertyName,
                                      string propertyText)

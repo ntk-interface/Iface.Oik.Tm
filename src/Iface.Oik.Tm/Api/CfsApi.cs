@@ -472,7 +472,7 @@ namespace Iface.Oik.Tm.Api
       FreeMasterServiceConfigurationHandle(treeHandle);
 
       // Конфигурация резервирования, перебираем сервера на втором уровне
-      var resHandle = TmNative.cftNodeNewTree();
+      var resHandle = TmNativeApi.CreateNewTree();
       foreach (var server in msRoot.Children)
       {
         if (server.Properties is not ReservedNodeProperties p)
@@ -490,16 +490,12 @@ namespace Iface.Oik.Tm.Api
           tag = $"{server.ProgName}:{tag}";
         }
 
-        var nodeHandle = TmNative.cftNodeInsertDown(resHandle, EncodingUtil.StringToBytes(tag));
-        TmNativeApi.SetNodeProperty(nodeHandle, nameof(p.Type),         p.Type.ToString());
-        TmNativeApi.SetNodeProperty(nodeHandle, nameof(p.BindAddr),     p.BindAddr.Trim());
-        TmNativeApi.SetNodeProperty(nodeHandle, nameof(p.Addr),         p.Addr.Trim());
-        TmNativeApi.SetNodeProperty(nodeHandle, nameof(p.Port),         p.Port.ToString());
-        TmNativeApi.SetNodeProperty(nodeHandle, nameof(p.BPort),        p.BPort.ToString());
-        TmNativeApi.SetNodeProperty(nodeHandle, nameof(p.AbortTO),      p.AbortTO.ToString());
-        TmNativeApi.SetNodeProperty(nodeHandle, nameof(p.RetakeTO),     p.RetakeTO.ToString());
-        TmNativeApi.SetNodeProperty(nodeHandle, nameof(p.CopyConfig),   p.CopyConfig ? "1" : "0");
-        TmNativeApi.SetNodeProperty(nodeHandle, nameof(p.StopInactive), p.StopInactive ? "1" : "0");
+        var nodeHandle = TmNativeApi.CreateChildNode(resHandle, tag);
+
+        foreach (var (name, value) in p.PropertyPairs)
+        {
+          TmNativeApi.SetNodeProperty(nodeHandle, name, value);
+        }
       }
 
       await SaveConfigurationTree(resHandle, HotStanbyConfFile).ConfigureAwait(false);
@@ -511,19 +507,18 @@ namespace Iface.Oik.Tm.Api
         if (server.Properties is RbsNodeProperties rbsP)
         {
           // общие параметры
-          var rbsHandle = TmNative.cftNodeNewTree();
-          var nodeHandle = TmNative.cftNodeInsertDown(rbsHandle, 
-                                                      EncodingUtil.StringToBytes(MSTreeConsts.RBS_Parameters));
+          var rbsHandle  = TmNativeApi.CreateNewTree();
+          var nodeHandle = TmNativeApi.CreateChildNode(rbsHandle, MSTreeConsts.RBS_Parameters);
+          
           TmNativeApi.SetNodeProperty(nodeHandle, nameof(rbsP.RBF_Directory), rbsP.RBF_Directory);
 
-          nodeHandle = TmNative.cftNodeInsertDown(rbsHandle, 
-                                                  EncodingUtil.StringToBytes(MSTreeConsts.RBS_ClientParms));
+          nodeHandle = TmNativeApi.CreateChildNode(rbsHandle, MSTreeConsts.RBS_ClientParms);
           
           TmNativeApi.SetNodeProperty(nodeHandle, nameof(rbsP.DOC_Path),     rbsP.DOC_Path);
           TmNativeApi.SetNodeProperty(nodeHandle, nameof(rbsP.DTMX_SQLCS),   rbsP.DTMX_SQLCS);
           TmNativeApi.SetNodeProperty(nodeHandle, nameof(rbsP.JournalSQLCS), rbsP.JournalSQLCS);
 
-          nodeHandle = TmNative.cftNodeInsertDown(rbsHandle, EncodingUtil.StringToBytes(MSTreeConsts.RBS_PGParms));
+          nodeHandle = TmNativeApi.CreateChildNode(rbsHandle, MSTreeConsts.RBS_PGParms);
           TmNativeApi.SetNodeProperty(nodeHandle, nameof(rbsP.BinPath),  rbsP.BinPath);
           TmNativeApi.SetNodeProperty(nodeHandle, nameof(rbsP.DataPath), rbsP.DataPath);
           await SaveConfigurationTree(rbsHandle,
@@ -601,9 +596,9 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task SaveConfigurationTree(IntPtr treeHandle, string filename)
+    public async Task SaveConfigurationTree(nint treeHandle, string filename)
     {
-      var       fileTime        = new TmNativeDefs.FileTime();
+      var       fileTime        = new FileTime();
       const int errStringLength = 1000;
       var       errBuf          = new byte[errStringLength];
       uint      errCode         = 0;
@@ -703,7 +698,7 @@ namespace Iface.Oik.Tm.Api
     
     private nint CreateNewMasterServiceTree(MSTreeNode msRoot)
     {
-      var newTreeHandle = TmNative.cftNodeNewTree();
+      var newTreeHandle = TmNativeApi.CreateNewTree();
 
       CreateMSNode(newTreeHandle, msRoot);
 
@@ -712,7 +707,7 @@ namespace Iface.Oik.Tm.Api
 
     public nint CreateConfigurationTree(IEnumerable<CfTreeNode> tree)
     {
-      var newTreeHandle = TmNative.cftNodeNewTree();
+      var newTreeHandle = TmNativeApi.CreateNewTree();
       foreach (var node in tree)
       {
         CreateCfgNode(newTreeHandle, node);
@@ -723,9 +718,10 @@ namespace Iface.Oik.Tm.Api
 
     private static void CreateCfgNode(nint parentNodeHandle, CfTreeNode node)
     {
-      var nodeHandle = TmNative.cftNodeInsertDown(parentNodeHandle, EncodingUtil.StringToBytes(node.Name));
-      TmNative.cftNodeEnable(nodeHandle, !node.Disabled);
-      if ((node.CfProperties != null) && node.CfProperties.Any())
+      var nodeHandle = TmNativeApi.CreateChildNode(parentNodeHandle, node.Name);
+      TmNativeApi.SetNodeEnabledState(nodeHandle, !node.Disabled);
+      
+      if (node.CfProperties != null && node.CfProperties.Count != 0)
       {
         foreach (var prop in node.CfProperties)
         {
@@ -733,19 +729,21 @@ namespace Iface.Oik.Tm.Api
         }
       }
 
-      if ((node.Children != null) && node.Children.Any())
+      if (node.Children == null || node.Children.Count == 0)
       {
-        foreach (var child in node.Children)
-        {
-          CreateCfgNode(nodeHandle, child);
-        }
+        return;
+      }
+      
+      foreach (var child in node.Children)
+      {
+        CreateCfgNode(nodeHandle, child);
       }
     }
 
     private void CreateMSNode(nint parentNodeHandle, MSTreeNode node, int tagId = -1)
     {
       var tag        = tagId == -1 ? "Master" : $"#{tagId:X3}";
-      var nodeHandle = TmNative.cftNodeInsertDown(parentNodeHandle, EncodingUtil.StringToBytes(tag));
+      var nodeHandle = TmNativeApi.CreateChildNode(parentNodeHandle, tag);
 
       if (!CreateMSNodeProperties(nodeHandle, node))
         throw new Exception("Ошибка заполнения дерева конфигурации");
