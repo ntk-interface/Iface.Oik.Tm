@@ -492,7 +492,7 @@ namespace Iface.Oik.Tm.Api
 
         var nodeHandle = TmNativeApi.CreateChildNode(resHandle, tag);
 
-        foreach (var (name, value) in p.PropertyPairs)
+        foreach (var (name, value) in p.ReservePropertyPairs)
         {
           TmNativeApi.SetNodeProperty(nodeHandle, name, value);
         }

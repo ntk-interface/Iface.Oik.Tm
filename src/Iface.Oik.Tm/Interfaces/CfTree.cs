@@ -209,7 +209,7 @@ namespace Iface.Oik.Tm.Interfaces
     public bool   CopyConfig   { get; set; }
     public bool   StopInactive { get; set; }
 
-    public IEnumerable<(string name, string value)> PropertyPairs => new List<(string name, string value)>
+    public IEnumerable<(string name, string value)> ReservePropertyPairs => new List<(string name, string value)>
     {
       (nameof(Type), $"{Type}"),
       (nameof(BindAddr), $"{BindAddr}"),
