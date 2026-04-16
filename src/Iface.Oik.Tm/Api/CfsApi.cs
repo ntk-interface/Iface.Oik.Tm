@@ -527,7 +527,7 @@ namespace Iface.Oik.Tm.Api
           FreeConfigurationTreeHandle(rbsHandle);
 
           // параметры редиректора
-          await SetRedirectorPort(rbsP.PipeName, 0, (int)rbsP.RedirectorPort).ConfigureAwait(false);
+          await SetRedirectorPort(rbsP.PipeName, 0, rbsP.RedirectorPort).ConfigureAwait(false);
         }
         else if (server.ProgName.Equals(MSTreeConsts.TmServer) || server.ProgName.Equals(MSTreeConsts.pcsrv_old))
         {
