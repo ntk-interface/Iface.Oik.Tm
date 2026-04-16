@@ -28,7 +28,6 @@ namespace Iface.Oik.Tm.Interfaces
     Task                         SaveFullMSTree(MSTreeNode                   msRoot);
     Task<List<CfTreeNode>>       GetCfTree(IntPtr                            rootHandle, CfTreeNode parent = null);
     void                         FreeConfigurationTreeHandle(IntPtr          handle);
-    void                         FreeMasterServiceConfigurationHandle(IntPtr handle);
 
 
     Task<CfsDefs.SoftwareTypes> GetSoftwareType();

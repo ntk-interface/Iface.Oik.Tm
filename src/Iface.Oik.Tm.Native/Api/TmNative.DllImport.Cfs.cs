@@ -148,15 +148,17 @@ namespace Iface.Oik.Tm.Native.Api
                                                     Span<byte>                      errBuf,
                                                     uint                            maxErrs);
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern bool cfsConfFileSaveAs(IntPtr                              treeHandle,
-                                                byte[]                              serverName,
-                                                byte[]                              remoteFileName,
-                                                UInt32                              timeout,
-                                                [In, Out] ref TmNativeDefs.FileTime fileTime,
-                                                out           UInt32                errCode,
-                                                [In, Out]     byte[]                errBuf,
-                                                UInt32                              maxErrs);
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool cfsConfFileSaveAs(nint                            treeHandle,
+                                                   string                          serverName,
+                                                   string                          remoteFileName,
+                                                   uint                            timeout,
+                                                   ref TmNativeDefsUnsafe.FileTime fileTime,
+                                                   out uint                        errCode,
+                                                   Span<byte>                      errBuf,
+                                                   uint                            maxErrs);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]

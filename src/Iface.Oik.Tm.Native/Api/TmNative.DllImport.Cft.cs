@@ -7,8 +7,9 @@ namespace Iface.Oik.Tm.Native.Api
 {
   public partial class TmNative
   {
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
-    public static extern void cftNodeFreeTree(IntPtr id);
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static partial void cftNodeFreeTree(nint id);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
@@ -49,8 +50,9 @@ namespace Iface.Oik.Tm.Native.Api
                                                uint       count);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
-    public static extern IntPtr cftNodeNewTree();
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static partial nint cftNodeNewTree();
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
@@ -58,15 +60,18 @@ namespace Iface.Oik.Tm.Native.Api
                                                    byte[] nodeTag);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr cftNodeInsertDown(IntPtr id,
-                                                  byte[] nodeTag);
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static partial nint cftNodeInsertDown(nint   id,
+                                                   string nodeTag);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern bool cftNPropSet(IntPtr id,
-                                          byte[] propName,
-                                          byte[] propText);
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool cftNPropSet(nint   id,
+                                             string propName,
+                                             string propText);
 
 
     [LibraryImport(Cfshare)]
@@ -75,8 +80,9 @@ namespace Iface.Oik.Tm.Native.Api
     internal static partial bool cftNodeIsEnabled(nint id);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
-    public static extern void cftNodeEnable(IntPtr id,
-                                            bool   enable);
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static partial void cftNodeEnable(nint                                 id,
+                                               [MarshalAs(UnmanagedType.Bool)] bool enable);
   }
 }
