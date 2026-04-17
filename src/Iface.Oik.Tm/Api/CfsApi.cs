@@ -1106,38 +1106,8 @@ namespace Iface.Oik.Tm.Api
                                                                               DateTime? startTime, 
                                                                               DateTime? endTime)
     {
-      await OpenTmServerLog().ConfigureAwait(false);
-      var tmServersLog = new List<TmServerLogRecord>();
-
-      var firstRecord = true;
-
-      while (true)
-      {
-        var logRecord = await GetTmServersLogRecord(firstRecord)
-                          .ConfigureAwait(false);
-        firstRecord = false;
-
-        if (logRecord == null) break;
-        if (endTime != null)
-        {
-          if (logRecord.DateTime > endTime)
-            continue;
-        }
-
-        if (startTime != null)
-        {
-          if (logRecord.DateTime < startTime)
-            break;
-        }
-
-        tmServersLog.Add(logRecord);
-        if ((maxRecords > 0) && (tmServersLog.Count >= maxRecords))
-          break;
-      }
-
-      await CloseTmServerLog().ConfigureAwait(false);
-
-      return tmServersLog;
+      return await Task.Run(() => TmNativeApi.GetTmServersLog<TmServerLogRecord>(CfId, startTime, endTime, maxRecords))
+                       .ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyCollection<TmServerThread>> GetTmServersThreads()
@@ -1305,6 +1275,8 @@ namespace Iface.Oik.Tm.Api
 
       return TmServerLogRecord.CreateFromCfsLogRecord(cfsLogRecord);
     }
+    
+    
 
     private IReadOnlyCollection<CfsLogRecord> ParseCfsServerLogRecordPointer(nint ptr)
     {

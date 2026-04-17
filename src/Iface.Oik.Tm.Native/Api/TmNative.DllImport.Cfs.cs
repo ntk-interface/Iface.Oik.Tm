@@ -280,6 +280,14 @@ namespace Iface.Oik.Tm.Native.Api
                                                 [In, Out] byte[] errBuf,
                                                 uint             maxErrs);
 
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static partial nint cfsLogGetRecordEx(nint                                 connId,
+                                                   [MarshalAs(UnmanagedType.Bool)] bool fFirst,
+                                                   out                             uint errCode,
+                                                   Span<byte>                           errBuf,
+                                                   uint                                 maxErrs);
+
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern IntPtr cfsEnumThreads(IntPtr           connId,
@@ -380,14 +388,15 @@ namespace Iface.Oik.Tm.Native.Api
                                        byte[] message);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr lf_ParseMessage(IntPtr           stringPtrToParse,
-                                                [In, Out] byte[] sTime,
-                                                [In, Out] byte[] sDate,
-                                                [In, Out] byte[] sName,
-                                                [In, Out] byte[] sType,
-                                                [In, Out] byte[] sMsgType,
-                                                [In, Out] byte[] sThid);
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static partial nint lf_ParseMessage(Span<byte> stringPtrToParse,
+                                                 Span<byte> sTime,
+                                                 Span<byte> sDate,
+                                                 Span<byte> sName,
+                                                 Span<byte> sType,
+                                                 Span<byte> sMsgType,
+                                                 Span<byte> sThid);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]

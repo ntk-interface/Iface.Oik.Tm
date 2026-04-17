@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Text;
 using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
@@ -112,11 +113,11 @@ public static partial class TmNativeApi
     while (true)
     {
       var (eventsBatchList, lastBatchElix) = GetEventsBatchByElix<T>(cid,
-                                                                  currentElix,
-                                                                  0xFFFF,
-                                                                  0,
-                                                                  0xFFFFFFFF,
-                                                                  cache);
+                                                                     currentElix,
+                                                                     0xFFFF,
+                                                                     0,
+                                                                     0xFFFFFFFF,
+                                                                     cache);
       if (eventsBatchList.Count == 0)
       {
         break;
@@ -129,6 +130,233 @@ public static partial class TmNativeApi
     return (events, new TmNativeDefs.TTMSElix { R = currentElix.R, M = currentElix.M });
   }
 
+  
+  public static IReadOnlyCollection<T> GetTmServersLog<T>(nint      cfCid,
+                                                          DateTime? startTime,
+                                                          DateTime? endTime,
+                                                          int       limit)
+    where T : TmServerLogRecordBase, new()
+  {
+    
+    OpenTmServerLog(cfCid);
+    
+    try
+    {
+      return GetTmServersLogByBatches<T>(cfCid, startTime, endTime, limit);
+    }
+    catch (TmNotSupportedException)
+    {
+      return GetTmServersLogRecords<T>(cfCid, startTime, endTime, limit);
+    }
+    finally
+    {
+      CloseTmServerLog(cfCid);
+    }
+  }
+
+
+  internal static void OpenTmServerLog(nint cfCid)
+  {
+    var pool   = ArrayPool<byte>.Shared;
+    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+
+    try
+    {
+      var result = TmNative.cfsLogOpen(cfCid,
+                                       out var errCode,
+                                       errBuf,
+                                       TmNativeDefsUnsafe.ErrorBufSize);
+      if (!result)
+      {
+        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
+      }
+    }
+    finally
+    {
+      pool.Return(errBuf);
+    }
+  }
+  
+  internal static IReadOnlyCollection<T> GetTmServersLogByBatches<T>(nint      cfCid,
+                                                                     DateTime? startTime,
+                                                                     DateTime? endTime,
+                                                                     int       limit)
+    where T : TmServerLogRecordBase, new()
+  {
+    var isFirst = true;
+
+    var result = new List<T>();
+
+    while (result.Count < limit)
+    {
+      var records = GetTmServersLogBatch<T>(cfCid,
+                                            startTime,
+                                            endTime,
+                                            limit - result.Count,
+                                            isFirst);
+      isFirst = false;
+
+      if (records.Count == 0)
+      {
+        break;
+      }
+
+      result.AddRange(records);
+    }
+
+    return result;
+  }
+
+  internal static IReadOnlyCollection<T> GetTmServersLogBatch<T>(nint      cfCid,
+                                                                 DateTime? startTime,
+                                                                 DateTime? endTime,
+                                                                 int       limit,
+                                                                 bool      isFirst)
+    where T : TmServerLogRecordBase, new()
+  {
+    const uint notSupported = 50;
+
+    var pool   = ArrayPool<byte>.Shared;
+    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+
+    try
+    {
+      var batchPtr = TmNative.cfsLogGetRecordEx(cfCid,
+                                                isFirst,
+                                                out var errCode,
+                                                errBuf,
+                                                TmNativeDefsUnsafe.ErrorBufSize);
+
+      if (batchPtr != nint.Zero)
+      {
+        return ParseTmServerLogRecordsList<T>(batchPtr, startTime, endTime, limit);
+      }
+
+      switch (errCode)
+      {
+        case 0:
+          break;
+        case notSupported:
+          throw new TmNotSupportedException();
+        default:
+          throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
+      }
+
+      var batch = ParseTmServerLogRecordsList<T>(batchPtr, startTime, endTime, limit);
+      TmNative.cfsFreeMemory(batchPtr);
+      
+      return batch;
+    }
+    finally
+    {
+      pool.Return(errBuf);
+    }
+  }
+
+  internal static IReadOnlyCollection<T> GetTmServersLogRecords<T>(nint      cfCid,
+                                                                   DateTime? startTime,
+                                                                   DateTime? endTime,
+                                                                   int       limit)
+    where T : TmServerLogRecordBase, new()
+  {
+    var records     = new List<T>();
+    var isFirst = true;
+    
+    while (true)
+    {
+      var record = GetTmServersLogRecord<T>(cfCid, isFirst);
+      isFirst = false;
+
+      if (record == null)
+      {
+        break;
+      }
+      
+      if (endTime != null)
+      {
+        if (record.DateTime > endTime)
+        {
+          continue;
+        }
+      }
+
+      if (startTime != null)
+      {
+        if (record.DateTime < startTime)
+        {
+          break;
+        }
+      }
+      
+      records.Add(record);
+      
+      if (limit > 0 && records.Count >= limit)
+      {
+        break;
+      }
+    }
+    
+    return records;
+  }
+
+  internal static T? GetTmServersLogRecord<T>(nint cfCid, bool isFirst)
+    where T : TmServerLogRecordBase, new()
+  {
+    var pool   = ArrayPool<byte>.Shared;
+    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+
+    try
+    {
+      var logRecordPtr = TmNative.cfsLogGetRecord(cfCid, 
+                                                  isFirst, 
+                                                  out var errCode, 
+                                                  errBuf, 
+                                                  TmNativeDefsUnsafe.ErrorBufSize);
+
+      if (errCode != 0)
+      {
+        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
+      }
+      
+      if (logRecordPtr == nint.Zero)
+      {
+        return null;
+      }
+      
+      var record = TmServerLogRecordBase.Create<T>(logRecordPtr);
+      TmNative.cfsFreeMemory(logRecordPtr);
+
+      return record;
+
+    }
+    finally
+    {
+      pool.Return(errBuf);
+    }
+  }
+
+  internal static void CloseTmServerLog(nint cfCid)
+  {
+    var pool   = ArrayPool<byte>.Shared;
+    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+
+    try
+    {
+      var result = TmNative.cfsLogClose(cfCid,
+                                        out var errCode,
+                                        errBuf,
+                                        TmNativeDefsUnsafe.ErrorBufSize);
+      if (!result)
+      {
+        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
+      }
+    }
+    finally
+    {
+      pool.Return(errBuf);
+    }
+  }
+  
 
   internal static (List<T>, TmNativeDefsUnsafe.TTMSElix)
     GetEventsBatchByElix<T>(int                                   cid,
@@ -182,11 +410,11 @@ public static partial class TmNativeApi
   }
 
   internal static unsafe T CreateEvent<T>(nint                                  pTEventEx,
-                                         TmNativeDefsUnsafe.GenericEventHeader header,
-                                         int                                   addDataIndex,
-                                         int                                   cid,
-                                         Dictionary<int, TagPropsAndClassData> cache,
-                                         TmNativeDefsUnsafe.TTMSElix?          elix = null)
+                                          TmNativeDefsUnsafe.GenericEventHeader header,
+                                          int                                   addDataIndex,
+                                          int                                   cid,
+                                          Dictionary<int, TagPropsAndClassData> cache,
+                                          TmNativeDefsUnsafe.TTMSElix?          elix = null)
     where T : TmEventBase, new()
   {
     var basePtr    = (byte*)pTEventEx;
@@ -533,12 +761,13 @@ public static partial class TmNativeApi
     return (native, operatorName);
   }
 
-  internal static unsafe TagPropsAndClassData GetAndCacheUpdatedEventTagData(int                                   cid,
-                                                                             TmNativeDefs.TmDataTypes              type,
-                                                                             short                                 ch,
-                                                                             short                                 rtu,
-                                                                             short                                 point,
-                                                                             Dictionary<int, TagPropsAndClassData> cache)
+  internal static unsafe TagPropsAndClassData GetAndCacheUpdatedEventTagData(int                      cid,
+                                                                             TmNativeDefs.TmDataTypes type,
+                                                                             short                    ch,
+                                                                             short                    rtu,
+                                                                             short                    point,
+                                                                             Dictionary<int, TagPropsAndClassData>
+                                                                               cache)
   {
     var tmTagHash = (cid, type, ch, rtu, point).ToTuple().GetHashCode();
 
@@ -584,11 +813,11 @@ public static partial class TmNativeApi
   }
 
   internal static string GetExtendedObjectName(int                      cid,
-                                              short                    ch,
-                                              short                    rtu,
-                                              short                    point,
-                                              short                    subItemId,
-                                              TmNativeDefs.TmDataTypes tmDataType)
+                                               short                    ch,
+                                               short                    rtu,
+                                               short                    point,
+                                               short                    subItemId,
+                                               TmNativeDefs.TmDataTypes tmDataType)
   {
     const int bufSize = 1024;
     var       pool    = ArrayPool<byte>.Shared;
@@ -615,10 +844,10 @@ public static partial class TmNativeApi
   }
 
   internal static string GetObjectName(int    cid,
-                                      short  ch,
-                                      short  rtu,
-                                      short  point,
-                                      ushort tmDataType)
+                                       short  ch,
+                                       short  rtu,
+                                       short  point,
+                                       ushort tmDataType)
   {
     const int bufSize = 1024;
     var       pool    = ArrayPool<byte>.Shared;
@@ -640,5 +869,67 @@ public static partial class TmNativeApi
     }
 
     return TmNativeUtil.BytesToString(buf);
+  }
+
+  internal static unsafe IReadOnlyCollection<T> ParseTmServerLogRecordsList<T>(nint      ptr,
+                                                                               DateTime? startTime,
+                                                                               DateTime? endTime,
+                                                                               int       limit)
+    where T : TmServerLogRecordBase, new()
+  {
+    var result = new List<T>();
+
+    if (ptr == nint.Zero)
+    {
+      return result;
+    }
+
+    var p      = (byte*)ptr;
+    var length = 0;
+
+    while (true)
+    {
+      if (result.Count >= limit)
+      {
+        break;
+      }
+
+      while (p[length] != 0)
+      {
+        length++;
+      }
+
+      var logRecord = TmServerLogRecordBase.Create<T>(new Span<byte>(p, length));
+
+      if (endTime != null)
+      {
+        if (logRecord.DateTime > endTime)
+        {
+          continue;
+        }
+      }
+
+      if (startTime != null)
+      {
+        if (logRecord.DateTime < startTime)
+        {
+          break;
+        }
+      }
+
+      result.Add(logRecord);
+
+      length++;
+
+      if (p[length] == 0)
+      {
+        break;
+      }
+
+      p      += length;
+      length =  0;
+    }
+
+    return result;
   }
 }
