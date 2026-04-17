@@ -1078,29 +1078,7 @@ namespace Iface.Oik.Tm.Api
 
       return ifaceUser;
     }
-
-    public async Task<IReadOnlyCollection<TmServerLogRecord>> GetTmServersLog()
-    {
-      await OpenTmServerLog().ConfigureAwait(false);
-      var tmServersLog = new List<TmServerLogRecord>();
-
-      var firstRecord = true;
-
-      while (true)
-      {
-        var logRecord = await GetTmServersLogRecord(firstRecord)
-                          .ConfigureAwait(false);
-        firstRecord = false;
-
-        if (logRecord == null) break;
-
-        tmServersLog.Add(logRecord);
-      }
-
-      await CloseTmServerLog().ConfigureAwait(false);
-
-      return tmServersLog;
-    }
+    
 
     public async Task<IReadOnlyCollection<TmServerLogRecord>> GetTmServersLog(int maxRecords, 
                                                                               DateTime? startTime, 
@@ -1221,62 +1199,6 @@ namespace Iface.Oik.Tm.Api
       return records.Select(TmServerLogRecord.CreateFromCfsLogRecord).ToList();
     }
 
-    private async Task OpenTmServerLog()
-    {
-      const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
-
-      var result = await Task.Run(() => TmNative.cfsLogOpen(CfId,
-                                                            out errCode,
-                                                            errBuf,
-                                                            errBufLength))
-                             .ConfigureAwait(false);
-      if (!result)
-      {
-        throw new
-          Exception($"Ошибка получения журнала сервера: {EncodingUtil.BytesToString(errBuf)} Код: {errCode}");
-      }
-    }
-
-    private async Task CloseTmServerLog()
-    {
-      const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
-
-      var result = await Task.Run(() => TmNative.cfsLogClose(CfId,
-                                                             out errCode,
-                                                             errBuf,
-                                                             errBufLength))
-                             .ConfigureAwait(false);
-      if (!result)
-      {
-        throw new
-          Exception($"Ошибка получения журнала сервера: {EncodingUtil.BytesToString(errBuf)} Код: {errCode}");
-      }
-    }
-
-    private async Task<TmServerLogRecord> GetTmServersLogRecord(bool isFirst = false)
-    {
-      const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
-
-      var logRecordPtr =
-        await Task.Run(() => TmNative.cfsLogGetRecord(CfId, isFirst, out errCode, errBuf, errCode))
-                  .ConfigureAwait(false);
-
-      if (logRecordPtr == IntPtr.Zero) return null;
-
-      var cfsLogRecord = ParseCfsServerLogRecordPointer(logRecordPtr).FirstOrDefault();
-
-      TmNative.cfsFreeMemory(logRecordPtr);
-
-      return TmServerLogRecord.CreateFromCfsLogRecord(cfsLogRecord);
-    }
-    
-    
 
     private IReadOnlyCollection<CfsLogRecord> ParseCfsServerLogRecordPointer(nint ptr)
     {
