@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Linq;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 
@@ -178,7 +179,9 @@ public static partial class TmNativeApi
 
       TmNative.cfsFreeMemory(usersPtr);
 
-      return stringList;
+      return stringList.Count == 1 && string.IsNullOrEmpty(stringList.First()) 
+               ? Array.Empty<string>() 
+               : stringList;
     }
     finally
     {
