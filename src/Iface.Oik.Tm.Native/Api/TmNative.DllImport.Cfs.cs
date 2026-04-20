@@ -171,36 +171,42 @@ namespace Iface.Oik.Tm.Native.Api
     public static extern bool cfsIsConnected(IntPtr connId);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr cfsTraceEnumServers(IntPtr           connId,
-                                                    out       UInt32 errCode,
-                                                    [In, Out] byte[] errBuf,
-                                                    UInt32           maxErrs);
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial nint cfsTraceEnumServers(nint       connId,
+                                                   out uint   errCode,
+                                                   Span<byte> errBuf,
+                                                   uint       maxErrs);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern bool cfsTraceGetServerData(IntPtr                                 connId,
-                                                    byte[]                                 serverId,
-                                                    [In, Out] ref TmNativeDefs.IfaceServer ifaceServer,
-                                                    out           UInt32                   errCode,
-                                                    [In, Out]     byte[]                   errBuf,
-                                                    UInt32                                 maxErrs);
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool cfsTraceGetServerData(nint                               connId,
+                                                       string                             serverId,
+                                                       ref TmNativeDefsUnsafe.IfaceServer ifaceServer,
+                                                       out uint                           errCode,
+                                                       Span<byte>                         errBuf,
+                                                       uint                               maxErrs);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr cfsTraceEnumUsers(IntPtr           connId,
-                                                  out       UInt32 errCode,
-                                                  [In, Out] byte[] errBuf,
-                                                  UInt32           maxErrs);
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial nint cfsTraceEnumUsers(nint       connId,
+                                                out uint   errCode,
+                                                Span<byte> errBuf,
+                                                uint       maxErrs);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern bool cfsTraceGetUserData(IntPtr                               connId,
-                                                  byte[]                               userId,
-                                                  [In, Out] ref TmNativeDefs.IfaceUser ifaceUser,
-                                                  out           UInt32                 errCode,
-                                                  [In, Out]     byte[]                 errBuf,
-                                                  UInt32                               maxErrs);
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool cfsTraceGetUserData(nint                             connId,
+                                                     string                           userId,
+                                                     ref TmNativeDefsUnsafe.IfaceUser ifaceUser,
+                                                     out uint                         errCode,
+                                                     Span<byte>                       errBuf,
+                                                     uint                             maxErrs);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
@@ -219,29 +225,34 @@ namespace Iface.Oik.Tm.Native.Api
                                                      UInt32           maxErrs);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern bool cfsTraceBeginTraceEx(IntPtr           connId,
-                                                   UInt32           pid,
-                                                   UInt32           thid,
-                                                   bool             fDebug,
-                                                   UInt32           pause,
-                                                   out       UInt32 errCode,
-                                                   [In, Out] byte[] errBuf,
-                                                   UInt32           maxErrs);
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool cfsTraceBeginTraceEx(nint                                 connId,
+                                                    uint                                 pid,
+                                                    uint                                 thid,
+                                                    [MarshalAs(UnmanagedType.Bool)] bool fDebug,
+                                                    uint                                 pause,
+                                                    out uint                             errCode,
+                                                    Span<byte>                           errBuf,
+                                                    uint                                 maxErrs);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern bool cfsTraceEndTrace(IntPtr           connId,
-                                               out       UInt32 errCode,
-                                               [In, Out] byte[] errBuf,
-                                               UInt32           maxErrs);
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool cfsTraceEndTrace(nint       connId,
+                                                out uint   errCode,
+                                                Span<byte> errBuf,
+                                                uint       maxErrs);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr cfsTraceGetMessage(IntPtr           connId,
-                                                   out       UInt32 errCode,
-                                                   [In, Out] byte[] errBuf,
-                                                   UInt32           maxErrs);
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial nint cfsTraceGetMessage(nint       connId,
+                                                  out uint   errCode,
+                                                  Span<byte> errBuf,
+                                                  uint       maxErrs);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
@@ -251,34 +262,47 @@ namespace Iface.Oik.Tm.Native.Api
     [LibraryImport(Cfshare)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial Boolean cfsIfpcGetLogonToken(IntPtr     connId,
-                                                       Span<byte> tokUname,
-                                                       Span<byte> tokToken,
-                                                       out UInt32 errCode,
-                                                       Span<byte> errBuf,
-                                                       UInt32     maxErrs);
+    public static partial bool cfsIfpcGetLogonToken(nint       connId,
+                                                    Span<byte> tokUname,
+                                                    Span<byte> tokToken,
+                                                    out uint   errCode,
+                                                    Span<byte> errBuf,
+                                                    uint       maxErrs);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
-    public static extern bool cfsLogOpen(IntPtr           connId,
-                                         out       UInt32 errCode,
-                                         [In, Out] byte[] errBuf,
-                                         UInt32           maxErrs);
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool cfsLogOpen(nint       connId,
+                                          out uint   errCode,
+                                          Span<byte> errBuf,
+                                          uint       maxErrs);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
-    public static extern bool cfsLogClose(IntPtr           connId,
-                                          out       UInt32 errCode,
-                                          [In, Out] byte[] errBuf,
-                                          UInt32           maxErrs);
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool cfsLogClose(nint       connId,
+                                             out uint   errCode,
+                                             Span<byte> errBuf,
+                                             uint       maxErrs);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr cfsLogGetRecord(IntPtr           connId,
-                                                bool             fFirst,
-                                                out       UInt32 errCode,
-                                                [In, Out] byte[] errBuf,
-                                                uint             maxErrs);
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial nint cfsLogGetRecord(nint                                 connId,
+                                               [MarshalAs(UnmanagedType.Bool)] bool fFirst,
+                                               out                             uint errCode,
+                                               Span<byte>                           errBuf,
+                                               uint                                 maxErrs);
+
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static partial nint cfsLogGetRecordEx(nint                                 connId,
+                                                   [MarshalAs(UnmanagedType.Bool)] bool fFirst,
+                                                   out                             uint errCode,
+                                                   Span<byte>                           errBuf,
+                                                   uint                                 maxErrs);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
@@ -380,14 +404,15 @@ namespace Iface.Oik.Tm.Native.Api
                                        byte[] message);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr lf_ParseMessage(IntPtr           stringPtrToParse,
-                                                [In, Out] byte[] sTime,
-                                                [In, Out] byte[] sDate,
-                                                [In, Out] byte[] sName,
-                                                [In, Out] byte[] sType,
-                                                [In, Out] byte[] sMsgType,
-                                                [In, Out] byte[] sThid);
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static partial nint lf_ParseMessage(Span<byte> stringPtrToParse,
+                                                 Span<byte> sTime,
+                                                 Span<byte> sDate,
+                                                 Span<byte> sName,
+                                                 Span<byte> sType,
+                                                 Span<byte> sMsgType,
+                                                 Span<byte> sThid);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]

@@ -49,9 +49,7 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<string>> GetTimezones();
 
     Task<IReadOnlyCollection<TmServer>> GetTmServersTree();
-
-
-    Task<IReadOnlyCollection<TmServerLogRecord>> GetTmServersLog();
+    
 
 
     Task<IReadOnlyCollection<TmServerLogRecord>>

@@ -16,3 +16,8 @@ public class TmNativeException : Exception
     Code = code;
   }
 }
+
+public class TmNotSupportedException : TmNativeException
+{
+  public TmNotSupportedException() : base("Функция не поддерживается"){}
+}

@@ -363,26 +363,29 @@ namespace Iface.Oik.Tm.Native.Utils
 
 
     public static unsafe IReadOnlyCollection<string> GetStringsListFromIntPtr(nint      ptr,
-                                                                              Encoding? encoding = null)
+                                                                              Encoding? encoding = null,
+                                                                              int?      limit    = null)
     {
       return ptr == nint.Zero
                ? Array.Empty<string>()
-               : GetStringsListBytePtr((byte*)ptr, encoding);
+               : GetStringsListBytePtr((byte*)ptr, encoding, limit);
     }
 
 
     public static unsafe IReadOnlyCollection<string> GetStringsListFromBytes(Span<byte> bytes,
-                                                                             Encoding?  encoding = null)
+                                                                             Encoding?  encoding = null,
+                                                                             int?       limit    = null)
     {
       fixed (byte* ptr = bytes)
       {
-        return GetStringsListBytePtr(ptr, encoding);
+        return GetStringsListBytePtr(ptr, encoding, limit);
       }
     }
 
 
     internal static unsafe IReadOnlyCollection<string> GetStringsListBytePtr(byte*     ptr,
-                                                                             Encoding? encoding = null)
+                                                                             Encoding? encoding = null,
+                                                                             int?      limit    = null)
     {
       var result = new List<string>();
 
@@ -390,7 +393,7 @@ namespace Iface.Oik.Tm.Native.Utils
       {
         return result;
       }
-
+      
       encoding ??= Encoding.UTF8; // default
 
       var p      = ptr;
@@ -398,6 +401,11 @@ namespace Iface.Oik.Tm.Native.Utils
 
       while (true)
       {
+        if (limit is not null && limit <= result.Count)
+        {
+          break;
+        }
+        
         while (p[length] != 0)
         {
           length++;
@@ -468,12 +476,12 @@ namespace Iface.Oik.Tm.Native.Utils
         return GetDictionaryFromTmBytesPtr(ptr, encoding);
       }
     }
-    
+
     internal static unsafe Dictionary<string, string> GetDictionaryFromTmBytesPtr(byte* ptr,
       Encoding?                                                                         encoding = null)
     {
       var result = new Dictionary<string, string>();
-      
+
       if (ptr == null)
       {
         return result;
@@ -501,9 +509,9 @@ namespace Iface.Oik.Tm.Native.Utils
 
         var key   = encoding.GetString(line[..eq]);
         var value = encoding.GetString(line[(eq + 1)..]);
-        
+
         result.Add(key, value);
-        
+
         length++;
 
         if (p[length] == 0)
@@ -514,7 +522,7 @@ namespace Iface.Oik.Tm.Native.Utils
         p      += length;
         length =  0;
       }
-      
+
       return result;
     }
 
