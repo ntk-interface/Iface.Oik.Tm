@@ -193,9 +193,9 @@ namespace Iface.Oik.Tm.Native.Api
     [LibraryImport(Cfshare)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
     public static partial nint cfsTraceEnumUsers(nint       connId,
-                                                out uint   errCode,
-                                                Span<byte> errBuf,
-                                                uint       maxErrs);
+                                                 out uint   errCode,
+                                                 Span<byte> errBuf,
+                                                 uint       maxErrs);
 
 
     [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
@@ -436,14 +436,15 @@ namespace Iface.Oik.Tm.Native.Api
                                                 [In, Out] byte[] errBuf,
                                                 UInt32           maxErrs);
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr cfsEditGrabCid(IntPtr           connId,
-                                               Boolean          bGrab,
-                                               byte[]           fileName,
-                                               byte[]           userName,
-                                               out       UInt32 errCode,
-                                               [In, Out] byte[] errBuf,
-                                               UInt32           maxErrs);
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial nint cfsEditGrabCid(nint                                 connId,
+                                              [MarshalAs(UnmanagedType.Bool)] bool bGrab,
+                                              string                               fileName,
+                                              string                               userName,
+                                              out uint                             errCode,
+                                              Span<byte>                           errBuf,
+                                              uint                                 maxErrs);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern IntPtr cfsConfFileOpen(byte[]                              serverName,

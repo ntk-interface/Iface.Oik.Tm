@@ -11,7 +11,6 @@ using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Native.Api;
 using static Iface.Oik.Tm.Native.Interfaces.TmNativeDefs;
@@ -20,11 +19,7 @@ namespace Iface.Oik.Tm.Api
 {
   public class CfsApi : ICfsApi
   {
-    private readonly Regex _cfsServerLogRecordRegex = new
-      Regex(@"(\d{2}:\d{2}:\d{2}.\d{3}) (\d{2}.\d{2}.\d{4}) [\\]{3}([^\\]*)[\\]{2}([^\\]*)[\\]{2}([^\s]*)\s*- ThID=([0-9A-Fx]*) :\n([^\n]*)(\n|$)",
-            RegexOptions.Compiled);
-
-    public IntPtr CfId { get; private set; }
+    public nint CfId { get; private set; }
     public string Host { get; private set; }
 
 
@@ -3171,6 +3166,16 @@ namespace Iface.Oik.Tm.Api
                                                responseMsgBufLength);
 
       return (result, (int)responseCode, EncodingUtil.BytesToString(responseMsgBuf));
+    }
+
+    public async Task<IReadOnlyCollection<string>> GrabFile(string fileName, string userName)
+    {
+      return await Task.Run(() => TmNativeApi.EditGrab(CfId, true, fileName, userName)).ConfigureAwait(false);
+    }
+    
+    public async Task UnGrabFile(string fileName, string userName)
+    {
+      await Task.Run(() => TmNativeApi.EditGrab(CfId, false, fileName, userName)).ConfigureAwait(false);
     }
   }
 }

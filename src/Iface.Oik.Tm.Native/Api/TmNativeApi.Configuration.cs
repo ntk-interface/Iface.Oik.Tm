@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections.Generic;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 
@@ -48,13 +49,13 @@ public static partial class TmNativeApi
     try
     {
       var result = TmNative.cfsConfFileSaveAs(treeHandle,
-                                             host,
-                                             fileName,
-                                             30000 | TmNativeDefs.FailIfNoConnect,
-                                             ref fileTime,
-                                             out var errCode,
-                                             errBuf,
-                                             TmNativeDefsUnsafe.ErrorBufSize);
+                                              host,
+                                              fileName,
+                                              30000 | TmNativeDefs.FailIfNoConnect,
+                                              ref fileTime,
+                                              out var errCode,
+                                              errBuf,
+                                              TmNativeDefsUnsafe.ErrorBufSize);
 
       if (errCode != 0)
       {
@@ -73,8 +74,8 @@ public static partial class TmNativeApi
   {
     TmNative.cftNodeFreeTree(nodeHandle);
   }
-  
-  
+
+
   public static nint NodeEnumAll(nint handle, int index)
   {
     return TmNative.cftNodeEnumAll(handle, index);
@@ -132,21 +133,56 @@ public static partial class TmNativeApi
                                      string nodeTag)
   {
     var childHandle = TmNative.cftNodeInsertDown(parentHandle, nodeTag);
-    
+
 
     return childHandle;
   }
 
-  public static void SetNodeEnabledState(nint nodeHandle, 
+  public static void SetNodeEnabledState(nint nodeHandle,
                                          bool isEnabled)
   {
     TmNative.cftNodeEnable(nodeHandle, isEnabled);
   }
-  
+
   public static bool SetNodeProperty(nint   nodeHandle,
                                      string propertyName,
                                      string propertyText)
   {
     return TmNative.cftNPropSet(nodeHandle, propertyName, propertyText);
+  }
+
+  public static IReadOnlyCollection<string> EditGrab(nint   cfCid,
+                                                     bool   grab,
+                                                     string fileName,
+                                                     string username)
+  {
+    var pool   = ArrayPool<byte>.Shared;
+    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+
+    try
+    {
+      var usersPtr = TmNative.cfsEditGrabCid(cfCid,
+                                             grab,
+                                             fileName,
+                                             username,
+                                             out var errCode,
+                                             errBuf,
+                                             TmNativeDefsUnsafe.ErrorBufSize);
+
+      if (errCode != 0)
+      {
+        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
+      }
+
+      var stringList = TmNativeUtil.GetStringsListFromIntPtr(usersPtr);
+
+      TmNative.cfsFreeMemory(usersPtr);
+
+      return stringList;
+    }
+    finally
+    {
+      pool.Return(errBuf);
+    }
   }
 }
