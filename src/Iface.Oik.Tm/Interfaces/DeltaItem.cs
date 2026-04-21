@@ -1,32 +1,32 @@
 using System;
-using System.Linq;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public class DeltaItem
+  public class DeltaItem : DeltaItemBase
   {
-    private readonly int _hashCode;
-    
-    public DeltaItemTypes Type                   { get; }
-    public DateTime?      UpdateTime             { get; }
-    public TmAddr         TmAddress              { get; }
+    private int _hashCode;
+
+    public DeltaItemTypes Type                   { get; private set; }
+    public DateTime?      UpdateTime             { get; private set; }
+    public TmAddr         TmAddress              { get; private set; }
     public string         ObjectName             { get; private set; }
-    public string         AddressInChannelString { get; }
-    public string         AdditionalInfo         { get; }
-    public string         ValueString            { get; }
+    public string         AddressInChannelString { get; private set; }
+    public string         AdditionalInfo         { get; private set; }
+    public string         ValueString            { get; private set; }
 
     public string UpdateTimeString => UpdateTime.HasValue ? $"{UpdateTime.Value:dd.MM.yyyy H:mm:ss}" : string.Empty;
     public string TmAddressString  => TmAddress == null ? string.Empty : TmAddress.ToString();
 
+    public DeltaItem(){}
 
-    private DeltaItem(DeltaItemTypes type, 
-                      DateTime? updateTime, 
-                      TmAddr tmAddress, 
-                      string addressInChannelString, 
-                      string additionalInfo,
-                      string valueString)
+    private DeltaItem(DeltaItemTypes type,
+                      DateTime?      updateTime,
+                      TmAddr         tmAddress,
+                      string         addressInChannelString,
+                      string         additionalInfo,
+                      string         valueString)
     {
       Type                   = type;
       UpdateTime             = updateTime;
@@ -37,7 +37,7 @@ namespace Iface.Oik.Tm.Interfaces
 
       _hashCode = (type, updateTime, tmAddress, addressInChannelString, additionalInfo, valueString).GetHashCode();
     }
-    
+
 
     public static DeltaItem CreateDescriptionDeltaItem(string descriptionString)
     {
@@ -45,10 +45,21 @@ namespace Iface.Oik.Tm.Interfaces
                            null,
                            null,
                            string.Empty,
-                           descriptionString.TrimStart('*'), 
+                           descriptionString.TrimStart('*'),
                            string.Empty);
     }
 
+    protected override void InitializeDescription(string descriptionString)
+    {
+      Type                   = DeltaItemTypes.Description;
+      UpdateTime             = null;
+      TmAddress              = null;
+      AddressInChannelString = string.Empty;
+      AdditionalInfo         = descriptionString;
+      ValueString            = string.Empty;
+
+      _hashCode = (Type, UpdateTime, TmAddress, AddressInChannelString, AdditionalInfo, ValueString).GetHashCode();
+    }
 
     public static DeltaItem CreateStatusDeltaItem(int                          addressInChannel,
                                                   int                          lastUpdateTimestamp,
@@ -81,10 +92,10 @@ namespace Iface.Oik.Tm.Interfaces
                         ? $"{valueString} ({value >> 4})"
                         : $"{valueString} ({value >> 4} ?)";
       }
-      
+
       var updateTime = lastUpdateTimestamp == 0
-                     ? (DateTime?) null
-                     : DateUtil.GetDateTimeFromTimestamp(lastUpdateTimestamp);
+                         ? (DateTime?)null
+                         : DateUtil.GetDateTimeFromTimestamp(lastUpdateTimestamp);
 
       var addInfo = additionalInfo;
 
@@ -101,6 +112,27 @@ namespace Iface.Oik.Tm.Interfaces
       return new DeltaItem(DeltaItemTypes.Status, updateTime, tmAddr, addrInChannelStr, addInfo, valueString);
     }
 
+    protected override void InitializeStatus(InitializeTagDto dto)
+    {
+      Type = DeltaItemTypes.Status;
+      
+      UpdateTime = dto.LastUpdate == 0
+                     ? null
+                     : DateUtil.GetDateTimeFromTimestamp(dto.LastUpdate);
+      
+      TmAddress = dto.TmAddr is null
+                    ? null
+                    : new TmAddr(TmType.Status,
+                                 dto.TmAddr.Value.ch,
+                                 dto.TmAddr.Value.rtu,
+                                 dto.TmAddr.Value.point);
+      
+      AddressInChannelString = dto.AddressInChannelString;
+      AdditionalInfo         = dto.AdditionalInfo;
+      ValueString            = dto.ValueString;
+      
+      _hashCode = (Type, UpdateTime, TmAddress, AddressInChannelString, AdditionalInfo, ValueString).GetHashCode();
+    }
 
     public static DeltaItem CreateAnalogDeltaItem(int                          addressInChannel,
                                                   int                          lastUpdateTimestamp,
@@ -112,21 +144,43 @@ namespace Iface.Oik.Tm.Interfaces
       var enumShift = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.ZeroEnum) ? 0 : 1;
       var hexValue  = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Analong) ? $"{value & 0xffff:X}" : $"{value:X}";
       var updateTime = lastUpdateTimestamp == 0
-                         ? (DateTime?) null
+                         ? (DateTime?)null
                          : DateUtil.GetDateTimeFromTimestamp(lastUpdateTimestamp);
 
       var addrInChannelStr = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Hex)
-                            ? $"0x{addressInChannel:X}"
-                            : $"{addressInChannel + enumShift}";
-      
+                               ? $"0x{addressInChannel:X}"
+                               : $"{addressInChannel + enumShift}";
+
       var valueString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Reliable)
                           ? $"{value} (0x{hexValue})"
                           : $"{value} (0x{hexValue}) ?";
-      
+
       return new DeltaItem(DeltaItemTypes.Analog, updateTime, tmAddr, addrInChannelStr, additionalInfo, valueString);
     }
 
-
+    protected override void InitializeAnalog(InitializeTagDto dto)
+    {
+      Type = DeltaItemTypes.Analog;
+      
+      UpdateTime = dto.LastUpdate == 0
+                     ? null
+                     : DateUtil.GetDateTimeFromTimestamp(dto.LastUpdate);
+      
+      TmAddress = dto.TmAddr is null
+                    ? null
+                    : new TmAddr(TmType.Analog,
+                                 dto.TmAddr.Value.ch,
+                                 dto.TmAddr.Value.rtu,
+                                 dto.TmAddr.Value.point);
+      
+      AddressInChannelString = dto.AddressInChannelString;
+      AdditionalInfo         = dto.AdditionalInfo;
+      ValueString            = dto.ValueString;
+      
+      _hashCode = (Type, UpdateTime, TmAddress, AddressInChannelString, AdditionalInfo, ValueString).GetHashCode();
+    }
+    
+    
     public static DeltaItem CreateAnalogFloatDeltaItem(int                          addressInChannel,
                                                        int                          lastUpdateTimestamp,
                                                        TmNativeDefs.DeltaItemsFlags deltaFlags,
@@ -136,7 +190,7 @@ namespace Iface.Oik.Tm.Interfaces
     {
       var enumShift = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.ZeroEnum) ? 0 : 1;
       var updateTime = lastUpdateTimestamp == 0
-                         ? (DateTime?) null
+                         ? (DateTime?)null
                          : DateUtil.GetDateTimeFromTimestamp(lastUpdateTimestamp);
 
       var addrInChannelStr = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Hex)
@@ -160,7 +214,7 @@ namespace Iface.Oik.Tm.Interfaces
     {
       var enumShift = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.ZeroEnum) ? 0 : 1;
       var updateTime = lastUpdateTimestamp == 0
-                         ? (DateTime?) null
+                         ? (DateTime?)null
                          : DateUtil.GetDateTimeFromTimestamp(lastUpdateTimestamp);
 
       var addrInChannelStr = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Hex)
@@ -173,6 +227,28 @@ namespace Iface.Oik.Tm.Interfaces
 
       return new DeltaItem(DeltaItemTypes.Accum, updateTime, tmAddr, addrInChannelStr, additionalInfo, valueString);
     }
+    
+    protected override void InitializeAccum(InitializeTagDto dto)
+    {
+      Type = DeltaItemTypes.Accum;
+      
+      UpdateTime = dto.LastUpdate == 0
+                     ? null
+                     : DateUtil.GetDateTimeFromTimestamp(dto.LastUpdate);
+      
+      TmAddress = dto.TmAddr is null
+                    ? null
+                    : new TmAddr(TmType.Accum,
+                                 dto.TmAddr.Value.ch,
+                                 dto.TmAddr.Value.rtu,
+                                 dto.TmAddr.Value.point);
+      
+      AddressInChannelString = dto.AddressInChannelString;
+      AdditionalInfo         = dto.AdditionalInfo;
+      ValueString            = dto.ValueString;
+      
+      _hashCode = (Type, UpdateTime, TmAddress, AddressInChannelString, AdditionalInfo, ValueString).GetHashCode();
+    }
 
 
     public static DeltaItem CreateAccumFloatDeltaItem(int                          addressInChannel,
@@ -184,7 +260,7 @@ namespace Iface.Oik.Tm.Interfaces
     {
       var enumShift = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.ZeroEnum) ? 0 : 1;
       var updateTime = lastUpdateTimestamp == 0
-                         ? (DateTime?) null
+                         ? (DateTime?)null
                          : DateUtil.GetDateTimeFromTimestamp(lastUpdateTimestamp);
 
       var addrInChannelStr = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Hex)
@@ -194,8 +270,9 @@ namespace Iface.Oik.Tm.Interfaces
       var valueString = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Reliable)
                           ? $"{value:N6}"
                           : $"{value:N6} ?";
-      
-      return new DeltaItem(DeltaItemTypes.AccumFloat, updateTime, tmAddr, addrInChannelStr, additionalInfo, valueString);
+
+      return new DeltaItem(DeltaItemTypes.AccumFloat, updateTime, tmAddr, addrInChannelStr, additionalInfo,
+                           valueString);
     }
 
 
@@ -210,7 +287,7 @@ namespace Iface.Oik.Tm.Interfaces
     {
       var enumShift = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.ZeroEnum) ? 0 : 1;
       var updateTime = lastUpdateTimestamp == 0
-                         ? (DateTime?) null
+                         ? (DateTime?)null
                          : DateUtil.GetDateTimeFromTimestamp(lastUpdateTimestamp);
 
       var addrInChannelStr = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Hex)
@@ -220,8 +297,30 @@ namespace Iface.Oik.Tm.Interfaces
       var valueString = controlBlock != 0xffff
                           ? $"{controlBlock + enumShift}-{controlGroup + enumShift}-{controlPoint + enumShift}"
                           : string.Empty;
-      
+
       return new DeltaItem(DeltaItemTypes.Control, updateTime, tmAddr, addrInChannelStr, additionalInfo, valueString);
+    }
+
+    protected override void InitializeControl(InitializeTagDto dto)
+    {
+      Type = DeltaItemTypes.Control;
+      
+      UpdateTime = dto.LastUpdate == 0
+                     ? null
+                     : DateUtil.GetDateTimeFromTimestamp(dto.LastUpdate);
+      
+      TmAddress = dto.TmAddr is null
+                    ? null
+                    : new TmAddr(TmType.Status,
+                                 dto.TmAddr.Value.ch,
+                                 dto.TmAddr.Value.rtu,
+                                 dto.TmAddr.Value.point);
+      
+      AddressInChannelString = dto.AddressInChannelString;
+      AdditionalInfo         = dto.AdditionalInfo;
+      ValueString            = dto.ValueString;
+      
+      _hashCode = (Type, UpdateTime, TmAddress, AddressInChannelString, AdditionalInfo, ValueString).GetHashCode();
     }
 
 
@@ -234,9 +333,9 @@ namespace Iface.Oik.Tm.Interfaces
     {
       var enumShift = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.ZeroEnum) ? 0 : 1;
       var updateTime = lastUpdateTimestamp == 0
-                         ? (DateTime?) null
+                         ? (DateTime?)null
                          : DateUtil.GetDateTimeFromTimestamp(lastUpdateTimestamp);
-      
+
       var addrInChannelStr = deltaFlags.HasFlag(TmNativeDefs.DeltaItemsFlags.Hex)
                                ? $"0x{addressInChannel:X}"
                                : $"{addressInChannel + enumShift}";
@@ -244,6 +343,29 @@ namespace Iface.Oik.Tm.Interfaces
       return new DeltaItem(DeltaItemTypes.StrVal, updateTime, tmAddr, addrInChannelStr, additionalInfo, valueString);
     }
 
+    protected override void InitializeStrVal(InitializeTagDto dto)
+    {
+      Type = DeltaItemTypes.StrVal;
+      
+      UpdateTime = dto.LastUpdate == 0
+                     ? null
+                     : DateUtil.GetDateTimeFromTimestamp(dto.LastUpdate);
+      
+      TmAddress = dto.TmAddr is null
+                    ? null
+                    : new TmAddr(TmType.Unknown,
+                                 dto.TmAddr.Value.ch,
+                                 dto.TmAddr.Value.rtu,
+                                 dto.TmAddr.Value.point);
+      
+      AddressInChannelString = dto.AddressInChannelString;
+      AdditionalInfo         = dto.AdditionalInfo;
+      ValueString            = dto.ValueString;
+      
+      _hashCode = (Type, UpdateTime, TmAddress, AddressInChannelString, AdditionalInfo, ValueString).GetHashCode();
+    }
+    
+    
     public override int GetHashCode()
     {
       return _hashCode;
@@ -268,7 +390,7 @@ namespace Iface.Oik.Tm.Interfaces
 
       return comparison.GetHashCode() == GetHashCode();
     }
-    
+
     public static bool operator ==(DeltaItem left, DeltaItem right)
     {
       if (ReferenceEquals(left, null))

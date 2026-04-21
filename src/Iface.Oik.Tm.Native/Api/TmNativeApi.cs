@@ -60,7 +60,7 @@ public static partial class TmNativeApi
         return TmNativeUtil.BytesToString(buf);
       }
       default:
-        return TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(ptr);
+        return TmNativeUtil.GetCStringFromBytePtr(ptr);
     }
   }
 }
