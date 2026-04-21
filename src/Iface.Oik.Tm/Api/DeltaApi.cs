@@ -230,26 +230,6 @@ namespace Iface.Oik.Tm.Api
       }
     }
 
-    private static int GetDeltaItemNum(IntPtr itemPtr, int itemStructLength, int actualLength, ushort baseNum)
-    {
-      var result = baseNum & ushort.MaxValue;
-
-      if (actualLength <= itemStructLength) return result;
-
-      var extendedNum = Marshal.ReadByte(IntPtr.Add(itemPtr, itemStructLength)) * 0x10000;
-
-
-      return result + extendedNum;
-    }
-
-    private static string GetDeltaItemAdditionalText(IntPtr itemPtr, int itemStructLength, int actualLength)
-    {
-      if (actualLength <= itemStructLength + 1) return "";
-
-      var result = Marshal.PtrToStringAnsi(IntPtr.Add(itemPtr, itemStructLength + 1));
-      return EncodingUtil.Win1251ToUtf8(result);
-    }
-
     private async Task<string> GetObjectName(TmAddr tmAddr)
     {
       return await Task.Run(() => GetObjectNameSync(tmAddr))
