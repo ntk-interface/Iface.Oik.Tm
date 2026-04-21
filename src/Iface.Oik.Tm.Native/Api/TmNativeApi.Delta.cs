@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 
@@ -15,7 +17,7 @@ public static partial class TmNativeApi
   }
 
   public static IReadOnlyCollection<T> GetDeltaComponents<T>(int deltaCid)
-    where T: DeltaComponentBase, new()
+    where T : DeltaComponentBase, new()
   {
     try
     {
@@ -28,7 +30,7 @@ public static partial class TmNativeApi
       {
         return Array.Empty<T>();
       }
-      
+
       using (var streamReader = new StreamReader(tempConfFile, Encoding.UTF8))
       {
         while (streamReader.ReadLine() is { } line)
@@ -47,7 +49,7 @@ public static partial class TmNativeApi
   }
 
   public static (IReadOnlyCollection<T> items, string description) GetDeltaComponentsItems<T>(int deltaCid,
-                                                                                              uint[]                                                                                        traceChain)
+    uint[]                                                                                        traceChain)
     where T : DeltaItemBase, new()
   {
     var itemsListPtr = TmNative.tmcDntOpenItem(deltaCid,
@@ -85,7 +87,7 @@ public static partial class TmNativeApi
           {
             description += descString + Environment.NewLine;
           }
-          
+
           break;
         case TmNativeDefs.DeltaItemTypes.Status:
           items.Add(DeltaItemBase.CreateStatus<T>(itemPtr));
@@ -117,6 +119,44 @@ public static partial class TmNativeApi
 
     TmNative.tmcDntCloseItem(itemsListPtr);
     return (items, description);
+  }
+
+  public static void TraceDeltaComponent(int                          deltaCid,
+                                    ReadOnlySpan<uint>           traceChain,
+                                    TmNativeDefs.DeltaTraceFlags traceFlags,
+                                    bool                         isPhysical)
+  {
+    if (!isPhysical)
+    {
+      TmNative.tmcDntBeginTraceEx(deltaCid,
+                                  (uint)traceChain.Length,
+                                  traceChain,
+                                  (uint)traceFlags,
+                                  0,
+                                  0);
+
+      return;
+    }
+    
+    var buffer = ArrayPool<uint>.Shared.Rent(traceChain.Length);
+
+    try
+    {
+      traceChain.CopyTo(buffer);
+
+      buffer[0] = ~buffer[0];
+
+      TmNative.tmcDntBeginTraceEx(deltaCid,
+                                  (uint)traceChain.Length,
+                                  buffer.AsSpan(0, traceChain.Length),
+                                  (uint)traceFlags,
+                                  0,
+                                  0);
+    }
+    finally
+    {
+      ArrayPool<uint>.Shared.Return(buffer);
+    }
   }
 
   internal static unsafe string GetDescriptionString(nint itemPtr)

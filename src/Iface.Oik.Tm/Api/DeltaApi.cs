@@ -97,21 +97,10 @@ namespace Iface.Oik.Tm.Api
                         ? TmNativeDefs.DeltaTraceFlags.Usr
                         : TmNativeDefs.DeltaTraceFlags.Drv;
 
-
-      var traceChain = new uint[component.TraceChain.Length];
-      component.TraceChain.CopyTo(traceChain, 0);
-
-      if (traceType == DeltaTraceTypes.Physical)
-      {
-        traceChain[0] = ~traceChain[0];
-      }
-
-      await Task.Run(() => TmNative.tmcDntBeginTraceEx(_cid,
-                                                       (uint)traceChain.Length,
-                                                       traceChain,
-                                                       (uint)traceFlag,
-                                                       0,
-                                                       0))
+      await Task.Run(() => TmNativeApi.TraceDeltaComponent(_cid,
+                                                      component.TraceChain,
+                                                      traceFlag, 
+                                                      traceType == DeltaTraceTypes.Physical))
                 .ConfigureAwait(false);
     }
 
