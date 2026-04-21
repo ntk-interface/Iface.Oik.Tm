@@ -788,9 +788,11 @@ namespace Iface.Oik.Tm.Native.Api
                                             UInt32[] pPropValues);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean tmcDntGetConfig(Int32  cid,
-                                                 byte[] fName);
+    [LibraryImport(Tmconn, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool tmcDntGetConfig(int  cid,
+                                               string fName);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]

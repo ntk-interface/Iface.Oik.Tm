@@ -76,8 +76,8 @@ namespace Iface.Oik.Tm.Api
           return;
       }
     }
-    
-    
+
+
     public async Task<bool> RegisterTracer()
     {
       return await Task.Run(() => TmNative.tmcDntRegisterUser(_cid)).ConfigureAwait(false);
@@ -100,16 +100,16 @@ namespace Iface.Oik.Tm.Api
 
       var traceChain = new uint[component.TraceChain.Length];
       component.TraceChain.CopyTo(traceChain, 0);
-      
+
       if (traceType == DeltaTraceTypes.Physical)
       {
         traceChain[0] = ~traceChain[0];
       }
 
       await Task.Run(() => TmNative.tmcDntBeginTraceEx(_cid,
-                                                       (uint) traceChain.Length,
+                                                       (uint)traceChain.Length,
                                                        traceChain,
-                                                       (uint) traceFlag,
+                                                       (uint)traceFlag,
                                                        0,
                                                        0))
                 .ConfigureAwait(false);
@@ -148,7 +148,7 @@ namespace Iface.Oik.Tm.Api
           case 3:
             uint data = 5;
             var result = await Task.Run(() => TmNative.tmcDntGetLiveInfo(_cid,
-                                                                         (uint) node.Level,
+                                                                         (uint)node.Level,
                                                                          node.TraceChain,
                                                                          out data,
                                                                          sizeof(uint)))
@@ -161,7 +161,7 @@ namespace Iface.Oik.Tm.Api
             }
             else
             {
-              node.State = (DeltaComponentStates) data;
+              node.State = (DeltaComponentStates)data;
             }
 
             break;
@@ -186,48 +186,8 @@ namespace Iface.Oik.Tm.Api
 
     private async Task<IReadOnlyCollection<DeltaComponent>> GetDeltaComponents()
     {
-      try
-      {
-        var components = new List<DeltaComponent>();
-
-        var tempConfFile = Path.GetTempFileName();
-
-        var result = await Task.Run(() => TmNative.tmcDntGetConfig(_cid, 
-                                                                   EncodingUtil.StringToBytes(tempConfFile)))
-                               .ConfigureAwait(false);
-        if (!result)
-        {
-          return null;
-        }
-
-        var charsToTrim = new[] {' ', '\t'};
-        using (var streamReader = new StreamReader(tempConfFile, Encoding.GetEncoding(1251)))
-        {
-          string line;
-          while ((line = await streamReader.ReadLineAsync()
-                                           .ConfigureAwait(false)) != null)
-          {
-            var splitedArray = EncodingUtil.Win1251ToUtf8(line).Split(';');
-
-
-            var nameAndType = splitedArray[1].Split(',')
-                                             .Select(x => x.Trim(charsToTrim))
-                                             .ToArray();
-            var traceChainArray = splitedArray[0].Split(',')
-                                                 .Select(x => Convert.ToUInt32(x.Trim(charsToTrim), 10))
-                                                 .ToArray();
-
-            components.Add(new DeltaComponent(nameAndType[1], nameAndType[0], traceChainArray));
-          }
-        }
-
-        File.Delete(tempConfFile);
-        return components;
-      }
-      catch (Exception)
-      {
-        throw new Exception("Не удалось создать временный файл конфигурации Дельты.");
-      }
+      return await Task.Run(() => TmNativeApi.GetDeltaComponents<DeltaComponent>(_cid))
+                       .ConfigureAwait(false);
     }
 
     private async Task<string> GetObjectName(TmAddr tmAddr)
@@ -238,21 +198,21 @@ namespace Iface.Oik.Tm.Api
 
     private string GetObjectNameSync(TmAddr tmAddr)
     {
-      if (tmAddr == null || tmAddr.Type == TmType.Unknown) 
+      if (tmAddr == null || tmAddr.Type == TmType.Unknown)
       {
         return "";
       }
 
-      const int bufSize = 1024;
-      Span<byte> buf    = stackalloc byte[bufSize];
+      const int  bufSize = 1024;
+      Span<byte> buf     = stackalloc byte[bufSize];
 
       TmNative.tmcDntGetObjectName(_cid,
-                                  (ushort) tmAddr.Type.ToNativeType(),
-                                  (short) tmAddr.Ch,
-                                  (short) tmAddr.Rtu,
-                                  (short) tmAddr.Point,
-                                  buf,
-                                  bufSize);
+                                   (ushort)tmAddr.Type.ToNativeType(),
+                                   (short)tmAddr.Ch,
+                                   (short)tmAddr.Rtu,
+                                   (short)tmAddr.Point,
+                                   buf,
+                                   bufSize);
 
       return EncodingUtil.BytesToString(buf);
     }
@@ -264,7 +224,7 @@ namespace Iface.Oik.Tm.Api
 
       var (result, portStatsString) = await Task.Run(() => GetPortStatsSync(component.TraceChain))
                                                 .ConfigureAwait(false);
-      
+
       if (result == 0 || portStatsString.IsNullOrEmpty()) return;
 
       var (ticks, statusCount, analogCount, accumCount, messagesCount) = ParsePortStatsString(portStatsString);
@@ -280,8 +240,8 @@ namespace Iface.Oik.Tm.Api
 
     private (uint, string) GetPortStatsSync(uint[] traceChain)
     {
-      const int bufLength = 1024;
-      Span<byte> buf      = stackalloc byte[bufLength];
+      const int  bufLength = 1024;
+      Span<byte> buf       = stackalloc byte[bufLength];
 
       var result = TmNative.tmcDntGetPortStats(_cid,
                                                traceChain,

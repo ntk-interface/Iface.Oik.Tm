@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 
@@ -12,8 +14,40 @@ public static partial class TmNativeApi
     return TmNative.tmcDntTreeChange(deltaCid);
   }
 
+  public static IReadOnlyCollection<T> GetDeltaComponents<T>(int deltaCid)
+    where T: DeltaComponentBase, new()
+  {
+    try
+    {
+      var components = new List<T>();
+
+      var tempConfFile = Path.GetTempFileName();
+
+      var result = TmNative.tmcDntGetConfig(deltaCid, tempConfFile);
+      if (!result)
+      {
+        return Array.Empty<T>();
+      }
+      
+      using (var streamReader = new StreamReader(tempConfFile, Encoding.UTF8))
+      {
+        while (streamReader.ReadLine() is { } line)
+        {
+          components.Add(DeltaComponentBase.Create<T>(line));
+        }
+      }
+
+      File.Delete(tempConfFile);
+      return components;
+    }
+    catch (Exception)
+    {
+      throw new Exception("Не удалось создать временный файл конфигурации Дельты.");
+    }
+  }
+
   public static (IReadOnlyCollection<T> items, string description) GetDeltaComponentsItems<T>(int deltaCid,
-    uint[]                                                                                        traceChain)
+                                                                                              uint[]                                                                                        traceChain)
     where T : DeltaItemBase, new()
   {
     var itemsListPtr = TmNative.tmcDntOpenItem(deltaCid,
