@@ -2,41 +2,40 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public class DeltaComponent : TmNotifyPropertyChanged
+  public class DeltaComponent : DeltaComponentNotifiable
   {
-    private readonly int    _hashCode;
-    private          string _description                    = string.Empty;
-    private          string _statusPerformanceString        = string.Empty;
-    private          string _statusInstantPerformanceString = string.Empty;
-    private          long   _statusesReceived;
-    private          long   _instantStatusesReceived;
-    private          string _analogPerformanceString        = string.Empty;
-    private          string _analogInstantPerformanceString = string.Empty;
-    private          long   _analogsReceived;
-    private          long   _instantAnalogsReceived;
-    private          string _accumPerformanceString        = string.Empty;
-    private          string _accumInstantPerformanceString = string.Empty;
-    private          long   _accumsReceived;
-    private          long   _instantAccumsReceived;
-    private          string _messagesPerformanceString        = string.Empty;
-    private          string _messagesInstantPerformanceString = string.Empty;
-    private          long   _messagesReceived;
-    private          long   _instantMessagesReceived;
+    private int    _hashCode;
+    private string _description                    = string.Empty;
+    private string _statusPerformanceString        = string.Empty;
+    private string _statusInstantPerformanceString = string.Empty;
+    private long   _statusesReceived;
+    private long   _instantStatusesReceived;
+    private string _analogPerformanceString        = string.Empty;
+    private string _analogInstantPerformanceString = string.Empty;
+    private long   _analogsReceived;
+    private long   _instantAnalogsReceived;
+    private string _accumPerformanceString        = string.Empty;
+    private string _accumInstantPerformanceString = string.Empty;
+    private long   _accumsReceived;
+    private long   _instantAccumsReceived;
+    private string _messagesPerformanceString        = string.Empty;
+    private string _messagesInstantPerformanceString = string.Empty;
+    private long   _messagesReceived;
+    private long   _instantMessagesReceived;
 
-    public string                               Name                    { get; }
-    public DeltaComponentTypes                  Type                    { get; }
-    public uint[]                               TraceChain              { get; }
-    public string                               TraceChainString        { get; }
-    public string                               ParentTraceChainString  { get; }
+    public string                               Name                    { get; private set; }
+    public DeltaComponentTypes                  Type                    { get; private set; }
+    public uint[]                               TraceChain              { get; private set; }
+    public string                               TraceChainString        { get; private set; }
+    public string                               ParentTraceChainString  { get; private set; }
     public DeltaComponent                       Parent                  { get; set; }
-    public ObservableCollection<DeltaComponent> Children                { get; }
-    public ObservableCollection<DeltaItem>      Items                   { get; }
-    public int                                  Level                   { get; }
+    public ObservableCollection<DeltaComponent> Children                { get; private set; }
+    public ObservableCollection<DeltaItem>      Items                   { get; private set; }
+    public int                                  Level                   { get; private set; }
     public DeltaComponentStates                 State                   { get; set; }
     public string                               Address                 { get; set; }
     public DeltaComponentPerformanceStats       InitialPerformanceStats { get; private set; }
@@ -81,7 +80,7 @@ namespace Iface.Oik.Tm.Interfaces
         Refresh();
       }
     }
-    
+
     public long InstantStatusesReceived
     {
       get => _instantStatusesReceived;
@@ -121,7 +120,7 @@ namespace Iface.Oik.Tm.Interfaces
         Refresh();
       }
     }
-    
+
     public long InstantAnalogsReceived
     {
       get => _instantAnalogsReceived;
@@ -161,7 +160,7 @@ namespace Iface.Oik.Tm.Interfaces
         Refresh();
       }
     }
-    
+
     public long AccumsReceived
     {
       get => _accumsReceived;
@@ -201,7 +200,7 @@ namespace Iface.Oik.Tm.Interfaces
         Refresh();
       }
     }
-    
+
     public long InstantMessagesReceived
     {
       get => _instantMessagesReceived;
@@ -216,8 +215,9 @@ namespace Iface.Oik.Tm.Interfaces
     public string FullPathName             => Parent == null ? Name : $"{Parent.FullPathName} • {Name}";
     public bool   HasChildren              => Children.Any();
 
-
-    public DeltaComponent(string name, string type, uint[] traceChain)
+    public DeltaComponent(){}
+    
+    protected override void Initialize(string name, string type, uint[] traceChain)
     {
       _hashCode        = (name, type, traceChain).ToTuple().GetHashCode();
       Name             = name;
@@ -225,8 +225,7 @@ namespace Iface.Oik.Tm.Interfaces
       TraceChain       = traceChain;
       TraceChainString = string.Join("-", traceChain.Select(x => Convert.ToString(x, 10)));
 
-      ParentTraceChainString =
-        string.Join("-", traceChain.Take(traceChain.Length - 1).Select(x => Convert.ToString(x, 10)));
+      ParentTraceChainString = string.Join("-", traceChain[..^1].Select(x => Convert.ToString(x, 10)));
 
       Children = new ObservableCollection<DeltaComponent>();
       Items    = new ObservableCollection<DeltaItem>();
@@ -235,17 +234,14 @@ namespace Iface.Oik.Tm.Interfaces
 
       var driverNum = (traceChain[0] - 0x80000000) >> 24;
 
-      switch (traceChain.Length)
-      {
-        case 2:
-          Address = $"D{driverNum}:A{traceChain[1]}";
-          break;
-        case 3:
-          Address = $"D{driverNum}:A{traceChain[1]}:P{traceChain[2]}";
-          break;
-      }
+      Address = traceChain.Length switch
+                {
+                  2 => $"D{driverNum}:A{traceChain[1]}",
+                  3 => $"D{driverNum}:A{traceChain[1]}:P{traceChain[2]}",
+                  _ => Address
+                };
     }
-    
+
     public bool TryUpdateItems(IReadOnlyCollection<DeltaItem> newItems, string newDescription)
     {
       var updated = false;
@@ -254,7 +250,7 @@ namespace Iface.Oik.Tm.Interfaces
         Description = newDescription;
         updated     = true;
       }
-      
+
       if (!Items.SequenceEqual(newItems))
       {
         Items.Clear();
@@ -264,7 +260,7 @@ namespace Iface.Oik.Tm.Interfaces
 
       return updated;
     }
-    
+
 
     public void SetInitialPerformanceStats(long ticks,
                                            long statusCount,
@@ -301,7 +297,7 @@ namespace Iface.Oik.Tm.Interfaces
       AnalogsReceived  = analogCount  - InitialPerformanceStats.AnalogCount;
       AccumsReceived   = accumCount   - InitialPerformanceStats.AccumCount;
       MessagesReceived = messageCount - InitialPerformanceStats.MessageCount;
-      
+
       InstantStatusesReceived = statusCount  - LastPerformanceStats.StatusCount;
       InstantAnalogsReceived  = analogCount  - LastPerformanceStats.AnalogCount;
       InstantAccumsReceived   = accumCount   - LastPerformanceStats.AccumCount;
@@ -309,7 +305,7 @@ namespace Iface.Oik.Tm.Interfaces
 
       StatusInstantPerformanceString = GetCalculatedPerformanceString(LastPerformanceStats.Ticks,
                                                                       ticks,
-                                                                      InstantStatusesReceived );
+                                                                      InstantStatusesReceived);
       StatusPerformanceString = GetCalculatedPerformanceString(InitialPerformanceStats.Ticks,
                                                                ticks,
                                                                StatusesReceived);
@@ -320,14 +316,14 @@ namespace Iface.Oik.Tm.Interfaces
       AnalogPerformanceString = GetCalculatedPerformanceString(InitialPerformanceStats.Ticks,
                                                                ticks,
                                                                AnalogsReceived);
-      
+
       AccumInstantPerformanceString = GetCalculatedPerformanceString(LastPerformanceStats.Ticks,
                                                                      ticks,
                                                                      InstantAccumsReceived);
       AccumPerformanceString = GetCalculatedPerformanceString(InitialPerformanceStats.Ticks,
                                                               ticks,
                                                               AccumsReceived);
-      
+
       MessagesInstantPerformanceString = GetCalculatedPerformanceString(LastPerformanceStats.Ticks,
                                                                         ticks,
                                                                         InstantMessagesReceived);
@@ -420,7 +416,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     private static string GetCalculatedPerformanceString(long ticks1, long ticks2, long countDiff)
     {
-      var result = countDiff / (float) (ticks2 - ticks1) * 1000;
+      var result = countDiff / (float)(ticks2 - ticks1) * 1000;
       return result.ToString("N3");
     }
   }

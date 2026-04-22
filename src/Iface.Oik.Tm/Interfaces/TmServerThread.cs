@@ -3,9 +3,9 @@ using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public class TmServerThread : TmNotifyPropertyChanged
+  public class TmServerThread : TmServerThreadNotifiable
   {
-    private readonly int _hashCode;
+    private int _hashCode;
 
     private int _upTime;
     private float _workTime;
@@ -19,7 +19,7 @@ namespace Iface.Oik.Tm.Interfaces
       {
         _upTime = value;
         NotifyOfPropertyChange();
-        NotifyOfPropertyChange($"UpTimeString");
+        NotifyOfPropertyChange(nameof(UpTimeString));
       }
     }
 
@@ -30,20 +30,25 @@ namespace Iface.Oik.Tm.Interfaces
       {
         _workTime = value;
         NotifyOfPropertyChange();
-        NotifyOfPropertyChange($"WorkTimeString");
+        NotifyOfPropertyChange(nameof(WorkTimeString));
       }
     }
 
     public string UpTimeString => $"{UpTime} s";
     public string WorkTimeString => $"{WorkTime:N3} s";
 
-    public TmServerThread(int id, string name, int upTime, float workTime)
+    public TmServerThread(){}
+
+    protected override void Initialize(int id, 
+                                       string name, 
+                                       int upTime, 
+                                       float workTime)
     {
       _hashCode = (id, name).ToTuple().GetHashCode();
       
-      Id = id;
-      Name = name;
-      UpTime = upTime;
+      Id       = id;
+      Name     = name;
+      UpTime   = upTime;
       WorkTime = workTime;
     }
     

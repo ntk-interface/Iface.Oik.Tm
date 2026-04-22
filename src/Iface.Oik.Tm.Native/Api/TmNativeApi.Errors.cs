@@ -16,7 +16,7 @@ public static partial class TmNativeApi
     byte* bufPtr;
     TmNative.tmcGetLastErrorText(tmCid, &bufPtr);
 
-    var str = TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(bufPtr);
+    var str = TmNativeUtil.GetCStringFromBytePtr(bufPtr);
     TmNative.tmcFreeMemory((nint)bufPtr);
 
     return str;

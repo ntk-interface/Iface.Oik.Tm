@@ -1,4 +1,5 @@
-﻿using System.Buffers;
+﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
@@ -7,12 +8,12 @@ namespace Iface.Oik.Tm.Native.Api;
 
 public static partial class TmNativeApi
 {
-  public static IReadOnlyCollection<TServer> GetTmServers<TServer, TUser>(nint cfCid) 
-    where TServer: TmServerBase<TUser>, new()
-    where TUser: TmUserBase, new()
+  public static IReadOnlyCollection<TServer> GetTmServers<TServer, TUser>(nint cfCid)
+    where TServer : TmServerBase<TUser>, new()
+    where TUser : TmUserBase, new()
   {
-    var serverIdsList =  GetIfaceServerIds(cfCid);
-    var tmUsers = GetTmUsers<TUser>(cfCid);
+    var serverIdsList = GetIfaceServerIds(cfCid);
+    var tmUsers       = GetTmUsers<TUser>(cfCid);
 
     var tmServersList = new List<TServer>();
 
@@ -20,8 +21,8 @@ public static partial class TmNativeApi
     {
       var serverData = GetIfaceServerData(cfCid, serverId);
 
-      var tmServer = tmUsers.TryGetValue(serverData.Pid, out var users) 
-                       ? TmServerBase<TUser>.Create<TServer>(serverData, users) 
+      var tmServer = tmUsers.TryGetValue(serverData.Pid, out var users)
+                       ? TmServerBase<TUser>.Create<TServer>(serverData, users)
                        : TmServerBase<TUser>.Create<TServer>(serverData);
 
       tmServersList.Add(tmServer);
@@ -29,8 +30,8 @@ public static partial class TmNativeApi
 
     return tmServersList;
   }
-  
-  
+
+
   public static IReadOnlyCollection<string> GetIfaceServerIds(nint cfCid)
   {
     var pool   = ArrayPool<byte>.Shared;
@@ -59,42 +60,12 @@ public static partial class TmNativeApi
     }
   }
 
-  internal static TmNativeDefsUnsafe.IfaceServer GetIfaceServerData(nint cfCid, 
-                                                                    string serverId)
+
+  public static Dictionary<uint, List<T>> GetTmUsers<T>(nint cfCid)
+    where T : TmUserBase, new()
   {
-    var pool   = ArrayPool<byte>.Shared;
-    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
-
-    var server = new TmNativeDefsUnsafe.IfaceServer();
-    
-    try
-    {
-      TmNative.cfsTraceGetServerData(cfCid,
-                                     serverId,
-                                     ref server,
-                                     out var errCode,
-                                     errBuf,
-                                     TmNativeDefsUnsafe.ErrorBufSize);
-      
-      if (errCode != 0)
-      {
-        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
-      }
-
-      return server;
-    }
-    finally
-    {
-      pool.Return(errBuf);
-    }
-  }
-  
-  public static Dictionary<uint,List<T>> GetTmUsers<T>(nint cfCid) 
-    where T: TmUserBase, new()
-  {
-
     var result = new Dictionary<uint, List<T>>();
-    
+
     foreach (var id in GetTmUsersIds(cfCid))
     {
       var user = TmUserBase.Create<T>(GetIfaceUserData(cfCid, id));
@@ -104,69 +75,11 @@ public static partial class TmNativeApi
         list.Add(user);
         continue;
       }
-      
-      result.Add(user.ProcessId, new List<T>{user});
+
+      result.Add(user.ProcessId, new List<T> { user });
     }
 
     return result;
-  }
-  
-  internal static IReadOnlyCollection<string> GetTmUsersIds(nint cfCid)
-  {
-    var pool   = ArrayPool<byte>.Shared;
-    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
-
-    try
-    {
-      var ptr = TmNative.cfsTraceEnumUsers(cfCid,
-                                           out var errCode,
-                                           errBuf,
-                                           TmNativeDefsUnsafe.ErrorBufSize);
-      if (errCode != 0)
-      {
-        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
-      }
-
-      var ids = TmNativeUtil.GetStringsListFromIntPtr(ptr);
-
-      TmNative.cfsFreeMemory(ptr);
-
-      return ids;
-    }
-    finally
-    {
-      pool.Return(errBuf);
-    }
-  }
-  
-  internal static TmNativeDefsUnsafe.IfaceUser GetIfaceUserData(nint cfCid, 
-                                                               string userId)
-  {
-    var pool   = ArrayPool<byte>.Shared;
-    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
-
-    var user = new TmNativeDefsUnsafe.IfaceUser();
-    
-    try
-    {
-      TmNative.cfsTraceGetUserData(cfCid,
-                                   userId,
-                                   ref user,
-                                   out var errCode,
-                                   errBuf,
-                                   TmNativeDefsUnsafe.ErrorBufSize);
-      
-      if (errCode != 0)
-      {
-        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
-      }
-
-      return user;
-    }
-    finally
-    {
-      pool.Return(errBuf);
-    }
   }
 
 
@@ -261,4 +174,188 @@ public static partial class TmNativeApi
       pool.Return(errBuf);
     }
   }
+
+  public static IReadOnlyCollection<T> GetTmServersThreads<T>(nint cfCid)
+    where T : TmServerThreadBase, new()
+  {
+    var       pool    = ArrayPool<byte>.Shared;
+    var       errBuf  = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+
+    try
+    {
+      var ptr = TmNative.cfsEnumThreads(cfCid, out var errCode, errBuf, TmNativeDefsUnsafe.ErrorBufSize);
+
+      if (errCode != 0)
+      {
+        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
+      }
+
+      var threads = GetTmServersThreadsFromPtr<T>(ptr);
+      TmNative.cfsFreeMemory(ptr);
+
+      return threads;
+    }
+    finally
+    {
+      pool.Return(errBuf);
+    }
+  }
+  
+  public static IReadOnlyCollection<T> GetTmServersThreads<T>(int tmCid)
+    where T : TmServerThreadBase, new()
+  {
+    var pool   = ArrayPool<byte>.Shared;
+    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+
+    try
+    {
+      var ptr = TmNative.tmcGetServerThreads(tmCid);
+
+      if (ptr == nint.Zero)
+      {
+        throw new TmNativeException(GetLastTmcErrorText(tmCid));
+      }
+
+      var threads = GetTmServersThreadsFromPtr<T>(ptr);
+      TmNative.cfsFreeMemory(ptr);
+
+      return threads;
+    }
+    finally
+    {
+      pool.Return(errBuf);
+    }
+  }
+
+  internal static TmNativeDefsUnsafe.IfaceServer GetIfaceServerData(nint   cfCid,
+                                                                    string serverId)
+  {
+    var pool   = ArrayPool<byte>.Shared;
+    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+
+    var server = new TmNativeDefsUnsafe.IfaceServer();
+
+    try
+    {
+      TmNative.cfsTraceGetServerData(cfCid,
+                                     serverId,
+                                     ref server,
+                                     out var errCode,
+                                     errBuf,
+                                     TmNativeDefsUnsafe.ErrorBufSize);
+
+      if (errCode != 0)
+      {
+        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
+      }
+
+      return server;
+    }
+    finally
+    {
+      pool.Return(errBuf);
+    }
+  }
+
+
+  internal static IReadOnlyCollection<string> GetTmUsersIds(nint cfCid)
+  {
+    var pool   = ArrayPool<byte>.Shared;
+    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+
+    try
+    {
+      var ptr = TmNative.cfsTraceEnumUsers(cfCid,
+                                           out var errCode,
+                                           errBuf,
+                                           TmNativeDefsUnsafe.ErrorBufSize);
+      if (errCode != 0)
+      {
+        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
+      }
+
+      var ids = TmNativeUtil.GetStringsListFromIntPtr(ptr);
+
+      TmNative.cfsFreeMemory(ptr);
+
+      return ids;
+    }
+    finally
+    {
+      pool.Return(errBuf);
+    }
+  }
+
+  internal static TmNativeDefsUnsafe.IfaceUser GetIfaceUserData(nint   cfCid,
+                                                                string userId)
+  {
+    var pool   = ArrayPool<byte>.Shared;
+    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+
+    var user = new TmNativeDefsUnsafe.IfaceUser();
+
+    try
+    {
+      TmNative.cfsTraceGetUserData(cfCid,
+                                   userId,
+                                   ref user,
+                                   out var errCode,
+                                   errBuf,
+                                   TmNativeDefsUnsafe.ErrorBufSize);
+
+      if (errCode != 0)
+      {
+        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
+      }
+
+      return user;
+    }
+    finally
+    {
+      pool.Return(errBuf);
+    }
+  }
+
+  internal static unsafe IReadOnlyCollection<T> GetTmServersThreadsFromPtr<T>(nint listPtr)
+    where T : TmServerThreadBase, new()
+  {
+    var result = new List<T>();
+    
+
+    if (listPtr == nint.Zero)
+    {
+      return result;
+    }
+
+    var p      = (byte*)listPtr;
+    var length = 0;
+
+    while (true)
+    {
+      while (p[length] != 0)
+      {
+        length++;
+      }
+
+      var span = new Span<byte>(p, length);
+
+      if (span.IndexOf((byte)',') != -1)
+      {
+        result.Add(TmServerThreadBase.Create<T>(span)); 
+      }
+
+      length++;
+
+      if (p[length] == 0)
+      {
+        break;
+      }
+      
+      p      += length;
+      length =  0;
+    }
+    
+    return result;
+  }
+  
 }

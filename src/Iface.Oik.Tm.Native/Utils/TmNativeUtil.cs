@@ -265,7 +265,7 @@ namespace Iface.Oik.Tm.Native.Utils
             },
             AckMs    = native.AckMs,
             AckSec   = native.AckSec,
-            UserName = GetStringWithUnknownLengthFromBytePtr(strPtr)
+            UserName = GetCStringFromBytePtr(strPtr)
           };
         }
       }
@@ -342,7 +342,7 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static unsafe string GetStringWithUnknownLengthFromBytePtr(byte* ptr, Encoding? encoding = null)
+    public static unsafe string GetCStringFromBytePtr(byte* ptr, Encoding? encoding = null)
     {
       if (ptr[0] == 0)
       {

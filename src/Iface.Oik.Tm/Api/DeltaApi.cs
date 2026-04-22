@@ -1,16 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
-using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Api
@@ -48,258 +44,15 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<int> GetTreeChangeValue()
     {
-      return await Task.Run(() => TmNative.tmcDntTreeChange(_cid))
+      return await Task.Run(() => TmNativeApi.GetTreeChangeValue(_cid))
                        .ConfigureAwait(false);
     }
 
 
     public async Task<(IReadOnlyCollection<DeltaItem>, string)> GetComponentsItems(DeltaComponent component)
     {
-      var componentItemsPtr = await Task.Run(() => TmNative.tmcDntOpenItem(_cid,
-                                                                           (uint) component.TraceChain.Length,
-                                                                           component.TraceChain))
-                                        .ConfigureAwait(false);
-
-      if (componentItemsPtr == IntPtr.Zero)
-      {
-        return (Array.Empty<DeltaItem>(), string.Empty);
-      }
-
-
-      var items       = new List<DeltaItem>();
-      var description = string.Empty;
-
-      while (true)
-      {
-        var itemPtr = TmNative.tmcDntGetNextItem(componentItemsPtr);
-
-        if (itemPtr == IntPtr.Zero) break;
-
-        var deltaCommonStruct = Marshal.PtrToStructure<TmNativeDefs.DeltaCommon>(itemPtr);
-
-        switch ((TmNativeDefs.DeltaItemTypes) deltaCommonStruct.Type)
-        {
-          case TmNativeDefs.DeltaItemTypes.Description:
-            var descriptionStruct     = Marshal.PtrToStructure<TmNativeDefs.DeltaDescription>(itemPtr);
-            var descriptionStructSize = Marshal.SizeOf(descriptionStruct);
-
-            var descriptionString =
-              TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(IntPtr.Add(itemPtr, descriptionStructSize - 1));
-
-            if (descriptionStruct.Text[0] == '*')
-            {
-              items.Add(DeltaItem.CreateDescriptionDeltaItem(descriptionString));
-            }
-            else
-            {
-              description += descriptionString + Environment.NewLine;
-            }
-
-            break;
-          case TmNativeDefs.DeltaItemTypes.Status:
-            var statusStruct     = Marshal.PtrToStructure<TmNativeDefs.DeltaStatus>(itemPtr);
-            var statusStructSize = Marshal.SizeOf(statusStruct);
-
-            var numStatus = GetDeltaItemNum(itemPtr,
-                                            statusStructSize,
-                                            statusStruct.Length,
-                                            statusStruct.Number);
-
-            var addStringStatus = GetDeltaItemAdditionalText(itemPtr,
-                                                             statusStructSize,
-                                                             statusStruct.Length);
-
-            var tmAddrStatus = statusStruct.TmsRtu == 0 || statusStruct.TmsRtu == 0
-                                 ? null
-                                 : new TmAddr(TmType.Status,
-                                              statusStruct.TmsChn,
-                                              statusStruct.TmsRtu,
-                                              statusStruct.TmsPoint);
-
-            items.Add(DeltaItem.CreateStatusDeltaItem(numStatus,
-                                                      statusStruct.LastUpdate,
-                                                      (TmNativeDefs.DeltaItemsFlags) statusStruct.DeltaFlags,
-                                                      statusStruct.Value,
-                                                      addStringStatus,
-                                                      tmAddrStatus));
-
-            break;
-          case TmNativeDefs.DeltaItemTypes.Analog:
-            var analogStruct     = Marshal.PtrToStructure<TmNativeDefs.DeltaAnalog>(itemPtr);
-            var analogStructSize = Marshal.SizeOf(analogStruct);
-
-            var numAnalog = GetDeltaItemNum(itemPtr,
-                                            analogStructSize,
-                                            analogStruct.Length,
-                                            analogStruct.Number);
-
-            var addStringAnalog = GetDeltaItemAdditionalText(itemPtr,
-                                                             analogStructSize,
-                                                             analogStruct.Length);
-            var tmAddrAnalog = analogStruct.TmsRtu == 0 || analogStruct.TmsRtu == 0
-                                 ? null
-                                 : new TmAddr(TmType.Analog,
-                                              analogStruct.TmsChn,
-                                              analogStruct.TmsRtu,
-                                              analogStruct.TmsPoint);
-
-            items.Add(DeltaItem.CreateAnalogDeltaItem(numAnalog,
-                                                      analogStruct.LastUpdate,
-                                                      (TmNativeDefs.DeltaItemsFlags) analogStruct.DeltaFlags,
-                                                      analogStruct.Value,
-                                                      addStringAnalog,
-                                                      tmAddrAnalog));
-
-            break;
-          case TmNativeDefs.DeltaItemTypes.Accum:
-            var accumStruct     = Marshal.PtrToStructure<TmNativeDefs.DeltaAccum>(itemPtr);
-            var accumStructSize = Marshal.SizeOf(accumStruct);
-
-            var numAccum = GetDeltaItemNum(itemPtr,
-                                           accumStructSize,
-                                           accumStruct.Length,
-                                           accumStruct.Number);
-
-            var addStringAccum = GetDeltaItemAdditionalText(itemPtr,
-                                                            accumStructSize,
-                                                            accumStruct.Length);
-
-            var tmAddrAccum = accumStruct.TmsRtu == 0 || accumStruct.TmsRtu == 0
-                                ? null
-                                : new TmAddr(TmType.Accum,
-                                             accumStruct.TmsChn,
-                                             accumStruct.TmsRtu,
-                                             accumStruct.TmsPoint);
-
-            items.Add(DeltaItem.CreateAccumDeltaItem(numAccum,
-                                                     accumStruct.LastUpdate,
-                                                     (TmNativeDefs.DeltaItemsFlags) accumStruct.DeltaFlags,
-                                                     accumStruct.Value,
-                                                     addStringAccum,
-                                                     tmAddrAccum));
-
-            break;
-          case TmNativeDefs.DeltaItemTypes.Control:
-            var controlStruct     = Marshal.PtrToStructure<TmNativeDefs.DeltaControl>(itemPtr);
-            var controlStructSize = Marshal.SizeOf(controlStruct);
-
-            var numControl = GetDeltaItemNum(itemPtr,
-                                             controlStructSize,
-                                             controlStruct.Length,
-                                             controlStruct.Number);
-
-            var addStringControl = GetDeltaItemAdditionalText(itemPtr,
-                                                              controlStructSize,
-                                                              controlStruct.Length);
-
-            var tmAddrControl = controlStruct.TmsRtu == 0 || controlStruct.TmsRtu == 0
-                                  ? null
-                                  : new TmAddr(TmType.Status,
-                                               controlStruct.TmsChn,
-                                               controlStruct.TmsRtu,
-                                               controlStruct.TmsPoint);
-
-            items.Add(DeltaItem.CreateControlDeltaItem(numControl,
-                                                       controlStruct.LastUpdate,
-                                                       (TmNativeDefs.DeltaItemsFlags) controlStruct
-                                                         .DeltaFlags,
-                                                       controlStruct.CtrlBlock,
-                                                       controlStruct.CtrlGroup,
-                                                       controlStruct.CtrlPoint,
-                                                       addStringControl,
-                                                       tmAddrControl));
-
-            break;
-          case TmNativeDefs.DeltaItemTypes.AnalogF:
-            var analogFStruct     = Marshal.PtrToStructure<TmNativeDefs.DeltaAnalogF>(itemPtr);
-            var analogFStructSize = Marshal.SizeOf(analogFStruct);
-
-            var numAnalogF = GetDeltaItemNum(itemPtr,
-                                             analogFStructSize,
-                                             analogFStruct.Length,
-                                             analogFStruct.Number);
-
-            var addStringAnalogF = GetDeltaItemAdditionalText(itemPtr,
-                                                              analogFStructSize,
-                                                              analogFStruct.Length);
-            var tmAddrAnalogF = analogFStruct.TmsRtu == 0 || analogFStruct.TmsRtu == 0
-                                  ? null
-                                  : new TmAddr(TmType.Analog,
-                                               analogFStruct.TmsChn,
-                                               analogFStruct.TmsRtu,
-                                               analogFStruct.TmsPoint);
-
-            items.Add(DeltaItem.CreateAnalogFloatDeltaItem(numAnalogF,
-                                                           analogFStruct.LastUpdate,
-                                                           (TmNativeDefs.DeltaItemsFlags) analogFStruct
-                                                             .DeltaFlags,
-                                                           analogFStruct.Value,
-                                                           addStringAnalogF,
-                                                           tmAddrAnalogF));
-            break;
-          case TmNativeDefs.DeltaItemTypes.AccumF:
-            var accumFStruct     = Marshal.PtrToStructure<TmNativeDefs.DeltaAccumF>(itemPtr);
-            var accumFStructSize = Marshal.SizeOf(accumFStruct);
-
-            var numAccumF = GetDeltaItemNum(itemPtr,
-                                            accumFStructSize,
-                                            accumFStruct.Length,
-                                            accumFStruct.Number);
-
-            var addStringAccumF = GetDeltaItemAdditionalText(itemPtr,
-                                                             accumFStructSize,
-                                                             accumFStruct.Length);
-            var tmAddrAccumF = accumFStruct.TmsRtu == 0 || accumFStruct.TmsRtu == 0
-                                 ? null
-                                 : new TmAddr(TmType.Accum,
-                                              accumFStruct.TmsChn,
-                                              accumFStruct.TmsRtu,
-                                              accumFStruct.TmsPoint);
-
-            items.Add(DeltaItem.CreateAccumFloatDeltaItem(numAccumF,
-                                                          accumFStruct.LastUpdate,
-                                                          (TmNativeDefs.DeltaItemsFlags) accumFStruct
-                                                            .DeltaFlags,
-                                                          accumFStruct.Value,
-                                                          addStringAccumF,
-                                                          tmAddrAccumF));
-            break;
-          case TmNativeDefs.DeltaItemTypes.StrVal:
-            var strValStruct     = Marshal.PtrToStructure<TmNativeDefs.DeltaStrval>(itemPtr);
-            var strValStructSize = Marshal.SizeOf(strValStruct);
-
-            var strValValueString =
-              EncodingUtil.Win1251ToUtf8(Marshal.PtrToStringAnsi(IntPtr.Add(itemPtr, strValStructSize - 1)));
-
-            var structSizeWithValueString = strValStructSize + strValValueString.Length;
-
-            var strValDescriptionString = strValStruct.Length > structSizeWithValueString
-                                            ? EncodingUtil.Win1251ToUtf8(Marshal.PtrToStringAnsi(IntPtr.Add(itemPtr,
-                                                                           structSizeWithValueString)))
-                                            : "";
-
-            var tmAddrStrVal = strValStruct.TmsRtu == 0 || strValStruct.TmsRtu == 0
-                                 ? null
-                                 : new TmAddr(TmType.Unknown,
-                                              strValStruct.TmsChn,
-                                              strValStruct.TmsRtu,
-                                              strValStruct.TmsPoint);
-
-            items.Add(DeltaItem.CreateStrValDeltaItem(strValStruct.Number,
-                                                                strValStruct.LastUpdate,
-                                                                (TmNativeDefs.DeltaItemsFlags) strValStruct.DeltaFlags,
-                                                                strValValueString,
-                                                                strValDescriptionString,
-                                                                tmAddrStrVal));
-            break;
-          default:
-            continue;
-        }
-      }
-
-      TmNative.tmcDntCloseItem(componentItemsPtr);
-      
-      return (items, description);
+      return await Task.Run(() => TmNativeApi.GetDeltaComponentsItems<DeltaItem>(_cid, component.TraceChain))
+                       .ConfigureAwait(false);
     }
 
 
@@ -319,8 +72,8 @@ namespace Iface.Oik.Tm.Api
           return;
       }
     }
-    
-    
+
+
     public async Task<bool> RegisterTracer()
     {
       return await Task.Run(() => TmNative.tmcDntRegisterUser(_cid)).ConfigureAwait(false);
@@ -340,21 +93,10 @@ namespace Iface.Oik.Tm.Api
                         ? TmNativeDefs.DeltaTraceFlags.Usr
                         : TmNativeDefs.DeltaTraceFlags.Drv;
 
-
-      var traceChain = new uint[component.TraceChain.Length];
-      component.TraceChain.CopyTo(traceChain, 0);
-      
-      if (traceType == DeltaTraceTypes.Physical)
-      {
-        traceChain[0] = ~traceChain[0];
-      }
-
-      await Task.Run(() => TmNative.tmcDntBeginTraceEx(_cid,
-                                                       (uint) traceChain.Length,
-                                                       traceChain,
-                                                       (uint) traceFlag,
-                                                       0,
-                                                       0))
+      await Task.Run(() => TmNativeApi.TraceDeltaComponent(_cid,
+                                                      component.TraceChain,
+                                                      traceFlag, 
+                                                      traceType == DeltaTraceTypes.Physical))
                 .ConfigureAwait(false);
     }
 
@@ -391,7 +133,7 @@ namespace Iface.Oik.Tm.Api
           case 3:
             uint data = 5;
             var result = await Task.Run(() => TmNative.tmcDntGetLiveInfo(_cid,
-                                                                         (uint) node.Level,
+                                                                         (uint)node.Level,
                                                                          node.TraceChain,
                                                                          out data,
                                                                          sizeof(uint)))
@@ -404,7 +146,7 @@ namespace Iface.Oik.Tm.Api
             }
             else
             {
-              node.State = (DeltaComponentStates) data;
+              node.State = (DeltaComponentStates)data;
             }
 
             break;
@@ -429,68 +171,8 @@ namespace Iface.Oik.Tm.Api
 
     private async Task<IReadOnlyCollection<DeltaComponent>> GetDeltaComponents()
     {
-      try
-      {
-        var components = new List<DeltaComponent>();
-
-        var tempConfFile = Path.GetTempFileName();
-
-        var result = await Task.Run(() => TmNative.tmcDntGetConfig(_cid, 
-                                                                   EncodingUtil.StringToBytes(tempConfFile)))
-                               .ConfigureAwait(false);
-        if (!result)
-        {
-          return null;
-        }
-
-        var charsToTrim = new[] {' ', '\t'};
-        using (var streamReader = new StreamReader(tempConfFile, Encoding.GetEncoding(1251)))
-        {
-          string line;
-          while ((line = await streamReader.ReadLineAsync()
-                                           .ConfigureAwait(false)) != null)
-          {
-            var splitedArray = EncodingUtil.Win1251ToUtf8(line).Split(';');
-
-
-            var nameAndType = splitedArray[1].Split(',')
-                                             .Select(x => x.Trim(charsToTrim))
-                                             .ToArray();
-            var traceChainArray = splitedArray[0].Split(',')
-                                                 .Select(x => Convert.ToUInt32(x.Trim(charsToTrim), 10))
-                                                 .ToArray();
-
-            components.Add(new DeltaComponent(nameAndType[1], nameAndType[0], traceChainArray));
-          }
-        }
-
-        File.Delete(tempConfFile);
-        return components;
-      }
-      catch (Exception)
-      {
-        throw new Exception("Не удалось создать временный файл конфигурации Дельты.");
-      }
-    }
-
-    private static int GetDeltaItemNum(IntPtr itemPtr, int itemStructLength, int actualLength, ushort baseNum)
-    {
-      var result = baseNum & ushort.MaxValue;
-
-      if (actualLength <= itemStructLength) return result;
-
-      var extendedNum = Marshal.ReadByte(IntPtr.Add(itemPtr, itemStructLength)) * 0x10000;
-
-
-      return result + extendedNum;
-    }
-
-    private static string GetDeltaItemAdditionalText(IntPtr itemPtr, int itemStructLength, int actualLength)
-    {
-      if (actualLength <= itemStructLength + 1) return "";
-
-      var result = Marshal.PtrToStringAnsi(IntPtr.Add(itemPtr, itemStructLength + 1));
-      return EncodingUtil.Win1251ToUtf8(result);
+      return await Task.Run(() => TmNativeApi.GetDeltaComponents<DeltaComponent>(_cid))
+                       .ConfigureAwait(false);
     }
 
     private async Task<string> GetObjectName(TmAddr tmAddr)
@@ -501,33 +183,30 @@ namespace Iface.Oik.Tm.Api
 
     private string GetObjectNameSync(TmAddr tmAddr)
     {
-      if (tmAddr == null || tmAddr.Type == TmType.Unknown) 
+      if (tmAddr == null || tmAddr.Type == TmType.Unknown)
       {
         return "";
       }
 
-      const int bufSize = 1024;
-      Span<byte> buf    = stackalloc byte[bufSize];
+      const int  bufSize = 1024;
+      Span<byte> buf     = stackalloc byte[bufSize];
 
       TmNative.tmcDntGetObjectName(_cid,
-                                  (ushort) tmAddr.Type.ToNativeType(),
-                                  (short) tmAddr.Ch,
-                                  (short) tmAddr.Rtu,
-                                  (short) tmAddr.Point,
-                                  buf,
-                                  bufSize);
+                                   (ushort)tmAddr.Type.ToNativeType(),
+                                   (short)tmAddr.Ch,
+                                   (short)tmAddr.Rtu,
+                                   (short)tmAddr.Point,
+                                   buf,
+                                   bufSize);
 
       return EncodingUtil.BytesToString(buf);
     }
 
     private async Task UpdateDeltaComponentPortStats(DeltaComponent component)
     {
-      const int bufLength = 1024;
-      var       buf       = new byte[bufLength];
-
       var (result, portStatsString) = await Task.Run(() => GetPortStatsSync(component.TraceChain))
                                                 .ConfigureAwait(false);
-      
+
       if (result == 0 || portStatsString.IsNullOrEmpty()) return;
 
       var (ticks, statusCount, analogCount, accumCount, messagesCount) = ParsePortStatsString(portStatsString);
@@ -543,8 +222,8 @@ namespace Iface.Oik.Tm.Api
 
     private (uint, string) GetPortStatsSync(uint[] traceChain)
     {
-      const int bufLength = 1024;
-      Span<byte> buf      = stackalloc byte[bufLength];
+      const int  bufLength = 1024;
+      Span<byte> buf       = stackalloc byte[bufLength];
 
       var result = TmNative.tmcDntGetPortStats(_cid,
                                                traceChain,

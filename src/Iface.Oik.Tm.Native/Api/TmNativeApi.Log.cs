@@ -454,7 +454,7 @@ public static partial class TmNativeApi
         },
         AckMs    = native.AckMs,
         AckSec   = native.AckSec,
-        UserName = TmNativeUtil.GetStringWithUnknownLengthFromBytePtr(native.UserName)
+        UserName = TmNativeUtil.GetCStringFromBytePtr(native.UserName)
       };
     }
   }
