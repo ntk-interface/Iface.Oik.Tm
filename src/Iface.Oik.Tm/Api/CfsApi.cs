@@ -1995,19 +1995,10 @@ namespace Iface.Oik.Tm.Api
       return ret;
     }
 
-    public async Task<(IReadOnlyCollection<string>, uint, string)> SecEnumUsers()
+    public async Task<IReadOnlyCollection<string>> GetOikUsersStrings()
     {
-      const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
-      var resultPtr = await Task.Run(() => TmNative.cfsIfpcEnumUsers(CfId, out errCode, errBuf, errBufLength))
-                                .ConfigureAwait(false);
-      if (errCode != 0)
-      {
-        return (null, errCode, EncodingUtil.BytesToString(errBuf));
-      }
-
-      return (TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(resultPtr, 16384), 0, string.Empty);
+      return await Task.Run(() => TmNativeApi.SecEnumUsers(CfId))
+                       .ConfigureAwait(false);
     }
 
     public async Task<(IReadOnlyCollection<string>, uint, string)> SecEnumOSUsers()

@@ -153,7 +153,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     ExtendedRightsDescriptor SecGetExtendedRightsDescriptor(string sSetupPath);
 
-    Task<(IReadOnlyCollection<string>, uint, string)> SecEnumUsers();
+    Task<IReadOnlyCollection<string>> GetOikUsersStrings();
 
     Task<(IReadOnlyCollection<string>, uint, string)> SecEnumOSUsers();
 

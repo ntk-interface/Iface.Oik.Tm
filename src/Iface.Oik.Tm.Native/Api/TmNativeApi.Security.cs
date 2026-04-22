@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.IO;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
@@ -65,6 +66,35 @@ public static partial class TmNativeApi
     {
       ArrayPool<byte>.Shared.Return(errBuf);
     }
+  }
+
+  public static IReadOnlyCollection<string> SecEnumUsers(nint cfCid)
+  {
+    var pool   = ArrayPool<byte>.Shared;
+    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+
+    try
+    {
+      var ptr = TmNative.cfsIfpcEnumUsers(cfCid, 
+                                          out var errCode, 
+                                          errBuf, 
+                                          TmNativeDefsUnsafe.ErrorBufSize);
+
+      if (errCode != 0)
+      {
+        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
+      }
+
+      var users = TmNativeUtil.GetStringsListFromIntPtr(ptr);
+      TmNative.cfsFreeMemory(ptr);
+
+      return users;
+    }
+    finally
+    {
+      ArrayPool<byte>.Shared.Return(errBuf);
+    }
+    
   }
   
   internal static void BackupSecurity(nint cfCid, 
