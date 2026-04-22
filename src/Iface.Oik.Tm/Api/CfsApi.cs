@@ -2122,12 +2122,16 @@ namespace Iface.Oik.Tm.Api
         EnabledMACs        = dto.MacList,
         IsBlocked          = dto.IsBlocked,
         MustChangePassword = dto.MustChangePassword,
-        NotAfter           = DateUtil.GetDateTimeFromTimestamp(dto.NotAfterTimestamp),
-        NotBefore          = DateUtil.GetDateTimeFromTimestamp(dto.NotBeforeTimestamp),
         PasswordSet        = dto.PasswordSet,
         Predefined         = dto.Predefined,
         UserCategory       = dto.UserCategory,
-        UserTemplate       = dto.UserTemplate
+        UserTemplate       = dto.UserTemplate,
+        NotAfter = dto.NotAfterTimestamp == 0
+                     ? new DateTime()
+                     : DateUtil.GetDateTimeFromTimestamp(dto.NotAfterTimestamp),
+        NotBefore = dto.NotBeforeTimestamp == 0
+                      ? new DateTime()
+                      : DateUtil.GetDateTimeFromTimestamp(dto.NotBeforeTimestamp)
       };
     }
 
