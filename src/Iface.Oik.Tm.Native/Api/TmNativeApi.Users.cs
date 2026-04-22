@@ -119,6 +119,122 @@ public static partial class TmNativeApi
     };
   }
 
+  public static unsafe ExtendedUserDataDto SecGetExtendedUserData(nint   cfCid,
+                                                                  string serverType,
+                                                                  string serverName,
+                                                                  string username)
+  {
+    var pool   = ArrayPool<byte>.Shared;
+    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+
+    try
+    {
+      var binPtr = TmNative.cfsIfpcGetBin(cfCid,
+                                          username,
+                                          serverType + serverName,
+                                          "extr",
+                                          out _,
+                                          out var errCode,
+                                          errBuf,
+                                          TmNativeDefsUnsafe.ErrorBufSize);
+      if (errCode != 0)
+      {
+        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
+      }
+
+      var ptr    = (byte*)binPtr;
+
+      var p      = ptr;
+      var length = 0;
+
+      var rights       = new byte[256];
+      var userId       = 0;
+      var groupId    = 0;
+      var userNickname = string.Empty;
+      var userPassword = string.Empty;
+      var keyId        = string.Empty;
+      
+      while (true)
+      {
+        while (p[length] != 0)
+        {
+          length++;
+        }
+
+        var span       = new ReadOnlySpan<byte>(p, length);
+        var equalIndex = span.IndexOf((byte)'=');
+
+        var list = TmNativeUtil.GetStringsListFromIntPtr(binPtr);
+
+        if (equalIndex != -1)
+        {
+          var encoding  = TmNative.cfsIsUTF8(span) ? Encoding.UTF8 : Encoding.GetEncoding(1251);
+          var key       = encoding.GetString(span[..equalIndex]);
+          var value = encoding.GetString(span[(equalIndex + 1)..]);
+
+          switch (key)
+          {
+            case "UserID" when int.TryParse(value, out var id):
+            {
+              userId = id;
+              break;
+            }
+            case "UserNick":
+            {
+              userNickname = value;
+              break;
+            }
+            case "UserPwd":
+            {
+              userPassword = value;
+              break;
+            }
+            case "Group" when int.TryParse(value, out var id):
+            {
+              groupId = id;
+              break;
+            }
+            case "KeyID":
+            {
+              keyId = value;
+              break;
+            }
+          }
+        }
+        else if (span[0] == 'R' && int.TryParse(span[1..], out var index))
+        {
+          rights[index] = 1;
+        }
+
+        length++;
+
+        if (p[length] == 0)
+        {
+          break;
+        }
+
+        p      += length;
+        length =  0;
+      }
+
+      TmNative.cfsFreeMemory(binPtr);
+
+      return new ExtendedUserDataDto
+      {
+        Rights   = rights,
+        GroupId  = groupId,
+        Id       = userId,
+        Nickname = userNickname,
+        Password = userPassword,
+        KeyId    = keyId
+      };
+    }
+    finally
+    {
+      ArrayPool<byte>.Shared.Return(errBuf);
+    }
+  }
+
   internal static TmNativeDefsUnsafe.TUserInfo GetTUserInfo(int tmCid, uint userId)
   {
     var tUserInfo = new TmNativeDefsUnsafe.TUserInfo();

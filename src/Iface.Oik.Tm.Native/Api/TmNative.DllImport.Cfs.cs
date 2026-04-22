@@ -697,6 +697,6 @@ namespace Iface.Oik.Tm.Native.Api
 
     [LibraryImport(Cfshare)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial bool cfsIsUTF8(Span<byte> text);
+    public static partial bool cfsIsUTF8(ReadOnlySpan<byte> text);
   }
 }

@@ -2060,64 +2060,22 @@ namespace Iface.Oik.Tm.Api
       }
     }
 
-    public async Task<(ExtendedUserData, uint, string)> SecGetExtendedUserData(
-      string serverType, string serverName, string username)
+    public async Task<ExtendedUserData> SecGetExtendedUserData(string serverType,
+                                                               string serverName,
+                                                               string username)
     {
-      (var resultPtr, uint errCode, string errString) =
-        await SecGetBin(username, serverType + serverName, "extr").ConfigureAwait(false);
-      if ((errCode != 0) || (resultPtr.Length == 0))
-      {
-        return (null, errCode, errString);
-      }
+      var dto = await Task.Run(() => TmNativeApi.SecGetExtendedUserData(CfId, serverType, serverName, username))
+                          .ConfigureAwait(false);
 
-      var ui   = new ExtendedUserData();
-      var data = TmNativeUtil.GetStringListFromDoubleNullTerminatedBytes(resultPtr);
-      foreach (var item in data)
+      return new ExtendedUserData
       {
-        var KeyValuePair = item.Split('=');
-        if (KeyValuePair.Length == 2)
-        {
-          switch (KeyValuePair[0])
-          {
-            case "UserID":
-            {
-              if (Int32.TryParse(KeyValuePair[1], out int i))
-                ui.UserID = i;
-            }
-              break;
-            case "UserNick":
-              ui.UserNick = KeyValuePair[1];
-              break;
-            case "UserPwd":
-              ui.UserPwd = KeyValuePair[1];
-              break;
-            case "Group":
-            {
-              if (Int32.TryParse(KeyValuePair[1], out int i))
-                ui.Group = i;
-            }
-              break;
-            case "KeyID":
-              ui.KeyID = KeyValuePair[1];
-              break;
-          }
-        }
-        else if (KeyValuePair.Length == 1)
-        {
-          if (KeyValuePair[0].StartsWith("R"))
-          {
-            if (Int32.TryParse(KeyValuePair[0].Substring(1), out int idx))
-            {
-              if ((0 <= idx) && (idx < ui.Rights.Length))
-              {
-                ui.Rights[idx] = 1;
-              }
-            }
-          }
-        }
-      }
-
-      return (ui, 0, string.Empty);
+        Group    = dto.GroupId,
+        KeyID    = dto.KeyId,
+        Rights   = dto.Rights,
+        UserID   = dto.Id,
+        UserNick = dto.Nickname,
+        UserPwd  = dto.Password
+      };
     }
 
     public async Task<(uint, string)> SecSetExtendedUserData(string serverType, string serverName, string username,

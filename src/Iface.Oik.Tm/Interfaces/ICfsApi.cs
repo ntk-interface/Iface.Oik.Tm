@@ -165,8 +165,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<(uint, string)> SecSetAccessMask(string uName, string oName, uint AccessMask);
 
-    Task<(ExtendedUserData, uint, string)>
-      SecGetExtendedUserData(string serverType, string serverName, string username);
+    Task<ExtendedUserData> SecGetExtendedUserData(string serverType, string serverName, string username);
 
     Task<(uint, string)> SecSetExtendedUserData(string           serverType, string serverName, string username,
                                                 ExtendedUserData extendedUserData);
