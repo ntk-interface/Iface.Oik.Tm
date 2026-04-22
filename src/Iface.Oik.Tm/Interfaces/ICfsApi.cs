@@ -161,7 +161,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<(uint, string)> SecDeleteUser(string username);
 
-    Task<(uint, uint, string)> SecGetAccessMask(string uName, string oName);
+    Task<uint> SecGetAccessMask(string uName, string oName);
 
     Task<(uint, string)> SecSetAccessMask(string uName, string oName, uint AccessMask);
 

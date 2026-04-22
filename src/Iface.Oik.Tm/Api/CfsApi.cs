@@ -2020,24 +2020,10 @@ namespace Iface.Oik.Tm.Api
       }
     }
 
-    public async Task<(uint, uint, string)> SecGetAccessMask(string username, string oName)
+    public async Task<uint> SecGetAccessMask(string username, string oName)
     {
-      const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
-
-      var result =
-        await Task.Run(() => TmNative.cfsIfpcGetAccess(CfId, EncodingUtil.StringToBytes(username),
-                                                       EncodingUtil.StringToBytes(oName), out errCode, errBuf,
-                                                       errBufLength)).ConfigureAwait(false);
-      if (errCode != 0)
-      {
-        return (0, errCode, EncodingUtil.BytesToString(errBuf));
-      }
-      else
-      {
-        return (result, 0, string.Empty);
-      }
+      return await Task.Run(() => TmNativeApi.SecGetAccessMask(CfId, username, oName))
+                       .ConfigureAwait(false);
     }
 
     public async Task<(uint, string)> SecSetAccessMask(string username, string oName, uint AccessMask)

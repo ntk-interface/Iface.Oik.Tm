@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.IO;
+using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 
@@ -10,6 +11,29 @@ public static partial class TmNativeApi
 {
   private const string BackupDateFormat = "dd_MM_yyyy (HH.mm.ss)";
 
+  public static PasswordPolicyDto SecGetPasswordPolicy(nint cfCid)
+  {
+    const string uname = ".cfs.";
+    const string oname = ".";
+
+    var flags = (TmNativeDefsUnsafe.PasswordPolicies)IfpcGetBinUint(cfCid, uname, oname, "pwd_pol_flg");
+
+    return new PasswordPolicyDto
+    {
+      AdminPasswordChange  = IfpcGetBinBool(cfCid, uname, oname, "own_pch"),
+      EnforcePasswordCheck = IfpcGetBinBool(cfCid, uname, oname, "pwd_pol"),
+      MinPasswordLength    = IfpcGetBinInt(cfCid, uname, oname, "pwd_pol_len"),
+      PasswordTtl          = IfpcGetBinInt(cfCid, uname, oname, "p_ex_days"),
+      CharsUpper           = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.Upper),
+      CharsDigits          = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.Digits),
+      CharsSpecial         = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.Spec),
+      CharsNoRepeat        = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.CheckRepeat),
+      CharsNonSequential   = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.CheqSeq),
+      CheckDictionary      = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.Digits),
+      CheckOldPasswords    = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.CheckCache)
+    };
+  }
+  
   public static void BackupSecurity(nint cfCid, string directory, string pwd = "")
   {
     var fileName = "";
