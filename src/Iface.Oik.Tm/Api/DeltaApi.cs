@@ -1,16 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
-using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Api
@@ -208,9 +204,6 @@ namespace Iface.Oik.Tm.Api
 
     private async Task UpdateDeltaComponentPortStats(DeltaComponent component)
     {
-      const int bufLength = 1024;
-      var       buf       = new byte[bufLength];
-
       var (result, portStatsString) = await Task.Run(() => GetPortStatsSync(component.TraceChain))
                                                 .ConfigureAwait(false);
 
