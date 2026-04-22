@@ -2941,32 +2941,8 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<IReadOnlyCollection<TmServerThread>> GetServerThreads()
     {
-      var threadsPtr = await Task.Run(() => TmNative.tmcGetServerThreads(_cid)).ConfigureAwait(false);
-
-      if (threadsPtr == IntPtr.Zero)
-      {
-        Console.WriteLine(
-          $"Ошибка при получении списка потоков сервера: {GetLastTmcErrorText().ConfigureAwait(false)}");
-        return null;
-      }
-
-      var threadList = TmNativeUtil.GetStringsListFromIntPtr(threadsPtr).Select(x =>
-                                   {
-                                     var regex =
-                                       new Regex(@"([0-9]*), (.*?) • ([-+]?[0-9]*) s • ([-+]?[0-9]*\.?[0-9]+) s");
-                                     var mc     = regex.Match(x);
-                                     var id     = int.Parse(mc.Groups[1].Value);
-                                     var name   = mc.Groups[2].Value;
-                                     var upTime = int.Parse(mc.Groups[3].Value);
-                                     var workTime =
-                                       float.Parse(mc.Groups[4].Value, CultureInfo.InvariantCulture);
-                                     return new TmServerThread(id, name, upTime, workTime);
-                                   })
-                                   .ToList();
-
-      TmNative.cfsFreeMemory(threadsPtr);
-
-      return threadList;
+      return await Task.Run(() => TmNativeApi.GetTmServersThreads<TmServerThread>(_cid))
+                       .ConfigureAwait(false);
     }
 
 

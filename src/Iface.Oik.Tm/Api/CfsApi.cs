@@ -984,7 +984,10 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<IReadOnlyCollection<TmServerThread>> GetTmServersThreads()
     {
-      const int errBufLength = 1000;
+      return await Task.Run(() => TmNativeApi.GetTmServersThreads<TmServerThread>(CfId))
+                       .ConfigureAwait(false);
+      
+      /*const int errBufLength = 1000;
       const int bufSize      = 8192;
       var       errBuf       = new byte[errBufLength];
       uint      errCode      = 0;
@@ -1001,7 +1004,7 @@ namespace Iface.Oik.Tm.Api
 
       //TODO: разобраться с дубль-нуль-терменированными листами
       var threadsStringLists =
-        TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(threadPtr, bufSize);
+        TmNativeUtil.GetStringsListFromIntPtr(threadPtr);
 
       TmNative.cfsFreeMemory(threadPtr);
 
@@ -1033,7 +1036,7 @@ namespace Iface.Oik.Tm.Api
         }
       }
 
-      return tmServerThreadsList;
+      return tmServerThreadsList;*/
     }
 
     public async Task RegisterTmServerTracer(ITmServerTraceable traceTarget, bool debug, int pause)

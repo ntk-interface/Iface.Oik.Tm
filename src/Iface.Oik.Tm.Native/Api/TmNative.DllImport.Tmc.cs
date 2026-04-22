@@ -879,8 +879,9 @@ namespace Iface.Oik.Tm.Native.Api
     public static extern Int16 tmcGetServerInfo(Int32                        cid,
                                                 ref TmNativeDefs.TServerInfo info);
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr tmcGetServerThreads(Int32 cid);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial nint tmcGetServerThreads(int cid);
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern bool tmcGetGrantedAccess(Int32      cid,

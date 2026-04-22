@@ -305,11 +305,12 @@ namespace Iface.Oik.Tm.Native.Api
                                                    uint                                 maxErrs);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr cfsEnumThreads(IntPtr           connId,
-                                               out       UInt32 errCode,
-                                               [In, Out] byte[] errBuf,
-                                               UInt32           maxErrs);
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial nint cfsEnumThreads(nint           connId,
+                                               out       uint errCode,
+                                               Span<byte> errBuf,
+                                               uint           maxErrs);
 
 
     [LibraryImport(Cfshare)]
