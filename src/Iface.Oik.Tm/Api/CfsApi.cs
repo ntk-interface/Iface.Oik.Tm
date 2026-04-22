@@ -2279,97 +2279,24 @@ namespace Iface.Oik.Tm.Api
       return (resErrCode, resErrString);
     }
 
-    public async Task<(PasswordPolicy, uint, string)> SecGetPasswordPolicy()
+    public async Task<PasswordPolicy> SecGetPasswordPolicy()
     {
-      byte[] bin;
-      uint   errCode, resErrCode = 0;
-      ;
-      string errString, resErrString = string.Empty;
-      var    passwordPolicy          = new PasswordPolicy();
-
-      (bin, errCode, errString) = await SecGetBin(".cfs.", ".", "own_pch").ConfigureAwait(false);
-      if (errCode == 0)
+      var dto = await Task.Run(() => TmNativeApi.SecGetPasswordPolicy(CfId))
+                          .ConfigureAwait(false);
+      return new PasswordPolicy
       {
-        string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
-        if (Int32.TryParse(s, out int i))
-        {
-          passwordPolicy.AdminPasswordChange = (i == 0);
-        }
-      }
-      else if (errCode != 2) // "No data"
-      {
-        resErrCode   =  errCode;
-        resErrString += errString;
-      }
-
-      (bin, errCode, errString) = await SecGetBin(".cfs.", ".", "pwd_pol").ConfigureAwait(false);
-      if (errCode == 0)
-      {
-        string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
-        if (Int32.TryParse(s, out int i))
-        {
-          passwordPolicy.EnforcePasswordCheck = (i == 1);
-        }
-      }
-      else if (errCode != 2) // "No data"
-      {
-        resErrCode   =  errCode;
-        resErrString += errString;
-      }
-
-      (bin, errCode, errString) = await SecGetBin(".cfs.", ".", "pwd_pol_len").ConfigureAwait(false);
-      if (errCode == 0)
-      {
-        string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
-        if (Int32.TryParse(s, out int i))
-        {
-          passwordPolicy.MinPasswordLength = i;
-        }
-      }
-      else if (errCode != 2) // "No data"
-      {
-        resErrCode   =  errCode;
-        resErrString += errString;
-      }
-
-      (bin, errCode, errString) = await SecGetBin(".cfs.", ".", "p_ex_days").ConfigureAwait(false);
-      if (errCode == 0)
-      {
-        string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
-        if (Int32.TryParse(s, out int i))
-        {
-          passwordPolicy.PasswordTTL_Days = i;
-        }
-      }
-      else if (errCode != 2) // "No data"
-      {
-        resErrCode   =  errCode;
-        resErrString += errString;
-      }
-
-      (bin, errCode, errString) = await SecGetBin(".cfs.", ".", "pwd_pol_flg").ConfigureAwait(false);
-      if (errCode == 0)
-      {
-        string s = TmNativeUtil.GetStringFromBytesWithAdditionalPart(bin);
-        if (uint.TryParse(s, out uint ui))
-        {
-          PWDPOL flags = (PWDPOL)ui;
-          passwordPolicy.PwdChars_Upper          = flags.HasFlag(PWDPOL.Upper);
-          passwordPolicy.PwdChars_Digits         = flags.HasFlag(PWDPOL.Digits);
-          passwordPolicy.PwdChars_Special        = flags.HasFlag(PWDPOL.Spec);
-          passwordPolicy.PwdChars_NoRepeat       = flags.HasFlag(PWDPOL.CheckRepeat);
-          passwordPolicy.PwdChars_NoSequential   = flags.HasFlag(PWDPOL.CheqSeq);
-          passwordPolicy.PwdChars_CheckDictonary = flags.HasFlag(PWDPOL.CheckDict);
-          passwordPolicy.CheckOldPasswords       = flags.HasFlag(PWDPOL.CheckCache);
-        }
-      }
-      else if (errCode != 2) // "No data"
-      {
-        resErrCode   =  errCode;
-        resErrString += errString;
-      }
-
-      return (passwordPolicy, resErrCode, resErrString);
+        AdminPasswordChange = dto.AdminPasswordChange,
+        EnforcePasswordCheck = dto.EnforcePasswordCheck,
+        MinPasswordLength = dto.MinPasswordLength,
+        PasswordTtlDays = dto.PasswordTtl,
+        PwdChars_Upper = dto.CharsUpper,
+        PwdChars_Digits = dto.CharsDigits,
+        PwdChars_Special = dto.CharsSpecial,
+        PwdChars_NoRepeat = dto.CharsNoRepeat,
+        PwdChars_NoSequential = dto.CharsNonSequential,
+        PwdChars_CheckDictonary = dto.CheckDictionary,
+        CheckOldPasswords = dto.CheckOldPasswords
+      };
     }
 
     public async Task<(uint, string)> SecSetPasswordPolicy(PasswordPolicy passwordPolicy)
@@ -2422,7 +2349,7 @@ namespace Iface.Oik.Tm.Api
         resErrString += errString;
       }
 
-      n                    = passwordPolicy.PasswordTTL_Days.ToString();
+      n                    = passwordPolicy.PasswordTtlDays.ToString();
       bin                  = TmNativeUtil.GetFixedBytesWithTrailingZero(n, n.Length + 1, enc);
       (errCode, errString) = await SecSetBin(".cfs.", ".", "p_ex_days", bin).ConfigureAwait(false);
       if (errCode != 0)

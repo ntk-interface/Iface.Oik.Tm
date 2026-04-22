@@ -210,7 +210,7 @@ namespace Iface.Oik.Tm.Interfaces
 	public class PasswordPolicy
 	{
 		public bool AdminPasswordChange { get; set; }
-		public int PasswordTTL_Days { get; set; }
+		public int PasswordTtlDays { get; set; }
 		public bool EnforcePasswordCheck { get; set; }
 		public int MinPasswordLength { get; set; }
 		public bool PwdChars_Upper { get; set; }

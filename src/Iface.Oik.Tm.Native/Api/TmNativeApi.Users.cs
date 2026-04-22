@@ -235,6 +235,29 @@ public static partial class TmNativeApi
     }
   }
 
+  public static PasswordPolicyDto SecGetPasswordPolicy(nint cfCid)
+  {
+    const string uname = ".cfs.";
+    const string oname = ".";
+
+    var flags = (TmNativeDefsUnsafe.PasswordPolicies)SecGetBinUint(cfCid, uname, oname, "pwd_pol_flg");
+
+    return new PasswordPolicyDto
+    {
+      AdminPasswordChange  = SecGetBinBool(cfCid, uname, oname, "own_pch"),
+      EnforcePasswordCheck = SecGetBinBool(cfCid, uname, oname, "pwd_pol"),
+      MinPasswordLength    = SecGetBinInt(cfCid, uname, oname, "pwd_pol_len"),
+      PasswordTtl          = SecGetBinInt(cfCid, uname, oname, "p_ex_days"),
+      CharsUpper           = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.Upper),
+      CharsDigits          = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.Digits),
+      CharsSpecial         = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.Spec),
+      CharsNoRepeat        = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.CheckRepeat),
+      CharsNonSequential   = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.CheqSeq),
+      CheckDictionary      = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.Digits),
+      CheckOldPasswords    = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.CheckCache)
+    };
+  }
+  
   internal static TmNativeDefsUnsafe.TUserInfo GetTUserInfo(int tmCid, uint userId)
   {
     var tUserInfo = new TmNativeDefsUnsafe.TUserInfo();
@@ -318,6 +341,58 @@ public static partial class TmNativeApi
     }
   }
 
+  internal static unsafe uint SecGetBinUint(nint   cfCid,
+                                          string uName,
+                                          string oName,
+                                          string binName)
+  {
+    var pool   = ArrayPool<byte>.Shared;
+    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+
+    try
+    {
+      var binPtr = TmNative.cfsIfpcGetBin(cfCid,
+                                          uName,
+                                          oName,
+                                          binName,
+                                          out _,
+                                          out var errCode,
+                                          errBuf,
+                                          TmNativeDefsUnsafe.ErrorBufSize);
+      switch (errCode)
+      {
+        case 0:
+        {
+          var ptr    = (byte*)binPtr;
+          var length = 0;
+
+          while (ptr[length] != 0)
+          {
+            length++;
+          }
+
+          if (!Utf8Parser.TryParse(new ReadOnlySpan<byte>(ptr, length), out uint value, out _))
+          {
+            throw new FormatException($"Wrong response format for {uName}{oName}{binName}");
+          }
+
+          TmNative.cfsFreeMemory(binPtr);
+
+          return value;
+        }
+        case 2:
+          return 0;
+        default:
+          throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
+      }
+    }
+    finally
+    {
+      ArrayPool<byte>.Shared.Return(errBuf);
+    }
+  }
+
+  
   internal static unsafe long SecGetBinLong(nint   cfCid,
                                             string uName,
                                             string oName,
