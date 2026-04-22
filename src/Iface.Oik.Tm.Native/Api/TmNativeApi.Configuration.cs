@@ -118,7 +118,7 @@ public static partial class TmNativeApi
       return string.Empty;
     }
 
-    var value = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(ptr);
+    var value = TmNativeUtil.GetCStringFromIntPtr(ptr);
 
     TmNative.cfsFreeMemory(ptr);
 

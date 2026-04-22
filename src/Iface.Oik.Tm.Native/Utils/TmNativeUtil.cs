@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
 
 namespace Iface.Oik.Tm.Native.Utils
@@ -321,28 +322,40 @@ namespace Iface.Oik.Tm.Native.Utils
              .Trim('\n');
     }
 
-    public static string GetStringWithUnknownLengthFromIntPtr(nint ptr, Encoding? encoding = null)
+    internal static unsafe string GetCStringFromIntPtrAutoEncoding(nint ptr)
     {
-      unsafe
+      var p = (byte*)ptr;
+      
+      if (p[0] == 0)
       {
-        if (ptr == nint.Zero) return string.Empty;
-
-        encoding ??= Encoding.UTF8; // default
-
-        var p      = (byte*)ptr.ToPointer();
-        var length = 0;
-
-        while (p[length] != 0)
-        {
-          length++;
-        }
-
-        return encoding.GetString(p, length);
+        return string.Empty;
       }
+
+      var length = 0;
+
+      while (p[length] != 0)
+      {
+        length++;
+      }
+
+      var span     = new Span<byte>(p, length);
+      var encoding = TmNative.cfsIsUTF8(span) ? Encoding.UTF8 : Encoding.GetEncoding(1251);
+
+      return encoding.GetString(span);
+    }
+
+    public static unsafe string GetCStringFromIntPtr(nint ptr, Encoding? encoding = null)
+    {
+      if (ptr == nint.Zero)
+      {
+        return string.Empty;
+      }
+
+      return GetCStringFromBytePtr((byte*)ptr, encoding);
     }
 
 
-    public static unsafe string GetCStringFromBytePtr(byte* ptr, Encoding? encoding = null)
+    internal static unsafe string GetCStringFromBytePtr(byte* ptr, Encoding? encoding = null)
     {
       if (ptr[0] == 0)
       {
@@ -357,6 +370,8 @@ namespace Iface.Oik.Tm.Native.Utils
       {
         length++;
       }
+
+      var span = new ReadOnlySpan<byte>(ptr, length);
 
       return encoding.GetString(ptr, length);
     }

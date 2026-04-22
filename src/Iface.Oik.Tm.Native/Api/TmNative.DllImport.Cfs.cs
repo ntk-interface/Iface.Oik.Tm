@@ -307,10 +307,10 @@ namespace Iface.Oik.Tm.Native.Api
 
     [LibraryImport(Cfshare)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
-    public static partial nint cfsEnumThreads(nint           connId,
-                                               out       uint errCode,
-                                               Span<byte> errBuf,
-                                               uint           maxErrs);
+    public static partial nint cfsEnumThreads(nint       connId,
+                                              out uint   errCode,
+                                              Span<byte> errBuf,
+                                              uint       maxErrs);
 
 
     [LibraryImport(Cfshare)]
@@ -483,15 +483,16 @@ namespace Iface.Oik.Tm.Native.Api
                                               UInt32           maxErrs);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr cfsIfpcGetBin(IntPtr           connId,
-                                              byte[]           uName,
-                                              byte[]           oName,
-                                              byte[]           binName,
-                                              out       UInt32 binLength,
-                                              out       UInt32 errCode,
-                                              [In, Out] byte[] errBuf,
-                                              UInt32           maxErrs);
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial nint cfsIfpcGetBin(nint       connId,
+                                             string     uName,
+                                             string     oName,
+                                             string     binName,
+                                             out uint   binLength,
+                                             out uint   errCode,
+                                             Span<byte> errBuf,
+                                             uint       maxErrs);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]

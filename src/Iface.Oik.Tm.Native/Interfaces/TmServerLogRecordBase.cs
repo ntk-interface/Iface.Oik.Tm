@@ -48,7 +48,7 @@ public abstract class TmServerLogRecordBase
         Type     = TmNativeUtil.BytesToString(buffers[3]).Trim(' ', '\n'),
         MsgType  = TmNativeUtil.BytesToString(buffers[4]).Trim(' ', '\n'),
         ThreadId = TmNativeUtil.BytesToString(buffers[5]).Trim(' ', '\n'),
-        Message  = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(msgPtr).Trim(' ', '\n'),
+        Message  = TmNativeUtil.GetCStringFromIntPtr(msgPtr).Trim(' ', '\n'),
       };
       
       rec.Initialize(dto);

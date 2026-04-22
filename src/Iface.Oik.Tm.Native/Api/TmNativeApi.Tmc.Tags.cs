@@ -35,7 +35,7 @@ public static partial class TmNativeApi
       return string.Empty;
     }
 
-    var str = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(classDataPtr + sizeof(byte*));
+    var str = TmNativeUtil.GetCStringFromIntPtr(classDataPtr + sizeof(byte*));
     TmNative.tmcFreeMemory(classDataPtr);
 
     return str;

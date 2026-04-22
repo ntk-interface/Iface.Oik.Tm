@@ -1,4 +1,6 @@
-﻿namespace Iface.Oik.Tm.Native.Interfaces;
+﻿using System;
+
+namespace Iface.Oik.Tm.Native.Interfaces;
 
 internal static partial class TmNativeDefsUnsafe
 {

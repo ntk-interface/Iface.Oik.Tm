@@ -171,7 +171,7 @@ namespace Iface.Oik.Tm.Interfaces
     Task<(uint, string)> SecSetExtendedUserData(string           serverType, string serverName, string username,
                                                 ExtendedUserData extendedUserData);
 
-    Task<(UserPolicy, uint, string)> SecGetUserPolicy(string username);
+    Task<UserPolicy> SecGetUserPolicy(string username);
 
     Task<(uint, string)> SecSetUserPolicy(string username, UserPolicy userPolicy);
 
