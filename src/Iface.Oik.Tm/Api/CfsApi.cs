@@ -1799,70 +1799,7 @@ namespace Iface.Oik.Tm.Api
 
     public AccessMasksDescriptor SecGetAccessDescriptor(string sSetupPath, string progName)
     {
-      var accessMasksDescriptor = new AccessMasksDescriptor();
-
-      var iniSections = new Dictionary<string, string>
-      {
-        { MSTreeConsts.Portcore, "master#1.prp.Security" },
-        { MSTreeConsts.master, "master.prp.Security" },
-        { MSTreeConsts.RBaseServer, "rbsrv#1.prp.Security" },
-        { MSTreeConsts.rbsrv_old, "serv_dll.ch.RbsSecurity" },
-        { MSTreeConsts.TmServer, "pcsrv#1.prp.Security" },
-        { MSTreeConsts.pcsrv_old, "serv_dll.ch.TmsSecurity" },
-      };
-
-      if (!iniSections.TryGetValue(progName, out var section))
-      {
-        return null;
-      }
-
-      var sectionPtr = TmNative.cfsGetAccessDescriptor(EncodingUtil.StringToBytes(sSetupPath),
-                                                       EncodingUtil.StringToBytes(section));
-      if (sectionPtr == IntPtr.Zero)
-      {
-        throw new Exception("GetAccessDescriptor sec_ptr error");
-      }
-
-
-      var cfsAccessDescriptor = Marshal.PtrToStructure<CfsAccessDescriptor>(sectionPtr);
-      TmNative.cfsFreeMemory(sectionPtr);
-
-      accessMasksDescriptor.ObjTypeName["ru"] = EncodingUtil.BytesToString(cfsAccessDescriptor.ObjTypeName.rus)
-                                                            .Replace("&", "");
-      accessMasksDescriptor.ObjTypeName["en"] = EncodingUtil.BytesToString(cfsAccessDescriptor.ObjTypeName.eng)
-                                                            .Replace("&", "");
-
-      var pre = cfsAccessDescriptor.NamePrefix.Split('$');
-      if (pre.Length > 1)
-      {
-        accessMasksDescriptor.NamePrefix = pre[0] + "$";
-      }
-      else
-      {
-        accessMasksDescriptor.NamePrefix = cfsAccessDescriptor.NamePrefix;
-      }
-
-      for (var bit = 0; bit < 32; bit++)
-      {
-        if (cfsAccessDescriptor.Bit[bit].Mask == 0xffffffff)
-        {
-          continue;
-        }
-
-        var newMask = new AccessMask
-        {
-          Mask = cfsAccessDescriptor.Bit[bit].Mask,
-          Description =
-          {
-            ["ru"] = EncodingUtil.BytesToString(cfsAccessDescriptor.Bit[bit].rus).Replace("&", ""),
-            ["en"] = EncodingUtil.BytesToString(cfsAccessDescriptor.Bit[bit].eng).Replace("&", "")
-          }
-        };
-
-        accessMasksDescriptor.AccessMasks.Add(newMask);
-      }
-
-      return accessMasksDescriptor;
+      return TmNativeApi.SecGetAccessDescriptor<AccessMasksDescriptor, AccessMask>(sSetupPath, progName);
     }
 
     public ExtendedRightsDescriptor SecGetExtendedRightsDescriptor(string sSetupPath)
@@ -2197,17 +2134,17 @@ namespace Iface.Oik.Tm.Api
                           .ConfigureAwait(false);
       return new PasswordPolicy
       {
-        AdminPasswordChange = dto.AdminPasswordChange,
-        EnforcePasswordCheck = dto.EnforcePasswordCheck,
-        MinPasswordLength = dto.MinPasswordLength,
-        PasswordTtlDays = dto.PasswordTtl,
-        PwdChars_Upper = dto.CharsUpper,
-        PwdChars_Digits = dto.CharsDigits,
-        PwdChars_Special = dto.CharsSpecial,
-        PwdChars_NoRepeat = dto.CharsNoRepeat,
-        PwdChars_NoSequential = dto.CharsNonSequential,
+        AdminPasswordChange     = dto.AdminPasswordChange,
+        EnforcePasswordCheck    = dto.EnforcePasswordCheck,
+        MinPasswordLength       = dto.MinPasswordLength,
+        PasswordTtlDays         = dto.PasswordTtl,
+        PwdChars_Upper          = dto.CharsUpper,
+        PwdChars_Digits         = dto.CharsDigits,
+        PwdChars_Special        = dto.CharsSpecial,
+        PwdChars_NoRepeat       = dto.CharsNoRepeat,
+        PwdChars_NoSequential   = dto.CharsNonSequential,
         PwdChars_CheckDictonary = dto.CheckDictionary,
-        CheckOldPasswords = dto.CheckOldPasswords
+        CheckOldPasswords       = dto.CheckOldPasswords
       };
     }
 

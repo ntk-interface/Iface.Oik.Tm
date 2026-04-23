@@ -506,9 +506,10 @@ namespace Iface.Oik.Tm.Native.Api
                                                [In, Out] byte[] errBuf,
                                                UInt32           maxErrs);
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr cfsGetAccessDescriptor(byte[] ini,
-                                                       byte[] section);
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial nint cfsGetAccessDescriptor(string ini,
+                                                      string section);
 
 
     [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]

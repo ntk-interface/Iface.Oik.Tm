@@ -261,6 +261,72 @@ public static partial class TmNativeApi
     }
   }
 
+  public static unsafe T SecGetAccessDescriptor<T, TA>(string sSetupPath, 
+                                                        string progName, 
+                                                        Encoding? encoding = null) 
+    where TA: AccessMaskBase, new()
+    where T: AccessMasksDescriptorBase<TA>, new()
+  {
+    var iniLookup = new Dictionary<string, string>
+    {
+      { TmNativeDefsUnsafe.MsTreeNodesNames.Portcore, "master#1.prp.Security" },
+      { TmNativeDefsUnsafe.MsTreeNodesNames.Master, "master.prp.Security" },
+      { TmNativeDefsUnsafe.MsTreeNodesNames.RBaseServer, "rbsrv#1.prp.Security" },
+      { TmNativeDefsUnsafe.MsTreeNodesNames.RbsrvOld, "serv_dll.ch.RbsSecurity" },
+      { TmNativeDefsUnsafe.MsTreeNodesNames.TmServer, "pcsrv#1.prp.Security" },
+      { TmNativeDefsUnsafe.MsTreeNodesNames.PcsrvOld, "serv_dll.ch.TmsSecurity" },
+    };
+    
+    if (!iniLookup.TryGetValue(progName, out var section))
+    {
+      throw new TmNativeException($"Unknown master service tree node {progName}");
+    }
+    
+    var ptr = TmNative.cfsGetAccessDescriptor(sSetupPath, section);
+
+    if (ptr == nint.Zero)
+    {
+      throw new TmNativeException($"Failed to get section ptr for {sSetupPath}/{section}");
+    }
+
+    var data = TmNativeUtil.FromIntPtr<TmNativeDefsUnsafe.CfsAccessDescriptor>(ptr);
+
+    var masks = new List<TA>();
+    
+    foreach (var right in new Span<TmNativeDefsUnsafe.AccessRight>(data.Bit, 32))
+    {
+      if (right.Mask == 0xffffffff)
+      {
+        continue;
+      }
+      
+      masks.Add(new TA
+      {
+        Mask = right.Mask,
+        Description = new Dictionary<string, string>
+        {
+          ["en"] = TmNativeUtil.GetCStringFromBytePtr(right.Eng, encoding).Replace("&", ""),
+          ["ru"] = TmNativeUtil.GetCStringFromBytePtr(right.Rus, encoding).Replace("&", "")
+        } 
+      });
+    }
+    
+    var descriptor = new T
+    {
+      NamePrefix = GetAccessDescriptorNamePrefix(data.NamePrefix),
+      ObjTypeName = new Dictionary<string, string>
+      {
+        ["en"] = TmNativeUtil.GetCStringFromBytePtr(data.ObjTypeName.Eng, encoding).Replace("&", ""),
+        ["ru"] = TmNativeUtil.GetCStringFromBytePtr(data.ObjTypeName.Rus, encoding).Replace("&", "")
+      },
+      AccessMasks = masks
+    };
+    
+    TmNative.cfsFreeMemory(ptr);
+
+    return descriptor;
+  }
+
   public static unsafe T SecGetExtendedRightsDescriptor<T, TR>(string sSetupPath, Encoding? encoding = null)
     where                   T : ExtendedRightsDescriptorBase<TR>, new ()
     where TR : ExtendedRightBase, new()
@@ -398,5 +464,25 @@ public static partial class TmNativeApi
     }
 
     return tExtendedUserInfo;
+  }
+
+  internal static unsafe string GetAccessDescriptorNamePrefix(byte* ptr, Encoding? encoding = null)
+  {
+    if (ptr[0] == 0)
+    {
+      return string.Empty;
+    }
+    
+    var length = 0;
+    encoding ??= Encoding.UTF8;
+
+    var isDollarSign = false;  
+    while (ptr[length] != 0 && !isDollarSign)
+    {
+      isDollarSign = ptr[length] == (byte)'$';
+      length++;
+    }
+
+    return encoding.GetString(ptr, length);
   }
 }

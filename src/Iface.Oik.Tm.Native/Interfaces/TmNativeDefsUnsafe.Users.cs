@@ -50,19 +50,4 @@ internal static partial class TmNativeDefsUnsafe
     public fixed byte UserPwd[8];
     public fixed byte Rights[TExtendedUserInfoRightsSize];
   }
-
-  [StructLayout(LayoutKind.Sequential)]
-  public unsafe struct CfsExtSrvrtDescriptor
-  {
-    public byte DoUserID;
-    public uint MaxUserID;
-    public byte DoGroup;
-    public byte DoKeyID;
-    public byte DoUserNick;
-    public byte DoUserPwd;
-    public nint Rights;
-
-    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 512)]
-    public fixed uint Reserved[512];
-  }
 }

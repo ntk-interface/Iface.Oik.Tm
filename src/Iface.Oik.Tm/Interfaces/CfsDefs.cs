@@ -129,16 +129,12 @@ namespace Iface.Oik.Tm.Interfaces
 		ReadAdminLog = 0x00_00_00_40,
 		EditSecurity = 0x00_00_80_00,
 	}
-	public class AccessMask
+	public class AccessMask : AccessMaskBase
 	{
-		public uint Mask { get; set; }
-		public Dictionary<string, string> Description { get; set; } = new();
 	}
-	public class AccessMasksDescriptor
+	
+	public class AccessMasksDescriptor : AccessMasksDescriptorBase<AccessMask>
 	{
-		public string                     NamePrefix = "";
-		public Dictionary<string, string> ObjTypeName { get; set; } = new();
-		public List<AccessMask>           AccessMasks { get; set; } = new();
 	}
 	
 	public class ExtendedRight : ExtendedRightBase
