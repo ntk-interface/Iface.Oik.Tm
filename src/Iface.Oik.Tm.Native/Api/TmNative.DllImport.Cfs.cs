@@ -510,10 +510,12 @@ namespace Iface.Oik.Tm.Native.Api
     public static extern IntPtr cfsGetAccessDescriptor(byte[] ini,
                                                        byte[] section);
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr cfsGetExtendedUserRightsDescriptor(byte[] ini,
-                                                                   byte[] section,
-                                                                   uint   fCheck);
+
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial nint cfsGetExtendedUserRightsDescriptor(string ini,
+                                                                  string section,
+                                                                  uint   fCheck);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern IntPtr cfsIfpcEnumUsers(IntPtr           connId,

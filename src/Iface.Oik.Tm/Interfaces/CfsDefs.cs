@@ -140,23 +140,15 @@ namespace Iface.Oik.Tm.Interfaces
 		public Dictionary<string, string> ObjTypeName { get; set; } = new();
 		public List<AccessMask>           AccessMasks { get; set; } = new();
 	}
-	public class ExtendedRight
+	
+	public class ExtendedRight : ExtendedRightBase
 	{
-		public bool IsHeader { get; set; }
-		public byte ByteIndex { get; set; }
-		public Dictionary<string, string> Description { get; set; } = new();
 	}
-	public class ExtendedRightsDescriptor
+	public class ExtendedRightsDescriptor : ExtendedRightsDescriptorBase<ExtendedRight>
 	{
-		public byte DoUserID { get; set; }
-		public uint MaxUserID { get; set; }
-		public byte DoGroup { get; set; }
-		public byte DoKeyID { get; set; }
-		public byte DoUserNick { get; set; }
-		public byte DoUserPwd { get; set; }
-		public List<ExtendedRight> Rights { get; set; } = new();
 	}
-	public class ExtendedUserData
+	
+	public class ExtendedUserData 
 	{
 		public int UserID{ get; set; }
 		public int Group { get; set; }

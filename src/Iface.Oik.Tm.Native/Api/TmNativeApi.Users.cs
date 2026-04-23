@@ -1,5 +1,6 @@
 using System;
 using System.Buffers;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Text;
 using Iface.Oik.Tm.Native.Dto;
@@ -136,7 +137,7 @@ public static partial class TmNativeApi
       {
         throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
       }
-      
+
       return result;
     }
     finally
@@ -190,8 +191,6 @@ public static partial class TmNativeApi
 
         var span       = new ReadOnlySpan<byte>(p, length);
         var equalIndex = span.IndexOf((byte)'=');
-
-        var list = TmNativeUtil.GetStringsListFromIntPtr(binPtr);
 
         if (equalIndex != -1)
         {
@@ -260,6 +259,113 @@ public static partial class TmNativeApi
     {
       ArrayPool<byte>.Shared.Return(errBuf);
     }
+  }
+
+  public static unsafe T SecGetExtendedRightsDescriptor<T, TR>(string sSetupPath, Encoding? encoding = null)
+    where                   T : ExtendedRightsDescriptorBase<TR>, new ()
+    where TR : ExtendedRightBase, new()
+  {
+    var ptr = TmNative.cfsGetExtendedUserRightsDescriptor(sSetupPath,
+                                                          "TmsExtRights",
+                                                          0);
+
+    if (ptr == nint.Zero)
+    {
+      throw new TmNativeException("Failed to get TmsExtRights");
+    }
+
+    var data = TmNativeUtil.FromIntPtr<TmNativeDefsUnsafe.CfsExtSrvrtDescriptor>(ptr);
+
+    var rightsPtr = (byte*)data.Rights;
+    var p         = rightsPtr;
+    var length    = 0;
+    encoding ??= Encoding.UTF8;
+    
+    var rights = new List<TR>();
+    while (true)
+    {
+      while (p[length] != 0)
+      {
+        length++;
+      }
+
+      var span = new ReadOnlySpan<byte>(p, length);
+
+      var separatorIndex = span.IndexOf((byte)'`');
+
+      if (separatorIndex == -1)
+      {
+        continue;
+      }
+
+      switch (span[0])
+      {
+        case (byte)'B':
+        {
+          var right = new TR
+          {
+            IsHeader = true,
+            Description = new Dictionary<string, string>
+            {
+              ["en"] = encoding.GetString(span[1..separatorIndex]),
+              ["ru"] = encoding.GetString(span[(separatorIndex + 1)..])
+            }
+          };
+          
+          rights.Add(right);
+          
+          break;
+        }
+        case (byte)'R':
+        {
+          var prefixEndIndex = span.IndexOf((byte)'-');
+          if (!Utf8Parser.TryParse(span[1..prefixEndIndex], out byte index, out _))
+          {
+            continue;
+          }
+          
+          var right = new TR
+          {
+            ByteIndex = index,
+            IsHeader  = false,
+            Description = new Dictionary<string, string>
+            {
+              ["en"] = encoding.GetString(span[(prefixEndIndex + 1)..separatorIndex]),
+              ["ru"] = encoding.GetString(span[(separatorIndex + 1)..])
+            }
+          };
+          
+          rights.Add(right);
+          break;
+        }
+      }
+
+
+      length++;
+
+      if (p[length] == 0)
+      {
+        break;
+      }
+
+      p      += length;
+      length =  0;
+    }
+
+    var descriptor = new T
+    {
+      DoUserId = data.DoUserID,
+      DoUserPwd = data.DoUserPwd,
+      DoUserNick = data.DoUserNick,
+      MaxUserID = data.MaxUserID,
+      DoGroup = data.DoGroup,
+      DoKeyId = data.DoKeyID,
+      Rights = rights
+    };
+    
+    TmNative.cfsFreeMemory(ptr);
+
+    return descriptor;
   }
 
   internal static TmNativeDefsUnsafe.TUserInfo GetTUserInfo(int tmCid, uint userId)
