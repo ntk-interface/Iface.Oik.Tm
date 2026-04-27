@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Buffers.Text;
+using System.Collections.Generic;
 using System.Text;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
@@ -143,7 +144,7 @@ public static partial class TmNativeApi
           }
 
           var value = 0;
-          
+
           if (length > 0 && !Utf8Parser.TryParse(new ReadOnlySpan<byte>(ptr, length), out value, out _))
           {
             throw new FormatException($"Wrong response format for {uName}{oName}{binName}");
@@ -270,7 +271,7 @@ public static partial class TmNativeApi
         {
           var        value  = new StringBuilder();
           Span<char> buffer = stackalloc char[18];
-          
+
           for (var i = 0; i < length; i += 6)
           {
             var pos = 0;
@@ -311,7 +312,7 @@ public static partial class TmNativeApi
   }
 
   internal static unsafe bool IfpcGetBinPwd(nint   cfCid,
-                                              string uName)
+                                            string uName)
   {
     var pool   = ArrayPool<byte>.Shared;
     var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
@@ -349,7 +350,7 @@ public static partial class TmNativeApi
       ArrayPool<byte>.Shared.Return(errBuf);
     }
   }
-  
+
   internal static void IfpcSetBinBool(nint   cfCid,
                                       string uName,
                                       string oName,
@@ -393,7 +394,7 @@ public static partial class TmNativeApi
 
     var        i   = 0;
     Span<byte> mac = stackalloc byte[6];
-    
+
     try
     {
       while (i < value.Length)
@@ -462,16 +463,19 @@ public static partial class TmNativeApi
     }
   }
 
-  internal static unsafe void IfpcSetBinString(nint   cfCid,
-                                               string uName,
-                                               string oName,
-                                               string binName,
-                                               string value)
+  internal static unsafe void IfpcSetBinString(nint      cfCid,
+                                               string    uName,
+                                               string    oName,
+                                               string    binName,
+                                               string    value,
+                                               Encoding? encoding = null)
   {
     var pool   = ArrayPool<byte>.Shared;
     var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+    encoding ??= Encoding.UTF8;
 
-    var byteCount = Encoding.UTF8.GetByteCount(value);
+
+    var byteCount = encoding.GetByteCount(value);
     var buf       = pool.Rent(byteCount + 1);
 
     try
@@ -491,6 +495,58 @@ public static partial class TmNativeApi
                              binName,
                              buf,
                              (uint)written + 1,
+                             out var errCode,
+                             errBuf,
+                             TmNativeDefsUnsafe.ErrorBufSize);
+
+      if (errCode != 0)
+      {
+        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
+      }
+    }
+    finally
+    {
+      ArrayPool<byte>.Shared.Return(errBuf);
+      ArrayPool<byte>.Shared.Return(buf);
+    }
+  }
+
+  internal static void IfpcSetBinStrings(nint                        cfCid,
+                                         string                      uName,
+                                         string                      oName,
+                                         string                      binName,
+                                         IReadOnlyCollection<string> values,
+                                         Encoding?                   encoding = null)
+  {
+    var pool   = ArrayPool<byte>.Shared;
+    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+    encoding ??= Encoding.UTF8;
+
+
+    var total = 1; // final null
+
+    foreach (var s in values)
+    {
+      if (string.IsNullOrEmpty(s))
+      {
+        continue;
+      }
+      
+      total += encoding.GetByteCount(s) + 1;
+    }
+    
+    var buf       = pool.Rent(total);
+
+    try
+    {
+      var written = TmNativeUtil.StringsToLpstrListBytes(values, buf, encoding);
+
+      TmNative.cfsIfpcSetBin(cfCid,
+                             uName,
+                             oName,
+                             binName,
+                             buf,
+                             written,
                              out var errCode,
                              errBuf,
                              TmNativeDefsUnsafe.ErrorBufSize);

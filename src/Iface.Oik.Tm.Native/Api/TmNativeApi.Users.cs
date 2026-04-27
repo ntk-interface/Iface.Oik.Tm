@@ -154,10 +154,11 @@ public static partial class TmNativeApi
   }
 
 
-  public static unsafe ExtendedUserDataDto SecGetExtendedUserData(nint   cfCid,
-                                                                  string serverType,
-                                                                  string serverName,
-                                                                  string username)
+  public static unsafe T SecGetExtendedUserData<T>(nint   cfCid,
+                                                string serverType,
+                                                string serverName,
+                                                string username) 
+    where T: ExtendedUserDataBase, new()
   {
     var pool   = ArrayPool<byte>.Shared;
     var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
@@ -182,12 +183,7 @@ public static partial class TmNativeApi
       var p      = ptr;
       var length = 0;
 
-      var rights       = new byte[256];
-      var userId       = 0;
-      var groupId      = 0;
-      var userNickname = string.Empty;
-      var userPassword = string.Empty;
-      var keyId        = string.Empty;
+      var exUserData = new T();
 
       while (true)
       {
@@ -209,34 +205,34 @@ public static partial class TmNativeApi
           {
             case "UserID" when int.TryParse(value, out var id):
             {
-              userId = id;
+              exUserData.UserId = id;
               break;
             }
             case "UserNick":
             {
-              userNickname = value;
+              exUserData.UserNickname = value;
               break;
             }
             case "UserPwd":
             {
-              userPassword = value;
+              exUserData.UserPassword = value;
               break;
             }
             case "Group" when int.TryParse(value, out var id):
             {
-              groupId = id;
+              exUserData.GroupId = id;
               break;
             }
             case "KeyID":
             {
-              keyId = value;
+              exUserData.KeyId = value;
               break;
             }
           }
         }
         else if (span[0] == 'R' && int.TryParse(span[1..], out var index))
         {
-          rights[index] = 1;
+          exUserData.Rights[index] = 1;
         }
 
         length++;
@@ -252,15 +248,7 @@ public static partial class TmNativeApi
 
       TmNative.cfsFreeMemory(binPtr);
 
-      return new ExtendedUserDataDto
-      {
-        Rights   = rights,
-        GroupId  = groupId,
-        Id       = userId,
-        Nickname = userNickname,
-        Password = userPassword,
-        KeyId    = keyId
-      };
+      return exUserData;
     }
     finally
     {

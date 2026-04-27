@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.IO;
 using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
@@ -34,35 +35,61 @@ public static partial class TmNativeApi
     };
   }
 
-  public static void SecSetUserPolicy(nint cfCid, 
-                                      string username, 
+  public static void SecSetUserPolicy(nint           cfCid,
+                                      string         username,
                                       UserPolicyBase userPolicy)
   {
     IfpcSetBinBool(cfCid, username, ".", "blocked", userPolicy.IsBlocked);
     IfpcSetBinBool(cfCid, username, ".", "chgp",    userPolicy.MustChangePassword);
     IfpcSetBinTimestamp(cfCid, username, ".", "not_before", userPolicy.NotBefore);
     IfpcSetBinTimestamp(cfCid, username, ".", "not_after",  userPolicy.NotAfter);
-    IfpcSetBinInt(cfCid, username, ".", "logon_limit",  userPolicy.BadLogonLimit);
+    IfpcSetBinInt(cfCid, username, ".", "logon_limit", userPolicy.BadLogonLimit);
     IfpcSetBinString(cfCid, username, ".", "uctgr", userPolicy.UserCategory);
     IfpcSetBinString(cfCid, username, ".", "utmpl", userPolicy.UserTemplate);
     IfpcSetBinMacs(cfCid, username, userPolicy.EnabledMacs);
   }
 
+  public static void SecSetExtendedUserData(nint                 cfCid,
+                                            string               serverType,
+                                            string               serverName,
+                                            string               username,
+                                            ExtendedUserDataBase extendedUserData)
+  {
+    var data = new List<string>
+    {
+      $"UserID={extendedUserData.UserId}",
+      $"UserNick={extendedUserData.UserNickname}",
+      $"UserPwd={extendedUserData.UserPassword}",
+      $"Group={extendedUserData.GroupId}",
+      $"KeyID={extendedUserData.KeyId}",
+    };
+
+    for (var idx = 0; idx < extendedUserData.Rights.Length; idx++)
+    {
+      if (extendedUserData.Rights[idx] == 1)
+      {
+        data.Add("R" + idx);
+      }
+    }
+
+    IfpcSetBinStrings(cfCid, username, serverType + serverName, "extr", data);
+  }
+
   public static void SecSetAccessMask(nint   cfCid,
                                       string username,
-                                      string oName, 
-                                      uint accessMask)
+                                      string oName,
+                                      uint   accessMask)
   {
     var pool   = ArrayPool<byte>.Shared;
     var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
 
     try
     {
-      TmNative.cfsIfpcSetAccess(cfCid, 
-                                username, 
-                                oName, 
-                                accessMask, 
-                                out var errCode, 
+      TmNative.cfsIfpcSetAccess(cfCid,
+                                username,
+                                oName,
+                                accessMask,
+                                out var errCode,
                                 errBuf,
                                 TmNativeDefsUnsafe.ErrorBufSize);
 
@@ -76,16 +103,16 @@ public static partial class TmNativeApi
       ArrayPool<byte>.Shared.Return(errBuf);
     }
   }
-  
+
   public static void BackupSecurity(nint cfCid, string directory, string pwd = "")
   {
-    var fileName = "";
+    var    fileName = "";
     string snp;
 
     if (string.IsNullOrEmpty(pwd))
     {
       var dto = GetComputerInfoS(cfCid);
-      
+
       snp = "\x1";
 
       var namePart = dto.SecType switch
@@ -103,7 +130,7 @@ public static partial class TmNativeApi
       snp      = "\x2";
       fileName = "Security-" + DateTime.Now.ToString(BackupDateFormat) + ".sbk";
     }
-    
+
     BackupSecurity(cfCid, snp, pwd, Path.Combine(directory, fileName));
   }
 
@@ -115,11 +142,11 @@ public static partial class TmNativeApi
 
     try
     {
-      TmNative.cfsIfpcRestoreSecurity(cfCid, 
-                                      snp, 
-                                      pwd, 
-                                      filename, 
-                                      out var errCode, 
+      TmNative.cfsIfpcRestoreSecurity(cfCid,
+                                      snp,
+                                      pwd,
+                                      filename,
+                                      out var errCode,
                                       errBuf,
                                       TmNativeDefsUnsafe.ErrorBufSize);
 
@@ -133,11 +160,11 @@ public static partial class TmNativeApi
       ArrayPool<byte>.Shared.Return(errBuf);
     }
   }
-  
-  
-  internal static void BackupSecurity(nint cfCid, 
-                                      string snp, 
-                                      string pwd, 
+
+
+  internal static void BackupSecurity(nint   cfCid,
+                                      string snp,
+                                      string pwd,
                                       string filename)
   {
     var pool   = ArrayPool<byte>.Shared;
@@ -145,11 +172,11 @@ public static partial class TmNativeApi
 
     try
     {
-      TmNative.cfsIfpcBackupSecurity(cfCid, 
-                                     snp, 
-                                     pwd, 
-                                     filename, 
-                                     out var errCode, 
+      TmNative.cfsIfpcBackupSecurity(cfCid,
+                                     snp,
+                                     pwd,
+                                     filename,
+                                     out var errCode,
                                      errBuf,
                                      TmNativeDefsUnsafe.ErrorBufSize);
 

@@ -160,6 +160,30 @@ namespace Iface.Oik.Tm.Native.Utils
       return result;
     }
 
+    public static uint StringsToLpstrListBytes(IEnumerable<string> list,
+                                               Span<byte>          buf,
+                                               Encoding? encoding = null)
+    {
+      var pos = 0;
+      encoding ??= Encoding.UTF8;
+      foreach (var s in list)
+      {
+        if (string.IsNullOrEmpty(s))
+        {
+          continue;
+        }
+
+        var written = encoding.GetBytes(s, buf[pos..]);
+        pos += written;
+
+        buf[pos++] = 0;
+      }
+
+      buf[pos++] = 0;
+
+      return (uint)pos;
+    }
+
 
     public static IReadOnlyCollection<string> GetStringListFromDoubleNullTerminatedPointer(nint ptr,
       int                                                                                       maxSize)
@@ -325,7 +349,7 @@ namespace Iface.Oik.Tm.Native.Utils
     internal static unsafe string GetCStringFromIntPtrAutoEncoding(nint ptr)
     {
       var p = (byte*)ptr;
-      
+
       if (p[0] == 0)
       {
         return string.Empty;
@@ -408,7 +432,7 @@ namespace Iface.Oik.Tm.Native.Utils
       {
         return result;
       }
-      
+
       encoding ??= Encoding.UTF8; // default
 
       var p      = ptr;
@@ -420,7 +444,7 @@ namespace Iface.Oik.Tm.Native.Utils
         {
           break;
         }
-        
+
         while (p[length] != 0)
         {
           length++;
@@ -693,7 +717,7 @@ namespace Iface.Oik.Tm.Native.Utils
     {
       return DateTime.FromFileTime((long)fileTime.dwHighDateTime << 32 | (uint)fileTime.dwLowDateTime);
     }
-    
+
     internal static int Hex(char c)
     {
       if ((uint)(c - '0') <= 9) return c       - '0'; // '0'–'9'

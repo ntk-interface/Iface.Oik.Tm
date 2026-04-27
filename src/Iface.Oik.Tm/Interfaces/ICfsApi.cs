@@ -23,11 +23,11 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task<(MSTreeNode, DateTime)> LoadFullMSTree();
-    Task                         SaveConfigurationTree(IntPtr                treeHandle, string filename);
-    Task                         SaveMasterServiceConfiguration(IntPtr       treeHandle);
-    Task                         SaveFullMSTree(MSTreeNode                   msRoot);
-    Task<List<CfTreeNode>>       GetCfTree(IntPtr                            rootHandle, CfTreeNode parent = null);
-    void                         FreeConfigurationTreeHandle(IntPtr          handle);
+    Task                         SaveConfigurationTree(IntPtr          treeHandle, string filename);
+    Task                         SaveMasterServiceConfiguration(IntPtr treeHandle);
+    Task                         SaveFullMSTree(MSTreeNode             msRoot);
+    Task<List<CfTreeNode>>       GetCfTree(IntPtr                      rootHandle, CfTreeNode parent = null);
+    void                         FreeConfigurationTreeHandle(IntPtr    handle);
 
 
     Task<CfsDefs.SoftwareTypes> GetSoftwareType();
@@ -49,7 +49,6 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<string>> GetTimezones();
 
     Task<IReadOnlyCollection<TmServer>> GetTmServersTree();
-    
 
 
     Task<IReadOnlyCollection<TmServerLogRecord>>
@@ -167,8 +166,10 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<ExtendedUserData> SecGetExtendedUserData(string serverType, string serverName, string username);
 
-    Task<(uint, string)> SecSetExtendedUserData(string           serverType, string serverName, string username,
-                                                ExtendedUserData extendedUserData);
+    Task SecSetExtendedUserData(string           serverType,
+                                string           serverName,
+                                string           username,
+                                ExtendedUserData extendedUserData);
 
     Task<UserPolicy> SecGetUserPolicy(string username);
 

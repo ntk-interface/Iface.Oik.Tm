@@ -145,15 +145,10 @@ namespace Iface.Oik.Tm.Interfaces
 	{
 	}
 	
-	public class ExtendedUserData 
+	public class ExtendedUserData : ExtendedUserDataBase
 	{
-		public int UserID{ get; set; }
-		public int Group { get; set; }
-		public string UserNick { get; set; } = "";
-		public string UserPwd { get; set; } = "";
-		public string KeyID { get; set; } = "";
-		public byte[] Rights { get; set; } = new byte[250];
 	}
+	
 	public class UserPolicy : UserPolicyBase
 	{
 	}

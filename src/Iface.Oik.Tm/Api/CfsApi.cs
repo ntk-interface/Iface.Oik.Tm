@@ -1899,34 +1899,30 @@ namespace Iface.Oik.Tm.Api
                                                                string serverName,
                                                                string username)
     {
-      var dto = await Task.Run(() => TmNativeApi.SecGetExtendedUserData(CfId, serverType, serverName, username))
-                          .ConfigureAwait(false);
-
-      return new ExtendedUserData
-      {
-        Group    = dto.GroupId,
-        KeyID    = dto.KeyId,
-        Rights   = dto.Rights,
-        UserID   = dto.Id,
-        UserNick = dto.Nickname,
-        UserPwd  = dto.Password
-      };
+      return await Task.Run(() => TmNativeApi.SecGetExtendedUserData<ExtendedUserData>(CfId,
+                              serverType,
+                              serverName,
+                              username))
+                       .ConfigureAwait(false);
     }
 
-    public async Task<(uint, string)> SecSetExtendedUserData(string serverType, 
-                                                             string serverName, 
-                                                             string username,
-                                                             ExtendedUserData extendedUserData)
+    public async Task SecSetExtendedUserData(string           serverType,
+                                             string           serverName,
+                                             string           username,
+                                             ExtendedUserData extendedUserData)
     {
-      var data = new List<string>()
+      await Task.Run(() => TmNativeApi.SecSetExtendedUserData(CfId, serverType, serverName, username, extendedUserData))
+                .ConfigureAwait(false);
+
+      /*var data = new List<string>()
       {
-        { $"UserID={extendedUserData.UserID}" },
+        { $"UserID={extendedUserData.UserId}" },
         { $"UserNick={extendedUserData.UserNick}" },
         { $"UserPwd={extendedUserData.UserPwd}" },
         { $"Group={extendedUserData.Group}" },
-        { $"KeyID={extendedUserData.KeyID}" },
+        { $"KeyID={extendedUserData.KeyId}" },
       };
-      for (int idx = 0; idx < extendedUserData.Rights.Length; idx++)
+      for (var idx = 0; idx < extendedUserData.Rights.Length; idx++)
       {
         if (extendedUserData.Rights[idx] == 1)
         {
@@ -1944,7 +1940,7 @@ namespace Iface.Oik.Tm.Api
       else
       {
         return (0, string.Empty);
-      }
+      }*/
     }
 
     public async Task<UserPolicy> SecGetUserPolicy(string username)
