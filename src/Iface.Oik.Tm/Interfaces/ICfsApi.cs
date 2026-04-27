@@ -172,7 +172,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<UserPolicy> SecGetUserPolicy(string username);
 
-    Task<(uint, string)> SecSetUserPolicy(string username, UserPolicy userPolicy);
+    Task SecSetUserPolicy(string username, UserPolicy userPolicy);
 
     Task<PasswordPolicy> SecGetPasswordPolicy();
 

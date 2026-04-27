@@ -693,5 +693,13 @@ namespace Iface.Oik.Tm.Native.Utils
     {
       return DateTime.FromFileTime((long)fileTime.dwHighDateTime << 32 | (uint)fileTime.dwLowDateTime);
     }
+    
+    internal static int Hex(char c)
+    {
+      if ((uint)(c - '0') <= 9) return c       - '0'; // '0'–'9'
+      if ((uint)(c - 'A') <= 5) return c - 'A' + 10;  // 'A'–'F'
+      if ((uint)(c - 'a') <= 5) return c - 'a' + 10;  // 'a'–'f'
+      return -1;
+    }
   }
 }

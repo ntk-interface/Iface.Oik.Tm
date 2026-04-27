@@ -1781,9 +1781,9 @@ namespace Iface.Oik.Tm.Api
       uint      errCode      = 0;
 
       var result = await Task.Run(() => TmNative.cfsIfpcSetBin(CfId,
-                                                               EncodingUtil.StringToBytes(uName),
-                                                               EncodingUtil.StringToBytes(oName),
-                                                               EncodingUtil.StringToBytes(binName),
+                                                               uName,
+                                                               oName,
+                                                               binName,
                                                                binData,
                                                                (uint)binData.Length,
                                                                out errCode,
@@ -1961,171 +1961,14 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<UserPolicy> SecGetUserPolicy(string username)
     {
-      var dto = await Task.Run(() => TmNativeApi.SecGetUserPolicy(CfId, username))
-                          .ConfigureAwait(false);
-
-      return new UserPolicy
-      {
-        BadLogonCount      = dto.BadLogonCount,
-        BadLogonLimit      = dto.BadLogonLimit,
-        EnabledMACs        = dto.MacList,
-        IsBlocked          = dto.IsBlocked,
-        MustChangePassword = dto.MustChangePassword,
-        PasswordSet        = dto.PasswordSet,
-        Predefined         = dto.Predefined,
-        UserCategory       = dto.UserCategory,
-        UserTemplate       = dto.UserTemplate,
-        NotAfter = dto.NotAfterTimestamp == 0
-                     ? new DateTime()
-                     : DateUtil.GetDateTimeFromTimestamp(dto.NotAfterTimestamp),
-        NotBefore = dto.NotBeforeTimestamp == 0
-                      ? new DateTime()
-                      : DateUtil.GetDateTimeFromTimestamp(dto.NotBeforeTimestamp)
-      };
+      return await Task.Run(() => TmNativeApi.SecGetUserPolicy<UserPolicy>(CfId, username))
+                      .ConfigureAwait(false);
     }
 
-    public async Task<(uint, string)> SecSetUserPolicy(string username, UserPolicy userPolicy)
+    public async Task SecSetUserPolicy(string username, UserPolicy userPolicy)
     {
-      byte[] bin;
-      uint   errCode,   resErrCode   = 0;
-      string errString, resErrString = string.Empty;
-      string enc                     = EncodingUtil.Cp1251;
-
-
-      if (userPolicy.IsBlocked)
-      {
-        bin = TmNativeUtil.GetFixedBytesWithTrailingZero("1", 2, enc);
-      }
-      else
-      {
-        bin = TmNativeUtil.GetFixedBytesWithTrailingZero("0", 2, enc);
-      }
-
-      (errCode, errString) = await SecSetBin(username, ".", "blocked", bin).ConfigureAwait(false);
-      if (errCode != 0)
-      {
-        resErrCode   =  errCode;
-        resErrString += errString;
-      }
-
-      if (userPolicy.MustChangePassword)
-      {
-        bin = TmNativeUtil.GetFixedBytesWithTrailingZero("1", 2, enc);
-      }
-      else
-      {
-        bin = TmNativeUtil.GetFixedBytesWithTrailingZero("0", 2, enc);
-      }
-
-      (errCode, errString) = await SecSetBin(username, ".", "chgp", bin).ConfigureAwait(false);
-      if (errCode != 0)
-      {
-        resErrCode   =  errCode;
-        resErrString += errString;
-      }
-
-      string dt;
-      if (userPolicy.NotBefore.Equals(DateTime.MinValue))
-      {
-        dt = "";
-      }
-      else
-      {
-        dt = TmNative.uxgmtime2uxtime(DateUtil.GetUtcTimestampFromDateTime(userPolicy.NotBefore)).ToString();
-      }
-
-      bin                  = TmNativeUtil.GetFixedBytesWithTrailingZero(dt, dt.Length + 1, enc);
-      (errCode, errString) = await SecSetBin(username, ".", "not_before", bin).ConfigureAwait(false);
-      if (errCode != 0)
-      {
-        resErrCode   =  errCode;
-        resErrString += errString;
-      }
-
-      if (userPolicy.NotAfter.Equals(DateTime.MinValue))
-      {
-        dt = "";
-      }
-      else
-      {
-        dt = TmNative.uxgmtime2uxtime(DateUtil.GetUtcTimestampFromDateTime(userPolicy.NotAfter)).ToString();
-      }
-
-      bin                  = TmNativeUtil.GetFixedBytesWithTrailingZero(dt, dt.Length + 1, enc);
-      (errCode, errString) = await SecSetBin(username, ".", "not_after", bin).ConfigureAwait(false);
-      if (errCode != 0)
-      {
-        resErrCode   =  errCode;
-        resErrString += errString;
-      }
-
-      string n = userPolicy.BadLogonLimit.ToString();
-      bin                  = TmNativeUtil.GetFixedBytesWithTrailingZero(n, n.Length + 1, enc);
-      (errCode, errString) = await SecSetBin(username, ".", "logon_limit", bin).ConfigureAwait(false);
-      if (errCode != 0)
-      {
-        resErrCode   =  errCode;
-        resErrString += errString;
-      }
-
-      bin = TmNativeUtil.GetFixedBytesWithTrailingZero(userPolicy.UserCategory, userPolicy.UserCategory.Length + 1,
-                                                       enc);
-      (errCode, errString) = await SecSetBin(username, ".", "uctgr", bin).ConfigureAwait(false);
-      if (errCode != 0)
-      {
-        resErrCode   =  errCode;
-        resErrString += errString;
-      }
-
-      bin = TmNativeUtil.GetFixedBytesWithTrailingZero(userPolicy.UserTemplate, userPolicy.UserTemplate.Length + 1,
-                                                       enc);
-      (errCode, errString) = await SecSetBin(username, ".", "utmpl", bin).ConfigureAwait(false);
-      if (errCode != 0)
-      {
-        resErrCode   =  errCode;
-        resErrString += errString;
-      }
-
-      bin = new byte[0];
-      var MACs = userPolicy.EnabledMACs.Split('\n');
-      foreach (var mac in MACs)
-      {
-        if (mac.Length > 0)
-        {
-          var macbytes = mac.Split(new char[] { ':', '-' });
-          if (macbytes.Length == 6)
-          {
-            byte[] MAC  = new byte[6];
-            bool   good = true;
-            for (int i = 0; i < 6; i++)
-            {
-              try
-              {
-                MAC[i] = Convert.ToByte(macbytes[i], 16);
-              }
-              catch
-              {
-                good = false;
-                break;
-              }
-            }
-
-            if (good)
-            {
-              bin = bin.Concat(MAC).ToArray();
-            }
-          }
-        }
-      }
-
-      (errCode, errString) = await SecSetBin(username, ".", "mac_list", bin).ConfigureAwait(false);
-      if (errCode != 0)
-      {
-        resErrCode   =  errCode;
-        resErrString += errString;
-      }
-
-      return (resErrCode, resErrString);
+      await Task.Run(() => TmNativeApi.SecSetUserPolicy(CfId, username, userPolicy))
+                .ConfigureAwait(false);
     }
 
     public async Task<PasswordPolicy> SecGetPasswordPolicy()

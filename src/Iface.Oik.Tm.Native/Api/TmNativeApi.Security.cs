@@ -33,6 +33,20 @@ public static partial class TmNativeApi
       CheckOldPasswords    = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.CheckCache)
     };
   }
+
+  public static void SecSetUserPolicy(nint cfCid, 
+                                      string username, 
+                                      UserPolicyBase userPolicy)
+  {
+    IfpcSetBinBool(cfCid, username, ".", "blocked", userPolicy.IsBlocked);
+    IfpcSetBinBool(cfCid, username, ".", "chgp",    userPolicy.MustChangePassword);
+    IfpcSetBinTimestamp(cfCid, username, ".", "not_before", userPolicy.NotBefore);
+    IfpcSetBinTimestamp(cfCid, username, ".", "not_after",  userPolicy.NotAfter);
+    IfpcSetBinInt(cfCid, username, ".", "logon_limit",  userPolicy.BadLogonLimit);
+    IfpcSetBinString(cfCid, username, ".", "uctgr", userPolicy.UserCategory);
+    IfpcSetBinString(cfCid, username, ".", "utmpl", userPolicy.UserTemplate);
+    IfpcSetBinMacs(cfCid, username, userPolicy.EnabledMacs);
+  }
   
   public static void BackupSecurity(nint cfCid, string directory, string pwd = "")
   {
