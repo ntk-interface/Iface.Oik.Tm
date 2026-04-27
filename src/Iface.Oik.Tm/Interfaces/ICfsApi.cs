@@ -163,7 +163,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<uint> SecGetAccessMask(string uName, string oName);
 
-    Task<(uint, string)> SecSetAccessMask(string uName, string oName, uint AccessMask);
+    Task SecSetAccessMask(string uName, string oName, uint accessMask);
 
     Task<ExtendedUserData> SecGetExtendedUserData(string serverType, string serverName, string username);
 

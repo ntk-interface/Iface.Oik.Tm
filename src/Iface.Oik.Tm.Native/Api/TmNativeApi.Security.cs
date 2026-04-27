@@ -47,6 +47,35 @@ public static partial class TmNativeApi
     IfpcSetBinString(cfCid, username, ".", "utmpl", userPolicy.UserTemplate);
     IfpcSetBinMacs(cfCid, username, userPolicy.EnabledMacs);
   }
+
+  public static void SecSetAccessMask(nint   cfCid,
+                                      string username,
+                                      string oName, 
+                                      uint accessMask)
+  {
+    var pool   = ArrayPool<byte>.Shared;
+    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+
+    try
+    {
+      TmNative.cfsIfpcSetAccess(cfCid, 
+                                username, 
+                                oName, 
+                                accessMask, 
+                                out var errCode, 
+                                errBuf,
+                                TmNativeDefsUnsafe.ErrorBufSize);
+
+      if (errCode != 0)
+      {
+        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
+      }
+    }
+    finally
+    {
+      ArrayPool<byte>.Shared.Return(errBuf);
+    }
+  }
   
   public static void BackupSecurity(nint cfCid, string directory, string pwd = "")
   {

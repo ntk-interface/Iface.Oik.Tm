@@ -1889,24 +1889,10 @@ namespace Iface.Oik.Tm.Api
                        .ConfigureAwait(false);
     }
 
-    public async Task<(uint, string)> SecSetAccessMask(string username, string oName, uint AccessMask)
+    public async Task SecSetAccessMask(string username, string oName, uint accessMask)
     {
-      const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
-
-      var result =
-        await Task.Run(() => TmNative.cfsIfpcSetAccess(CfId, EncodingUtil.StringToBytes(username),
-                                                       EncodingUtil.StringToBytes(oName), AccessMask, out errCode,
-                                                       errBuf, errBufLength)).ConfigureAwait(false);
-      if (errCode != 0)
-      {
-        return (errCode, EncodingUtil.BytesToString(errBuf));
-      }
-      else
-      {
-        return (0, string.Empty);
-      }
+      await Task.Run(() => TmNativeApi.SecSetAccessMask(CfId, username, oName, accessMask))
+                .ConfigureAwait(false);
     }
 
     public async Task<ExtendedUserData> SecGetExtendedUserData(string serverType,
@@ -1927,7 +1913,9 @@ namespace Iface.Oik.Tm.Api
       };
     }
 
-    public async Task<(uint, string)> SecSetExtendedUserData(string serverType, string serverName, string username,
+    public async Task<(uint, string)> SecSetExtendedUserData(string serverType, 
+                                                             string serverName, 
+                                                             string username,
                                                              ExtendedUserData extendedUserData)
     {
       var data = new List<string>()
@@ -1962,7 +1950,7 @@ namespace Iface.Oik.Tm.Api
     public async Task<UserPolicy> SecGetUserPolicy(string username)
     {
       return await Task.Run(() => TmNativeApi.SecGetUserPolicy<UserPolicy>(CfId, username))
-                      .ConfigureAwait(false);
+                       .ConfigureAwait(false);
     }
 
     public async Task SecSetUserPolicy(string username, UserPolicy userPolicy)

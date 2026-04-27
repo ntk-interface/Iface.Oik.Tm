@@ -549,14 +549,16 @@ namespace Iface.Oik.Tm.Native.Api
                                                 Span<byte> errBuf,
                                                 uint       maxErrs);
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean cfsIfpcSetAccess(IntPtr           connId,
-                                                  byte[]           uName,
-                                                  byte[]           oName,
-                                                  UInt32           accessMask,
-                                                  out       UInt32 errCode,
-                                                  [In, Out] byte[] errBuf,
-                                                  UInt32           maxErrs);
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool cfsIfpcSetAccess(nint       connId,
+                                                string     uName,
+                                                string     oName,
+                                                uint       accessMask,
+                                                out uint   errCode,
+                                                Span<byte> errBuf,
+                                                uint       maxErrs);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern Boolean cfsSaveMachineConfig(Boolean          fFull,
