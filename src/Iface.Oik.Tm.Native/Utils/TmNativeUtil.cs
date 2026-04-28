@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
 
 namespace Iface.Oik.Tm.Native.Utils
@@ -157,6 +158,30 @@ namespace Iface.Oik.Tm.Native.Utils
       Array.Copy(bytes, result, cursor);
 
       return result;
+    }
+
+    public static uint StringsToLpstrListBytes(IEnumerable<string> list,
+                                               Span<byte>          buf,
+                                               Encoding? encoding = null)
+    {
+      var pos = 0;
+      encoding ??= Encoding.UTF8;
+      foreach (var s in list)
+      {
+        if (string.IsNullOrEmpty(s))
+        {
+          continue;
+        }
+
+        var written = encoding.GetBytes(s, buf[pos..]);
+        pos += written;
+
+        buf[pos++] = 0;
+      }
+
+      buf[pos++] = 0;
+
+      return (uint)pos;
     }
 
 
@@ -321,28 +346,40 @@ namespace Iface.Oik.Tm.Native.Utils
              .Trim('\n');
     }
 
-    public static string GetStringWithUnknownLengthFromIntPtr(nint ptr, Encoding? encoding = null)
+    internal static unsafe string GetCStringFromIntPtrAutoEncoding(nint ptr)
     {
-      unsafe
+      var p = (byte*)ptr;
+
+      if (p[0] == 0)
       {
-        if (ptr == nint.Zero) return string.Empty;
-
-        encoding ??= Encoding.UTF8; // default
-
-        var p      = (byte*)ptr.ToPointer();
-        var length = 0;
-
-        while (p[length] != 0)
-        {
-          length++;
-        }
-
-        return encoding.GetString(p, length);
+        return string.Empty;
       }
+
+      var length = 0;
+
+      while (p[length] != 0)
+      {
+        length++;
+      }
+
+      var span     = new Span<byte>(p, length);
+      var encoding = TmNative.cfsIsUTF8(span) ? Encoding.UTF8 : Encoding.GetEncoding(1251);
+
+      return encoding.GetString(span);
+    }
+
+    public static unsafe string GetCStringFromIntPtr(nint ptr, Encoding? encoding = null)
+    {
+      if (ptr == nint.Zero)
+      {
+        return string.Empty;
+      }
+
+      return GetCStringFromBytePtr((byte*)ptr, encoding);
     }
 
 
-    public static unsafe string GetCStringFromBytePtr(byte* ptr, Encoding? encoding = null)
+    internal static unsafe string GetCStringFromBytePtr(byte* ptr, Encoding? encoding = null)
     {
       if (ptr[0] == 0)
       {
@@ -357,6 +394,8 @@ namespace Iface.Oik.Tm.Native.Utils
       {
         length++;
       }
+
+      var span = new ReadOnlySpan<byte>(ptr, length);
 
       return encoding.GetString(ptr, length);
     }
@@ -393,7 +432,7 @@ namespace Iface.Oik.Tm.Native.Utils
       {
         return result;
       }
-      
+
       encoding ??= Encoding.UTF8; // default
 
       var p      = ptr;
@@ -405,7 +444,7 @@ namespace Iface.Oik.Tm.Native.Utils
         {
           break;
         }
-        
+
         while (p[length] != 0)
         {
           length++;
@@ -677,6 +716,14 @@ namespace Iface.Oik.Tm.Native.Utils
     internal static DateTime GetTimeFromFileTime(TmNativeDefsUnsafe.FileTime fileTime)
     {
       return DateTime.FromFileTime((long)fileTime.dwHighDateTime << 32 | (uint)fileTime.dwLowDateTime);
+    }
+
+    internal static int Hex(char c)
+    {
+      if ((uint)(c - '0') <= 9) return c       - '0'; // '0'–'9'
+      if ((uint)(c - 'A') <= 5) return c - 'A' + 10;  // 'A'–'F'
+      if ((uint)(c - 'a') <= 5) return c - 'a' + 10;  // 'a'–'f'
+      return -1;
     }
   }
 }

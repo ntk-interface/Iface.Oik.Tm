@@ -955,7 +955,7 @@ namespace Iface.Oik.Tm.Api
       }
 
       var singleClassDataPtr = Marshal.PtrToStructure<IntPtr>(classDataPtr); // у нас массив строк, а не просто строка
-      var str                = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(singleClassDataPtr);
+      var str                = TmNativeUtil.GetCStringFromIntPtr(singleClassDataPtr);
       TmNative.tmcFreeMemory(classDataPtr);
 
       tag.SetTmcClassData(str);
@@ -1012,7 +1012,7 @@ namespace Iface.Oik.Tm.Api
         
         foreach (var analog in chunk)
         {
-          var str = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(singleClassDataPtr);
+          var str = TmNativeUtil.GetCStringFromIntPtr(singleClassDataPtr);
 
           analog.SetTmcClassData(str);
 
@@ -1057,7 +1057,7 @@ namespace Iface.Oik.Tm.Api
 
         foreach (var status in chunk)
         {
-          var str = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(singleClassDataPtr);
+          var str = TmNativeUtil.GetCStringFromIntPtr(singleClassDataPtr);
 
           status.SetTmcClassData(str);
 
@@ -1130,7 +1130,7 @@ namespace Iface.Oik.Tm.Api
 
       for (var i = 0; i <= tmcAddrsLimit; i++)
       {
-        var tmcClassDataStr = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(singleClassDataPtr);
+        var tmcClassDataStr = TmNativeUtil.GetCStringFromIntPtr(singleClassDataPtr);
 
         if (tmcClassDataStr == string.Empty)
         {
@@ -1203,7 +1203,7 @@ namespace Iface.Oik.Tm.Api
       for (var i = 0; i <= tmcAddrsLimit; i++)
       {
         
-        var tmcClassDataStr    = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(singleClassDataPtr);
+        var tmcClassDataStr    = TmNativeUtil.GetCStringFromIntPtr(singleClassDataPtr);
         
         if (tmcClassDataStr == string.Empty)
         {

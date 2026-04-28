@@ -23,11 +23,11 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task<(MSTreeNode, DateTime)> LoadFullMSTree();
-    Task                         SaveConfigurationTree(IntPtr                treeHandle, string filename);
-    Task                         SaveMasterServiceConfiguration(IntPtr       treeHandle);
-    Task                         SaveFullMSTree(MSTreeNode                   msRoot);
-    Task<List<CfTreeNode>>       GetCfTree(IntPtr                            rootHandle, CfTreeNode parent = null);
-    void                         FreeConfigurationTreeHandle(IntPtr          handle);
+    Task                         SaveConfigurationTree(IntPtr          treeHandle, string filename);
+    Task                         SaveMasterServiceConfiguration(IntPtr treeHandle);
+    Task                         SaveFullMSTree(MSTreeNode             msRoot);
+    Task<List<CfTreeNode>>       GetCfTree(IntPtr                      rootHandle, CfTreeNode parent = null);
+    void                         FreeConfigurationTreeHandle(IntPtr    handle);
 
 
     Task<CfsDefs.SoftwareTypes> GetSoftwareType();
@@ -49,7 +49,6 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<string>> GetTimezones();
 
     Task<IReadOnlyCollection<TmServer>> GetTmServersTree();
-    
 
 
     Task<IReadOnlyCollection<TmServerLogRecord>>
@@ -153,7 +152,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     ExtendedRightsDescriptor SecGetExtendedRightsDescriptor(string sSetupPath);
 
-    Task<(IReadOnlyCollection<string>, uint, string)> SecEnumUsers();
+    Task<IReadOnlyCollection<string>> GetOikUsersStrings();
 
     Task<(IReadOnlyCollection<string>, uint, string)> SecEnumOSUsers();
 
@@ -161,21 +160,22 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<(uint, string)> SecDeleteUser(string username);
 
-    Task<(uint, uint, string)> SecGetAccessMask(string uName, string oName);
+    Task<uint> SecGetAccessMask(string uName, string oName);
 
-    Task<(uint, string)> SecSetAccessMask(string uName, string oName, uint AccessMask);
+    Task SecSetAccessMask(string uName, string oName, uint accessMask);
 
-    Task<(ExtendedUserData, uint, string)>
-      SecGetExtendedUserData(string serverType, string serverName, string username);
+    Task<ExtendedUserData> SecGetExtendedUserData(string serverType, string serverName, string username);
 
-    Task<(uint, string)> SecSetExtendedUserData(string           serverType, string serverName, string username,
-                                                ExtendedUserData extendedUserData);
+    Task SecSetExtendedUserData(string           serverType,
+                                string           serverName,
+                                string           username,
+                                ExtendedUserData extendedUserData);
 
-    Task<(UserPolicy, uint, string)> SecGetUserPolicy(string username);
+    Task<UserPolicy> SecGetUserPolicy(string username);
 
-    Task<(uint, string)> SecSetUserPolicy(string username, UserPolicy userPolicy);
+    Task SecSetUserPolicy(string username, UserPolicy userPolicy);
 
-    Task<(PasswordPolicy, uint, string)> SecGetPasswordPolicy();
+    Task<PasswordPolicy> SecGetPasswordPolicy();
 
     Task<(uint, string)> SecSetPasswordPolicy(PasswordPolicy passwordPolicy);
 

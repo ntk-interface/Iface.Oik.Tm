@@ -1,5 +1,6 @@
 using System;
 using System.Buffers;
+using System.Collections.Generic;
 using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
@@ -48,6 +49,57 @@ public static partial class TmNativeApi
     return (TmNativeUtil.BytesToString(host), TmNativeUtil.BytesToString(server));
   }
 
+  public static IReadOnlyCollection<T> GetTmServersThreads<T>(nint cfCid)
+    where T : TmServerThreadBase, new()
+  {
+    var pool   = ArrayPool<byte>.Shared;
+    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+
+    try
+    {
+      var ptr = TmNative.cfsEnumThreads(cfCid, out var errCode, errBuf, TmNativeDefsUnsafe.ErrorBufSize);
+
+      if (errCode != 0)
+      {
+        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
+      }
+
+      var threads = GetTmServersThreadsFromPtr<T>(ptr);
+      TmNative.cfsFreeMemory(ptr);
+
+      return threads;
+    }
+    finally
+    {
+      pool.Return(errBuf);
+    }
+  }
+  
+  public static IReadOnlyCollection<T> GetTmServersThreads<T>(int tmCid)
+    where T : TmServerThreadBase, new()
+  {
+    var pool   = ArrayPool<byte>.Shared;
+    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+
+    try
+    {
+      var ptr = TmNative.tmcGetServerThreads(tmCid);
+
+      if (ptr == nint.Zero)
+      {
+        throw new TmNativeException(GetLastTmcErrorText(tmCid));
+      }
+
+      var threads = GetTmServersThreadsFromPtr<T>(ptr);
+      TmNative.cfsFreeMemory(ptr);
+
+      return threads;
+    }
+    finally
+    {
+      pool.Return(errBuf);
+    }
+  }
   
   internal static unsafe TmNativeDefsUnsafe.ComputerInfoS GetComputerInfoS(nint cfCid)
   {
@@ -76,5 +128,47 @@ public static partial class TmNativeApi
     }
 
     return cis;
+  }
+  
+  internal static unsafe IReadOnlyCollection<T> GetTmServersThreadsFromPtr<T>(nint listPtr)
+    where T : TmServerThreadBase, new()
+  {
+    var result = new List<T>();
+    
+
+    if (listPtr == nint.Zero)
+    {
+      return result;
+    }
+
+    var p      = (byte*)listPtr;
+    var length = 0;
+
+    while (true)
+    {
+      while (p[length] != 0)
+      {
+        length++;
+      }
+
+      var span = new Span<byte>(p, length);
+
+      if (span.IndexOf((byte)',') != -1)
+      {
+        result.Add(TmServerThreadBase.Create<T>(span)); 
+      }
+
+      length++;
+
+      if (p[length] == 0)
+      {
+        break;
+      }
+      
+      p      += length;
+      length =  0;
+    }
+    
+    return result;
   }
 }

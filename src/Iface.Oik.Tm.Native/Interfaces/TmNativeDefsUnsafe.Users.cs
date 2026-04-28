@@ -1,9 +1,22 @@
+using System;
 using System.Runtime.InteropServices;
 
 namespace Iface.Oik.Tm.Native.Interfaces;
 
 internal static partial class TmNativeDefsUnsafe
 {
+  [Flags]
+  public enum PasswordPolicies : uint
+  {
+    Upper       = 0x00001,
+    Digits      = 0x00002,
+    Spec        = 0x00004,
+    CheckRepeat = 0x00008,
+    CheqSeq     = 0x00010,
+    CheckDict   = 0x00020,
+    CheckCache  = 0x10000,
+  }
+
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public unsafe struct TUserInfo
   {
@@ -24,11 +37,12 @@ internal static partial class TmNativeDefsUnsafe
   }
 
   public const int TExtendedUserInfoRightsSize = 250;
+
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public unsafe struct TExtendedUserInfo
   {
-    public int RecNum;
-    public int UserId;
+    public int  RecNum;
+    public int  UserId;
     public byte Group;
 
     public fixed byte KeyId[16];

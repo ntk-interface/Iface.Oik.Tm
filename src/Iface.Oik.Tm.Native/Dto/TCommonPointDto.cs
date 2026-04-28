@@ -29,7 +29,7 @@ public record struct TCommonPointDto
   {
     return new TCommonPointDto
     {
-      Name           = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(point.name),
+      Name           = TmNativeUtil.GetCStringFromIntPtr(point.name),
       CpFlags        = point.cp_flags,
       Res1           = point.res1,
       Type           = point.Type,

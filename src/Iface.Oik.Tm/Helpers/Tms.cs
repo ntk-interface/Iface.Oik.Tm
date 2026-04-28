@@ -200,7 +200,7 @@ namespace Iface.Oik.Tm.Helpers
       {
         return string.Empty;
       }
-      return TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(descriptionPtr);
+      return TmNativeUtil.GetCStringFromIntPtr(descriptionPtr);
     }
 
 
@@ -485,7 +485,7 @@ namespace Iface.Oik.Tm.Helpers
       {
         return false;
       }
-      var remotePath = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(remotePathPtr);
+      var remotePath = TmNativeUtil.GetCStringFromIntPtr(remotePathPtr);
 
       var cfCid = TmNative.tmcGetCfsHandle(tmCid);
       if (cfCid == IntPtr.Zero)

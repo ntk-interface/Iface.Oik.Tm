@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
@@ -129,70 +130,27 @@ namespace Iface.Oik.Tm.Interfaces
 		ReadAdminLog = 0x00_00_00_40,
 		EditSecurity = 0x00_00_80_00,
 	}
-	public class AccessMask
+	public class AccessMask : AccessMaskBase
 	{
-		public uint Mask { get; set; }
-		public Dictionary<string, string> Description { get; set; } = new();
 	}
-	public class AccessMasksDescriptor
+	
+	public class AccessMasksDescriptor : AccessMasksDescriptorBase<AccessMask>
 	{
-		public string                     NamePrefix = "";
-		public Dictionary<string, string> ObjTypeName { get; set; } = new();
-		public List<AccessMask>           AccessMasks { get; set; } = new();
 	}
-	public class ExtendedRight
+	
+	public class ExtendedRight : ExtendedRightBase
 	{
-		public bool IsHeader { get; set; }
-		public byte ByteIndex { get; set; }
-		public Dictionary<string, string> Description { get; set; } = new();
 	}
-	public class ExtendedRightsDescriptor
+	public class ExtendedRightsDescriptor : ExtendedRightsDescriptorBase<ExtendedRight>
 	{
-		public byte DoUserID { get; set; }
-		public uint MaxUserID { get; set; }
-		public byte DoGroup { get; set; }
-		public byte DoKeyID { get; set; }
-		public byte DoUserNick { get; set; }
-		public byte DoUserPwd { get; set; }
-		public List<ExtendedRight> Rights { get; set; } = new();
 	}
-	public class ExtendedUserData
+	
+	public class ExtendedUserData : ExtendedUserDataBase
 	{
-		public int UserID{ get; set; }
-		public int Group { get; set; }
-		public string UserNick { get; set; } = "";
-		public string UserPwd { get; set; } = "";
-		public string KeyID { get; set; } = "";
-		public byte[] Rights { get; set; } = new byte[250];
 	}
-	public class UserPolicy
+	
+	public class UserPolicy : UserPolicyBase
 	{
-		[ReadOnly(true)]
-		public bool Predefined { get; set; }
-
-		[ReadOnly(true)]
-		public bool PasswordSet { get; set; }
-
-		[ReadOnly(true)]
-		public int BadLogonCount { get; set; }
-
-		public string UserTemplate { get; set; } = "";
-
-		public bool IsBlocked { get; set; }
-
-		public bool MustChangePassword { get; set; }
-
-		public DateTime NotBefore { get; set; }
-
-		public DateTime NotAfter { get; set; }
-
-		public int BadLogonLimit { get; set; }
-
-		[XmlArray]
-		public string EnabledMACs { get; set; } = "";
-
-		public string UserCategory { get; set; } = "";
-
 	}
 
 	[Flags]
@@ -210,7 +168,7 @@ namespace Iface.Oik.Tm.Interfaces
 	public class PasswordPolicy
 	{
 		public bool AdminPasswordChange { get; set; }
-		public int PasswordTTL_Days { get; set; }
+		public int PasswordTtlDays { get; set; }
 		public bool EnforcePasswordCheck { get; set; }
 		public int MinPasswordLength { get; set; }
 		public bool PwdChars_Upper { get; set; }

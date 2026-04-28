@@ -41,7 +41,7 @@ namespace Iface.Oik.Tm.Helpers
         return string.Empty;
       }
 
-      var res = TmNativeUtil.GetStringWithUnknownLengthFromIntPtr(ptr);
+      var res = TmNativeUtil.GetCStringFromIntPtr(ptr);
       TmNative.cfsFreeMemory(ptr);
       return res;
     }
