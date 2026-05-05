@@ -2056,7 +2056,8 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<ComputerInfo> GetComputerInfo()
     {
-      var dto = await Task.Run(() => TmNativeApi.GetServerComputerInfo(CfId));
+      var dto = await Task.Run(() => TmNativeApi.GetServerComputerInfo(CfId))
+                                                .ConfigureAwait(false);
 
       var computerInfo = new ComputerInfo
       {
