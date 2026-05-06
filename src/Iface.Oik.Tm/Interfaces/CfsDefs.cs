@@ -36,6 +36,8 @@ namespace Iface.Oik.Tm.Interfaces
 			Old = 0,
 			Version3 = 1
 		}
+
+		public const uint MaskGenericAll = 0x10_00_00_00;
 	}
 
 
@@ -128,27 +130,28 @@ namespace Iface.Oik.Tm.Interfaces
 		Trace = 0x00_00_00_10,
 		ReadSecurityLog = 0x00_00_00_20,
 		ReadAdminLog = 0x00_00_00_40,
-		EditSecurity = 0x00_00_80_00,
+		EditSecurity = 0x00_00_80_00
 	}
+
 	public class AccessMask : AccessMaskBase
 	{
 	}
-	
+
 	public class AccessMasksDescriptor : AccessMasksDescriptorBase<AccessMask>
 	{
 	}
-	
+
 	public class ExtendedRight : ExtendedRightBase
 	{
 	}
 	public class ExtendedRightsDescriptor : ExtendedRightsDescriptorBase<ExtendedRight>
 	{
 	}
-	
+
 	public class ExtendedUserData : ExtendedUserDataBase
 	{
 	}
-	
+
 	public class UserPolicy : UserPolicyBase
 	{
 	}
@@ -203,13 +206,13 @@ namespace Iface.Oik.Tm.Interfaces
 	public enum ReserveState : uint
 	{
 		NotReserved = 0,
-		
-		MainUndefined       = 1,
-		MainConnecting      = 2,
+
+		MainUndefined = 1,
+		MainConnecting = 2,
 		MainSynchronization = 3,
-		MainActive          = 4,
-		MainNotConnected        = 5,
-		
+		MainActive = 4,
+		MainNotConnected = 5,
+
 		ReserveConnectedToMain = 0x1001,
 		ReserveActive = 0x1002,
 		ReserveUndefined = 0x1003,
@@ -218,7 +221,7 @@ namespace Iface.Oik.Tm.Interfaces
 	public enum BroadcastServerSignature : uint
 	{
 		None = 0,
-		
+
 		Sbr = 0x524253,
 		Smt = 0x544d53
 	}
@@ -229,4 +232,5 @@ namespace Iface.Oik.Tm.Interfaces
 		DoesNotExists,
 		Exists,
 	}
+
 }
