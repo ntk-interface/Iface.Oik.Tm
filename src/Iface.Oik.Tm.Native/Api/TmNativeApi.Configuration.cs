@@ -29,6 +29,11 @@ public static partial class TmNativeApi
 
       if (cfTreeRoot == nint.Zero)
       {
+        if (errCode == 2)
+        {
+          return (nint.Zero, DateTime.MinValue);
+        }
+
         throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
       }
 

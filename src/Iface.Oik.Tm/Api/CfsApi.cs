@@ -19,7 +19,7 @@ namespace Iface.Oik.Tm.Api
 {
   public class CfsApi : ICfsApi
   {
-    public nint   CfId { get; private set; }
+    public nint CfId { get; private set; }
     public string Host { get; private set; }
 
 
@@ -61,21 +61,16 @@ namespace Iface.Oik.Tm.Api
     {
       var resTree = new List<CfTreeNode>();
 
-      try
+      var (resHandle, _) = await OpenConfigurationTree(HotStanbyConfFile).ConfigureAwait(false);
+
+      if (resHandle == nint.Zero)
       {
-        var (resHandle, _) = await OpenConfigurationTree(HotStanbyConfFile).ConfigureAwait(false);
-        resTree            = await GetCfTree(resHandle).ConfigureAwait(false);
-        TmNativeApi.FreeTreeHandle(resHandle);
-      }
-      catch(TmNativeException e)
-      {
-        if (e.Code != 2)
-        {
-          throw new TmNativeException(e.Message, e.Code);
-        }
+        return resTree;
       }
 
-      return resTree;  
+      resTree = await GetCfTree(resHandle).ConfigureAwait(false);
+      TmNativeApi.FreeTreeHandle(resHandle);
+      return resTree;
     }
 
 
@@ -138,9 +133,9 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ReserveServerState> ReserveServerTypeIsWorking(uint                     ipAddrDword,
-                                                                     ushort                   bPort,
-                                                                     ushort                   port,
+    public async Task<ReserveServerState> ReserveServerTypeIsWorking(uint ipAddrDword,
+                                                                     ushort bPort,
+                                                                     ushort port,
                                                                      BroadcastServerSignature bCastSignature)
     {
       return await Task.Run(() => ReserveServerTypeIsWorkingSync(ipAddrDword, bPort, port, bCastSignature))
@@ -148,16 +143,16 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public ReserveServerState ReserveServerTypeIsWorkingSync(uint                     ipAddrDword,
-                                                             ushort                   bPort,
-                                                             ushort                   port,
+    public ReserveServerState ReserveServerTypeIsWorkingSync(uint ipAddrDword,
+                                                             ushort bPort,
+                                                             ushort port,
                                                              BroadcastServerSignature bCastSignature)
     {
       const int reserveServerNameBufSize = 64;
-      const int errBufSize               = 2048;
+      const int errBufSize = 2048;
 
       Span<byte> reserveServerNameBuf = stackalloc byte[reserveServerNameBufSize];
-      Span<byte> errBuf               = stackalloc byte[errBufSize];
+      Span<byte> errBuf = stackalloc byte[errBufSize];
 
       var result = TmNative.cfsIsReserveWorking(CfId,
                                                 ipAddrDword,
@@ -177,16 +172,16 @@ namespace Iface.Oik.Tm.Api
 
       return new ReserveServerState
       {
-        IsWorking      = isWorking && result,
+        IsWorking = isWorking && result,
         RemotePipeName = EncodingUtil.BytesToString(reserveServerNameBuf),
-        Signature      = bCastSignature
+        Signature = bCastSignature
       };
     }
 
 
     public async Task<BroadcastServerSignature> GetReserveServerBroadcastSignature(string binName)
     {
-      const string path    = "@@";
+      const string path = "@@";
       const string section = "VPath";
 
       var basePath = await GetIniString(path, section).ConfigureAwait(false);
@@ -210,11 +205,11 @@ namespace Iface.Oik.Tm.Api
 
     public async Task OverrideReservePipe(string pipeName, BroadcastServerSignature signature)
     {
-      const string path    = "@@";
+      const string path = "@@";
       const string section = "VPath";
 
       var basePath = await GetIniString(path, section).ConfigureAwait(false);
-      var iniPath  = string.Empty;
+      var iniPath = string.Empty;
 
       switch (signature)
       {
@@ -295,7 +290,7 @@ namespace Iface.Oik.Tm.Api
 
     private static void FillReserveNodeProperties(ReservedNodeProperties properties, CfTreeNode node)
     {
-      properties.AbortTO  = 20;
+      properties.AbortTO = 20;
       properties.RetakeTO = 20;
 
       if (short.TryParse(node.CfProperties.ValueOrDefault(nameof(properties.Type), "0"), out var s))
@@ -304,7 +299,7 @@ namespace Iface.Oik.Tm.Api
       }
 
       properties.BindAddr = node.CfProperties.ValueOrDefault(nameof(properties.BindAddr), "");
-      properties.Addr     = node.CfProperties.ValueOrDefault(nameof(properties.Addr),     "");
+      properties.Addr = node.CfProperties.ValueOrDefault(nameof(properties.Addr), "");
 
       if (short.TryParse(node.CfProperties.ValueOrDefault(nameof(properties.Port), "0"), out s))
       {
@@ -326,7 +321,7 @@ namespace Iface.Oik.Tm.Api
         properties.RetakeTO = s;
       }
 
-      properties.CopyConfig   = node.CfProperties.ValueOrDefault(nameof(properties.CopyConfig),   "0").Equals("1");
+      properties.CopyConfig = node.CfProperties.ValueOrDefault(nameof(properties.CopyConfig), "0").Equals("1");
       properties.StopInactive = node.CfProperties.ValueOrDefault(nameof(properties.StopInactive), "1").Equals("1");
     }
 
@@ -340,6 +335,11 @@ namespace Iface.Oik.Tm.Api
       {
         var (rbsHandle, _) = await OpenConfigurationTree(Path.Combine(RbsDirectory, properties.PipeName, RbsConfFile))
                                .ConfigureAwait(false);
+
+        if (rbsHandle == nint.Zero)
+        {
+          return;
+        }
 
         var rbsTree = await GetCfTree(rbsHandle).ConfigureAwait(false);
 
@@ -355,16 +355,16 @@ namespace Iface.Oik.Tm.Api
                 properties.RBF_Directory = item.CfProperties.ValueOrDefault(nameof(properties.RBF_Directory), "");
                 break;
               case MSTreeConsts.RBS_ClientParms:
-                properties.DOC_Path     = item.CfProperties.ValueOrDefault(nameof(properties.DOC_Path),     "");
+                properties.DOC_Path = item.CfProperties.ValueOrDefault(nameof(properties.DOC_Path), "");
                 properties.JournalSQLCS = item.CfProperties.ValueOrDefault(nameof(properties.JournalSQLCS), "");
-                properties.DTMX_SQLCS   = item.CfProperties.ValueOrDefault(nameof(properties.DTMX_SQLCS),   "");
+                properties.DTMX_SQLCS = item.CfProperties.ValueOrDefault(nameof(properties.DTMX_SQLCS), "");
                 break;
               case MSTreeConsts.RBS_PGParms:
-              {
-                properties.BinPath  = item.CfProperties.ValueOrDefault(nameof(properties.BinPath),  "");
-                properties.DataPath = item.CfProperties.ValueOrDefault(nameof(properties.DataPath), "");
-                break;
-              }
+                {
+                  properties.BinPath = item.CfProperties.ValueOrDefault(nameof(properties.BinPath), "");
+                  properties.DataPath = item.CfProperties.ValueOrDefault(nameof(properties.DataPath), "");
+                  break;
+                }
             }
           }
         }
@@ -382,36 +382,35 @@ namespace Iface.Oik.Tm.Api
     private async Task FillTmCalcProperties(TmCalcNodeProperties properties, string pipeName)
     {
       // читаем конфигурацию дорасчётчика
-      try
+
+      var (calcHandle, _) = await OpenConfigurationTree(Path.Combine(TmsDirectory, pipeName, TmCalcConfFile))
+                        .ConfigureAwait(false);
+
+      if (calcHandle == nint.Zero)
       {
-        var (calcHandle, _) = await OpenConfigurationTree(Path.Combine(TmsDirectory, pipeName, TmCalcConfFile))
-                                .ConfigureAwait(false);
+        return;
+      }
 
-        var calcTree = await GetCfTree(calcHandle).ConfigureAwait(false);
+      var calcTree = await GetCfTree(calcHandle).ConfigureAwait(false);
 
-        TmNativeApi.FreeTreeHandle(calcHandle);
+      TmNativeApi.FreeTreeHandle(calcHandle);
 
-        if (calcTree != null)
+      if (calcTree != null)
+      {
+        foreach (var item in calcTree.Where(item => item.CfProperties != null))
         {
-          foreach (var item in calcTree.Where(item => item.CfProperties != null))
+          switch (item.Name)
           {
-            switch (item.Name)
-            {
-              case MSTreeConsts.Tmcalc_FUnr:
-                properties.FUnr = item.CfProperties.ValueOrDefault(MSTreeConsts.Tmcalc_Value, "-")
-                                      .StartsWith("+");
-                break;
-              case MSTreeConsts.Tmcalc_SRel:
-                properties.SRel = item.CfProperties.ValueOrDefault(MSTreeConsts.Tmcalc_Value, "-")
-                                      .StartsWith("+");
-                break;
-            }
+            case MSTreeConsts.Tmcalc_FUnr:
+              properties.FUnr = item.CfProperties.ValueOrDefault(MSTreeConsts.Tmcalc_Value, "-")
+                                    .StartsWith("+");
+              break;
+            case MSTreeConsts.Tmcalc_SRel:
+              properties.SRel = item.CfProperties.ValueOrDefault(MSTreeConsts.Tmcalc_Value, "-")
+                                    .StartsWith("+");
+              break;
           }
         }
-      }
-      catch (Exception ex)
-      {
-        Console.WriteLine(ex.Message);
       }
     }
 
@@ -506,19 +505,19 @@ namespace Iface.Oik.Tm.Api
         if (server.Properties is RbsNodeProperties rbsP)
         {
           // общие параметры
-          var rbsHandle  = TmNativeApi.CreateNewTree();
+          var rbsHandle = TmNativeApi.CreateNewTree();
           var nodeHandle = TmNativeApi.CreateChildNode(rbsHandle, MSTreeConsts.RBS_Parameters);
 
           TmNativeApi.SetNodeProperty(nodeHandle, nameof(rbsP.RBF_Directory), rbsP.RBF_Directory);
 
           nodeHandle = TmNativeApi.CreateChildNode(rbsHandle, MSTreeConsts.RBS_ClientParms);
 
-          TmNativeApi.SetNodeProperty(nodeHandle, nameof(rbsP.DOC_Path),     rbsP.DOC_Path);
-          TmNativeApi.SetNodeProperty(nodeHandle, nameof(rbsP.DTMX_SQLCS),   rbsP.DTMX_SQLCS);
+          TmNativeApi.SetNodeProperty(nodeHandle, nameof(rbsP.DOC_Path), rbsP.DOC_Path);
+          TmNativeApi.SetNodeProperty(nodeHandle, nameof(rbsP.DTMX_SQLCS), rbsP.DTMX_SQLCS);
           TmNativeApi.SetNodeProperty(nodeHandle, nameof(rbsP.JournalSQLCS), rbsP.JournalSQLCS);
 
           nodeHandle = TmNativeApi.CreateChildNode(rbsHandle, MSTreeConsts.RBS_PGParms);
-          TmNativeApi.SetNodeProperty(nodeHandle, nameof(rbsP.BinPath),  rbsP.BinPath);
+          TmNativeApi.SetNodeProperty(nodeHandle, nameof(rbsP.BinPath), rbsP.BinPath);
           TmNativeApi.SetNodeProperty(nodeHandle, nameof(rbsP.DataPath), rbsP.DataPath);
           await SaveConfigurationTree(rbsHandle,
                                       $"{RbsDirectory}\\{rbsP.PipeName}\\{RbsConfFile}")
@@ -543,51 +542,50 @@ namespace Iface.Oik.Tm.Api
             }
 
             // читаем конфигурацию дорасчётчика если есть
-            try
-            {
-              var fileName = $"{TmsDirectory}\\{tmsP.PipeName}\\{TmCalcConfFile}";
+            var fileName = $"{TmsDirectory}\\{tmsP.PipeName}\\{TmCalcConfFile}";
 
-              var (calcHandle, _) = await OpenConfigurationTree(fileName).ConfigureAwait(false);
-              var calcTree = await GetCfTree(calcHandle).ConfigureAwait(false);
+            var (calcHandle, _) = await OpenConfigurationTree(fileName).ConfigureAwait(false);
+
+            if (calcHandle == nint.Zero)
+            {
+              return;
+            }
+
+            var calcTree = await GetCfTree(calcHandle).ConfigureAwait(false);
+            TmNativeApi.FreeTreeHandle(calcHandle);
+
+            calcTree ??= new List<CfTreeNode>();
+
+            var fUnr = calcTree.Find(n => n.Name.Equals(MSTreeConsts.Tmcalc_FUnr));
+            if (fUnr == null)
+            {
+              fUnr = new CfTreeNode(MSTreeConsts.Tmcalc_FUnr);
+              calcTree.Add(fUnr);
+            }
+
+            fUnr.CfProperties = new Dictionary<string, string>
+            {
+              [MSTreeConsts.Tmcalc_Value] = calcP.FUnr ? "+" : "-"
+            };
+
+            var sRel = calcTree.Find(n => n.Name.Equals(MSTreeConsts.Tmcalc_SRel));
+            if (sRel == null)
+            {
+              sRel = new CfTreeNode(MSTreeConsts.Tmcalc_SRel);
+              calcTree.Add(sRel);
+            }
+
+            sRel.CfProperties = new Dictionary<string, string>
+            {
+              [MSTreeConsts.Tmcalc_Value] = calcP.SRel ? "+" : "-"
+            };
+
+            calcHandle = CreateConfigurationTree(calcTree);
+            if (calcHandle != nint.Zero)
+            {
+              await SaveConfigurationTree(calcHandle, fileName).ConfigureAwait(false);
               TmNativeApi.FreeTreeHandle(calcHandle);
-
-              calcTree ??= new List<CfTreeNode>();
-
-              var fUnr = calcTree.Find(n => n.Name.Equals(MSTreeConsts.Tmcalc_FUnr));
-              if (fUnr == null)
-              {
-                fUnr = new CfTreeNode(MSTreeConsts.Tmcalc_FUnr);
-                calcTree.Add(fUnr);
-              }
-
-              fUnr.CfProperties = new Dictionary<string, string>
-              {
-                [MSTreeConsts.Tmcalc_Value] = calcP.FUnr ? "+" : "-"
-              };
-
-              var sRel = calcTree.Find(n => n.Name.Equals(MSTreeConsts.Tmcalc_SRel));
-              if (sRel == null)
-              {
-                sRel = new CfTreeNode(MSTreeConsts.Tmcalc_SRel);
-                calcTree.Add(sRel);
-              }
-
-              sRel.CfProperties = new Dictionary<string, string>
-              {
-                [MSTreeConsts.Tmcalc_Value] = calcP.SRel ? "+" : "-"
-              };
-
-              calcHandle = CreateConfigurationTree(calcTree);
-              if (calcHandle != nint.Zero)
-              {
-                await SaveConfigurationTree(calcHandle, fileName).ConfigureAwait(false);
-                TmNativeApi.FreeTreeHandle(calcHandle);
-              }
             }
-            catch
-            {
-            }
-
             break;
           }
         }
@@ -628,7 +626,7 @@ namespace Iface.Oik.Tm.Api
 
       var childHandle = nint.Zero;
 
-      for (var i = 0;; i++)
+      for (var i = 0; ; i++)
       {
         childHandle = i == 0
                         ? TmNativeApi.NodeEnumAll(parentHandle, 0)
@@ -641,7 +639,7 @@ namespace Iface.Oik.Tm.Api
 
         var nodeChild = new CfTreeNode(TmNativeApi.GetNodeName(childHandle), parent)
         {
-          Disabled     = !TmNativeApi.NodeIsEnabled(childHandle),
+          Disabled = !TmNativeApi.NodeIsEnabled(childHandle),
           CfProperties = GetNodeProps(childHandle),
         };
 
@@ -658,7 +656,7 @@ namespace Iface.Oik.Tm.Api
     {
       var props = new Dictionary<string, string>();
 
-      for (var i = 0;; i++)
+      for (var i = 0; ; i++)
       {
         var propName = TmNativeApi.GetNodePropertyName(nodeHandle, i);
 
@@ -722,7 +720,7 @@ namespace Iface.Oik.Tm.Api
 
     private void CreateMSNode(nint parentNodeHandle, MSTreeNode node, int tagId = -1)
     {
-      var tag        = tagId == -1 ? "Master" : $"#{tagId:X3}";
+      var tag = tagId == -1 ? "Master" : $"#{tagId:X3}";
       var nodeHandle = TmNativeApi.CreateChildNode(parentNodeHandle, tag);
 
       if (!CreateMSNodeProperties(nodeHandle, node))
@@ -786,14 +784,14 @@ namespace Iface.Oik.Tm.Api
 
           break;
         case AutoBackupProperties autoBackupProperties:
-        {
-          if (!CreateAutoBackupNodeProperties(nodeHandle, autoBackupProperties))
           {
-            return false;
-          }
+            if (!CreateAutoBackupNodeProperties(nodeHandle, autoBackupProperties))
+            {
+              return false;
+            }
 
-          break;
-        }
+            break;
+          }
         default:
           if (!CreateChildNodeProperties(nodeHandle, node))
             return false;
@@ -865,7 +863,7 @@ namespace Iface.Oik.Tm.Api
       return true;
     }
 
-    private static bool CreateAutoBackupNodeProperties(nint                 nodeHandle,
+    private static bool CreateAutoBackupNodeProperties(nint nodeHandle,
                                                        AutoBackupProperties properties)
     {
       if (!TmNativeApi.SetNodeProperty(nodeHandle,
@@ -895,11 +893,11 @@ namespace Iface.Oik.Tm.Api
                              .ConfigureAwait(false);
 
       return result switch
-             {
-               48 => CfsDefs.SoftwareTypes.Old,
-               49 => CfsDefs.SoftwareTypes.Version3,
-               _  => CfsDefs.SoftwareTypes.Unknown
-             };
+      {
+        48 => CfsDefs.SoftwareTypes.Old,
+        49 => CfsDefs.SoftwareTypes.Version3,
+        _ => CfsDefs.SoftwareTypes.Unknown
+      };
     }
 
     public async Task<CfsDefs.MasterServiceStatus> MasterServiceStatus()
@@ -908,11 +906,11 @@ namespace Iface.Oik.Tm.Api
                              .ConfigureAwait(false);
 
       return result switch
-             {
-               1 => CfsDefs.MasterServiceStatus.Stopped,
-               2 => CfsDefs.MasterServiceStatus.Running,
-               _ => CfsDefs.MasterServiceStatus.LostConnection
-             };
+      {
+        1 => CfsDefs.MasterServiceStatus.Stopped,
+        2 => CfsDefs.MasterServiceStatus.Running,
+        _ => CfsDefs.MasterServiceStatus.LostConnection
+      };
     }
 
     public async Task StartMasterService()
@@ -936,8 +934,8 @@ namespace Iface.Oik.Tm.Api
     public async Task<IReadOnlyCollection<string>> GetTimezones()
     {
       const int errStringLength = 1000;
-      var       errBuf          = new byte[errStringLength];
-      uint      errCode         = 0;
+      var errBuf = new byte[errStringLength];
+      uint errCode = 0;
 
       var timezonesIdsPointer = await Task.Run(() => TmNative.cfsEnumTimezones(CfId,
                                                                                out errCode,
@@ -953,7 +951,7 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<IReadOnlyCollection<TmServer>> GetTmServersTree()
     {
-      var lookup    = new Dictionary<uint, TmServer>();
+      var lookup = new Dictionary<uint, TmServer>();
       var tmServers = await GetTmServers().ConfigureAwait(false);
 
       // Иногда случаются дубли, лучше сделать который не даст исключений
@@ -979,7 +977,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<IReadOnlyCollection<TmServerLogRecord>> GetTmServersLog(int       maxRecords,
+    public async Task<IReadOnlyCollection<TmServerLogRecord>> GetTmServersLog(int maxRecords,
                                                                               DateTime? startTime,
                                                                               DateTime? endTime)
     {
@@ -1081,7 +1079,7 @@ namespace Iface.Oik.Tm.Api
 
     private async Task<string> GetInstallationInfoString(string key)
     {
-      const string path    = "@@";
+      const string path = "@@";
       const string section = "IInfo";
 
       return await GetIniString(path, section, key).ConfigureAwait(false);
@@ -1090,9 +1088,9 @@ namespace Iface.Oik.Tm.Api
     private async Task<CfsFileProperties?> GetFileProperties(string filePath)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
-      var       fileProps    = new CfsFileProperties();
+      var errBuf = new byte[errBufLength];
+      uint errCode = 0;
+      var fileProps = new CfsFileProperties();
 
       var result =
         await Task.Run(() => TmNative.cfsFileGetPropreties(CfId,
@@ -1112,11 +1110,11 @@ namespace Iface.Oik.Tm.Api
     public async Task<(bool, string)> CheckInstallationIntegrity(CfsIitgk kind)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
+      var errBuf = new byte[errBufLength];
+      uint errCode = 0;
 
       var signaturePointer = new IntPtr();
-      var errorsPointer    = new IntPtr();
+      var errorsPointer = new IntPtr();
 
       var result =
         await Task.Run(() => TmNative.cfsCheckInstallationIntegrity(CfId,
@@ -1135,7 +1133,7 @@ namespace Iface.Oik.Tm.Api
       }
 
       var signature = $"Корневая сигнатура:{TmNativeUtil.GetCStringFromIntPtr(signaturePointer)}";
-      var errors    = TmNativeUtil.GetCStringFromIntPtr(errorsPointer);
+      var errors = TmNativeUtil.GetCStringFromIntPtr(errorsPointer);
       TmNative.cfsFreeMemory(signaturePointer);
       TmNative.cfsFreeMemory(errorsPointer);
 
@@ -1144,9 +1142,9 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<TmLicenseInfo> GetLicenseInfo()
     {
-      const string path    = "@@";
+      const string path = "@@";
       const string section = "FInfo";
-      const uint   bufSize = 1024 * 8;
+      const uint bufSize = 1024 * 8;
 
       var keyDataStrings =
         (await GetIniString(path, section, bufSize: bufSize).ConfigureAwait(false)).Split(new[] { '\n' },
@@ -1155,7 +1153,7 @@ namespace Iface.Oik.Tm.Api
       var keyDataDictionary = new Dictionary<string, string>();
       foreach (var keyData in keyDataStrings)
       {
-        var    parts      = keyData.Split('=');
+        var parts = keyData.Split('=');
         string translated = await GetLicenseKeyDataItemString(keyData).ConfigureAwait(false);
         keyDataDictionary.Add(parts.First(), translated);
       }
@@ -1170,18 +1168,18 @@ namespace Iface.Oik.Tm.Api
       var path = Path.Combine(await GetBasePath().ConfigureAwait(false),
                               "Data\\Main\\cfshare.ini");
       const string section = "IfaceSecKey";
-      const string key     = "COM";
+      const string key = "COM";
 
       await SetIniString(path, section, key, newLicenseKey.NativeCom()).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyCollection<string>> GetFilesInDirectory(string path)
     {
-      const uint bufLength    = 8192;
-      const int  errBufLength = 1000;
-      var        buf          = new char[bufLength];
-      var        errBuf       = new byte[errBufLength];
-      uint       errCode      = 0;
+      const uint bufLength = 8192;
+      const int errBufLength = 1000;
+      var buf = new char[bufLength];
+      var errBuf = new byte[errBufLength];
+      uint errCode = 0;
 
 
       if (!await Task.Run(() => TmNative.cfsDirEnum(CfId,
@@ -1228,7 +1226,7 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<(bool, string)> PutFile(string localFilePath,
                                               string remoteFilePath,
-                                              uint   timeout = 20000)
+                                              uint timeout = 20000)
     {
       if (localFilePath.IsNullOrEmpty())
       {
@@ -1241,8 +1239,8 @@ namespace Iface.Oik.Tm.Api
       }
 
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
+      var errBuf = new byte[errBufLength];
+      uint errCode = 0;
 
       if (!await Task.Run(() => TmNative.cfsFilePut(CfId,
                                                     EncodingUtil.StringToBytes(remoteFilePath),
@@ -1259,7 +1257,7 @@ namespace Iface.Oik.Tm.Api
     }
 
     public async Task<(bool, string, DateTime)> GetFile(string localFilePath, string remoteFilePath,
-                                                        uint   timeout = 20000)
+                                                        uint timeout = 20000)
     {
       if (localFilePath.IsNullOrEmpty())
       {
@@ -1271,10 +1269,10 @@ namespace Iface.Oik.Tm.Api
         return (false, "Ошибка: не указан удалённый путь до файла", DateTime.MinValue);
       }
 
-      var       fileTime        = new FileTime();
+      var fileTime = new FileTime();
       const int errStringLength = 1000;
-      var       errString       = new byte[errStringLength];
-      uint      errCode         = 0;
+      var errString = new byte[errStringLength];
+      uint errCode = 0;
       if (!await Task.Run(() => TmNative.cfsFileGet(CfId,
                                                     EncodingUtil.StringToBytes(remoteFilePath),
                                                     EncodingUtil.StringToBytes(localFilePath),
@@ -1301,8 +1299,8 @@ namespace Iface.Oik.Tm.Api
     public async Task DeleteFile(string remoteFilePath)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
+      var errBuf = new byte[errBufLength];
+      uint errCode = 0;
 
       if (remoteFilePath.IsNullOrEmpty())
       {
@@ -1321,11 +1319,11 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<IReadOnlyCollection<LicenseKeyType>> GetAvailableLicenseKeyTypes()
     {
-      const string path    = "@@";
+      const string path = "@@";
       const string section = "AppKeyList";
 
-      const uint bufSize         = 1024;
-      var        licenseKeyTypes = new List<LicenseKeyType>();
+      const uint bufSize = 1024;
+      var licenseKeyTypes = new List<LicenseKeyType>();
 
       var typesStrings =
         (await GetIniString(path, section, bufSize: bufSize).ConfigureAwait(false)).Split(new[] { ';' },
@@ -1350,7 +1348,7 @@ namespace Iface.Oik.Tm.Api
       var path = Path.Combine(await GetBasePath().ConfigureAwait(false),
                               "Data\\Main\\cfshare.ini");
       const string section = "IfaceSecKey";
-      const string key     = "COM";
+      const string key = "COM";
 
       var currentLicenseKeyCom = await GetIniString(path, section, key, bufSize: 1024).ConfigureAwait(false);
 
@@ -1373,11 +1371,11 @@ namespace Iface.Oik.Tm.Api
 
     public string GetBasePathSync()
     {
-      const int  basePathBufLength = 1000;
-      Span<byte> basePathBuf       = stackalloc byte[basePathBufLength];
+      const int basePathBufLength = 1000;
+      Span<byte> basePathBuf = stackalloc byte[basePathBufLength];
 
-      const int  errBufLength = 1000;
-      Span<byte> errBuf       = stackalloc byte[errBufLength];
+      const int errBufLength = 1000;
+      Span<byte> errBuf = stackalloc byte[errBufLength];
 
       var result = TmNative.cfsGetBasePath(CfId,
                                            basePathBuf,
@@ -1402,9 +1400,9 @@ namespace Iface.Oik.Tm.Api
                 // key = TMS (или др.) */
     private async Task<string> GetIniString(string path,
                                             string section,
-                                            string key     = "",
-                                            string def     = "",
-                                            uint   bufSize = 256)
+                                            string key = "",
+                                            string def = "",
+                                            uint bufSize = 256)
     {
       return await Task.Run(() => GetIniStringSync(path, section, key, def, bufSize))
                        .ConfigureAwait(false);
@@ -1415,12 +1413,12 @@ namespace Iface.Oik.Tm.Api
                                     string section,
                                     string key,
                                     string def,
-                                    uint   bufSize)
+                                    uint bufSize)
     {
       Span<byte> buf = stackalloc byte[(int)bufSize];
 
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
+      var errBuf = new byte[errBufLength];
 
       var result = TmNative.cfsGetIniString(CfId,
                                             EncodingUtil.StringToBytes(path),
@@ -1451,8 +1449,8 @@ namespace Iface.Oik.Tm.Api
                                     string value)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
+      var errBuf = new byte[errBufLength];
+      uint errCode = 0;
 
       var result = await Task.Run(() => TmNative.cfsSetIniString(CfId,
                                                                  EncodingUtil.StringToBytes(path),
@@ -1495,9 +1493,9 @@ namespace Iface.Oik.Tm.Api
     public async Task<IReadOnlyCollection<SLogRecord>> GetSecurityLog(int maxRecords,
                                                                       SLogReadDirection readDirection =
                                                                         SLogReadDirection.FromEnd,
-                                                                      uint      startIndex = SLogIndex.Last,
-                                                                      DateTime? startTime  = null,
-                                                                      DateTime? endTime    = null)
+                                                                      uint startIndex = SLogIndex.Last,
+                                                                      DateTime? startTime = null,
+                                                                      DateTime? endTime = null)
     {
       return await GetSLog(SLogType.Security, readDirection, startIndex, maxRecords, startTime, endTime)
                .ConfigureAwait(false);
@@ -1507,21 +1505,21 @@ namespace Iface.Oik.Tm.Api
     public async Task<IReadOnlyCollection<SLogRecord>> GetAdministratorLog(int maxRecords,
                                                                            SLogReadDirection readDirection =
                                                                              SLogReadDirection.FromEnd,
-                                                                           uint      startIndex = SLogIndex.Last,
-                                                                           DateTime? startTime  = null,
-                                                                           DateTime? endTime    = null)
+                                                                           uint startIndex = SLogIndex.Last,
+                                                                           DateTime? startTime = null,
+                                                                           DateTime? endTime = null)
     {
       return await GetSLog(SLogType.Administrator, readDirection, startIndex, maxRecords, startTime, endTime)
                .ConfigureAwait(false);
     }
 
 
-    public async Task<IReadOnlyCollection<SLogRecord>> GetSLog(SLogType          logType,
+    public async Task<IReadOnlyCollection<SLogRecord>> GetSLog(SLogType logType,
                                                                SLogReadDirection readDirection,
-                                                               uint              startIndex,
-                                                               int               maxRecords,
-                                                               DateTime?         startTime,
-                                                               DateTime?         endTime)
+                                                               uint startIndex,
+                                                               int maxRecords,
+                                                               DateTime? startTime,
+                                                               DateTime? endTime)
     {
       var logHandle = await OpenSLog(logType, readDirection, startIndex).ConfigureAwait(false);
 
@@ -1551,13 +1549,13 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<ulong> OpenSLog(SLogType          logType,
+    public async Task<ulong> OpenSLog(SLogType logType,
                                       SLogReadDirection direction,
-                                      uint              startIndex)
+                                      uint startIndex)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
+      var errBuf = new byte[errBufLength];
+      uint errCode = 0;
 
       var sLogHandle = await Task.Run(() => TmNative.cfsSlogOpen(CfId,
                                                                  (uint)logType,
@@ -1578,14 +1576,14 @@ namespace Iface.Oik.Tm.Api
 
 
     public async Task<(IReadOnlyCollection<SLogRecord> logPart, bool shouldContinue)> ReadSLogRecordsBatch(
-      ulong             sLogHandle,
+      ulong sLogHandle,
       SLogReadDirection readDirection,
-      DateTime?         startTime,
-      DateTime?         endTime)
+      DateTime? startTime,
+      DateTime? endTime)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
+      var errBuf = new byte[errBufLength];
+      uint errCode = 0;
 
 
       var strPtr = await Task.Run(() => TmNative.cfsSlogReadRecords(CfId,
@@ -1600,8 +1598,8 @@ namespace Iface.Oik.Tm.Api
       }
 
       var shouldContinue = false;
-      var startTimeUtc   = startTime.HasValue ? TimeZoneInfo.ConvertTimeToUtc(startTime.Value) : (DateTime?)null;
-      var endTimeUtc     = endTime.HasValue ? TimeZoneInfo.ConvertTimeToUtc(endTime.Value) : (DateTime?)null;
+      var startTimeUtc = startTime.HasValue ? TimeZoneInfo.ConvertTimeToUtc(startTime.Value) : (DateTime?)null;
+      var endTimeUtc = endTime.HasValue ? TimeZoneInfo.ConvertTimeToUtc(endTime.Value) : (DateTime?)null;
 
       var logPart = new List<SLogRecord>();
       var nextPtr = strPtr;
@@ -1671,8 +1669,8 @@ namespace Iface.Oik.Tm.Api
     public async Task<bool> CloseSLog(ulong sLogHandle)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
+      var errBuf = new byte[errBufLength];
+      uint errCode = 0;
 
       return await Task.Run(() => TmNative.cfsSlogClose(CfId,
                                                         sLogHandle,
@@ -1724,8 +1722,8 @@ namespace Iface.Oik.Tm.Api
                                                         string binName)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
+      var errBuf = new byte[errBufLength];
+      uint errCode = 0;
 
       uint binLength = 0;
 
@@ -1782,8 +1780,8 @@ namespace Iface.Oik.Tm.Api
                                                 byte[] binData)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
+      var errBuf = new byte[errBufLength];
+      uint errCode = 0;
 
       var result = await Task.Run(() => TmNative.cfsIfpcSetBin(CfId,
                                                                uName,
@@ -1821,8 +1819,8 @@ namespace Iface.Oik.Tm.Api
     public async Task<(IReadOnlyCollection<string>, uint, string)> SecEnumOSUsers()
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
+      var errBuf = new byte[errBufLength];
+      uint errCode = 0;
       // сделаем отдельное соединение чтобы не занимать долгой выборкой основное
       IntPtr temp_cfsid =
         await Task.Run(() => TmNative.cfsConnect(EncodingUtil.StringToBytes(Host), out errCode, errBuf,
@@ -1847,8 +1845,8 @@ namespace Iface.Oik.Tm.Api
     public async Task<(uint, string)> SecChangeUserPassword(string username, string password)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
+      var errBuf = new byte[errBufLength];
+      uint errCode = 0;
 
       if ((username.Length > 0) && !username.StartsWith("*"))
       {
@@ -1872,8 +1870,8 @@ namespace Iface.Oik.Tm.Api
     public async Task<(uint, string)> SecDeleteUser(string username)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
+      var errBuf = new byte[errBufLength];
+      uint errCode = 0;
 
       var result =
         await Task.Run(() => TmNative.cfsIfpcDeleteUser(CfId, EncodingUtil.StringToBytes(username), out errCode,
@@ -1911,9 +1909,9 @@ namespace Iface.Oik.Tm.Api
                        .ConfigureAwait(false);
     }
 
-    public async Task SecSetExtendedUserData(string           serverType,
-                                             string           serverName,
-                                             string           username,
+    public async Task SecSetExtendedUserData(string serverType,
+                                             string serverName,
+                                             string username,
                                              ExtendedUserData extendedUserData)
     {
       await Task.Run(() => TmNativeApi.SecSetExtendedUserData(CfId, serverType, serverName, username, extendedUserData))
@@ -1966,17 +1964,17 @@ namespace Iface.Oik.Tm.Api
                           .ConfigureAwait(false);
       return new PasswordPolicy
       {
-        AdminPasswordChange     = dto.AdminPasswordChange,
-        EnforcePasswordCheck    = dto.EnforcePasswordCheck,
-        MinPasswordLength       = dto.MinPasswordLength,
-        PasswordTtlDays         = dto.PasswordTtl,
-        PwdChars_Upper          = dto.CharsUpper,
-        PwdChars_Digits         = dto.CharsDigits,
-        PwdChars_Special        = dto.CharsSpecial,
-        PwdChars_NoRepeat       = dto.CharsNoRepeat,
-        PwdChars_NoSequential   = dto.CharsNonSequential,
+        AdminPasswordChange = dto.AdminPasswordChange,
+        EnforcePasswordCheck = dto.EnforcePasswordCheck,
+        MinPasswordLength = dto.MinPasswordLength,
+        PasswordTtlDays = dto.PasswordTtl,
+        PwdChars_Upper = dto.CharsUpper,
+        PwdChars_Digits = dto.CharsDigits,
+        PwdChars_Special = dto.CharsSpecial,
+        PwdChars_NoRepeat = dto.CharsNoRepeat,
+        PwdChars_NoSequential = dto.CharsNonSequential,
         PwdChars_CheckDictonary = dto.CheckDictionary,
-        CheckOldPasswords       = dto.CheckOldPasswords
+        CheckOldPasswords = dto.CheckOldPasswords
       };
     }
 
@@ -1984,9 +1982,9 @@ namespace Iface.Oik.Tm.Api
     {
       byte[] bin;
       string n;
-      uint   errCode,   resErrCode   = 0;
+      uint errCode, resErrCode = 0;
       string errString, resErrString = string.Empty;
-      string enc                     = EncodingUtil.Cp1251;
+      string enc = EncodingUtil.Cp1251;
 
 
       if (passwordPolicy.AdminPasswordChange)
@@ -2001,7 +1999,7 @@ namespace Iface.Oik.Tm.Api
       (errCode, errString) = await SecSetBin(".cfs.", ".", "own_pch", bin).ConfigureAwait(false);
       if (errCode != 0)
       {
-        resErrCode   =  errCode;
+        resErrCode = errCode;
         resErrString += errString;
       }
 
@@ -2017,42 +2015,42 @@ namespace Iface.Oik.Tm.Api
       (errCode, errString) = await SecSetBin(".cfs.", ".", "pwd_pol", bin).ConfigureAwait(false);
       if (errCode != 0)
       {
-        resErrCode   =  errCode;
+        resErrCode = errCode;
         resErrString += errString;
       }
 
-      n                    = passwordPolicy.MinPasswordLength.ToString();
-      bin                  = TmNativeUtil.GetFixedBytesWithTrailingZero(n, n.Length + 1, enc);
+      n = passwordPolicy.MinPasswordLength.ToString();
+      bin = TmNativeUtil.GetFixedBytesWithTrailingZero(n, n.Length + 1, enc);
       (errCode, errString) = await SecSetBin(".cfs.", ".", "pwd_pol_len", bin).ConfigureAwait(false);
       if (errCode != 0)
       {
-        resErrCode   =  errCode;
+        resErrCode = errCode;
         resErrString += errString;
       }
 
-      n                    = passwordPolicy.PasswordTtlDays.ToString();
-      bin                  = TmNativeUtil.GetFixedBytesWithTrailingZero(n, n.Length + 1, enc);
+      n = passwordPolicy.PasswordTtlDays.ToString();
+      bin = TmNativeUtil.GetFixedBytesWithTrailingZero(n, n.Length + 1, enc);
       (errCode, errString) = await SecSetBin(".cfs.", ".", "p_ex_days", bin).ConfigureAwait(false);
       if (errCode != 0)
       {
-        resErrCode   =  errCode;
+        resErrCode = errCode;
         resErrString += errString;
       }
 
-      PWDPOL flags                                       = (PWDPOL)0xff_ff_ff_ff;
-      if (!passwordPolicy.PwdChars_Upper) flags          &= ~PWDPOL.Upper;
-      if (!passwordPolicy.PwdChars_Digits) flags         &= ~PWDPOL.Digits;
-      if (!passwordPolicy.PwdChars_Special) flags        &= ~PWDPOL.Spec;
-      if (!passwordPolicy.PwdChars_NoRepeat) flags       &= ~PWDPOL.CheckRepeat;
-      if (!passwordPolicy.PwdChars_NoSequential) flags   &= ~PWDPOL.CheqSeq;
+      PWDPOL flags = (PWDPOL)0xff_ff_ff_ff;
+      if (!passwordPolicy.PwdChars_Upper) flags &= ~PWDPOL.Upper;
+      if (!passwordPolicy.PwdChars_Digits) flags &= ~PWDPOL.Digits;
+      if (!passwordPolicy.PwdChars_Special) flags &= ~PWDPOL.Spec;
+      if (!passwordPolicy.PwdChars_NoRepeat) flags &= ~PWDPOL.CheckRepeat;
+      if (!passwordPolicy.PwdChars_NoSequential) flags &= ~PWDPOL.CheqSeq;
       if (!passwordPolicy.PwdChars_CheckDictonary) flags &= ~PWDPOL.CheckDict;
-      if (!passwordPolicy.CheckOldPasswords) flags       &= ~PWDPOL.CheckCache;
-      string s_flg                                       = flags.ToString();
-      bin                  = TmNativeUtil.GetFixedBytesWithTrailingZero(s_flg, s_flg.Length + 1, enc);
+      if (!passwordPolicy.CheckOldPasswords) flags &= ~PWDPOL.CheckCache;
+      string s_flg = flags.ToString();
+      bin = TmNativeUtil.GetFixedBytesWithTrailingZero(s_flg, s_flg.Length + 1, enc);
       (errCode, errString) = await SecSetBin(".cfs.", ".", "pwd_pol_flg", bin).ConfigureAwait(false);
       if (errCode != 0)
       {
-        resErrCode   =  errCode;
+        resErrCode = errCode;
         resErrString += errString;
       }
 
@@ -2066,23 +2064,23 @@ namespace Iface.Oik.Tm.Api
 
       var computerInfo = new ComputerInfo
       {
-        ComputerName      = dto.ComputerName,
+        ComputerName = dto.ComputerName,
         PrimaryDomainName = dto.DomainInfo.PrimaryDomainName,
-        OS_ProductType    = $"ostype{dto.NtProductType}",
-        OS_Version        = $"{dto.NtVerMaj}.{dto.NtVerMin} build {dto.NtBuild}",
-        Architecture      = dto.Win64 ? "x64" : "x86",
-        Acp               = dto.Acp,
+        OS_ProductType = $"ostype{dto.NtProductType}",
+        OS_Version = $"{dto.NtVerMaj}.{dto.NtVerMin} build {dto.NtBuild}",
+        Architecture = dto.Win64 ? "x64" : "x86",
+        Acp = dto.Acp,
 
         ServerTimeGMT = DateUtil.GetDateTimeFromTimestamp(dto.CurrentGMT, dto.CurrentMs),
-        Uptime        = (ulong)dto.Uptime,
+        Uptime = (ulong)dto.Uptime,
 
         Copyright = $"oiktype{dto.Copyright}",
-        CfsVer    = $"{dto.CfsVerMaj}.{dto.CfsVerMin}",
+        CfsVer = $"{dto.CfsVerMaj}.{dto.CfsVerMin}",
 
-        UserName   = dto.UserName,
-        UserAddr   = dto.UserAddr,
+        UserName = dto.UserName,
+        UserAddr = dto.UserAddr,
         AccessMask = dto.AccessMask,
-        IpAddrs    = new List<string>()
+        IpAddrs = new List<string>()
       };
       foreach (var addr in dto.IpAddrs)
       {
@@ -2102,7 +2100,7 @@ namespace Iface.Oik.Tm.Api
           // если попали на старый сервер
           var path = Path.Combine(await GetBasePath().ConfigureAwait(false),
                                   "dispserv.ini");
-          computerInfo.BuildDate   = await GetIniString(path, "Info", "BuildTime").ConfigureAwait(false);
+          computerInfo.BuildDate = await GetIniString(path, "Info", "BuildTime").ConfigureAwait(false);
           computerInfo.InstallDate = await GetIniString(path, "Info", "InstTime").ConfigureAwait(false);
         }
         else
@@ -2121,8 +2119,8 @@ namespace Iface.Oik.Tm.Api
     public async Task<(bool, string)> SaveMachineConfig(string directory, bool full)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      string    fileName;
+      var errBuf = new byte[errBufLength];
+      string fileName;
       if (full)
       {
         fileName = "FullConf-" + DateTime.Now.ToString(BackupDateFormat) + ".cfim";
@@ -2149,13 +2147,13 @@ namespace Iface.Oik.Tm.Api
       }
     }
 
-    public async Task<(bool, string)> SaveMachineConfigEx(string           directory, uint scope,
-                                                          TmNativeCallback callback          = null,
-                                                          IntPtr           callbackParameter = default)
+    public async Task<(bool, string)> SaveMachineConfigEx(string directory, uint scope,
+                                                          TmNativeCallback callback = null,
+                                                          IntPtr callbackParameter = default)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      string    fileName     = "undefined";
+      var errBuf = new byte[errBufLength];
+      string fileName = "undefined";
       if (scope == 0) //#define CFS_SMC_DEV		0
       {
         fileName = "MasterConf-" + DateTime.Now.ToString(BackupDateFormat) + ".pkf";
@@ -2191,8 +2189,8 @@ namespace Iface.Oik.Tm.Api
     public async Task<(bool, string)> RestoreMachineConfig(string filename)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
+      var errBuf = new byte[errBufLength];
+      uint errCode = 0;
 
       string remoteFilename = Path.GetFileName(filename);
       (bool res, string errString) = await PutFile(filename, remoteFilename).ConfigureAwait(false);
@@ -2217,10 +2215,10 @@ namespace Iface.Oik.Tm.Api
     public async Task<(IReadOnlyCollection<string>, uint, string)> DirEnum(string path)
     {
       const int resBufLength = 20480;
-      var       resBuf       = new char[resBufLength];
+      var resBuf = new char[resBufLength];
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
+      var errBuf = new byte[errBufLength];
+      uint errCode = 0;
 
       var result = await Task.Run(() => TmNative.cfsDirEnum(CfId,
                                                             EncodingUtil.StringToBytes(path),
@@ -2241,8 +2239,8 @@ namespace Iface.Oik.Tm.Api
                                                    TmNativeCallback callback = null,
                                                    IntPtr callbackParameter = default)
     {
-      uint   bflags;
-      bool   result       = false;
+      uint bflags;
+      bool result = false;
       byte[] reserved_buf = TmNativeUtil.GetFixedBytesWithTrailingZero(directory, 260, EncodingUtil.Cp1251);
 
       switch (progName)
@@ -2332,7 +2330,7 @@ namespace Iface.Oik.Tm.Api
     public async Task<(IReadOnlyCollection<string>, string)> EnumPackedFiles(string pkfName)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
+      var errBuf = new byte[errBufLength];
 
       var result =
         await Task.Run(() => TmNative.pkfEnumPackedFiles(EncodingUtil.StringToBytes(pkfName), errBuf,
@@ -2352,7 +2350,7 @@ namespace Iface.Oik.Tm.Api
     public async Task<(IReadOnlyCollection<string>, string)> UnPack(string pkfName, string dirname)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
+      var errBuf = new byte[errBufLength];
 
       var result = await Task.Run(() => TmNative.pkfUnPack(EncodingUtil.StringToBytes(pkfName),
                                                            EncodingUtil.StringToBytes(dirname), errBuf,
@@ -2372,7 +2370,7 @@ namespace Iface.Oik.Tm.Api
     public async Task<(bool, string)> ExtractFile(string pkfName, string filename, string dirname)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
+      var errBuf = new byte[errBufLength];
 
       var result = await Task.Run(() => TmNative.pkfExtractFile(EncodingUtil.StringToBytes(pkfName),
                                                                 EncodingUtil.StringToBytes(filename),
@@ -2392,10 +2390,10 @@ namespace Iface.Oik.Tm.Api
                                                                       UInt32 testFlags)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
-      UInt64    handle       = 0;
-      UInt32    pid          = 0;
+      var errBuf = new byte[errBufLength];
+      uint errCode = 0;
+      UInt64 handle = 0;
+      UInt32 pid = 0;
 
       var result = await Task.Run(() => TmNative.cfsIfpcTestTmcalc(CfId,
                                                                    EncodingUtil.StringToBytes(tmsName),
@@ -2417,8 +2415,8 @@ namespace Iface.Oik.Tm.Api
     public async Task<(uint, string)> StopTestTmcalc(UInt64 handle, UInt32 pid)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
+      var errBuf = new byte[errBufLength];
+      uint errCode = 0;
       var result = await Task.Run(() => TmNative.cfsIfpcStopTestTmcalc(CfId,
                                                                        handle, pid,
                                                                        out errCode, errBuf, errBufLength
@@ -2436,8 +2434,8 @@ namespace Iface.Oik.Tm.Api
     public async Task<(bool, string)> PmonCheckProcess(string processNameArgs)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
+      var errBuf = new byte[errBufLength];
+      uint errCode = 0;
       var result = await Task.Run(() => TmNative.cfsPmonCheckProcess(CfId,
                                                                      EncodingUtil.StringToBytes(processNameArgs),
                                                                      out errCode, errBuf, errBufLength
@@ -2448,8 +2446,8 @@ namespace Iface.Oik.Tm.Api
     public async Task<(bool, string)> PmonStopProcess(string processNameArgs)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0, pnumfound = 0;
+      var errBuf = new byte[errBufLength];
+      uint errCode = 0, pnumfound = 0;
       var result = await Task.Run(() => TmNative.cfsPmonStopProcess(CfId,
                                                                     EncodingUtil.StringToBytes(processNameArgs),
                                                                     out pnumfound,
@@ -2461,8 +2459,8 @@ namespace Iface.Oik.Tm.Api
     public async Task<(bool, string)> PmonRestartProcess(string processNameArgs)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
+      var errBuf = new byte[errBufLength];
+      uint errCode = 0;
       var result = await Task.Run(() => TmNative.cfsPmonRestartProcess(CfId,
                                                                        EncodingUtil.StringToBytes(processNameArgs),
                                                                        out errCode,
@@ -2475,8 +2473,8 @@ namespace Iface.Oik.Tm.Api
     public async Task<(bool, string)> SwapFnSrvRole(string encodedCredentials, string fnsName, bool dryRun)
     {
       const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
+      var errBuf = new byte[errBufLength];
+      uint errCode = 0;
 
       var result = await Task.Run(() => TmNative.cfsSwapFnSrvRole(EncodingUtil.StringToBytes(encodedCredentials),
                                                                   dryRun,
@@ -2508,8 +2506,8 @@ namespace Iface.Oik.Tm.Api
 
     public (bool, int, string) AddPasswordToAutoBackupDigestSync(string password)
     {
-      const int  responseMsgBufLength = 1000;
-      Span<byte> responseMsgBuf       = stackalloc byte[responseMsgBufLength];
+      const int responseMsgBufLength = 1000;
+      Span<byte> responseMsgBuf = stackalloc byte[responseMsgBufLength];
 
       var result = TmNative.cfsIfpcSetAbkParms(CfId,
                                                EncodingUtil.StringToBytes(password),
