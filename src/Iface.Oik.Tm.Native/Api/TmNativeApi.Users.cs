@@ -356,7 +356,7 @@ public static partial class TmNativeApi
 
       if (separatorIndex == -1)
       {
-        continue;
+        break;
       }
 
       switch (span[0])
