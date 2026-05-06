@@ -60,18 +60,11 @@ namespace Iface.Oik.Tm.Api
     public async Task<IReadOnlyCollection<CfTreeNode>> GetReserveConfiguration()
     {
       var resTree = new List<CfTreeNode>();
-      try
-      {
-        var (resHandle, _) = await OpenConfigurationTree(HotStanbyConfFile).ConfigureAwait(false);
-        resTree            = await GetCfTree(resHandle).ConfigureAwait(false);
-        TmNativeApi.FreeTreeHandle(resHandle);
-      }
-      catch (Exception ex)
-      {
-        Console.WriteLine(ex.Message);
-      }
 
-      return resTree;
+      var (resHandle, _) = await OpenConfigurationTree(HotStanbyConfFile).ConfigureAwait(false);
+      resTree            = await GetCfTree(resHandle).ConfigureAwait(false);
+      TmNativeApi.FreeTreeHandle(resHandle);
+      return resTree;  
     }
 
 
