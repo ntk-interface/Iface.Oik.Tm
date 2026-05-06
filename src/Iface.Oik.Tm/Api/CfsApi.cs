@@ -61,9 +61,20 @@ namespace Iface.Oik.Tm.Api
     {
       var resTree = new List<CfTreeNode>();
 
-      var (resHandle, _) = await OpenConfigurationTree(HotStanbyConfFile).ConfigureAwait(false);
-      resTree            = await GetCfTree(resHandle).ConfigureAwait(false);
-      TmNativeApi.FreeTreeHandle(resHandle);
+      try
+      {
+        var (resHandle, _) = await OpenConfigurationTree(HotStanbyConfFile).ConfigureAwait(false);
+        resTree            = await GetCfTree(resHandle).ConfigureAwait(false);
+        TmNativeApi.FreeTreeHandle(resHandle);
+      }
+      catch(TmNativeException e)
+      {
+        if (e.Code != 2)
+        {
+          throw new TmNativeException(e.Message, e.Code);
+        }
+      }
+
       return resTree;  
     }
 
@@ -232,6 +243,7 @@ namespace Iface.Oik.Tm.Api
       var msRoot = new MSTreeNode(tree.First());
 
       // читаем конфигурацию резервирования если есть
+
       var resTree = await GetReserveConfiguration().ConfigureAwait(false);
 
       // перебираем элементы на втором уровне после мастер-сервиса
