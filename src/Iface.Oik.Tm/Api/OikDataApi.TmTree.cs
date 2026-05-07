@@ -11,8 +11,7 @@ public partial class OikDataApi
     return await Execute(prefer,
                          PreferApi.Sql,
                          () => _tms.GetTmTreeChannels(),
-                         () => _sql.GetTmTreeChannels(),
-                         () => null)
+                         () => _sql.GetTmTreeChannels())
             .ConfigureAwait(false);
   }
 
@@ -23,8 +22,7 @@ public partial class OikDataApi
     return await Execute(prefer,
                          PreferApi.Sql,
                          () => _tms.GetTmTreeRtus(channelId),
-                         () => _sql.GetTmTreeRtus(channelId),
-                         () => null)
+                         () => _sql.GetTmTreeRtus(channelId))
             .ConfigureAwait(false);
   }
 
@@ -36,8 +34,7 @@ public partial class OikDataApi
     return await Execute(prefer,
                          PreferApi.Sql,
                          () => _tms.GetTmTreeStatuses(channelId, rtuId),
-                         () => _sql.GetTmTreeStatuses(channelId, rtuId),
-                         () => null)
+                         () => _sql.GetTmTreeStatuses(channelId, rtuId))
             .ConfigureAwait(false);
   }
 
@@ -49,8 +46,7 @@ public partial class OikDataApi
     return await Execute(prefer,
                          PreferApi.Sql,
                          () => _tms.GetTmTreeAnalogs(channelId, rtuId),
-                         () => _sql.GetTmTreeAnalogs(channelId, rtuId),
-                         () => null)
+                         () => _sql.GetTmTreeAnalogs(channelId, rtuId))
             .ConfigureAwait(false);
   }
 
@@ -59,19 +55,11 @@ public partial class OikDataApi
                                                                   int       rtuId,
                                                                   PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetTmTreeAccums(channelId, rtuId).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      return await _sql.GetTmTreeAccums(channelId, rtuId).ConfigureAwait(false);
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Sql,
+                         () => _tms.GetTmTreeAccums(channelId, rtuId),
+                         () => _sql.GetTmTreeAccums(channelId, rtuId))
+            .ConfigureAwait(false);
   }
 
 

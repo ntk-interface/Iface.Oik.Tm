@@ -13,19 +13,12 @@ public partial class OikDataApi
                                             DateTime  time,
                                             PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetStatusFromRetro(ch, rtu, point, time).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return -1;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetStatusFromRetro(ch, rtu, point, time),
+                         null,
+                         () => -1)
+            .ConfigureAwait(false);
   }
 
 
@@ -36,19 +29,12 @@ public partial class OikDataApi
                                                        int       retroNum = 0,
                                                        PreferApi prefer   = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetAnalogFromRetro(ch, rtu, point, time, retroNum).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return TmAnalogRetro.UnreliableValue;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetAnalogFromRetro(ch, rtu, point, time, retroNum),
+                         null,
+                         () => TmAnalogRetro.UnreliableValue)
+            .ConfigureAwait(false);
   }
 
 
@@ -58,19 +44,12 @@ public partial class OikDataApi
                                                      DateTime  time,
                                                      PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetAccumFromRetro(ch, rtu, point, time).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return TmAccumRetro.UnreliableValue;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetAccumFromRetro(ch, rtu, point, time),
+                         null,
+                         () => TmAccumRetro.UnreliableValue)
+            .ConfigureAwait(false);
   }
 
 
@@ -78,18 +57,12 @@ public partial class OikDataApi
                                             DateTime                time,
                                             PreferApi               prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.UpdateStatusesFromRetro(statuses, time).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-    }
-    else
-    {
-      // todo IsInit = false;
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.UpdateStatusesFromRetro(statuses, time),
+                  null,
+                  () => { /* todo IsInit = false; */ })
+     .ConfigureAwait(false);
   }
 
 
@@ -98,18 +71,12 @@ public partial class OikDataApi
                                            int                     retroNum = 0,
                                            PreferApi               prefer   = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.UpdateAnalogsFromRetro(analogs, time, retroNum).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-    }
-    else
-    {
-      // todo IsInit = false;
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.UpdateAnalogsFromRetro(analogs, time, retroNum),
+                  null,
+                  () => { /* todo IsInit = false; */ })
+     .ConfigureAwait(false);
   }
 
 
@@ -117,62 +84,39 @@ public partial class OikDataApi
                                           DateTime               time,
                                           PreferApi              prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.UpdateAccumsFromRetro(accums, time).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-    }
-    else
-    {
-      // todo IsInit = false;
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.UpdateAccumsFromRetro(accums, time),
+                  null,
+                  () => { /* todo IsInit = false; */ })
+     .ConfigureAwait(false);
   }
 
 
   public async Task<IReadOnlyCollection<ITmAnalogRetro[]>> GetAnalogsMicroSeries(
-    IReadOnlyList<TmAnalog> analogs,
+    IReadOnlyList<TmAnalog> analogs, 
     PreferApi               prefer = PreferApi.Auto)
   {
     if (!_serverFeatures.AreMicroSeriesEnabled)
     {
       return null;
     }
-
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetAnalogsMicroSeries(analogs).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      return await _sql.GetAnalogsMicroSeries(analogs).ConfigureAwait(false);
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetAnalogsMicroSeries(analogs),
+                         () => _sql.GetAnalogsMicroSeries(analogs))
+            .ConfigureAwait(false);
   }
 
 
   public async Task<IReadOnlyCollection<TmRetroInfo>> GetRetrosInfo(TmType    tmType,
                                                                     PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetRetrosInfo(tmType).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetRetrosInfo(tmType),
+                         null)
+            .ConfigureAwait(false);
   }
 
 
@@ -183,19 +127,11 @@ public partial class OikDataApi
                                                                         int       retroNum = 0,
                                                                         PreferApi prefer   = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetAnalogRetro(analog, utcStartTime, count, step, retroNum).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetAnalogRetro(analog, utcStartTime, count, step, retroNum),
+                         null)
+            .ConfigureAwait(false);
   }
 
 
@@ -204,19 +140,11 @@ public partial class OikDataApi
                                                                         int                 retroNum = 0,
                                                                         PreferApi           prefer   = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetAnalogRetro(analog, filter, retroNum).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetAnalogRetro(analog, filter, retroNum),
+                         null)
+            .ConfigureAwait(false);
   }
 
 
@@ -229,20 +157,11 @@ public partial class OikDataApi
     {
       return null;
     }
-
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetImpulseArchiveInstant(analog, filter).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetImpulseArchiveInstant(analog, filter),
+                         null)
+            .ConfigureAwait(false);
   }
 
 
@@ -255,20 +174,11 @@ public partial class OikDataApi
     {
       return null;
     }
-
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetImpulseArchiveAverage(analog, filter).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetImpulseArchiveAverage(analog, filter),
+                         null)
+            .ConfigureAwait(false);
   }
 
 
@@ -281,19 +191,10 @@ public partial class OikDataApi
     {
       return null;
     }
-
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetImpulseArchiveSlices(analog, filter).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetImpulseArchiveSlices(analog, filter),
+                         null)
+            .ConfigureAwait(false);
   }
 }

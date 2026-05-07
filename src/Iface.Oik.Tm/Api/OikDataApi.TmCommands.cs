@@ -11,19 +11,12 @@ public partial class OikDataApi
     TmStatus  status,
     PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.CheckTelecontrolScript(status).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return (false, null);
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.CheckTelecontrolScript(status),
+                         null,
+                         () => (false, null))
+            .ConfigureAwait(false);
   }
 
 
@@ -32,19 +25,12 @@ public partial class OikDataApi
     int       explicitNewStatus,
     PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.CheckTelecontrolScriptExplicitly(status, explicitNewStatus).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return (false, null);
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.CheckTelecontrolScriptExplicitly(status, explicitNewStatus),
+                         null,
+                         () => (false, null))
+            .ConfigureAwait(false);
   }
 
 
@@ -52,55 +38,34 @@ public partial class OikDataApi
     TmAnalog  tmAnalog,
     PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.CheckTeleregulationScript(tmAnalog).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return (false, null);
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.CheckTeleregulationScript(tmAnalog),
+                         null,
+                         () => (false, null))
+            .ConfigureAwait(false);
   }
 
 
   public async Task OverrideTelecontrolScript(PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.OverrideTelecontrolScript().ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.OverrideTelecontrolScript(),
+                  null)
+     .ConfigureAwait(false);
   }
 
 
   public async Task<TmTelecontrolResult> Telecontrol(TmStatus  status,
                                                      PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.Telecontrol(status).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return TmTelecontrolResult.CommandNotSentToServer;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.Telecontrol(status),
+                         null,
+                         () => TmTelecontrolResult.CommandNotSentToServer)
+            .ConfigureAwait(false);
   }
 
 
@@ -108,57 +73,36 @@ public partial class OikDataApi
                                                                int       explicitNewStatus,
                                                                PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.TelecontrolExplicitly(status, explicitNewStatus).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return TmTelecontrolResult.CommandNotSentToServer;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.TelecontrolExplicitly(status, explicitNewStatus),
+                         null,
+                         () => TmTelecontrolResult.CommandNotSentToServer)
+            .ConfigureAwait(false);
   }
 
 
   public async Task<TmTelecontrolResult> TeleregulateByStepUp(TmAnalog  analog,
                                                               PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.TeleregulateByStepUp(analog).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return TmTelecontrolResult.CommandNotSentToServer;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.TeleregulateByStepUp(analog),
+                         null,
+                         () => TmTelecontrolResult.CommandNotSentToServer)
+            .ConfigureAwait(false);
   }
 
 
   public async Task<TmTelecontrolResult> TeleregulateByStepDown(TmAnalog  analog,
                                                                 PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.TeleregulateByStepDown(analog).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return TmTelecontrolResult.CommandNotSentToServer;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.TeleregulateByStepDown(analog),
+                         null,
+                         () => TmTelecontrolResult.CommandNotSentToServer)
+            .ConfigureAwait(false);
   }
 
 
@@ -166,19 +110,12 @@ public partial class OikDataApi
                                                             int       code,
                                                             PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.TeleregulateByCode(analog, code).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return TmTelecontrolResult.CommandNotSentToServer;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.TeleregulateByCode(analog, code),
+                         null,
+                         () => TmTelecontrolResult.CommandNotSentToServer)
+            .ConfigureAwait(false);
   }
 
 
@@ -186,37 +123,23 @@ public partial class OikDataApi
                                                              float     value,
                                                              PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.TeleregulateByValue(analog, value).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return TmTelecontrolResult.CommandNotSentToServer;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.TeleregulateByValue(analog, value),
+                         null,
+                         () => TmTelecontrolResult.CommandNotSentToServer)
+            .ConfigureAwait(false);
   }
 
 
   public async Task InputTelecontrolPassword(string    password,
                                              PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.InputTelecontrolPassword(password).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.InputTelecontrolPassword(password),
+                  null)
+     .ConfigureAwait(false);
   }
 
 
@@ -224,92 +147,56 @@ public partial class OikDataApi
                                                bool      alsoBlockManually = false,
                                                PreferApi prefer            = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.SwitchStatusManually(status, alsoBlockManually).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return false;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.SwitchStatusManually(status, alsoBlockManually),
+                         null)
+            .ConfigureAwait(false);
   }
 
 
   public async Task SetStatusNormalOn(TmStatus  status,
                                       PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.SetStatusNormalOn(status).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.SetStatusNormalOn(status),
+                  null)
+     .ConfigureAwait(false);
   }
 
 
   public async Task SetStatusNormalOff(TmStatus  status,
                                        PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.SetStatusNormalOff(status).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.SetStatusNormalOff(status),
+                  null)
+     .ConfigureAwait(false);
   }
 
 
   public async Task ClearStatusNormal(TmStatus  status,
                                       PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.ClearStatusNormal(status).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.ClearStatusNormal(status),
+                  null)
+     .ConfigureAwait(false);
   }
 
 
   public async Task<int> GetStatusNormal(TmStatus  status,
                                          PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetStatusNormal(status).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return -1;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetStatusNormal(status),
+                         null,
+                         () => -1)
+            .ConfigureAwait(false);
   }
 
 
@@ -318,19 +205,11 @@ public partial class OikDataApi
                                           DateTime                time,
                                           PreferApi               prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.BackdateAnalogs(tmAnalogs, values, time).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return false;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.BackdateAnalogs(tmAnalogs, values, time),
+                         null)
+            .ConfigureAwait(false);
   }
 
 
@@ -339,19 +218,11 @@ public partial class OikDataApi
                                           DateTime                time,
                                           PreferApi               prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.PostdateAnalogs(tmAnalogs, values, time).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return false;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.PostdateAnalogs(tmAnalogs, values, time),
+                         null)
+            .ConfigureAwait(false);
   }
 
 
@@ -360,19 +231,11 @@ public partial class OikDataApi
                                             bool      alsoBlockManually = false,
                                             PreferApi prefer            = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.SetAnalogManually(analog, value, alsoBlockManually).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return false;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.SetAnalogManually(analog, value, alsoBlockManually),
+                         null)
+            .ConfigureAwait(false);
   }
 
 
@@ -381,19 +244,11 @@ public partial class OikDataApi
                                                     DateTime  time,
                                                     PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.SetAnalogBackdateManually(tmAnalog, value, time).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return false;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.SetAnalogBackdateManually(tmAnalog, value, time),
+                         null)
+            .ConfigureAwait(false);
   }
 
 
@@ -402,38 +257,22 @@ public partial class OikDataApi
                                                     DateTime  time,
                                                     PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.SetStatusBackdateManually(analog, status, time).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return false;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.SetStatusBackdateManually(analog, status, time),
+                         null)
+            .ConfigureAwait(false);
   }
 
 
   public async Task<bool> SetAnalogTechParameters(TmAnalog  analog, TmAnalogTechParameters parameters,
                                                   PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.SetAnalogTechParameters(analog, parameters).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return false;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.SetAnalogTechParameters(analog, parameters),
+                         null)
+            .ConfigureAwait(false);
   }
 
 
@@ -441,19 +280,11 @@ public partial class OikDataApi
                                         float     value,
                                         PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.SetAlarmValue(alarm, value).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return false;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.SetAlarmValue(alarm, value),
+                         null)
+            .ConfigureAwait(false);
   }
 
 
@@ -461,18 +292,11 @@ public partial class OikDataApi
                                 TmFlags   flags,
                                 PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.SetTagFlags(tag, flags).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.SetTagFlags(tag, flags),
+                  null)
+     .ConfigureAwait(false);
   }
 
 
@@ -480,18 +304,11 @@ public partial class OikDataApi
                                   TmFlags   flags,
                                   PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.ClearTagFlags(tag, flags).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.ClearTagFlags(tag, flags),
+                  null)
+     .ConfigureAwait(false);
   }
 
 
@@ -499,18 +316,11 @@ public partial class OikDataApi
                                           TmFlags   flags,
                                           PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.SetTagFlagsExplicitly(tag, flags).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.SetTagFlagsExplicitly(tag, flags),
+                  null)
+     .ConfigureAwait(false);
   }
 
 
@@ -518,18 +328,11 @@ public partial class OikDataApi
                                             TmFlags   flags,
                                             PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.ClearTagFlagsExplicitly(tag, flags).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.ClearTagFlagsExplicitly(tag, flags),
+                  null)
+     .ConfigureAwait(false);
   }
 
 
@@ -537,18 +340,11 @@ public partial class OikDataApi
                                  TmFlags            flags,
                                  PreferApi          prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.SetTagsFlags(tags, flags).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.SetTagsFlags(tags, flags),
+                  null)
+     .ConfigureAwait(false);
   }
 
 
@@ -556,108 +352,63 @@ public partial class OikDataApi
                                    TmFlags            flags,
                                    PreferApi          prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.ClearTagsFlags(tags, flags).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.ClearTagsFlags(tags, flags),
+                  null)
+     .ConfigureAwait(false);
   }
 
 
   public async Task<bool> AckTag(TmAddr    addr,
                                  PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.AckTag(addr).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return false;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.AckTag(addr),
+                         null)
+            .ConfigureAwait(false);
   }
 
 
   public async Task AckAllStatuses(PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.AckAllStatuses().ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.AckAllStatuses(),
+                  null)
+     .ConfigureAwait(false);
   }
 
 
   public async Task AckAllAnalogs(PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.AckAllAnalogs().ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.AckAllAnalogs(),
+                  null)
+     .ConfigureAwait(false);
   }
 
 
   public async Task<bool> AckStatus(TmStatus  status,
                                     PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.AckStatus(status).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return false;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.AckStatus(status),
+                         null)
+            .ConfigureAwait(false);
   }
 
 
   public async Task<bool> AckAnalog(TmAnalog  analog,
                                     PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.AckAnalog(analog).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return false;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.AckAnalog(analog),
+                         null)
+            .ConfigureAwait(false);
   }
 }

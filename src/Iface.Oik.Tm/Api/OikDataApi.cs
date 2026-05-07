@@ -199,6 +199,31 @@ namespace Iface.Oik.Tm.Api
     }
 
 
+    private T ExecuteSync<T>(PreferApi userPreference,
+                             PreferApi defaultPreference,
+                             Func<T>   tmsAction,
+                             Func<T>   sqlAction,
+                             Func<T>   errorAction = null)
+    {
+      var api = SelectApi(userPreference, defaultPreference, tmsAction != null, sqlAction != null);
+
+      if (api == ApiSelection.Tms && tmsAction != null)
+      {
+        return tmsAction();
+      }
+      if (api == ApiSelection.Sql && sqlAction != null)
+      {
+        return sqlAction();
+      }
+
+      if (errorAction != null)
+      {
+        return errorAction();
+      }
+      return default; // TODO throw exception
+    }
+
+
     private async Task<T> Execute<T>(PreferApi     userPreference,
                                      PreferApi     defaultPreference,
                                      Func<Task<T>> tmsAction,
@@ -250,184 +275,104 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<int> GetLastTmcError(PreferApi prefer = PreferApi.Auto)
     {
-      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-      if (api == ApiSelection.Tms)
-      {
-        return await _tms.GetLastTmcError().ConfigureAwait(false);
-      }
-      else if (api == ApiSelection.Sql)
-      {
-        throw new NotImplementedException();
-      }
-      else
-      {
-        return -1;
-      }
+      return await Execute(prefer,
+                           PreferApi.Tms,
+                           () => _tms.GetLastTmcError(),
+                           null,
+                           () => -1)
+              .ConfigureAwait(false);
     }
 
 
     public async Task<TmServerComputerInfo> GetServerComputerInfo(PreferApi prefer = PreferApi.Auto)
     {
-      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-      if (api == ApiSelection.Tms)
-      {
-        return await _tms.GetServerComputerInfo().ConfigureAwait(false);
-      }
-      else if (api == ApiSelection.Sql)
-      {
-        throw new NotImplementedException();
-      }
-      else
-      {
-        return null;
-      }
+      return await Execute(prefer,
+                           PreferApi.Tms,
+                           () => _tms.GetServerComputerInfo(),
+                           null)
+              .ConfigureAwait(false);
     }
 
 
     public async Task<string> GetLastTmcErrorText(PreferApi prefer = PreferApi.Auto)
     {
-      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-      if (api == ApiSelection.Tms)
-      {
-        return await _tms.GetLastTmcErrorText().ConfigureAwait(false);
-      }
-      else if (api == ApiSelection.Sql)
-      {
-        throw new NotImplementedException();
-      }
-      else
-      {
-        return null;
-      }
+      return await Execute(prefer,
+                           PreferApi.Tms,
+                           () => _tms.GetLastTmcErrorText(),
+                           null)
+              .ConfigureAwait(false);
     }
 
 
     public async Task<DateTime?> GetSystemTime(PreferApi prefer = PreferApi.Auto)
     {
-      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
-      if (api == ApiSelection.Tms)
-      {
-        return await _tms.GetSystemTime().ConfigureAwait(false);
-      }
-      else if (api == ApiSelection.Sql)
-      {
-        return await _sql.GetSystemTime().ConfigureAwait(false);
-      }
-      else
-      {
-        return null;
-      }
+      return await Execute(prefer,
+                           PreferApi.Tms,
+                           () => _tms.GetSystemTime(),
+                           () => _sql.GetSystemTime())
+              .ConfigureAwait(false);
     }
 
 
     public async Task<string> GetSystemTimeString(PreferApi prefer = PreferApi.Auto)
     {
-      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
-      if (api == ApiSelection.Tms)
-      {
-        return await _tms.GetSystemTimeString().ConfigureAwait(false);
-      }
-      else if (api == ApiSelection.Sql)
-      {
-        return await _sql.GetSystemTimeString().ConfigureAwait(false);
-      }
-      else
-      {
-        return string.Empty;
-      }
+      return await Execute(prefer,
+                           PreferApi.Tms,
+                           () => _tms.GetSystemTimeString(),
+                           () => _sql.GetSystemTimeString())
+              .ConfigureAwait(false);
     }
 
 
     public async Task<(string host, string server)> GetCurrentServerName(PreferApi prefer = PreferApi.Auto)
     {
-      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-      if (api == ApiSelection.Tms)
-      {
-        return await _tms.GetCurrentServerName().ConfigureAwait(false);
-      }
-      else if (api == ApiSelection.Sql)
-      {
-        throw new NotImplementedException();
-      }
-      else
-      {
-        return (null, null);
-      }
+      return await Execute(prefer,
+                           PreferApi.Tms,
+                           () => _tms.GetCurrentServerName(),
+                           null)
+              .ConfigureAwait(false);
     }
-
-
+    
+    
     public async Task<(string user, string password)> GenerateTokenForExternalApp(PreferApi prefer = PreferApi.Auto)
     {
-      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-      if (api == ApiSelection.Tms)
-      {
-        return await _tms.GenerateTokenForExternalApp().ConfigureAwait(false);
-      }
-      else if (api == ApiSelection.Sql)
-      {
-        throw new NotImplementedException();
-      }
-      else
-      {
-        return (null, null);
-      }
+      return await Execute(prefer,
+                           PreferApi.Tms,
+                           () => _tms.GenerateTokenForExternalApp(),
+                           null)
+              .ConfigureAwait(false);
     }
-
-
+    
+    
     public async Task<string> GetExpressionResult(string    expression,
                                                   PreferApi prefer = PreferApi.Auto)
     {
-      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-      if (api == ApiSelection.Tms)
-      {
-        return await _tms.GetExpressionResult(expression).ConfigureAwait(false);
-      }
-      else if (api == ApiSelection.Sql)
-      {
-        throw new NotImplementedException();
-      }
-      else
-      {
-        return null;
-      }
+      return await Execute(prefer,
+                           PreferApi.Tms,
+                           () => _tms.GetExpressionResult(expression),
+                           null)
+              .ConfigureAwait(false);
     }
-
-
+    
+    
     public string GetExpressionResultSync(string    expression,
                                           PreferApi prefer = PreferApi.Auto)
     {
-      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-      if (api == ApiSelection.Tms)
-      {
-        return _tms.GetExpressionResultSync(expression);
-      }
-      else if (api == ApiSelection.Sql)
-      {
-        throw new NotImplementedException();
-      }
-      else
-      {
-        return null;
-      }
+      return ExecuteSync(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetExpressionResultSync(expression),
+                         null);
     }
 
 
     public async Task<IReadOnlyCollection<string>> GetFilesInDirectory(string    path,
                                                                        PreferApi prefer = PreferApi.Auto)
     {
-      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-      if (api == ApiSelection.Tms)
-      {
-        return await _tms.GetFilesInDirectory(path).ConfigureAwait(false);
-      }
-      else if (api == ApiSelection.Sql)
-      {
-        throw new NotImplementedException();
-      }
-      else
-      {
-        return null;
-      }
+      return await Execute(prefer,
+                           PreferApi.Tms,
+                           () => _tms.GetFilesInDirectory(path),
+                           null)
+              .ConfigureAwait(false);
     }
 
 
@@ -435,19 +380,11 @@ namespace Iface.Oik.Tm.Api
                                          string    localPath,
                                          PreferApi prefer = PreferApi.Auto)
     {
-      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-      if (api == ApiSelection.Tms)
-      {
-        return await _tms.DownloadFile(remotePath, localPath).ConfigureAwait(false);
-      }
-      else if (api == ApiSelection.Sql)
-      {
-        throw new NotImplementedException();
-      }
-      else
-      {
-        return false;
-      }
+      return await Execute(prefer,
+                           PreferApi.Tms,
+                           () => _tms.DownloadFile(remotePath, localPath),
+                           null)
+              .ConfigureAwait(false);
     }
 
 
@@ -457,19 +394,11 @@ namespace Iface.Oik.Tm.Api
       {
         return null;
       }
-      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-      if (api == ApiSelection.Tms)
-      {
-        return await _tms.GetComtradeDays().ConfigureAwait(false);
-      }
-      else if (api == ApiSelection.Sql)
-      {
-        throw new NotImplementedException();
-      }
-      else
-      {
-        return null;
-      }
+      return await Execute(prefer,
+                           PreferApi.Tms,
+                           () => _tms.GetComtradeDays(),
+                           null)
+              .ConfigureAwait(false);
     }
 
 
@@ -480,19 +409,11 @@ namespace Iface.Oik.Tm.Api
       {
         return null;
       }
-      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-      if (api == ApiSelection.Tms)
-      {
-        return await _tms.GetComtradeFilesByDay(day).ConfigureAwait(false);
-      }
-      else if (api == ApiSelection.Sql)
-      {
-        throw new NotImplementedException();
-      }
-      else
-      {
-        return null;
-      }
+      return await Execute(prefer,
+                           PreferApi.Tms,
+                           () => _tms.GetComtradeFilesByDay(day),
+                           null)
+              .ConfigureAwait(false);
     }
 
 
@@ -504,19 +425,11 @@ namespace Iface.Oik.Tm.Api
       {
         return false;
       }
-      var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-      if (api == ApiSelection.Tms)
-      {
-        return await _tms.DownloadComtradeFile(filename, localPath).ConfigureAwait(false);
-      }
-      else if (api == ApiSelection.Sql)
-      {
-        throw new NotImplementedException();
-      }
-      else
-      {
-        return false;
-      }
+      return await Execute(prefer,
+                           PreferApi.Tms,
+                           () => _tms.DownloadComtradeFile(filename, localPath),
+                           null)
+              .ConfigureAwait(false);
     }
 
 

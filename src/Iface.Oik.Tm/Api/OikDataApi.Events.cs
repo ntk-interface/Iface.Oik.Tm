@@ -10,56 +10,32 @@ public partial class OikDataApi
   public async Task<IReadOnlyCollection<TmEvent>> GetEventsArchive(TmEventFilter filter,
                                                                    PreferApi     prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetEventsArchiveByElix(filter).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      return await _sql.GetEventsArchive(filter).ConfigureAwait(false);
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Sql,
+                         () => _tms.GetEventsArchiveByElix(filter),
+                         () => _sql.GetEventsArchive(filter))
+            .ConfigureAwait(false);
   }
 
 
   public async Task<IReadOnlyCollection<TmUserAction>> GetUserActionsArchive(TmEventFilter filter,
                                                                              PreferApi     prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      return null;
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      return await _sql.GetUserActionsArchive(filter).ConfigureAwait(false);
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Sql,
+                         null,
+                         () => _sql.GetUserActionsArchive(filter))
+            .ConfigureAwait(false);
   }
 
 
   public async Task<TmEventElix> GetCurrentEventsElix(PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetCurrentEventsElix().ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetCurrentEventsElix(),
+                         null)
+            .ConfigureAwait(false);
   }
 
 
@@ -68,113 +44,65 @@ public partial class OikDataApi
                                                      TmEventTypes eventTypes  = TmEventTypes.Any,
                                                      PreferApi    prefer      = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetRecentEventsElix(recentCount, recentHours, eventTypes).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetRecentEventsElix(recentCount, recentHours, eventTypes),
+                         null)
+            .ConfigureAwait(false);
   }
 
 
   public async Task<(IReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix,
     PreferApi                                                                                 prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.GetCurrentEvents(elix).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      return await _sql.GetCurrentEvents(elix).ConfigureAwait(false);
-    }
-    else
-    {
-      return (null, null);
-    }
+    return await Execute(prefer,
+                         PreferApi.Sql,
+                         () => _tms.GetCurrentEvents(elix),
+                         () => _sql.GetCurrentEvents(elix))
+            .ConfigureAwait(false);
   }
 
 
   public async Task<bool> UpdateAckedEventsIfAny(IReadOnlyList<TmEvent> tmEvents,
                                                  PreferApi              prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.UpdateAckedEventsIfAny(tmEvents).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      return await _sql.UpdateAckedEventsIfAny(tmEvents).ConfigureAwait(false);
-    }
-    else
-    {
-      return false;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.UpdateAckedEventsIfAny(tmEvents),
+                         () => _sql.UpdateAckedEventsIfAny(tmEvents))
+            .ConfigureAwait(false);
   }
 
 
   public async Task<IReadOnlyCollection<TmTag>> GetTagsWithBlockedEvents(PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Sql, isTmsImplemented: false, isSqlImplemented: true);
-    if (api == ApiSelection.Tms)
-    {
-      throw new NotImplementedException();
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      return await _sql.GetTagsWithBlockedEvents().ConfigureAwait(false);
-    }
-    else
-    {
-      return null;
-    }
+    return await Execute(prefer,
+                         PreferApi.Sql,
+                         null,
+                         () => _sql.GetTagsWithBlockedEvents())
+            .ConfigureAwait(false);
   }
 
 
   public async Task<bool> AckEvent(TmEvent   tmEvent,
                                    PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.AckEvent(tmEvent).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return false;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.AckEvent(tmEvent),
+                         null)
+            .ConfigureAwait(false);
   }
 
 
   public async Task<bool> AckEvents(IReadOnlyList<TmEvent> tmEvents,
                                     PreferApi              prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.AckEvents(tmEvents).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return false;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.AckEvents(tmEvents),
+                         null)
+            .ConfigureAwait(false);
   }
 
 
@@ -183,18 +111,11 @@ public partial class OikDataApi
                                         DateTime? time   = null,
                                         PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.AddStringToEventLog(str, tmAddr, time).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.AddStringToEventLog(str, tmAddr, time),
+                  null)
+     .ConfigureAwait(false);
   }
 
 
@@ -206,18 +127,11 @@ public partial class OikDataApi
                                           TmAddr                    tmAddr    = null,
                                           PreferApi                 prefer    = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.AddStringToEventLogEx(time, importances, source, message, binString, tmAddr).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.AddStringToEventLogEx(time, importances, source, message, binString, tmAddr),
+                  null)
+     .ConfigureAwait(false);
   }
 
 
@@ -227,18 +141,11 @@ public partial class OikDataApi
                                                   DateTime?          time        = null,
                                                   PreferApi          prefer      = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.AddTmaRelatedStringToEventLog(message, tmAddr, importances, time).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.AddTmaRelatedStringToEventLog(message, tmAddr, importances, time),
+                  null)
+     .ConfigureAwait(false);
   }
 
 
@@ -246,19 +153,11 @@ public partial class OikDataApi
                                                     int       minutesToBlock,
                                                     PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.BlockTagEventsTemporarily(tmTag, minutesToBlock).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return false;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.BlockTagEventsTemporarily(tmTag, minutesToBlock),
+                         null)
+            .ConfigureAwait(false);
   }
 
 
@@ -266,36 +165,21 @@ public partial class OikDataApi
                                                     DateTime  endBlockTime,
                                                     PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      return await _tms.BlockTagEventsTemporarily(tmTag, endBlockTime).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-      return false;
-    }
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.BlockTagEventsTemporarily(tmTag, endBlockTime),
+                         null)
+            .ConfigureAwait(false);
   }
 
 
   public async Task UnblockTagEvents(TmTag     tmTag,
                                      PreferApi prefer = PreferApi.Auto)
   {
-    var api = SelectApi(prefer, PreferApi.Tms, isTmsImplemented: true, isSqlImplemented: false);
-    if (api == ApiSelection.Tms)
-    {
-      await _tms.UnblockTagEvents(tmTag).ConfigureAwait(false);
-    }
-    else if (api == ApiSelection.Sql)
-    {
-      throw new NotImplementedException();
-    }
-    else
-    {
-    }
+    await Execute(prefer,
+                  PreferApi.Tms,
+                  () => _tms.UnblockTagEvents(tmTag),
+                  null)
+     .ConfigureAwait(false);
   }
 }
