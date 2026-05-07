@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using GuiApp.Wpf.ViewModels;
 using GuiApp.Wpf.Views;
 using Iface.Oik.Tm.Api;
@@ -14,12 +13,7 @@ public partial class App
   protected override void OnStartup(StartupEventArgs e)
   {
     base.OnStartup(e);
-
-    // TODO убрать после перехода кодировок
-    Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // требуется для работы с кодировкой Win-1251
     
-    Tms.InitNativeLibrary();
-
     var services = StartupServices();
 
     services.AddSingleton<MainWindowView>();

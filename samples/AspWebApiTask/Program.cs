@@ -1,5 +1,4 @@
 using System;
-using System.Text;
 using Iface.Oik.Tm.Helpers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,11 +10,6 @@ namespace AspWebApiTask
   {
     public static void Main(string[] args)
     {
-      // TODO убрать после перехода кодировок
-      Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // требуется для работы с кодировкой Win-1251
-    
-      Tms.InitNativeLibrary();
-      
       var app = CreateHostBuilder(args).Build();
       using (var scope = app.Services.CreateScope())
       {

@@ -540,7 +540,7 @@ namespace Iface.Oik.Tm.Helpers
     public static (int tmCid, TmUserInfo userInfo, TmServerFeatures serverFeatures)
       InitializeWithoutSql(TmInitializeOptions options)
     {
-      TmNative.cfsInitLibrary(null, null);
+      InitNativeLibrary();
 
       SetUserCredentials(options.User,
                          options.Password);
@@ -588,7 +588,7 @@ namespace Iface.Oik.Tm.Helpers
     public static (int tmCid, TmUserInfo userInfo, TmServerFeatures serverFeatures, IntPtr stopEventHandle)
       InitializeAsTaskWithoutSql(TmOikTaskOptions taskOptions, TmInitializeOptions options)
     {
-      TmNative.cfsInitLibrary(null, null);
+      InitNativeLibrary();
 
       var taskArgs = Environment.GetCommandLineArgs();
       taskArgs[0] = PlatformUtil.GetOikTaskExecutable(taskArgs[0]);
@@ -621,7 +621,7 @@ namespace Iface.Oik.Tm.Helpers
     public static (int tmCid, IntPtr stopEventHandle) InitializeAsTaskSimple(TmOikTaskOptions    taskOptions,
                                                                              TmInitializeOptions options)
     {
-      TmNative.cfsInitLibrary(null, null);
+      InitNativeLibrary();
 
       var taskArgs = Environment.GetCommandLineArgs();
       taskArgs[0] = PlatformUtil.GetOikTaskExecutable(taskArgs[0]);

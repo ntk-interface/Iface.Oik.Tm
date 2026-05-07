@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Api;
 using Iface.Oik.Tm.Helpers;
@@ -16,11 +15,8 @@ var password = commandLineArgs.ElementAtOrDefault(4) ?? "";
 
 try
 {
-  // TODO убрать после перехода кодировок
-  Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // требуется для работы с кодировкой Win-1251
-  
   Tms.InitNativeLibrary();
-
+  
   Tms.SetUserCredentials(user, password);
 
   var tmCid = Tms.Connect(host,

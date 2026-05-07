@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using Iface.Oik.Tm.Api;
 using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
@@ -12,11 +11,6 @@ namespace ConsoleApp
   {
     public static void Main(string[] args)
     {
-      // TODO убрать после перехода кодировок
-      Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // требуется для работы с кодировкой Win-1251
-    
-      Tms.InitNativeLibrary();
-      
       // устанавливаем соединение с сервером ОИК
       try
       {
