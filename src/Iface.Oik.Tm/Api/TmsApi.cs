@@ -1435,7 +1435,6 @@ namespace Iface.Oik.Tm.Api
         Data = TmNativeUtil.GetBytes(new TmNativeDefs.ControlData
         {
           Cmd = (byte)explicitNewStatus,
-          // UserName = TmNativeUtil.GetFixedBytesWithTrailingZero(_userInfo?.Name, 16, "cp866"), // TODO проверить
         }),
       };
       await Task.Run(() => TmNative.tmcRegEvent(_cid, ev))
@@ -1454,7 +1453,6 @@ namespace Iface.Oik.Tm.Api
         {
           Result   = (byte)result,
           Cmd      = (byte)explicitNewStatus,
-          // UserName = TmNativeUtil.GetFixedBytesWithTrailingZero(_userInfo?.Name, 16, "cp866"), // TODO проверить
         });
       }
 
@@ -1851,7 +1849,6 @@ namespace Iface.Oik.Tm.Api
         var (ch, rtu, point) = tmTag.TmAddr.GetTuple();
         var evCh       = (byte)0xFF;
         var evCommand  = (byte)(isSet ? 1 : 0);
-        // var evOperator = TmNativeUtil.GetFixedBytesWithTrailingZero(_userInfo?.Name, 16, "cp866"); // TODO проверить
         var ev = new TmNativeDefs.TEvent
         {
           Ch    = ch,
@@ -1864,10 +1861,9 @@ namespace Iface.Oik.Tm.Api
         {
           ev.Data = TmNativeUtil.GetBytes(new TmNativeDefs.ControlData
           {
-            Ch       = evCh,
-            Rtu      = 1,
-            Cmd      = evCommand,
-            // UserName = evOperator, // TODO проверить
+            Ch  = evCh,
+            Rtu = 1,
+            Cmd = evCommand,
           });
           await Task.Run(() => TmNative.tmcRegEvent(_cid, ev))
                     .ConfigureAwait(false);
@@ -1877,10 +1873,9 @@ namespace Iface.Oik.Tm.Api
         {
           ev.Data = TmNativeUtil.GetBytes(new TmNativeDefs.ControlData
           {
-            Ch       = evCh,
-            Rtu      = 2,
-            Cmd      = evCommand,
-            // UserName = evOperator, // TODO проверить
+            Ch  = evCh,
+            Rtu = 2,
+            Cmd = evCommand,
           });
           await Task.Run(() => TmNative.tmcRegEvent(_cid, ev))
                     .ConfigureAwait(false);
@@ -1890,10 +1885,9 @@ namespace Iface.Oik.Tm.Api
         {
           ev.Data = TmNativeUtil.GetBytes(new TmNativeDefs.ControlData
           {
-            Ch       = evCh,
-            Rtu      = 3,
-            Cmd      = evCommand,
-            // UserName = evOperator, // TODO проверить
+            Ch  = evCh,
+            Rtu = 3,
+            Cmd = evCommand,
           });
           await Task.Run(() => TmNative.tmcRegEvent(_cid, ev))
                     .ConfigureAwait(false);
@@ -1903,10 +1897,9 @@ namespace Iface.Oik.Tm.Api
         {
           ev.Data = TmNativeUtil.GetBytes(new TmNativeDefs.ControlData
           {
-            Ch       = evCh,
-            Rtu      = 4,
-            Cmd      = evCommand,
-            // UserName = evOperator, // TODO проверить
+            Ch  = evCh,
+            Rtu = 4,
+            Cmd = evCommand,
           });
           await Task.Run(() => TmNative.tmcRegEvent(_cid, ev))
                     .ConfigureAwait(false);
@@ -2002,8 +1995,7 @@ namespace Iface.Oik.Tm.Api
         Imp   = 0,
         Data = TmNativeUtil.GetBytes(new TmNativeDefs.ControlData
         {
-          Cmd      = (byte)newStatus,
-          // UserName = TmNativeUtil.GetFixedBytesWithTrailingZero(_userInfo?.Name, 16, "cp866"), // TODO проверить
+          Cmd = (byte)newStatus,
         }),
       };
       await Task.Run(() => TmNative.tmcRegEvent(_cid, ev))
@@ -2245,9 +2237,8 @@ namespace Iface.Oik.Tm.Api
         Imp = 0,
         Data = TmNativeUtil.GetBytes(new TmNativeDefs.AnalogSetData
         {
-          Cmd      = 1, // флаг ручной установки
-          Value    = value,
-          // UserName = TmNativeUtil.GetFixedBytesWithTrailingZero(_userInfo?.Name, 16, "cp866"), // TODO проверить
+          Cmd   = 1, // флаг ручной установки
+          Value = value,
         }),
       };
       (ev.Ch, ev.Rtu, ev.Point) = tmAnalog.TmAddr.GetTuple();
@@ -2306,9 +2297,8 @@ namespace Iface.Oik.Tm.Api
         DateTime = time.ToTmByteArray(),
         Data = TmNativeUtil.GetBytes(new TmNativeDefs.AnalogSetData
         {
-          Cmd      = 1, // флаг ручной установки
-          Value    = value,
-          // UserName = TmNativeUtil.GetFixedBytesWithTrailingZero(_userInfo?.Name, 16, "cp866"), // TODO проверить
+          Cmd   = 1, // флаг ручной установки
+          Value = value,
         }),
       };
       (ev.Ch, ev.Rtu, ev.Point) = tmAnalog.TmAddr.GetTuple();
@@ -2342,8 +2332,7 @@ namespace Iface.Oik.Tm.Api
         DateTime = time.ToTmByteArray(),
         Data = TmNativeUtil.GetBytes(new TmNativeDefs.ControlData
         {
-          Cmd      = (byte)status,
-          // UserName = TmNativeUtil.GetFixedBytesWithTrailingZero(_userInfo?.Name, 16, "cp866"), // TODO проверить
+          Cmd = (byte)status,
         }),
       };
       await Task.Run(() => TmNative.tmcRegEvent(_cid, ev))
