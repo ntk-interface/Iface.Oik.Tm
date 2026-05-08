@@ -139,10 +139,19 @@ public static partial class TmNativeApi
           throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
         }
 
-        var record = TmServerLogRecordBase.Create<T>(logRecordPtr);
-        TmNative.cfsFreeMemory(logRecordPtr);
-
-        records.Add(record);
+        try
+        {
+          var record = TmServerLogRecordBase.Create<T>(logRecordPtr);
+          records.Add(record);
+        }
+        catch (TmNativeException)
+        {
+          continue;
+        }
+        finally
+        {
+          TmNative.cfsFreeMemory(logRecordPtr);
+        }
       }
 
       return records;
