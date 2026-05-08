@@ -37,17 +37,21 @@ internal static partial class TmNativeDefsUnsafe
   }
 
   public const int TExtendedUserInfoRightsSize = 250;
+  public const int MaxPwdLen = 64;
 
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public unsafe struct TExtendedUserInfo
   {
-    public int  RecNum;
-    public int  UserId;
+    public int  RecNum; // not used
+    public int  UserId; // 1-255
     public byte Group;
 
     public fixed byte KeyId[16];
     public fixed byte UserName[16];
-    public fixed byte UserPwd[8];
+    public fixed byte UserPwd[8]; // not used?
     public fixed byte Rights[TExtendedUserInfoRightsSize];
+
+    public fixed byte UserNameLong[MaxPwdLen];
+    public fixed byte UserPwdLong[MaxPwdLen];
   }
 }

@@ -29,7 +29,7 @@ public record TUserInfoDto
     {
       Id           = (int)id,
       Valid        = userInfo.Valid != 0,
-      UserName     = TmNativeUtil.BytePtrToString(userInfo.UserName,     16),
+      UserName     = TmNativeUtil.BytePtrToString(userInfo.UserName,     16), // TODO UserNameLong
       UserComment  = TmNativeUtil.BytePtrToString(userInfo.UserComment,  64),
       NtUserName   = TmNativeUtil.BytePtrToString(userInfo.NtUserName,   32),
       NtUserDomain = TmNativeUtil.BytePtrToString(userInfo.NtUserDomain, 32),
@@ -49,7 +49,7 @@ public record TUserInfoDto
     {
       Id                         = (int)id,
       Valid                      = userInfo.Valid != 0,
-      UserName                   = TmNativeUtil.BytePtrToString(userInfo.UserName,     16),
+      UserName                   = TmNativeUtil.BytePtrToString(userInfo.UserName,     16), // TODO UserNameLong
       UserComment                = TmNativeUtil.BytePtrToString(userInfo.UserComment,  64),
       NtUserName                 = TmNativeUtil.BytePtrToString(userInfo.NtUserName,   32),
       NtUserDomain               = TmNativeUtil.BytePtrToString(userInfo.NtUserDomain, 32),
@@ -67,7 +67,7 @@ public record TUserInfoDto
     return new TUserInfoDto
     {
       Id              = userInfo.UserId,
-      UserName        = TmNativeUtil.BytePtrToString(userInfo.UserName, 16),
+      UserName        = TmNativeUtil.BytePtrToString(userInfo.UserName, 16), // TODO UserNameLong
       UserCategory    = string.Empty,
       KeyId           = TmNativeUtil.BytePtrToString(userInfo.KeyId, 16),
       GroupId         = userInfo.Group,
@@ -80,13 +80,12 @@ public record TUserInfoDto
   {
     return new TUserInfoDto
     {
-      Id           = extendedUserInfo.UserId,
-      UserName     = TmNativeUtil.BytePtrToString(extendedUserInfo.UserName, 16),
-      UserCategory = TmNativeUtil.BytePtrToString(userInfo.UserCategory,     64),
-      KeyId        = TmNativeUtil.BytePtrToString(extendedUserInfo.KeyId,    16),
-      GroupId      = extendedUserInfo.Group,
-      PermissionBytes = TmNativeUtil.PtrToArray(extendedUserInfo.Rights, 
-                                                    TmNativeDefsUnsafe.TExtendedUserInfoRightsSize)
+      Id              = extendedUserInfo.UserId,
+      UserName        = TmNativeUtil.BytePtrToString(extendedUserInfo.UserNameLong, TmNativeDefsUnsafe.MaxPwdLen),
+      UserCategory    = TmNativeUtil.BytePtrToString(userInfo.UserCategory,         64),
+      KeyId           = TmNativeUtil.BytePtrToString(extendedUserInfo.KeyId,        16),
+      GroupId         = extendedUserInfo.Group,
+      PermissionBytes = TmNativeUtil.PtrToArray(extendedUserInfo.Rights, TmNativeDefsUnsafe.TExtendedUserInfoRightsSize)
     };
   }
 }

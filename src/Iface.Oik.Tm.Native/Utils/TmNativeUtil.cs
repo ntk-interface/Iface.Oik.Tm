@@ -10,6 +10,12 @@ namespace Iface.Oik.Tm.Native.Utils
 {
   public static class TmNativeUtil
   {
+    private static Encoding DetectEncoding(ReadOnlySpan<byte> bytes)
+    {
+      return TmNative.cfsIsUTF8(bytes) ? Encoding.UTF8 : Encoding.GetEncoding(1251);
+    }
+    
+    
     public static TmNativeDefs.TStatusPoint GetStatusPointFromCommonPoint(TmNativeDefs.TCommonPoint commonPoint)
     {
       if (commonPoint.Data == null)
@@ -80,9 +86,8 @@ namespace Iface.Oik.Tm.Native.Utils
 
       var significantBytes = new byte[doubleNull];
       Array.Copy(bytes, significantBytes, doubleNull);
-      return Encoding.GetEncoding(1251)
-                     .GetString(significantBytes)
-                     .Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
+      return DetectEncoding(significantBytes).GetString(significantBytes)
+                                             .Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
     }
 
     public static (IEnumerable<KeyValuePair<string, string>>, byte[]) SplitMqttMessageDatagram(byte[]? datagram)
@@ -102,14 +107,13 @@ namespace Iface.Oik.Tm.Native.Utils
 
       var infoBytes = new byte[doubleNull];
       Array.Copy(datagram, 2, infoBytes, 0, doubleNull);
-      var infoDictionary = Encoding.GetEncoding(1251)
-                                   .GetString(infoBytes)
-                                   .Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries)
-                                   .Select(x =>
-                                           {
-                                             var item = x.Split('=');
-                                             return new KeyValuePair<string, string>(item[0], item[1]);
-                                           });
+      var infoDictionary = DetectEncoding(infoBytes).GetString(infoBytes)
+                                                    .Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries)
+                                                    .Select(x =>
+                                                     {
+                                                       var item = x.Split('=');
+                                                       return new KeyValuePair<string, string>(item[0], item[1]);
+                                                     });
 
       byte[] payloadBytes;
       var    payloadIndex = doubleNull + 2;
@@ -146,7 +150,7 @@ namespace Iface.Oik.Tm.Native.Utils
 
       foreach (var str in list)
       {
-        var strBytes = Encoding.GetEncoding(1251).GetBytes(str);
+        var strBytes = StringToByteArray(str); // TODO кодировка??
         Array.Copy(strBytes, 0, bytes, cursor, strBytes.Length);
         cursor += strBytes.Length;
 
@@ -212,9 +216,7 @@ namespace Iface.Oik.Tm.Native.Utils
             break;
           }
 
-          result.Add(Encoding.GetEncoding(1251)
-                             .GetString(stringBytes)
-                             .Trim('\0'));
+          result.Add(DetectEncoding(stringBytes).GetString(stringBytes).Trim('\0'));
           Array.Clear(stringBytes, 0, stringBytesSize);
           stringCursor = 0;
           isNullFound  = true;
@@ -239,8 +241,7 @@ namespace Iface.Oik.Tm.Native.Utils
       var byteList = new List<byte>();
       foreach (var item in list)
       {
-        var bytes = Encoding.GetEncoding(1251)
-                            .GetBytes(item);
+        var bytes = StringToByteArray(item); // TODO кодировка??
         byteList.AddRange(bytes);
         byteList.Add(0);
       }
@@ -362,10 +363,9 @@ namespace Iface.Oik.Tm.Native.Utils
         length++;
       }
 
-      var span     = new Span<byte>(p, length);
-      var encoding = TmNative.cfsIsUTF8(span) ? Encoding.UTF8 : Encoding.GetEncoding(1251);
+      var span = new Span<byte>(p, length);
 
-      return encoding.GetString(span);
+      return DetectEncoding(span).GetString(span);
     }
 
     public static unsafe string GetCStringFromIntPtr(nint ptr, Encoding? encoding = null)
@@ -574,6 +574,16 @@ namespace Iface.Oik.Tm.Native.Utils
                : encoding.GetBytes(src);
     }
 
+
+    public static byte[] StringToByteArray(string src, Encoding? encoding = null)
+    {
+      encoding ??= Encoding.UTF8;
+
+      return string.IsNullOrEmpty(src)
+               ? Array.Empty<byte>()
+               : encoding.GetBytes(src);
+    }
+    
 
     public static bool PointerValueIsNull(nint ptr)
     {
