@@ -11,7 +11,25 @@ namespace OikTask
   {
     public static void Main(string[] args)
     {
-      var app = CreateHostBuilder(args).Build();
+      var app = Host.CreateDefaultBuilder(args)
+                    .ConfigureServices((_, services) =>
+                     {
+                       // регистрация сервисов ОИК
+                       services.AddSingleton<ITmsApi, TmsApi>();
+                       services.AddSingleton<IOikSqlApi, OikSqlApi>();
+                       services.AddSingleton<IOikDataApi, OikDataApi>();
+                       services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
+                       services.AddSingleton<ServerService>();
+                       services.AddSingleton<ICommonServerService>(provider => provider.GetService<ServerService>());
+                       services.AddSingleton<TmStartup>();
+            
+                       // регистрация фоновых служб
+                       services.AddSingleton<IHostedService>(provider => provider.GetService<TmStartup>());
+                       services.AddSingleton<IHostedService>(provider => provider.GetService<ServerService>());
+                       services.AddHostedService<Worker>();
+                     })
+                    .Build();
+      
       using (var scope = app.Services.CreateScope())
       {
         try
@@ -27,24 +45,5 @@ namespace OikTask
       
       app.Run();
     }
-
-    public static IHostBuilder CreateHostBuilder(string[] args) =>
-      Host.CreateDefaultBuilder(args)
-          .ConfigureServices((_, services) =>
-          {
-            // регистрация сервисов ОИК
-            services.AddSingleton<ITmsApi, TmsApi>();
-            services.AddSingleton<IOikSqlApi, OikSqlApi>();
-            services.AddSingleton<IOikDataApi, OikDataApi>();
-            services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
-            services.AddSingleton<ServerService>();
-            services.AddSingleton<ICommonServerService>(provider => provider.GetService<ServerService>());
-            services.AddSingleton<TmStartup>();
-            
-            // регистрация фоновых служб
-            services.AddSingleton<IHostedService>(provider => provider.GetService<TmStartup>());
-            services.AddSingleton<IHostedService>(provider => provider.GetService<ServerService>());
-            services.AddHostedService<Worker>();
-          });
   }
 }

@@ -11,7 +11,6 @@ namespace ConsoleApp
   {
     public static void Main(string[] args)
     {
-      // устанавливаем соединение с сервером ОИК
       try
       {
         TmStartup.Connect();
@@ -22,27 +21,24 @@ namespace ConsoleApp
         Environment.Exit(-1);
       }
       
-      // .NET Generic Host
-      CreateHostBuilder(args).Build().Run();
-    }
-
-
-    public static IHostBuilder CreateHostBuilder(string[] args) =>
       Host.CreateDefaultBuilder(args)
           .ConfigureServices((_, services) =>
-          {
-            // регистрация сервисов ОИК
-            services.AddSingleton<ITmsApi, TmsApi>();
-            services.AddSingleton<IOikSqlApi, OikSqlApi>();
-            services.AddSingleton<IOikDataApi, OikDataApi>();
-            services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
-            services.AddSingleton<ServerService>();
-            services.AddSingleton<ICommonServerService>(provider => provider.GetService<ServerService>());
+           {
+             // регистрация сервисов ОИК
+             services.AddSingleton<ITmsApi, TmsApi>();
+             services.AddSingleton<IOikSqlApi, OikSqlApi>();
+             services.AddSingleton<IOikDataApi, OikDataApi>();
+             services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
+             services.AddSingleton<ServerService>();
+             services.AddSingleton<ICommonServerService>(provider => provider.GetService<ServerService>());
 
-            // регистрация фоновых служб
-            services.AddHostedService<TmStartup>();
-            services.AddSingleton<IHostedService>(provider => provider.GetService<ServerService>());
-            services.AddHostedService<Worker>();
-          });
+             // регистрация фоновых служб
+             services.AddHostedService<TmStartup>();
+             services.AddSingleton<IHostedService>(provider => provider.GetService<ServerService>());
+             services.AddHostedService<Worker>();
+           })
+          .Build()
+          .Run();
+    }
   }
 }
