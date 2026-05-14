@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Text;
 using Iface.Oik.Tm.Api;
 using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.IntegrationTest.Util;
 using Iface.Oik.Tm.IntegrationTest.Workers;
 using Iface.Oik.Tm.Interfaces;
-using Iface.Oik.Tm.Native.Api;
-using Iface.Oik.Tm.Native.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -16,7 +13,6 @@ public class Program
 {
   public static void Main(string[] args)
   {
-    Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // требуется для работы с кодировкой Win-1251
     Tms.InitNativeLibrary();
 
     // Сначала проверяем статические методы

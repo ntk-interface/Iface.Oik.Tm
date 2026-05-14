@@ -10,7 +10,7 @@ namespace Iface.Oik.Tm.Native.Utils
 {
   public static class TmNativeUtil
   {
-    private static Encoding DetectEncoding(ReadOnlySpan<byte> bytes)
+    public static Encoding DetectEncoding(ReadOnlySpan<byte> bytes)
     {
       return TmNative.cfsIsUTF8(bytes) ? Encoding.UTF8 : Encoding.GetEncoding(1251);
     }

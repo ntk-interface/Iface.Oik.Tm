@@ -8,17 +8,6 @@ namespace Iface.Oik.Tm.Utils
   {
     public const string Cp1251 = "windows-1251";
 
-    public static string Utf8ToWin1251(string src)
-    {
-      if (src == null)
-      {
-        return null;
-      }
-      var utf8 = Encoding.UTF8;
-      var win1251 = Encoding.GetEncoding(1251);
-      return win1251.GetString(Encoding.Convert(utf8, win1251, utf8.GetBytes(src)));
-    }
-
 
     public static byte[] StringToBytes(string src)
     {
@@ -31,7 +20,7 @@ namespace Iface.Oik.Tm.Utils
     }
 
 
-    public static string Win1251ToUtf8(string src)
+    public static string Win1251ToUtf8(string src) // TODO кодировка удалить
     {
       if (src == null)
       {
@@ -60,7 +49,7 @@ namespace Iface.Oik.Tm.Utils
       return encoding.GetString(src[..len]);
     }
 
-    public static string Win1251IntPtrToUtf8(IntPtr stringPtr)
+    public static string Win1251IntPtrToUtf8(IntPtr stringPtr) // TODO кодировка
     {
       var win1251Str = Marshal.PtrToStringAnsi(stringPtr);
       if (win1251Str == null)
@@ -71,7 +60,7 @@ namespace Iface.Oik.Tm.Utils
     }
 
 
-    public static string Cp866ToUtf8(string src)
+    public static string Cp866ToUtf8(string src) // TODO кодировка удалить
     {
       if (src == null)
       {
@@ -82,7 +71,7 @@ namespace Iface.Oik.Tm.Utils
     }
 
 
-    public static string Cp866BytesToUtf8(byte[] src)
+    public static string Cp866BytesToUtf8(byte[] src) // TODO кодировка
     {
       if (src == null)
       {

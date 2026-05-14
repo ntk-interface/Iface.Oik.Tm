@@ -197,7 +197,7 @@ public static partial class TmNativeApi
 
         if (equalIndex != -1)
         {
-          var encoding = TmNative.cfsIsUTF8(span) ? Encoding.UTF8 : Encoding.GetEncoding(1251);
+          var encoding = TmNativeUtil.DetectEncoding(span);
           var key      = encoding.GetString(span[..equalIndex]);
           var value    = encoding.GetString(span[(equalIndex + 1)..]);
 

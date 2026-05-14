@@ -1438,8 +1438,7 @@ namespace Iface.Oik.Tm.Api
       }
 
 
-      var encoding = TmNative.cfsIsUTF8(buf) ? Encoding.UTF8 : Encoding.GetEncoding(1251);
-      return EncodingUtil.BytesToString(buf, encoding);
+      return EncodingUtil.BytesToString(buf, TmNativeUtil.DetectEncoding(buf));
     }
 
 
@@ -1757,7 +1756,7 @@ namespace Iface.Oik.Tm.Api
       var portStr = $"{port}";
       var binData = TmNativeUtil.GetFixedBytesWithTrailingZero(portStr,
                                                                portStr.Length + 1,
-                                                               EncodingUtil.Cp1251);
+                                                               EncodingUtil.Cp1251); // TODO кодировка
 
       return await SetBin(".cfs.",
                           $"rbs${pipeName}",
@@ -1984,7 +1983,7 @@ namespace Iface.Oik.Tm.Api
       string n;
       uint errCode, resErrCode = 0;
       string errString, resErrString = string.Empty;
-      string enc = EncodingUtil.Cp1251;
+      string enc = EncodingUtil.Cp1251; // TODO кодировка
 
 
       if (passwordPolicy.AdminPasswordChange)
@@ -2241,7 +2240,7 @@ namespace Iface.Oik.Tm.Api
     {
       uint bflags;
       bool result = false;
-      byte[] reserved_buf = TmNativeUtil.GetFixedBytesWithTrailingZero(directory, 260, EncodingUtil.Cp1251);
+      byte[] reserved_buf = TmNativeUtil.GetFixedBytesWithTrailingZero(directory, 260, EncodingUtil.Cp1251); // TODO кодировка
 
       switch (progName)
       {

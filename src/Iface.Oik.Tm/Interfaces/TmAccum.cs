@@ -367,9 +367,9 @@ namespace Iface.Oik.Tm.Interfaces
                                                                            tmcCommonPoint.tm_local_ms);
       tmAccum.Width     = (byte) (tmcAccumPoint.Format & 0x0F);
       tmAccum.Precision = (byte) (tmcAccumPoint.Format >> 4);
-      tmAccum.Unit      = EncodingUtil.Cp866BytesToUtf8(tmcAccumPoint.Unit); // TODO уточнить у старшего, что тут делать
+      tmAccum.Unit      = EncodingUtil.Cp866BytesToUtf8(tmcAccumPoint.Unit); // TODO кодировка
 
-      tmAccum.Name = EncodingUtil.Win1251IntPtrToUtf8(tmcCommonPoint.name);
+      tmAccum.Name = EncodingUtil.Win1251IntPtrToUtf8(tmcCommonPoint.name); // TODO кодировка
 
       return tmAccum;
     }

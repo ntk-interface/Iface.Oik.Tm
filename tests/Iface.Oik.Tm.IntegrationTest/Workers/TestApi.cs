@@ -283,7 +283,7 @@ public class TestApi : IHostedService
     Log.Condition(await _api.MqttPublish(publishTopic, payload), 
                   $"MqttPublish string: Topic - {publishTopic.Topic}, Payload - {payload}");
     
-    Log.Condition(await _api.MqttPublish(publishTopic, payload.To1251Bytes()), 
+    Log.Condition(await _api.MqttPublish(publishTopic, EncodingUtil.StringToBytes(payload)), 
                   $"MqttPublish bytes: Topic - {publishTopic.Topic}, Payload - {payload} as bytes");
     
     Log.Condition(await _api.MqttUnsubscribe(subscriptionTopic), $"MqttUnsubscribe: Topic - {subscriptionTopic.Topic}");

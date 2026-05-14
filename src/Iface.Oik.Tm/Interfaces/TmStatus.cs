@@ -650,7 +650,7 @@ namespace Iface.Oik.Tm.Interfaces
       var tmStatus = new TmStatus(tmcCommonPoint.Ch, tmcCommonPoint.RTU, tmcCommonPoint.Point);
       
       tmStatus.FromTmcCommonPoint(tmcCommonPoint);
-      tmStatus.Name = EncodingUtil.Win1251IntPtrToUtf8(tmcCommonPoint.name);
+      tmStatus.Name = EncodingUtil.Win1251IntPtrToUtf8(tmcCommonPoint.name); // TODO кодировка
 
       return tmStatus;
     }

@@ -532,9 +532,9 @@ namespace Iface.Oik.Tm.Interfaces
       tmAnalog.Width     = (byte) (tmcAnalogPoint.Format & 0x0F);
       tmAnalog.Precision = (byte) (tmcAnalogPoint.Format >> 4);
 
-      tmAnalog.Unit = EncodingUtil.Cp866BytesToUtf8(tmcAnalogPoint.Unit); // TODO уточнить у старшего, что тут делать
+      tmAnalog.Unit = EncodingUtil.Cp866BytesToUtf8(tmcAnalogPoint.Unit); // TODO кодировка
 
-      tmAnalog.Name = EncodingUtil.Win1251IntPtrToUtf8(tmcCommonPoint.name);
+      tmAnalog.Name = EncodingUtil.Win1251IntPtrToUtf8(tmcCommonPoint.name); // TODO кодировка
 
       return tmAnalog;
     }

@@ -293,7 +293,7 @@ namespace Iface.Oik.Tm.Interfaces
       manualAnalogSetEvent.TypeString         = "Ручн. ТИТ";
       manualAnalogSetEvent.ExplicitTypeString = "Ручн. ТИТ";
 
-      manualAnalogSetEvent.Username = EncodingUtil.Cp866BytesToUtf8(analogSetData.UserName);
+      manualAnalogSetEvent.Username = EncodingUtil.Cp866BytesToUtf8(analogSetData.UserName); // TODO кодировка
 
       manualAnalogSetEvent.StateString =
         $"{analogSetData.Value.ToString($"N{setAnalog.Precision}")}{(setAnalog.Unit.IsNullOrEmpty() ? "" : $" {setAnalog.Unit}")}";
@@ -336,7 +336,7 @@ namespace Iface.Oik.Tm.Interfaces
       manualStatusSetEvent.TmAddrTma    = TmAddr.EncodeTma(tEvent.Ch, tEvent.Rtu, tEvent.Point);
       manualStatusSetEvent.TmAddrType   = TmType.Status;
 
-      manualStatusSetEvent.Username = EncodingUtil.Cp866BytesToUtf8(mSData.UserName);
+      manualStatusSetEvent.Username = EncodingUtil.Cp866BytesToUtf8(mSData.UserName); // TODO кодировка
 
 
       manualStatusSetEvent.ExplicitTypeString  = "Ручн. ТС";
@@ -463,7 +463,7 @@ namespace Iface.Oik.Tm.Interfaces
 
       acknowledgeEvent.TypeString         = "Квитирование";
       acknowledgeEvent.ExplicitTypeString = "Квитирование";
-      acknowledgeEvent.Username           = EncodingUtil.Cp866BytesToUtf8(acknowledgeData.UserName);
+      acknowledgeEvent.Username           = EncodingUtil.Cp866BytesToUtf8(acknowledgeData.UserName); // TODO кодировка
 
       return acknowledgeEvent;
     }
@@ -530,7 +530,7 @@ namespace Iface.Oik.Tm.Interfaces
       controlEvent.TypeString         = "ТУ";
       controlEvent.ExplicitTypeString = "ТУ";
 
-      controlEvent.Username = EncodingUtil.Cp866BytesToUtf8(controlData.UserName);
+      controlEvent.Username = EncodingUtil.Cp866BytesToUtf8(controlData.UserName); // TODO кодировка
 
       var result = (TmTelecontrolResult)unchecked((sbyte)controlData.Result);
 
@@ -1159,7 +1159,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     public static (string, string) GetMessageAndUserFromStrBinBytes(byte[] bytes)
     {
-      var str = Encoding.GetEncoding(1251)
+      var str = Encoding.GetEncoding(1251) // TODO кодировка
                         .GetString(bytes);
 
       var regex = new Regex(@"(.*?)\0(.*?)\0");
