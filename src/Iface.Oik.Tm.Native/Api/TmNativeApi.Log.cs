@@ -706,6 +706,65 @@ public static partial class TmNativeApi
 
     return result;
   }
+  
+  
+  public static void AddStringToEventLogEx(int       tmCid,
+                                           DateTime? time,
+                                           byte      importance,
+                                           uint      source,
+                                           string    message,
+                                           uint      tmAddrInteger,
+                                           string    binaryString = "")
+  {
+    var pool        = ArrayPool<byte>.Shared;
+    var buf         = pool.Rent(binaryString.Length + 1);
+    var binDataSize = TmNativeUtil.StringToLpstrBytes(binaryString, buf);
+
+    try
+    {
+      AddStrBinToEventLog(tmCid, time, importance, source, message, buf, binDataSize, tmAddrInteger);
+    }
+    finally
+    {
+      pool.Return(buf);
+    }
+  }
+
+  public static void AddStrBinToEventLog(int        tmCid,
+                                         DateTime?  time,
+                                         byte       importance,
+                                         uint       source,
+                                         string     message,
+                                         Span<byte> binaryPayload,
+                                         uint       payloadSize,
+                                         uint       tmAddrInteger)
+  {
+    if (importance > 3)
+    {
+      throw new TmNativeException("Важность не поддерживается");
+    }
+
+    var sourceLongTag = tmAddrInteger != 0
+                          ? (tmAddrInteger + 0x0001_0001) & 0xFFFF_0000
+                          : 0;
+
+    sourceLongTag |= source;
+
+    var unixTime = time == null
+                     ? 0
+                     : TmNative.uxgmtime2uxtime(NativeDateUtil.GetUtcTimestampFromDateTime(time.Value));
+
+    var unixTimeMs = unixTime % 1000 / 10;
+
+    TmNative.tmcEvlogPutStrBin(tmCid,
+                               (uint)unixTime,
+                               (byte)unixTimeMs,
+                               importance,
+                               sourceLongTag,
+                               message,
+                               binaryPayload,
+                               payloadSize);
+  }
 
   #endregion
 
