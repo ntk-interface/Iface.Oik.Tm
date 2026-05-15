@@ -60,17 +60,6 @@ namespace Iface.Oik.Tm.Utils
     }
 
 
-    public static string Cp866ToUtf8(string src) // TODO кодировка удалить
-    {
-      if (src == null)
-      {
-        return null;
-      }
-      var cp866 = Encoding.GetEncoding(866);
-      return Cp866BytesToUtf8(cp866.GetBytes(src));
-    }
-
-
     public static string Cp866BytesToUtf8(byte[] src) // TODO кодировка
     {
       if (src == null)

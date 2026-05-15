@@ -23,5 +23,17 @@ namespace Iface.Oik.Tm.Utils
                _                  => 0
              };
     }
+
+    public static byte ToEventLogImportanceByte(this TmEventImportances importances)
+    {
+      return importances switch
+             {
+               TmEventImportances.Imp0 => 0,
+               TmEventImportances.Imp1 => 1,
+               TmEventImportances.Imp2 => 2,
+               TmEventImportances.Imp3 => 3,
+               _                       => throw new TmNativeException("Важность не поддерживается")
+             };
+    }
   }
 }

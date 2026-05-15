@@ -135,7 +135,7 @@ namespace Iface.Oik.Tm.Interfaces
                                            string oName,
                                            string binName);
 
-    Task<bool> SetRedirectorPort(string pipeName, int portIndex, int port);
+    Task SetRedirectorPort(string pipeName, int portIndex, int port);
 
 
     Task<bool> SetBin(string uName,

@@ -1751,17 +1751,10 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<bool> SetRedirectorPort(string pipeName, int portIndex, int port)
+    public async Task SetRedirectorPort(string pipeName, int portIndex, int port)
     {
-      var portStr = $"{port}";
-      var binData = TmNativeUtil.GetFixedBytesWithTrailingZero(portStr,
-                                                               portStr.Length + 1,
-                                                               EncodingUtil.Cp1251); // TODO кодировка
-
-      return await SetBin(".cfs.",
-                          $"rbs${pipeName}",
-                          $"ipg_port{portIndex}",
-                          binData).ConfigureAwait(false);
+      await Task.Run(() => TmNativeApi.SetRedirectorPort(CfId, pipeName, portIndex, port))
+                .ConfigureAwait(false);
     }
 
     public async Task<bool> SetBin(string uName,

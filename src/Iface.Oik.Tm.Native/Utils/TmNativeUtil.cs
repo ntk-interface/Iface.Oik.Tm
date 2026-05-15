@@ -14,8 +14,8 @@ namespace Iface.Oik.Tm.Native.Utils
     {
       return TmNative.cfsIsUTF8(bytes) ? Encoding.UTF8 : Encoding.GetEncoding(1251);
     }
-    
-    
+
+
     public static TmNativeDefs.TStatusPoint GetStatusPointFromCommonPoint(TmNativeDefs.TCommonPoint commonPoint)
     {
       if (commonPoint.Data == null)
@@ -110,10 +110,10 @@ namespace Iface.Oik.Tm.Native.Utils
       var infoDictionary = DetectEncoding(infoBytes).GetString(infoBytes)
                                                     .Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries)
                                                     .Select(x =>
-                                                     {
-                                                       var item = x.Split('=');
-                                                       return new KeyValuePair<string, string>(item[0], item[1]);
-                                                     });
+                                                            {
+                                                              var item = x.Split('=');
+                                                              return new KeyValuePair<string, string>(item[0], item[1]);
+                                                            });
 
       byte[] payloadBytes;
       var    payloadIndex = doubleNull + 2;
@@ -164,9 +164,29 @@ namespace Iface.Oik.Tm.Native.Utils
       return result;
     }
 
+    public static uint StringToLpstrBytes(string     str,
+                                          Span<byte> buf,
+                                          Encoding?  encoding = null)
+    {
+      var pos = 0;
+      encoding ??= Encoding.UTF8;
+
+      if (string.IsNullOrEmpty(str))
+      {
+        return 0;
+      }
+
+      var written = encoding.GetBytes(str, buf[pos..]);
+      pos += written;
+
+      buf[pos++] = 0;
+
+      return (uint)pos;
+    }
+
     public static uint StringsToLpstrListBytes(IEnumerable<string> list,
                                                Span<byte>          buf,
-                                               Encoding? encoding = null)
+                                               Encoding?           encoding = null)
     {
       var pos = 0;
       encoding ??= Encoding.UTF8;
@@ -583,7 +603,7 @@ namespace Iface.Oik.Tm.Native.Utils
                ? Array.Empty<byte>()
                : encoding.GetBytes(src);
     }
-    
+
 
     public static bool PointerValueIsNull(nint ptr)
     {

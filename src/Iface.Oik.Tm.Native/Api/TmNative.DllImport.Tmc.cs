@@ -325,16 +325,17 @@ namespace Iface.Oik.Tm.Native.Api
                                            [In] TmNativeDefs.TEvent tmEvent);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern Boolean tmcEvlogPutStrBin(Int32  cid,
-                                                   UInt32 unixTime,
-                                                   Byte   unixHund,
-                                                   Byte   importance,
-                                                   UInt32 sourceTag,
-                                                   byte[] str,
-                                                   [In] [MarshalAs(UnmanagedType.LPArray)]
-                                                   Byte[] bin,
-                                                   UInt32 cbBin);
+    [LibraryImport(Tmconn, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool tmcEvlogPutStrBin(int          cid,
+                                                 uint       unixTime,
+                                                 byte       unixHund,
+                                                 byte       importance,
+                                                 uint       sourceTag,
+                                                 string     str,
+                                                 Span<byte> bin,
+                                                 uint       cbBin);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
