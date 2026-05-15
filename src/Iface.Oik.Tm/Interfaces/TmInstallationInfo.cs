@@ -85,7 +85,7 @@ namespace Iface.Oik.Tm.Interfaces
                                   DateTime? actualTime)
     {
       Name           = name;
-      Description    = EncodingUtil.Win1251ToUtf8(description); // TODO кодировка
+      Description    = description;
       _directory     = directory;
       Checksum       = ParseChecksum(checksum);
       ActualChecksum = actualChecksum;
