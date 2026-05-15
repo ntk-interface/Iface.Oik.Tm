@@ -275,33 +275,6 @@ namespace Iface.Oik.Tm.Interfaces
 
       ExplicitStateString = $"{dto.Value} - {StateString}";
     }
-    
-
-
-    public static TmEvent CreateManualAnalogSetEvent(TmNativeDefs.TEvent           tEvent,
-                                                     TmNativeDefs.TTMSEventAddData eventAddData,
-                                                     TmAnalog                      setAnalog,
-                                                     TmNativeDefs.AnalogSetData    analogSetData,
-                                                     TmNativeDefs.TTMSElix?        elix = null)
-    {
-      var manualAnalogSetEvent = CreateFromTEvent(tEvent, eventAddData, setAnalog.Name, elix);
-
-      manualAnalogSetEvent.TmAddrString = TmAddr.EncodeString(TmType.Analog, tEvent.Ch, tEvent.Rtu, tEvent.Point);
-      manualAnalogSetEvent.TmAddrTma    = TmAddr.EncodeTma(tEvent.Ch, tEvent.Rtu, tEvent.Point);
-      manualAnalogSetEvent.TmAddrType   = TmType.Analog;
-
-      manualAnalogSetEvent.TypeString         = "Ручн. ТИТ";
-      manualAnalogSetEvent.ExplicitTypeString = "Ручн. ТИТ";
-
-      manualAnalogSetEvent.Username = EncodingUtil.Cp866BytesToUtf8(analogSetData.UserName); // TODO кодировка
-
-      manualAnalogSetEvent.StateString =
-        $"{analogSetData.Value.ToString($"N{setAnalog.Precision}")}{(setAnalog.Unit.IsNullOrEmpty() ? "" : $" {setAnalog.Unit}")}";
-      manualAnalogSetEvent.ExplicitStateString =
-        $"{analogSetData.Value} - {(analogSetData.Cmd == 0 ? "Снято" : "Установлено")}";
-
-      return manualAnalogSetEvent;
-    }
 
 
     protected override void InitializeManualAnalogSetEvent(InitializeManualAnalogSetEventDto dto)
@@ -322,58 +295,8 @@ namespace Iface.Oik.Tm.Interfaces
       ExplicitStateString =
         $"{dto.Value} - {(dto.Command ? "Установлено" : "Снято" )}";
     }
-
-
-    public static TmEvent CreateManualStatusSetEvent(TmNativeDefs.TEvent           tEvent,
-                                                     TmNativeDefs.TTMSEventAddData eventAddData,
-                                                     TmStatus                      setStatus,
-                                                     TmNativeDefs.ControlData      mSData,
-                                                     TmNativeDefs.TTMSElix?        elix = null)
-    {
-      var manualStatusSetEvent = CreateFromTEvent(tEvent, eventAddData, setStatus.Name, elix);
-
-      manualStatusSetEvent.TmAddrString = TmAddr.EncodeString(TmType.Status, tEvent.Ch, tEvent.Rtu, tEvent.Point);
-      manualStatusSetEvent.TmAddrTma    = TmAddr.EncodeTma(tEvent.Ch, tEvent.Rtu, tEvent.Point);
-      manualStatusSetEvent.TmAddrType   = TmType.Status;
-
-      manualStatusSetEvent.Username = EncodingUtil.Cp866BytesToUtf8(mSData.UserName); // TODO кодировка
-
-
-      manualStatusSetEvent.ExplicitTypeString  = "Ручн. ТС";
-      manualStatusSetEvent.ExplicitStateString = mSData.Cmd == 1 ? "ВКЛ" : "ОТКЛ";
-
-      if (mSData.Ch == -1)
-      {
-        switch (mSData.Rtu)
-        {
-          case 1:
-            manualStatusSetEvent.TypeString  = setStatus.Flag1Name;
-            manualStatusSetEvent.StateString = mSData.Cmd == 1 ? setStatus.CaptionFlag1On : setStatus.CaptionFlag1Off;
-            break;
-          case 2:
-            manualStatusSetEvent.TypeString  = setStatus.Flag2Name;
-            manualStatusSetEvent.StateString = mSData.Cmd == 1 ? setStatus.CaptionFlag2On : setStatus.CaptionFlag2Off;
-            break;
-          case 3:
-            manualStatusSetEvent.TypeString  = setStatus.Flag3Name;
-            manualStatusSetEvent.StateString = mSData.Cmd == 1 ? setStatus.CaptionFlag3On : setStatus.CaptionFlag3Off;
-            break;
-          case 4:
-            manualStatusSetEvent.TypeString  = setStatus.Flag4Name;
-            manualStatusSetEvent.StateString = mSData.Cmd == 1 ? setStatus.CaptionFlag4On : setStatus.CaptionFlag4Off;
-            break;
-        }
-      }
-      else
-      {
-        manualStatusSetEvent.TypeString  = "Ручн. ТС";
-        manualStatusSetEvent.StateString = mSData.Cmd == 1 ? setStatus.CaptionOn : setStatus.CaptionOff;
-      }
-
-
-      return manualStatusSetEvent;
-    }
-
+    
+    
     protected override void InitializeManualStatusSetEvent(InitializeManualStatusSetEventDto dto)
     {
       InitializeTmEvent(dto);
@@ -413,61 +336,8 @@ namespace Iface.Oik.Tm.Interfaces
         StateString = dto.Command ? dto.PropsAndClassData.CaptionOn : dto.PropsAndClassData.CaptionOff;
       }
     }
+
     
-
-    public static TmEvent CreateAcknowledgeEvent(TmNativeDefs.TEvent           tEvent,
-                                                 TmNativeDefs.TTMSEventAddData eventAddData,
-                                                 string                        sourceObjectName,
-                                                 TmNativeDefs.AcknowledgeData  acknowledgeData,
-                                                 TmNativeDefs.TTMSElix?        elix = null)
-    {
-      var acknowledgeEvent = CreateFromTEvent(tEvent, eventAddData, sourceObjectName, elix);
-
-      acknowledgeEvent.TmAddrTma = TmAddr.EncodeTma(tEvent.Ch, tEvent.Rtu, tEvent.Point);
-
-      acknowledgeEvent.TmAddrType = ((TmNativeDefs.TmDataTypes)acknowledgeData.TmType).ToTmType();
-
-      switch (acknowledgeEvent.TmAddrType)
-      {
-        case TmType.Status:
-          if (tEvent.Point == 0)
-          {
-            acknowledgeEvent.Text = "Общее квитирование ТС";
-          }
-          else
-          {
-            acknowledgeEvent.TmAddrString = TmAddr.EncodeString(TmType.Status, tEvent.Ch, tEvent.Rtu, tEvent.Point);
-          }
-
-          break;
-        case TmType.Analog:
-
-          if (tEvent.Point == 0)
-          {
-            acknowledgeEvent.Text = "Общее квитирование ТИ";
-          }
-          else
-          {
-            acknowledgeEvent.TmAddrString = TmAddr.EncodeString(TmType.Analog, tEvent.Ch, tEvent.Rtu, tEvent.Point);
-          }
-
-          break;
-        default:
-          if (tEvent.Point == 0)
-          {
-            acknowledgeEvent.Text = "Общее квитирование";
-          }
-
-          break;
-      }
-
-      acknowledgeEvent.TypeString         = "Квитирование";
-      acknowledgeEvent.ExplicitTypeString = "Квитирование";
-      acknowledgeEvent.Username           = EncodingUtil.Cp866BytesToUtf8(acknowledgeData.UserName); // TODO кодировка
-
-      return acknowledgeEvent;
-    }
-
     protected override void InitializeAcknowledgeEvent(InitializeAcknowledgeEventDto dto)
     {
       InitializeTmEvent(dto);
@@ -514,41 +384,7 @@ namespace Iface.Oik.Tm.Interfaces
       ExplicitTypeString = "Квитирование";
     }
 
-
-    public static TmEvent CreateControlEvent(TmNativeDefs.TEvent           tEvent,
-                                             TmNativeDefs.TTMSEventAddData eventAddData,
-                                             TmStatus                      controlStatus,
-                                             TmNativeDefs.ControlData      controlData,
-                                             TmNativeDefs.TTMSElix?        elix = null)
-    {
-      var controlEvent = CreateFromTEvent(tEvent, eventAddData, controlStatus.Name, elix);
-
-      controlEvent.TmAddrString = TmAddr.EncodeString(TmType.Status, tEvent.Ch, tEvent.Rtu, tEvent.Point);
-      controlEvent.TmAddrTma    = TmAddr.EncodeTma(tEvent.Ch, tEvent.Rtu, tEvent.Point);
-      controlEvent.TmAddrType   = TmType.Status;
-
-      controlEvent.TypeString         = "ТУ";
-      controlEvent.ExplicitTypeString = "ТУ";
-
-      controlEvent.Username = EncodingUtil.Cp866BytesToUtf8(controlData.UserName); // TODO кодировка
-
-      var result = (TmTelecontrolResult)unchecked((sbyte)controlData.Result);
-
-      if (result != TmTelecontrolResult.Success)
-      {
-        controlEvent.ExplicitStateString = $"{(controlData.Cmd == 1 ? "ВКЛ" : "ОТКЛ")} ОШИБКА {(int)result}";
-        controlEvent.StateString         = result.GetDescription();
-      }
-      else
-      {
-        controlEvent.ExplicitStateString = controlData.Cmd == 1 ? "ВКЛ" : "ОТКЛ";
-        controlEvent.StateString =
-          $"Команда {(controlData.Cmd == 1 ? controlStatus.CaptionOn : controlStatus.CaptionOff)}";
-      }
-
-      return controlEvent;
-    }
-
+    
     protected override void InitializeControlEvent(InitializeControlEventDto dto)
     { 
       InitializeTmEvent(dto);
@@ -573,53 +409,6 @@ namespace Iface.Oik.Tm.Interfaces
         StateString =
           $"Команда {(dto.Command ? dto.PropsAndClassData.CaptionOn : dto.PropsAndClassData.CaptionOff)}";
       }
-    }
-
-
-    public static TmEvent CreateExtendedEvent(TmNativeDefs.TEvent           tEvent,
-                                              TmNativeDefs.TTMSEventAddData eventAddData,
-                                              TmNativeDefs.StrBinData       strBinData,
-                                              TmNativeDefs.TTMSElix?        elix = null)
-    {
-      var extendedEvent = CreateFromTEvent(tEvent, eventAddData, "", elix);
-
-      var extendedType = (TmNativeDefs.ExtendedEventTypes)tEvent.Ch;
-
-      extendedEvent.TmAddrString         = null;
-      extendedEvent.TmAddrTma = 0;
-      extendedEvent.TmAddrType           = TmType.Unknown;
-
-      extendedEvent.TypeString                     = GetTypeStringByExtendedTypeString(extendedType);
-      extendedEvent.ExplicitTypeString             = GetTypeStringByExtendedTypeString(extendedType);
-      (extendedEvent.Text, extendedEvent.Username) = GetMessageAndUserFromStrBinBytes(strBinData.StrBin);
-
-      switch (extendedType)
-      {
-        case TmNativeDefs.ExtendedEventTypes.Message:
-          if (strBinData.Source < 0x10000)
-          {
-            extendedEvent.Reference = $"Источник: {strBinData.Source}";
-          }
-          else
-          {
-            extendedEvent.TmAddrString =
-              $"#XX{(strBinData.Source & 0xff00_0000) >> 24}:{(strBinData.Source & 0x00ff_0000) >> 16}:0";
-            extendedEvent.Reference =
-              $"Ист: {strBinData.Source & 0x0000_ffff}, "        +
-              $"К: {(strBinData.Source  & 0xff00_0000) >> 24}, " +
-              $"КП: {(strBinData.Source & 0x00ff_0000) >> 16}";
-          }
-
-          break;
-        case TmNativeDefs.ExtendedEventTypes.Model:
-          extendedEvent.Reference = $"Источник: {strBinData.Source}";
-          break;
-        default:
-          extendedEvent.Reference = "???";
-          break;
-      }
-
-      return extendedEvent;
     }
 
 
@@ -1142,32 +931,5 @@ namespace Iface.Oik.Tm.Interfaces
       return $"[{s2Flag:D}]";
     }
 
-
-    private static string GetTypeStringByExtendedTypeString(TmNativeDefs.ExtendedEventTypes eventType)
-    {
-      switch (eventType)
-      {
-        case TmNativeDefs.ExtendedEventTypes.Message:
-          return "Сообщение";
-        case TmNativeDefs.ExtendedEventTypes.Model:
-          return "Модель";
-        default:
-          return "???";
-      }
-    }
-
-
-    public static (string, string) GetMessageAndUserFromStrBinBytes(byte[] bytes)
-    {
-      var str = Encoding.GetEncoding(1251) // TODO кодировка
-                        .GetString(bytes);
-
-      var regex = new Regex(@"(.*?)\0(.*?)\0");
-      var mc    = regex.Match(str);
-      var text  = mc.Groups[1].Value;
-      var user  = mc.Groups[2].Value;
-
-      return (text, user);
-    }
   }
 }
