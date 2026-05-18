@@ -136,17 +136,7 @@ namespace Iface.Oik.Tm.Interfaces
                                            string binName);
 
     Task SetRedirectorPort(string pipeName, int portIndex, int port);
-
-
-    Task<bool> SetBin(string uName,
-                      string oName,
-                      string binName,
-                      byte[] binData);
-
-    Task<(uint, string)> SecSetBin(string uName,
-                                   string oName,
-                                   string binName,
-                                   byte[] binData);
+    
 
     AccessMasksDescriptor SecGetAccessDescriptor(string sSetupPath, string progName);
 

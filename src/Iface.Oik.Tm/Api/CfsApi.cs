@@ -1757,41 +1757,6 @@ namespace Iface.Oik.Tm.Api
                 .ConfigureAwait(false);
     }
 
-    public async Task<bool> SetBin(string uName,
-                                   string oName,
-                                   string binName,
-                                   byte[] binData)
-    {
-      (uint errCode, _) = await SecSetBin(uName, oName, binName, binData).ConfigureAwait(false);
-      return (errCode == 0);
-    }
-
-    public async Task<(uint, string)> SecSetBin(string uName,
-                                                string oName,
-                                                string binName,
-                                                byte[] binData)
-    {
-      const int errBufLength = 1000;
-      var errBuf = new byte[errBufLength];
-      uint errCode = 0;
-
-      var result = await Task.Run(() => TmNative.cfsIfpcSetBin(CfId,
-                                                               uName,
-                                                               oName,
-                                                               binName,
-                                                               binData,
-                                                               (uint)binData.Length,
-                                                               out errCode,
-                                                               errBuf,
-                                                               errBufLength)).ConfigureAwait(false);
-      if (errCode != 0)
-      {
-        return (errCode, EncodingUtil.BytesToString(errBuf));
-      }
-
-      return (0, string.Empty);
-    }
-
     public AccessMasksDescriptor SecGetAccessDescriptor(string sSetupPath, string progName)
     {
       return TmNativeApi.SecGetAccessDescriptor<AccessMasksDescriptor, AccessMask>(sSetupPath, progName);
