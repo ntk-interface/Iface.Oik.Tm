@@ -1989,43 +1989,51 @@ namespace Iface.Oik.Tm.Api
       }
     }
 
-    public async Task<(bool, string)> SaveMachineConfigEx(string           directory, uint scope,
+    public async Task<(bool, string)> SaveMachineConfigEx(string           directory,
+                                                          uint             scope,
                                                           TmNativeCallback callback          = null,
-                                                          IntPtr           callbackParameter = default)
+                                                          nint             callbackParameter = default)
     {
-      const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      string    fileName     = "undefined";
-      if (scope == 0) //#define CFS_SMC_DEV		0
-      {
-        fileName = "MasterConf-" + DateTime.Now.ToString(BackupDateFormat) + ".pkf";
-      }
-      else if (scope == 1) //#define CFS_SMC_MEDIUM		1
-      {
-        fileName = "FullConf-" + DateTime.Now.ToString(BackupDateFormat) + ".cfim";
-      }
-      else if (scope == 2) //#define CFS_SMC_COMPLETE	2
-      {
-        fileName = "FullConfRetro-" + DateTime.Now.ToString(BackupDateFormat) + ".cfim";
-      }
+      return await Task.Run(() => TmNativeApi.SaveMachineConfigEx(Host,
+                                                                  directory,
+                                                                  scope,
+                                                                  callback,
+                                                                  callbackParameter))
+                       .ConfigureAwait(false);
 
-      var result = await Task.Run(() => TmNative.cfsSaveMachineConfigEx(
-                                                                        EncodingUtil.StringToBytes(Host),
-                                                                        EncodingUtil
-                                                                          .StringToBytes(Path.Combine(directory,
-                                                                            fileName)),
-                                                                        scope,
-                                                                        callback, callbackParameter,
-                                                                        errBuf, errBufLength)).ConfigureAwait(false);
-
-      if (result != true)
-      {
-        return (false, EncodingUtil.BytesToString(errBuf));
-      }
-      else
-      {
-        return (true, string.Empty);
-      }
+      // const int errBufLength = 1000;
+      // var       errBuf       = new byte[errBufLength];
+      // string    fileName     = "undefined";
+      // if (scope == 0) //#define CFS_SMC_DEV		0
+      // {
+      //   fileName = "MasterConf-" + DateTime.Now.ToString(BackupDateFormat) + ".pkf";
+      // }
+      // else if (scope == 1) //#define CFS_SMC_MEDIUM		1
+      // {
+      //   fileName = "FullConf-" + DateTime.Now.ToString(BackupDateFormat) + ".cfim";
+      // }
+      // else if (scope == 2) //#define CFS_SMC_COMPLETE	2
+      // {
+      //   fileName = "FullConfRetro-" + DateTime.Now.ToString(BackupDateFormat) + ".cfim";
+      // }
+      //
+      // var result = await Task.Run(() => TmNative.cfsSaveMachineConfigEx(
+      //                                                                   EncodingUtil.StringToBytes(Host),
+      //                                                                   EncodingUtil
+      //                                                                     .StringToBytes(Path.Combine(directory,
+      //                                                                       fileName)),
+      //                                                                   scope,
+      //                                                                   callback, callbackParameter,
+      //                                                                   errBuf, errBufLength)).ConfigureAwait(false);
+      //
+      // if (result != true)
+      // {
+      //   return (false, EncodingUtil.BytesToString(errBuf));
+      // }
+      // else
+      // {
+      //   return (true, string.Empty);
+      // }
     }
 
     public async Task<(bool, string)> RestoreMachineConfig(string filename)
@@ -2094,19 +2102,19 @@ namespace Iface.Oik.Tm.Api
                        .ConfigureAwait(false);
     }
 
-    public async Task<RestoreBackupResult> RestoreBackup(string progName, 
-                                                         string pipeName, 
-                                                         string filename, 
-                                                         bool withRetro,
-                                                         TmNativeCallback callback = null,
-                                                         IntPtr callbackParameter = default)
+    public async Task<RestoreBackupResult> RestoreBackup(string           progName,
+                                                         string           pipeName,
+                                                         string           filename,
+                                                         bool             withRetro,
+                                                         TmNativeCallback callback          = null,
+                                                         IntPtr           callbackParameter = default)
     {
-      return await Task.Run(() => TmNativeApi.RestoreBackup(Host, 
-                                                            progName, 
-                                                            pipeName, 
-                                                            filename, 
-                                                            withRetro, 
-                                                            callback, 
+      return await Task.Run(() => TmNativeApi.RestoreBackup(Host,
+                                                            progName,
+                                                            pipeName,
+                                                            filename,
+                                                            withRetro,
+                                                            callback,
                                                             callbackParameter))
                        .ConfigureAwait(false);
     }
