@@ -31,7 +31,7 @@ public static partial class TmNativeApi
       PasswordCharsSpecial         = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.Spec),
       PasswordCharsNoRepeat        = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.CheckRepeat),
       PasswordCharsNoSequential    = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.CheqSeq),
-      PasswordCharsCheckDictionary = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.Digits),
+      PasswordCharsCheckDictionary = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.CheckDict),
       CheckOldPasswords            = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.CheckCache)
     };
   }
