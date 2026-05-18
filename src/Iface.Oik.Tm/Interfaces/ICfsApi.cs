@@ -136,7 +136,7 @@ namespace Iface.Oik.Tm.Interfaces
                                            string binName);
 
     Task SetRedirectorPort(string pipeName, int portIndex, int port);
-    
+
 
     AccessMasksDescriptor SecGetAccessDescriptor(string sSetupPath, string progName);
 
@@ -180,12 +180,12 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<(bool, string)> RestoreMachineConfig(string filename);
 
-    Task<(bool, string)> CreateBackup(string           progName,
-                                      string           pipeName,
-                                      string           directory,
-                                      bool             withRetro,
-                                      TmNativeCallback callback          = null,
-                                      IntPtr           callbackParameter = default);
+    Task<bool> CreateBackup(string           progName,
+                            string           pipeName,
+                            string           directory,
+                            bool             withRetro,
+                            TmNativeCallback callback          = null,
+                            IntPtr           callbackParameter = default);
 
     Task<(bool, string)> RestoreBackup(string           progName,
                                        string           pipeName,

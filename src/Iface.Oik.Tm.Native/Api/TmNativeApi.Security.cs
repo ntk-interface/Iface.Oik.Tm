@@ -2,7 +2,6 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
-using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 
@@ -12,8 +11,10 @@ public static partial class TmNativeApi
 {
   private const string BackupDateFormat = "dd_MM_yyyy (HH.mm.ss)";
 
+  #region Policies
+
   public static T SecGetPasswordPolicy<T>(nint cfCid)
-    where T: PasswordPolicyBase, new()
+    where T : PasswordPolicyBase, new()
   {
     const string uname = ".cfs.";
     const string oname = ".";
@@ -36,7 +37,7 @@ public static partial class TmNativeApi
     };
   }
 
-  public static void SecSetPasswordPolicy(nint cfCid, 
+  public static void SecSetPasswordPolicy(nint               cfCid,
                                           PasswordPolicyBase passwordPolicy)
   {
     const string uname = ".cfs.";
@@ -44,7 +45,7 @@ public static partial class TmNativeApi
 
 
     var flags = TmNativeDefsUnsafe.PasswordPolicies.Undefined;
-    
+
     if (!passwordPolicy.PasswordCharsUpper) flags           &= ~TmNativeDefsUnsafe.PasswordPolicies.Upper;
     if (!passwordPolicy.PasswordCharsDigits) flags          &= ~TmNativeDefsUnsafe.PasswordPolicies.Digits;
     if (!passwordPolicy.PasswordCharsSpecial) flags         &= ~TmNativeDefsUnsafe.PasswordPolicies.Spec;
@@ -52,11 +53,11 @@ public static partial class TmNativeApi
     if (!passwordPolicy.PasswordCharsNoSequential) flags    &= ~TmNativeDefsUnsafe.PasswordPolicies.CheqSeq;
     if (!passwordPolicy.PasswordCharsCheckDictionary) flags &= ~TmNativeDefsUnsafe.PasswordPolicies.CheckDict;
     if (!passwordPolicy.CheckOldPasswords) flags            &= ~TmNativeDefsUnsafe.PasswordPolicies.CheckCache;
-    
+
     IfpcSetBinBool(cfCid, uname, oname, "own_pch", passwordPolicy.AdminPasswordChange);
     IfpcSetBinBool(cfCid, uname, oname, "pwd_pol", passwordPolicy.EnforcePasswordCheck);
     IfpcSetBinInt(cfCid, uname, oname, "pwd_pol_len", passwordPolicy.MinPasswordLength);
-    IfpcSetBinInt(cfCid, uname, oname, "p_ex_days", passwordPolicy.PasswordTtlDays);
+    IfpcSetBinInt(cfCid, uname, oname, "p_ex_days",   passwordPolicy.PasswordTtlDays);
     IfpcSetBinUint(cfCid, uname, oname, "pwd_pol_flg", (uint)flags);
   }
 
@@ -65,14 +66,14 @@ public static partial class TmNativeApi
                                       UserPolicyBase userPolicy)
   {
     const string oname = ".";
-    
+
     IfpcSetBinBool(cfCid, username, oname, "blocked", userPolicy.IsBlocked);
-    IfpcSetBinBool(cfCid, username, oname,   "chgp",    userPolicy.MustChangePassword);
+    IfpcSetBinBool(cfCid, username, oname, "chgp",    userPolicy.MustChangePassword);
     IfpcSetBinTimestamp(cfCid, username, oname, "not_before", userPolicy.NotBefore);
-    IfpcSetBinTimestamp(cfCid, username, oname,   "not_after",  userPolicy.NotAfter);
+    IfpcSetBinTimestamp(cfCid, username, oname, "not_after",  userPolicy.NotAfter);
     IfpcSetBinInt(cfCid, username, oname, "logon_limit", userPolicy.BadLogonLimit);
     IfpcSetBinString(cfCid, username, oname, "uctgr", userPolicy.UserCategory);
-    IfpcSetBinString(cfCid, username, oname,   "utmpl", userPolicy.UserTemplate);
+    IfpcSetBinString(cfCid, username, oname, "utmpl", userPolicy.UserTemplate);
     IfpcSetBinMacs(cfCid, username, userPolicy.EnabledMacs);
   }
 
@@ -131,11 +132,60 @@ public static partial class TmNativeApi
     }
   }
 
-  public static void SecSetPasswordPolicy(nint cfCid)
+  #endregion
+
+  #region Backups
+
+  public static bool CreateBackup(string            host,
+                                  string            progName,
+                                  string            pipeName,
+                                  string            directory,
+                                  bool              withRetro,
+                                  TmNativeCallback? callback          = null,
+                                  nint              callbackParameter = default)
   {
-    
+    Span<byte> dirBuf = stackalloc byte[260];
+    TmNativeUtil.StringToLpstrBytes(directory, dirBuf);
+
+    switch (progName)
+    {
+      case TmNativeDefsUnsafe.MsTreeNodesNames.TmServer:
+      case TmNativeDefsUnsafe.MsTreeNodesNames.PcsrvOld:
+      {
+        uint bFlags = 1 | 2 | 4 | 8;
+        if (withRetro)
+        {
+          bFlags |= 0x10;
+        }
+
+        return TmNative.tmcBackupServerProcedure(host,
+                                                 pipeName,
+                                                 directory,
+                                                 ref bFlags,
+                                                 0,
+                                                 callback,
+                                                 callbackParameter);
+      }
+
+      case TmNativeDefsUnsafe.MsTreeNodesNames.RBaseServer:
+      case TmNativeDefsUnsafe.MsTreeNodesNames.RbsrvOld:
+      {
+        uint bFlags = 1;
+
+        return TmNative.rbcBackupServerProcedure(host,
+                                                 pipeName,
+                                                 directory,
+                                                 ref bFlags,
+                                                 0,
+                                                 callback,
+                                                 callbackParameter);
+      }
+
+      default:
+        return false;
+    }
   }
-  
+
   public static void BackupSecurity(nint cfCid, string directory, string pwd = "")
   {
     var    fileName = "";
@@ -223,3 +273,5 @@ public static partial class TmNativeApi
     }
   }
 }
+
+#endregion
