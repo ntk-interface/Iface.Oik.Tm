@@ -11,6 +11,7 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Native.Api;
+using Iface.Oik.Tm.Native.Dto;
 using static Iface.Oik.Tm.Native.Interfaces.TmNativeDefs;
 
 namespace Iface.Oik.Tm.Api
@@ -2093,41 +2094,21 @@ namespace Iface.Oik.Tm.Api
                        .ConfigureAwait(false);
     }
 
-    public async Task<(bool, string)> RestoreBackup(string progName, string pipeName, string filename, bool withRetro,
-                                                    TmNativeCallback callback = null,
-                                                    IntPtr callbackParameter = default)
+    public async Task<RestoreBackupResult> RestoreBackup(string progName, 
+                                                         string pipeName, 
+                                                         string filename, 
+                                                         bool withRetro,
+                                                         TmNativeCallback callback = null,
+                                                         IntPtr callbackParameter = default)
     {
-      uint bflags = 1;
-      bool result = false;
-      switch (progName)
-      {
-        case MSTreeConsts.TmServer:
-        case MSTreeConsts.pcsrv_old:
-          bflags = 1 | 2 | 4 | 8;
-          if (withRetro) bflags |= 0x10;
-          result = await Task.Run(() => TmNative.tmcRestoreServer(true, EncodingUtil.StringToBytes(Host),
-                                                                  EncodingUtil.StringToBytes(pipeName),
-                                                                  EncodingUtil.StringToBytes(filename), ref bflags,
-                                                                  0, callback, callbackParameter))
-                             .ConfigureAwait(false);
-          break;
-        case MSTreeConsts.RBaseServer:
-        case MSTreeConsts.rbsrv_old:
-          bflags = 1;
-          result = await Task.Run(() => TmNative.tmcRestoreServer(false, EncodingUtil.StringToBytes(Host),
-                                                                  EncodingUtil.StringToBytes(pipeName),
-                                                                  EncodingUtil.StringToBytes(filename), ref bflags,
-                                                                  0, callback, callbackParameter))
-                             .ConfigureAwait(false);
-          break;
-      }
-
-      if (bflags == 0)
-        return (result, "nothing restored");
-      if (result)
-        return (result, string.Empty);
-      else
-        return (result, "error");
+      return await Task.Run(() => TmNativeApi.RestoreBackup(Host, 
+                                                            progName, 
+                                                            pipeName, 
+                                                            filename, 
+                                                            withRetro, 
+                                                            callback, 
+                                                            callbackParameter))
+                       .ConfigureAwait(false);
     }
 
     public async Task BackupSecurity(string directory, string pwd = "")

@@ -1007,22 +1007,24 @@ namespace Iface.Oik.Tm.Native.Api
                                                         [MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback? progFn,
                                                         nint progParm);
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean tmcRestoreServer(Boolean                                                 tms_not_rbs,
-                                                  byte[]                                                  machine,
-                                                  byte[]                                                  pipe,
-                                                  byte[]                                                  filename,
-                                                  ref UInt32                                              pbflags,
-                                                  Int32                                                   hCancel,
-                                                  [MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback prog_fn,
-                                                  IntPtr                                                  prog_parm);
+    [LibraryImport(Tmconn, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(                                    UnmanagedType.Bool)]
+    public static partial bool tmcRestoreServer([MarshalAs(UnmanagedType.Bool)] bool                     tmsNotRbs,
+                                                string                                                   machine,
+                                                string                                                   pipe,
+                                                string                                                   filename,
+                                                ref uint                                                 pbflags,
+                                                int                                                      hCancel,
+                                                [MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback? progFn,
+                                                nint                                                     progParm);
 
     [LibraryImport(Tmconn, StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial Boolean tmcGetTextByRef(int        cid,
-                                                  nint       text,
-                                                  Span<byte> buf,
-                                                  uint       cBuf);
+    public static partial bool tmcGetTextByRef(int        cid,
+                                               nint       text,
+                                               Span<byte> buf,
+                                               uint       cBuf);
   }
 }

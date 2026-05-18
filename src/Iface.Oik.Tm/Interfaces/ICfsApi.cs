@@ -4,6 +4,7 @@ using Iface.Oik.Tm.Utils;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Iface.Oik.Tm.Native.Dto;
 
 namespace Iface.Oik.Tm.Interfaces
 {
@@ -187,12 +188,12 @@ namespace Iface.Oik.Tm.Interfaces
                             TmNativeCallback callback          = null,
                             IntPtr           callbackParameter = default);
 
-    Task<(bool, string)> RestoreBackup(string           progName,
-                                       string           pipeName,
-                                       string           filename,
-                                       bool             withRetro,
-                                       TmNativeCallback callback          = null,
-                                       IntPtr           callbackParameter = default);
+    Task<RestoreBackupResult> RestoreBackup(string           progName,
+                                            string           pipeName,
+                                            string           filename,
+                                            bool             withRetro,
+                                            TmNativeCallback callback          = null,
+                                            IntPtr           callbackParameter = default);
 
     Task BackupSecurity(string directory, string pwd = "");
 

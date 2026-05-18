@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 
@@ -144,9 +145,6 @@ public static partial class TmNativeApi
                                   TmNativeCallback? callback          = null,
                                   nint              callbackParameter = default)
   {
-    Span<byte> dirBuf = stackalloc byte[260];
-    TmNativeUtil.StringToLpstrBytes(directory, dirBuf);
-
     switch (progName)
     {
       case TmNativeDefsUnsafe.MsTreeNodesNames.TmServer:
@@ -183,6 +181,70 @@ public static partial class TmNativeApi
 
       default:
         return false;
+    }
+  }
+
+  public static RestoreBackupResult RestoreBackup(string            host,
+                                                  string            progName,
+                                                  string            pipeName,
+                                                  string            filename,
+                                                  bool              withRetro,
+                                                  TmNativeCallback? callback          = null,
+                                                  nint              callbackParameter = default)
+  {
+    switch (progName)
+    {
+      case TmNativeDefsUnsafe.MsTreeNodesNames.TmServer:
+      case TmNativeDefsUnsafe.MsTreeNodesNames.PcsrvOld:
+      {
+        uint bFlags = 1 | 2 | 4 | 8;
+        if (withRetro)
+        {
+          bFlags |= 0x10;
+        }
+
+        var result = TmNative.tmcRestoreServer(true,
+                                               host,
+                                               pipeName,
+                                               filename,
+                                               ref bFlags,
+                                               0, 
+                                               callback, 
+                                               callbackParameter);
+
+        if (bFlags == 0)
+        {
+          return RestoreBackupResult.NothingToRestore;
+        }
+
+        return result ? RestoreBackupResult.Success : RestoreBackupResult.Error;
+      }
+
+      case TmNativeDefsUnsafe.MsTreeNodesNames.RBaseServer:
+      case TmNativeDefsUnsafe.MsTreeNodesNames.RbsrvOld:
+      {
+        uint bFlags = 1;
+
+        var result = TmNative.tmcRestoreServer(false,
+                                               host,
+                                               pipeName,
+                                               filename,
+                                               ref bFlags,
+                                               0, 
+                                               callback, 
+                                               callbackParameter);
+        if (bFlags == 0)
+        {
+          return RestoreBackupResult.NothingToRestore;
+        }
+
+        return result ? RestoreBackupResult.Success : RestoreBackupResult.Error;
+      }
+
+      default:
+      {
+        return RestoreBackupResult.Error;
+      }
     }
   }
 
