@@ -1952,22 +1952,8 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<PasswordPolicy> SecGetPasswordPolicy()
     {
-      var dto = await Task.Run(() => TmNativeApi.SecGetPasswordPolicy(CfId))
+      return await Task.Run(() => TmNativeApi.SecGetPasswordPolicy<PasswordPolicy>(CfId))
                           .ConfigureAwait(false);
-      return new PasswordPolicy
-      {
-        AdminPasswordChange = dto.AdminPasswordChange,
-        EnforcePasswordCheck = dto.EnforcePasswordCheck,
-        MinPasswordLength = dto.MinPasswordLength,
-        PasswordTtlDays = dto.PasswordTtl,
-        PwdChars_Upper = dto.CharsUpper,
-        PwdChars_Digits = dto.CharsDigits,
-        PwdChars_Special = dto.CharsSpecial,
-        PwdChars_NoRepeat = dto.CharsNoRepeat,
-        PwdChars_NoSequential = dto.CharsNonSequential,
-        PwdChars_CheckDictonary = dto.CheckDictionary,
-        CheckOldPasswords = dto.CheckOldPasswords
-      };
     }
 
     public async Task<(uint, string)> SecSetPasswordPolicy(PasswordPolicy passwordPolicy)
@@ -2030,12 +2016,12 @@ namespace Iface.Oik.Tm.Api
       }
 
       PWDPOL flags = (PWDPOL)0xff_ff_ff_ff;
-      if (!passwordPolicy.PwdChars_Upper) flags &= ~PWDPOL.Upper;
-      if (!passwordPolicy.PwdChars_Digits) flags &= ~PWDPOL.Digits;
-      if (!passwordPolicy.PwdChars_Special) flags &= ~PWDPOL.Spec;
-      if (!passwordPolicy.PwdChars_NoRepeat) flags &= ~PWDPOL.CheckRepeat;
-      if (!passwordPolicy.PwdChars_NoSequential) flags &= ~PWDPOL.CheqSeq;
-      if (!passwordPolicy.PwdChars_CheckDictonary) flags &= ~PWDPOL.CheckDict;
+      if (!passwordPolicy.PasswordCharsUpper) flags &= ~PWDPOL.Upper;
+      if (!passwordPolicy.PasswordCharsDigits) flags &= ~PWDPOL.Digits;
+      if (!passwordPolicy.PasswordCharsSpecial) flags &= ~PWDPOL.Spec;
+      if (!passwordPolicy.PasswordCharsNoRepeat) flags &= ~PWDPOL.CheckRepeat;
+      if (!passwordPolicy.PasswordCharsNoSequential) flags &= ~PWDPOL.CheqSeq;
+      if (!passwordPolicy.PasswordCharsCheckDictionary) flags &= ~PWDPOL.CheckDict;
       if (!passwordPolicy.CheckOldPasswords) flags &= ~PWDPOL.CheckCache;
       string s_flg = flags.ToString();
       bin = TmNativeUtil.GetFixedBytesWithTrailingZero(s_flg, s_flg.Length + 1, enc);

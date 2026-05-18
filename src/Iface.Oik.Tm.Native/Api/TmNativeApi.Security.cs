@@ -12,26 +12,27 @@ public static partial class TmNativeApi
 {
   private const string BackupDateFormat = "dd_MM_yyyy (HH.mm.ss)";
 
-  public static PasswordPolicyDto SecGetPasswordPolicy(nint cfCid)
+  public static T SecGetPasswordPolicy<T>(nint cfCid)
+    where T: PasswordPolicyBase, new()
   {
     const string uname = ".cfs.";
     const string oname = ".";
 
     var flags = (TmNativeDefsUnsafe.PasswordPolicies)IfpcGetBinUint(cfCid, uname, oname, "pwd_pol_flg");
 
-    return new PasswordPolicyDto
+    return new T
     {
-      AdminPasswordChange  = IfpcGetBinBool(cfCid, uname, oname, "own_pch"),
-      EnforcePasswordCheck = IfpcGetBinBool(cfCid, uname, oname, "pwd_pol"),
-      MinPasswordLength    = IfpcGetBinInt(cfCid, uname, oname, "pwd_pol_len"),
-      PasswordTtl          = IfpcGetBinInt(cfCid, uname, oname, "p_ex_days"),
-      CharsUpper           = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.Upper),
-      CharsDigits          = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.Digits),
-      CharsSpecial         = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.Spec),
-      CharsNoRepeat        = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.CheckRepeat),
-      CharsNonSequential   = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.CheqSeq),
-      CheckDictionary      = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.Digits),
-      CheckOldPasswords    = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.CheckCache)
+      AdminPasswordChange          = IfpcGetBinBool(cfCid, uname, oname, "own_pch"),
+      EnforcePasswordCheck         = IfpcGetBinBool(cfCid, uname, oname, "pwd_pol"),
+      MinPasswordLength            = IfpcGetBinInt(cfCid, uname, oname, "pwd_pol_len"),
+      PasswordTtlDays              = IfpcGetBinInt(cfCid, uname, oname, "p_ex_days"),
+      PasswordCharsUpper           = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.Upper),
+      PasswordCharsDigits          = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.Digits),
+      PasswordCharsSpecial         = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.Spec),
+      PasswordCharsNoRepeat        = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.CheckRepeat),
+      PasswordCharsNoSequential    = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.CheqSeq),
+      PasswordCharsCheckDictionary = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.Digits),
+      CheckOldPasswords            = flags.HasFlag(TmNativeDefsUnsafe.PasswordPolicies.CheckCache)
     };
   }
 
@@ -104,6 +105,11 @@ public static partial class TmNativeApi
     }
   }
 
+  public static void SecSetPasswordPolicy(nint cfCid)
+  {
+    
+  }
+  
   public static void BackupSecurity(nint cfCid, string directory, string pwd = "")
   {
     var    fileName = "";
