@@ -1908,34 +1908,6 @@ namespace Iface.Oik.Tm.Api
     {
       await Task.Run(() => TmNativeApi.SecSetExtendedUserData(CfId, serverType, serverName, username, extendedUserData))
                 .ConfigureAwait(false);
-
-      /*var data = new List<string>()
-      {
-        { $"UserID={extendedUserData.UserId}" },
-        { $"UserNick={extendedUserData.UserNick}" },
-        { $"UserPwd={extendedUserData.UserPwd}" },
-        { $"Group={extendedUserData.Group}" },
-        { $"KeyID={extendedUserData.KeyId}" },
-      };
-      for (var idx = 0; idx < extendedUserData.Rights.Length; idx++)
-      {
-        if (extendedUserData.Rights[idx] == 1)
-        {
-          data.Add("R" + idx);
-        }
-      }
-
-      var bin = TmNativeUtil.GetDoubleNullTerminatedBytesFromStringList(data);
-      (uint errCode, string errString) =
-        await SecSetBin(username, serverType + serverName, "extr", bin).ConfigureAwait(false);
-      if (errCode != 0)
-      {
-        return (errCode, errString);
-      }
-      else
-      {
-        return (0, string.Empty);
-      }*/
     }
 
     public async Task<UserPolicy> SecGetUserPolicy(string username)
