@@ -23,6 +23,19 @@ namespace Iface.Oik.Tm.Utils
                _                  => 0
              };
     }
+    
+    
+    public static TmNativeDefs.Flags ToNativeFlags(this TmFlags tmFlags)
+    {
+      return (TmNativeDefs.Flags)tmFlags;
+    }
+    
+    
+    public static TmNativeDefs.TmCpf ToNativeQueryFlags(this TmCommonPointFlags commonPointFlags)
+    {
+      return (TmNativeDefs.TmCpf)commonPointFlags;
+    }
+    
 
     public static byte ToEventLogImportanceByte(this TmEventImportances importances)
     {

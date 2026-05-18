@@ -330,7 +330,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
     
     
-    public void FromCommonPointDto(TCommonPointDto dto)
+    public override void FromCommonPointDto(TCommonPointDto dto)
     {
       if (dto.AccumPointDto == null)
       {

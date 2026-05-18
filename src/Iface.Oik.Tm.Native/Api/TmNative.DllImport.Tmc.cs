@@ -285,12 +285,13 @@ namespace Iface.Oik.Tm.Native.Api
                                                       Span<byte> name);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern IntPtr tmcGetValuesByFlagMask(Int32      cid,
-                                                       UInt16     tmType,
-                                                       UInt32     tmFlags,
-                                                       Byte       qFlags,
-                                                       out UInt32 pCount);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static unsafe partial TmNativeDefsUnsafe.TCommonPoint* tmcGetValuesByFlagMask(Int32 cid,
+      UInt16                                                                                     tmType,
+      UInt32                                                                                     tmFlags,
+      Byte                                                                                       qFlags,
+      out UInt32                                                                                 pCount);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]

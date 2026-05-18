@@ -287,6 +287,7 @@ namespace Iface.Oik.Tm.Api
       const uint queryFlags = (uint)(TmNativeDefs.ImpulseArchiveQueryFlags.Mom);
       const uint step       = 1;
 
+      // TODO перевести на TmNativeApi
       uint count = 0;
       var tmcImpulseArchivePtr = await Task.Run(() => TmNative.tmcAanReadArchive(_cid,
                                                   (uint)analog.TmAddr.ToTma(),
@@ -344,6 +345,7 @@ namespace Iface.Oik.Tm.Api
       var step = filter.Step;
 
       uint count = 0;
+      // TODO перевести на TmNativeApi
       var tmcImpulseArchivePtr = await Task.Run(() => TmNative.tmcAanReadArchive(_cid,
                                                   (uint)analog.TmAddr.ToTma(),
                                                   (uint)TmNative.uxgmtime2uxtime(startTime),
@@ -432,6 +434,7 @@ namespace Iface.Oik.Tm.Api
       var step = -filter.Step;
 
       uint count = 0;
+      // TODO перевести на TmNativeApi
       var tmcImpulseArchivePtr = await Task.Run(() => TmNative.tmcAanReadArchive(_cid,
                                                   (uint)analog.TmAddr.ToTma(),
                                                   (uint)TmNative.uxgmtime2uxtime(startTime),
@@ -2981,6 +2984,7 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<IReadOnlyCollection<TmStatus>> GetPresentAps()
     {
+      // TODO перевести на TmNativeApi
       var apsTAdrTmListPointer = await Task.Run(() => TmNative.tmcTakeAPS(_cid)).ConfigureAwait(false);
 
       if (apsTAdrTmListPointer == IntPtr.Zero)
@@ -3056,100 +3060,17 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<bool> BlockTagEventsTemporarily(TmTag tmTag, int minutesToBlock)
-    {
-      return await BlockTagEventsTemporarily(tmTag, DateTime.Now.AddMinutes(minutesToBlock)).ConfigureAwait(false);
-    }
-
-
-    public async Task<bool> BlockTagEventsTemporarily(TmTag tmTag, DateTime endBlockTime)
-    {
-      if (tmTag == null)
-      {
-        return false;
-      }
-
-      var (ch, rtu, point) = tmTag.TmAddr.GetTupleShort();
-      var propsBytes = TmNativeUtil.GetDoubleNullTerminatedBytesFromStringList(new[]
-      {
-        $"EvUnblkTime={endBlockTime:yyyy.MM.dd HH:mm:00}"
-      });
-      var propsChanged = 0u;
-      var result = await Task.Run(() => TmNative.tmcSetObjectProperties(_cid,
-                                                                        tmTag.NativeType,
-                                                                        ch,
-                                                                        rtu,
-                                                                        point,
-                                                                        propsBytes,
-                                                                        out propsChanged))
-                             .ConfigureAwait(false);
-
-      return result > 0 && propsChanged > 0;
-    }
-
-
-    public async Task UnblockTagEvents(TmTag tmTag)
-    {
-      if (tmTag == null)
-      {
-        return;
-      }
-
-      var (ch, rtu, point) = tmTag.TmAddr.GetTupleShort();
-      var propsBytes = TmNativeUtil.GetDoubleNullTerminatedBytesFromStringList(new[]
-      {
-        "EvUnblkTime="
-      });
-      await Task.Run(() => TmNative.tmcSetObjectProperties(_cid,
-                                                           tmTag.NativeType,
-                                                           ch,
-                                                           rtu,
-                                                           point,
-                                                           propsBytes,
-                                                           out _))
-                .ConfigureAwait(false);
-    }
-
-
     public async Task<IReadOnlyCollection<TmTag>> GetTagsByFlags(TmType             tmType,
                                                                  TmFlags            tmFlags,
                                                                  TmCommonPointFlags filterFlags)
     {
-      uint count = 0;
+      var commonPoints = await Task.Run(() => TmNativeApi.GetValuesByFlagMask(_cid,
+                                                                              tmType.ToNativeType(),
+                                                                              tmFlags.ToNativeFlags(),
+                                                                              filterFlags.ToNativeQueryFlags()))
+                                   .ConfigureAwait(false);
 
-      var tmcCommonPointsPtr = await Task.Run(() => TmNative.tmcGetValuesByFlagMask(_cid,
-                                                (ushort)tmType.ToNativeType(),
-                                                (uint)tmFlags,
-                                                (byte)filterFlags,
-                                                out count))
-                                         .ConfigureAwait(false);
-
-      if (tmcCommonPointsPtr == IntPtr.Zero)
-      {
-        return null;
-      }
-
-      var tagsList   = new List<TmTag>();
-      var structSize = Marshal.SizeOf(typeof(TmNativeDefs.TCommonPoint));
-
-      for (var i = 0; i < count; i++)
-      {
-        var currentPtr     = new IntPtr(tmcCommonPointsPtr.ToInt64() + i * structSize);
-        var tmcCommonPoint = Marshal.PtrToStructure<TmNativeDefs.TCommonPoint>(currentPtr);
-
-        var tag = TmTag.CreateFromTmcCommonPoint(tmcCommonPoint);
-
-        if (tag == null)
-        {
-          continue;
-        }
-
-        tagsList.Add(tag);
-      }
-
-      TmNative.tmcFreeMemory(tmcCommonPointsPtr);
-
-      return tagsList;
+      return commonPoints.Select(TmTag.CreateFromCommonPointDto).ToList();
     }
 
 
@@ -3162,6 +3083,7 @@ namespace Iface.Oik.Tm.Api
       }
 
       uint count = 0;
+      // TODO перевести на TmNativeApi
       var tagTAdrTmListPointer = await Task.Run(() => TmNative.tmcTextSearch(_cid,
                                                                              (ushort)tmType.ToNativeType(),
                                                                              EncodingUtil.StringToBytes(pattern),
@@ -3214,6 +3136,61 @@ namespace Iface.Oik.Tm.Api
       TmNative.tmcFreeMemory(tagTAdrTmListPointer);
 
       return tags;
+    }
+
+
+    public async Task<bool> BlockTagEventsTemporarily(TmTag tmTag, int minutesToBlock)
+    {
+      return await BlockTagEventsTemporarily(tmTag, DateTime.Now.AddMinutes(minutesToBlock)).ConfigureAwait(false);
+    }
+
+
+    public async Task<bool> BlockTagEventsTemporarily(TmTag tmTag, DateTime endBlockTime)
+    {
+      if (tmTag == null)
+      {
+        return false;
+      }
+
+      var (ch, rtu, point) = tmTag.TmAddr.GetTupleShort();
+      var propsBytes = TmNativeUtil.GetDoubleNullTerminatedBytesFromStringList(new[]
+      {
+        $"EvUnblkTime={endBlockTime:yyyy.MM.dd HH:mm:00}"
+      });
+      var propsChanged = 0u;
+      var result = await Task.Run(() => TmNative.tmcSetObjectProperties(_cid,
+                                                                        tmTag.NativeType,
+                                                                        ch,
+                                                                        rtu,
+                                                                        point,
+                                                                        propsBytes,
+                                                                        out propsChanged))
+                             .ConfigureAwait(false);
+
+      return result > 0 && propsChanged > 0;
+    }
+
+
+    public async Task UnblockTagEvents(TmTag tmTag)
+    {
+      if (tmTag == null)
+      {
+        return;
+      }
+
+      var (ch, rtu, point) = tmTag.TmAddr.GetTupleShort();
+      var propsBytes = TmNativeUtil.GetDoubleNullTerminatedBytesFromStringList(new[]
+      {
+        "EvUnblkTime="
+      });
+      await Task.Run(() => TmNative.tmcSetObjectProperties(_cid,
+                                                           tmTag.NativeType,
+                                                           ch,
+                                                           rtu,
+                                                           point,
+                                                           propsBytes,
+                                                           out _))
+                .ConfigureAwait(false);
     }
 
 

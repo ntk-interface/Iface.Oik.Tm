@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Text;
+using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Utils;
 
@@ -144,6 +143,19 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
+    public static TmTag CreateFromCommonPointDto(TCommonPointDto dto)
+    {
+      var tmTag = Create(new TmAddr(((TmNativeDefs.TmDataTypes)dto.Type).ToTmType(),
+                                    dto.Ch,
+                                    dto.Rtu,
+                                    dto.Point));
+      tmTag.Name = dto.Name ?? string.Empty;
+      tmTag.FromCommonPointDto(dto);
+      
+      return tmTag;
+    }
+
+
     public static TmTag CreateFromTmcCommonPoint(TmNativeDefs.TCommonPoint commonPoint)
     {
       return ((TmNativeDefs.TmDataTypes)commonPoint.Type).ToTmType() switch
@@ -154,6 +166,9 @@ namespace Iface.Oik.Tm.Interfaces
                _             => null,
              };
     }
+
+
+    public abstract void FromCommonPointDto(TCommonPointDto dto);
 
 
     public virtual void SetTmcObjectProperties(string tmcObjectPropertiesString)

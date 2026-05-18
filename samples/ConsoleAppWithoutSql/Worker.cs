@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Interfaces;
@@ -36,6 +37,16 @@ namespace ConsoleAppWithoutSql
     {
       Console.WriteLine(_infr.TmUserInfo?.Name);
       Console.WriteLine(await _api.GetSystemTimeString());
+
+      /*var tmStatuses = new List<TmStatus>(new[]
+      {
+        new TmStatus(0, 1, 1),
+        new TmStatus(0, 1, 2),
+        new TmStatus(0, 1, 3),
+      });
+      await _infr.TmsApi.UpdateStatuses(tmStatuses);*/
+
+      var tags = await _infr.TmsApi.GetTagsByFlags(TmType.Status, TmFlags.Abnormal, TmCommonPointFlags.None);
 
       var ts = new TmStatus(20, 1, 1);
       var ti = new TmAnalog(20, 1, 1);

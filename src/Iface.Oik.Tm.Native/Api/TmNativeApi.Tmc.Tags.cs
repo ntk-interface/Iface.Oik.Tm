@@ -402,6 +402,46 @@ public static partial class TmNativeApi
   }
 
 
+  public static IReadOnlyList<TCommonPointDto> GetValuesByFlagMask(int                      cid,
+                                                                   TmNativeDefs.TmDataTypes tmType,
+                                                                   TmNativeDefs.Flags       tmFlags,
+                                                                   TmNativeDefs.TmCpf       queryFlags)
+  {
+    return GetValuesByFlagMaskUnsafe(cid, tmType, tmFlags, queryFlags).Select(TCommonPointDto.Create).ToList();
+  }
+
+
+  private static unsafe TmNativeDefsUnsafe.TCommonPoint[] GetValuesByFlagMaskUnsafe(int cid,
+    TmNativeDefs.TmDataTypes                                                            tmType,
+    TmNativeDefs.Flags                                                                  tmFlags,
+    TmNativeDefs.TmCpf                                                                  queryFlags)
+  {
+    TmNativeDefsUnsafe.TCommonPoint* ptr = null;
+
+    try
+    {
+      ptr = TmNative.tmcGetValuesByFlagMask(cid,
+                                            (ushort)tmType,
+                                            (uint) tmFlags,
+                                            (byte) queryFlags,
+                                            out var count);
+      if (ptr == null)
+      {
+        return Array.Empty<TmNativeDefsUnsafe.TCommonPoint>();
+      }
+
+      return new ReadOnlySpan<TmNativeDefsUnsafe.TCommonPoint>(ptr, (int) count).ToArray();
+    }
+    finally
+    {
+      if (ptr != null)
+      {
+        TmNative.tmcFreeMemory((IntPtr)ptr);
+      }
+    }
+  }
+
+
   internal static (bool isSuccess, TmNativeDefsUnsafe.TStatusPoint point) GetStatusFullEx(int tmCid,
     short                                                                                     ch,
     short                                                                                     rtu,
