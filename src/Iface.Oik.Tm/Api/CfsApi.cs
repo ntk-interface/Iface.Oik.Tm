@@ -1956,83 +1956,10 @@ namespace Iface.Oik.Tm.Api
                           .ConfigureAwait(false);
     }
 
-    public async Task<(uint, string)> SecSetPasswordPolicy(PasswordPolicy passwordPolicy)
+    public async Task SecSetPasswordPolicy(PasswordPolicy passwordPolicy)
     {
-      byte[] bin;
-      string n;
-      uint errCode, resErrCode = 0;
-      string errString, resErrString = string.Empty;
-      string enc = EncodingUtil.Cp1251; // TODO кодировка
-
-
-      if (passwordPolicy.AdminPasswordChange)
-      {
-        bin = TmNativeUtil.GetFixedBytesWithTrailingZero("0", 2, enc);
-      }
-      else
-      {
-        bin = TmNativeUtil.GetFixedBytesWithTrailingZero("1", 2, enc);
-      }
-
-      (errCode, errString) = await SecSetBin(".cfs.", ".", "own_pch", bin).ConfigureAwait(false);
-      if (errCode != 0)
-      {
-        resErrCode = errCode;
-        resErrString += errString;
-      }
-
-      if (passwordPolicy.EnforcePasswordCheck)
-      {
-        bin = TmNativeUtil.GetFixedBytesWithTrailingZero("1", 2, enc);
-      }
-      else
-      {
-        bin = TmNativeUtil.GetFixedBytesWithTrailingZero("0", 2, enc);
-      }
-
-      (errCode, errString) = await SecSetBin(".cfs.", ".", "pwd_pol", bin).ConfigureAwait(false);
-      if (errCode != 0)
-      {
-        resErrCode = errCode;
-        resErrString += errString;
-      }
-
-      n = passwordPolicy.MinPasswordLength.ToString();
-      bin = TmNativeUtil.GetFixedBytesWithTrailingZero(n, n.Length + 1, enc);
-      (errCode, errString) = await SecSetBin(".cfs.", ".", "pwd_pol_len", bin).ConfigureAwait(false);
-      if (errCode != 0)
-      {
-        resErrCode = errCode;
-        resErrString += errString;
-      }
-
-      n = passwordPolicy.PasswordTtlDays.ToString();
-      bin = TmNativeUtil.GetFixedBytesWithTrailingZero(n, n.Length + 1, enc);
-      (errCode, errString) = await SecSetBin(".cfs.", ".", "p_ex_days", bin).ConfigureAwait(false);
-      if (errCode != 0)
-      {
-        resErrCode = errCode;
-        resErrString += errString;
-      }
-
-      PWDPOL flags = (PWDPOL)0xff_ff_ff_ff;
-      if (!passwordPolicy.PasswordCharsUpper) flags &= ~PWDPOL.Upper;
-      if (!passwordPolicy.PasswordCharsDigits) flags &= ~PWDPOL.Digits;
-      if (!passwordPolicy.PasswordCharsSpecial) flags &= ~PWDPOL.Spec;
-      if (!passwordPolicy.PasswordCharsNoRepeat) flags &= ~PWDPOL.CheckRepeat;
-      if (!passwordPolicy.PasswordCharsNoSequential) flags &= ~PWDPOL.CheqSeq;
-      if (!passwordPolicy.PasswordCharsCheckDictionary) flags &= ~PWDPOL.CheckDict;
-      if (!passwordPolicy.CheckOldPasswords) flags &= ~PWDPOL.CheckCache;
-      string s_flg = flags.ToString();
-      bin = TmNativeUtil.GetFixedBytesWithTrailingZero(s_flg, s_flg.Length + 1, enc);
-      (errCode, errString) = await SecSetBin(".cfs.", ".", "pwd_pol_flg", bin).ConfigureAwait(false);
-      if (errCode != 0)
-      {
-        resErrCode = errCode;
-        resErrString += errString;
-      }
-
-      return (resErrCode, resErrString);
+      await Task.Run(() => TmNativeApi.SecSetPasswordPolicy(CfId, passwordPolicy))
+                .ConfigureAwait(false);
     }
 
     public async Task<ComputerInfo> GetComputerInfo()

@@ -36,17 +36,43 @@ public static partial class TmNativeApi
     };
   }
 
+  public static void SecSetPasswordPolicy(nint cfCid, 
+                                          PasswordPolicyBase passwordPolicy)
+  {
+    const string uname = ".cfs.";
+    const string oname = ".";
+
+
+    var flags = TmNativeDefsUnsafe.PasswordPolicies.Undefined;
+    
+    if (!passwordPolicy.PasswordCharsUpper) flags           &= ~TmNativeDefsUnsafe.PasswordPolicies.Upper;
+    if (!passwordPolicy.PasswordCharsDigits) flags          &= ~TmNativeDefsUnsafe.PasswordPolicies.Digits;
+    if (!passwordPolicy.PasswordCharsSpecial) flags         &= ~TmNativeDefsUnsafe.PasswordPolicies.Spec;
+    if (!passwordPolicy.PasswordCharsNoRepeat) flags        &= ~TmNativeDefsUnsafe.PasswordPolicies.CheckRepeat;
+    if (!passwordPolicy.PasswordCharsNoSequential) flags    &= ~TmNativeDefsUnsafe.PasswordPolicies.CheqSeq;
+    if (!passwordPolicy.PasswordCharsCheckDictionary) flags &= ~TmNativeDefsUnsafe.PasswordPolicies.CheckDict;
+    if (!passwordPolicy.CheckOldPasswords) flags            &= ~TmNativeDefsUnsafe.PasswordPolicies.CheckCache;
+    
+    IfpcSetBinBool(cfCid, uname, oname, "own_pch", passwordPolicy.AdminPasswordChange);
+    IfpcSetBinBool(cfCid, uname, oname, "pwd_pol", passwordPolicy.EnforcePasswordCheck);
+    IfpcSetBinInt(cfCid, uname, oname, "pwd_pol_len", passwordPolicy.MinPasswordLength);
+    IfpcSetBinInt(cfCid, uname, oname, "p_ex_days", passwordPolicy.PasswordTtlDays);
+    IfpcSetBinUint(cfCid, uname, oname, "pwd_pol_flg", (uint)flags);
+  }
+
   public static void SecSetUserPolicy(nint           cfCid,
                                       string         username,
                                       UserPolicyBase userPolicy)
   {
-    IfpcSetBinBool(cfCid, username, ".", "blocked", userPolicy.IsBlocked);
-    IfpcSetBinBool(cfCid, username, ".", "chgp",    userPolicy.MustChangePassword);
-    IfpcSetBinTimestamp(cfCid, username, ".", "not_before", userPolicy.NotBefore);
-    IfpcSetBinTimestamp(cfCid, username, ".", "not_after",  userPolicy.NotAfter);
-    IfpcSetBinInt(cfCid, username, ".", "logon_limit", userPolicy.BadLogonLimit);
-    IfpcSetBinString(cfCid, username, ".", "uctgr", userPolicy.UserCategory);
-    IfpcSetBinString(cfCid, username, ".", "utmpl", userPolicy.UserTemplate);
+    const string oname = ".";
+    
+    IfpcSetBinBool(cfCid, username, oname, "blocked", userPolicy.IsBlocked);
+    IfpcSetBinBool(cfCid, username, oname,   "chgp",    userPolicy.MustChangePassword);
+    IfpcSetBinTimestamp(cfCid, username, oname, "not_before", userPolicy.NotBefore);
+    IfpcSetBinTimestamp(cfCid, username, oname,   "not_after",  userPolicy.NotAfter);
+    IfpcSetBinInt(cfCid, username, oname, "logon_limit", userPolicy.BadLogonLimit);
+    IfpcSetBinString(cfCid, username, oname, "uctgr", userPolicy.UserCategory);
+    IfpcSetBinString(cfCid, username, oname,   "utmpl", userPolicy.UserTemplate);
     IfpcSetBinMacs(cfCid, username, userPolicy.EnabledMacs);
   }
 

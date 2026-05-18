@@ -177,7 +177,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<PasswordPolicy> SecGetPasswordPolicy();
 
-    Task<(uint, string)> SecSetPasswordPolicy(PasswordPolicy passwordPolicy);
+    Task SecSetPasswordPolicy(PasswordPolicy passwordPolicy);
 
     Task<(IReadOnlyCollection<string>, uint, string)> DirEnum(string path);
 

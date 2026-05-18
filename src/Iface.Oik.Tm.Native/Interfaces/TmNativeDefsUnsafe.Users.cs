@@ -15,6 +15,8 @@ internal static partial class TmNativeDefsUnsafe
     CheqSeq     = 0x00010,
     CheckDict   = 0x00020,
     CheckCache  = 0x10000,
+    
+    Undefined = 0xff_ff_ff_ff
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
