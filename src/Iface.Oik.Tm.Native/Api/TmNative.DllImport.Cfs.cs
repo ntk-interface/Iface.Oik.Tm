@@ -567,14 +567,16 @@ namespace Iface.Oik.Tm.Native.Api
                                                       [In, Out] byte[] errBuf,
                                                       UInt32           maxErrs);
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern Boolean cfsSaveMachineConfigEx(byte[] remoteMasterMachine,
-                                                        byte[] fileName,
-                                                        uint dwScope,
-                                                        [MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback progFn,
-                                                        IntPtr progParm,
-                                                        [In, Out] byte[] errBuf,
-                                                        UInt32 maxErrs);
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool cfsSaveMachineConfigEx(string remoteMasterMachine,
+                                                      string fileName,
+                                                      uint dwScope,
+                                                      [MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback? progFn,
+                                                      nint progParm,
+                                                      Span<byte> errBuf,
+                                                      uint maxErrs);
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern Boolean cfsExternalBackupServer(IntPtr                            connId,

@@ -137,6 +137,39 @@ public static partial class TmNativeApi
 
   #region Backups
 
+  public static (bool, string) SaveMachineConfigEx(string            host,
+                                                   string            directory,
+                                                   uint              scope,
+                                                   TmNativeCallback? callback          = null,
+                                                   nint              callbackParameter = default)
+  {
+    var pool   = ArrayPool<byte>.Shared;
+    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+
+    var fileName = scope switch
+                   {
+                     0 => "DevConf-"       + DateTime.Now.ToString(BackupDateFormat) + ".pkf",
+                     1 => "FullConf-"      + DateTime.Now.ToString(BackupDateFormat) + ".cfim",
+                     2 => "FullConfRetro-" + DateTime.Now.ToString(BackupDateFormat) + ".cfim",
+                     _ => "undefined"
+                   };
+
+    try
+    {
+      var result = TmNative.cfsSaveMachineConfigEx(host,
+                                                   Path.Combine(directory, fileName),
+                                                   scope,
+                                                   callback, callbackParameter,
+                                                   errBuf, TmNativeDefsUnsafe.ErrorBufSize);
+      
+      return (result, result ? string.Empty : TmNativeUtil.BytesToString(errBuf));
+    }
+    finally
+    {
+      pool.Return(errBuf);
+    }
+  }
+
   public static bool CreateBackup(string            host,
                                   string            progName,
                                   string            pipeName,
@@ -208,8 +241,8 @@ public static partial class TmNativeApi
                                                pipeName,
                                                filename,
                                                ref bFlags,
-                                               0, 
-                                               callback, 
+                                               0,
+                                               callback,
                                                callbackParameter);
 
         if (bFlags == 0)
@@ -230,8 +263,8 @@ public static partial class TmNativeApi
                                                pipeName,
                                                filename,
                                                ref bFlags,
-                                               0, 
-                                               callback, 
+                                               0,
+                                               callback,
                                                callbackParameter);
         if (bFlags == 0)
         {
