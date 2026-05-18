@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace Iface.Oik.Tm.Native.Interfaces
 {
+  [UnmanagedFunctionPointer(CallingConvention.StdCall)]
   public delegate void TmNativeCallback(Int32 sizeInBytes, IntPtr buffer, IntPtr param);
 
   public class TmNativeDefs

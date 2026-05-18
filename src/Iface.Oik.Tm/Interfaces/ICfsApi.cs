@@ -4,6 +4,7 @@ using Iface.Oik.Tm.Utils;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Iface.Oik.Tm.Native.Dto;
 
 namespace Iface.Oik.Tm.Interfaces
 {
@@ -138,16 +139,6 @@ namespace Iface.Oik.Tm.Interfaces
     Task SetRedirectorPort(string pipeName, int portIndex, int port);
 
 
-    Task<bool> SetBin(string uName,
-                      string oName,
-                      string binName,
-                      byte[] binData);
-
-    Task<(uint, string)> SecSetBin(string uName,
-                                   string oName,
-                                   string binName,
-                                   byte[] binData);
-
     AccessMasksDescriptor SecGetAccessDescriptor(string sSetupPath, string progName);
 
     ExtendedRightsDescriptor SecGetExtendedRightsDescriptor(string sSetupPath);
@@ -177,7 +168,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<PasswordPolicy> SecGetPasswordPolicy();
 
-    Task<(uint, string)> SecSetPasswordPolicy(PasswordPolicy passwordPolicy);
+    Task SecSetPasswordPolicy(PasswordPolicy passwordPolicy);
 
     Task<(IReadOnlyCollection<string>, uint, string)> DirEnum(string path);
 
@@ -190,19 +181,19 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<(bool, string)> RestoreMachineConfig(string filename);
 
-    Task<(bool, string)> CreateBackup(string           progName,
-                                      string           pipeName,
-                                      string           directory,
-                                      bool             withRetro,
-                                      TmNativeCallback callback          = null,
-                                      IntPtr           callbackParameter = default);
+    Task<bool> CreateBackup(string           progName,
+                            string           pipeName,
+                            string           directory,
+                            bool             withRetro,
+                            TmNativeCallback callback          = null,
+                            IntPtr           callbackParameter = default);
 
-    Task<(bool, string)> RestoreBackup(string           progName,
-                                       string           pipeName,
-                                       string           filename,
-                                       bool             withRetro,
-                                       TmNativeCallback callback          = null,
-                                       IntPtr           callbackParameter = default);
+    Task<RestoreBackupResult> RestoreBackup(string           progName,
+                                            string           pipeName,
+                                            string           filename,
+                                            bool             withRetro,
+                                            TmNativeCallback callback          = null,
+                                            IntPtr           callbackParameter = default);
 
     Task BackupSecurity(string directory, string pwd = "");
 

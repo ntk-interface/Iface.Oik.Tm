@@ -168,20 +168,10 @@ namespace Iface.Oik.Tm.Interfaces
 		CheckCache = 0x10000,
 	}
 
-	public class PasswordPolicy
+	public class PasswordPolicy : PasswordPolicyBase
 	{
-		public bool AdminPasswordChange { get; set; }
-		public int PasswordTtlDays { get; set; }
-		public bool EnforcePasswordCheck { get; set; }
-		public int MinPasswordLength { get; set; }
-		public bool PwdChars_Upper { get; set; }
-		public bool PwdChars_Digits { get; set; }
-		public bool PwdChars_Special { get; set; }
-		public bool PwdChars_NoRepeat { get; set; }
-		public bool PwdChars_NoSequential { get; set; }
-		public bool PwdChars_CheckDictonary { get; set; }
-		public bool CheckOldPasswords { get; set; }
 	}
+	
 	public class ComputerInfo
 	{
 		public string Copyright { get; set; }

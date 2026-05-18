@@ -368,6 +368,15 @@ public static partial class TmNativeApi
   {
     IfpcSetBinString(cfCid, uName, oName, binName, $"{value}");
   }
+  
+  internal static void IfpcSetBinUint(nint   cfCid,
+                                     string uName,
+                                     string oName,
+                                     string binName,
+                                     uint    value)
+  {
+    IfpcSetBinString(cfCid, uName, oName, binName, $"{value}");
+  }
 
   internal static void IfpcSetBinTimestamp(nint     cfCid,
                                            string   uName,
