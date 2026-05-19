@@ -57,50 +57,62 @@ namespace Iface.Oik.Tm.Native.Utils
                                              .Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
     }
 
-    public static (IEnumerable<KeyValuePair<string, string>>, byte[]) SplitMqttMessageDatagram(byte[]? datagram)
+    public static MqttParseResult ParseMqttMessageDatagram(ReadOnlySpan<byte> datagram)
     {
-      if (datagram == null || datagram[0] != 'p' && datagram[1] != 'o')
+      if (datagram.Length < 2 || datagram[0] != 'p' || datagram[1] != 'o') // кривая датаграмма
       {
-        return (Enumerable.Empty<KeyValuePair<string, string>>(), Array.Empty<byte>());
+        return new MqttParseResult
+        {
+          Headers = Enumerable.Empty<KeyValuePair<string, string>>(),
+          Payload = ReadOnlySpan<byte>.Empty,
+        };
       }
 
-      var doubleNull = 0;
+      var doubleNullPosition = -1;
       for (var i = 3; i < datagram.Length; i++)
       {
         if (datagram[i] != 0 || datagram[i - 1] != 0) continue;
-        doubleNull = i - 1;
+        doubleNullPosition = i - 1;
         break;
       }
-
-      var infoBytes = new byte[doubleNull];
-      Array.Copy(datagram, 2, infoBytes, 0, doubleNull);
-      var infoDictionary = DetectEncoding(infoBytes).GetString(infoBytes)
-                                                    .Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries)
-                                                    .Select(x =>
-                                                            {
-                                                              var item = x.Split('=');
-                                                              return new KeyValuePair<string, string>(item[0], item[1]);
-                                                            });
-
-      byte[] payloadBytes;
-      var    payloadIndex = doubleNull + 2;
-
-      if (payloadIndex > datagram.Length)
+      
+      if (doubleNullPosition == -1) // не найден разделитель
       {
-        payloadBytes = Array.Empty<byte>();
-      }
-      else
-      {
-        var payloadLength = datagram.Length - payloadIndex;
-        payloadBytes = new byte[payloadLength];
-        Array.Copy(datagram,
-                   payloadIndex,
-                   payloadBytes,
-                   0,
-                   payloadLength);
+        return new MqttParseResult
+        {
+          Headers = Enumerable.Empty<KeyValuePair<string, string>>(),
+          Payload = ReadOnlySpan<byte>.Empty
+        };
       }
 
-      return (infoDictionary, payloadBytes);
+      var headersBytes = datagram.Slice(2, doubleNullPosition - 2);
+      var headers = DetectEncoding(headersBytes).GetString(headersBytes)
+                                                .Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries)
+                                                .Select(x =>
+                                                 {
+                                                   var item = x.Split('=');
+                                                   return new KeyValuePair<string, string>(item[0], item[1]);
+                                                 })
+                                                .ToList();
+
+      var payloadIndex = doubleNullPosition + 2;
+
+      var payload = payloadIndex > datagram.Length 
+                      ? ReadOnlySpan<byte>.Empty 
+                      : datagram.Slice(payloadIndex);
+
+      return new MqttParseResult
+      {
+        Headers = headers,
+        Payload = payload,
+      };
+    }
+    
+    
+    public ref struct MqttParseResult
+    {
+      public IEnumerable<KeyValuePair<string, string>> Headers { get; init; }
+      public ReadOnlySpan<byte>                        Payload { get; init; }
     }
 
 
@@ -703,6 +715,12 @@ namespace Iface.Oik.Tm.Native.Utils
       }
 
       return *(T*)ptr;
+    }
+
+
+    public static unsafe ReadOnlySpan<byte> IntPtrToByteSpan(nint ptr, int length)
+    {
+      return new ReadOnlySpan<byte>((void*)ptr, length);
     }
 
     public static long GetUtcTimestampFromDateTime(DateTime dateTime)

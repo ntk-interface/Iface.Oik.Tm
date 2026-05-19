@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Native.Utils;
 
 namespace Iface.Oik.Tm.Api
 {
@@ -52,13 +51,11 @@ namespace Iface.Oik.Tm.Api
 
     private void OnTmsCallback(int callbackSize, IntPtr callbackBuf, IntPtr callbackParam)
     {
-      var buf = new byte[callbackSize];
-      Marshal.Copy(callbackBuf, buf, 0, callbackSize);
-      HandleTmsCallback(buf);
+      HandleTmsCallback(TmNativeUtil.IntPtrToByteSpan(callbackBuf, callbackSize));
     }
 
 
-    private void HandleTmsCallback(byte[] buf)
+    private void HandleTmsCallback(ReadOnlySpan<byte> buf)
     {
       if (buf[0] == 'T' &&
           buf[1] == 'S')
@@ -153,7 +150,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    private void HandleTmsCallbackMqtt(byte[] datagram)
+    private void HandleTmsCallbackMqtt(ReadOnlySpan<byte> datagram)
     {
       var message = Tms.ParseMqttDatagram(datagram);
       MqttMessageReceived.Invoke(this, message);

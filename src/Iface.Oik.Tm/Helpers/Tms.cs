@@ -745,13 +745,15 @@ namespace Iface.Oik.Tm.Helpers
     }
     
     
-    public static MqttMessage ParseMqttDatagram(byte[] datagram)
+    public static MqttMessage ParseMqttDatagram(ReadOnlySpan<byte> datagram)
     {
       var result = new MqttMessage();
-      var (infoList, payload) = TmNativeUtil.SplitMqttMessageDatagram(datagram);
 
-      result.Payload = payload;
-      foreach (var pair in infoList)
+      var parsedDatagram = TmNativeUtil.ParseMqttMessageDatagram(datagram);
+
+      result.Payload = parsedDatagram.Payload.ToArray();
+      
+      foreach (var pair in parsedDatagram.Headers)
       {
         switch (pair.Key)
         {
@@ -786,6 +788,7 @@ namespace Iface.Oik.Tm.Helpers
       }
       return result;
     }
+    
 
     public static bool AckMqttPublications(int tmCid, MqttMessage message)
     {
