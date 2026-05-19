@@ -121,10 +121,11 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task UpdateComponentsTreeLiveInfo(IReadOnlyCollection<DeltaComponent> tree)
+    public async Task<IReadOnlyCollection<DeltaComponentErrorState>> UpdateComponentsTreeLiveInfo(IEnumerable<DeltaComponent> tree)
     {
       var flattenedTree = tree.Flatten();
 
+      var errorStatesList = new List<DeltaComponentErrorState>();
       foreach (var node in flattenedTree)
       {
         switch (node.Level)
@@ -149,12 +150,19 @@ namespace Iface.Oik.Tm.Api
               node.State = (DeltaComponentStates)data;
             }
 
+            if (node.State is not DeltaComponentStates.Ok)
+            {
+              errorStatesList.Add(new DeltaComponentErrorState(node));
+            } 
+            
             break;
           default:
             node.State = DeltaComponentStates.None;
             break;
         }
       }
+
+      return errorStatesList;
     }
 
 
