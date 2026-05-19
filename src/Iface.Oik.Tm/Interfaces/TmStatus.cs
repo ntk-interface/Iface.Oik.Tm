@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using Iface.Oik.Tm.Dto;
 using Iface.Oik.Tm.Native.Dto;
@@ -440,12 +441,12 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void UpdateValueFromDatagram(byte[] buf)
+    public void UpdateValueFromDatagram(ReadOnlySpan<byte> buf)
     {
       IsInit  = true;
       Status  = (short)(buf[14] & 1);
-      Flags   = (TmFlags)BitConverter.ToInt16(buf,   18);
-      S2Flags = (TmS2Flags)BitConverter.ToUInt16(buf, 16);
+      Flags   = (TmFlags)BinaryPrimitives.ReadUInt16LittleEndian(buf[16..]);
+      S2Flags = (TmS2Flags)BinaryPrimitives.ReadInt16LittleEndian(buf[18..]);
     }
 
 

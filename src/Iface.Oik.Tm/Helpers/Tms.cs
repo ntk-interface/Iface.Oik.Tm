@@ -372,19 +372,15 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
-    public static TmUserInfo GetUserInfo(int    tmCid,
-                                         string serverName)
+    public static TmUserInfo GetUserInfo(int tmCid, string serverName)
     {
-
-      var dto = TmNativeApi.GetUserInfo(tmCid, serverName);
-
-      return new TmUserInfo(dto);
+      return new TmUserInfo(TmNativeApi.GetUserInfo(tmCid, serverName));
     }
 
 
-    public static string GetUserName(int tmCid, int userId)
+    public static string GetUserName(int tmCid, string serverName, int userId)
     {
-      return TmNativeApi.GetUserName(tmCid, userId);
+      return TmNativeApi.GetUserName(tmCid, serverName, userId);
     }
 
 
