@@ -4,7 +4,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Dto;
@@ -284,46 +283,48 @@ namespace Iface.Oik.Tm.Api
         return null;
       }
 
-      const uint queryFlags = (uint)(TmNativeDefs.ImpulseArchiveQueryFlags.Mom);
-      const uint step       = 1;
+      var points = await Task.Run(() => TmNativeApi.GetImpulseArchive(_cid,
+                                                                            TmNativeDefs.ImpulseArchiveQueryFlags.Mom, 
+                                                                            (uint)analog.TmAddr.ToTma(), 
+                                                                            (uint)TmNative.uxgmtime2uxtime(startTime), 
+                                                                            (uint)TmNative.uxgmtime2uxtime(endTime), 
+                                                                            step: 1))
+                                   .ConfigureAwait(false);
 
-      // TODO перевести на TmNativeApi
-      uint count = 0;
-      var tmcImpulseArchivePtr = await Task.Run(() => TmNative.tmcAanReadArchive(_cid,
-                                                  (uint)analog.TmAddr.ToTma(),
-                                                  (uint)TmNative.uxgmtime2uxtime(startTime),
-                                                  (uint)TmNative.uxgmtime2uxtime(endTime),
-                                                  step,
-                                                  queryFlags,
-                                                  out count,
-                                                  null,
-                                                  IntPtr.Zero))
-                                           .ConfigureAwait(false);
-      if (tmcImpulseArchivePtr == IntPtr.Zero)
+      return points.Select(p => new TmAnalogImpulseArchiveInstant(p.Value,
+                                                                  p.Flags,
+                                                                  p.UnixTime,
+                                                                  p.Milliseconds) as ITmAnalogRetro)
+                   .ToList();
+    }
+
+    
+    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveSlices(
+      TmAnalog            analog,
+      TmAnalogRetroFilter filter)
+    {
+      var startTime = DateUtil.GetUtcTimestampFromDateTime(filter.StartTime);
+      var endTime   = DateUtil.GetUtcTimestampFromDateTime(filter.EndTime);
+      if (endTime <= startTime)
       {
         return null;
       }
 
-      var result = new List<ITmAnalogRetro>();
-      try
-      {
-        var structSize = Marshal.SizeOf(typeof(TmNativeDefs.TMAAN_ARCH_VALUE));
-        for (var i = 0; i < count; i++)
-        {
-          var currentPtr             = new IntPtr(tmcImpulseArchivePtr.ToInt64() + i * structSize);
-          var tmcImpulseArchivePoint = Marshal.PtrToStructure<TmNativeDefs.TMAAN_ARCH_VALUE>(currentPtr);
-          result.Add(new TmAnalogImpulseArchiveInstant(tmcImpulseArchivePoint.Value,
-                                                       tmcImpulseArchivePoint.Flags,
-                                                       tmcImpulseArchivePoint.Ut,
-                                                       tmcImpulseArchivePoint.Ms));
-        }
-      }
-      finally
-      {
-        TmNative.tmcFreeMemory(tmcImpulseArchivePtr);
-      }
+      var points = await Task.Run(() => TmNativeApi.GetImpulseArchive(_cid,
+                                                                      TmNativeDefs.ImpulseArchiveQueryFlags.Avg |
+                                                                      TmNativeDefs.ImpulseArchiveQueryFlags.Min |
+                                                                      TmNativeDefs.ImpulseArchiveQueryFlags.Max, 
+                                                                      (uint)analog.TmAddr.ToTma(), 
+                                                                      (uint)TmNative.uxgmtime2uxtime(startTime), 
+                                                                      (uint)TmNative.uxgmtime2uxtime(endTime), 
+                                                                      (uint)-filter.Step)) // минус тут важен!
+                             .ConfigureAwait(false);
 
-      return result;
+      return points.Select(p => new TmAnalogImpulseArchiveInstant(p.Value,
+                                                                  p.Flags,
+                                                                  p.UnixTime,
+                                                                  p.Milliseconds) as ITmAnalogRetro)
+                   .ToList();
     }
 
 
@@ -338,134 +339,26 @@ namespace Iface.Oik.Tm.Api
         return null;
       }
 
-      const uint queryFlags = (uint)(TmNativeDefs.ImpulseArchiveQueryFlags.Avg |
-                                     TmNativeDefs.ImpulseArchiveQueryFlags.Min |
-                                     TmNativeDefs.ImpulseArchiveQueryFlags.Max);
-
-      var step = filter.Step;
-
-      uint count = 0;
-      // TODO перевести на TmNativeApi
-      var tmcImpulseArchivePtr = await Task.Run(() => TmNative.tmcAanReadArchive(_cid,
-                                                  (uint)analog.TmAddr.ToTma(),
-                                                  (uint)TmNative.uxgmtime2uxtime(startTime),
-                                                  (uint)TmNative.uxgmtime2uxtime(endTime),
-                                                  (uint)step,
-                                                  queryFlags,
-                                                  out count,
-                                                  null,
-                                                  IntPtr.Zero))
-                                           .ConfigureAwait(false);
-      if (tmcImpulseArchivePtr == IntPtr.Zero)
+      var points = await Task.Run(() => TmNativeApi.GetImpulseArchive(_cid,
+                                                                      TmNativeDefs.ImpulseArchiveQueryFlags.Avg |
+                                                                      TmNativeDefs.ImpulseArchiveQueryFlags.Min |
+                                                                      TmNativeDefs.ImpulseArchiveQueryFlags.Max, 
+                                                                      (uint)analog.TmAddr.ToTma(), 
+                                                                      (uint)TmNative.uxgmtime2uxtime(startTime), 
+                                                                      (uint)TmNative.uxgmtime2uxtime(endTime), 
+                                                                      (uint)filter.Step))
+                             .ConfigureAwait(false);
+      
+      // в списке точек три значения (макс, мин, среднее), которые объединяются в одно со всеми значениями
+      var result = new List<ITmAnalogRetro>(points.Count / 3);
+      for (var i = 0; i < points.Count; i += 3)
       {
-        return null;
-      }
-
-      var result = new List<ITmAnalogRetro>();
-      try
-      {
-        var avgTime         = 0u;
-        var avgValue        = 0f;
-        var minValue        = 0f;
-        var maxValue        = 0f;
-        var internalCounter = 0;
-        var structSize      = Marshal.SizeOf(typeof(TmNativeDefs.TMAAN_ARCH_VALUE));
-        for (var i = 0; i < count; i++)
-        {
-          var currentPtr             = new IntPtr(tmcImpulseArchivePtr.ToInt64() + i * structSize);
-          var tmcImpulseArchivePoint = Marshal.PtrToStructure<TmNativeDefs.TMAAN_ARCH_VALUE>(currentPtr);
-          switch ((TmNativeDefs.ImpulseArchiveFlags)tmcImpulseArchivePoint.Tag)
-          {
-            case TmNativeDefs.ImpulseArchiveFlags.Avg:
-              avgValue = tmcImpulseArchivePoint.Value;
-              avgTime  = tmcImpulseArchivePoint.Ut;
-              internalCounter++;
-              break;
-
-            case TmNativeDefs.ImpulseArchiveFlags.Max:
-              maxValue = tmcImpulseArchivePoint.Value;
-              internalCounter++;
-              break;
-
-            case TmNativeDefs.ImpulseArchiveFlags.Min:
-              minValue = tmcImpulseArchivePoint.Value;
-              internalCounter++;
-              break;
-          }
-
-          if (internalCounter == 3)
-          {
-            result.Add(new TmAnalogImpulseArchiveAverage(avgValue,
-                                                         minValue,
-                                                         maxValue,
-                                                         tmcImpulseArchivePoint.Flags,
-                                                         avgTime + (uint)step, // прошлый период
-                                                         tmcImpulseArchivePoint.Ms));
-            internalCounter = 0;
-            minValue        = 0;
-            maxValue        = 0;
-            avgValue        = 0;
-          }
-        }
-      }
-      finally
-      {
-        TmNative.tmcFreeMemory(tmcImpulseArchivePtr);
-      }
-
-      return result;
-    }
-
-    public async Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveSlices(
-      TmAnalog            analog,
-      TmAnalogRetroFilter filter)
-    {
-      var startTime = DateUtil.GetUtcTimestampFromDateTime(filter.StartTime);
-      var endTime   = DateUtil.GetUtcTimestampFromDateTime(filter.EndTime);
-      if (endTime <= startTime)
-      {
-        return null;
-      }
-
-      const uint queryFlags = (uint)(TmNativeDefs.ImpulseArchiveQueryFlags.Avg |
-                                     TmNativeDefs.ImpulseArchiveQueryFlags.Min |
-                                     TmNativeDefs.ImpulseArchiveQueryFlags.Max);
-
-      var step = -filter.Step;
-
-      uint count = 0;
-      // TODO перевести на TmNativeApi
-      var tmcImpulseArchivePtr = await Task.Run(() => TmNative.tmcAanReadArchive(_cid,
-                                                  (uint)analog.TmAddr.ToTma(),
-                                                  (uint)TmNative.uxgmtime2uxtime(startTime),
-                                                  (uint)TmNative.uxgmtime2uxtime(endTime),
-                                                  (uint)step,
-                                                  queryFlags,
-                                                  out count,
-                                                  null, IntPtr.Zero))
-                                           .ConfigureAwait(false);
-      if (tmcImpulseArchivePtr == IntPtr.Zero)
-      {
-        return null;
-      }
-
-      var result = new List<ITmAnalogRetro>();
-      try
-      {
-        var structSize = Marshal.SizeOf(typeof(TmNativeDefs.TMAAN_ARCH_VALUE));
-        for (var i = 0; i < count; i++)
-        {
-          var currentPtr             = new IntPtr(tmcImpulseArchivePtr.ToInt64() + i * structSize);
-          var tmcImpulseArchivePoint = Marshal.PtrToStructure<TmNativeDefs.TMAAN_ARCH_VALUE>(currentPtr);
-          result.Add(new TmAnalogImpulseArchiveInstant(tmcImpulseArchivePoint.Value,
-                                                       tmcImpulseArchivePoint.Flags,
-                                                       tmcImpulseArchivePoint.Ut,
-                                                       tmcImpulseArchivePoint.Ms));
-        }
-      }
-      finally
-      {
-        TmNative.tmcFreeMemory(tmcImpulseArchivePtr);
+        result.Add(new TmAnalogImpulseArchiveAverage(avg: points[i + 2].Value,
+                                                     min: points[i + 1].Value,
+                                                     max: points[i].Value,
+                                                     points[i + 2].Flags,
+                                                     points[i + 2].UnixTime + (uint) filter.Step, // прошлый период
+                                                     points[i + 2].Milliseconds));
       }
 
       return result;

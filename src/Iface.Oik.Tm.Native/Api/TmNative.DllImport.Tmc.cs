@@ -658,16 +658,17 @@ namespace Iface.Oik.Tm.Native.Api
                                             ref TmNativeDefs.TAlarm alarm);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern IntPtr tmcAanReadArchive(Int32 cid,
-                                                  UInt32 tmAddr,
-                                                  UInt32 startUnixTime,
-                                                  UInt32 endUnixTime,
-                                                  UInt32 step,
-                                                  UInt32 flags,
-                                                  out                                    UInt32 count,
-                                                  [MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback progress,
-                                                  IntPtr progressParam);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static unsafe partial TmNativeDefsUnsafe.TMAAN_ARCH_VALUE* tmcAanReadArchive(Int32 cid,
+      UInt32                                                                                    tmAddr,
+      UInt32                                                                                    startUnixTime,
+      UInt32                                                                                    endUnixTime,
+      UInt32                                                                                    step,
+      UInt32                                                                                    flags,
+      out                                    UInt32                                             count,
+      [MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback?                                  progress,
+      IntPtr                                                                                    progressParam);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]

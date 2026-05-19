@@ -38,6 +38,22 @@ namespace ConsoleAppWithoutSql
       Console.WriteLine(_infr.TmUserInfo?.Name);
       Console.WriteLine(await _api.GetSystemTimeString());
 
+      var tmAnalog = new TmAnalog(0, 1, 1);
+
+      /*var ii1 = await _api.GetImpulseArchiveInstant(tmAnalog,
+                                                    new TmAnalogRetroFilter(new DateTime(2026, 05, 19, 11, 50, 0),
+                                                                            new DateTime(2026, 05, 19, 11, 53, 0)));
+
+      var ii2 = await _api.GetImpulseArchiveAverage(tmAnalog,
+                                                    new TmAnalogRetroFilter(new DateTime(2026, 05, 19, 11, 50, 0),
+                                                                            new DateTime(2026, 05, 19, 11, 53, 0),
+                                                                            1));
+
+      var ii3 = await _api.GetImpulseArchiveSlices(tmAnalog,
+                                                   new TmAnalogRetroFilter(new DateTime(2026, 05, 19, 11, 50, 0),
+                                                                           new DateTime(2026, 05, 19, 11, 53, 0),
+                                                                           1));*/
+
       // var tagsByNamePattern = await _infr.TmsApi.GetTagsByNamePattern(TmType.Status, "ОРУ 500 кВ");
 
       /*var tmStatuses = new List<TmStatus>(new[]
