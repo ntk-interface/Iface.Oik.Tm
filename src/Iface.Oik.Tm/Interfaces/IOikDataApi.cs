@@ -30,7 +30,7 @@ namespace Iface.Oik.Tm.Interfaces
     event EventHandler<MqttMessage>      MqttMessageReceived;
 
 
-    void SetUserInfoAndServerFeatures(TmUserInfo userInfo, TmServerFeatures features);
+    void SetServerFeatures(TmServerFeatures features);
 
 
     Task<TmServerComputerInfo> GetServerComputerInfo(PreferApi prefer = PreferApi.Auto);

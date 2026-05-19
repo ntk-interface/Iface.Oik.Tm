@@ -39,8 +39,8 @@ namespace Iface.Oik.Tm.Helpers
       OikSqlApi.SetCreateOikSqlConnection(CreateOikSqlConnection);
       ServerService.SetCreateOikSqlConnection(CreateOikSqlConnection);
 
-      OikDataApi.SetUserInfoAndServerFeatures(TmUserInfo, TmServerFeatures);
-      TmsApi.SetCidAndUserInfo(TmCid, TmUserInfo);
+      OikDataApi.SetServerFeatures(TmServerFeatures);
+      TmsApi.SetCid(TmCid);
       ServerService.SetTmCid(TmCid);
     }
 
@@ -51,8 +51,8 @@ namespace Iface.Oik.Tm.Helpers
       TmUserInfo       = userInfo;
       TmServerFeatures = features;
 
-      OikDataApi.SetUserInfoAndServerFeatures(TmUserInfo, TmServerFeatures);
-      TmsApi.SetCidAndUserInfo(TmCid, TmUserInfo);
+      OikDataApi.SetServerFeatures(TmServerFeatures);
+      TmsApi.SetCid(TmCid);
       ServerService.SetTmCid(TmCid);
 
       ServerService.CheckSqlConnection = false;

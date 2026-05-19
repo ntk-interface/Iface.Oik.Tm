@@ -18,23 +18,15 @@ namespace Iface.Oik.Tm.Api
 {
   public class TmsApi : ITmsApi
   {
-    private int        _cid;
-    private TmUserInfo _userInfo;
+    private int _cid;
 
 
     private event EventHandler<MqttMessage> MqttMessageReceived = delegate { };
 
 
-    public void SetCidAndUserInfo(int cid, TmUserInfo userInfo)
+    public void SetCid(int cid)
     {
       _cid = cid;
-      SetUserInfo(userInfo);
-    }
-
-
-    public void SetUserInfo(TmUserInfo userInfo)
-    {
-      _userInfo = userInfo;
     }
 
 

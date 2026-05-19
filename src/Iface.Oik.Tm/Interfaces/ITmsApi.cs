@@ -7,8 +7,7 @@ namespace Iface.Oik.Tm.Interfaces
 {
   public interface ITmsApi
   {
-    void SetCidAndUserInfo(int  tmCid, TmUserInfo userInfo);
-    void SetUserInfo(TmUserInfo userInfo);
+    void SetCid(int tmCid);
 
     Task<TmServerComputerInfo> GetServerComputerInfo();
 

@@ -14,7 +14,6 @@ namespace Iface.Oik.Tm.Api
     private readonly ITmsApi              _tms;
     private readonly IOikSqlApi           _sql;
     private readonly ICommonServerService _serverService;
-    private          TmUserInfo           _userInfo;
     private          TmServerFeatures     _serverFeatures;
 
     public TmNativeCallback TmsCallbackDelegate      { get; }
@@ -43,12 +42,11 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public void SetUserInfoAndServerFeatures(TmUserInfo userInfo, TmServerFeatures features)
+    public void SetServerFeatures(TmServerFeatures features)
     {
-      _userInfo = userInfo;
-      UserInfoUpdated?.Invoke(this, EventArgs.Empty);
-
       _serverFeatures = features;
+      
+      UserInfoUpdated?.Invoke(this, EventArgs.Empty);
     }
 
 
