@@ -429,7 +429,7 @@ public static partial class TmNativeApi
       ptr = TmNative.tmcGetValuesByFlagMask(cid,
                                             (ushort)tmType,
                                             (uint) tmFlags,
-                                            (byte) queryFlags,
+                                            (byte) (queryFlags | TmNativeDefs.TmCpf.Name),
                                             out var count);
       if (ptr == null)
       {
@@ -448,19 +448,19 @@ public static partial class TmNativeApi
   }
 
 
-  public static IReadOnlyList<TCommonPointDto> GetValuesByGroupName(int                      cid,
-                                                                    TmNativeDefs.TmDataTypes tmType,
-                                                                    string                   groupName)
+  public static IReadOnlyList<TCommonPointDto> GetTagsByGroupName(int                      cid,
+                                                                  TmNativeDefs.TmDataTypes tmType,
+                                                                  string                   groupName)
   {
-    return GetValuesByGroupNameUnsafe(cid, tmType, groupName)
+    return GetTagsByGroupNameUnsafe(cid, tmType, groupName)
           .Select(commonPoint => TCommonPointDto.Create(commonPoint, queryUnit: true, cid))
           .ToList();
   }
 
 
-  private static unsafe TmNativeDefsUnsafe.TCommonPoint[] GetValuesByGroupNameUnsafe(int cid,
-    TmNativeDefs.TmDataTypes                                                             tmType,
-    string                                                                               groupName)
+  private static unsafe TmNativeDefsUnsafe.TCommonPoint[] GetTagsByGroupNameUnsafe(int cid,
+    TmNativeDefs.TmDataTypes                                                           tmType,
+    string                                                                             groupName)
   {
     TmNativeDefsUnsafe.TCommonPoint* ptr = null;
 
@@ -470,7 +470,7 @@ public static partial class TmNativeApi
                                     (ushort)tmType,
                                     0,
                                     0,
-                                    0,
+                                    (byte)TmNativeDefs.TmCpf.Name,
                                     TmNativeUtil.StringToBytes(groupName),
                                     0,
                                     out var count);

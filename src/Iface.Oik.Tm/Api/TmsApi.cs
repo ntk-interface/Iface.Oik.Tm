@@ -2913,7 +2913,7 @@ namespace Iface.Oik.Tm.Api
     public async Task<IReadOnlyCollection<TmTag>> GetTagsByGroup(TmType tmType,
                                                                  string groupName)
     {
-      var commonPoints = await Task.Run(() => TmNativeApi.GetValuesByGroupName(_cid,
+      var commonPoints = await Task.Run(() => TmNativeApi.GetTagsByGroupName(_cid,
                                                                                tmType.ToNativeType(),
                                                                                groupName))
                                    .ConfigureAwait(false);
