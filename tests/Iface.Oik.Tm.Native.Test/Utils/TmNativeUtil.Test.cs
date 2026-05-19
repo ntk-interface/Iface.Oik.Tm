@@ -1,6 +1,4 @@
-﻿using System;
-using FluentAssertions;
-using Iface.Oik.Tm.Native.Interfaces;
+﻿using FluentAssertions;
 using Iface.Oik.Tm.Native.Utils;
 using Xunit;
 
@@ -8,34 +6,6 @@ namespace Iface.Oik.Tm.Native.Test.Utils
 {
   public class TmNativeUtilTest
   {
-    public class GetStatusPointFromCommonPointMethod
-    {
-      [Fact]
-      public void ThrowsArgumentExceptionForDataNull()
-      {
-        var tmcCommonPoint = new TmNativeDefs.TCommonPoint();
-
-        Action act = () => TmNativeUtil.GetStatusPointFromCommonPoint(tmcCommonPoint);
-
-        act.Should().Throw<ArgumentException>();
-      }
-    }
-
-
-    public class GetAnalogPointFromCommonPointMethod
-    {
-      [Fact]
-      public void ThrowsArgumentExceptionForDataNull()
-      {
-        var tmcCommonPoint = new TmNativeDefs.TCommonPoint();
-
-        Action act = () => TmNativeUtil.GetStatusPointFromCommonPoint(tmcCommonPoint);
-
-        act.Should().Throw<ArgumentException>();
-      }
-    }
-
-
     public class GetFixedBytesWithTrailingZeroMethod
     {
       [Fact]

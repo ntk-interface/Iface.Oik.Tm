@@ -16,39 +16,6 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static TmNativeDefs.TStatusPoint GetStatusPointFromCommonPoint(TmNativeDefs.TCommonPoint commonPoint)
-    {
-      if (commonPoint.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в CommonPoint");
-      }
-
-      return FromBytes<TmNativeDefs.TStatusPoint>(commonPoint.Data);
-    }
-
-
-    public static TmNativeDefs.TAnalogPoint GetAnalogPointFromCommonPoint(TmNativeDefs.TCommonPoint commonPoint)
-    {
-      if (commonPoint.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в CommonPoint");
-      }
-
-      return FromBytes<TmNativeDefs.TAnalogPoint>(commonPoint.Data);
-    }
-
-
-    public static TmNativeDefs.TAccumPoint GetAccumPointFromCommonPoint(TmNativeDefs.TCommonPoint commonPoint)
-    {
-      if (commonPoint.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в CommonPoint");
-      }
-
-      return FromBytes<TmNativeDefs.TAccumPoint>(commonPoint.Data);
-    }
-
-
     public static string[] GetStringListFromDoubleNullTerminatedChars(char[]? chars)
     {
       if (chars == null)
