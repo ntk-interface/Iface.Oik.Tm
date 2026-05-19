@@ -294,15 +294,16 @@ namespace Iface.Oik.Tm.Native.Api
       out UInt32                                                                                 pCount);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern IntPtr tmcGetValuesEx(Int32      cid,
-                                               UInt16     tmType,
-                                               UInt32     tmFlagsSet,
-                                               UInt32     tmFlagsClr,
-                                               Byte       qFlags,
-                                               byte[]     groupName,
-                                               UInt32     dwUt,
-                                               out UInt32 pCount);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static unsafe partial TmNativeDefsUnsafe.TCommonPoint* tmcGetValuesEx(Int32 cid,
+      UInt16                                                                             tmType,
+      UInt32                                                                             tmFlagsSet,
+      UInt32                                                                             tmFlagsClr,
+      Byte                                                                               qFlags,
+      Span<byte>                                                                         groupName,
+      UInt32                                                                             dwUt,
+      out UInt32                                                                         pCount);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -910,11 +911,12 @@ namespace Iface.Oik.Tm.Native.Api
     public static extern IntPtr tmcTakeAPS(Int32 cid);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr tmcTextSearch(Int32      cid,
-                                              UInt16     type,
-                                              byte[]     text,
-                                              out UInt32 pCount);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static unsafe partial TmNativeDefsUnsafe.TAdrTm* tmcTextSearch(Int32      cid,
+                                                                            UInt16     type,
+                                                                            Span<byte> text,
+                                                                            out UInt32 pCount);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]

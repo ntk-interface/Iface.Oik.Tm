@@ -38,6 +38,8 @@ namespace ConsoleAppWithoutSql
       Console.WriteLine(_infr.TmUserInfo?.Name);
       Console.WriteLine(await _api.GetSystemTimeString());
 
+      // var tagsByNamePattern = await _infr.TmsApi.GetTagsByNamePattern(TmType.Status, "ОРУ 500 кВ");
+
       /*var tmStatuses = new List<TmStatus>(new[]
       {
         new TmStatus(0, 1, 1),
@@ -46,7 +48,9 @@ namespace ConsoleAppWithoutSql
       });
       await _infr.TmsApi.UpdateStatuses(tmStatuses);*/
 
-      var tags = await _infr.TmsApi.GetTagsByFlags(TmType.Status, TmFlags.Abnormal, TmCommonPointFlags.None);
+      // var tagsByFlags = await _infr.TmsApi.GetTagsByFlags(TmType.Status, TmFlags.Abnormal, TmCommonPointFlags.None);
+
+      // var tagsByGroup = await _infr.TmsApi.GetTagsByGroup(TmType.Analog, "Сила тока");
 
       var ts = new TmStatus(20, 1, 1);
       var ti = new TmAnalog(20, 1, 1);

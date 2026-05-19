@@ -329,7 +329,9 @@ public static partial class TmNativeApi
                                                                              TmNativeDefs.TmDataTypes type,
                                                                              Span<byte>               name)
   {
-    return GetTmTagNamedSetUpdatedValuesUnsafe(cid, type, name).Select(TCommonPointDto.Create).ToList();
+    return GetTmTagNamedSetUpdatedValuesUnsafe(cid, type, name)
+          .Select(commonPoint => TCommonPointDto.Create(commonPoint, queryUnit: false))
+          .ToList();
   }
 
 
@@ -367,7 +369,9 @@ public static partial class TmNativeApi
                                                                    TmNativeDefs.TmDataTypes                 type,
                                                                    IReadOnlyCollection<TmNativeDefs.TAdrTm> addrList)
   {
-    return GetTmValuesByListExUnsafe(cid, type, addrList).Select(TCommonPointDto.Create).ToList();
+    return GetTmValuesByListExUnsafe(cid, type, addrList)
+          .Select(commonPoint => TCommonPointDto.Create(commonPoint, queryUnit: false))
+          .ToList();
   }
 
 
@@ -407,7 +411,9 @@ public static partial class TmNativeApi
                                                                    TmNativeDefs.Flags       tmFlags,
                                                                    TmNativeDefs.TmCpf       queryFlags)
   {
-    return GetValuesByFlagMaskUnsafe(cid, tmType, tmFlags, queryFlags).Select(TCommonPointDto.Create).ToList();
+    return GetValuesByFlagMaskUnsafe(cid, tmType, tmFlags, queryFlags)
+          .Select(commonPoint => TCommonPointDto.Create(commonPoint, queryUnit: true, cid))
+          .ToList();
   }
 
 
@@ -431,6 +437,88 @@ public static partial class TmNativeApi
       }
 
       return new ReadOnlySpan<TmNativeDefsUnsafe.TCommonPoint>(ptr, (int) count).ToArray();
+    }
+    finally
+    {
+      if (ptr != null)
+      {
+        TmNative.tmcFreeMemory((IntPtr)ptr);
+      }
+    }
+  }
+
+
+  public static IReadOnlyList<TCommonPointDto> GetValuesByGroupName(int                      cid,
+                                                                    TmNativeDefs.TmDataTypes tmType,
+                                                                    string                   groupName)
+  {
+    return GetValuesByGroupNameUnsafe(cid, tmType, groupName)
+          .Select(commonPoint => TCommonPointDto.Create(commonPoint, queryUnit: true, cid))
+          .ToList();
+  }
+
+
+  private static unsafe TmNativeDefsUnsafe.TCommonPoint[] GetValuesByGroupNameUnsafe(int cid,
+    TmNativeDefs.TmDataTypes                                                             tmType,
+    string                                                                               groupName)
+  {
+    TmNativeDefsUnsafe.TCommonPoint* ptr = null;
+
+    try
+    {
+      ptr = TmNative.tmcGetValuesEx(cid,
+                                    (ushort)tmType,
+                                    0,
+                                    0,
+                                    0,
+                                    TmNativeUtil.StringToBytes(groupName),
+                                    0,
+                                    out var count);
+      if (ptr == null)
+      {
+        return Array.Empty<TmNativeDefsUnsafe.TCommonPoint>();
+      }
+
+      return new ReadOnlySpan<TmNativeDefsUnsafe.TCommonPoint>(ptr, (int) count).ToArray();
+    }
+    finally
+    {
+      if (ptr != null)
+      {
+        TmNative.tmcFreeMemory((IntPtr)ptr);
+      }
+    }
+  }
+
+
+  public static IReadOnlyList<TAdrTmDto> GetTagsByNamePattern(int                      cid,
+                                                              TmNativeDefs.TmDataTypes tmType,
+                                                              string                   pattern)
+  {
+    return GetTagsByNamePatternUnsafe(cid, tmType, pattern)
+          .Select(adrTm => new TAdrTmDto(adrTm.Ch, adrTm.RTU, adrTm.Point))
+          .ToList();
+  }
+
+
+  private static unsafe TmNativeDefsUnsafe.TAdrTm[] GetTagsByNamePatternUnsafe(int                      cid,
+                                                                               TmNativeDefs.TmDataTypes tmType,
+                                                                               string                   pattern)
+  {
+    TmNativeDefsUnsafe.TAdrTm* ptr = null;
+
+    try
+    {
+      ptr = TmNative.tmcTextSearch(cid,
+                                   (ushort)tmType,
+                                   TmNativeUtil.StringToBytes(pattern),
+                                   out var count);
+      if (ptr == null)
+      {
+        return Array.Empty<TmNativeDefsUnsafe.TAdrTm>();
+      }
+
+      return new ReadOnlySpan<TmNativeDefsUnsafe.TAdrTm>(ptr, (int) count).ToArray();
     }
     finally
     {

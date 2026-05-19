@@ -150,28 +150,18 @@ namespace Iface.Oik.Tm.Interfaces
                                     dto.Rtu,
                                     dto.Point));
       tmTag.Name = dto.Name ?? string.Empty;
-      tmTag.FromCommonPointDto(dto);
+      tmTag.UpdateValueFromCommonPointDto(dto);
+      tmTag.UpdatePropertiesFromCommonPointDto(dto);
       
       return tmTag;
     }
 
 
-    public static TmTag CreateFromTmcCommonPoint(TmNativeDefs.TCommonPoint commonPoint)
-    {
-      return ((TmNativeDefs.TmDataTypes)commonPoint.Type).ToTmType() switch
-             {
-               TmType.Status => TmStatus.CreateFromTmcCommonPointEx(commonPoint),
-               TmType.Analog => TmAnalog.CreateFromTmcCommonPointEx(commonPoint),
-               TmType.Accum  => TmAccum.CreateFromTmcCommonPointEx(commonPoint),
-               _             => null,
-             };
-    }
+    public abstract void UpdateValueFromCommonPointDto(TCommonPointDto dto);
+    public abstract void UpdatePropertiesFromCommonPointDto(TCommonPointDto dto);
 
 
-    public abstract void FromCommonPointDto(TCommonPointDto dto);
-
-
-    public virtual void SetTmcObjectProperties(string tmcObjectPropertiesString)
+    public virtual void UpdatePropertiesFromTmcObject(string tmcObjectPropertiesString)
     {
       Properties     = new Dictionary<string, string>();
       HasTmProvider  = false;
@@ -185,12 +175,12 @@ namespace Iface.Oik.Tm.Interfaces
         {
           continue;
         }
-        SetTmcObjectProperties(kvp[0], kvp[1]);
+        UpdatePropertiesFromTmcObject(kvp[0], kvp[1]);
       }
     }
 
 
-    protected virtual void SetTmcObjectProperties(string key, string value)
+    protected virtual void UpdatePropertiesFromTmcObject(string key, string value)
     {
       Properties.AddWithUniquePostfixIfNeeded(key, value);
 
@@ -209,7 +199,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void SetTmcClassData(string tmcClassData)
+    public void UpdateClassDataFromTmcClassData(string tmcClassData)
     {
       ClassData = new Dictionary<string, string>();
       var props = tmcClassData.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);

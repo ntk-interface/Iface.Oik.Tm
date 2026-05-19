@@ -305,9 +305,9 @@ namespace Iface.Oik.Tm.Interfaces
     }
     
 
-    protected override void SetTmcObjectProperties(string key, string value)
+    protected override void UpdatePropertiesFromTmcObject(string key, string value)
     {
-      base.SetTmcObjectProperties(key, value);
+      base.UpdatePropertiesFromTmcObject(key, value);
       
       switch (key)
       {
@@ -343,7 +343,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
     
     
-    public override void FromCommonPointDto(TCommonPointDto dto)
+    public override void UpdateValueFromCommonPointDto(TCommonPointDto dto)
     {
       if (dto.AnalogPointDto == null)
       {
@@ -355,9 +355,26 @@ namespace Iface.Oik.Tm.Interfaces
       ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(dto.TmLocalUt,
                                                                    dto.TmLocalMs);
     }
+    
+    
+    public override void UpdatePropertiesFromCommonPointDto(TCommonPointDto dto)
+    {
+      if (!string.IsNullOrEmpty(dto.Name))
+      {
+        Name = dto.Name;
+      }
+      if (dto.AnalogPointDto == null)
+      {
+        return;
+      }
+
+      Unit      = dto.AnalogPointDto.Value.Unit;
+      Width     = (byte) (dto.AnalogPointDto.Value.Format & 0x0F);
+      Precision = (byte) (dto.AnalogPointDto.Value.Format >> 4);
+    }
 
 
-    public void FromTAnalogPoint(TmNativeDefs.TAnalogPoint tmcAnalogPoint)
+    public void UpdateValueFromTAnalogPoint(TmNativeDefs.TAnalogPoint tmcAnalogPoint)
     {
       if (tmcAnalogPoint.Flags == -1 || tmcAnalogPoint.AsFloat.Equals(InvalidValue))
       {
@@ -375,7 +392,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void FromDatagram(byte[] buf)
+    public void UpdateFromDatagram(byte[] buf)
     {
       Value  = BitConverter.ToSingle(buf, 14);
       Flags  = (TmFlags)BitConverter.ToInt16(buf, 18);
@@ -384,7 +401,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void SetTmcTechParameters(TmNativeDefs.TAnalogTechParms parameters)
+    public void UpdateTechParameters(TmNativeDefs.TAnalogTechParms parameters)
     {
       TechParameters = new TmAnalogTechParameters(parameters.MinVal,
                                                   parameters.MaxVal,
@@ -506,37 +523,6 @@ namespace Iface.Oik.Tm.Interfaces
 
       UpdateWithDto(dto.MapToTmAnalogDto());
       UpdatePropertiesWithDto(dto.MapToTmAnalogPropertiesDto());
-    }
-    
-    
-    public static TmAnalog CreateFromTmcCommonPointEx(TmNativeDefs.TCommonPoint tmcCommonPoint)
-    {
-      var tmAnalog = new TmAnalog(tmcCommonPoint.Ch, tmcCommonPoint.RTU, tmcCommonPoint.Point);
-      
-      TmNativeDefs.TAnalogPoint tmcAnalogPoint;
-      try
-      {
-        tmcAnalogPoint = TmNativeUtil.GetAnalogPointFromCommonPoint(tmcCommonPoint);
-      }
-      catch (ArgumentException)
-      {
-        return tmAnalog;
-      }
-      
-      tmAnalog.IsInit = tmcCommonPoint.TM_Flags != 0xFFFF && !tmcAnalogPoint.AsFloat.Equals(InvalidValue);
-      tmAnalog.Value  = tmcAnalogPoint.AsFloat;
-      tmAnalog.Code   = tmcAnalogPoint.AsCode;
-      tmAnalog.Flags  = (TmFlags) tmcAnalogPoint.Flags;
-      tmAnalog.ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(tmcCommonPoint.tm_local_ut,
-                                                                            tmcCommonPoint.tm_local_ms);
-      tmAnalog.Width     = (byte) (tmcAnalogPoint.Format & 0x0F);
-      tmAnalog.Precision = (byte) (tmcAnalogPoint.Format >> 4);
-
-      tmAnalog.Unit = EncodingUtil.Cp866BytesToUtf8(tmcAnalogPoint.Unit); // TODO кодировка
-
-      tmAnalog.Name = EncodingUtil.Win1251IntPtrToUtf8(tmcCommonPoint.name); // TODO кодировка
-
-      return tmAnalog;
     }
   }
 }

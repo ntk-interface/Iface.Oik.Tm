@@ -355,17 +355,17 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public override void SetTmcObjectProperties(string tmcObjectPropertiesString)
+    public override void UpdatePropertiesFromTmcObject(string tmcObjectPropertiesString)
     {
       NormalStatus = -1;
       
-      base.SetTmcObjectProperties(tmcObjectPropertiesString);
+      base.UpdatePropertiesFromTmcObject(tmcObjectPropertiesString);
     }
 
 
-    protected override void SetTmcObjectProperties(string key, string value)
+    protected override void UpdatePropertiesFromTmcObject(string key, string value)
     {
-      base.SetTmcObjectProperties(key, value);
+      base.UpdatePropertiesFromTmcObject(key, value);
       
       switch (key)
       {
@@ -400,7 +400,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
     
     
-    public override void FromCommonPointDto(TCommonPointDto dto)
+    public override void UpdateValueFromCommonPointDto(TCommonPointDto dto)
     {
       if (dto.StatusPointDto == null)
       {
@@ -413,30 +413,18 @@ namespace Iface.Oik.Tm.Interfaces
       ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(dto.TmLocalUt,
                                                                    dto.TmLocalMs);
     }
-
-
-    public void FromTmcCommonPoint(TmNativeDefs.TCommonPoint tmcCommonPoint)
+    
+    
+    public override void UpdatePropertiesFromCommonPointDto(TCommonPointDto dto)
     {
-      TmNativeDefs.TStatusPoint tmcStatusPoint;
-      try
+      if (!string.IsNullOrEmpty(dto.Name))
       {
-        tmcStatusPoint = TmNativeUtil.GetStatusPointFromCommonPoint(tmcCommonPoint);
+        Name = dto.Name;
       }
-      catch (ArgumentException)
-      {
-        return;
-      }
-
-      IsInit  = (tmcCommonPoint.TM_Flags != 0xFFFF);
-      Status  = tmcStatusPoint.Status;
-      Flags   = (TmFlags) tmcStatusPoint.Flags;
-      S2Flags = (TmS2Flags) tmcCommonPoint.tm_s2;
-      ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(tmcCommonPoint.tm_local_ut,
-                                                                   tmcCommonPoint.tm_local_ms);
     }
 
 
-    public void FromTStatusPoint(TmNativeDefs.TStatusPoint tmcStatusPoint)
+    public void UpdateValueFromTStatusPoint(TmNativeDefs.TStatusPoint tmcStatusPoint)
     {
       if (tmcStatusPoint.Flags == -1)
       {
@@ -452,7 +440,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void FromDatagram(byte[] buf)
+    public void UpdateValueFromDatagram(byte[] buf)
     {
       IsInit  = true;
       Status  = (short)(buf[14] & 1);
@@ -461,18 +449,20 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void UpdateWithDto(TmStatusDto dto)
+    public void UpdateValueFromDto(TmStatusDto dto)
     {
-      if (dto == null) return;
-
-      UpdateWithDto(dto.VCode,
-                    dto.Flags,
-                    dto.VS2,
-                    dto.ChangeTime);
+      if (dto == null)
+      {
+        return;
+      }
+      UpdateValueFromDto(dto.VCode,
+                         dto.Flags,
+                         dto.VS2,
+                         dto.ChangeTime);
     }
 
 
-    public void UpdateWithDto(short status, int flags, short s2Flags, DateTime? changeTime)
+    public void UpdateValueFromDto(short status, int flags, short s2Flags, DateTime? changeTime)
     {
       IsInit     = true;
       Status     = status;
@@ -482,14 +472,14 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void SetSqlPropertiesAndClassData(string name,
-                                             short  importance,
-                                             short  normalStatus,
-                                             short  classId,
-                                             string offCaption,
-                                             string onCaption,
-                                             string breakCaption,
-                                             string malfunctionCaption)
+    public void UpdatePropertiesFromSql(string name,
+                                        short  importance,
+                                        short  normalStatus,
+                                        short  classId,
+                                        string offCaption,
+                                        string onCaption,
+                                        string breakCaption,
+                                        string malfunctionCaption)
     {
       Name         = name;
       Importance   = importance;
@@ -514,7 +504,7 @@ namespace Iface.Oik.Tm.Interfaces
     {
       if (dto?.Name == null) return;
 
-      SetSqlPropertiesAndClassData(dto.Name,
+      UpdatePropertiesFromSql(dto.Name,
                                    dto.VImportance,
                                    dto.VNormalState,
                                    dto.Provider,
@@ -540,29 +530,29 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void SetSqlPropertiesAndClassData(string name,
-                                             short  importance,
-                                             short  normalStatus,
-                                             string provider,
-                                             short  classId,
-                                             string offCaption,
-                                             string onCaption,
-                                             string breakCaption,
-                                             string malfunctionCaption,
-                                             string flag1Name,
-                                             string flag2Name,
-                                             string flag3Name,
-                                             string flag4Name,
-                                             string flag1OffCaption,
-                                             string flag1OnCaption,
-                                             string flag2OffCaption,
-                                             string flag2OnCaption,
-                                             string flag3OffCaption,
-                                             string flag3OnCaption,
-                                             string flag4OffCaption,
-                                             string flag4OnCaption,
-                                             string commandOffCaption,
-                                             string commandOnCaption)
+    public void UpdatePropertiesFromSql(string name,
+                                        short  importance,
+                                        short  normalStatus,
+                                        string provider,
+                                        short  classId,
+                                        string offCaption,
+                                        string onCaption,
+                                        string breakCaption,
+                                        string malfunctionCaption,
+                                        string flag1Name,
+                                        string flag2Name,
+                                        string flag3Name,
+                                        string flag4Name,
+                                        string flag1OffCaption,
+                                        string flag1OnCaption,
+                                        string flag2OffCaption,
+                                        string flag2OnCaption,
+                                        string flag3OffCaption,
+                                        string flag3OnCaption,
+                                        string flag4OffCaption,
+                                        string flag4OnCaption,
+                                        string commandOffCaption,
+                                        string commandOnCaption)
     {
       Name         = name;
       Importance   = importance;
@@ -640,19 +630,8 @@ namespace Iface.Oik.Tm.Interfaces
     {
       if (dto?.Name == null) return;
 
-      UpdateWithDto(dto.MapToTmStatusDto());
+      UpdateValueFromDto(dto.MapToTmStatusDto());
       UpdatePropertiesWithDto(dto.MapToTmStatusPropertiesDto());
-    }
-
-
-    public static TmStatus CreateFromTmcCommonPointEx(TmNativeDefs.TCommonPoint tmcCommonPoint)
-    {
-      var tmStatus = new TmStatus(tmcCommonPoint.Ch, tmcCommonPoint.RTU, tmcCommonPoint.Point);
-      
-      tmStatus.FromTmcCommonPoint(tmcCommonPoint);
-      tmStatus.Name = EncodingUtil.Win1251IntPtrToUtf8(tmcCommonPoint.name); // TODO кодировка
-
-      return tmStatus;
     }
   }
 }

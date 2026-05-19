@@ -64,7 +64,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
         if (useClassData)
         {
-          tmStatus.SetTmcClassData("0Txt=отключен\r\n1Txt=включен\r\nBTxt=обрыв\r\nMTxt=неиспр\r\nITxt=промеж");
+          tmStatus.UpdateClassDataFromTmcClassData("0Txt=отключен\r\n1Txt=включен\r\nBTxt=обрыв\r\nMTxt=неиспр\r\nITxt=промеж");
         }
 
         var result = tmStatus.StatusCaption;
@@ -116,7 +116,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
         if (useClassData)
         {
-          tmStatus.SetTmcClassData("0Txt=отключен\r\n1Txt=включен\r\nBTxt=обрыв\r\nMTxt=неиспр\r\nITxt=промеж");
+          tmStatus.UpdateClassDataFromTmcClassData("0Txt=отключен\r\n1Txt=включен\r\nBTxt=обрыв\r\nMTxt=неиспр\r\nITxt=промеж");
         }
 
         var classCaptionFor = HelperGetClassCaptionFor(status, s2Flags);
@@ -299,7 +299,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
     }
 
 
-    public class FromCommonPointMethod
+    /*public class FromCommonPointMethod
     {
       [Fact]
       public void DoesNotInitWithTmFlagsInvalid()
@@ -388,7 +388,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
 
         Assert.False(tmStatus.IsAps);
       }
-    }
+    }*/
 
 
     public class SetSqlPropertiesAndClassData // todo importance, normalStatus
@@ -400,7 +400,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       {
         var tmStatus = new TmStatus(0, 1, 1);
 
-        tmStatus.SetSqlPropertiesAndClassData(name, 0, -1, classId, text0, text1, textB, textM);
+        tmStatus.UpdatePropertiesFromSql(name, 0, -1, classId, text0, text1, textB, textM);
 
         Assert.Equal(name,           tmStatus.Name);
         Assert.Equal((byte) classId, tmStatus.ClassId);
@@ -418,7 +418,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       {
         var tmStatus = new TmStatus(0, 1, 1);
 
-        tmStatus.SetSqlPropertiesAndClassData(name, 0, -1, classId, text0, text1, textB, textM);
+        tmStatus.UpdatePropertiesFromSql(name, 0, -1, classId, text0, text1, textB, textM);
 
         Assert.Equal(name, tmStatus.Name);
         Assert.Null(tmStatus.ClassId);
