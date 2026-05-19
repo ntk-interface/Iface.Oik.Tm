@@ -157,7 +157,7 @@ namespace Iface.Oik.Tm.Api
             
             break;
           default:
-            node.State = DeltaComponentStates.None;
+            node.State = DeltaComponentStates.Ok;
             break;
         }
       }
