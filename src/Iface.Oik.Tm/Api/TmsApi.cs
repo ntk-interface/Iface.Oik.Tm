@@ -2877,36 +2877,16 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<IReadOnlyCollection<TmStatus>> GetPresentAps()
     {
-      // TODO перевести на TmNativeApi
-      var apsTAdrTmListPointer = await Task.Run(() => TmNative.tmcTakeAPS(_cid)).ConfigureAwait(false);
+      var adrTmList = await Task.Run(() => TmNativeApi.GetPresentAps(_cid))
+                                .ConfigureAwait(false);
 
-      if (apsTAdrTmListPointer == IntPtr.Zero)
-      {
-        Console.WriteLine("Ошибка получения списка взведённых АПС");
-        return null;
-      }
+      var tags = adrTmList.Select(adrTm => new TmStatus(adrTm.Ch, adrTm.Rtu, adrTm.Point))
+                          .ToList();
 
+      await UpdateTagsPropertiesAndClassData(tags).ConfigureAwait(false);
+      await UpdateStatuses(tags).ConfigureAwait(false);
 
-      var currentPointer = apsTAdrTmListPointer;
-      var apsList        = new List<TmStatus>();
-
-      while (true)
-      {
-        var apsTAdrTm = Marshal.PtrToStructure<TmNativeDefs.TAdrTm>(currentPointer);
-
-        if (apsTAdrTm.Point == 0) break;
-
-        var aps = new TmStatus(apsTAdrTm.Ch, apsTAdrTm.RTU, apsTAdrTm.Point);
-        await UpdateStatus(aps).ConfigureAwait(false);
-        await UpdateTagPropertiesAndClassData(aps).ConfigureAwait(false);
-        apsList.Add(aps);
-
-        currentPointer = IntPtr.Add(currentPointer, Marshal.SizeOf(typeof(TmNativeDefs.TAdrTm)));
-      }
-
-      TmNative.tmcFreeMemory(apsTAdrTmListPointer);
-
-      return apsList;
+      return tags;
     }
 
 
@@ -2914,8 +2894,8 @@ namespace Iface.Oik.Tm.Api
                                                                  string groupName)
     {
       var commonPoints = await Task.Run(() => TmNativeApi.GetTagsByGroupName(_cid,
-                                                                               tmType.ToNativeType(),
-                                                                               groupName))
+                                                                             tmType.ToNativeType(),
+                                                                             groupName))
                                    .ConfigureAwait(false);
 
       return commonPoints.Select(TmTag.CreateFromCommonPointDto).ToList();

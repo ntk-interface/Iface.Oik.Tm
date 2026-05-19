@@ -908,8 +908,9 @@ namespace Iface.Oik.Tm.Native.Api
     public static extern Int16 tmcClrRetransInfo(Int32 cid);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern IntPtr tmcTakeAPS(Int32 cid);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static unsafe partial TmNativeDefsUnsafe.TAdrTm* tmcTakeAPS(Int32 cid);
 
 
     [LibraryImport(Tmconn)]

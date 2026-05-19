@@ -530,6 +530,46 @@ public static partial class TmNativeApi
   }
 
 
+  public static IReadOnlyList<TAdrTmDto> GetPresentAps(int cid)
+  {
+    return GetPresentApsUnsafe(cid)
+          .Select(adrTm => new TAdrTmDto(adrTm.Ch, adrTm.RTU, adrTm.Point))
+          .ToList();
+  }
+
+
+  private static unsafe TmNativeDefsUnsafe.TAdrTm[] GetPresentApsUnsafe(int cid)
+  {
+    TmNativeDefsUnsafe.TAdrTm* ptr = null;
+
+    try
+    {
+      ptr = TmNative.tmcTakeAPS(cid);
+      if (ptr == null)
+      {
+        return Array.Empty<TmNativeDefsUnsafe.TAdrTm>();
+      }
+
+      var count      = 0;
+      var currentPtr = ptr;
+      while (currentPtr->Point != 0)
+      {
+        count++;
+        currentPtr++;
+      }
+
+      return new ReadOnlySpan<TmNativeDefsUnsafe.TAdrTm>(ptr, count).ToArray();
+    }
+    finally
+    {
+      if (ptr != null)
+      {
+        TmNative.tmcFreeMemory((IntPtr)ptr);
+      }
+    }
+  }
+
+
   internal static (bool isSuccess, TmNativeDefsUnsafe.TStatusPoint point) GetStatusFullEx(int tmCid,
     short                                                                                     ch,
     short                                                                                     rtu,
