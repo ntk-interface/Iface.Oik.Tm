@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Iface.Oik.Tm.Dto;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
@@ -628,63 +629,56 @@ public partial class TmsApi
   }
 
 
-  public async Task<IReadOnlyCollection<TmTag>> GetTagsByGroup(TmType tmType,
-                                                               string groupName)
+  public async Task CreateTmTagNamedSet(string                     name,
+                                        TmType                     tmType,
+                                        IReadOnlyCollection<TmTag> tmTags)
   {
-    var commonPoints = await Task.Run(() => TmNativeApi.GetTagsByGroupName(_cid,
-                                                                           tmType.ToNativeType(),
-                                                                           groupName))
-                                 .ConfigureAwait(false);
-
-    return commonPoints.Select(TmTag.CreateFromCommonPointDto).ToList();
+    await Task.Run(() => TmNative.tmcTmvUserSetDefine(_cid,
+                                                      (ushort)tmType.ToNativeType(),
+                                                      EncodingUtil.StringToBytes(name),
+                                                      tmTags.Select(t => (uint)t.TmAddr.ToTma()).ToArray(),
+                                                      (uint)tmTags.Count)).ConfigureAwait(false);
   }
 
 
-  public async Task<IReadOnlyCollection<TmTag>> GetTagsByFlags(TmType             tmType,
-                                                               TmFlags            tmFlags,
-                                                               TmCommonPointFlags filterFlags)
+  public async Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetUpdatedValues(string name)
   {
-    var commonPoints = await Task.Run(() => TmNativeApi.GetValuesByFlagMask(_cid,
-                                                                            tmType.ToNativeType(),
-                                                                            tmFlags.ToNativeFlags(),
-                                                                            filterFlags.ToNativeQueryFlags()))
-                                 .ConfigureAwait(false);
-
-    return commonPoints.Select(TmTag.CreateFromCommonPointDto).ToList();
+    var commonPoints = await Task.Run(() => TmNativeApi.GetTmTagNamedSetUpdatedValues(
+                                        _cid,
+                                        TmNativeDefs.TmDataTypes.Status,
+                                        EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
+    return commonPoints.Select(TmStatusRecord.CreateFromCommonPointDto)
+                       .ToList();
   }
 
 
-  public async Task<IReadOnlyCollection<TmTag>> GetTagsByNamePattern(TmType tmType,
-                                                                     string pattern)
+  public async Task<IReadOnlyCollection<TmAnalogRecord>> GetTmAnalogNamedSetUpdatedValues(string name)
   {
-    if (pattern.IsNullOrEmpty())
-    {
-      return Array.Empty<TmTag>();
-    }
+    var commonPoints = await Task.Run(() => TmNativeApi.GetTmTagNamedSetUpdatedValues(
+                                        _cid,
+                                        TmNativeDefs.TmDataTypes.Analog,
+                                        EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
+    return commonPoints.Select(TmAnalogRecord.CreateFromCommonPointDto)
+                       .ToList();
+  }
 
-    var adrTmList = await Task.Run(() => TmNativeApi.GetTagsByNamePattern(_cid, tmType.ToNativeType(), pattern))
-                              .ConfigureAwait(false);
 
-    var tags = adrTmList.Select(adrTm => TmTag.Create(new TmAddr(tmType, adrTm.Ch, adrTm.Rtu, adrTm.Point)))
-                        .ToList();
+  public async Task<IReadOnlyCollection<TmAccumRecord>> GetTmAccumNamedSetUpdatedValues(string name)
+  {
+    var commonPoints = await Task.Run(() => TmNativeApi.GetTmTagNamedSetUpdatedValues(
+                                        _cid,
+                                        TmNativeDefs.TmDataTypes.Accum,
+                                        EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
+    return commonPoints.Select(TmAccumRecord.CreateFromCommonPointDto)
+                       .ToList();
+  }
 
-    await UpdateTagsPropertiesAndClassData(tags).ConfigureAwait(false);
 
-    switch (tmType)
-    {
-      case TmType.Status:
-        await UpdateStatuses(tags.Cast<TmStatus>().ToList()).ConfigureAwait(false);
-        break;
-
-      case TmType.Analog:
-        await UpdateAnalogs(tags.Cast<TmAnalog>().ToList()).ConfigureAwait(false);
-        break;
-
-      case TmType.Accum:
-        await UpdateAccums(tags.Cast<TmAccum>().ToList()).ConfigureAwait(false);
-        break;
-    }
-
-    return tags;
+  public async Task DeleteTmTagNamedSet(string name,
+                                        TmType tmType)
+  {
+    await Task.Run(() => TmNative.tmcTmvUserSetDelete(_cid,
+                                                      (ushort)tmType.ToNativeType(),
+                                                      EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
   }
 }

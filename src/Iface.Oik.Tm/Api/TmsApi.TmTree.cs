@@ -357,4 +357,65 @@ public partial class TmsApi
 
       return tmAnalogs;
     }
+
+
+  public async Task<IReadOnlyCollection<TmTag>> GetTagsByGroup(TmType tmType,
+                                                               string groupName)
+  {
+    var commonPoints = await Task.Run(() => TmNativeApi.GetTagsByGroupName(_cid,
+                                                                           tmType.ToNativeType(),
+                                                                           groupName))
+                                 .ConfigureAwait(false);
+
+    return commonPoints.Select(TmTag.CreateFromCommonPointDto).ToList();
+  }
+
+
+  public async Task<IReadOnlyCollection<TmTag>> GetTagsByFlags(TmType             tmType,
+                                                               TmFlags            tmFlags,
+                                                               TmCommonPointFlags filterFlags)
+  {
+    var commonPoints = await Task.Run(() => TmNativeApi.GetValuesByFlagMask(_cid,
+                                                                            tmType.ToNativeType(),
+                                                                            tmFlags.ToNativeFlags(),
+                                                                            filterFlags.ToNativeQueryFlags()))
+                                 .ConfigureAwait(false);
+
+    return commonPoints.Select(TmTag.CreateFromCommonPointDto).ToList();
+  }
+
+
+  public async Task<IReadOnlyCollection<TmTag>> GetTagsByNamePattern(TmType tmType,
+                                                                     string pattern)
+  {
+    if (pattern.IsNullOrEmpty())
+    {
+      return Array.Empty<TmTag>();
+    }
+
+    var adrTmList = await Task.Run(() => TmNativeApi.GetTagsByNamePattern(_cid, tmType.ToNativeType(), pattern))
+                              .ConfigureAwait(false);
+
+    var tags = adrTmList.Select(adrTm => TmTag.Create(new TmAddr(tmType, adrTm.Ch, adrTm.Rtu, adrTm.Point)))
+                        .ToList();
+
+    await UpdateTagsPropertiesAndClassData(tags).ConfigureAwait(false);
+
+    switch (tmType)
+    {
+      case TmType.Status:
+        await UpdateStatuses(tags.Cast<TmStatus>().ToList()).ConfigureAwait(false);
+        break;
+
+      case TmType.Analog:
+        await UpdateAnalogs(tags.Cast<TmAnalog>().ToList()).ConfigureAwait(false);
+        break;
+
+      case TmType.Accum:
+        await UpdateAccums(tags.Cast<TmAccum>().ToList()).ConfigureAwait(false);
+        break;
+    }
+
+    return tags;
+  }
 }

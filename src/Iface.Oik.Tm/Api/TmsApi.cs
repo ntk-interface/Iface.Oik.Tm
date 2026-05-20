@@ -85,60 +85,6 @@ namespace Iface.Oik.Tm.Api
       return await Task.Run(() => TmNativeApi.GetCfCid(_cid))
                        .ConfigureAwait(false);
     }
-
-
-    public async Task CreateTmTagNamedSet(string                     name,
-                                          TmType                     tmType,
-                                          IReadOnlyCollection<TmTag> tmTags)
-    {
-      await Task.Run(() => TmNative.tmcTmvUserSetDefine(_cid,
-                                                        (ushort)tmType.ToNativeType(),
-                                                        EncodingUtil.StringToBytes(name),
-                                                        tmTags.Select(t => (uint)t.TmAddr.ToTma()).ToArray(),
-                                                        (uint)tmTags.Count)).ConfigureAwait(false);
-    }
-
-
-    public async Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetUpdatedValues(string name)
-    {
-      var commonPoints = await Task.Run(() => TmNativeApi.GetTmTagNamedSetUpdatedValues(
-                                         _cid,
-                                         TmNativeDefs.TmDataTypes.Status,
-                                         EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
-      return commonPoints.Select(TmStatusRecord.CreateFromCommonPointDto)
-                         .ToList();
-    }
-
-
-    public async Task<IReadOnlyCollection<TmAnalogRecord>> GetTmAnalogNamedSetUpdatedValues(string name)
-    {
-      var commonPoints = await Task.Run(() => TmNativeApi.GetTmTagNamedSetUpdatedValues(
-                                         _cid,
-                                         TmNativeDefs.TmDataTypes.Analog,
-                                         EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
-      return commonPoints.Select(TmAnalogRecord.CreateFromCommonPointDto)
-                         .ToList();
-    }
-
-
-    public async Task<IReadOnlyCollection<TmAccumRecord>> GetTmAccumNamedSetUpdatedValues(string name)
-    {
-      var commonPoints = await Task.Run(() => TmNativeApi.GetTmTagNamedSetUpdatedValues(
-                                         _cid,
-                                         TmNativeDefs.TmDataTypes.Accum,
-                                         EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
-      return commonPoints.Select(TmAccumRecord.CreateFromCommonPointDto)
-                         .ToList();
-    }
-
-
-    public async Task DeleteTmTagNamedSet(string name,
-                                          TmType tmType)
-    {
-      await Task.Run(() => TmNative.tmcTmvUserSetDelete(_cid,
-                                                        (ushort)tmType.ToNativeType(),
-                                                        EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
-    }
     
 
     public async Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTelecontrolScript(TmStatus tmStatus)
@@ -192,15 +138,15 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTeleregulationScript(
-      TmAnalog tmAnalog)
+    public async Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTeleregulationScript(TmAnalog tmAnalog)
     {
-      if (tmAnalog == null) return (false, null);
+      if (tmAnalog == null)
+      {
+        return (false, null);
+      }
 
       await UpdateAnalog(tmAnalog).ConfigureAwait(false);
-
-      var (ch, rtu, point) = tmAnalog.TmAddr.GetTupleShort();
-
+      
       TmNativeDefs.AnalogRegulationType command;
       if (tmAnalog.HasTeleregulationByCode)
       {
@@ -219,23 +165,14 @@ namespace Iface.Oik.Tm.Api
         return (false, new List<TmControlScriptCondition> { new(false, "Не определено регулирование") });
       }
 
-      var handle = GCHandle.Alloc(0, GCHandleType.Pinned); // TODO оптимизировать без GCHandle
+      var (ch, rtu, point) = tmAnalog.TmAddr.GetTupleShort();
 
-      int scriptResult;
-      try
-      {
-        scriptResult = await Task.Run(() => TmNative.tmcExecuteRegulationScript(_cid,
-                                                                                  ch,
-                                                                                  rtu,
-                                                                                  point,
-                                                                                  (byte)command,
-                                                                                  handle.AddrOfPinnedObject()))
-                                 .ConfigureAwait(false);
-      }
-      finally
-      {
-        handle.Free();
-      }
+      var scriptResult = await Task.Run(() => TmNativeApi.ExecuteTeleregulationScript(_cid,
+                                          ch,
+                                          rtu,
+                                          point,
+                                          command))
+                                   .ConfigureAwait(false);
 
       var conditions = new List<TmControlScriptCondition>();
 
@@ -334,22 +271,12 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<TmTelecontrolResult> TeleregulateByCode(TmAnalog analog, int code)
     {
-      if (analog == null)
-      {
-        return TmTelecontrolResult.CommandNotSentToServer;
-      }
-
       return await TeleregulateByValueOrCode(analog, null, code).ConfigureAwait(false);
     }
 
 
     public async Task<TmTelecontrolResult> TeleregulateByValue(TmAnalog analog, float value)
     {
-      if (analog == null)
-      {
-        return TmTelecontrolResult.CommandNotSentToServer;
-      }
-
       return await TeleregulateByValueOrCode(analog, value, null).ConfigureAwait(false);
     }
 
@@ -362,40 +289,38 @@ namespace Iface.Oik.Tm.Api
 
     private async Task<TmTelecontrolResult> TeleregulateByValueOrCode(TmAnalog analog, float? value, int? code)
     {
-      var (ch, rtu, point) = analog.TmAddr.GetTupleShort();
-
-      GCHandle                          handle; // TODO оптимизировать без GCHandle
-      TmNativeDefs.AnalogRegulationType command;
-      if (value.HasValue)
-      {
-        handle  = GCHandle.Alloc(value.Value, GCHandleType.Pinned);
-        command = TmNativeDefs.AnalogRegulationType.Value;
-      }
-      else if (code.HasValue)
-      {
-        handle  = GCHandle.Alloc((short)code.Value, GCHandleType.Pinned);
-        command = TmNativeDefs.AnalogRegulationType.Code;
-      }
-      else
+      if (analog == null)
       {
         return TmTelecontrolResult.CommandNotSentToServer;
       }
+      
+      var (ch, rtu, point) = analog.TmAddr.GetTupleShort();
 
-      try
+      if (value.HasValue)
       {
-        var result = await Task.Run(() => TmNative.tmcRegulationByAnalog(_cid,
-                                                                         ch,
-                                                                         rtu,
-                                                                         point,
-                                                                         (byte)command,
-                                                                         handle.AddrOfPinnedObject()))
+        var result = await Task.Run(() => TmNativeApi.TeleregulateByValue(_cid,
+                                                                          ch,
+                                                                          rtu,
+                                                                          point,
+                                                                          value.Value))
                                .ConfigureAwait(false);
+
         return (TmTelecontrolResult)result;
       }
-      finally
+
+      if (code.HasValue)
       {
-        handle.Free();
+        var result = await Task.Run(() => TmNativeApi.TeleregulateByCode(_cid,
+                                                                          ch,
+                                                                          rtu,
+                                                                          point,
+                                                                          (short) code.Value))
+                               .ConfigureAwait(false);
+
+        return (TmTelecontrolResult)result;
       }
+
+      return TmTelecontrolResult.CommandNotSentToServer;
     }
 
 
@@ -408,24 +333,14 @@ namespace Iface.Oik.Tm.Api
 
       var (ch, rtu, point) = analog.TmAddr.GetTupleShort();
 
-      var stepValue = (short)(isStepUp ? 1 : -1);
-      var handle    = GCHandle.Alloc(stepValue, GCHandleType.Pinned); // TODO оптимизировать без GCHandle
-      var command   = TmNativeDefs.AnalogRegulationType.Step;
-      try
-      {
-        var result = await Task.Run(() => TmNative.tmcRegulationByAnalog(_cid,
-                                                                         ch,
-                                                                         rtu,
-                                                                         point,
-                                                                         (byte)command,
-                                                                         handle.AddrOfPinnedObject()))
-                               .ConfigureAwait(false);
-        return (TmTelecontrolResult)result;
-      }
-      finally
-      {
-        handle.Free();
-      }
+      var result = await Task.Run(() => TmNativeApi.TeleregulateByStepUpOrDown(_cid,
+                                                                               ch,
+                                                                               rtu,
+                                                                               point,
+                                                                               isStepUp))
+                             .ConfigureAwait(false);
+
+      return (TmTelecontrolResult)result;
     }
 
 
