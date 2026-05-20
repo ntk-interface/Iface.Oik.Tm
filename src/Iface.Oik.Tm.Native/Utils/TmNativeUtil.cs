@@ -344,8 +344,6 @@ namespace Iface.Oik.Tm.Native.Utils
         length++;
       }
 
-      var span = new ReadOnlySpan<byte>(ptr, length);
-
       return encoding.GetString(ptr, length);
     }
 
