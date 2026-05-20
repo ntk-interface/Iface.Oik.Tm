@@ -63,7 +63,7 @@ public static partial class TmNativeApi
     return TUserInfoDto.Create(tUserInfo, extendedInfo);
   }
 
-  public static string GetUserName(int tmCid, string serverName, int userId)
+  public static string GetUserName(int tmCid, string serverName, int userId) // TODO надо написать !!!
   {
     var cfCid = TmNative.tmcGetCfsHandle(tmCid);
 

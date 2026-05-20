@@ -33,30 +33,7 @@ namespace Iface.Oik.Tm.Native.Utils
       return s.Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
     }
 
-
-    public static string[] GetStringListFromDoubleNullTerminatedBytes(byte[]? bytes)
-    {
-      if (bytes == null)
-      {
-        return Array.Empty<string>();
-      }
-
-      int doubleNull = 0;
-      for (var i = 1; i < bytes.Length; i++)
-      {
-        if (bytes[i] == 0 && bytes[i - 1] == 0)
-        {
-          doubleNull = i - 1;
-          break;
-        }
-      }
-
-      var significantBytes = new byte[doubleNull];
-      Array.Copy(bytes, significantBytes, doubleNull);
-      return DetectEncoding(significantBytes).GetString(significantBytes)
-                                             .Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
-    }
-
+    
     public static MqttParseResult ParseMqttMessageDatagram(ReadOnlySpan<byte> datagram)
     {
       if (datagram.Length < 2 || datagram[0] != 'p' || datagram[1] != 'o') // кривая датаграмма
@@ -142,6 +119,7 @@ namespace Iface.Oik.Tm.Native.Utils
 
       return result;
     }
+    
 
     public static uint StringToLpstrBytes(string     str,
                                           Span<byte> buf,
@@ -189,7 +167,7 @@ namespace Iface.Oik.Tm.Native.Utils
 
 
     public static IReadOnlyCollection<string> GetStringListFromDoubleNullTerminatedPointer(nint ptr,
-      int                                                                                       maxSize)
+      int                                                                                  maxSize)
     {
       if (ptr == nint.Zero)
       {
@@ -207,7 +185,7 @@ namespace Iface.Oik.Tm.Native.Utils
       var isNullFound  = false;
       for (var i = 0; i < maxSize; i++)
       {
-        Marshal.Copy(new IntPtr(ptr.ToInt64() + i), marshalBytes, 0, 1);
+        Marshal.Copy(new IntPtr(ptr.ToInt64() + i), marshalBytes, 0, 1); // TODO оптимизировать без Marshal
         if (marshalBytes[0] == 0)
         {
           if (isNullFound) // второй ноль - выходим
@@ -247,7 +225,7 @@ namespace Iface.Oik.Tm.Native.Utils
 
       byteList.Add(0);
 
-      var handle = GCHandle.Alloc(byteList.ToArray(), GCHandleType.Pinned);
+      var handle = GCHandle.Alloc(byteList.ToArray(), GCHandleType.Pinned); // TODO оптимизировать без GCHandle
       var ptr    = handle.AddrOfPinnedObject();
       handle.Free();
 
@@ -311,9 +289,9 @@ namespace Iface.Oik.Tm.Native.Utils
 
     public static byte[] GetBytes<T>(T structure) where T : struct
     {
-      int size   = Marshal.SizeOf(structure);
+      int size   = Marshal.SizeOf(structure); // TODO оптимизировать без Marshal
       var bytes  = new byte[size];
-      var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+      var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned); // TODO оптимизировать без GCHandle
       try
       {
         Marshal.StructureToPtr(structure, handle.AddrOfPinnedObject(), false);
@@ -324,14 +302,6 @@ namespace Iface.Oik.Tm.Native.Utils
       }
 
       return bytes;
-    }
-
-
-    public static string GetStringFromIntPtrWithAdditionalPart(IntPtr ptr, int size)
-    {
-      var bytes = new byte[size];
-      Marshal.Copy(ptr, bytes, 0, size);
-      return GetStringFromBytesWithAdditionalPart(bytes);
     }
 
 
@@ -597,23 +567,6 @@ namespace Iface.Oik.Tm.Native.Utils
 
         return p[0] == 0;
       }
-    }
-
-
-    private static T FromBytes<T>(byte[] bytes) where T : struct
-    {
-      T        structure;
-      GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-      try
-      {
-        structure = Marshal.PtrToStructure<T>(handle.AddrOfPinnedObject());
-      }
-      finally
-      {
-        handle.Free();
-      }
-
-      return structure;
     }
 
     public static uint IpAddrToNativeDword(string ipAddrString)

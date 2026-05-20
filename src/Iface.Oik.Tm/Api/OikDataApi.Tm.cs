@@ -263,6 +263,27 @@ public partial class OikDataApi
                          () => _sql.GetAnalogAlarms(analog))
             .ConfigureAwait(false);
   }
+    
+    
+  public async Task<string> GetExpressionResult(string    expression,
+                                                PreferApi prefer = PreferApi.Auto)
+  {
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetExpressionResult(expression),
+                         null)
+            .ConfigureAwait(false);
+  }
+    
+    
+  public string GetExpressionResultSync(string    expression,
+                                        PreferApi prefer = PreferApi.Auto)
+  {
+    return ExecuteSync(prefer,
+                       PreferApi.Tms,
+                       () => _tms.GetExpressionResultSync(expression),
+                       null);
+  }
 
 
   public async Task CreateTmTagNamedSet(string                     name,
