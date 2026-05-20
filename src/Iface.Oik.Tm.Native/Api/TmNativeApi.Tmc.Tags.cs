@@ -580,15 +580,13 @@ public static partial class TmNativeApi
     var tmcStatusPoint = new TmNativeDefsUnsafe.TStatusPoint();
 
     var result = TmNative.tmcStatusFullEx(tmCid,
-                                          getRealTelemetry
-                                            ? (short)(ch + TmNativeDefs.RealTelemetryFlag)
-                                            : ch,
+                                          getRealTelemetry ? (short)(ch + TmNativeDefs.RealTelemetryFlag) : ch,
                                           rtu,
                                           point,
                                           ref tmcStatusPoint,
                                           (uint)time);
 
-    return (result != TmNativeDefs.Success, tmcStatusPoint);
+    return (result == TmNativeDefs.Success, tmcStatusPoint);
   }
 
   internal static (bool isSuccess, TmNativeDefsUnsafe.TAnalogPoint point) GetAnalogFull(int tmCid,
@@ -602,16 +600,14 @@ public static partial class TmNativeApi
     var tmcAnalogPoint = new TmNativeDefsUnsafe.TAnalogPoint();
 
     var result = TmNative.tmcAnalogFull(tmCid,
-                                        getRealTelemetry
-                                          ? (short)(ch + TmNativeDefs.RealTelemetryFlag)
-                                          : ch,
+                                        getRealTelemetry ? (short)(ch + TmNativeDefs.RealTelemetryFlag) : ch,
                                         rtu,
                                         point,
                                         ref tmcAnalogPoint,
                                         time.ToNativeByteArray(),
                                         retroNum);
 
-    return (result != TmNativeDefs.Success, tmcAnalogPoint);
+    return (result == TmNativeDefs.Success, tmcAnalogPoint);
   }
 
   internal static (bool isSuccess, TmNativeDefsUnsafe.TAccumPoint point) GetAccumFull(int tmCid,
@@ -622,13 +618,13 @@ public static partial class TmNativeApi
   {
     var accumPoint = new TmNativeDefsUnsafe.TAccumPoint();
 
-    var isSuccess = TmNative.tmcAccumFull(tmCid,
+    var result = TmNative.tmcAccumFull(tmCid,
                                           ch,
                                           rtu,
                                           point,
                                           ref accumPoint,
                                           time.ToNativeByteArray());
 
-    return (isSuccess != 0, accumPoint);
+    return (result == TmNativeDefs.Success, accumPoint);
   }
 }

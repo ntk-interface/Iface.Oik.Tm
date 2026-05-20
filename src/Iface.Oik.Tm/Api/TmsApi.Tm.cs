@@ -540,6 +540,20 @@ public partial class TmsApi
   }
 
 
+  public async Task<int> GetStatusNormal(TmStatus status)
+  {
+    if (status == null) return -1;
+
+    var (ch, rtu, point) = status.TmAddr.GetTupleShort();
+
+    ushort normalValue = 0xFFFF;
+    await Task.Run(() => TmNative.tmcGetStatusNormal(_cid, ch, rtu, point, out normalValue))
+              .ConfigureAwait(false);
+
+    return (normalValue == 0 || normalValue == 1) ? normalValue : -1;
+  }
+
+
   private async Task UpdateAnalogTechParameters(TmTag tag)
   {
     await Task.Run(() => UpdateAnalogTechParametersSynchronously(tag)).ConfigureAwait(false);
