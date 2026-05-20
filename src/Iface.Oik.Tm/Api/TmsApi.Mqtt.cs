@@ -137,15 +137,23 @@ public partial class TmsApi
     }
     else
     {
-      var addListPtr = TmNativeUtil.GetDoubleNullTerminatedPointerFromStringList(topic.VariableHeader.Select(
-        x => $"{x.Key}={x.Value}"));
-      return TmNative.tmcPubPublishEx(_cid,
-                                      EncodingUtil.StringToBytes(topic.Topic),
-                                      topic.LifetimeSec,
-                                      (byte)topic.QoS,
-                                      payload,
-                                      (uint)payload.Length,
-                                      addListPtr);
+      var headerPtr = TmNativeUtil.AllocateDoubleNullTerminatedPointerFromStringList(
+        topic.VariableHeader.Select(h => $"{h.Key}={h.Value}").ToArray());
+
+      try
+      {
+        return TmNative.tmcPubPublishEx(_cid,
+                                        EncodingUtil.StringToBytes(topic.Topic),
+                                        topic.LifetimeSec,
+                                        (byte)topic.QoS,
+                                        payload,
+                                        (uint)payload.Length,
+                                        headerPtr);
+      }
+      finally
+      {
+        TmNativeUtil.FreeAllocatedPointer(headerPtr);
+      }
     }
   }
 

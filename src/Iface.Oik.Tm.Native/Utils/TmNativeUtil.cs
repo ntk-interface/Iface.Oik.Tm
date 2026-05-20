@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -13,6 +14,12 @@ namespace Iface.Oik.Tm.Native.Utils
     public static Encoding DetectEncoding(ReadOnlySpan<byte> bytes)
     {
       return TmNative.cfsIsUTF8(bytes) ? Encoding.UTF8 : Encoding.GetEncoding(1251);
+    }
+
+
+    public static void FreeAllocatedPointer(nint ptr)
+    {
+      Marshal.FreeHGlobal(ptr);
     }
 
 
@@ -93,31 +100,72 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static byte[] GetDoubleNullTerminatedBytesFromStringList(IEnumerable<string>? list,
-                                                                    int                  maxSize = 1024)
+    public static byte[] GetDoubleNullTerminatedBytesFromStringList(IReadOnlyCollection<string> list,
+                                                                    Encoding?                   encoding = null)
     {
-      if (list == null)
+      if (list.Count == 0)
       {
         return Array.Empty<byte>();
       }
+      
+      var bufferWriter = new ArrayBufferWriter<byte>(1024);
+      
+      FillDoubleNullTerminatedBufferFromStringList(bufferWriter, list, encoding);
 
-      var bytes  = new byte[maxSize];
-      var cursor = 0;
+      return bufferWriter.WrittenSpan.ToArray();
+    }
+
+
+    public static nint AllocateDoubleNullTerminatedPointerFromStringList(IReadOnlyCollection<string> list,
+                                                                         Encoding?                   encoding = null)
+    {
+      if (list.Count == 0)
+      {
+        return nint.Zero;
+      }
+      
+      var bufferWriter = new ArrayBufferWriter<byte>(1024);
+      
+      FillDoubleNullTerminatedBufferFromStringList(bufferWriter, list, encoding);
+
+      var span = bufferWriter.WrittenSpan;
+
+      var ptr = Marshal.AllocHGlobal(span.Length);
+
+      unsafe
+      {
+        fixed (byte* src = span)
+        {
+          Buffer.MemoryCopy(src, (void*) ptr, span.Length, span.Length);
+        }
+      }
+
+      return ptr;
+    }
+
+
+    private static void FillDoubleNullTerminatedBufferFromStringList(IBufferWriter<byte>         bufferWriter,
+                                                                     IReadOnlyCollection<string> list,
+                                                                     Encoding?                   encoding = null)
+    {
+      if (list.Count == 0)
+      {
+        return;
+      }
+      
+      encoding ??= Encoding.UTF8;
 
       foreach (var str in list)
       {
-        var strBytes = StringToByteArray(str); // TODO кодировка??
-        Array.Copy(strBytes, 0, bytes, cursor, strBytes.Length);
-        cursor += strBytes.Length;
-
-        bytes[cursor] = 0;
-        cursor++;
+        bufferWriter.Advance(encoding.GetBytes(str, bufferWriter.GetSpan(encoding.GetMaxByteCount(str.Length))));
+        
+        bufferWriter.GetSpan(1).Clear();
+        bufferWriter.Advance(1);
       }
-
-      var result = new byte[cursor + 1]; // на конце второй ноль
-      Array.Copy(bytes, result, cursor);
-
-      return result;
+      
+      // закрываем вторым нулем
+      bufferWriter.GetSpan(1).Clear(); 
+      bufferWriter.Advance(1);
     }
     
 
@@ -166,114 +214,41 @@ namespace Iface.Oik.Tm.Native.Utils
     }
 
 
-    public static IReadOnlyCollection<string> GetStringListFromDoubleNullTerminatedPointer(nint ptr,
-      int                                                                                  maxSize)
+    public static unsafe IReadOnlyCollection<string> GetStringListFromDoubleNullTerminatedPointer(nint ptr,
+      int                                                                                              maxSize)
     {
       if (ptr == nint.Zero)
       {
         return Array.Empty<string>();
       }
-
+      
       var result = new List<string>();
-
-      var marshalBytes = new byte[1];
-
-      const int stringBytesSize = 1024;
-      var       stringBytes     = new byte[stringBytesSize];
-
-      var stringCursor = 0;
-      var isNullFound  = false;
-      for (var i = 0; i < maxSize; i++)
+      
+      var buf      = new ReadOnlySpan<byte>((void*)ptr, maxSize);
+      var position = 0;
+      while (position < buf.Length)
       {
-        Marshal.Copy(new IntPtr(ptr.ToInt64() + i), marshalBytes, 0, 1); // TODO оптимизировать без Marshal
-        if (marshalBytes[0] == 0)
-        {
-          if (isNullFound) // второй ноль - выходим
-          {
-            break;
-          }
+        var remainder = buf.Slice(position);
 
-          result.Add(DetectEncoding(stringBytes).GetString(stringBytes).Trim('\0'));
-          Array.Clear(stringBytes, 0, stringBytesSize);
-          stringCursor = 0;
-          isNullFound  = true;
-          continue;
+        var nextNullPosition = remainder.IndexOf((byte)0);
+
+        if (nextNullPosition == 0 || // это и есть второй ноль
+            nextNullPosition == -1) // данные закончились некорректно, второй ноль не найден
+        {
+          break;
         }
 
-        stringBytes[stringCursor++] = marshalBytes[0];
-        isNullFound                 = false;
+        var stringBytes = remainder.Slice(0, nextNullPosition);
+        
+        result.Add(DetectEncoding(stringBytes).GetString(stringBytes));
+
+        position += nextNullPosition + 1;
       }
 
       return result;
     }
 
-
-    public static nint GetDoubleNullTerminatedPointerFromStringList(IEnumerable<string>? list)
-    {
-      if (list == null)
-      {
-        return IntPtr.Zero;
-      }
-
-      var byteList = new List<byte>();
-      foreach (var item in list)
-      {
-        var bytes = StringToByteArray(item); // TODO кодировка??
-        byteList.AddRange(bytes);
-        byteList.Add(0);
-      }
-
-      byteList.Add(0);
-
-      var handle = GCHandle.Alloc(byteList.ToArray(), GCHandleType.Pinned); // TODO оптимизировать без GCHandle
-      var ptr    = handle.AddrOfPinnedObject();
-      handle.Free();
-
-      return ptr;
-    }
-
-
-    public static byte[] GetFixedBytesWithTrailingZero(string? s, int size, string encoding)
-    {
-      s ??= string.Empty;
-
-      var result = new byte[size];
-      Array.Copy(Encoding.GetEncoding(encoding).GetBytes(s),
-                 result,
-                 Math.Min(size - 1, s.Length)); // не забыть 0 в конце
-      return result;
-    }
-
-
-    public static TmNativeDefs.TTMSEventAddData GetEventAddData(Span<byte> addDataBytes)
-    {
-      if (addDataBytes == null)
-      {
-        throw new ArgumentException("Массив байтов пуст");
-      }
-
-      unsafe
-      {
-        fixed (byte* basePtr = addDataBytes)
-        {
-          var native = *(TmNativeDefsUnsafe.TTMSEventAddData*)basePtr;
-          var strPtr = basePtr + sizeof(TmNativeDefsUnsafe.TTMSEventAddData);
-
-          return new TmNativeDefs.TTMSEventAddData
-          {
-            Elix = new TmNativeDefs.TTMSElix
-            {
-              M = native.Elix.M,
-              R = native.Elix.R
-            },
-            AckMs    = native.AckMs,
-            AckSec   = native.AckSec,
-            UserName = GetCStringFromBytePtr(strPtr)
-          };
-        }
-      }
-    }
-
+    
     public static string BytesToString(Span<byte> src, Encoding? encoding = null)
     {
       encoding ??= Encoding.UTF8;
@@ -287,21 +262,24 @@ namespace Iface.Oik.Tm.Native.Utils
       return encoding.GetString(src[..len]);
     }
 
+    
     public static byte[] GetBytes<T>(T structure) where T : struct
     {
-      int size   = Marshal.SizeOf(structure); // TODO оптимизировать без Marshal
-      var bytes  = new byte[size];
-      var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned); // TODO оптимизировать без GCHandle
-      try
+      var bytes = new byte[Marshal.SizeOf<T>()];
+
+      unsafe
       {
-        Marshal.StructureToPtr(structure, handle.AddrOfPinnedObject(), false);
-      }
-      finally
-      {
-        handle.Free();
+        fixed (byte* ptr = bytes)
+        {
+          Marshal.StructureToPtr(structure, (nint)ptr, false);
+        }
       }
 
       return bytes;
+
+      // более красивый вариант, но надо unsafe структуру передавать, может потом пригодится
+      // return MemoryMarshal.AsBytes(MemoryMarshal.CreateReadOnlySpan(ref structure, 1))
+      //                     .ToArray();
     }
 
 
@@ -309,13 +287,14 @@ namespace Iface.Oik.Tm.Native.Utils
     {
       encoding ??= Encoding.UTF8;
 
-      return encoding
-             .GetString(bytes)
-             .Split(new[] { '\0' })
-             .FirstOrDefault()?
-             .Trim('\n');
+      return encoding.GetString(bytes)
+                     .Split(new[] { '\0' })
+                     .FirstOrDefault()?
+                     .Trim('\n')
+          ?? string.Empty;
     }
 
+    
     internal static unsafe string GetCStringFromIntPtrAutoEncoding(nint ptr)
     {
       var p = (byte*)ptr;
@@ -337,6 +316,7 @@ namespace Iface.Oik.Tm.Native.Utils
       return DetectEncoding(span).GetString(span);
     }
 
+    
     public static unsafe string GetCStringFromIntPtr(nint ptr, Encoding? encoding = null)
     {
       if (ptr == nint.Zero)
@@ -534,17 +514,7 @@ namespace Iface.Oik.Tm.Native.Utils
       return result;
     }
 
-    public static Span<byte> StringToBytes(string src, Encoding? encoding = null)
-    {
-      encoding ??= Encoding.UTF8;
-
-      return string.IsNullOrEmpty(src)
-               ? Span<byte>.Empty
-               : encoding.GetBytes(src);
-    }
-
-
-    public static byte[] StringToByteArray(string src, Encoding? encoding = null)
+    public static byte[] StringToBytes(string src, Encoding? encoding = null)
     {
       encoding ??= Encoding.UTF8;
 
@@ -567,45 +537,6 @@ namespace Iface.Oik.Tm.Native.Utils
 
         return p[0] == 0;
       }
-    }
-
-    public static uint IpAddrToNativeDword(string ipAddrString)
-    {
-      var partsList = new List<uint>();
-
-      foreach (var partStr in ipAddrString.Split('.'))
-      {
-        if (!uint.TryParse(partStr, out var part))
-        {
-          return 0;
-        }
-
-        partsList.Add(part);
-      }
-
-      if (partsList.Count != 4)
-      {
-        return 0;
-      }
-
-      return IpAddrToNativeDword(partsList[0], partsList[1], partsList[2], partsList[3]);
-    }
-
-    public static uint IpAddrToNativeDword(uint x1, uint x2, uint x3, uint x4)
-    {
-      if (x1 > 255 || x2 > 255 || x3 > 255 || x4 > 255)
-      {
-        return 0;
-      }
-
-      var ipAddr = (x4 << 24) + (x3 << 16) + (x2 << 8) + x1;
-
-      if (ipAddr == 0 || ipAddr == 0xffffffff)
-      {
-        return 0;
-      }
-
-      return ipAddr;
     }
 
 
@@ -676,22 +607,94 @@ namespace Iface.Oik.Tm.Native.Utils
       return new ReadOnlySpan<byte>((void*)ptr, length);
     }
 
+    
     public static long GetUtcTimestampFromDateTime(DateTime dateTime)
     {
       return ((DateTimeOffset)dateTime).ToUnixTimeSeconds();
     }
 
+    public static uint IpAddrToNativeDword(string ipAddrString)
+    {
+      var partsList = new List<uint>();
+
+      foreach (var partStr in ipAddrString.Split('.'))
+      {
+        if (!uint.TryParse(partStr, out var part))
+        {
+          return 0;
+        }
+
+        partsList.Add(part);
+      }
+
+      if (partsList.Count != 4)
+      {
+        return 0;
+      }
+
+      return IpAddrToNativeDword(partsList[0], partsList[1], partsList[2], partsList[3]);
+    }
+
+    public static uint IpAddrToNativeDword(uint x1, uint x2, uint x3, uint x4)
+    {
+      if (x1 > 255 || x2 > 255 || x3 > 255 || x4 > 255)
+      {
+        return 0;
+      }
+
+      var ipAddr = (x4 << 24) + (x3 << 16) + (x2 << 8) + x1;
+
+      if (ipAddr == 0 || ipAddr == 0xffffffff)
+      {
+        return 0;
+      }
+
+      return ipAddr;
+    }
+
+    
     internal static DateTime GetTimeFromFileTime(TmNativeDefsUnsafe.FileTime fileTime)
     {
       return DateTime.FromFileTime((long)fileTime.dwHighDateTime << 32 | (uint)fileTime.dwLowDateTime);
     }
 
+    
     internal static int Hex(char c)
     {
       if ((uint)(c - '0') <= 9) return c       - '0'; // '0'–'9'
       if ((uint)(c - 'A') <= 5) return c - 'A' + 10;  // 'A'–'F'
       if ((uint)(c - 'a') <= 5) return c - 'a' + 10;  // 'a'–'f'
       return -1;
+    }
+
+
+    public static TmNativeDefs.TTMSEventAddData GetEventAddData(Span<byte> addDataBytes)
+    {
+      if (addDataBytes == null)
+      {
+        throw new ArgumentException("Массив байтов пуст");
+      }
+
+      unsafe
+      {
+        fixed (byte* basePtr = addDataBytes)
+        {
+          var native = *(TmNativeDefsUnsafe.TTMSEventAddData*)basePtr;
+          var strPtr = basePtr + sizeof(TmNativeDefsUnsafe.TTMSEventAddData);
+
+          return new TmNativeDefs.TTMSEventAddData
+          {
+            Elix = new TmNativeDefs.TTMSElix
+            {
+              M = native.Elix.M,
+              R = native.Elix.R
+            },
+            AckMs    = native.AckMs,
+            AckSec   = native.AckSec,
+            UserName = GetCStringFromBytePtr(strPtr)
+          };
+        }
+      }
     }
   }
 }

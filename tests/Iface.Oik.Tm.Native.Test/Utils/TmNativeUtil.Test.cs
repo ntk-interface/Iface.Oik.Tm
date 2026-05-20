@@ -1,4 +1,7 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.Runtime.InteropServices;
+using System.Text;
+using FluentAssertions;
 using Iface.Oik.Tm.Native.Utils;
 using Xunit;
 
@@ -6,27 +9,252 @@ namespace Iface.Oik.Tm.Native.Test.Utils
 {
   public class TmNativeUtilTest
   {
-    public class GetFixedBytesWithTrailingZeroMethod
+    public class GetDoubleNullTerminatedBytesFromStringList
     {
       [Fact]
-      public void ReturnsCorrectBytesFromShortString()
+      public void ReturnsEmptyBytes_WhenSourceIsEmpty()
       {
-        string s = "Aa";
+        var result = TmNativeUtil.GetDoubleNullTerminatedBytesFromStringList(Array.Empty<string>());
 
-        var result = TmNativeUtil.GetFixedBytesWithTrailingZero(s, 4, "utf-8");
+        result.Should().BeEmpty();
+      }
+      
+      
+      [Fact]
+      public void ReturnsCorrectBytes_ForSingleString()
+      {
+        var list     = new[] { "Test" };
+        var expected = new byte[] { (byte)'T', (byte)'e', (byte)'s', (byte)'t', 0, 0 };
+        
+        var result = TmNativeUtil.GetDoubleNullTerminatedBytesFromStringList(list);
 
-        result.Should().Equal(65, 97, 0, 0); // Aa00
+        result.Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
+      }
+      
+      
+      [Fact]
+      public void ReturnsCorrectBytes_ForMultipleStrings()
+      {
+        var list = new[] { "A=12", "BC=3" };
+        var expected = new byte[]
+        {
+          (byte)'A', (byte)'=', (byte)'1', (byte)'2', 0,
+          (byte)'B', (byte)'C', (byte)'=', (byte)'3', 0, 0
+        };
+        
+        var result = TmNativeUtil.GetDoubleNullTerminatedBytesFromStringList(list);
+
+        result.Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
+      }
+    }
+
+
+    public class AllocateDoubleNullTerminatedPointerFromStringList
+    {
+      [Fact]
+      public void ReturnsZeroPointer_WhenSourceIsEmpty()
+      {
+        var result = TmNativeUtil.AllocateDoubleNullTerminatedPointerFromStringList(Array.Empty<string>());
+
+        result.Should().Be(nint.Zero);
+      }
+      
+      
+      [Fact]
+      public void AllocatedCorrectPointer_ForValidStrings()
+      {
+        var list = new[] { "A=12", "BC=3" };
+        var expectedBytes = new byte[]
+        {
+          (byte)'A', (byte)'=', (byte)'1', (byte)'2', 0,
+          (byte)'B', (byte)'C', (byte)'=', (byte)'3', 0, 0
+        };
+        
+        var ptr = TmNativeUtil.AllocateDoubleNullTerminatedPointerFromStringList(list);
+        
+        ptr.Should().NotBe(nint.Zero);
+
+        try
+        {
+          var actualBytes = new byte[expectedBytes.Length];
+          Marshal.Copy(ptr, actualBytes, 0, expectedBytes.Length);
+
+          actualBytes.Should().BeEquivalentTo(expectedBytes, options => options.WithStrictOrdering());
+        }
+        finally
+        {
+          if (ptr != nint.Zero)
+          {
+            Marshal.FreeHGlobal(ptr);
+          }
+        }
+      }
+    }
+    
+    
+    public class GetStringListFromDoubleNullTerminatedPointer
+    {
+      [Fact]
+      public void ReturnsEmptyCollection_WhenPointerIsZero()
+      {
+        var result = TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(nint.Zero, 1024);
+
+        result.Should().BeEmpty();
       }
 
+      [Fact]
+      public void ReturnsCorrectStrings_ForValidPointer()
+      {
+        var sourceBytes = new byte[]
+        {
+          (byte)'A', (byte)'=', (byte)'1', (byte)'2', 0,
+          (byte)'B', (byte)'C', (byte)'=', (byte)'3', 0, 0
+        };
+
+        var ptr = Marshal.AllocHGlobal(sourceBytes.Length);
+        Marshal.Copy(sourceBytes, 0, ptr, sourceBytes.Length);
+
+        try
+        {
+          var result = TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(ptr, sourceBytes.Length);
+
+          result.Should().Equal("A=12", "BC=3");
+        }
+        finally
+        {
+          if (ptr != nint.Zero)
+          {
+            Marshal.FreeHGlobal(ptr);
+          }
+        }
+      }
+    }
+    
+    
+    public class GetBytes
+    {
+      [StructLayout(LayoutKind.Sequential, Pack = 1)]
+      public struct TestDummy
+      {
+        public byte Id;    // 1 байт
+        public int  Value; // 4 байта
+      }
 
       [Fact]
-      public void ReturnsCorrectBytesTrimmingLongString()
+      public void GetBytes_ReturnsArrayWithCorrectSize()
       {
-        string s = "Aaaaaa";
+        var dummy        = new TestDummy { Id = 1, Value = 100 };
+        var expectedSize = Marshal.SizeOf<TestDummy>(); // ожидаем 5 байт
 
-        var result = TmNativeUtil.GetFixedBytesWithTrailingZero(s, 4, "utf-8");
+        var result = TmNativeUtil.GetBytes(dummy);
 
-        result.Should().Equal(65, 97, 97, 0); // Aaa0
+        result.Should().HaveCount(expectedSize);
+      }
+
+      [Fact]
+      public void GetBytes_ReturnsCorrectBytes()
+      {
+        var dummy = new TestDummy { Id = 0xAA, Value = 0x000000BB };
+        var expectedBytes = new byte[] { 0xAA, 0xBB, 0x00, 0x00, 0x00 };
+
+        var result = TmNativeUtil.GetBytes(dummy);
+
+        result.Should().BeEquivalentTo(expectedBytes, options => options.WithStrictOrdering());
+      }
+    }
+    
+    
+    public class BytesToString
+    {
+      public BytesToString()
+      {
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+      }
+      
+      [Fact]
+      public void ReturnsEmptyString_WhenSpanIsEmpty()
+      {
+        var result = TmNativeUtil.BytesToString(Span<byte>.Empty);
+
+        result.Should().BeEmpty();
+      }
+
+      [Fact]
+      public void ReturnsFullString_WhenNoNullTerminatorFound()
+      {
+        var sourceBytes = "Hello"u8.ToArray();
+
+        var result = TmNativeUtil.BytesToString(sourceBytes);
+
+        result.Should().Be("Hello");
+      }
+
+      [Fact]
+      public void CutsStringAtFirstNullTerminator_WhenNullExists()
+      {
+        var sourceBytes = "Valid\0TrashData"u8.ToArray();
+
+        var result = TmNativeUtil.BytesToString(sourceBytes);
+
+        result.Should().Be("Valid");
+      }
+
+      [Fact]
+      public void ReturnsEmptyString_WhenFirstByteIsNull()
+      {
+        var sourceBytes = new byte[] { 0, (byte)'A', (byte)'B' };
+
+        var result = TmNativeUtil.BytesToString(sourceBytes);
+
+        result.Should().BeEmpty();
+      }
+
+      [Fact]
+      public void UsesSpecifiedEncoding_WhenPassedExplicitly()
+      {
+        var encoding1251 = Encoding.GetEncoding(1251);
+        var sourceBytes  = encoding1251.GetBytes("Привет\0");
+
+        var result = TmNativeUtil.BytesToString(sourceBytes, encoding1251);
+
+        result.Should().Be("Привет");
+      }
+    }
+    
+    
+    public class StringToBytes
+    {
+      [Fact]
+      public void ReturnsEmptyArray_WhenStringIsNullOrEmpty()
+      {
+        var resultNull  = TmNativeUtil.StringToBytes(null);
+        var resultEmpty = TmNativeUtil.StringToBytes("");
+
+        resultNull.Should().BeEmpty();
+        resultEmpty.Should().BeEmpty();
+      }
+
+      [Fact]
+      public void ReturnsCorrectBytes_ForUtf8String()
+      {
+        var input = "Hello";
+        var expected = "Hello"u8.ToArray(); 
+
+        var result = TmNativeUtil.StringToBytes(input);
+
+        result.Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
+      }
+
+      [Fact]
+      public void UsesSpecifiedEncoding_WhenPassedExplicitly()
+      {
+        var input        = "Тест";
+        var encoding1251 = Encoding.GetEncoding(1251);
+        var expected     = encoding1251.GetBytes(input);
+
+        var result = TmNativeUtil.StringToBytes(input, encoding1251);
+
+        result.Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
       }
     }
 
