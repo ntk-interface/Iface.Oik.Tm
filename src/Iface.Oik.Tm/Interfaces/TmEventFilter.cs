@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Iface.Oik.Tm.Native.Dto;
+using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces

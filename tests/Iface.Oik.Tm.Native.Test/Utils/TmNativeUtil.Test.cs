@@ -182,21 +182,26 @@ namespace Iface.Oik.Tm.Native.Test.Utils
       [Fact]
       public void ReturnsFullString_WhenNoNullTerminatorFound()
       {
-        var sourceBytes = "Hello"u8.ToArray();
+        var sourceBytes = new[] { (byte)'T', (byte)'e', (byte)'s', (byte)'t' };
 
         var result = TmNativeUtil.BytesToString(sourceBytes);
 
-        result.Should().Be("Hello");
+        result.Should().Be("Test");
       }
 
       [Fact]
       public void CutsStringAtFirstNullTerminator_WhenNullExists()
       {
-        var sourceBytes = "Valid\0TrashData"u8.ToArray();
+        var sourceBytes = new byte[]
+        {
+          (byte)'T', (byte)'e', (byte)'s', (byte)'t',
+          0,
+          (byte)'T', (byte)'r', (byte)'a', (byte)'s', (byte)'h' // мусор
+        };
 
         var result = TmNativeUtil.BytesToString(sourceBytes);
 
-        result.Should().Be("Valid");
+        result.Should().Be("Test");
       }
 
       [Fact]
@@ -237,8 +242,8 @@ namespace Iface.Oik.Tm.Native.Test.Utils
       [Fact]
       public void ReturnsCorrectBytes_ForUtf8String()
       {
-        var input = "Hello";
-        var expected = "Hello"u8.ToArray(); 
+        var input    = "Test";
+        var expected = new[] { (byte)'T', (byte)'e', (byte)'s', (byte)'t' };
 
         var result = TmNativeUtil.StringToBytes(input);
 

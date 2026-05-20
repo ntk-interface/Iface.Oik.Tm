@@ -406,7 +406,7 @@ public partial class TmsApi
       Point    = point,
       Id       = (ushort)TmNativeDefs.EventTypes.ManualStatusSet,
       Imp      = 0,
-      DateTime = time.ToTmByteArray(),
+      DateTime = time.ToNativeByteArray(),
       Data = TmNativeUtil.GetBytes(new TmNativeDefs.ControlData
       {
         Cmd = (byte)status,
@@ -513,7 +513,7 @@ public partial class TmsApi
     {
       Id       = (ushort)TmNativeDefs.EventTypes.ManualAnalogSet,
       Imp      = 0,
-      DateTime = time.ToTmByteArray(),
+      DateTime = time.ToNativeByteArray(),
       Data = TmNativeUtil.GetBytes(new TmNativeDefs.AnalogSetData
       {
         Cmd   = 1, // флаг ручной установки
