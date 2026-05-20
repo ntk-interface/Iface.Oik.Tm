@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -139,76 +138,6 @@ namespace Iface.Oik.Tm.Api
       await Task.Run(() => TmNative.tmcTmvUserSetDelete(_cid,
                                                         (ushort)tmType.ToNativeType(),
                                                         EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
-    }
-
-
-    private async Task<TmTag> FindTmTagReserveTag(TmTag tmTag)
-    {
-      return await Task.Run(() => FindTmTagReserveTagSync(tmTag))
-                       .ConfigureAwait(false);
-    }
-
-    private TmTag FindTmTagReserveTagSync(TmTag tmTag)
-    {
-      Span<byte> sb = stackalloc byte[1024];
-      var (ch, rtu, point) = tmTag.TmAddr.GetTupleShort();
-      TmNative.tmcGetObjectProperties(_cid,
-                                      (ushort)tmTag.Type.ToNativeType(),
-                                      ch,
-                                      rtu,
-                                      point,
-                                      sb,
-                                      1024);
-
-      var props = EncodingUtil.BytesToString(sb).Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
-      foreach (var prop in props)
-      {
-        var kvp = prop.Split('=');
-        if (kvp.Length != 2)
-        {
-          continue;
-        }
-
-        if (kvp[0] == "Reserve" && TmAddr.TryParse(kvp[1], out var tmAddrReserve, tmTag.Type))
-        {
-          return TmTag.Create(tmAddrReserve);
-        }
-
-        if (kvp[0] == "Reserving" && TmAddr.TryParse(kvp[1], out var tmAddrReserving, tmTag.Type))
-        {
-          return TmTag.Create(tmAddrReserving);
-        }
-      }
-
-      return null;
-    }
-
-
-    private async Task UpdateAnalogTechParameters(TmTag tag)
-    {
-      await Task.Run(() => UpdateAnalogTechParametersSynchronously(tag)).ConfigureAwait(false);
-    }
-
-
-    private void UpdateAnalogTechParametersSynchronously(TmTag tag)
-    {
-      if (!(tag is TmAnalog tmAnalog))
-      {
-        return;
-      }
-
-      var tmcAddr = tag.TmAddr.ToAdrTm();
-      var techParams = new TmNativeDefs.TAnalogTechParms
-      {
-        ZoneLim  = new float[TmNativeDefs.TAnalogTechParmsAlarmSize],
-        Reserved = new uint[TmNativeDefs.TAnalogTechParamsReservedSize],
-      };
-      if (!TmNative.tmcGetAnalogTechParms(_cid, ref tmcAddr, ref techParams))
-      {
-        return;
-      }
-
-      tmAnalog.UpdateTechParameters(techParams);
     }
     
 
@@ -1233,24 +1162,6 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public async Task<string> GetExpressionResult(string expression)
-    {
-      return await Task.Run(() => GetExpressionResultSync(expression))
-                       .ConfigureAwait(false);
-    }
-
-
-    public string GetExpressionResultSync(string expression)
-    {
-      const int bufSize = 1024;
-
-      Span<byte> buf = stackalloc byte[bufSize];
-      TmNative.tmcEvaluateExpression(_cid, EncodingUtil.StringToBytes(expression), buf, bufSize);
-
-      return EncodingUtil.BytesToString(buf);
-    }
-
-
     public async Task SetTagFlagsExplicitly(TmTag tag, TmFlags flags)
     {
       var (ch, rtu, point) = tag.TmAddr.GetTupleShort();
@@ -1398,67 +1309,6 @@ namespace Iface.Oik.Tm.Api
                           .ConfigureAwait(false);
 
       return new TmUserInfo(dto);
-    }
-
-
-    public async Task<IReadOnlyCollection<TmTag>> GetTagsByGroup(TmType tmType,
-                                                                 string groupName)
-    {
-      var commonPoints = await Task.Run(() => TmNativeApi.GetTagsByGroupName(_cid,
-                                                                             tmType.ToNativeType(),
-                                                                             groupName))
-                                   .ConfigureAwait(false);
-
-      return commonPoints.Select(TmTag.CreateFromCommonPointDto).ToList();
-    }
-
-
-    public async Task<IReadOnlyCollection<TmTag>> GetTagsByFlags(TmType             tmType,
-                                                                 TmFlags            tmFlags,
-                                                                 TmCommonPointFlags filterFlags)
-    {
-      var commonPoints = await Task.Run(() => TmNativeApi.GetValuesByFlagMask(_cid,
-                                                                              tmType.ToNativeType(),
-                                                                              tmFlags.ToNativeFlags(),
-                                                                              filterFlags.ToNativeQueryFlags()))
-                                   .ConfigureAwait(false);
-
-      return commonPoints.Select(TmTag.CreateFromCommonPointDto).ToList();
-    }
-
-
-    public async Task<IReadOnlyCollection<TmTag>> GetTagsByNamePattern(TmType tmType,
-                                                                       string pattern)
-    {
-      if (pattern.IsNullOrEmpty())
-      {
-        return Array.Empty<TmTag>();
-      }
-
-      var adrTmList = await Task.Run(() => TmNativeApi.GetTagsByNamePattern(_cid, tmType.ToNativeType(), pattern))
-                                .ConfigureAwait(false);
-
-      var tags = adrTmList.Select(adrTm => TmTag.Create(new TmAddr(tmType, adrTm.Ch, adrTm.Rtu, adrTm.Point)))
-                          .ToList();
-
-      await UpdateTagsPropertiesAndClassData(tags).ConfigureAwait(false);
-
-      switch (tmType)
-      {
-        case TmType.Status:
-          await UpdateStatuses(tags.Cast<TmStatus>().ToList()).ConfigureAwait(false);
-          break;
-        
-        case TmType.Analog:
-          await UpdateAnalogs(tags.Cast<TmAnalog>().ToList()).ConfigureAwait(false);
-          break;
-        
-        case TmType.Accum:
-          await UpdateAccums(tags.Cast<TmAccum>().ToList()).ConfigureAwait(false);
-          break;
-      }
-
-      return tags;
     }
   }
 }
