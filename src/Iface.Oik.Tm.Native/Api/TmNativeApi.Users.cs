@@ -48,7 +48,7 @@ public static partial class TmNativeApi
     return TUserInfoDto.Create(tExtendedUserInfo);
   }
 
-  public static TUserInfoDto GetUserInfo(int tmCid, string severName)
+  public static TUserInfoDto GetUserInfo(int tmCid, string serverName)
   {
     var cfCid = TmNative.tmcGetCfsHandle(tmCid);
 
@@ -57,19 +57,26 @@ public static partial class TmNativeApi
       throw new TmNativeException("Не удалось получить cfsHandle");
     }
 
-    var extendedInfo = GetTExtendedUserInfo(cfCid, severName, "tms$");
+    var extendedInfo = GetTExtendedUserInfo(cfCid, serverName, "tms$");
     var tUserInfo    = GetTUserInfo(tmCid, 0);
 
     return TUserInfoDto.Create(tUserInfo, extendedInfo);
   }
 
-  public static string GetUserName(int tmCid, int userId)
+  public static string GetUserName(int tmCid, string serverName, int userId) // TODO надо написать !!!
   {
-    var userInfo = GetTUserInfo(tmCid, (uint)userId);
+    var cfCid = TmNative.tmcGetCfsHandle(tmCid);
+
+    if (cfCid == nint.Zero)
+    {
+      throw new TmNativeException("Не удалось получить cfsHandle");
+    }
+    
+    var extendedUserInfo = GetTExtendedUserInfo(cfCid, serverName, "tms$");
 
     unsafe
     {
-      return TmNativeUtil.BytePtrToString(userInfo.UserName, 16);
+      return TmNativeUtil.BytePtrToString(extendedUserInfo.UserNameLong, TmNativeDefsUnsafe.MaxPwdLen);
     }
   }
 

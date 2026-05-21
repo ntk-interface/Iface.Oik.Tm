@@ -329,7 +329,9 @@ public static partial class TmNativeApi
                                                                              TmNativeDefs.TmDataTypes type,
                                                                              Span<byte>               name)
   {
-    return GetTmTagNamedSetUpdatedValuesUnsafe(cid, type, name).Select(TCommonPointDto.Create).ToList();
+    return GetTmTagNamedSetUpdatedValuesUnsafe(cid, type, name)
+          .Select(commonPoint => TCommonPointDto.Create(commonPoint, queryUnit: false))
+          .ToList();
   }
 
 
@@ -367,7 +369,9 @@ public static partial class TmNativeApi
                                                                    TmNativeDefs.TmDataTypes                 type,
                                                                    IReadOnlyCollection<TmNativeDefs.TAdrTm> addrList)
   {
-    return GetTmValuesByListExUnsafe(cid, type, addrList).Select(TCommonPointDto.Create).ToList();
+    return GetTmValuesByListExUnsafe(cid, type, addrList)
+          .Select(commonPoint => TCommonPointDto.Create(commonPoint, queryUnit: false))
+          .ToList();
   }
 
 
@@ -402,6 +406,170 @@ public static partial class TmNativeApi
   }
 
 
+  public static IReadOnlyList<TCommonPointDto> GetValuesByFlagMask(int                      cid,
+                                                                   TmNativeDefs.TmDataTypes tmType,
+                                                                   TmNativeDefs.Flags       tmFlags,
+                                                                   TmNativeDefs.TmCpf       queryFlags)
+  {
+    return GetValuesByFlagMaskUnsafe(cid, tmType, tmFlags, queryFlags)
+          .Select(commonPoint => TCommonPointDto.Create(commonPoint, queryUnit: true, cid))
+          .ToList();
+  }
+
+
+  private static unsafe TmNativeDefsUnsafe.TCommonPoint[] GetValuesByFlagMaskUnsafe(int cid,
+    TmNativeDefs.TmDataTypes                                                            tmType,
+    TmNativeDefs.Flags                                                                  tmFlags,
+    TmNativeDefs.TmCpf                                                                  queryFlags)
+  {
+    TmNativeDefsUnsafe.TCommonPoint* ptr = null;
+
+    try
+    {
+      ptr = TmNative.tmcGetValuesByFlagMask(cid,
+                                            (ushort)tmType,
+                                            (uint) tmFlags,
+                                            (byte) (queryFlags | TmNativeDefs.TmCpf.Name),
+                                            out var count);
+      if (ptr == null)
+      {
+        return Array.Empty<TmNativeDefsUnsafe.TCommonPoint>();
+      }
+
+      return new ReadOnlySpan<TmNativeDefsUnsafe.TCommonPoint>(ptr, (int) count).ToArray();
+    }
+    finally
+    {
+      if (ptr != null)
+      {
+        TmNative.tmcFreeMemory((IntPtr)ptr);
+      }
+    }
+  }
+
+
+  public static IReadOnlyList<TCommonPointDto> GetTagsByGroupName(int                      cid,
+                                                                  TmNativeDefs.TmDataTypes tmType,
+                                                                  string                   groupName)
+  {
+    return GetTagsByGroupNameUnsafe(cid, tmType, groupName)
+          .Select(commonPoint => TCommonPointDto.Create(commonPoint, queryUnit: true, cid))
+          .ToList();
+  }
+
+
+  private static unsafe TmNativeDefsUnsafe.TCommonPoint[] GetTagsByGroupNameUnsafe(int cid,
+    TmNativeDefs.TmDataTypes                                                           tmType,
+    string                                                                             groupName)
+  {
+    TmNativeDefsUnsafe.TCommonPoint* ptr = null;
+
+    try
+    {
+      ptr = TmNative.tmcGetValuesEx(cid,
+                                    (ushort)tmType,
+                                    0,
+                                    0,
+                                    (byte)TmNativeDefs.TmCpf.Name,
+                                    TmNativeUtil.StringToBytes(groupName),
+                                    0,
+                                    out var count);
+      if (ptr == null)
+      {
+        return Array.Empty<TmNativeDefsUnsafe.TCommonPoint>();
+      }
+
+      return new ReadOnlySpan<TmNativeDefsUnsafe.TCommonPoint>(ptr, (int) count).ToArray();
+    }
+    finally
+    {
+      if (ptr != null)
+      {
+        TmNative.tmcFreeMemory((IntPtr)ptr);
+      }
+    }
+  }
+
+
+  public static IReadOnlyList<TAdrTmDto> GetTagsByNamePattern(int                      cid,
+                                                              TmNativeDefs.TmDataTypes tmType,
+                                                              string                   pattern)
+  {
+    return GetTagsByNamePatternUnsafe(cid, tmType, pattern)
+          .Select(adrTm => new TAdrTmDto(adrTm.Ch, adrTm.RTU, adrTm.Point))
+          .ToList();
+  }
+
+
+  private static unsafe TmNativeDefsUnsafe.TAdrTm[] GetTagsByNamePatternUnsafe(int                      cid,
+                                                                               TmNativeDefs.TmDataTypes tmType,
+                                                                               string                   pattern)
+  {
+    TmNativeDefsUnsafe.TAdrTm* ptr = null;
+
+    try
+    {
+      ptr = TmNative.tmcTextSearch(cid,
+                                   (ushort)tmType,
+                                   TmNativeUtil.StringToBytes(pattern),
+                                   out var count);
+      if (ptr == null)
+      {
+        return Array.Empty<TmNativeDefsUnsafe.TAdrTm>();
+      }
+
+      return new ReadOnlySpan<TmNativeDefsUnsafe.TAdrTm>(ptr, (int) count).ToArray();
+    }
+    finally
+    {
+      if (ptr != null)
+      {
+        TmNative.tmcFreeMemory((IntPtr)ptr);
+      }
+    }
+  }
+
+
+  public static IReadOnlyList<TAdrTmDto> GetPresentAps(int cid)
+  {
+    return GetPresentApsUnsafe(cid)
+          .Select(adrTm => new TAdrTmDto(adrTm.Ch, adrTm.RTU, adrTm.Point))
+          .ToList();
+  }
+
+
+  private static unsafe TmNativeDefsUnsafe.TAdrTm[] GetPresentApsUnsafe(int cid)
+  {
+    TmNativeDefsUnsafe.TAdrTm* ptr = null;
+
+    try
+    {
+      ptr = TmNative.tmcTakeAPS(cid);
+      if (ptr == null)
+      {
+        return Array.Empty<TmNativeDefsUnsafe.TAdrTm>();
+      }
+
+      var count      = 0;
+      var currentPtr = ptr;
+      while (currentPtr->Point != 0)
+      {
+        count++;
+        currentPtr++;
+      }
+
+      return new ReadOnlySpan<TmNativeDefsUnsafe.TAdrTm>(ptr, count).ToArray();
+    }
+    finally
+    {
+      if (ptr != null)
+      {
+        TmNative.tmcFreeMemory((IntPtr)ptr);
+      }
+    }
+  }
+
+
   internal static (bool isSuccess, TmNativeDefsUnsafe.TStatusPoint point) GetStatusFullEx(int tmCid,
     short                                                                                     ch,
     short                                                                                     rtu,
@@ -412,15 +580,13 @@ public static partial class TmNativeApi
     var tmcStatusPoint = new TmNativeDefsUnsafe.TStatusPoint();
 
     var result = TmNative.tmcStatusFullEx(tmCid,
-                                          getRealTelemetry
-                                            ? (short)(ch + TmNativeDefs.RealTelemetryFlag)
-                                            : ch,
+                                          getRealTelemetry ? (short)(ch + TmNativeDefs.RealTelemetryFlag) : ch,
                                           rtu,
                                           point,
                                           ref tmcStatusPoint,
                                           (uint)time);
 
-    return (result != TmNativeDefs.Success, tmcStatusPoint);
+    return (result == TmNativeDefs.Success, tmcStatusPoint);
   }
 
   internal static (bool isSuccess, TmNativeDefsUnsafe.TAnalogPoint point) GetAnalogFull(int tmCid,
@@ -434,16 +600,14 @@ public static partial class TmNativeApi
     var tmcAnalogPoint = new TmNativeDefsUnsafe.TAnalogPoint();
 
     var result = TmNative.tmcAnalogFull(tmCid,
-                                        getRealTelemetry
-                                          ? (short)(ch + TmNativeDefs.RealTelemetryFlag)
-                                          : ch,
+                                        getRealTelemetry ? (short)(ch + TmNativeDefs.RealTelemetryFlag) : ch,
                                         rtu,
                                         point,
                                         ref tmcAnalogPoint,
                                         time.ToNativeByteArray(),
                                         retroNum);
 
-    return (result != TmNativeDefs.Success, tmcAnalogPoint);
+    return (result == TmNativeDefs.Success, tmcAnalogPoint);
   }
 
   internal static (bool isSuccess, TmNativeDefsUnsafe.TAccumPoint point) GetAccumFull(int tmCid,
@@ -454,13 +618,13 @@ public static partial class TmNativeApi
   {
     var accumPoint = new TmNativeDefsUnsafe.TAccumPoint();
 
-    var isSuccess = TmNative.tmcAccumFull(tmCid,
+    var result = TmNative.tmcAccumFull(tmCid,
                                           ch,
                                           rtu,
                                           point,
                                           ref accumPoint,
                                           time.ToNativeByteArray());
 
-    return (isSuccess != 0, accumPoint);
+    return (result == TmNativeDefs.Success, accumPoint);
   }
 }

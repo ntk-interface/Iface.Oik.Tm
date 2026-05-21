@@ -330,7 +330,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
     
     
-    public void FromCommonPointDto(TCommonPointDto dto)
+    public override void UpdateValueFromCommonPointDto(TCommonPointDto dto)
     {
       if (dto.AccumPointDto == null)
       {
@@ -344,39 +344,27 @@ namespace Iface.Oik.Tm.Interfaces
                                                                    dto.TmLocalMs);
     }
     
-
-    public static TmAccum CreateFromTmcCommonPointEx(TmNativeDefs.TCommonPoint tmcCommonPoint)
+    
+    public override void UpdatePropertiesFromCommonPointDto(TCommonPointDto dto)
     {
-      var tmAccum = new TmAccum(tmcCommonPoint.Ch, tmcCommonPoint.RTU, tmcCommonPoint.Point);
-
-      TmNativeDefs.TAccumPoint tmcAccumPoint;
-      try
+      if (!string.IsNullOrEmpty(dto.Name))
       {
-        tmcAccumPoint = TmNativeUtil.GetAccumPointFromCommonPoint(tmcCommonPoint);
+        Name = dto.Name;
       }
-      catch (ArgumentException)
+      if (dto.AnalogPointDto == null)
       {
-        return tmAccum;
+        return;
       }
 
-      tmAccum.IsInit = tmcCommonPoint.TM_Flags != 0xFFFF && !tmcAccumPoint.Value.Equals(InvalidValue);
-      tmAccum.Value  = tmcAccumPoint.Value;
-      tmAccum.Load   = tmcAccumPoint.Load;
-      tmAccum.Flags  = (TmFlags) tmcAccumPoint.Flags;
-      tmAccum.ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(tmcCommonPoint.tm_local_ut,
-                                                                           tmcCommonPoint.tm_local_ms);
-      tmAccum.Width     = (byte) (tmcAccumPoint.Format & 0x0F);
-      tmAccum.Precision = (byte) (tmcAccumPoint.Format >> 4);
-      tmAccum.Unit      = EncodingUtil.Cp866BytesToUtf8(tmcAccumPoint.Unit); // TODO кодировка
-
-      tmAccum.Name = EncodingUtil.Win1251IntPtrToUtf8(tmcCommonPoint.name); // TODO кодировка
-
-      return tmAccum;
+      Unit      = dto.AnalogPointDto.Value.Unit;
+      Width     = (byte) (dto.AnalogPointDto.Value.Format & 0x0F);
+      Precision = (byte) (dto.AnalogPointDto.Value.Format >> 4);
     }
+    
 
-    protected override void SetTmcObjectProperties(string key, string value)
+    protected override void UpdatePropertiesFromTmcObject(string key, string value)
     {
-      base.SetTmcObjectProperties(key, value);
+      base.UpdatePropertiesFromTmcObject(key, value);
       
       switch (key)
       {
@@ -412,7 +400,7 @@ namespace Iface.Oik.Tm.Interfaces
       }
     }
     
-    public void FromTAccumPoint(TmNativeDefs.TAccumPoint tmcAccumPoint)
+    public void UpdateValueFromTAccumPoint(TmNativeDefs.TAccumPoint tmcAccumPoint)
     {
       if (tmcAccumPoint.Flags == -1 || tmcAccumPoint.Value.Equals(InvalidValue))
       {

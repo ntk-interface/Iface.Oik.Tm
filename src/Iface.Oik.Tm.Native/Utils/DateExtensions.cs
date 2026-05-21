@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace Iface.Oik.Tm.Native.Utils;
 
@@ -10,10 +11,12 @@ public static class DateExtensions
   }
 
     
-  public static Span<byte> ToNativeByteArray(this DateTime dateTime)
+  public static byte[] ToNativeByteArray(this DateTime dateTime)
   {
     var result = new byte[24];
-    TmNativeUtil.StringToBytes(dateTime.ToTmString())[..24].CopyTo(result);
+
+    Encoding.UTF8.GetBytes(dateTime.ToTmString(), result.AsSpan());
+
     return result;
   }
 }

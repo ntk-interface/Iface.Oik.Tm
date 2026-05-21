@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Native.Utils;
 
 namespace Iface.Oik.Tm.Api
 {
@@ -14,7 +13,6 @@ namespace Iface.Oik.Tm.Api
     private readonly ITmsApi              _tms;
     private readonly IOikSqlApi           _sql;
     private readonly ICommonServerService _serverService;
-    private          TmUserInfo           _userInfo;
     private          TmServerFeatures     _serverFeatures;
 
     public TmNativeCallback TmsCallbackDelegate      { get; }
@@ -43,24 +41,21 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    public void SetUserInfoAndServerFeatures(TmUserInfo userInfo, TmServerFeatures features)
+    public void SetServerFeatures(TmServerFeatures features)
     {
-      _userInfo = userInfo;
-      UserInfoUpdated?.Invoke(this, EventArgs.Empty);
-
       _serverFeatures = features;
+      
+      UserInfoUpdated?.Invoke(this, EventArgs.Empty);
     }
 
 
     private void OnTmsCallback(int callbackSize, IntPtr callbackBuf, IntPtr callbackParam)
     {
-      var buf = new byte[callbackSize];
-      Marshal.Copy(callbackBuf, buf, 0, callbackSize);
-      HandleTmsCallback(buf);
+      HandleTmsCallback(TmNativeUtil.IntPtrToByteSpan(callbackBuf, callbackSize));
     }
 
 
-    private void HandleTmsCallback(byte[] buf)
+    private void HandleTmsCallback(ReadOnlySpan<byte> buf)
     {
       if (buf[0] == 'T' &&
           buf[1] == 'S')
@@ -155,7 +150,7 @@ namespace Iface.Oik.Tm.Api
     }
 
 
-    private void HandleTmsCallbackMqtt(byte[] datagram)
+    private void HandleTmsCallbackMqtt(ReadOnlySpan<byte> datagram)
     {
       var message = Tms.ParseMqttDatagram(datagram);
       MqttMessageReceived.Invoke(this, message);
@@ -339,95 +334,6 @@ namespace Iface.Oik.Tm.Api
       return await Execute(prefer,
                            PreferApi.Tms,
                            () => _tms.GenerateTokenForExternalApp(),
-                           null)
-              .ConfigureAwait(false);
-    }
-    
-    
-    public async Task<string> GetExpressionResult(string    expression,
-                                                  PreferApi prefer = PreferApi.Auto)
-    {
-      return await Execute(prefer,
-                           PreferApi.Tms,
-                           () => _tms.GetExpressionResult(expression),
-                           null)
-              .ConfigureAwait(false);
-    }
-    
-    
-    public string GetExpressionResultSync(string    expression,
-                                          PreferApi prefer = PreferApi.Auto)
-    {
-      return ExecuteSync(prefer,
-                         PreferApi.Tms,
-                         () => _tms.GetExpressionResultSync(expression),
-                         null);
-    }
-
-
-    public async Task<IReadOnlyCollection<string>> GetFilesInDirectory(string    path,
-                                                                       PreferApi prefer = PreferApi.Auto)
-    {
-      return await Execute(prefer,
-                           PreferApi.Tms,
-                           () => _tms.GetFilesInDirectory(path),
-                           null)
-              .ConfigureAwait(false);
-    }
-
-
-    public async Task<bool> DownloadFile(string    remotePath,
-                                         string    localPath,
-                                         PreferApi prefer = PreferApi.Auto)
-    {
-      return await Execute(prefer,
-                           PreferApi.Tms,
-                           () => _tms.DownloadFile(remotePath, localPath),
-                           null)
-              .ConfigureAwait(false);
-    }
-
-
-    public async Task<IReadOnlyCollection<string>> GetComtradeDays(PreferApi prefer = PreferApi.Auto)
-    {
-      if (!_serverFeatures.IsComtradeEnabled)
-      {
-        return null;
-      }
-      return await Execute(prefer,
-                           PreferApi.Tms,
-                           () => _tms.GetComtradeDays(),
-                           null)
-              .ConfigureAwait(false);
-    }
-
-
-    public async Task<IReadOnlyCollection<string>> GetComtradeFilesByDay(string    day,
-                                                                         PreferApi prefer = PreferApi.Auto)
-    {
-      if (!_serverFeatures.IsComtradeEnabled)
-      {
-        return null;
-      }
-      return await Execute(prefer,
-                           PreferApi.Tms,
-                           () => _tms.GetComtradeFilesByDay(day),
-                           null)
-              .ConfigureAwait(false);
-    }
-
-
-    public async Task<bool> DownloadComtradeFile(string    filename,
-                                                 string    localPath,
-                                                 PreferApi prefer = PreferApi.Auto)
-    {
-      if (!_serverFeatures.IsComtradeEnabled)
-      {
-        return false;
-      }
-      return await Execute(prefer,
-                           PreferApi.Tms,
-                           () => _tms.DownloadComtradeFile(filename, localPath),
                            null)
               .ConfigureAwait(false);
     }

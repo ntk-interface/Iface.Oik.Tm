@@ -125,7 +125,7 @@ public partial class OikSqlApi
                          .QueryFirstOrDefaultAsync<TmStatusDto>(commandText, parameters)
                          .ConfigureAwait(false);
 
-      tmStatus.UpdateWithDto(dto);
+      tmStatus.UpdateValueFromDto(dto);
     }
     catch (Exception ex)
     {
@@ -216,7 +216,7 @@ public partial class OikSqlApi
       {
         if (tmStatuses.TryGetValue(dto.Tma, out var tmStatus))
         {
-          tmStatus.UpdateWithDto(dto);
+          tmStatus.UpdateValueFromDto(dto);
         }
       }
     }

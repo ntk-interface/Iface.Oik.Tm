@@ -278,7 +278,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
           AnalogPointDto = new TAnalogPointDto(),
         };
 
-        tmAnalog.FromCommonPointDto(tmcCommonPoint);
+        tmAnalog.UpdateValueFromCommonPointDto(tmcCommonPoint);
 
         Assert.False(tmAnalog.IsInit);
       }
@@ -290,7 +290,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
         var tmAnalog       = new TmAnalog(0, 1, 1);
         var tmcCommonPoint = new TCommonPointDto();
 
-        tmAnalog.FromCommonPointDto(tmcCommonPoint);
+        tmAnalog.UpdateValueFromCommonPointDto(tmcCommonPoint);
 
         Assert.False(tmAnalog.IsInit);
       }
@@ -313,7 +313,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
           },
         };
 
-        tmAnalog.FromCommonPointDto(tmcCommonPoint);
+        tmAnalog.UpdateValueFromCommonPointDto(tmcCommonPoint);
 
         Assert.True(tmAnalog.IsInit);
         Assert.Equal(value,     tmAnalog.Value);

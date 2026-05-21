@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Dapper;
 using Iface.Oik.Tm.Interfaces;
-using Iface.Oik.Tm.Utils;
+using Iface.Oik.Tm.Native.Utils;
 using Npgsql;
 
 namespace Iface.Oik.Tm.Api

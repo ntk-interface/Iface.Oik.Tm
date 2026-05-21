@@ -285,23 +285,25 @@ namespace Iface.Oik.Tm.Native.Api
                                                       Span<byte> name);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern IntPtr tmcGetValuesByFlagMask(Int32      cid,
-                                                       UInt16     tmType,
-                                                       UInt32     tmFlags,
-                                                       Byte       qFlags,
-                                                       out UInt32 pCount);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static unsafe partial TmNativeDefsUnsafe.TCommonPoint* tmcGetValuesByFlagMask(Int32 cid,
+      UInt16                                                                                     tmType,
+      UInt32                                                                                     tmFlags,
+      Byte                                                                                       qFlags,
+      out UInt32                                                                                 pCount);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern IntPtr tmcGetValuesEx(Int32      cid,
-                                               UInt16     tmType,
-                                               UInt32     tmFlagsSet,
-                                               UInt32     tmFlagsClr,
-                                               Byte       qFlags,
-                                               byte[]     groupName,
-                                               UInt32     dwUt,
-                                               out UInt32 pCount);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static unsafe partial TmNativeDefsUnsafe.TCommonPoint* tmcGetValuesEx(Int32 cid,
+      UInt16                                                                             tmType,
+      UInt32                                                                             tmFlagsSet,
+      UInt32                                                                             tmFlagsClr,
+      Byte                                                                               qFlags,
+      Span<byte>                                                                         groupName,
+      UInt32                                                                             dwUt,
+      out UInt32                                                                         pCount);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -656,16 +658,17 @@ namespace Iface.Oik.Tm.Native.Api
                                             ref TmNativeDefs.TAlarm alarm);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern IntPtr tmcAanReadArchive(Int32 cid,
-                                                  UInt32 tmAddr,
-                                                  UInt32 startUnixTime,
-                                                  UInt32 endUnixTime,
-                                                  UInt32 step,
-                                                  UInt32 flags,
-                                                  out                                    UInt32 count,
-                                                  [MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback progress,
-                                                  IntPtr progressParam);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static unsafe partial TmNativeDefsUnsafe.TMAAN_ARCH_VALUE* tmcAanReadArchive(Int32 cid,
+      UInt32                                                                                    tmAddr,
+      UInt32                                                                                    startUnixTime,
+      UInt32                                                                                    endUnixTime,
+      UInt32                                                                                    step,
+      UInt32                                                                                    flags,
+      out                                    UInt32                                             count,
+      [MarshalAs(UnmanagedType.FunctionPtr)] TmNativeCallback?                                  progress,
+      IntPtr                                                                                    progressParam);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
@@ -905,15 +908,17 @@ namespace Iface.Oik.Tm.Native.Api
     public static extern Int16 tmcClrRetransInfo(Int32 cid);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall)]
-    public static extern IntPtr tmcTakeAPS(Int32 cid);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static unsafe partial TmNativeDefsUnsafe.TAdrTm* tmcTakeAPS(Int32 cid);
 
 
-    [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern IntPtr tmcTextSearch(Int32      cid,
-                                              UInt16     type,
-                                              byte[]     text,
-                                              out UInt32 pCount);
+    [LibraryImport(Tmconn)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    internal static unsafe partial TmNativeDefsUnsafe.TAdrTm* tmcTextSearch(Int32      cid,
+                                                                            UInt16     type,
+                                                                            Span<byte> text,
+                                                                            out UInt32 pCount);
 
 
     [DllImport(Tmconn, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]

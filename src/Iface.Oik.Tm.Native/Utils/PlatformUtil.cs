@@ -15,7 +15,6 @@ namespace Iface.Oik.Tm.Native.Utils
     
     public static string GetOikTaskExecutable(string origin)
     {
-      //DPrintF(origin);
       if (Path.GetExtension(origin) == ".dll")
       {
         var executableExtension = (IsWindows) ? ".exe" : "";

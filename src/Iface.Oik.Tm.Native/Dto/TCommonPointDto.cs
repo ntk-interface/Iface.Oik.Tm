@@ -1,4 +1,5 @@
-﻿using Iface.Oik.Tm.Native.Interfaces;
+﻿using Iface.Oik.Tm.Native.Api;
+using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 
 namespace Iface.Oik.Tm.Native.Dto;
@@ -25,7 +26,9 @@ public record struct TCommonPointDto
   public TAccumPointDto?  AccumPointDto  { get; init; }
 
 
-  internal static unsafe TCommonPointDto Create(TmNativeDefsUnsafe.TCommonPoint point)
+  internal static unsafe TCommonPointDto Create(TmNativeDefsUnsafe.TCommonPoint point,
+                                                bool                            queryUnit = false,
+                                                int?                            cid       = null)
   {
     return new TCommonPointDto
     {
@@ -47,10 +50,14 @@ public record struct TCommonPointDto
                          ? TStatusPointDto.Create(TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.TStatusPoint>(point.Data))
                          : null,
       AnalogPointDto = point.Type == (ushort)TmNativeDefs.TmDataTypes.Analog
-                         ? TAnalogPointDto.Create(TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.TAnalogPoint>(point.Data))
+                         ? TAnalogPointDto.Create(TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.TAnalogPoint>(point.Data),
+                                                  queryUnit,
+                                                  cid)
                          : null,
       AccumPointDto = point.Type == (ushort)TmNativeDefs.TmDataTypes.Accum
-                         ? TAccumPointDto.Create(TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.TAccumPoint>(point.Data))
+                        ? TAccumPointDto.Create(TmNativeUtil.FromBytesPtr<TmNativeDefsUnsafe.TAccumPoint>(point.Data),
+                                                queryUnit,
+                                                cid)
                          : null,
     };
   }
@@ -83,14 +90,16 @@ public record struct TAnalogPointDto
   public byte    Format  { get; init; }
 
 
-  internal static TAnalogPointDto Create(TmNativeDefsUnsafe.TAnalogPoint point)
+  internal static unsafe TAnalogPointDto Create(TmNativeDefsUnsafe.TAnalogPoint point,
+                                                bool                            queryUnit = false,
+                                                int?                            cid       = null)
   {
     return new TAnalogPointDto
     {
       AsFloat = point.AsFloat,
       AsCode  = point.AsCode,
       Flags   = point.Flags,
-      Unit    = string.Empty, // TODO подумать, может быть через GetTextByRef
+      Unit    = queryUnit && cid.HasValue ? TmNativeApi.GetTextByRef(point.Unit, cid.Value) : string.Empty,
       Format  = point.Format,
     };
   }
@@ -106,14 +115,16 @@ public record struct TAccumPointDto
   public byte    Format { get; init; }
 
 
-  internal static TAccumPointDto Create(TmNativeDefsUnsafe.TAccumPoint point)
+  internal static unsafe TAccumPointDto Create(TmNativeDefsUnsafe.TAccumPoint point,
+                                               bool                           queryUnit = false,
+                                               int?                           cid       = null)
   {
     return new TAccumPointDto
     {
       Value  = point.Value,
       Load   = point.Load,
       Flags  = point.Flags,
-      Unit   = string.Empty, // TODO подумать, может быть через GetTextByRef
+      Unit   = queryUnit && cid.HasValue ? TmNativeApi.GetTextByRef(point.Unit, cid.Value) : string.Empty,
       Format = point.Format,
     };
   }

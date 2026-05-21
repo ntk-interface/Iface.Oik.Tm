@@ -1,30 +1,49 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Text;
 
 namespace Iface.Oik.Tm.Utils
 {
   public static class CompressUtil
   {
-    private static readonly byte[] GzipHeaderBytes    = { 0x1f, 0x8b, 0x08 };
-    private static readonly int    EfficientThreshold = 8192;
+    private static          ReadOnlySpan<byte> GzipHeaderBytes => new byte[] { 0x1f, 0x8b, 0x08 };
+    private static readonly int                EfficientThreshold = 8192;
     
     
     public static byte[] CompressWhenEfficient(string str)
     {
-      return CompressWhenEfficient(Encoding.UTF8.GetBytes(str));
+      if (string.IsNullOrEmpty(str))
+      {
+        return Array.Empty<byte>();
+      }
+
+      if (GetByteCount(str) < EfficientThreshold)
+      {
+        return GetBytes(str);
+      }
+      
+      return Compress(GetBytes(str));
     }
     
     
     public static byte[] Compress(string str)
     {
-      return Compress(Encoding.UTF8.GetBytes(str));
+      if (string.IsNullOrEmpty(str))
+      {
+        return Array.Empty<byte>();
+      }
+      
+      return Compress(GetBytes(str));
     }
 
 
     public static byte[] CompressWhenEfficient(byte[] bytes)
     {
+      if (bytes == null)
+      {
+        return Array.Empty<byte>();
+      }
       if (bytes.Length < EfficientThreshold)
       {
         return bytes;
@@ -35,11 +54,16 @@ namespace Iface.Oik.Tm.Utils
     
     public static byte[] Compress(byte[] bytes)
     {
+      if (bytes == null || bytes.Length == 0)
+      {
+        return Array.Empty<byte>();
+      }
+      
       using (var outputStream = new MemoryStream())
       {
-        using (var gzip = new GZipStream(outputStream, CompressionMode.Compress))
+        using (var gzip = new GZipStream(outputStream, CompressionLevel.Fastest))
         {
-          gzip.Write(bytes, 0, bytes.Length);
+          gzip.Write(bytes);
         }
         return outputStream.ToArray();
       }
@@ -48,6 +72,11 @@ namespace Iface.Oik.Tm.Utils
   
     public static byte[] Decompress(byte[] bytes)
     {
+      if (bytes == null || bytes.Length == 0)
+      {
+        return Array.Empty<byte>();
+      }
+      
       using (var outputStream = new MemoryStream())
       using (var inputStream = new MemoryStream(bytes))
       using (var gzip = new GZipStream(inputStream, CompressionMode.Decompress))
@@ -60,16 +89,39 @@ namespace Iface.Oik.Tm.Utils
 
     public static string GetRawOrDecompressedString(byte[] bytes)
     {
+      if (bytes == null || bytes.Length == 0)
+      {
+        return string.Empty;
+      }
+      
       return IsProbablyCompressed(bytes)
-               ? Encoding.UTF8.GetString(Decompress(bytes))
-               : Encoding.UTF8.GetString(bytes);
+               ? GetString(Decompress(bytes))
+               : GetString(bytes);
     }
 
 
-    public static bool IsProbablyCompressed(byte[] bytes)
+    public static bool IsProbablyCompressed(ReadOnlySpan<byte> bytes)
     {
-      return bytes.Take(GzipHeaderBytes.Length)
-                  .SequenceEqual(GzipHeaderBytes);
+      return bytes.Length >= GzipHeaderBytes.Length &&
+             bytes[..GzipHeaderBytes.Length].SequenceEqual(GzipHeaderBytes);
+    }
+
+
+    private static byte[] GetBytes(string str)
+    {
+      return Encoding.UTF8.GetBytes(str);
+    }
+
+
+    private static int GetByteCount(string str)
+    {
+      return Encoding.UTF8.GetByteCount(str);
+    }
+
+
+    private static string GetString(ReadOnlySpan<byte> bytes)
+    {
+      return Encoding.UTF8.GetString(bytes);
     }
   }
 }

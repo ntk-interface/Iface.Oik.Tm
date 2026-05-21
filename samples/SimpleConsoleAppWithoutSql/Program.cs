@@ -30,7 +30,7 @@ try
   }
 
   var api = new TmsApi();
-  api.SetCidAndUserInfo(tmCid, Tms.GetUserInfo(tmCid, tmServer));
+  api.SetCid(tmCid);
 
   while (true)
   {
