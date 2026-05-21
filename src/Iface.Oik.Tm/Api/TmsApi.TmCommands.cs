@@ -131,7 +131,7 @@ public partial class TmsApi
 
   public async Task InputTelecontrolPassword(string password)
   {
-    await Task.Run(() => TmNative.tmcSetTcPwd(_cid, EncodingUtil.StringToBytes(password))).ConfigureAwait(false);
+    await Task.Run(() => TmNative.tmcSetTcPwd(_cid, TmNativeUtil.StringToBytes(password))).ConfigureAwait(false);
   }
 
 

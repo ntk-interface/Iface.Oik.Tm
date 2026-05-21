@@ -7,6 +7,7 @@ using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Api
@@ -207,7 +208,7 @@ namespace Iface.Oik.Tm.Api
                                    buf,
                                    bufSize);
 
-      return EncodingUtil.BytesToString(buf);
+      return TmNativeUtil.BytesToString(buf);
     }
 
     private async Task UpdateDeltaComponentPortStats(DeltaComponent component)
@@ -238,7 +239,7 @@ namespace Iface.Oik.Tm.Api
                                                buf,
                                                bufLength);
 
-      return (result, EncodingUtil.BytesToString(buf));
+      return (result, TmNativeUtil.BytesToString(buf));
     }
 
 

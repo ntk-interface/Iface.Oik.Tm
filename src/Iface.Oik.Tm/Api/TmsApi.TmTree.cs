@@ -194,7 +194,7 @@ public partial class TmsApi
     TmNative.tmcGetObjectName(_cid, (ushort)TmNativeDefs.TmDataTypes.Channel, (short)channelId, 0, 0,
                               buf, buf.Length);
 
-    return EncodingUtil.BytesToString(buf);
+    return TmNativeUtil.BytesToString(buf);
   }
 
 
@@ -216,7 +216,7 @@ public partial class TmsApi
     TmNative.tmcGetObjectName(_cid, (ushort)TmNativeDefs.TmDataTypes.Rtu, (short)channelId, (short)rtuId, 0,
                               buf, buf.Length);
 
-    return EncodingUtil.BytesToString(buf);
+    return TmNativeUtil.BytesToString(buf);
   }
   
   

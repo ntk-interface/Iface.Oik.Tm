@@ -22,20 +22,20 @@ namespace Iface.Oik.Tm.Helpers
       }
 
       TmNative.cfsInitLibrary(null,
-                              ignoreLinuxSignals ? EncodingUtil.StringToBytes("nosig") : null);
+                              ignoreLinuxSignals ? TmNativeUtil.StringToBytes("nosig") : null);
     }
 
     public static void SetUserCredentials(string user,
                                           string password)
     {
-      TmNative.cfsSetUser(EncodingUtil.StringToBytes(user), EncodingUtil.StringToBytes(password));
+      TmNative.cfsSetUser(TmNativeUtil.StringToBytes(user), TmNativeUtil.StringToBytes(password));
     }
 
     public static string MakeInprocCrd(string host, string user, string pwd)
     {
-      var ptr = TmNative.cfsMakeInprocCrd(EncodingUtil.StringToBytes(host),
-                                          EncodingUtil.StringToBytes(user),
-                                          EncodingUtil.StringToBytes(pwd));
+      var ptr = TmNative.cfsMakeInprocCrd(TmNativeUtil.StringToBytes(host),
+                                          TmNativeUtil.StringToBytes(user),
+                                          TmNativeUtil.StringToBytes(pwd));
       if (ptr == IntPtr.Zero)
       {
         return string.Empty;
@@ -52,14 +52,14 @@ namespace Iface.Oik.Tm.Helpers
       Span<byte> errBuf          = stackalloc byte[errStringLength];
 
       var cfId =
-        TmNative.cfsConnect(EncodingUtil.StringToBytes(host), out uint errCode, errBuf, errStringLength);
+        TmNative.cfsConnect(TmNativeUtil.StringToBytes(host), out uint errCode, errBuf, errStringLength);
 
       if (cfId == nint.Zero)
       {
-        Console.WriteLine($"Ошибка соединения с мастер-сервисом: {errCode} - {EncodingUtil.BytesToString(errBuf)}");
+        Console.WriteLine($"Ошибка соединения с мастер-сервисом: {errCode} - {TmNativeUtil.BytesToString(errBuf)}");
       }
 
-      return (cfId, EncodingUtil.BytesToString(errBuf), Convert.ToInt32(errCode));
+      return (cfId, TmNativeUtil.BytesToString(errBuf), Convert.ToInt32(errCode));
     }
 
     public static (nint, CfsDefs.InitializeConnectionResult) InitializeConnection(CfsOptions options)

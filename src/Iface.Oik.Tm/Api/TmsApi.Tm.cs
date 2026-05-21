@@ -383,7 +383,7 @@ public partial class TmsApi
                                     point,
                                     sb,
                                     1024);
-    tag.UpdatePropertiesFromTmcObject(EncodingUtil.BytesToString(sb));
+    tag.UpdatePropertiesFromTmcObject(TmNativeUtil.BytesToString(sb));
   }
 
 
@@ -601,7 +601,7 @@ public partial class TmsApi
                                     sb,
                                     1024);
 
-    var props = EncodingUtil.BytesToString(sb).Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
+    var props = TmNativeUtil.BytesToString(sb).Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
     foreach (var prop in props)
     {
       var kvp = prop.Split('=');
@@ -637,9 +637,9 @@ public partial class TmsApi
     const int bufSize = 1024;
 
     Span<byte> buf = stackalloc byte[bufSize];
-    TmNative.tmcEvaluateExpression(_cid, EncodingUtil.StringToBytes(expression), buf, bufSize);
+    TmNative.tmcEvaluateExpression(_cid, TmNativeUtil.StringToBytes(expression), buf, bufSize);
 
-    return EncodingUtil.BytesToString(buf);
+    return TmNativeUtil.BytesToString(buf);
   }
 
 
@@ -649,7 +649,7 @@ public partial class TmsApi
   {
     await Task.Run(() => TmNative.tmcTmvUserSetDefine(_cid,
                                                       (ushort)tmType.ToNativeType(),
-                                                      EncodingUtil.StringToBytes(name),
+                                                      TmNativeUtil.StringToBytes(name),
                                                       tmTags.Select(t => (uint)t.TmAddr.ToTma()).ToArray(),
                                                       (uint)tmTags.Count)).ConfigureAwait(false);
   }
@@ -660,7 +660,7 @@ public partial class TmsApi
     var commonPoints = await Task.Run(() => TmNativeApi.GetTmTagNamedSetUpdatedValues(
                                         _cid,
                                         TmNativeDefs.TmDataTypes.Status,
-                                        EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
+                                        TmNativeUtil.StringToBytes(name))).ConfigureAwait(false);
     return commonPoints.Select(TmStatusRecord.CreateFromCommonPointDto)
                        .ToList();
   }
@@ -671,7 +671,7 @@ public partial class TmsApi
     var commonPoints = await Task.Run(() => TmNativeApi.GetTmTagNamedSetUpdatedValues(
                                         _cid,
                                         TmNativeDefs.TmDataTypes.Analog,
-                                        EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
+                                        TmNativeUtil.StringToBytes(name))).ConfigureAwait(false);
     return commonPoints.Select(TmAnalogRecord.CreateFromCommonPointDto)
                        .ToList();
   }
@@ -682,7 +682,7 @@ public partial class TmsApi
     var commonPoints = await Task.Run(() => TmNativeApi.GetTmTagNamedSetUpdatedValues(
                                         _cid,
                                         TmNativeDefs.TmDataTypes.Accum,
-                                        EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
+                                        TmNativeUtil.StringToBytes(name))).ConfigureAwait(false);
     return commonPoints.Select(TmAccumRecord.CreateFromCommonPointDto)
                        .ToList();
   }
@@ -693,6 +693,6 @@ public partial class TmsApi
   {
     await Task.Run(() => TmNative.tmcTmvUserSetDelete(_cid,
                                                       (ushort)tmType.ToNativeType(),
-                                                      EncodingUtil.StringToBytes(name))).ConfigureAwait(false);
+                                                      TmNativeUtil.StringToBytes(name))).ConfigureAwait(false);
   }
 }

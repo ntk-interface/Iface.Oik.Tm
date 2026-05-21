@@ -467,7 +467,7 @@ namespace Iface.Oik.Tm.Interfaces
                                                               statusDataEx.OldFlags,
                                                               elix);
 
-      statusChangeExtendedEvent.Username = EncodingUtil.BytesToString(statusDataEx.UserName);
+      statusChangeExtendedEvent.Username = TmNativeUtil.BytesToString(statusDataEx.UserName);
       return statusChangeExtendedEvent;
     }
 
@@ -662,7 +662,7 @@ namespace Iface.Oik.Tm.Interfaces
                                                     TmType.Status,
                                                     flagsChangeDataStatus.OldFlags,
                                                     flagsChangeDataStatus.NewFlags,
-                                                    EncodingUtil.BytesToString(flagsChangeDataStatus.UserName),
+                                                    TmNativeUtil.BytesToString(flagsChangeDataStatus.UserName),
                                                     elix);
 
       flagsChangeEvent.TypeString =
@@ -685,7 +685,7 @@ namespace Iface.Oik.Tm.Interfaces
                                                     TmType.Analog,
                                                     flagsChangeDataAnalog.OldFlags,
                                                     flagsChangeDataAnalog.NewFlags,
-                                                    EncodingUtil.BytesToString(flagsChangeDataAnalog.UserName),
+                                                    TmNativeUtil.BytesToString(flagsChangeDataAnalog.UserName),
                                                     elix);
 
       flagsChangeEvent.TypeString = "Изм. флагов ТИ";
@@ -806,7 +806,7 @@ namespace Iface.Oik.Tm.Interfaces
                    ? (tEvent.Ch, tEvent.Rtu, tEvent.Point, tEvent.Data, tEvent.DateTime).ToTuple().GetHashCode()
                    : BitConverter.ToInt32(tmEventElix.ToByteArray(), 8);
 
-      var dtString = TmNativeUtil.GetStringFromBytesWithAdditionalPart(tEvent.DateTime);
+      var dtString = TmNativeUtil.BytesToString(tEvent.DateTime);
       var dt       = DateUtil.GetDateTimeFromExtendedTmString(dtString);
 
       var tmEvent = new TmEvent(hash)

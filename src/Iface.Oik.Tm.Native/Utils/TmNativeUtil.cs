@@ -282,18 +282,6 @@ namespace Iface.Oik.Tm.Native.Utils
       //                     .ToArray();
     }
 
-
-    public static string GetStringFromBytesWithAdditionalPart(byte[] bytes, Encoding? encoding = null)
-    {
-      encoding ??= Encoding.UTF8;
-
-      return encoding.GetString(bytes)
-                     .Split(new[] { '\0' })
-                     .FirstOrDefault()?
-                     .Trim('\n')
-          ?? string.Empty;
-    }
-
     
     internal static unsafe string GetCStringFromIntPtrAutoEncoding(nint ptr)
     {

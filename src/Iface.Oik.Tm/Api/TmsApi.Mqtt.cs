@@ -49,14 +49,14 @@ public partial class TmsApi
     return await MqttPublish(topic,
                              string.IsNullOrWhiteSpace(payload)
                                ? Array.Empty<byte>()
-                               : EncodingUtil.StringToBytes(payload))
+                               : TmNativeUtil.StringToBytes(payload))
             .ConfigureAwait(false);
   }
 
 
   public async Task<bool> MqttPublish(MqttPublishTopic topic, string payload)
   {
-    return await MqttPublish(topic, EncodingUtil.StringToBytes(payload)).ConfigureAwait(false);
+    return await MqttPublish(topic, TmNativeUtil.StringToBytes(payload)).ConfigureAwait(false);
   }
 
 
@@ -129,7 +129,7 @@ public partial class TmsApi
     if (topic.VariableHeader.IsNullOrEmpty())
     {
       return TmNative.tmcPubPublish(_cid,
-                                    EncodingUtil.StringToBytes(topic.Topic),
+                                    TmNativeUtil.StringToBytes(topic.Topic),
                                     topic.LifetimeSec,
                                     (byte)topic.QoS,
                                     payload,
@@ -143,7 +143,7 @@ public partial class TmsApi
       try
       {
         return TmNative.tmcPubPublishEx(_cid,
-                                        EncodingUtil.StringToBytes(topic.Topic),
+                                        TmNativeUtil.StringToBytes(topic.Topic),
                                         topic.LifetimeSec,
                                         (byte)topic.QoS,
                                         payload,
@@ -161,7 +161,7 @@ public partial class TmsApi
   private bool MqttSubscribeSync(MqttSubscriptionTopic topic)
   {
     return TmNative.tmcPubSubscribe(_cid,
-                                    EncodingUtil.StringToBytes(topic.Topic),
+                                    TmNativeUtil.StringToBytes(topic.Topic),
                                     (uint)topic.SubscriptionId,
                                     (byte)topic.QoS);
   }
@@ -170,7 +170,7 @@ public partial class TmsApi
   private bool MqttUnsubscribeSync(MqttSubscriptionTopic topic)
   {
     return TmNative.tmcPubUnsubscribe(_cid,
-                                      EncodingUtil.StringToBytes(topic.Topic),
+                                      TmNativeUtil.StringToBytes(topic.Topic),
                                       (uint)topic.SubscriptionId);
   }
 

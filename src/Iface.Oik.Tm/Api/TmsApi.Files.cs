@@ -26,7 +26,7 @@ public partial class TmsApi
     var        errString       = new byte[errStringLength];
     uint       errCode         = 0;
     if (!await Task.Run(() => TmNative.cfsDirEnum(cfCid,
-                                                  EncodingUtil.StringToBytes(path),
+                                                  TmNativeUtil.StringToBytes(path),
                                                   buf,
                                                   bufLength,
                                                   out errCode,
@@ -35,7 +35,7 @@ public partial class TmsApi
                    .ConfigureAwait(false))
     {
       Console.WriteLine(
-        $"Ошибка при запросе списка файлов: {errCode} - {EncodingUtil.BytesToString(errString)}");
+        $"Ошибка при запросе списка файлов: {errCode} - {TmNativeUtil.BytesToString(errString)}");
       return null;
     }
 
@@ -57,8 +57,8 @@ public partial class TmsApi
     var       errString       = new byte[errStringLength];
     uint      errCode         = 0;
     if (!await Task.Run(() => TmNative.cfsFileGet(cfCid,
-                                                  EncodingUtil.StringToBytes(remotePath),
-                                                  EncodingUtil.StringToBytes(localPath),
+                                                  TmNativeUtil.StringToBytes(remotePath),
+                                                  TmNativeUtil.StringToBytes(localPath),
                                                   60000,
                                                   ref fileTime,
                                                   out errCode,
@@ -66,7 +66,7 @@ public partial class TmsApi
                                                   errStringLength))
                    .ConfigureAwait(false))
     {
-      Console.WriteLine($"Ошибка при скачивании файла: {errCode} - {EncodingUtil.BytesToString(errString)}");
+      Console.WriteLine($"Ошибка при скачивании файла: {errCode} - {TmNativeUtil.BytesToString(errString)}");
       return false;
     }
 
@@ -90,7 +90,7 @@ public partial class TmsApi
 
   public async Task<IReadOnlyCollection<string>> GetComtradeFilesByDay(string day)
   {
-    var ptr = await Task.Run(() => TmNative.tmcComtradeEnumFiles(_cid, EncodingUtil.StringToBytes(day)))
+    var ptr = await Task.Run(() => TmNative.tmcComtradeEnumFiles(_cid, TmNativeUtil.StringToBytes(day)))
                         .ConfigureAwait(false);
 
     return TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(ptr, 8192);
@@ -100,8 +100,8 @@ public partial class TmsApi
   public async Task<bool> DownloadComtradeFile(string filename, string localPath)
   {
     if (!await Task.Run(() => TmNative.tmcComtradeGetFile(_cid,
-                                                          EncodingUtil.StringToBytes(filename),
-                                                          EncodingUtil.StringToBytes(localPath)))
+                                                          TmNativeUtil.StringToBytes(filename),
+                                                          TmNativeUtil.StringToBytes(localPath)))
                    .ConfigureAwait(false))
     {
       Console.WriteLine($"Ошибка при скачивании файла: {GetLastTmcError()}");

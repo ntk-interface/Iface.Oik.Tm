@@ -17,7 +17,7 @@ namespace Iface.Oik.Tm.Helpers
 		public IniManager(string filePath, Encoding encoding = null)
 		{
 			_fileEncoding = encoding ?? Encoding.UTF8;
-			_filePointer  = TmNative.ini_Open(EncodingUtil.StringToBytes(filePath));
+			_filePointer  = TmNative.ini_Open(TmNativeUtil.StringToBytes(filePath));
 		}
 
 
@@ -30,15 +30,15 @@ namespace Iface.Oik.Tm.Helpers
 				bufSize += BuffSizeStep;
 				buf = new byte[bufSize];
 				TmNative.ini_ReadString(_filePointer, 
-				                        EncodingUtil.StringToBytes(section), 
-				                        EncodingUtil.StringToBytes(key), 
-				                        EncodingUtil.StringToBytes(defaultResponse), 
+				                        TmNativeUtil.StringToBytes(section), 
+				                        TmNativeUtil.StringToBytes(key), 
+				                        TmNativeUtil.StringToBytes(defaultResponse), 
 				                        buf, 
 				                        bufSize);
 			} while (buf[^2] != 0 && bufSize < BufSizeLimit);
 
 
-			return EncodingUtil.BytesToString(buf);
+			return TmNativeUtil.BytesToString(buf);
 		}
 
 
@@ -53,8 +53,8 @@ namespace Iface.Oik.Tm.Helpers
 			var buf = new byte[bufSize];
 
 			var returnSize = TmNative.ini_ReadStruct(_filePointer, 
-			                                         EncodingUtil.StringToBytes(section), 
-			                                         EncodingUtil.StringToBytes(key), 
+			                                         TmNativeUtil.StringToBytes(section), 
+			                                         TmNativeUtil.StringToBytes(key), 
 			                                         buf, 
 			                                         bufSize);
 
