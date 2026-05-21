@@ -161,7 +161,7 @@ namespace Iface.Oik.Tm.Interfaces
     public abstract void UpdatePropertiesFromCommonPointDto(TCommonPointDto dto);
 
 
-    public virtual void UpdatePropertiesFromTmcObject(string tmcObjectPropertiesString)
+    public virtual void UpdatePropertiesFromTmcObject(string tmcObjectPropertiesString) // TODO оптимизировать
     {
       Properties     = new Dictionary<string, string>();
       HasTmProvider  = false;
@@ -199,7 +199,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void UpdateClassDataFromTmcClassData(string tmcClassData)
+    public void UpdateClassDataFromTmcClassData(string tmcClassData) // TODO оптимизировать
     {
       ClassData = new Dictionary<string, string>();
       var props = tmcClassData.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);

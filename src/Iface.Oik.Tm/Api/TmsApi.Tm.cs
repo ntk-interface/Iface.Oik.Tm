@@ -601,7 +601,7 @@ public partial class TmsApi
                                     sb,
                                     1024);
 
-    var props = TmNativeUtil.BytesToString(sb).Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
+    var props = TmNativeUtil.BytesToString(sb).Split("\r\n", StringSplitOptions.RemoveEmptyEntries);  // TODO оптимизировать
     foreach (var prop in props)
     {
       var kvp = prop.Split('=');

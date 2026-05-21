@@ -378,9 +378,9 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
-    public static string GetUserName(int tmCid, string serverName, int userId)
+    public static string GetUserName(int tmCid, int userId)
     {
-      return TmNativeApi.GetUserName(tmCid, serverName, userId);
+      return TmNativeApi.GetUserName(tmCid, userId);
     }
 
 

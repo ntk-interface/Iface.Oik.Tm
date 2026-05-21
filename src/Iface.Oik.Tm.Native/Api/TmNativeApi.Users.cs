@@ -11,42 +11,53 @@ namespace Iface.Oik.Tm.Native.Api;
 
 public static partial class TmNativeApi
 {
-  public static TUserInfoDto GetUserInfo(int cid, uint userId)
-  {
-    var tUserInfo = GetTUserInfo(cid, userId);
-    return TUserInfoDto.Create(userId, tUserInfo);
-  }
-
-  public static TUserInfoDto GetExtendedUserInfo(int cid, uint userId)
+  private static (TmNativeDefsUnsafe.TUserInfo userInfo, string additionalData) 
+    GetUserInfoWithAdditionalData(int cid, uint userId)
   {
     const int bufSize   = 1024;
     var       pool      = ArrayPool<byte>.Shared;
     var       buf       = pool.Rent(bufSize);
     var       tUserInfo = new TmNativeDefsUnsafe.TUserInfo();
-
+    
     try
     {
       if (!TmNative.tmcGetUserInfoEx(cid, userId, ref tUserInfo, buf, bufSize))
       {
         throw new TmNativeException($"Ошибка получения расширенной информации о пользователе {userId}");
       }
+      var additionalData = TmNativeUtil.BytesToString(buf.AsSpan()[..bufSize]);
+      
+      return (tUserInfo, additionalData);
     }
     finally
     {
       ArrayPool<byte>.Shared.Return(buf);
     }
 
-
-    return TUserInfoDto.Create(userId, tUserInfo, TmNativeUtil.BytesToString(buf));
+  }
+  
+  
+  public static TUserInfoDto GetUserInfo(int cid, uint userId)
+  {
+    return TUserInfoDto.Create(userId, GetTUserInfo(cid, userId));
   }
 
+  
+  public static TUserInfoDto GetExtendedUserInfo(int cid, uint userId)
+  {
+    var (userInfo, additionalData) = GetUserInfoWithAdditionalData(cid, userId);
+
+    return TUserInfoDto.Create(userId, userInfo, additionalData);
+  }
+
+  
   public static TUserInfoDto GetUserInfoCfs(nint   cid,
                                             string serverName,
                                             string serverType)
   {
-    var tExtendedUserInfo = GetTExtendedUserInfo(cid, serverName, serverType);
-    return TUserInfoDto.Create(tExtendedUserInfo);
+    return TUserInfoDto.Create(GetTExtendedUserInfo(cid, serverName, serverType));
   }
+  
 
   public static TUserInfoDto GetUserInfo(int tmCid, string serverName)
   {
@@ -63,21 +74,17 @@ public static partial class TmNativeApi
     return TUserInfoDto.Create(tUserInfo, extendedInfo);
   }
 
-  public static string GetUserName(int tmCid, string serverName, int userId) // TODO надо написать !!!
+  
+  public static string GetUserName(int tmCid, int userId)
   {
-    var cfCid = TmNative.tmcGetCfsHandle(tmCid);
+    var (_, additionalData) = GetUserInfoWithAdditionalData(tmCid, (uint) userId);
 
-    if (cfCid == nint.Zero)
+    if (!TmNativeUtil.TryFindValueByKey(additionalData, "UserNameLong", '\n', '=', out var userName))
     {
-      throw new TmNativeException("Не удалось получить cfsHandle");
+      return string.Empty;
     }
-    
-    var extendedUserInfo = GetTExtendedUserInfo(cfCid, serverName, "tms$");
 
-    unsafe
-    {
-      return TmNativeUtil.BytePtrToString(extendedUserInfo.UserNameLong, TmNativeDefsUnsafe.MaxPwdLen);
-    }
+    return userName;
   }
 
   public static IReadOnlyCollection<string> SecEnumUsers(nint cfCid)

@@ -593,6 +593,41 @@ namespace Iface.Oik.Tm.Native.Utils
       return new ReadOnlySpan<byte>((void*)ptr, length);
     }
 
+
+    public static bool TryFindValueByKey(string     dictionary,
+                                         string     key,
+                                         char       itemsSeparator,
+                                         char       valueSeparator,
+                                         out string value)
+    {
+      value = string.Empty;
+      if (string.IsNullOrEmpty(dictionary) || string.IsNullOrEmpty(key))
+      {
+        return false;
+      }
+
+      var span = dictionary.AsSpan();
+
+      var searchPattern = key + valueSeparator;
+      var keyIndex      = span.IndexOf(searchPattern.AsSpan(), StringComparison.Ordinal);
+      if (keyIndex < 0)
+      {
+        return false;
+      }
+
+      var valueSpan = span[(keyIndex + searchPattern.Length)..];
+
+      var endOfItem = valueSpan.IndexOf(itemsSeparator);
+      if (endOfItem >= 0)
+      {
+        valueSpan = valueSpan[..endOfItem];
+      }
+
+      value = valueSpan.ToString();
+
+      return true;
+    }
+
     
     public static long GetUtcTimestampFromDateTime(DateTime dateTime)
     {
