@@ -90,7 +90,7 @@ public partial class TmsApi
 
   public async Task<IReadOnlyCollection<string>> GetComtradeFilesByDay(string day)
   {
-    var ptr = await Task.Run(() => TmNative.tmcComtradeEnumFiles(_cid, TmNativeUtil.StringToBytes(day)))
+    var ptr = await Task.Run(() => TmNative.tmcComtradeEnumFiles(_cid, day))
                         .ConfigureAwait(false);
 
     return TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(ptr, 8192);
@@ -100,8 +100,8 @@ public partial class TmsApi
   public async Task<bool> DownloadComtradeFile(string filename, string localPath)
   {
     if (!await Task.Run(() => TmNative.tmcComtradeGetFile(_cid,
-                                                          TmNativeUtil.StringToBytes(filename),
-                                                          TmNativeUtil.StringToBytes(localPath)))
+                                                          filename,
+                                                          localPath))
                    .ConfigureAwait(false))
     {
       Console.WriteLine($"Ошибка при скачивании файла: {GetLastTmcError()}");

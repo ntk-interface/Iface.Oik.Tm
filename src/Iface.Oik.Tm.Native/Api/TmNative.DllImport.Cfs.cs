@@ -16,25 +16,31 @@ namespace Iface.Oik.Tm.Native.Api
     public static partial void cfsSetUtf8Encoding([MarshalAs(UnmanagedType.Bool)] Boolean bSet);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
-    public static extern bool cfsInitLibrary(byte[] baseDir,
-                                             byte[] extArg);
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool cfsInitLibrary(string baseDir,
+                                              string extArg);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern void cfsSetUser(byte[] name,
-                                         byte[] pwd);
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial void cfsSetUser(string name,
+                                          string pwd);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern void cfsSetUserForThread(byte[] name,
-                                                  byte[] pwd);
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial void cfsSetUserForThread(string name,
+                                                   string pwd);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern bool cfsCheckUserCred(IntPtr cfCid,
-                                               byte[] name,
-                                               byte[] pwd);
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool cfsCheckUserCred(IntPtr cfCid,
+                                                string name,
+                                                string pwd);
 
 
     [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
@@ -393,19 +399,22 @@ namespace Iface.Oik.Tm.Native.Api
     public static partial long uxgmtime2uxtime(long time);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public static extern void e_printf(byte[] format,
-                                       byte[] message);
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void e_printf(string format,
+                                        string message);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public static extern void m_printf(byte[] format,
-                                       byte[] message);
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void m_printf(string format,
+                                        string message);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public static extern void d_printf(byte[] format,
-                                       byte[] message);
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void d_printf(string format,
+                                        string message);
 
 
     [LibraryImport(Cfshare)]

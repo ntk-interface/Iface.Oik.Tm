@@ -22,28 +22,28 @@ namespace Iface.Oik.Tm.Helpers
         TmNative.cfsSetUtf8Encoding(true);
       }
 
-      TmNative.cfsInitLibrary(null, 
-                              ignoreLinuxSignals ? TmNativeUtil.StringToBytes("nosig") : null);
+      TmNative.cfsInitLibrary(string.Empty, 
+                              ignoreLinuxSignals ? "nosig" : string.Empty);
     }
 
 
     public static void SetUserCredentials(string user,
                                           string password)
     {
-      TmNative.cfsSetUser(TmNativeUtil.StringToBytes(user), TmNativeUtil.StringToBytes(password));
+      TmNative.cfsSetUser(user, password);
     }
 
 
     public static void ClearUserCredentials()
     {
-      TmNative.cfsSetUser(new byte[1] { 0 }, new byte[1] { 0 });
+      TmNative.cfsSetUser(string.Empty, string.Empty);
     }
 
 
     public static void SetUserCredentialsForThread(string user,
                                                    string password)
     {
-      TmNative.cfsSetUserForThread(TmNativeUtil.StringToBytes(user), TmNativeUtil.StringToBytes(password));
+      TmNative.cfsSetUserForThread(user, password);
     }
 
 
@@ -57,12 +57,12 @@ namespace Iface.Oik.Tm.Helpers
                               string           serverName,
                               string           applicationName,
                               TmNativeCallback callback,
-                              IntPtr           callbackParameter,
+                              nint             callbackParameter,
                               bool             returnCidAnyway = false)
     {
-      var tmCid = TmNative.tmcConnect(TmNativeUtil.StringToBytes(host),
-                                      TmNativeUtil.StringToBytes(serverName),
-                                      TmNativeUtil.StringToBytes(applicationName),
+      var tmCid = TmNative.tmcConnect(host,
+                                      serverName,
+                                      applicationName,
                                       callback,
                                       callbackParameter);
 
@@ -86,15 +86,15 @@ namespace Iface.Oik.Tm.Helpers
                                       string           serverName,
                                       string           applicationName,
                                       TmNativeCallback callback,
-                                      IntPtr           callbackParameter,
+                                      nint             callbackParameter,
                                       int              propsCount,
                                       uint[]           props,
                                       uint[]           propsValues,
                                       bool             returnCidAnyway = false)
     {
-      var tmCid = TmNative.tmcConnectEx(TmNativeUtil.StringToBytes(host),
-                                        TmNativeUtil.StringToBytes(serverName),
-                                        TmNativeUtil.StringToBytes(applicationName),
+      var tmCid = TmNative.tmcConnectEx(host,
+                                        serverName,
+                                        applicationName,
                                         callback,
                                         callbackParameter,
                                         (uint)propsCount,
@@ -277,8 +277,8 @@ namespace Iface.Oik.Tm.Helpers
         return false;
       }
       return TmNative.cfsCheckUserCred(cfCid, 
-                                       TmNativeUtil.StringToBytes(username),
-                                       TmNativeUtil.StringToBytes(password));
+                                       username,
+                                       password);
     }
 
 
@@ -448,18 +448,18 @@ namespace Iface.Oik.Tm.Helpers
 
     public static void Print(TmPrintLevel level, object message)
     {
-      var messageString = message + "\n";
+      var messageString = message?.ToString() ?? string.Empty;
       switch (level)
       {
         case TmPrintLevel.Debug:
-          TmNative.d_printf(new byte[] { 37, 115, 0 }, TmNativeUtil.StringToBytes(messageString));
-          break;
+          TmNative.d_printf("%s\n", messageString);
+          return;
         case TmPrintLevel.Message:
-          TmNative.m_printf(new byte[] { 37, 115, 0 }, TmNativeUtil.StringToBytes(messageString));
-          break;
+          TmNative.m_printf("%s\n", messageString);
+          return;
         case TmPrintLevel.Error:
-          TmNative.e_printf(new byte[] { 37, 115, 0 }, TmNativeUtil.StringToBytes(messageString));
-          break;
+          TmNative.e_printf("%s\n", messageString);
+          return;
       }
     }
 
@@ -633,9 +633,9 @@ namespace Iface.Oik.Tm.Helpers
       SetUserCredentials(options.User,
                          options.Password);
 
-      var tmCid = TmNative.tmcConnect(TmNativeUtil.StringToBytes(options.Host),
-                                      TmNativeUtil.StringToBytes(options.TmServer),
-                                      TmNativeUtil.StringToBytes(options.ApplicationName),
+      var tmCid = TmNative.tmcConnect(options.Host,
+                                      options.TmServer,
+                                      options.ApplicationName,
                                       options.TmCallback,
                                       options.TmCallbackParameters);
       if (tmCid == 0)
@@ -719,7 +719,7 @@ namespace Iface.Oik.Tm.Helpers
       var topic = new MqttSubscriptionTopic(knownTopic);
 
       TmNative.tmcPubSubscribe(tmCid,
-                               TmNativeUtil.StringToBytes(topic.Topic),
+                               topic.Topic,
                                (uint)topic.SubscriptionId,
                                (byte)topic.QoS);
     }
@@ -733,7 +733,7 @@ namespace Iface.Oik.Tm.Helpers
         : TmNativeUtil.StringToBytes(payload);
 
       TmNative.tmcPubPublish(tmCid,
-                             TmNativeUtil.StringToBytes(topic.Topic),
+                             topic.Topic,
                              topic.LifetimeSec,
                              (byte)topic.QoS,
                              payloadBytes,
@@ -789,7 +789,7 @@ namespace Iface.Oik.Tm.Helpers
     public static bool AckMqttPublications(int tmCid, MqttMessage message)
     {
       return TmNative.tmcPubAck(tmCid, 
-                                TmNativeUtil.StringToBytes(message.Topic),
+                                message.Topic,
                                 (uint)message.SubscriptionId,
                                 (byte)message.QoS,
                                 message.UserId,

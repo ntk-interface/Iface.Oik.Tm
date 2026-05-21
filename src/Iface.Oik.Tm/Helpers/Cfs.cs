@@ -1,12 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Text;
 using Iface.Oik.Tm.Interfaces;
 using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
-using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Helpers
 {
@@ -21,14 +17,14 @@ namespace Iface.Oik.Tm.Helpers
         TmNative.cfsSetUtf8Encoding(true);
       }
 
-      TmNative.cfsInitLibrary(null,
-                              ignoreLinuxSignals ? TmNativeUtil.StringToBytes("nosig") : null);
+      TmNative.cfsInitLibrary(string.Empty,
+                              ignoreLinuxSignals ? "nosig" : string.Empty);
     }
 
     public static void SetUserCredentials(string user,
                                           string password)
     {
-      TmNative.cfsSetUser(TmNativeUtil.StringToBytes(user), TmNativeUtil.StringToBytes(password));
+      TmNative.cfsSetUser(user, password);
     }
 
     public static string MakeInprocCrd(string host, string user, string pwd)

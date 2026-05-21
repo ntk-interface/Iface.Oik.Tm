@@ -129,7 +129,7 @@ public partial class TmsApi
     if (topic.VariableHeader.IsNullOrEmpty())
     {
       return TmNative.tmcPubPublish(_cid,
-                                    TmNativeUtil.StringToBytes(topic.Topic),
+                                    topic.Topic,
                                     topic.LifetimeSec,
                                     (byte)topic.QoS,
                                     payload,
@@ -143,7 +143,7 @@ public partial class TmsApi
       try
       {
         return TmNative.tmcPubPublishEx(_cid,
-                                        TmNativeUtil.StringToBytes(topic.Topic),
+                                        topic.Topic,
                                         topic.LifetimeSec,
                                         (byte)topic.QoS,
                                         payload,
@@ -161,7 +161,7 @@ public partial class TmsApi
   private bool MqttSubscribeSync(MqttSubscriptionTopic topic)
   {
     return TmNative.tmcPubSubscribe(_cid,
-                                    TmNativeUtil.StringToBytes(topic.Topic),
+                                    topic.Topic,
                                     (uint)topic.SubscriptionId,
                                     (byte)topic.QoS);
   }
@@ -170,7 +170,7 @@ public partial class TmsApi
   private bool MqttUnsubscribeSync(MqttSubscriptionTopic topic)
   {
     return TmNative.tmcPubUnsubscribe(_cid,
-                                      TmNativeUtil.StringToBytes(topic.Topic),
+                                      topic.Topic,
                                       (uint)topic.SubscriptionId);
   }
 

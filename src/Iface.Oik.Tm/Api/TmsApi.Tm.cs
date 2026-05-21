@@ -637,7 +637,7 @@ public partial class TmsApi
     const int bufSize = 1024;
 
     Span<byte> buf = stackalloc byte[bufSize];
-    TmNative.tmcEvaluateExpression(_cid, TmNativeUtil.StringToBytes(expression), buf, bufSize);
+    TmNative.tmcEvaluateExpression(_cid, expression, buf, bufSize);
 
     return TmNativeUtil.BytesToString(buf);
   }
