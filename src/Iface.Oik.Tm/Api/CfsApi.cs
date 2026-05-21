@@ -1849,8 +1849,10 @@ namespace Iface.Oik.Tm.Api
         Architecture      = dto.Win64 ? "x64" : "x86",
         Acp               = dto.Acp,
 
-        ServerTimeGMT = DateUtil.GetDateTimeFromTimestamp(dto.CurrentGMT, dto.CurrentMs),
-        Uptime        = (ulong)dto.Uptime,
+        ServerTimeGMT   = DateUtil.GetDateTimeFromTimestamp(dto.Current,     dto.CurrentMs),
+        LocalTime    = DateUtil.GetDateTimeFromTimestamp(dto.LocalTimeUt,    dto.LocalTimeMs),
+        InternalTime = DateUtil.GetDateTimeFromTimestamp(dto.InternalTimeUt, dto.InternalTimeMs),
+        Uptime          = (ulong)dto.Uptime,
 
         Copyright = $"oiktype{dto.Copyright}",
         CfsVer    = $"{dto.CfsVerMaj}.{dto.CfsVerMin}",

@@ -4,229 +4,235 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-	public class CfsDefs
-	{
-		public enum InitializeConnectionResult
-		{
-			Ok = 0,
+  public class CfsDefs
+  {
+    public enum InitializeConnectionResult
+    {
+      Ok = 0,
 
-			[Description("Ошибка авторизации!")] InvalidLoginOrPassword = 87,
+      [Description("Ошибка авторизации!")] InvalidLoginOrPassword = 87,
 
-			[Description("Ошибка соединения!")] NonSpecifiedError = 1000,
-		}
-
-
-		public enum MasterServiceStatus
-		{
-			[Description("Потеряно соединение!")] LostConnection = 0,
-
-			[Description("Мастер-сервис остановлен!")] Stopped = 1,
-
-			[Description("Мастер-сервис запущен!")] Running = 2
-		}
+      [Description("Ошибка соединения!")] NonSpecifiedError = 1000,
+    }
 
 
-		public enum SoftwareTypes
-		{
-			Unknown = -1,
-			Old = 0,
-			Version3 = 1
-		}
+    public enum MasterServiceStatus
+    {
+      [Description("Потеряно соединение!")] LostConnection = 0,
 
-		public const uint MaskGenericAll = 0x10_00_00_00;
-	}
+      [Description("Мастер-сервис остановлен!")]
+      Stopped = 1,
 
-
-	public enum LicenseFeature
-	{
-		Terminator = 0,
-		Expiration = 1,
-		Teleparms = 2,
-		MaxUsers = 3,
-		Hotres = 4,
-		UpdLimit = 5,
-		UseModus = 6,
-		UseSpa = 7,
-		UseIec101 = 8,
-		UseIpc = 9,
-		Magazine = 10,
-		CrTime = 11,
-		PlcDir = 12,
-		UseIec103 = 13,
-		UseOpc = 14,
-		UseSmsGate = 15,
-		UseIec61850 = 16,
-		UseSqlGate = 17,
-		ArisScada = 18,
-		WebClient = 19,
-		Aan = 20,
-		Pin = 21,
-		Platform = 22,
-		AtiScada = 23,
-		UseDnp3 = 24,
-		ScadaSec = 25,
-		TotParms = 26,
-		Version = 27,
-		LocalClient = 28,
-		Spodes = 29,
-		Client10 = 30,
-		WebClient10 = 31,
-		Client = 32,
-		LicNum = 1024,
-	}
+      [Description("Мастер-сервис запущен!")]
+      Running = 2
+    }
 
 
-	public enum LicenseFeatureStatus
-	{
-		Ok = 1,
-		No = 0,
-		Wait = -1,
-		Error = -2,
-	}
+    public enum SoftwareTypes
+    {
+      Unknown  = -1,
+      Old      = 0,
+      Version3 = 1
+    }
 
-	public enum LicenseKeyType
-	{
-		DallasCOM = 0,
-		DallasLPT = 1,
-		DallasUSB = 2,
-		IfaceUSBCOM = 3,
-		HDDKey = 4,
-		Software = 5,
-		UsbHidSsd = 6,
-		Network = 7,
-		Unknown = -1,
-	}
+    public const uint MaskGenericAll = 0x10_00_00_00;
+  }
 
 
-	public enum CfsSLogType : uint
-	{
-		Security = TmNativeDefs.SLogType.Security,
-		Administrator = TmNativeDefs.SLogType.Administrator,
-	}
+  public enum LicenseFeature
+  {
+    Terminator  = 0,
+    Expiration  = 1,
+    Teleparms   = 2,
+    MaxUsers    = 3,
+    Hotres      = 4,
+    UpdLimit    = 5,
+    UseModus    = 6,
+    UseSpa      = 7,
+    UseIec101   = 8,
+    UseIpc      = 9,
+    Magazine    = 10,
+    CrTime      = 11,
+    PlcDir      = 12,
+    UseIec103   = 13,
+    UseOpc      = 14,
+    UseSmsGate  = 15,
+    UseIec61850 = 16,
+    UseSqlGate  = 17,
+    ArisScada   = 18,
+    WebClient   = 19,
+    Aan         = 20,
+    Pin         = 21,
+    Platform    = 22,
+    AtiScada    = 23,
+    UseDnp3     = 24,
+    ScadaSec    = 25,
+    TotParms    = 26,
+    Version     = 27,
+    LocalClient = 28,
+    Spodes      = 29,
+    Client10    = 30,
+    WebClient10 = 31,
+    Client      = 32,
+    LicNum      = 1024,
+  }
 
-	public enum SLogReadDirection
-	{
-		FromEnd = 0,
-		FromStart = 1
-	}
 
-	public static class SLogIndex
-	{
-		public const uint First = 0x00_00_00_00;
-		public const uint Last = 0x7f_ff_ff_ff;
-	}
+  public enum LicenseFeatureStatus
+  {
+    Ok    = 1,
+    No    = 0,
+    Wait  = -1,
+    Error = -2,
+  }
 
-	[Flags]
-	public enum MS_AccessRights : uint
-	{
-		ReadConfig = 0x00_00_00_01,
-		WriteConfig = 0x00_00_00_02,
-		DirectoryAccess = 0x00_00_00_04,
-		ServersAccess = 0x00_00_00_08,
-		Trace = 0x00_00_00_10,
-		ReadSecurityLog = 0x00_00_00_20,
-		ReadAdminLog = 0x00_00_00_40,
-		EditSecurity = 0x00_00_80_00
-	}
+  public enum LicenseKeyType
+  {
+    DallasCOM   = 0,
+    DallasLPT   = 1,
+    DallasUSB   = 2,
+    IfaceUSBCOM = 3,
+    HDDKey      = 4,
+    Software    = 5,
+    UsbHidSsd   = 6,
+    Network     = 7,
+    Unknown     = -1,
+  }
 
-	public class AccessMask : AccessMaskBase
-	{
-	}
 
-	public class AccessMasksDescriptor : AccessMasksDescriptorBase<AccessMask>
-	{
-	}
+  public enum CfsSLogType : uint
+  {
+    Security      = TmNativeDefs.SLogType.Security,
+    Administrator = TmNativeDefs.SLogType.Administrator,
+  }
 
-	public class ExtendedRight : ExtendedRightBase
-	{
-	}
-	public class ExtendedRightsDescriptor : ExtendedRightsDescriptorBase<ExtendedRight>
-	{
-	}
+  public enum SLogReadDirection
+  {
+    FromEnd   = 0,
+    FromStart = 1
+  }
 
-	public class ExtendedUserData : ExtendedUserDataBase
-	{
-	}
+  public static class SLogIndex
+  {
+    public const uint First = 0x00_00_00_00;
+    public const uint Last  = 0x7f_ff_ff_ff;
+  }
 
-	public class UserPolicy : UserPolicyBase
-	{
-	}
+  [Flags]
+  public enum MS_AccessRights : uint
+  {
+    ReadConfig      = 0x00_00_00_01,
+    WriteConfig     = 0x00_00_00_02,
+    DirectoryAccess = 0x00_00_00_04,
+    ServersAccess   = 0x00_00_00_08,
+    Trace           = 0x00_00_00_10,
+    ReadSecurityLog = 0x00_00_00_20,
+    ReadAdminLog    = 0x00_00_00_40,
+    EditSecurity    = 0x00_00_80_00
+  }
 
-	[Flags]
-	public enum PWDPOL : uint
-	{
-		Upper = 0x00001,
-		Digits = 0x00002,
-		Spec = 0x00004,
-		CheckRepeat = 0x00008,
-		CheqSeq = 0x00010,
-		CheckDict = 0x00020,
-		CheckCache = 0x10000,
-	}
+  public class AccessMask : AccessMaskBase
+  {
+  }
 
-	public class PasswordPolicy : PasswordPolicyBase
-	{
-	}
-	
-	public class ComputerInfo
-	{
-		public string Copyright { get; set; }
-		public string CfsVer { get; set; }
-		public string BuildDate { get; set; }
-		public string InstallDate { get; set; }
-		public string SoftwareKeyID { get; set; }
-		public string ComputerName { get; set; }
-		public string PrimaryDomainName { get; set; }
-		public string OS_ProductType { get; set; }
-		public string OS_Version { get; set; }
-		public string Architecture { get; set; }
-		public List<string> IpAddrs { get; set; }
-		public UInt32 Acp { get; set; }
-		public UInt64 Uptime { get; set; }
-		public DateTime ServerTimeGMT { get; set; }
-		public string UserName { get; set; }
-		public string UserAddr { get; set; }
-		public UInt32 AccessMask { get; set; }
-	}
+  public class AccessMasksDescriptor : AccessMasksDescriptorBase<AccessMask>
+  {
+  }
 
-	public enum ReserveState : uint
-	{
-		NotReserved = 0,
+  public class ExtendedRight : ExtendedRightBase
+  {
+  }
 
-		MainUndefined = 1,
-		MainConnecting = 2,
-		MainSynchronization = 3,
-		MainActive = 4,
-		MainNotConnected = 5,
+  public class ExtendedRightsDescriptor : ExtendedRightsDescriptorBase<ExtendedRight>
+  {
+  }
 
-		ReserveConnectedToMain = 0x1001,
-		ReserveActive = 0x1002,
-		ReserveUndefined = 0x1003,
-	}
+  public class ExtendedUserData : ExtendedUserDataBase
+  {
+  }
 
-	public enum BroadcastServerSignature : uint
-	{
-		None = 0,
+  public class UserPolicy : UserPolicyBase
+  {
+  }
 
-		Sbr = 0x524253,
-		Smt = 0x544d53
-	}
+  [Flags]
+  public enum PWDPOL : uint
+  {
+    Upper       = 0x00001,
+    Digits      = 0x00002,
+    Spec        = 0x00004,
+    CheckRepeat = 0x00008,
+    CheqSeq     = 0x00010,
+    CheckDict   = 0x00020,
+    CheckCache  = 0x10000,
+  }
 
-	public enum PasswordDigestState
-	{
-		NotSupported,
-		DoesNotExists,
-		Exists,
-	}
+  public class PasswordPolicy : PasswordPolicyBase
+  {
+  }
 
-	public enum StrictSessionControlStates
-	{
-		None,
-		All,
-		NonAdmin
-	}
+  public class ComputerInfo
+  {
+    public string       Copyright         { get; set; }
+    public string       CfsVer            { get; set; }
+    public string       BuildDate         { get; set; }
+    public string       InstallDate       { get; set; }
+    public string       SoftwareKeyID     { get; set; }
+    public string       ComputerName      { get; set; }
+    public string       PrimaryDomainName { get; set; }
+    public string       OS_ProductType    { get; set; }
+    public string       OS_Version        { get; set; }
+    public string       Architecture      { get; set; }
+    public List<string> IpAddrs           { get; set; }
+    public UInt32       Acp               { get; set; }
+    public UInt64       Uptime            { get; set; }
+    public DateTime     ServerTimeGMT     { get; set; }
+    public DateTime     LocalTime         { get; set; }
+    public DateTime     InternalTime      { get; set; }
+    public string       UserName          { get; set; }
+    public string       UserAddr          { get; set; }
+    public UInt32       AccessMask        { get; set; }
+  }
+
+  public enum ReserveState : uint
+  {
+    NotReserved = 0,
+
+    MainUndefined       = 1,
+    MainConnecting      = 2,
+    MainSynchronization = 3,
+    MainActive          = 4,
+    MainNotConnected    = 5,
+
+    ReserveConnectedToMain = 0x1001,
+    ReserveActive          = 0x1002,
+    ReserveUndefined       = 0x1003,
+  }
+
+  public enum BroadcastServerSignature : uint
+  {
+    None = 0,
+
+    Sbr = 0x524253,
+    Smt = 0x544d53
+  }
+
+  public enum PasswordDigestState
+  {
+    NotSupported,
+    DoesNotExists,
+    Exists,
+  }
+
+  public enum StrictSessionControlStates
+  {
+    None,
+    All,
+    NonAdmin
+  }
 }
