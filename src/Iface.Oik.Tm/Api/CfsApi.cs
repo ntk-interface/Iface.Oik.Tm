@@ -1823,6 +1823,18 @@ namespace Iface.Oik.Tm.Api
                 .ConfigureAwait(false);
     }
 
+    public async Task<StrictSessionControlStates> SecGetStrictSessionControl()
+    {
+      var result = await Task.Run(() => TmNativeApi.SecGetStrictSessionControl(CfId)).ConfigureAwait(false);
+
+      return (StrictSessionControlStates)result;
+    }
+    
+    public async Task SecSetStrictSessionControl(StrictSessionControlStates value)
+    {
+      await Task.Run(() => TmNativeApi.SecSetStrictSessionControl(CfId, (int)value)).ConfigureAwait(false);
+    }
+    
     public async Task<ComputerInfo> GetComputerInfo()
     {
       var dto = await Task.Run(() => TmNativeApi.GetServerComputerInfo(CfId))

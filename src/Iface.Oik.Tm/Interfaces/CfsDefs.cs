@@ -223,4 +223,10 @@ namespace Iface.Oik.Tm.Interfaces
 		Exists,
 	}
 
+	public enum StrictSessionControlStates
+	{
+		None,
+		All,
+		NonAdmin
+	}
 }
