@@ -1,4 +1,5 @@
 using System;
+using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 
@@ -22,8 +23,14 @@ public record ComputerInfoDto
 
   public byte[] SoftwareKeyOctets { get; init; } = Array.Empty<byte>();
 
-  public uint   CurrentGMT { get; init; }
+  public uint   Current { get; init; }
   public ushort CurrentMs  { get; init; }
+  
+  public uint   LocalTimeUt { get; init; }
+  public ushort LocalTimeMs{ get; init; }
+  
+  public uint   InternalTimeUt { get; init; }
+  public ushort InternalTimeMs { get; init; }
 
   public byte SecType    { get; init; }
   public byte Copyright { get; init; }
@@ -44,6 +51,8 @@ public record ComputerInfoDto
 
   internal static unsafe ComputerInfoDto Create(TmNativeDefsUnsafe.ComputerInfoS info)
   {
+    var current = (uint)TmNative.uxgmtime2uxtime(info.CurrentGMT);
+    
     return new ComputerInfoDto
     {
       Len          = info.Len,
@@ -61,8 +70,14 @@ public record ComputerInfoDto
 
       SoftwareKeyOctets = TmNativeUtil.PtrToArray(info.LOctet, 8),
 
-      CurrentGMT = info.CurrentGMT,
-      CurrentMs  = info.CurrentMs,
+      Current   = current,
+      CurrentMs = info.CurrentMs,
+      
+      LocalTimeUt = info.LocalUt,
+      LocalTimeMs = info.LocalMs,
+      
+      InternalTimeUt = info.InternalUt,
+      InternalTimeMs = info.InternalMs,
 
       SecType    = info.SecType,
       Copyright  = info.Copyright,

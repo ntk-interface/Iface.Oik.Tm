@@ -39,7 +39,13 @@ internal static partial class TmNativeDefsUnsafe
 
     public fixed byte UserName[64];
 
-    public fixed byte Res2[64];
+    public uint   InternalUt;
+    public ushort InternalMs;
+
+    public uint   LocalUt;
+    public ushort LocalMs;
+
+    public fixed byte Res2[52];
 
     public fixed byte UserAddr[64];
 
@@ -51,7 +57,7 @@ internal static partial class TmNativeDefsUnsafe
 
     public uint AccessMask;
   }
-  
+
   [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode)]
   public unsafe struct DomainInfoS
   {
