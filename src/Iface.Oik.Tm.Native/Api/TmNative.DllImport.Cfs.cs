@@ -313,30 +313,32 @@ namespace Iface.Oik.Tm.Native.Api
                                               uint       maxErrs);
 
 
-    [LibraryImport(Cfshare)]
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial bool cfsGetIniString(IntPtr     connId,
-                                               byte[]     path,
-                                               byte[]     section,
-                                               byte[]     key,
-                                               byte[]     def,
+    public static partial bool cfsGetIniString(nint       connId,
+                                               string     path,
+                                               string     section,
+                                               string     key,
+                                               string     def,
                                                Span<byte> value,
-                                               out UInt32 pcbValue,
-                                               out UInt32 errCode,
+                                               out uint   pcbValue,
+                                               out uint   errCode,
                                                Span<byte> errBuf,
-                                               UInt32     maxErrs);
+                                               uint       maxErrs);
 
 
-    [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern bool cfsSetIniString(IntPtr           connId,
-                                              byte[]           path,
-                                              byte[]           section,
-                                              byte[]           key,
-                                              byte[]           value,
-                                              out       UInt32 errCode,
-                                              [In, Out] byte[] errBuf,
-                                              UInt32           maxErrs);
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool cfsSetIniString(nint       connId,
+                                               string     path,
+                                               string     section,
+                                               string     key,
+                                               string     value,
+                                               out uint   errCode,
+                                               Span<byte> errBuf,
+                                               uint       maxErrs);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
@@ -352,12 +354,12 @@ namespace Iface.Oik.Tm.Native.Api
     [LibraryImport(Cfshare)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial bool cfsGetBasePath(IntPtr     connId,
+    public static partial bool cfsGetBasePath(nint       connId,
                                               Span<byte> path,
-                                              UInt32     cbPath,
-                                              out UInt32 errCode,
+                                              uint       cbPath,
+                                              out uint   errCode,
                                               Span<byte> errBuf,
-                                              UInt32     maxErrs);
+                                              uint       maxErrs);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]

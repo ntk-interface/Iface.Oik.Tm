@@ -295,10 +295,10 @@ namespace Iface.Oik.Tm.Helpers
       Span<byte> errBuf       = stackalloc byte[errBufLength];
 
       var result = TmNative.cfsGetIniString(cfCid,
-                                            TmNativeUtil.StringToBytes("@@"),
-                                            TmNativeUtil.StringToBytes("LinkedServer"),
-                                            TmNativeUtil.StringToBytes(tmServerName),
-                                            TmNativeUtil.StringToBytes(string.Empty),
+                                            "@@",
+                                            "LinkedServer",
+                                            tmServerName,
+                                            string.Empty,
                                             buf,
                                             out bufSize,
                                             out uint errCode,
@@ -335,10 +335,10 @@ namespace Iface.Oik.Tm.Helpers
       Span<byte> errBuf       = stackalloc byte[errBufLength];
 
       var result = TmNative.cfsGetIniString(cfCid,
-                                            TmNativeUtil.StringToBytes("@@"),
-                                            TmNativeUtil.StringToBytes("LocalPGCrd"),
-                                            TmNativeUtil.StringToBytes(rbServerName),
-                                            TmNativeUtil.StringToBytes(string.Empty),
+                                            "@@",
+                                            "LocalPGCrd",
+                                            rbServerName,
+                                            string.Empty,
                                             buf,
                                             out bufSize,
                                             out uint errCode,

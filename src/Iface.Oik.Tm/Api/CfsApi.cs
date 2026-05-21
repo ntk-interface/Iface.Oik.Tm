@@ -1364,34 +1364,8 @@ namespace Iface.Oik.Tm.Api
 
     public async Task<string> GetBasePath()
     {
-      return await Task.Run(GetBasePathSync)
+      return await Task.Run(() => TmNativeApi.GetBasePath(CfId))
                        .ConfigureAwait(false);
-    }
-
-
-    public string GetBasePathSync()
-    {
-      const int  basePathBufLength = 1000;
-      Span<byte> basePathBuf       = stackalloc byte[basePathBufLength];
-
-      const int  errBufLength = 1000;
-      Span<byte> errBuf       = stackalloc byte[errBufLength];
-
-      var result = TmNative.cfsGetBasePath(CfId,
-                                           basePathBuf,
-                                           basePathBufLength,
-                                           out uint errCode,
-                                           errBuf,
-                                           errBufLength);
-
-
-      if (!result)
-      {
-        throw new
-          Exception($"Ошибка получения базового пути сервера сервера: {TmNativeUtil.BytesToString(errBuf)} Код: {errCode}");
-      }
-
-      return TmNativeUtil.BytesToString(basePathBuf);
     }
 
 
@@ -1404,41 +1378,8 @@ namespace Iface.Oik.Tm.Api
                                             string def     = "",
                                             uint   bufSize = 256)
     {
-      return await Task.Run(() => GetIniStringSync(path, section, key, def, bufSize))
+      return await Task.Run(() => TmNativeApi.GetIniString(CfId, path, section, key, def, bufSize))
                        .ConfigureAwait(false);
-    }
-
-
-    private string GetIniStringSync(string path,
-                                    string section,
-                                    string key,
-                                    string def,
-                                    uint   bufSize)
-    {
-      Span<byte> buf = stackalloc byte[(int)bufSize];
-
-      const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-
-      var result = TmNative.cfsGetIniString(CfId,
-                                            TmNativeUtil.StringToBytes(path),
-                                            TmNativeUtil.StringToBytes(section),
-                                            TmNativeUtil.StringToBytes(key),
-                                            TmNativeUtil.StringToBytes(def),
-                                            buf,
-                                            out bufSize,
-                                            out var errCode,
-                                            errBuf,
-                                            errBufLength);
-
-      if (!result)
-      {
-        throw new
-          Exception($"Ошибка получения ini-строки. \nПуть: {path}\nСекция: {section}\nКлюч: {key}\nОшибка: {TmNativeUtil.BytesToString(errBuf)} Код: {errCode}");
-      }
-
-
-      return TmNativeUtil.BytesToString(buf, TmNativeUtil.DetectEncoding(buf));
     }
 
 
@@ -1447,25 +1388,8 @@ namespace Iface.Oik.Tm.Api
                                     string key,
                                     string value)
     {
-      const int errBufLength = 1000;
-      var       errBuf       = new byte[errBufLength];
-      uint      errCode      = 0;
-
-      var result = await Task.Run(() => TmNative.cfsSetIniString(CfId,
-                                                                 TmNativeUtil.StringToBytes(path),
-                                                                 TmNativeUtil.StringToBytes(section),
-                                                                 TmNativeUtil.StringToBytes(key),
-                                                                 TmNativeUtil.StringToBytes(value),
-                                                                 out errCode,
-                                                                 errBuf,
-                                                                 errBufLength))
-                             .ConfigureAwait(false);
-
-      if (!result)
-      {
-        throw new
-          Exception($"Ошибка записи ini-строки. \nПуть: {path}\nСекция: {section}\nКлюч: {key}\nЗначение: {value}\nОшибка: {TmNativeUtil.BytesToString(errBuf)} Код: {errCode}");
-      }
+      await Task.Run(() => TmNativeApi.SetIniString(CfId, path, section, key, value))
+                .ConfigureAwait(false);
     }
 
 
@@ -1899,6 +1823,18 @@ namespace Iface.Oik.Tm.Api
                 .ConfigureAwait(false);
     }
 
+    public async Task<StrictSessionControlStates> SecGetStrictSessionControl()
+    {
+      var result = await Task.Run(() => TmNativeApi.SecGetStrictSessionControl(CfId)).ConfigureAwait(false);
+
+      return (StrictSessionControlStates)result;
+    }
+    
+    public async Task SecSetStrictSessionControl(StrictSessionControlStates value)
+    {
+      await Task.Run(() => TmNativeApi.SecSetStrictSessionControl(CfId, (int)value)).ConfigureAwait(false);
+    }
+    
     public async Task<ComputerInfo> GetComputerInfo()
     {
       var dto = await Task.Run(() => TmNativeApi.GetServerComputerInfo(CfId))

@@ -62,6 +62,37 @@ public static partial class TmNativeApi
     IfpcSetBinUint(cfCid, uname, oname, "pwd_pol_flg", (uint)flags);
   }
 
+  public static int SecGetStrictSessionControl(nint cfCid)
+  {
+    const string fileRelativePath = "Data\\Main\\cfshare.ini";
+    const string section          = "Common";
+    const string key              = "StrictSessionControl";
+
+    var basePath = GetBasePath(cfCid);
+    var filePath = $"{basePath}\\{fileRelativePath}";
+
+    var valueString = GetIniString(cfCid, filePath, section, key, "0", 128);
+
+    if (!int.TryParse(valueString, out var value))
+    {
+      throw new TmNativeException("Wrong session control value return format");
+    }
+    
+    return value;
+  }
+  
+  public static void SecSetStrictSessionControl(nint cfCid, int value)
+  {
+    const string fileRelativePath = "Data\\Main\\cfshare.ini";
+    const string section          = "Common";
+    const string key              = "StrictSessionControl";
+
+    var basePath = GetBasePath(cfCid);
+    var filePath = $"{basePath}\\{fileRelativePath}";
+
+    SetIniString(cfCid, filePath, section, key, $"{value}");
+  }
+
   public static void SecSetUserPolicy(nint           cfCid,
                                       string         username,
                                       UserPolicyBase userPolicy)
@@ -161,7 +192,7 @@ public static partial class TmNativeApi
                                                    scope,
                                                    callback, callbackParameter,
                                                    errBuf, TmNativeDefsUnsafe.ErrorBufSize);
-      
+
       return (result, result ? string.Empty : TmNativeUtil.BytesToString(errBuf));
     }
     finally
@@ -367,6 +398,6 @@ public static partial class TmNativeApi
       ArrayPool<byte>.Shared.Return(errBuf);
     }
   }
-}
 
-#endregion
+  #endregion
+}

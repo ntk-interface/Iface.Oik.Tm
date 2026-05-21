@@ -100,6 +100,38 @@ public static partial class TmNativeApi
       pool.Return(errBuf);
     }
   }
+
+  public static string GetBasePath(nint cfCid)
+  {
+    const int pathBufSize = 1000;
+    
+    var pool    = ArrayPool<byte>.Shared;
+    var pathBuf = pool.Rent(pathBufSize);
+    var errBuf  = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+
+    try
+    {
+      var result = TmNative.cfsGetBasePath(cfCid,
+                                           pathBuf,
+                                           pathBufSize,
+                                           out var errCode,
+                                           errBuf,
+                                           TmNativeDefsUnsafe.ErrorBufSize);
+      
+      
+      if (!result)
+      {
+        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
+      }
+
+      return TmNativeUtil.BytesToString(pathBuf);
+    }
+    finally
+    {
+      pool.Return(pathBuf);
+      pool.Return(errBuf);
+    }
+  }
   
   internal static unsafe TmNativeDefsUnsafe.ComputerInfoS GetComputerInfoS(nint cfCid)
   {
