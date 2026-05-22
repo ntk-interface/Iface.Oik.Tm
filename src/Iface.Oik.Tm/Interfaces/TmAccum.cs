@@ -418,18 +418,28 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void UpdateWithDto(TmAccumDto dto)
+    public void UpdateValueFromRecord(TmAccumRecord record)
+    {
+      IsInit     = (record.Flags != (TmFlags)0xFFFF);
+      Value      = record.Value;
+      Load       = record.Load;
+      Flags      = record.Flags;
+      ChangeTime = record.ChangeTime;
+    }
+
+
+    public void UpdateValueFromDto(TmAccumDto dto)
     {
       if (dto == null) return;
 
-      UpdateWithDto(dto.VVal,
+      UpdateValueFromDto(dto.VVal,
                     dto.VLoad,
                     dto.Flags,
                     dto.ChangeTime);
     }
 
 
-    public void UpdateWithDto(float value, float load, int flags, DateTime? changeTime)
+    public void UpdateValueFromDto(float value, float load, int flags, DateTime? changeTime)
     {
       IsInit     = !value.Equals(InvalidValue);
       Value      = value;
@@ -439,11 +449,11 @@ namespace Iface.Oik.Tm.Interfaces
     }
     
     
-    public void UpdatePropertiesWithDto(TmAccumPropertiesDto dto)
+    public void UpdatePropertiesFromDto(TmAccumPropertiesDto dto)
     {
       if (dto?.Name == null) return;
 
-      UpdatePropertiesWithDto(dto.Name,
+      UpdatePropertiesFromSql(dto.Name,
                               dto.VUnit,
                               dto.VFormat,
                               dto.VCounterFormat,
@@ -451,7 +461,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void UpdatePropertiesWithDto(string name,
+    public void UpdatePropertiesFromSql(string name,
                                         string unit,
                                         string format,
                                         string loadFormat,
@@ -491,18 +501,18 @@ namespace Iface.Oik.Tm.Interfaces
       if (dto?.Name == null) return null;
 
       var accum = new TmAccum(TmAddr.CreateFromTma(TmType.Accum, dto.Tma));
-      accum.UpdateWithTmTreeDto(dto);
+      accum.UpdateFromTmTreeDto(dto);
 
       return accum;
     }
 
 
-    public void UpdateWithTmTreeDto(TmAccumTmTreeDto dto)
+    public void UpdateFromTmTreeDto(TmAccumTmTreeDto dto)
     {
       if (dto?.Name == null) return;
 
-      UpdateWithDto(dto.MapToTmAccumDto());
-      UpdatePropertiesWithDto(dto.MapToTmAccumPropertiesDto());
+      UpdateValueFromDto(dto.MapToTmAccumDto());
+      UpdatePropertiesFromDto(dto.MapToTmAccumPropertiesDto());
     }
   }
 }

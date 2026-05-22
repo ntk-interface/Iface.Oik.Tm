@@ -152,7 +152,7 @@ public partial class OikSqlApi
                          .QueryFirstOrDefaultAsync<TmAnalogDto>(commandText, parameters)
                          .ConfigureAwait(false);
 
-      tmAnalog.UpdateWithDto(dto);
+      tmAnalog.UpdateValueFromDto(dto);
     }
     catch (Exception ex)
     {
@@ -179,7 +179,7 @@ public partial class OikSqlApi
                          .QueryFirstOrDefaultAsync<TmAccumDto>(commandText, parameters)
                          .ConfigureAwait(false);
 
-      tmAccum.UpdateWithDto(dto);
+      tmAccum.UpdateValueFromDto(dto);
     }
     catch (Exception ex)
     {
@@ -255,7 +255,7 @@ public partial class OikSqlApi
       {
         if (tmAnalogs.TryGetValue(dto.Tma, out var tmAnalog))
         {
-          tmAnalog.UpdateWithDto(dto);
+          tmAnalog.UpdateValueFromDto(dto);
         }
       }
     }
@@ -295,7 +295,7 @@ public partial class OikSqlApi
       {
         if (tmAccums.TryGetValue(dto.Tma, out var tmAccum))
         {
-          tmAccum.UpdateWithDto(dto);
+          tmAccum.UpdateValueFromDto(dto);
         }
       }
     }
@@ -360,7 +360,7 @@ public partial class OikSqlApi
       {
         if (tmStatuses.TryGetValue(dto.Tma, out var tmStatus))
         {
-          tmStatus.UpdatePropertiesWithDto(dto);
+          tmStatus.UpdatePropetiesFromDto(dto);
         }
       }
     }
@@ -395,7 +395,7 @@ public partial class OikSqlApi
       {
         if (tmAnalogs.TryGetValue(dto.Tma, out var tmAnalog))
         {
-          tmAnalog.UpdatePropertiesWithDto(dto);
+          tmAnalog.UpdatePropertiesFromDto(dto);
         }
       }
     }
@@ -428,7 +428,7 @@ public partial class OikSqlApi
       {
         if (tmAccums.TryGetValue(dto.Tma, out var tmAccum))
         {
-          tmAccum.UpdatePropertiesWithDto(dto);
+          tmAccum.UpdatePropertiesFromDto(dto);
         }
       }
     }
@@ -483,7 +483,7 @@ public partial class OikSqlApi
                          .QueryFirstAsync<TmStatusPropertiesDto>(commandText, parameters)
                          .ConfigureAwait(false);
 
-      tmStatus.UpdatePropertiesWithDto(dto);
+      tmStatus.UpdatePropetiesFromDto(dto);
     }
     catch (Exception ex)
     {
@@ -512,7 +512,7 @@ public partial class OikSqlApi
                          .QueryFirstAsync<TmAnalogPropertiesDto>(commandText, parameters)
                          .ConfigureAwait(false);
 
-      tmAnalog.UpdatePropertiesWithDto(dto);
+      tmAnalog.UpdatePropertiesFromDto(dto);
     }
     catch (Exception ex)
     {
@@ -539,7 +539,7 @@ public partial class OikSqlApi
                          .QueryFirstAsync<TmAccumPropertiesDto>(commandText, parameters)
                          .ConfigureAwait(false);
 
-      tmAccum.UpdatePropertiesWithDto(dto);
+      tmAccum.UpdatePropertiesFromDto(dto);
     }
     catch (Exception ex)
     {

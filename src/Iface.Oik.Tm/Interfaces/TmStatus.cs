@@ -450,6 +450,16 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
+    public void UpdateValueFromRecord(TmStatusRecord record)
+    {
+      IsInit     = (record.Flags != (TmFlags)0xFFFF);
+      Status     = record.Status;
+      Flags      = record.Flags;
+      S2Flags    = record.S2Flags;
+      ChangeTime = record.ChangeTime;
+    }
+
+
     public void UpdateValueFromDto(TmStatusDto dto)
     {
       if (dto == null)
@@ -501,7 +511,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void UpdatePropertiesWithDto(TmStatusPropertiesDto dto)
+    public void UpdatePropetiesFromDto(TmStatusPropertiesDto dto)
     {
       if (dto?.Name == null) return;
 
@@ -621,18 +631,18 @@ namespace Iface.Oik.Tm.Interfaces
       if (dto?.Name == null) return null;
 
       var status = new TmStatus(TmAddr.CreateFromTma(TmType.Status, dto.Tma));
-      status.UpdateWithTmTreeDto(dto);
+      status.UpdateFromTmTreeDto(dto);
 
       return status;
     }
 
 
-    public void UpdateWithTmTreeDto(TmStatusTmTreeDto dto)
+    public void UpdateFromTmTreeDto(TmStatusTmTreeDto dto)
     {
       if (dto?.Name == null) return;
 
       UpdateValueFromDto(dto.MapToTmStatusDto());
-      UpdatePropertiesWithDto(dto.MapToTmStatusPropertiesDto());
+      UpdatePropetiesFromDto(dto.MapToTmStatusPropertiesDto());
     }
   }
 }

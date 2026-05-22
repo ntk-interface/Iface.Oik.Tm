@@ -334,7 +334,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
     {
       var tmAnalog = new TmAnalog(0, 1, 1);
 
-      tmAnalog.UpdatePropertiesWithDto(name, unit, format, classId, ""); // todo al test provider!
+      tmAnalog.UpdatePropertiesFromSql(name, unit, format, classId, ""); // todo al test provider!
 
       Assert.Equal(name,              tmAnalog.Name);
       Assert.Equal(unit,              tmAnalog.Unit);
@@ -351,7 +351,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
     {
       var tmAnalog = new TmAnalog(0, 1, 1);
 
-      tmAnalog.UpdatePropertiesWithDto(name, unit, format, classId, ""); // todo al test provider!
+      tmAnalog.UpdatePropertiesFromSql(name, unit, format, classId, ""); // todo al test provider!
 
       Assert.Equal(name,              tmAnalog.Name);
       Assert.Equal(unit,              tmAnalog.Unit);

@@ -6,9 +6,7 @@ using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Dto;
 
-public record struct TmStatusRecord(ushort    Ch,
-                                    ushort    Rtu,
-                                    ushort    Point,
+public record struct TmStatusRecord(int       Tma,
                                     short     Status,
                                     TmFlags   Flags,
                                     TmS2Flags S2Flags,
@@ -20,9 +18,7 @@ public record struct TmStatusRecord(ushort    Ch,
     {
       throw new TmNativeException("Ошибка разбора TStatusPointDto");
     }
-    return new TmStatusRecord(dto.Ch,
-                              dto.Rtu,
-                              dto.Point,
+    return new TmStatusRecord(TmAddr.EncodeTma(dto.Ch, dto.Rtu, dto.Point),
                               dto.StatusPointDto.Value.Status,
                               (TmFlags)dto.StatusPointDto.Value.Flags,
                               (TmS2Flags)dto.TmS2,
@@ -32,9 +28,7 @@ public record struct TmStatusRecord(ushort    Ch,
 }
 
 
-public record struct TmAnalogRecord(ushort    Ch,
-                                    ushort    Rtu,
-                                    ushort    Point,
+public record struct TmAnalogRecord(int       Tma,
                                     float     Value,
                                     TmFlags   Flags,
                                     DateTime? ChangeTime)
@@ -45,9 +39,7 @@ public record struct TmAnalogRecord(ushort    Ch,
     {
       throw new TmNativeException("Ошибка разбора TAnalogPointDto");
     }
-    return new TmAnalogRecord(dto.Ch,
-                              dto.Rtu,
-                              dto.Point,
+    return new TmAnalogRecord(TmAddr.EncodeTma(dto.Ch, dto.Rtu, dto.Point),
                               dto.AnalogPointDto.Value.AsFloat,
                               (TmFlags)dto.AnalogPointDto.Value.Flags,
                               DateUtil.GetDateTimeFromTimestampWithEpochCheck(dto.TmLocalUt,
@@ -56,9 +48,7 @@ public record struct TmAnalogRecord(ushort    Ch,
 }
 
 
-public record struct TmAccumRecord(ushort    Ch,
-                                   ushort    Rtu,
-                                   ushort    Point,
+public record struct TmAccumRecord(int       Tma,
                                    float     Value,
                                    float     Load,
                                    TmFlags   Flags,
@@ -70,13 +60,11 @@ public record struct TmAccumRecord(ushort    Ch,
     {
       throw new TmNativeException("Ошибка разбора TAccumPointDto");
     }
-    return new TmAccumRecord(dto.Ch,
-                              dto.Rtu,
-                              dto.Point,
-                              dto.AccumPointDto.Value.Value,
-                              dto.AccumPointDto.Value.Load,
-                              (TmFlags)dto.AccumPointDto.Value.Flags,
-                              DateUtil.GetDateTimeFromTimestampWithEpochCheck(dto.TmLocalUt,
-                                                                              dto.TmLocalMs));
+    return new TmAccumRecord(TmAddr.EncodeTma(dto.Ch, dto.Rtu, dto.Point),
+                             dto.AccumPointDto.Value.Value,
+                             dto.AccumPointDto.Value.Load,
+                             (TmFlags)dto.AccumPointDto.Value.Flags,
+                             DateUtil.GetDateTimeFromTimestampWithEpochCheck(dto.TmLocalUt,
+                                                                             dto.TmLocalMs));
   }
 }

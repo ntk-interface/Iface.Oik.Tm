@@ -647,6 +647,10 @@ public partial class TmsApi
                                         TmType                     tmType,
                                         IReadOnlyCollection<TmTag> tmTags)
   {
+    if (tmTags == null || tmTags.Count == 0)
+    {
+      return;
+    }
     await Task.Run(() => TmNative.tmcTmvUserSetDefine(_cid,
                                                       (ushort)tmType.ToNativeType(),
                                                       TmNativeUtil.StringToBytes(name),

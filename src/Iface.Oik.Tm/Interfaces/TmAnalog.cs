@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Globalization;
 using Iface.Oik.Tm.Dto;
@@ -392,12 +393,21 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void UpdateFromDatagram(byte[] buf)
+    public void UpdateValueFromDatagram(ReadOnlySpan<byte> buf)
     {
-      Value  = BitConverter.ToSingle(buf, 14);
-      Flags  = (TmFlags)BitConverter.ToInt16(buf, 18);
+      Value = BinaryPrimitives.ReadSingleLittleEndian(buf[14..]);
+      Flags = (TmFlags)BinaryPrimitives.ReadInt16LittleEndian(buf[18..]);
       
       IsInit = !Value.Equals(InvalidValue);
+    }
+
+
+    public void UpdateValueFromRecord(TmAnalogRecord record)
+    {
+      IsInit     = (record.Flags != (TmFlags)0xFFFF);
+      Value      = record.Value;
+      Flags      = record.Flags;
+      ChangeTime = record.ChangeTime;
     }
 
 
@@ -415,17 +425,17 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void UpdateWithDto(TmAnalogDto dto)
+    public void UpdateValueFromDto(TmAnalogDto dto)
     {
       if (dto == null) return;
 
-      UpdateWithDto(dto.VVal,
+      UpdateValueFromDto(dto.VVal,
                     dto.Flags,
                     dto.ChangeTime);
     }
 
 
-    public void UpdateWithDto(float value, int flags, DateTime? changeTime)
+    public void UpdateValueFromDto(float value, int flags, DateTime? changeTime)
     {
       IsInit     = !value.Equals(InvalidValue);
       Value      = value;
@@ -434,12 +444,12 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void UpdatePropertiesWithDto(TmAnalogPropertiesDto dto)
+    public void UpdatePropertiesFromDto(TmAnalogPropertiesDto dto)
     {
       if (dto?.Name == null) return;
 
-      UpdateTechParametersWithDto(dto.MapToTmAnalogTechParametersDto());
-      UpdatePropertiesWithDto(dto.Name,
+      UpdateTechParametersFromDto(dto.MapToTmAnalogTechParametersDto());
+      UpdatePropertiesFromSql(dto.Name,
                               dto.VUnit,
                               dto.VFormat,
                               dto.ClassId,
@@ -447,7 +457,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void UpdatePropertiesWithDto(string name,
+    public void UpdatePropertiesFromSql(string name,
                                         string unit,
                                         string format,
                                         short  classId,
@@ -500,7 +510,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void UpdateTechParametersWithDto(TmAnalogTechParametersDto dto)
+    public void UpdateTechParametersFromDto(TmAnalogTechParametersDto dto)
     {
       TechParameters = TmAnalogTechParameters.CreateFromDto(dto);
     }
@@ -511,18 +521,18 @@ namespace Iface.Oik.Tm.Interfaces
       if (dto?.Name == null) return null;
 
       var analog = new TmAnalog(TmAddr.CreateFromTma(TmType.Analog, dto.Tma));
-      analog.UpdateWithTmTreeDto(dto);
+      analog.UpdateFromTmTreeDto(dto);
 
       return analog;
     }
 
 
-    public void UpdateWithTmTreeDto(TmAnalogTmTreeDto dto)
+    public void UpdateFromTmTreeDto(TmAnalogTmTreeDto dto)
     {
       if (dto?.Name == null) return;
 
-      UpdateWithDto(dto.MapToTmAnalogDto());
-      UpdatePropertiesWithDto(dto.MapToTmAnalogPropertiesDto());
+      UpdateValueFromDto(dto.MapToTmAnalogDto());
+      UpdatePropertiesFromDto(dto.MapToTmAnalogPropertiesDto());
     }
   }
 }

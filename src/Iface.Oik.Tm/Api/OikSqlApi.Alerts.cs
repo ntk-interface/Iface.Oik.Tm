@@ -211,7 +211,7 @@ public partial class OikSqlApi
       {
         if (dict.TryGetValue(dto.Tma, out var alarm))
         {
-          alarm.TmAnalog.UpdateWithTmTreeDto(dto);
+          alarm.TmAnalog.UpdateFromTmTreeDto(dto);
         }
       }
 
