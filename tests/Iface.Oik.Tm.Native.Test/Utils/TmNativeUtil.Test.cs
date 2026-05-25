@@ -229,6 +229,11 @@ namespace Iface.Oik.Tm.Native.Test.Utils
     
     public class StringToBytes
     {
+      public StringToBytes()
+      {
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+      }
+      
       [Fact]
       public void ReturnsEmptyArray_WhenStringIsNullOrEmpty()
       {
