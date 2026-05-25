@@ -7,20 +7,16 @@ on:
     
 env:
    APP_NAME: Iface.Oik.Tm
-   MAJOR_VERSION: 0
-   MINOR_VERSION: 3
-   X64_PATH: src/Iface.Oik.Tm/bin/Release/netstandard2.0
-   X86_PATH: src/Iface.Oik.Tm/bin/x86/Release/netstandard2.0
+   MAJOR_VERSION: 2
+   MINOR_VERSION: 0
+   X64_PATH: src/Iface.Oik.Tm/bin/Release/net8.0
+   X86_PATH: src/Iface.Oik.Tm/bin/x86/Release/net8.0
 
 jobs:
   build:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
-    
-    - uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: '6.0.x'
         
     - name: Build
       run: |

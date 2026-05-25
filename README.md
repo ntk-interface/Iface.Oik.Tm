@@ -1,7 +1,12 @@
 ## Iface.Oik.Tm
 
-[![Build](https://img.shields.io/azure-devops/build/ntk-interface/ec3fc29c-7822-450e-a6db-08567c0705e8/27)](https://dev.azure.com/ntk-interface/Iface.Oik.Tm/_build/latest?definitionId=27&branchName=master)
+.NET библиотека для связи с сервером «ОИК Диспетчер НТ»
 
-[![Test](https://img.shields.io/azure-devops/tests/ntk-interface/iface.oik.tm/27)](https://dev.azure.com/ntk-interface/Iface.Oik.Tm/_build/latest?definitionId=27&branchName=master)
+### Версия 2.0
 
-[![Coverage](https://img.shields.io/azure-devops/coverage/ntk-interface/iface.oik.tm/27)](https://dev.azure.com/ntk-interface/Iface.Oik.Tm/_build/latest?definitionId=27&branchName=master)
+Обратите внимание, начиная с II квартала 2026 в библиотеку внесены серьезные изменения, не подразумевающие обратной совместимости
+
+- для работы новой версии требуется Сервер ПО «ОИК Диспетчер НТ» с датой сборки не ранее II квартала 2026 года
+- завершен переход на UTF-8, серьезно увеличена производительность обработки запросов к серверу
+- библиотека больше не поддерживает .NET Standard 2.0, минимальная версия для работы .NET 8.0
+- ряд методов соединения изменил сигнатуры, примеры корректных вызовов можно найти в каталоге `samples`
