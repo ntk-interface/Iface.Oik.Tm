@@ -37,7 +37,7 @@ namespace Iface.Oik.Tm.Interfaces
     Task StopDebug();
 
 
-    Task UpdateComponentsTreeLiveInfo(IReadOnlyCollection<DeltaComponent> tree);
+    Task<IReadOnlyCollection<DeltaComponentErrorState>> UpdateComponentsTreeLiveInfo(IEnumerable<DeltaComponent> tree);
 
     Task UpdatePortsStats(IReadOnlyCollection<DeltaComponent> components);
   }

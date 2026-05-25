@@ -1,5 +1,6 @@
 using System;
 using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
@@ -25,8 +26,8 @@ namespace Iface.Oik.Tm.Interfaces
     {
       var tmRetroInfo = new TmRetroInfo
       {
-        Name = EncodingUtil.Win1251BytesToUtf8(info.Name),
-        Description = EncodingUtil.Win1251BytesToUtf8(info.Description),
+        Name = TmNativeUtil.BytesToString(info.Name),
+        Description = TmNativeUtil.BytesToString(info.Description),
         Period = info.Period,
         Capacity = info.Capacity,
         StartTime = DateUtil.GetDateTimeFromTimestamp(info.Start),

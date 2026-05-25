@@ -4,6 +4,7 @@ using Iface.Oik.Tm.Utils;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Iface.Oik.Tm.Native.Dto;
 
 namespace Iface.Oik.Tm.Interfaces
 {
@@ -23,12 +24,11 @@ namespace Iface.Oik.Tm.Interfaces
 
 
     Task<(MSTreeNode, DateTime)> LoadFullMSTree();
-    Task                         SaveConfigurationTree(IntPtr                treeHandle, string filename);
-    Task                         SaveMasterServiceConfiguration(IntPtr       treeHandle);
-    Task                         SaveFullMSTree(MSTreeNode                   msRoot);
-    Task<List<CfTreeNode>>       GetCfTree(IntPtr                            rootHandle, CfTreeNode parent = null);
-    void                         FreeConfigurationTreeHandle(IntPtr          handle);
-    void                         FreeMasterServiceConfigurationHandle(IntPtr handle);
+    Task                         SaveConfigurationTree(IntPtr          treeHandle, string filename);
+    Task                         SaveMasterServiceConfiguration(IntPtr treeHandle);
+    Task                         SaveFullMSTree(MSTreeNode             msRoot);
+    Task<List<CfTreeNode>>       GetCfTree(IntPtr                      rootHandle, CfTreeNode parent = null);
+    void                         FreeConfigurationTreeHandle(IntPtr    handle);
 
 
     Task<CfsDefs.SoftwareTypes> GetSoftwareType();
@@ -50,9 +50,6 @@ namespace Iface.Oik.Tm.Interfaces
     Task<IReadOnlyCollection<string>> GetTimezones();
 
     Task<IReadOnlyCollection<TmServer>> GetTmServersTree();
-
-
-    Task<IReadOnlyCollection<TmServerLogRecord>> GetTmServersLog();
 
 
     Task<IReadOnlyCollection<TmServerLogRecord>>
@@ -139,24 +136,14 @@ namespace Iface.Oik.Tm.Interfaces
                                            string oName,
                                            string binName);
 
-    Task<bool> SetRedirectorPort(string pipeName, int portIndex, int port);
+    Task SetRedirectorPort(string pipeName, int portIndex, int port);
 
-
-    Task<bool> SetBin(string uName,
-                      string oName,
-                      string binName,
-                      byte[] binData);
-
-    Task<(uint, string)> SecSetBin(string uName,
-                                   string oName,
-                                   string binName,
-                                   byte[] binData);
 
     AccessMasksDescriptor SecGetAccessDescriptor(string sSetupPath, string progName);
 
     ExtendedRightsDescriptor SecGetExtendedRightsDescriptor(string sSetupPath);
 
-    Task<(IReadOnlyCollection<string>, uint, string)> SecEnumUsers();
+    Task<IReadOnlyCollection<string>> GetOikUsersStrings();
 
     Task<(IReadOnlyCollection<string>, uint, string)> SecEnumOSUsers();
 
@@ -164,23 +151,24 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<(uint, string)> SecDeleteUser(string username);
 
-    Task<(uint, uint, string)> SecGetAccessMask(string uName, string oName);
+    Task<uint> SecGetAccessMask(string uName, string oName);
 
-    Task<(uint, string)> SecSetAccessMask(string uName, string oName, uint AccessMask);
+    Task SecSetAccessMask(string uName, string oName, uint accessMask);
 
-    Task<(ExtendedUserData, uint, string)>
-      SecGetExtendedUserData(string serverType, string serverName, string username);
+    Task<ExtendedUserData> SecGetExtendedUserData(string serverType, string serverName, string username);
 
-    Task<(uint, string)> SecSetExtendedUserData(string           serverType, string serverName, string username,
-                                                ExtendedUserData extendedUserData);
+    Task SecSetExtendedUserData(string           serverType,
+                                string           serverName,
+                                string           username,
+                                ExtendedUserData extendedUserData);
 
-    Task<(UserPolicy, uint, string)> SecGetUserPolicy(string username);
+    Task<UserPolicy> SecGetUserPolicy(string username);
 
-    Task<(uint, string)> SecSetUserPolicy(string username, UserPolicy userPolicy);
+    Task SecSetUserPolicy(string username, UserPolicy userPolicy);
 
-    Task<(PasswordPolicy, uint, string)> SecGetPasswordPolicy();
+    Task<PasswordPolicy> SecGetPasswordPolicy();
 
-    Task<(uint, string)> SecSetPasswordPolicy(PasswordPolicy passwordPolicy);
+    Task SecSetPasswordPolicy(PasswordPolicy passwordPolicy);
 
     Task<(IReadOnlyCollection<string>, uint, string)> DirEnum(string path);
 
@@ -193,23 +181,23 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<(bool, string)> RestoreMachineConfig(string filename);
 
-    Task<(bool, string)> CreateBackup(string           progName,
-                                      string           pipeName,
-                                      string           directory,
-                                      bool             withRetro,
-                                      TmNativeCallback callback          = null,
-                                      IntPtr           callbackParameter = default);
+    Task<bool> CreateBackup(string           progName,
+                            string           pipeName,
+                            string           directory,
+                            bool             withRetro,
+                            TmNativeCallback callback          = null,
+                            IntPtr           callbackParameter = default);
 
-    Task<(bool, string)> RestoreBackup(string           progName,
-                                       string           pipeName,
-                                       string           filename,
-                                       bool             withRetro,
-                                       TmNativeCallback callback          = null,
-                                       IntPtr           callbackParameter = default);
+    Task<RestoreBackupResult> RestoreBackup(string           progName,
+                                            string           pipeName,
+                                            string           filename,
+                                            bool             withRetro,
+                                            TmNativeCallback callback          = null,
+                                            IntPtr           callbackParameter = default);
 
-    Task<(uint, string)> BackupSecurity(string directory, string pwd = "");
+    Task BackupSecurity(string directory, string pwd = "");
 
-    Task<(uint, string)> RestoreSecurity(string filename, string pwd);
+    Task RestoreSecurity(string filename, string pwd);
 
     Task<(IReadOnlyCollection<string>, string)> EnumPackedFiles(string pkfName);
 

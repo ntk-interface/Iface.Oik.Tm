@@ -170,50 +170,32 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public static TmAddr CreateFromNormalized(TmType type, uint value)
+    public static TmAddr CreateFromTmaAndTmaType(ushort tmaType, int value)
+    {
+      return CreateFromTma(((TmNativeDefs.TmDataTypes) tmaType).ToTmType(), value);
+    }
+
+    
+    public static TmAddr CreateFromTma(TmType type, int value)
     {
       return new TmAddr(type,
-        (ushort)((value & 0xFF_00_00_00) >> 24),
-        (ushort)((value & 0x00_FF_00_00) >> 16),
-        (ushort)(value & 0x00_00_FF_FF));
-    }
-
-
-    public static TmAddr CreateFromSqlTmaAndTmaType(ushort tmaType, int value)
-    {
-      return CreateFromSqlTma(((TmNativeDefs.TmDataTypes) tmaType).ToTmType(), value);
+                        (ushort)((value & 0xFF_00_00_00) >> 24),
+                        (ushort)((value & 0x00_FF_00_00) >> 16),
+                        (ushort)(value & 0x00_00_FF_FF));
     }
 
     
-    public static TmAddr CreateFromSqlTma(TmType type, int value)
-    {
-      return CreateFromNormalized(type, (uint) value);
-    }
-
-    
-    public static TmAddr CreateFromSqlFullTma(long fullTma)
+    public static TmAddr CreateFromFullTma(long fullTma)
     {
       var tmaType = (fullTma >> 32);
       var tma     = fullTma         & 0xFF_FF_FF_FF;
-      return CreateFromSqlTmaAndTmaType((ushort) tmaType, (int) tma);
+      return CreateFromTmaAndTmaType((ushort) tmaType, (int) tma);
     }
 
 
-    public static TmAddr CreateFromSqlTma(int value)
+    public static TmAddr CreateFromTma(int value)
     {
-      return CreateFromNormalized(TmType.Unknown, (uint) value);
-    }
-
-
-    public static TmAddr CreateFromNoPadding(TmType type, uint value)
-    {
-      return CreateFromNormalized(type, value);
-    }
-
-
-    public static TmAddr CreateFromNoPadding(uint value)
-    {
-      return CreateFromNormalized(TmType.Unknown, value);
+      return CreateFromTma(TmType.Unknown, value);
     }
 
 
@@ -283,33 +265,13 @@ namespace Iface.Oik.Tm.Interfaces
 
     public override string ToString()
     {
-      string type;
-      switch (_type)
-      {
-        case TmType.Status:
-          type = "#TC";
-          break;
-
-        case TmType.Analog:
-          type = "#TT";
-          break;
-
-        case TmType.Accum:
-          type = "#TI";
-          break;
-
-        default:
-          type = "#??";
-          break;
-      }
-
-      return $"{type}{Ch}:{Rtu}:{Point}";
+      return EncodeString(_type, Ch, Rtu, Point);
     }
 
 
     public static TmAddr Parse(string s, TmType type = TmType.Unknown)
     {
-      if (!TryParse(s, out TmAddr tmAddr, type))
+      if (!TryParse(s, out var tmAddr, type))
       {
         throw new ArgumentException("Недопустимая строка TmAddr");
       }
@@ -405,16 +367,6 @@ namespace Iface.Oik.Tm.Interfaces
       return _addr;
     }
 
-    public uint ToComplexInteger()
-    {
-      return EncodeComplexInteger(Ch, Rtu, Point);
-    }
-
-    public uint ToIntegerWithoutPadding()
-    {
-      return EncodeComplexInteger(Ch, Rtu, Point);
-    }
-
 
     public TmNativeDefs.TAdrTm ToAdrTm()
     {
@@ -427,25 +379,25 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public short GetSqlTmaType()
+    public short GetTmaType()
     {
       return (short) Type.ToNativeType();
     }
 
 
-    public int ToSqlTma()
+    public int ToTma()
     {
-      return (int) ToIntegerWithoutPadding();
+      return EncodeTma(Ch, Rtu, Point);
     }
 
 
-    public long ToSqlFullTma()
+    public long ToFullTma()
     {
-      return ((long) Type.ToNativeType() << 32) + ToIntegerWithoutPadding();
+      return ((long) Type.ToNativeType() << 32) + ToTma();
     }
 
 
-    public string ToSqlTmaStr()
+    public string ToTmaStr()
     {
       var str = ToString();
       return str.Insert(3, ":"); // в SQL вместо #TC0:1:1 нужно значение #TC:0:1:1, вставляем двоеточие
@@ -464,19 +416,26 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public static uint EncodeComplexInteger(int ch, int rtu, int point)
+    public static string EncodeString(TmType type, int ch, int rtu, int point)
     {
-      return (uint) (point + (rtu << 16) + (ch << 24));
+      var typeString = type switch
+                       {
+                         TmType.Status => "#TC",
+                         TmType.Analog => "#TT",
+                         TmType.Accum  => "#TI",
+                         _             => "#??"
+                       };
+      return $"{typeString}{ch}:{rtu}:{point}";
     }
 
 
-    public static uint EncodeNormalizedInteger(int ch, int rtu, int point)
+    public static int EncodeTma(int ch, int rtu, int point)
     {
-      return (uint) ((point - 1) + ((rtu - 1) << 16) + (ch << 24));
+      return point + (rtu << 16) + (ch << 24);
     }
     
 
-    public static bool DecodeComplexInteger(uint addr, out ushort ch, out ushort rtu, out ushort point)
+    public static bool DecodeTma(int addr, out ushort ch, out ushort rtu, out ushort point)
     {
       if (addr == 0)
       {
@@ -487,14 +446,6 @@ namespace Iface.Oik.Tm.Interfaces
       rtu   = (ushort)((addr >> 16) & 0xFF);
       point = (ushort)(addr         & 0xFFFF);
       return ch < 255 && rtu <= 255 && point <= 65535;
-    }
-
-    
-    public static void DecodeNormalizedInteger(uint addr, out ushort ch, out ushort rtu, out ushort point)
-    {
-      ch    = (ushort)((addr & 0xFF_00_00_00) >> 24);
-      rtu   = (ushort)(1 + (addr >> 16) & 0xFF);
-      point = (ushort)(1 + addr         & 0xFFFF);
     }
   }
 }

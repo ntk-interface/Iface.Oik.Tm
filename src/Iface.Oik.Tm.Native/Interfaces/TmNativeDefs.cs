@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace Iface.Oik.Tm.Native.Interfaces
 {
+  [UnmanagedFunctionPointer(CallingConvention.StdCall)]
   public delegate void TmNativeCallback(Int32 sizeInBytes, IntPtr buffer, IntPtr param);
 
   public class TmNativeDefs
@@ -416,7 +417,6 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public byte[] Data;
     }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct TEventHeader
     {
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 24)]
@@ -825,56 +825,30 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public UInt32[] Reserved;
     }
 
-
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TUserInfo
     {
-      public Boolean Valid;
-
-      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-      public byte[] UserName;
-
-      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
-      public byte[] UserComment;
-
-      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
-      public byte[] NtUserName;
-
-      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
-      public byte[] NtUserDomain;
-
-      public UInt32 DatagramMask;
-      public UInt32 AccessMask;
-      public UInt32 ConnectTime;
-
-      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
-      public byte[] UserCategory;
-
-      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-      public byte[] OldUserName;
-
-      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-      public byte[] Reserved;
+      public bool   Valid;
+      public string UserName;
+      public string UserComment;
+      public string NtUserName;
+      public string NtUserDomain;
+      public uint   DatagramMask;
+      public uint   AccessMask;
+      public uint   ConnectTime;
+      public string UserCategory;
+      public string OldUserName;
     }
 
 
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TExtendedUserInfo
     {
-      public Int32 RecNum;
-      public Int32 UserId;
-      public Byte  Group;
+      public int  RecNum;
+      public int  UserId;
+      public byte Group;
 
-      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-      public byte[] KeyId;
-
-      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-      public byte[] UserName;
-
-      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
-      public byte[] UserPwd;
-
-      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 250)]
+      public string KeyId;
+      public string UserName;
+      public string UserPwd;
       public byte[] Rights;
     }
 
@@ -1015,15 +989,14 @@ namespace Iface.Oik.Tm.Native.Interfaces
       public IntPtr pData;
     }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+
     public struct TTMSEventAddData
     {
       public TTMSElix Elix;
       public UInt32   AckSec;
       public UInt16   AckMs;
 
-      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-      public byte[] UserName;
+      public string UserName;
     }
 
 

@@ -14,9 +14,9 @@ namespace Iface.Oik.Tm.Test.Utils
       [InlineData(1500000001, 1500000000)]
       public void ThrowsWhenStartTimeIsGreaterOrEqualToEndTime(long startTime, long endTime)
       {
-        Action act = () => TmUtil.GetRetrospectivePreferredStep(startTime, endTime);
-
-        act.Should().Throw<ArgumentException>();
+        typeof(TmUtil).Invoking(_ => TmUtil.GetRetrospectivePreferredStep(startTime, endTime))
+                      .Should()
+                      .Throw<ArgumentException>();
       }
 
 

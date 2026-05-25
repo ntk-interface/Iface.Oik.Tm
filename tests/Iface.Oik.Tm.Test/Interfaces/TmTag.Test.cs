@@ -60,7 +60,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       public void ReturnsNameField(TmStatus status)
       {
         var sb = "Name=Выключатель";
-        status.SetTmcObjectProperties(sb);
+        status.UpdatePropertiesFromTmcObject(sb);
 
         status.Name.Should().Be("Выключатель");
       }
@@ -82,7 +82,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       [Theory, TmAutoFakeItEasyData]
       public void ReturnsTrueForTmStatus(TmStatus status)
       {
-        status.SetTmcObjectProperties("Provider=123");
+        status.UpdatePropertiesFromTmcObject("Provider=123");
 
         status.HasTmProvider.Should().BeTrue();
       }
@@ -92,7 +92,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       [TmInlineAutoFakeItEasyData("Dummy=123")]
       public void ReturnsFalseForTmStatus(string properties, TmStatus status)
       {
-        status.SetTmcObjectProperties(properties);
+        status.UpdatePropertiesFromTmcObject(properties);
 
         status.HasTmProvider.Should().BeFalse();
       }
@@ -100,7 +100,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       [Theory, TmAutoFakeItEasyData]
       public void ReturnsTrueForTmAnalog(TmAnalog analog)
       {
-        analog.SetTmcObjectProperties("Provider=123");
+        analog.UpdatePropertiesFromTmcObject("Provider=123");
 
         analog.HasTmProvider.Should().BeTrue();
       }
@@ -110,7 +110,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       [TmInlineAutoFakeItEasyData("Dummy=123")]
       public void ReturnsFalseForTmAnalog(string properties, TmAnalog analog)
       {
-        analog.SetTmcObjectProperties(properties);
+        analog.UpdatePropertiesFromTmcObject(properties);
 
         analog.HasTmProvider.Should().BeFalse();
       }
@@ -185,7 +185,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       {
         var sb = "Key1=Value1\r\nKey2=0\r\nName=Выключатель";
 
-        status.SetTmcObjectProperties(sb);
+        status.UpdatePropertiesFromTmcObject(sb);
 
         status.Name.Should().Be("Выключатель");
         status.Properties.Should().Equal(new Dictionary<string, string>
@@ -207,7 +207,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       {
         var sb = $"Importance={importance}";
 
-        status.SetTmcObjectProperties(sb);
+        status.UpdatePropertiesFromTmcObject(sb);
 
         status.Importance.Should().Be(importance);
       }
@@ -223,7 +223,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       {
         var sb = $"Normal={normalStatus}";
 
-        status.SetTmcObjectProperties(sb);
+        status.UpdatePropertiesFromTmcObject(sb);
 
         status.NormalStatus.Should().Be(expectedNormalStatus);
       }
@@ -234,7 +234,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       {
         var sb = "Key1=Value1\r\nKey2=0\r\nName=Мощность\r\nUnits=МВт";
 
-        analog.SetTmcObjectProperties(sb);
+        analog.UpdatePropertiesFromTmcObject(sb);
 
         analog.Name.Should().Be("Мощность");
         analog.Unit.Should().Be("МВт");
@@ -256,7 +256,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       {
         var sb = $"Format={format}";
 
-        analog.SetTmcObjectProperties(sb);
+        analog.UpdatePropertiesFromTmcObject(sb);
 
         analog.Width.Should().Be(expectedWidth);
         analog.Precision.Should().Be(expectedPrecision);
@@ -272,7 +272,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       {
         var sb = $"FBFlagsC={code}";
 
-        analog.SetTmcObjectProperties(sb);
+        analog.UpdatePropertiesFromTmcObject(sb);
 
         analog.Teleregulation.Should().Be(expectedTeleregulation);
       }
@@ -283,7 +283,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       {
         var sb = "A=1\r\nA=2\r\nA=3";
         
-        status.SetTmcObjectProperties(sb);
+        status.UpdatePropertiesFromTmcObject(sb);
 
         status.Properties.Should().ContainKeys("A", "A_1", "A_2");
       }
@@ -297,7 +297,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
       {
         var str = "0Txt=отключен\r\n1Txt=включен\r\nBTxt=обрыв";
         
-        status.SetTmcClassData(str);
+        status.UpdateClassDataFromTmcClassData(str);
 
         status.CaptionOff.Should().Be("отключен");
         status.CaptionOn.Should().Be("включен");

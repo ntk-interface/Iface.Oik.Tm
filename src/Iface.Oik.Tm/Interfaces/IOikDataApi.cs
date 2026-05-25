@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Iface.Oik.Tm.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
 
 namespace Iface.Oik.Tm.Interfaces
@@ -29,7 +30,7 @@ namespace Iface.Oik.Tm.Interfaces
     event EventHandler<MqttMessage>      MqttMessageReceived;
 
 
-    void SetUserInfoAndServerFeatures(TmUserInfo userInfo, TmServerFeatures features);
+    void SetServerFeatures(TmServerFeatures features);
 
 
     Task<TmServerComputerInfo> GetServerComputerInfo(PreferApi prefer = PreferApi.Auto);
@@ -113,20 +114,24 @@ namespace Iface.Oik.Tm.Interfaces
                                           PreferApi prefer = PreferApi.Auto);
 
 
-    Task UpdateStatus(TmStatus  status,
+    Task UpdateStatus(TmStatus  tmStatus,
                       PreferApi prefer = PreferApi.Auto);
 
 
-    Task UpdateAnalog(TmAnalog  analog,
+    Task UpdateAnalog(TmAnalog  tmAnalog,
                       PreferApi prefer = PreferApi.Auto);
 
 
-    Task UpdateAccum(TmAccum   accum,
+    Task UpdateAccum(TmAccum   tmAccum,
                      PreferApi prefer = PreferApi.Auto);
 
 
-    Task UpdateStatuses(IReadOnlyList<TmStatus> statuses,
+    Task UpdateStatuses(IReadOnlyList<TmStatus> tmStatuses,
                         PreferApi               prefer = PreferApi.Auto);
+
+
+    Task UpdateStatuses(IReadOnlyDictionary<int, TmStatus> tmStatuses,
+                        PreferApi                          prefer = PreferApi.Auto);
 
 
     Task UpdateStatusesFromRetro(IReadOnlyList<TmStatus> statuses,
@@ -134,8 +139,12 @@ namespace Iface.Oik.Tm.Interfaces
                                  PreferApi               prefer = PreferApi.Auto);
 
 
-    Task UpdateAnalogs(IReadOnlyList<TmAnalog> analogs,
+    Task UpdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs,
                        PreferApi               prefer = PreferApi.Auto);
+
+
+    Task UpdateAnalogs(IReadOnlyDictionary<int, TmAnalog> tmAnalogs,
+                       PreferApi                          prefer = PreferApi.Auto);
 
 
     Task UpdateAnalogsFromRetro(IReadOnlyList<TmAnalog> analogs,
@@ -144,8 +153,12 @@ namespace Iface.Oik.Tm.Interfaces
                                 PreferApi               prefer   = PreferApi.Auto);
 
 
-    Task UpdateAccums(IReadOnlyList<TmAccum> accums,
+    Task UpdateAccums(IReadOnlyList<TmAccum> tmAccums,
                       PreferApi              prefer = PreferApi.Auto);
+
+
+    Task UpdateAccums(IReadOnlyDictionary<int, TmAccum> tmAccums,
+                      PreferApi                         prefer = PreferApi.Auto);
 
 
     Task UpdateAccumsFromRetro(IReadOnlyList<TmAccum> accums,
@@ -153,25 +166,42 @@ namespace Iface.Oik.Tm.Interfaces
                                PreferApi              prefer = PreferApi.Auto);
 
 
-    Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags,
+    Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tmTags,
                                           PreferApi            prefer = PreferApi.Auto);
 
 
-    Task UpdateTagPropertiesAndClassData(TmTag     tag,
+    Task UpdateStatusesPropertiesAndClassData(IReadOnlyDictionary<int, TmStatus> statuses,
+                                              PreferApi                          prefer = PreferApi.Auto);
+
+
+    Task UpdateAnalogsPropertiesAndClassData(IReadOnlyDictionary<int, TmAnalog> analogs,
+                                             PreferApi                          prefer = PreferApi.Auto);
+
+
+    Task UpdateAccumsPropertiesAndClassData(IReadOnlyDictionary<int, TmAccum> accums,
+                                            PreferApi                         prefer = PreferApi.Auto);
+
+
+    Task UpdateTagPropertiesAndClassData(TmTag     tmTag,
                                          PreferApi prefer = PreferApi.Auto);
+    
+    Task CreateTmTagNamedSet(string name, TmType tmType, IReadOnlyCollection<TmTag> tmTags, PreferApi prefer = PreferApi.Auto);
+    
+    Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetUpdatedValues(string name, 
+                                                                               PreferApi prefer = PreferApi.Auto);
+    
+    Task<IReadOnlyCollection<TmAnalogRecord>> GetTmAnalogNamedSetUpdatedValues(string    name, 
+                                                                               PreferApi prefer = PreferApi.Auto);
+    
+    Task<IReadOnlyCollection<TmAccumRecord>> GetTmAccumNamedSetUpdatedValues(string    name, 
+                                                                             PreferApi prefer = PreferApi.Auto);
+    
+    Task DeleteTmTagNamedSet(string name, TmType tmType, PreferApi prefer = PreferApi.Auto);
 
 
     Task<IReadOnlyCollection<TmClassStatus>> GetStatusesClasses(PreferApi prefer = PreferApi.Auto);
 
     Task<IReadOnlyCollection<TmClassAnalog>> GetAnalogsClasses(PreferApi prefer = PreferApi.Auto);
-
-
-    Task UpdateTechObjects(IReadOnlyList<Tob> techObjects,
-                           PreferApi          prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<Tob>> GetTechObjects(TobFilter filter,
-                                                  PreferApi prefer = PreferApi.Auto);
 
 
     Task<IReadOnlyCollection<TmUserAction>> GetUserActionsArchive(TmEventFilter filter,
@@ -517,24 +547,6 @@ namespace Iface.Oik.Tm.Interfaces
                                string                    binString = "",
                                TmAddr                    tmAddr    = null,
                                PreferApi                 prefer    = PreferApi.Auto);
-    
-    
-    Task SetTechObjectsProperties(IReadOnlyCollection<Tob> tobs,
-                                  PreferApi                prefer = PreferApi.Auto);
-
-
-    Task SetTechObjectProperties(int                                 scheme,
-                                 int                                 type,
-                                 int                                 obj,
-                                 IReadOnlyDictionary<string, string> properties,
-                                 PreferApi                           prefer = PreferApi.Auto);
-
-
-    Task ClearTechObjectProperties(int                 scheme,
-                                   int                 type,
-                                   int                 obj,
-                                   IEnumerable<string> properties,
-                                   PreferApi           prefer = PreferApi.Auto);
 
 
     Task<IReadOnlyCollection<string>> GetFilesInDirectory(string    path,

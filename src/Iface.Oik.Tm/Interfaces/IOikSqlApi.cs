@@ -20,23 +20,33 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<float> GetAccumLoad(int ch, int rtu, int point);
 
-    Task UpdateStatus(TmStatus status);
+    Task UpdateStatus(TmStatus tmStatus);
 
-    Task UpdateAnalog(TmAnalog analog);
+    Task UpdateAnalog(TmAnalog tmAnalog);
 
-    Task UpdateAccum(TmAccum accum);
+    Task UpdateAccum(TmAccum tmAccum);
 
-    Task UpdateStatuses(IReadOnlyList<TmStatus> statuses);
+    Task UpdateStatuses(IReadOnlyList<TmStatus> tmStatuses);
 
-    Task UpdateAnalogs(IReadOnlyList<TmAnalog> analogs);
+    Task UpdateStatuses(IReadOnlyDictionary<int, TmStatus> tmStatuses);
 
-    Task UpdateAccums(IReadOnlyList<TmAccum> accums);
+    Task UpdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs);
 
-    Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags);
+    Task UpdateAnalogs(IReadOnlyDictionary<int, TmAnalog> tmAnalogs);
 
-    Task UpdateTagPropertiesAndClassData(TmTag tag);
-    
-    Task UpdateTechObjectsProperties(IReadOnlyList<Tob> techObjects);
+    Task UpdateAccums(IReadOnlyList<TmAccum> tmAccums);
+
+    Task UpdateAccums(IReadOnlyDictionary<int, TmAccum> tmAccums);
+
+    Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tmTags);
+
+    Task UpdateStatusesPropertiesAndClassData(IReadOnlyDictionary<int, TmStatus> tmStatuses);
+
+    Task UpdateAnalogsPropertiesAndClassData(IReadOnlyDictionary<int, TmAnalog> tmAnalogs);
+
+    Task UpdateAccumsPropertiesAndClassData(IReadOnlyDictionary<int, TmAccum> tmAccums);
+
+    Task UpdateTagPropertiesAndClassData(TmTag tmTag);
 
     Task<IReadOnlyCollection<ITmAnalogRetro[]>> GetAnalogsMicroSeries(IReadOnlyList<TmAnalog> analogs);
 
@@ -72,7 +82,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task<IReadOnlyCollection<TmAlarm>> GetPresentAlarms();
 
-    Task<IReadOnlyCollection<TmAlarm>> GetAnalogAlarms(TmAnalog analog);
+    Task<IReadOnlyCollection<TmAlarm>> GetAnalogAlarms(TmAnalog tmAnalog);
 
     Task<IReadOnlyCollection<TmStatus>> LookupStatuses(TmStatusFilter filter);
 

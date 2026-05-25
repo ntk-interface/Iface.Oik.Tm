@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using AutoFixture;
-using AutoFixture.Xunit2;
 using FluentAssertions;
-using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Interfaces;
+using Iface.Oik.Tm.Native.Interfaces;
 using Xunit;
 
 namespace Iface.Oik.Tm.Test.Interfaces
@@ -85,40 +83,6 @@ namespace Iface.Oik.Tm.Test.Interfaces
                                            ushort expectedCh, ushort expectedRtu, ushort expectedPoint)
       {
         var tmAddr = new TmAddr(type, value);
-
-        tmAddr.Type.Should().Be(type);
-        tmAddr.Ch.Should().Be(expectedCh);
-        tmAddr.Rtu.Should().Be(expectedRtu);
-        tmAddr.Point.Should().Be(expectedPoint);
-      }
-    }
-
-
-    public class CreateFromNoPaddingMethod
-    {
-      [Theory]
-      [InlineData(0x00_01_00_01, 0,   1,   1)]
-      [InlineData(0x10_20_01_00, 16,  32,  256)]
-      [InlineData(0xFE_FF_FF_FF, 254, 255, 65535)]
-      public void FromIntegerCorrectly(uint   value,
-                                       ushort expectedCh, ushort expectedRtu, ushort expectedPoint)
-      {
-        var tmAddr = TmAddr.CreateFromNoPadding(value);
-
-        tmAddr.Type.Should().Be(TmType.Unknown);
-        tmAddr.Ch.Should().Be(expectedCh);
-        tmAddr.Rtu.Should().Be(expectedRtu);
-        tmAddr.Point.Should().Be(expectedPoint);
-      }
-
-
-      [Theory]
-      [InlineData(TmType.Status, 0x00_01_00_01, 0,  1,  1)]
-      [InlineData(TmType.Analog, 0x10_20_01_00, 16, 32, 256)]
-      public void FromTypeIntegerCorrectly(TmType type,       uint   value,
-                                           ushort expectedCh, ushort expectedRtu, ushort expectedPoint)
-      {
-        var tmAddr = TmAddr.CreateFromNoPadding(type, value);
 
         tmAddr.Type.Should().Be(type);
         tmAddr.Ch.Should().Be(expectedCh);
@@ -332,16 +296,16 @@ namespace Iface.Oik.Tm.Test.Interfaces
     }
 
 
-    public class ToIntegerWithoutPaddingMethod
+    public class ToTmaMethod
     {
       [Theory]
       [InlineData(0,  1,  1,   65537)]
       [InlineData(16, 33, 257, 0x10_21_01_01)]
-      public void ReturnsCorrectInteger(int ch, int rtu, int point, uint expected)
+      public void ReturnsCorrectInteger(int ch, int rtu, int point, int expected)
       {
         var tmAddr = new TmAddr(ch, rtu, point);
 
-        var result = tmAddr.ToIntegerWithoutPadding();
+        var result = tmAddr.ToTma();
 
         result.Should().Be(expected);
       }

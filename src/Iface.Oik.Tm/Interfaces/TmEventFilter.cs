@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Iface.Oik.Tm.Native.Dto;
+using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
@@ -17,7 +19,7 @@ namespace Iface.Oik.Tm.Interfaces
     public DateTime?          EndTime             { get; set; }
     public TmEventTypes       Types               { get; set; }
     public TmEventImportances Importances         { get; set; }
-    public List<TmAddr>       TmAddrList          { get; } = new List<TmAddr>();
+    public List<TmAddr>       TmAddrList          { get; } = new();
     public List<int>          TmStatusClassIdList { get; set; }
     public bool               ExcludeFromReserve  { get; set; }
 
@@ -25,7 +27,7 @@ namespace Iface.Oik.Tm.Interfaces
     public Dictionary<int, HashSet<int>> ChannelAndRtuCollection { get; set; }
 
 
-    public List<TmUserActionCategory> Categories { get; } = new List<TmUserActionCategory>();
+    public List<TmUserActionCategory> Categories { get; } = new();
     
     public int OutputLimit { get; set; }
 
@@ -84,13 +86,13 @@ namespace Iface.Oik.Tm.Interfaces
 
     public List<int> EnsureTmStatusClassIdList()
     {
-      return TmStatusClassIdList ?? (TmStatusClassIdList = new List<int>());
+      return TmStatusClassIdList ??= new List<int>();
     }
 
 
     public Dictionary<int, HashSet<int>> EnsureChannelAndRtuCollection()
     {
-      return ChannelAndRtuCollection ?? (ChannelAndRtuCollection = new Dictionary<int, HashSet<int>>());
+      return ChannelAndRtuCollection ??= new Dictionary<int, HashSet<int>>();
     }
 
 
@@ -192,7 +194,7 @@ namespace Iface.Oik.Tm.Interfaces
       }
 
       if (ChannelAndRtuCollection != null &&
-          !IsConformTmAddrComplexInteger(ev.TmAddrComplexInteger))
+          !IsConformTmAddrTma(ev.TmAddrTma))
       {
         return false;
       }
@@ -245,7 +247,7 @@ namespace Iface.Oik.Tm.Interfaces
       }
 
       if (ChannelAndRtuCollection != null &&
-          !IsConformTmAddrComplexInteger(userAction.TmAddrComplexInteger))
+          !IsConformTmAddrTma(userAction.TmAddrTma))
       {
         return false;
       }
@@ -264,7 +266,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public bool IsConformTmAddrComplexInteger(uint tma)
+    public bool IsConformTmAddrTma(int tma)
     {
       if (ChannelAndRtuCollection.IsNullOrEmpty()) return true;
 
@@ -274,8 +276,8 @@ namespace Iface.Oik.Tm.Interfaces
         var rtuList   = chAndRtu.Value;
         if (rtuList == null)
         {
-          var (tmaStart, tmaEnd) = TmChannel.GetSqlTmaRange(channelId);
-          if (tma >= (uint) tmaStart && tma <= (uint) tmaEnd)
+          var (tmaStart, tmaEnd) = TmChannel.GetTmaRange(channelId);
+          if (tma >= tmaStart && tma <= tmaEnd)
           {
             return true;
           }
@@ -284,8 +286,8 @@ namespace Iface.Oik.Tm.Interfaces
         {
           foreach (var rtuId in rtuList)
           {
-            var (tmaStart, tmaEnd) = TmRtu.GetSqlTmaRange(channelId, rtuId);
-            if (tma >= (uint) tmaStart && tma <= (uint) tmaEnd)
+            var (tmaStart, tmaEnd) = TmRtu.GetTmaRange(channelId, rtuId);
+            if (tma >= tmaStart && tma <= tmaEnd)
             {
               return true;
             }
@@ -413,6 +415,18 @@ namespace Iface.Oik.Tm.Interfaces
       }
 
       return string.Join(" И ", filters);
+    }
+
+    public TmNativeEventFilter ToNative()
+    {
+      return new TmNativeEventFilter
+      {
+        Types = (ushort)Types,
+        StartTime = DateUtil.GetUtcTimestampFromDateTime(StartTime ?? DateTime.Now.AddDays(-1)),
+        EndTime   = DateUtil.GetUtcTimestampFromDateTime(EndTime ?? DateTime.Now.AddDays(1)),
+        OutputLimit = OutputLimit,
+        Importances = (TmNativeEventImportances) Importances
+      };
     }
   }
 }

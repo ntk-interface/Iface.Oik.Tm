@@ -1,48 +1,29 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
 
 namespace Iface.Oik.Tm.Native.Utils
 {
   public static class TmNativeUtil
   {
-    public static TmNativeDefs.TStatusPoint GetStatusPointFromCommonPoint(TmNativeDefs.TCommonPoint commonPoint)
+    public static Encoding DetectEncoding(ReadOnlySpan<byte> bytes)
     {
-      if (commonPoint.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в CommonPoint");
-      }
-
-      return FromBytes<TmNativeDefs.TStatusPoint>(commonPoint.Data);
+      return TmNative.cfsIsUTF8(bytes) ? Encoding.UTF8 : Encoding.GetEncoding(1251);
     }
 
 
-    public static TmNativeDefs.TAnalogPoint GetAnalogPointFromCommonPoint(TmNativeDefs.TCommonPoint commonPoint)
+    public static void FreeAllocatedPointer(nint ptr)
     {
-      if (commonPoint.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в CommonPoint");
-      }
-
-      return FromBytes<TmNativeDefs.TAnalogPoint>(commonPoint.Data);
+      Marshal.FreeHGlobal(ptr);
     }
 
 
-    public static TmNativeDefs.TAccumPoint GetAccumPointFromCommonPoint(TmNativeDefs.TCommonPoint commonPoint)
-    {
-      if (commonPoint.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в CommonPoint");
-      }
-
-      return FromBytes<TmNativeDefs.TAccumPoint>(commonPoint.Data);
-    }
-
-
-    public static string[] GetStringListFromDoubleNullTerminatedChars(char[] chars)
+    public static string[] GetStringListFromDoubleNullTerminatedChars(char[]? chars)
     {
       if (chars == null)
       {
@@ -59,573 +40,598 @@ namespace Iface.Oik.Tm.Native.Utils
       return s.Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
     }
 
-
-    public static string[] GetStringListFromDoubleNullTerminatedBytes(byte[] bytes)
+    
+    public static MqttParseResult ParseMqttMessageDatagram(ReadOnlySpan<byte> datagram)
     {
-      if (bytes == null)
+      if (datagram.Length < 2 || datagram[0] != 'p' || datagram[1] != 'o') // кривая датаграмма
       {
-        return Array.Empty<string>();
-      }
-
-      int doubleNull = 0;
-      for (var i = 1; i < bytes.Length; i++)
-      {
-        if (bytes[i] == 0 && bytes[i - 1] == 0)
+        return new MqttParseResult
         {
-          doubleNull = i - 1;
-          break;
-        }
+          Headers = Enumerable.Empty<KeyValuePair<string, string>>(),
+          Payload = ReadOnlySpan<byte>.Empty,
+        };
       }
 
-      var significantBytes = new byte[doubleNull];
-      Array.Copy(bytes, significantBytes, doubleNull);
-      return Encoding.GetEncoding(1251)
-                     .GetString(significantBytes)
-                     .Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
-    }
-
-    public static (IEnumerable<KeyValuePair<string, string>>, byte[]) SplitMqttMessageDatagram(byte[] datagram)
-    {
-      if (datagram == null || datagram[0] != 'p' && datagram[1] != 'o')
-      {
-        return (Enumerable.Empty<KeyValuePair<string, string>>(), Array.Empty<byte>());
-      }
-
-      var doubleNull = 0;
+      var doubleNullPosition = -1;
       for (var i = 3; i < datagram.Length; i++)
       {
         if (datagram[i] != 0 || datagram[i - 1] != 0) continue;
-        doubleNull = i - 1;
+        doubleNullPosition = i - 1;
         break;
       }
-
-      var infoBytes = new byte[doubleNull];
-      Array.Copy(datagram, 2, infoBytes, 0, doubleNull);
-      var infoDictionary = Encoding.GetEncoding(1251)
-                                   .GetString(infoBytes)
-                                   .Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries)
-                                   .Select(x =>
-                                           {
-                                             var item = x.Split('=');
-                                             return new KeyValuePair<string, string>(item[0], item[1]);
-                                           });
-
-      byte[] payloadBytes;
-      var    payloadIndex = doubleNull + 2;
-
-      if (payloadIndex > datagram.Length)
+      
+      if (doubleNullPosition == -1) // не найден разделитель
       {
-        payloadBytes = Array.Empty<byte>();
-      }
-      else
-      {
-        var payloadLength = datagram.Length - payloadIndex;
-        payloadBytes = new byte[payloadLength];
-        Array.Copy(datagram,
-                   payloadIndex,
-                   payloadBytes,
-                   0,
-                   payloadLength);
+        return new MqttParseResult
+        {
+          Headers = Enumerable.Empty<KeyValuePair<string, string>>(),
+          Payload = ReadOnlySpan<byte>.Empty
+        };
       }
 
-      return (infoDictionary, payloadBytes);
+      var headersBytes = datagram.Slice(2, doubleNullPosition - 2);
+      var headers = DetectEncoding(headersBytes).GetString(headersBytes)
+                                                .Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries)
+                                                .Select(x =>
+                                                 {
+                                                   var item = x.Split('=');
+                                                   return new KeyValuePair<string, string>(item[0], item[1]);
+                                                 })
+                                                .ToList();
+
+      var payloadIndex = doubleNullPosition + 2;
+
+      var payload = payloadIndex > datagram.Length 
+                      ? ReadOnlySpan<byte>.Empty 
+                      : datagram.Slice(payloadIndex);
+
+      return new MqttParseResult
+      {
+        Headers = headers,
+        Payload = payload,
+      };
     }
     
-
-    public static byte[] GetDoubleNullTerminatedBytesFromStringList(IEnumerable<string> list,
-                                                                    int                 maxSize = 1024)
+    
+    public ref struct MqttParseResult
     {
-      if (list == null)
+      public IEnumerable<KeyValuePair<string, string>> Headers { get; init; }
+      public ReadOnlySpan<byte>                        Payload { get; init; }
+    }
+
+
+    public static byte[] GetDoubleNullTerminatedBytesFromStringList(IReadOnlyCollection<string> list,
+                                                                    Encoding?                   encoding = null)
+    {
+      if (list.Count == 0)
       {
         return Array.Empty<byte>();
       }
+      
+      var bufferWriter = new ArrayBufferWriter<byte>(1024);
+      
+      FillDoubleNullTerminatedBufferFromStringList(bufferWriter, list, encoding);
 
-      var bytes  = new byte[maxSize];
-      var cursor = 0;
-
-      foreach (var str in list)
-      {
-        var strBytes = Encoding.GetEncoding(1251).GetBytes(str);
-        Array.Copy(strBytes, 0, bytes, cursor, strBytes.Length);
-        cursor += strBytes.Length;
-
-        bytes[cursor] = 0;
-        cursor++;
-      }
-
-      var result = new byte[cursor + 1]; // на конце второй ноль
-      Array.Copy(bytes, result, cursor);
-
-      return result;
+      return bufferWriter.WrittenSpan.ToArray();
     }
 
 
-    public static IReadOnlyCollection<string> GetStringListFromDoubleNullTerminatedPointer(IntPtr ptr,
-      int                                                                                         maxSize)
+    public static nint AllocateDoubleNullTerminatedPointerFromStringList(IReadOnlyCollection<string> list,
+                                                                         Encoding?                   encoding = null)
     {
-      if (ptr == IntPtr.Zero)
+      if (list.Count == 0)
       {
-        return Array.Empty<string>();
+        return nint.Zero;
       }
+      
+      var bufferWriter = new ArrayBufferWriter<byte>(1024);
+      
+      FillDoubleNullTerminatedBufferFromStringList(bufferWriter, list, encoding);
 
-      var result = new List<string>();
+      var span = bufferWriter.WrittenSpan;
 
-      var marshalBytes = new byte[1];
+      var ptr = Marshal.AllocHGlobal(span.Length);
 
-      const int stringBytesSize = 1024;
-      var       stringBytes     = new byte[stringBytesSize];
-
-      var stringCursor = 0;
-      var isNullFound  = false;
-      for (var i = 0; i < maxSize; i++)
+      unsafe
       {
-        Marshal.Copy(new IntPtr(ptr.ToInt64() + i), marshalBytes, 0, 1);
-        if (marshalBytes[0] == 0)
+        fixed (byte* src = span)
         {
-          if (isNullFound) // второй ноль - выходим
-          {
-            break;
-          }
-
-          result.Add(Encoding.GetEncoding(1251)
-                             .GetString(stringBytes)
-                             .Trim('\0'));
-          Array.Clear(stringBytes, 0, stringBytesSize);
-          stringCursor = 0;
-          isNullFound  = true;
-          continue;
+          Buffer.MemoryCopy(src, (void*) ptr, span.Length, span.Length);
         }
-
-        stringBytes[stringCursor++] = marshalBytes[0];
-        isNullFound                 = false;
       }
-
-      return result;
-    }
-
-
-    public static IntPtr GetDoubleNullTerminatedPointerFromStringList(IEnumerable<string> list)
-    {
-      if (list == null)
-      {
-        return IntPtr.Zero;
-      }
-
-      var byteList = new List<byte>();
-      foreach (var item in list)
-      {
-        var bytes = Encoding.GetEncoding(1251)
-                            .GetBytes(item);
-        byteList.AddRange(bytes);
-        byteList.Add(0);
-      }
-
-      byteList.Add(0);
-
-      var handle = GCHandle.Alloc(byteList.ToArray(), GCHandleType.Pinned);
-      var ptr    = handle.AddrOfPinnedObject();
-      handle.Free();
 
       return ptr;
     }
 
 
-    public static byte[] GetFixedBytesWithTrailingZero(string s, int size, string encoding)
+    private static void FillDoubleNullTerminatedBufferFromStringList(IBufferWriter<byte>         bufferWriter,
+                                                                     IReadOnlyCollection<string> list,
+                                                                     Encoding?                   encoding = null)
     {
-      if (s == null)
+      if (list.Count == 0)
       {
-        s = string.Empty;
+        return;
+      }
+      
+      encoding ??= Encoding.UTF8;
+
+      foreach (var str in list)
+      {
+        bufferWriter.Advance(encoding.GetBytes(str, bufferWriter.GetSpan(encoding.GetMaxByteCount(str.Length))));
+        
+        bufferWriter.GetSpan(1).Clear();
+        bufferWriter.Advance(1);
+      }
+      
+      // закрываем вторым нулем
+      bufferWriter.GetSpan(1).Clear(); 
+      bufferWriter.Advance(1);
+    }
+    
+
+    public static uint StringToLpstrBytes(string     str,
+                                          Span<byte> buf,
+                                          Encoding?  encoding = null)
+    {
+      var pos = 0;
+      encoding ??= Encoding.UTF8;
+
+      if (string.IsNullOrEmpty(str))
+      {
+        return 0;
       }
 
-      var result = new byte[size];
-      Array.Copy(Encoding.GetEncoding(encoding).GetBytes(s),
-                 result,
-                 Math.Min(size - 1, s.Length)); // не забыть 0 в конце
-      return result;
+      var written = encoding.GetBytes(str, buf[pos..]);
+      pos += written;
+
+      buf[pos++] = 0;
+
+      return (uint)pos;
     }
 
-
-    public static TmNativeDefs.StatusData GetStatusDataFromTEvent(TmNativeDefs.TEvent tEvent)
+    public static uint StringsToLpstrListBytes(IEnumerable<string> list,
+                                               Span<byte>          buf,
+                                               Encoding?           encoding = null)
     {
-      if (tEvent.Data == null)
+      var pos = 0;
+      encoding ??= Encoding.UTF8;
+      foreach (var s in list)
       {
-        throw new ArgumentException("Отсутствует Data в TEvent");
-      }
-
-      return FromBytes<TmNativeDefs.StatusData>(tEvent.Data);
-    }
-
-
-    public static TmNativeDefs.StatusDataEx GetStatusDataExFromTEvent(TmNativeDefs.TEvent tEvent)
-    {
-      if (tEvent.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в TEvent");
-      }
-
-      return FromBytes<TmNativeDefs.StatusDataEx>(tEvent.Data);
-    }
-
-
-    public static TmNativeDefs.AlarmData GetAlarmDataFromTEvent(TmNativeDefs.TEvent tEvent)
-    {
-      if (tEvent.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в TEvent");
-      }
-
-      return FromBytes<TmNativeDefs.AlarmData>(tEvent.Data);
-    }
-
-
-    public static TmNativeDefs.AnalogSetData GetAnalogSetDataFromTEvent(TmNativeDefs.TEvent tEvent)
-    {
-      if (tEvent.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в TEvent");
-      }
-
-      return FromBytes<TmNativeDefs.AnalogSetData>(tEvent.Data);
-    }
-
-
-    public static TmNativeDefs.ControlData GetControlDataFromTEvent(TmNativeDefs.TEvent tEvent)
-    {
-      if (tEvent.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в TEvent");
-      }
-
-      return FromBytes<TmNativeDefs.ControlData>(tEvent.Data);
-    }
-
-
-    public static TmNativeDefs.AcknowledgeData GetAcknowledgeDataFromTEvent(TmNativeDefs.TEvent tEvent)
-    {
-      if (tEvent.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в TEvent");
-      }
-
-      return FromBytes<TmNativeDefs.AcknowledgeData>(tEvent.Data);
-    }
-
-
-    public static TmNativeDefs.StrBinData GetStrBinData(TmNativeDefs.TEvent tEvent)
-    {
-      if (tEvent.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в TEvent");
-      }
-
-      return FromBytes<TmNativeDefs.StrBinData>(tEvent.Data);
-    }
-
-
-    public static TmNativeDefs.FlagsChangeData GetFlagsChangeData(TmNativeDefs.TEvent tEvent)
-    {
-      if (tEvent.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в TEvent");
-      }
-
-      return FromBytes<TmNativeDefs.FlagsChangeData>(tEvent.Data);
-    }
-
-
-    public static TmNativeDefs.FlagsChangeDataStatus GetFlagsChangeDataStatus(TmNativeDefs.TEvent tEvent)
-    {
-      if (tEvent.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в TEvent");
-      }
-
-      return FromBytes<TmNativeDefs.FlagsChangeDataStatus>(tEvent.Data);
-    }
-
-
-    public static TmNativeDefs.FlagsChangeDataAnalog GetFlagsChangeDataAnalog(TmNativeDefs.TEvent tEvent)
-    {
-      if (tEvent.Data == null)
-      {
-        throw new ArgumentException("Отсутствует Data в TEvent");
-      }
-
-      return FromBytes<TmNativeDefs.FlagsChangeDataAnalog>(tEvent.Data);
-    }
-
-
-    public static TmNativeDefs.TTMSEventAddData GetEventAddData(byte[] addDataBytes)
-    {
-      if (addDataBytes == null)
-      {
-        throw new ArgumentException("Массив байтов пуст");
-      }
-
-      return FromBytes<TmNativeDefs.TTMSEventAddData>(addDataBytes);
-    }
-
-
-    public static byte[] GetBytes<T>(T structure) where T : struct
-    {
-      int size   = Marshal.SizeOf(structure);
-      var bytes  = new byte[size];
-      var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-      try
-      {
-        Marshal.StructureToPtr(structure, handle.AddrOfPinnedObject(), false);
-      }
-      finally
-      {
-        handle.Free();
-      }
-
-      return bytes;
-    }
-
-
-    public static string GetStringFromIntPtrWithAdditionalPart(IntPtr ptr, int size)
-    {
-      var bytes = new byte[size];
-      Marshal.Copy(ptr, bytes, 0, size);
-      return GetStringFromBytesWithAdditionalPart(bytes);
-    }
-
-
-    public static string GetStringFromBytesWithAdditionalPart(byte[] bytes)
-    {
-      return Encoding.GetEncoding(1251)
-                     .GetString(bytes)
-                     .Split(new[] { '\0' })
-                     .FirstOrDefault()?
-                     .Trim('\n');
-    }
-
-    public static string GetStringWithUnknownLengthFromIntPtr(IntPtr ptr)
-    {
-      const int bufferStep = 512;
-      var       bufSize    = bufferStep;
-
-      var stringBuf    = new byte[bufSize];
-      var marshalBytes = new byte[1];
-
-      for (var i = 0; i < bufSize; i++)
-      {
-        Marshal.Copy(new IntPtr(ptr.ToInt64() + i), marshalBytes, 0, 1);
-        if (marshalBytes[0] == 0) break;
-        stringBuf[i] = marshalBytes[0];
-
-        if (i != bufSize - 1) continue;
-
-        bufSize += bufferStep;
-        var oldStrBuffer = stringBuf;
-        stringBuf = new byte[bufSize];
-        Array.Copy(oldStrBuffer, stringBuf, oldStrBuffer.Length);
-      }
-
-      return Encoding.GetEncoding(1251)
-                     .GetString(stringBuf)
-                     .Trim('\0');
-    }
-
-
-    public static IReadOnlyCollection<string> GetUnknownLengthStringListFromDoubleNullTerminatedPointer(IntPtr ptr)
-    {
-      const int bufferStep = 512;
-      var       bufSize    = bufferStep;
-
-      if (ptr == IntPtr.Zero)
-      {
-        return Array.Empty<string>();
-      }
-
-      var result = new List<string>();
-
-      var marshalBytes = new byte[1];
-
-      var stringBytes = new byte[bufSize];
-
-      var stringCursor = 0;
-      var isNullFound  = false;
-      for (var i = 0; i < bufSize; i++)
-      {
-        Marshal.Copy(new IntPtr(ptr.ToInt64() + i), marshalBytes, 0, 1);
-        if (marshalBytes[0] == 0)
+        if (string.IsNullOrEmpty(s))
         {
-          if (isNullFound) // второй ноль - выходим
-          {
-            break;
-          }
-
-          result.Add(Encoding.GetEncoding(1251)
-                             .GetString(stringBytes)
-                             .Trim('\0'));
-          Array.Clear(stringBytes, 0, bufSize);
-          stringCursor = 0;
-          isNullFound  = true;
           continue;
         }
 
-        stringBytes[stringCursor++] = marshalBytes[0];
-        isNullFound                 = false;
+        var written = encoding.GetBytes(s, buf[pos..]);
+        pos += written;
 
-        if (i != bufSize - 1) continue;
-
-        bufSize += bufferStep;
-        var oldStrBuffer = stringBytes;
-        stringBytes = new byte[bufSize];
-        Array.Copy(oldStrBuffer, stringBytes, oldStrBuffer.Length);
+        buf[pos++] = 0;
       }
 
-      return result;
+      buf[pos++] = 0;
+
+      return (uint)pos;
     }
 
 
-    public static bool PointerValueIsNull(IntPtr ptr)
+    public static unsafe IReadOnlyCollection<string> GetStringListFromDoubleNullTerminatedPointer(nint ptr,
+      int                                                                                              maxSize)
     {
-      if (ptr == IntPtr.Zero)
+      if (ptr == nint.Zero)
       {
-        throw new ArgumentException("Нулевой указатель");
+        return Array.Empty<string>();
       }
-
-      var marshalBytes = new byte[1];
-
-      Marshal.Copy(ptr, marshalBytes, 0, 1);
-
-      return marshalBytes[0] == 0;
-    }
-
-
-    public static int GetDoubleNullTerminatorIndexFromPointer(IntPtr ptr)
-    {
-      const int bufferStep  = 512;
-      const int bufferLimit = 2048;
-      var       bufSize     = bufferStep;
-
-      var result = -1;
-
-      if (ptr == IntPtr.Zero)
+      
+      var result = new List<string>();
+      
+      var buf      = new ReadOnlySpan<byte>((void*)ptr, maxSize);
+      var position = 0;
+      while (position < buf.Length)
       {
-        return result;
-      }
+        var remainder = buf.Slice(position);
 
-      var marshalBytes = new byte[1];
+        var nextNullPosition = remainder.IndexOf((byte)0);
 
-      var isNullFound = false;
-      for (var i = 0; i < bufSize; i++)
-      {
-        if (i >= bufferLimit)
+        if (nextNullPosition == 0 || // это и есть второй ноль
+            nextNullPosition == -1) // данные закончились некорректно, второй ноль не найден
         {
           break;
         }
 
-        Marshal.Copy(new IntPtr(ptr.ToInt64() + i), marshalBytes, 0, 1);
-        if (marshalBytes[0] == 0)
-        {
-          if (isNullFound) // второй ноль - выходим
-          {
-            result = i;
-            break;
-          }
+        var stringBytes = remainder.Slice(0, nextNullPosition);
+        
+        result.Add(DetectEncoding(stringBytes).GetString(stringBytes));
 
-          isNullFound = true;
-          continue;
+        position += nextNullPosition + 1;
+      }
+
+      return result;
+    }
+
+    
+    public static string BytesToString(Span<byte> src, Encoding? encoding = null)
+    {
+      encoding ??= Encoding.UTF8;
+
+      var len = src.IndexOf((byte)0);
+      if (len < 0)
+      {
+        len = src.Length;
+      }
+
+      return encoding.GetString(src[..len]);
+    }
+
+    
+    public static byte[] GetBytes<T>(T structure) where T : struct
+    {
+      var bytes = new byte[Marshal.SizeOf<T>()];
+
+      unsafe
+      {
+        fixed (byte* ptr = bytes)
+        {
+          Marshal.StructureToPtr(structure, (nint)ptr, false);
+        }
+      }
+
+      return bytes;
+
+      // более красивый вариант, но надо unsafe структуру передавать, может потом пригодится
+      // return MemoryMarshal.AsBytes(MemoryMarshal.CreateReadOnlySpan(ref structure, 1))
+      //                     .ToArray();
+    }
+
+    
+    internal static unsafe string GetCStringFromIntPtrAutoEncoding(nint ptr)
+    {
+      var p = (byte*)ptr;
+
+      if (p[0] == 0)
+      {
+        return string.Empty;
+      }
+
+      var length = 0;
+
+      while (p[length] != 0)
+      {
+        length++;
+      }
+
+      var span = new Span<byte>(p, length);
+
+      return DetectEncoding(span).GetString(span);
+    }
+
+    
+    public static unsafe string GetCStringFromIntPtr(nint ptr, Encoding? encoding = null)
+    {
+      if (ptr == nint.Zero)
+      {
+        return string.Empty;
+      }
+
+      return GetCStringFromBytePtr((byte*)ptr, encoding);
+    }
+
+
+    internal static unsafe string GetCStringFromBytePtr(byte* ptr, Encoding? encoding = null)
+    {
+      if (ptr[0] == 0)
+      {
+        return string.Empty;
+      }
+
+      encoding ??= Encoding.UTF8; // default
+
+      var length = 0;
+
+      while (ptr[length] != 0)
+      {
+        length++;
+      }
+
+      return encoding.GetString(ptr, length);
+    }
+
+
+    public static unsafe IReadOnlyCollection<string> GetStringsListFromIntPtr(nint      ptr,
+                                                                              Encoding? encoding = null,
+                                                                              int?      limit    = null)
+    {
+      return ptr == nint.Zero
+               ? Array.Empty<string>()
+               : GetStringsListBytePtr((byte*)ptr, encoding, limit);
+    }
+
+
+    public static unsafe IReadOnlyCollection<string> GetStringsListFromBytes(Span<byte> bytes,
+                                                                             Encoding?  encoding = null,
+                                                                             int?       limit    = null)
+    {
+      fixed (byte* ptr = bytes)
+      {
+        return GetStringsListBytePtr(ptr, encoding, limit);
+      }
+    }
+
+
+    internal static unsafe IReadOnlyCollection<string> GetStringsListBytePtr(byte*     ptr,
+                                                                             Encoding? encoding = null,
+                                                                             int?      limit    = null)
+    {
+      var result = new List<string>();
+
+      if (ptr == null)
+      {
+        return result;
+      }
+
+      encoding ??= Encoding.UTF8; // default
+
+      var p      = ptr;
+      var length = 0;
+
+      while (true)
+      {
+        if (limit is not null && limit <= result.Count)
+        {
+          break;
         }
 
-        isNullFound = false;
+        while (p[length] != 0)
+        {
+          length++;
+        }
 
-        if (i != bufSize - 1) continue;
+        result.Add(encoding.GetString(p, length));
 
-        bufSize += bufferStep;
+        length++;
+
+        if (p[length] == 0)
+        {
+          break;
+        }
+
+        p      += length;
+        length =  0;
       }
 
       return result;
     }
 
 
-    public static TmNativeDefs.TEventElix EventElixFromIntPtr(IntPtr pTEventElix)
+    public static (IReadOnlyCollection<string> strings, nint nextPtr) GetStringsListWithOffsetPointer(nint ptr,
+      Encoding? encoding = null)
     {
-      var tEventOffset    = Marshal.SizeOf<TmNativeDefs.TEventElixHeader>();
-      var eventHeaderSize = Marshal.SizeOf<TmNativeDefs.TEventHeader>();
-      var dataOffset      = tEventOffset + eventHeaderSize;
+      var result = new List<string>();
 
-      var header = Marshal.PtrToStructure<TmNativeDefs.TEventElixHeader>(pTEventElix);
-
-      var dataSize = (int)(header.EventSize - eventHeaderSize);
-
-      var eventHeader = Marshal.PtrToStructure<TmNativeDefs.TEventHeader>(IntPtr.Add(pTEventElix, tEventOffset));
-
-      var dataBuf = new byte[dataSize];
-
-      Marshal.Copy(IntPtr.Add(pTEventElix, dataOffset), dataBuf, 0, dataSize);
-
-      return new TmNativeDefs.TEventElix
+      unsafe
       {
-        Next      = header.Next,
-        Elix      = header.Elix,
-        EventSize = header.EventSize,
-        Event = new TmNativeDefs.TEvent
+        if (ptr == nint.Zero)
         {
-          Ch       = eventHeader.Ch,
-          Data     = dataBuf,
-          DateTime = eventHeader.DateTime,
-          Id       = eventHeader.Id,
-          Imp      = eventHeader.Imp,
-          Point    = eventHeader.Point,
-          Rtu      = eventHeader.Rtu
+          return (result, nint.Zero);
         }
-      };
+
+        encoding ??= Encoding.UTF8; // default
+
+        var p      = (byte*)ptr.ToPointer();
+        var length = 0;
+
+        while (true)
+        {
+          while (p[length] != 0)
+          {
+            length++;
+          }
+
+          result.Add(encoding.GetString(p, length));
+          length++;
+
+          if (p[length] == 0)
+          {
+            break;
+          }
+
+          p      += length;
+          length =  0;
+        }
+
+        return (result, (nint)p + length + 1);
+      }
+    }
+
+    public static unsafe Dictionary<string, string> GetDictionaryFromTmBytes(Span<byte> bytes,
+                                                                             Encoding?  encoding = null)
+    {
+      fixed (byte* ptr = bytes)
+      {
+        return GetDictionaryFromTmBytesPtr(ptr, encoding);
+      }
+    }
+
+    internal static unsafe Dictionary<string, string> GetDictionaryFromTmBytesPtr(byte* ptr,
+      Encoding?                                                                         encoding = null)
+    {
+      var result = new Dictionary<string, string>();
+
+      if (ptr == null)
+      {
+        return result;
+      }
+
+      encoding ??= Encoding.UTF8;
+
+      var p      = ptr;
+      var length = 0;
+
+      while (true)
+      {
+        while (p[length] != 0)
+        {
+          length++;
+        }
+
+        var line = new Span<byte>(p, length);
+        var eq   = line.IndexOf((byte)'=');
+
+        if (eq < 0)
+        {
+          break;
+        }
+
+        var key   = encoding.GetString(line[..eq]);
+        var value = encoding.GetString(line[(eq + 1)..]);
+
+        result.Add(key, value);
+
+        length++;
+
+        if (p[length] == 0)
+        {
+          break;
+        }
+
+        p      += length;
+        length =  0;
+      }
+
+      return result;
+    }
+
+    public static byte[] StringToBytes(string src, Encoding? encoding = null)
+    {
+      encoding ??= Encoding.UTF8;
+
+      return string.IsNullOrEmpty(src)
+               ? Array.Empty<byte>()
+               : encoding.GetBytes(src);
     }
 
 
-    public static TmNativeDefs.TEventEx TEventExFromIntPtr(IntPtr pTEventEx)
+    public static bool PointerValueIsNull(nint ptr)
     {
-      var tEventOffset    = Marshal.SizeOf<TmNativeDefs.TEventExHeader>();
-      var eventHeaderSize = Marshal.SizeOf<TmNativeDefs.TEventHeader>();
-      var dataOffset      = tEventOffset + eventHeaderSize;
-
-      var header = Marshal.PtrToStructure<TmNativeDefs.TEventExHeader>(pTEventEx);
-
-      var dataSize = (int)(header.EventSize - eventHeaderSize);
-
-      var eventHeader = Marshal.PtrToStructure<TmNativeDefs.TEventHeader>(IntPtr.Add(pTEventEx, tEventOffset));
-
-      var dataBuf = new byte[dataSize];
-
-      Marshal.Copy(IntPtr.Add(pTEventEx, dataOffset), dataBuf, 0, dataSize);
-
-      return new TmNativeDefs.TEventEx
+      if (ptr == nint.Zero)
       {
-        Next      = header.Next,
-        EventSize = header.EventSize,
-        Event = new TmNativeDefs.TEvent
-        {
-          Ch       = eventHeader.Ch,
-          Data     = dataBuf,
-          DateTime = eventHeader.DateTime,
-          Id       = eventHeader.Id,
-          Imp      = eventHeader.Imp,
-          Point    = eventHeader.Point,
-          Rtu      = eventHeader.Rtu
-        }
-      };
+        throw new ArgumentException("Нулевой указатель");
+      }
+
+      unsafe
+      {
+        var p = (byte*)ptr.ToPointer();
+
+        return p[0] == 0;
+      }
     }
 
 
-    private static T FromBytes<T>(byte[] bytes) where T : struct
+    internal static unsafe string BytePtrToString(byte* buffer, int size)
     {
-      T        structure;
-      GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-      try
+      var span         = new ReadOnlySpan<byte>(buffer, size);
+      var len          = span.IndexOf((byte)0);
+      if (len < 0) len = size;
+
+      return Encoding.UTF8.GetString(span[..len]);
+    }
+
+    internal static unsafe byte[] PtrToArray(byte* ptr, int length)
+    {
+      if (ptr == null || length <= 0)
       {
-        structure = Marshal.PtrToStructure<T>(handle.AddrOfPinnedObject());
-      }
-      finally
-      {
-        handle.Free();
+        return Array.Empty<byte>();
       }
 
-      return structure;
+      var result = new byte[length];
+
+      fixed (byte* dest = result)
+      {
+        Buffer.MemoryCopy(ptr, dest, length, length);
+      }
+
+      return result;
+    }
+
+
+    internal static unsafe uint[] PtrToArray(uint* ptr, int length)
+    {
+      if (ptr == null || length <= 0)
+      {
+        return Array.Empty<uint>();
+      }
+
+      var result = new uint[length];
+
+      fixed (uint* dest = result)
+      {
+        Buffer.MemoryCopy(ptr, dest, length, length);
+      }
+
+      return result;
+    }
+
+    internal static unsafe T FromIntPtr<T>(nint ptr)
+      where T : unmanaged
+    {
+      return FromBytesPtr<T>((byte*)ptr);
+    }
+
+    internal static unsafe T FromBytesPtr<T>(byte* ptr)
+      where T : unmanaged
+    {
+      if (ptr == null)
+      {
+        throw new ArgumentNullException(nameof(ptr));
+      }
+
+      return *(T*)ptr;
+    }
+
+
+    public static unsafe ReadOnlySpan<byte> IntPtrToByteSpan(nint ptr, int length)
+    {
+      return new ReadOnlySpan<byte>((void*)ptr, length);
+    }
+
+
+    public static bool TryFindValueByKey(string     dictionary,
+                                         string     key,
+                                         char       itemsSeparator,
+                                         char       valueSeparator,
+                                         out string value)
+    {
+      value = string.Empty;
+      if (string.IsNullOrEmpty(dictionary) || string.IsNullOrEmpty(key))
+      {
+        return false;
+      }
+
+      var span = dictionary.AsSpan();
+
+      var searchPattern = key + valueSeparator;
+      var keyIndex      = span.IndexOf(searchPattern.AsSpan(), StringComparison.Ordinal);
+      if (keyIndex < 0)
+      {
+        return false;
+      }
+
+      var valueSpan = span[(keyIndex + searchPattern.Length)..];
+
+      var endOfItem = valueSpan.IndexOf(itemsSeparator);
+      if (endOfItem >= 0)
+      {
+        valueSpan = valueSpan[..endOfItem];
+      }
+
+      value = valueSpan.ToString();
+
+      return true;
+    }
+
+    
+    public static long GetUtcTimestampFromDateTime(DateTime dateTime)
+    {
+      return ((DateTimeOffset)dateTime).ToUnixTimeSeconds();
     }
 
     public static uint IpAddrToNativeDword(string ipAddrString)
@@ -638,6 +644,7 @@ namespace Iface.Oik.Tm.Native.Utils
         {
           return 0;
         }
+
         partsList.Add(part);
       }
 
@@ -664,6 +671,51 @@ namespace Iface.Oik.Tm.Native.Utils
       }
 
       return ipAddr;
+    }
+
+    
+    internal static DateTime GetTimeFromFileTime(TmNativeDefsUnsafe.FileTime fileTime)
+    {
+      return DateTime.FromFileTime((long)fileTime.dwHighDateTime << 32 | (uint)fileTime.dwLowDateTime);
+    }
+
+    
+    internal static int Hex(char c)
+    {
+      if ((uint)(c - '0') <= 9) return c       - '0'; // '0'–'9'
+      if ((uint)(c - 'A') <= 5) return c - 'A' + 10;  // 'A'–'F'
+      if ((uint)(c - 'a') <= 5) return c - 'a' + 10;  // 'a'–'f'
+      return -1;
+    }
+
+
+    public static TmNativeDefs.TTMSEventAddData GetEventAddData(Span<byte> addDataBytes)
+    {
+      if (addDataBytes == null)
+      {
+        throw new ArgumentException("Массив байтов пуст");
+      }
+
+      unsafe
+      {
+        fixed (byte* basePtr = addDataBytes)
+        {
+          var native = *(TmNativeDefsUnsafe.TTMSEventAddData*)basePtr;
+          var strPtr = basePtr + sizeof(TmNativeDefsUnsafe.TTMSEventAddData);
+
+          return new TmNativeDefs.TTMSEventAddData
+          {
+            Elix = new TmNativeDefs.TTMSElix
+            {
+              M = native.Elix.M,
+              R = native.Elix.R
+            },
+            AckMs    = native.AckMs,
+            AckSec   = native.AckSec,
+            UserName = GetCStringFromBytePtr(strPtr)
+          };
+        }
+      }
     }
   }
 }

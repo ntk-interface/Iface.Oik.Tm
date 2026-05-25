@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Iface.Oik.Tm.Dto;
+using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public class TmEvent : TmNotifyPropertyChanged
+  public class TmEvent : TmEventNotifiable
   {
-    private readonly int _hashCode;
+    private int _hashCode;
 
     public TmEventElix  Elix                 { get; private set; } // may be null?
     public DateTime?    Time                 { get; private set; } // sql: update_time
@@ -26,7 +26,7 @@ namespace Iface.Oik.Tm.Interfaces
     public int          Importance           { get; private set; }
     public int          TmClassId            { get; private set; }
     public TmType       TmAddrType           { get; private set; }
-    public uint         TmAddrComplexInteger { get; private set; } // sql: tma // one-based, 0=none
+    public int          TmAddrTma            { get; private set; }
     public string       TmAddrString         { get; private set; }
     public object       Reference            { get; private set; }
     public DateTime?    FixTime              { get; private set; }
@@ -42,7 +42,7 @@ namespace Iface.Oik.Tm.Interfaces
       set
       {
         _num = value;
-        NotifyOfPropertyChange();
+        //NotifyOfPropertyChange();
       }
     }
 
@@ -52,8 +52,8 @@ namespace Iface.Oik.Tm.Interfaces
       set
       {
         _ackTime = value;
-        NotifyOfPropertyChange();
-        NotifyOfPropertyChange(nameof(IsAcked));
+        // NotifyOfPropertyChange();
+        // NotifyOfPropertyChange(nameof(IsAcked));
       }
     }
 
@@ -63,7 +63,7 @@ namespace Iface.Oik.Tm.Interfaces
       set
       {
         _ackUser = value;
-        NotifyOfPropertyChange();
+        // NotifyOfPropertyChange();
       }
     }
 
@@ -76,13 +76,16 @@ namespace Iface.Oik.Tm.Interfaces
     public bool               IsAcked         => AckTime    != null; // TODO
 
     public float? AlarmInitialValue => Type == TmEventTypes.Alarm && Reference != null
-      ? (float?) Reference
-      : null;
+                                         ? (float?)Reference
+                                         : null;
 
     public TmEventChangedStatus ChangedStatus => Type == TmEventTypes.StatusChange && Reference != null
                                                    ? (TmEventChangedStatus)Reference
                                                    : null;
 
+    public TmEvent()
+    {
+    }
 
     public TmEvent(int hashCode)
     {
@@ -126,7 +129,7 @@ namespace Iface.Oik.Tm.Interfaces
                                         string    typeString,
                                         string    username,
                                         short     importance,
-                                        int       tmAddrComplexInteger, // one-based, 0=none
+                                        int       tma,
                                         string    tmAddrString,
                                         string    tmTypeString,
                                         short?    tmAddrNativeType,
@@ -140,16 +143,16 @@ namespace Iface.Oik.Tm.Interfaces
                                         DateTime? ackTime,
                                         string    ackUser)
     {
-      var eventType = (TmEventTypes) type;
+      var eventType = (TmEventTypes)type;
 
       var eventTypeString = eventType == TmEventTypes.StatusChange    ||
                             eventType == TmEventTypes.ManualStatusSet ||
                             eventType == TmEventTypes.Alarm
-        ? tmTypeString
-        : typeString;
+                              ? tmTypeString
+                              : typeString;
 
       object reference = null;
-      if (eventType == TmEventTypes.Alarm &&
+      if (eventType     == TmEventTypes.Alarm &&
           isAlarmActive == true)
       {
         reference = alarmInitialValue;
@@ -181,29 +184,29 @@ namespace Iface.Oik.Tm.Interfaces
       }
 
       var tmEvent = new TmEvent(elixBytes != null ? BitConverter.ToInt32(elixBytes, 8) : 0)
-                    {
-                      Time                 = time.NullIfEpoch(),
-                      Text                 = eventText,
-                      StateString          = eventStateString,
-                      Type                 = eventType,
-                      TypeString           = eventTypeString,
-                      Username             = username,
-                      Importance           = importance,
-                      TmClassId            = classId ?? -1,
-                      TmAddrType           = ((TmNativeDefs.TmDataTypes) (ushort) (tmAddrNativeType ?? 0)).ToTmType(),
-                      TmAddrComplexInteger = (uint) tmAddrComplexInteger,
-                      AckTime              = ackTime.NullIfEpoch(),
-                      AckUser              = ackUser,
-                      IsFromReserve        = tsExtraFlags != null && tsExtraFlags.Count > 4 && tsExtraFlags[4] == true, 
-                      Reference            = reference,
-                    };
+      {
+        Time                 = time.NullIfEpoch(),
+        Text                 = eventText,
+        StateString          = eventStateString,
+        Type                 = eventType,
+        TypeString           = eventTypeString,
+        Username             = username,
+        Importance           = importance,
+        TmClassId            = classId ?? -1,
+        TmAddrType           = ((TmNativeDefs.TmDataTypes)(ushort)(tmAddrNativeType ?? 0)).ToTmType(),
+        TmAddrTma            = tma,
+        AckTime              = ackTime.NullIfEpoch(),
+        AckUser              = ackUser,
+        IsFromReserve        = tsExtraFlags != null && tsExtraFlags.Count > 4 && tsExtraFlags[4] == true,
+        Reference            = reference,
+      };
 
       if (elixBytes != null)
       {
         tmEvent.Elix = TmEventElix.CreateFromByteArray(elixBytes);
       }
 
-      if (tmAddrComplexInteger != 0)
+      if (tma != 0)
       {
         tmEvent.TmAddrString = tmAddrString;
       }
@@ -226,10 +229,9 @@ namespace Iface.Oik.Tm.Interfaces
     {
       var alarmEvent = CreateFromTEvent(tEvent, eventAddData, sourceAnalog.Name, elix);
 
-      alarmEvent.TmAddrString = $"#TT{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
-      alarmEvent.TmAddrComplexInteger =
-        (uint) (tEvent.Point + (tEvent.Rtu << 16) + (tEvent.Ch << 24));
-      alarmEvent.TmAddrType = TmType.Analog;
+      alarmEvent.TmAddrString = TmAddr.EncodeString(TmType.Analog, tEvent.Ch, tEvent.Rtu, tEvent.Point);
+      alarmEvent.TmAddrTma    = TmAddr.EncodeTma(tEvent.Ch, tEvent.Rtu, tEvent.Point);
+      alarmEvent.TmAddrType   = TmType.Analog;
 
       alarmEvent.TypeString         = alarmTypeName;
       alarmEvent.ExplicitTypeString = "Уставка";
@@ -243,270 +245,229 @@ namespace Iface.Oik.Tm.Interfaces
       {
         alarmEvent.StateString = "Снята";
       }
+
       alarmEvent.ExplicitStateString = $"{data.Val} - {alarmEvent.StateString}";
 
       return alarmEvent;
     }
 
 
-    public static TmEvent CreateManualAnalogSetEvent(TmNativeDefs.TEvent           tEvent,
-                                                     TmNativeDefs.TTMSEventAddData eventAddData,
-                                                     TmAnalog                      setAnalog,
-                                                     TmNativeDefs.AnalogSetData    analogSetData,
-                                                     TmNativeDefs.TTMSElix?        elix = null)
+    protected override void InitializeAlarmEvent(InitializeAlarmEventDto dto)
     {
-      var manualAnalogSetEvent = CreateFromTEvent(tEvent, eventAddData, setAnalog.Name, elix);
+      InitializeTmEvent(dto);
 
-      manualAnalogSetEvent.TmAddrString = $"#TT{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
-      manualAnalogSetEvent.TmAddrComplexInteger =
-        (uint) (tEvent.Point + (tEvent.Rtu << 16) + (tEvent.Ch << 24));
-      manualAnalogSetEvent.TmAddrType = TmType.Analog;
+      TmAddrString = TmAddr.EncodeString(TmType.Analog, dto.Ch, dto.Rtu, dto.Point);
+      TmAddrTma    = TmAddr.EncodeTma(dto.Ch, dto.Rtu, dto.Point);
+      TmAddrType   = TmType.Analog;
 
-      manualAnalogSetEvent.TypeString         = "Ручн. ТИТ";
-      manualAnalogSetEvent.ExplicitTypeString = "Ручн. ТИТ";
+      TypeString                    = dto.TypeName;
+      ExplicitTypeString = "Уставка";
 
-      manualAnalogSetEvent.Username = EncodingUtil.Cp866BytesToUtf8(analogSetData.UserName);
+      if (dto.TurnedOn/*dto.State > 0*/)
+      {
+        StateString = "Взведена";
+        Reference   = dto.Value;
+      }
+      else
+      {
+        StateString = "Снята";
+      }
 
-      manualAnalogSetEvent.StateString = 
-        $"{analogSetData.Value.ToString($"N{setAnalog.Precision}")}{(setAnalog.Unit.IsNullOrEmpty() ? "" : $" {setAnalog.Unit}")}";
-      manualAnalogSetEvent.ExplicitStateString =
-        $"{analogSetData.Value} - {(analogSetData.Cmd == 0 ? "Снято" : "Установлено")}";
-
-      return manualAnalogSetEvent;
+      ExplicitStateString = $"{dto.Value} - {StateString}";
     }
 
 
-    public static TmEvent CreateManualStatusSetEvent(TmNativeDefs.TEvent           tEvent,
-                                                     TmNativeDefs.TTMSEventAddData eventAddData,
-                                                     TmStatus                      setStatus,
-                                                     TmNativeDefs.ControlData      mSData,
-                                                     TmNativeDefs.TTMSElix?        elix = null)
+    protected override void InitializeManualAnalogSetEvent(InitializeManualAnalogSetEventDto dto)
+    { 
+      InitializeTmEvent(dto);
+      
+      TmAddrString = TmAddr.EncodeString(TmType.Analog, dto.Ch, dto.Rtu, dto.Point);
+      TmAddrTma    = TmAddr.EncodeTma(dto.Ch, dto.Rtu, dto.Point);
+      TmAddrType   = TmType.Analog;
+
+      TypeString         = "Ручн. ТИТ";
+      ExplicitTypeString = "Ручн. ТИТ";
+
+      StateString =
+        $"{dto.Value.ToString($"N{dto.PropsAndClassData.Precision}")}{(string.IsNullOrEmpty(dto.PropsAndClassData.Units) 
+                                                                         ? string.Empty 
+                                                                         : $" {dto.PropsAndClassData.Units}")}";
+      ExplicitStateString =
+        $"{dto.Value} - {(dto.Command ? "Установлено" : "Снято" )}";
+    }
+    
+    
+    protected override void InitializeManualStatusSetEvent(InitializeManualStatusSetEventDto dto)
     {
-      var manualStatusSetEvent = CreateFromTEvent(tEvent, eventAddData, setStatus.Name, elix);
+      InitializeTmEvent(dto);
+      
+      TmAddrString = TmAddr.EncodeString(TmType.Status, dto.Ch, dto.Rtu, dto.Point);
+      TmAddrTma    = TmAddr.EncodeTma(dto.Ch, dto.Rtu, dto.Point);
+      TmAddrType   = TmType.Status;
 
-      manualStatusSetEvent.TmAddrString = $"#TС{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
-      manualStatusSetEvent.TmAddrComplexInteger =
-        (uint) (tEvent.Point + (tEvent.Rtu << 16) + (tEvent.Ch << 24));
-      manualStatusSetEvent.TmAddrType = TmType.Status;
+      ExplicitTypeString  = "Ручн. ТС";
+      ExplicitStateString = dto.Command ? "ВКЛ" : "ОТКЛ";
 
-      manualStatusSetEvent.Username = EncodingUtil.Cp866BytesToUtf8(mSData.UserName);
-
-
-      manualStatusSetEvent.ExplicitTypeString  = "Ручн. ТС";
-      manualStatusSetEvent.ExplicitStateString = mSData.Cmd == 1 ? "ВКЛ" : "ОТКЛ";
-
-      if (mSData.Ch == -1)
+      if (dto.ACh == -1)
       {
-        switch (mSData.Rtu)
+        switch (dto.ARtu)
         {
           case 1:
-            manualStatusSetEvent.TypeString  = setStatus.Flag1Name;
-            manualStatusSetEvent.StateString = mSData.Cmd == 1 ? setStatus.CaptionFlag1On : setStatus.CaptionFlag1Off;
+            TypeString  = dto.PropsAndClassData.Flag1Name;
+            StateString = dto.Command ? dto.PropsAndClassData.CaptionFlag1On : dto.PropsAndClassData.CaptionFlag1Off;
             break;
           case 2:
-            manualStatusSetEvent.TypeString  = setStatus.Flag2Name;
-            manualStatusSetEvent.StateString = mSData.Cmd == 1 ? setStatus.CaptionFlag2On : setStatus.CaptionFlag2Off;
+            TypeString  = dto.PropsAndClassData.Flag2Name;
+            StateString = dto.Command ? dto.PropsAndClassData.CaptionFlag2On : dto.PropsAndClassData.CaptionFlag2Off;
             break;
           case 3:
-            manualStatusSetEvent.TypeString  = setStatus.Flag3Name;
-            manualStatusSetEvent.StateString = mSData.Cmd == 1 ? setStatus.CaptionFlag3On : setStatus.CaptionFlag3Off;
+            TypeString  = dto.PropsAndClassData.Flag3Name;
+            StateString = dto.Command ? dto.PropsAndClassData.CaptionFlag3On : dto.PropsAndClassData.CaptionFlag3Off;
             break;
           case 4:
-            manualStatusSetEvent.TypeString  = setStatus.Flag4Name;
-            manualStatusSetEvent.StateString = mSData.Cmd == 1 ? setStatus.CaptionFlag4On : setStatus.CaptionFlag4Off;
+            TypeString  = dto.PropsAndClassData.Flag4Name;
+            StateString = dto.Command ? dto.PropsAndClassData.CaptionFlag4On : dto.PropsAndClassData.CaptionFlag4Off;
             break;
         }
       }
       else
       {
-        manualStatusSetEvent.TypeString  = "Ручн. ТС";
-        manualStatusSetEvent.StateString = mSData.Cmd == 1 ? setStatus.CaptionOn : setStatus.CaptionOff;
+        TypeString  = "Ручн. ТС";
+        StateString = dto.Command ? dto.PropsAndClassData.CaptionOn : dto.PropsAndClassData.CaptionOff;
       }
-
-
-      return manualStatusSetEvent;
     }
 
-
-    public static TmEvent CreateAcknowledgeEvent(TmNativeDefs.TEvent           tEvent,
-                                                 TmNativeDefs.TTMSEventAddData eventAddData,
-                                                 string                        sourceObjectName,
-                                                 TmNativeDefs.AcknowledgeData  acknowledgeData,
-                                                 TmNativeDefs.TTMSElix?        elix = null)
+    
+    protected override void InitializeAcknowledgeEvent(InitializeAcknowledgeEventDto dto)
     {
-      var acknowledgeEvent = CreateFromTEvent(tEvent, eventAddData, sourceObjectName, elix);
+      InitializeTmEvent(dto);
+      
+      TmAddrTma = TmAddr.EncodeTma(dto.Ch, dto.Rtu, dto.Point);
 
-      acknowledgeEvent.TmAddrComplexInteger =
-        (uint) (tEvent.Point + (tEvent.Rtu << 16) + (tEvent.Ch << 24));
+      TmAddrType = ((TmNativeDefs.TmDataTypes)dto.TargetTmType).ToTmType();
 
-      acknowledgeEvent.TmAddrType = ((TmNativeDefs.TmDataTypes) acknowledgeData.TmType).ToTmType();
-
-      switch (acknowledgeEvent.TmAddrType)
+      switch (TmAddrType)
       {
         case TmType.Status:
-          if (tEvent.Point == 0)
+          if (dto.Point == 0)
           {
-            acknowledgeEvent.Text = "Общее квитирование ТС";
+            Text = "Общее квитирование ТС";
           }
           else
           {
-            acknowledgeEvent.TmAddrString = $"#TC{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
+            TmAddrString = TmAddr.EncodeString(TmType.Status, dto.Ch, dto.Rtu, dto.Point);
           }
 
           break;
         case TmType.Analog:
-          
-          if (tEvent.Point == 0)
+
+          if (dto.Point == 0)
           {
-            acknowledgeEvent.Text = "Общее квитирование ТИ";
+            Text = "Общее квитирование ТИ";
           }
           else
           {
-            acknowledgeEvent.TmAddrString = $"#TT{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
+            TmAddrString = TmAddr.EncodeString(TmType.Analog, dto.Ch, dto.Rtu, dto.Point);
           }
+
           break;
         default:
-          if (tEvent.Point == 0)
+          if (dto.Point == 0)
           {
-            acknowledgeEvent.Text = "Общее квитирование";
+            Text = "Общее квитирование";
           }
 
           break;
       }
 
-      acknowledgeEvent.TypeString         = "Квитирование";
-      acknowledgeEvent.ExplicitTypeString = "Квитирование";
-      acknowledgeEvent.Username           = EncodingUtil.Cp866BytesToUtf8(acknowledgeData.UserName);
-
-      return acknowledgeEvent;
+      TypeString         = "Квитирование";
+      ExplicitTypeString = "Квитирование";
     }
 
+    
+    protected override void InitializeControlEvent(InitializeControlEventDto dto)
+    { 
+      InitializeTmEvent(dto);
+      
+      TmAddrString = TmAddr.EncodeString(TmType.Status, dto.Ch, dto.Rtu, dto.Point);
+      TmAddrTma    = TmAddr.EncodeTma(dto.Ch, dto.Rtu, dto.Point);
+      TmAddrType   = TmType.Status;
 
-    public static TmEvent CreateControlEvent(TmNativeDefs.TEvent           tEvent,
-                                             TmNativeDefs.TTMSEventAddData eventAddData,
-                                             TmStatus                      controlStatus,
-                                             TmNativeDefs.ControlData      controlData,
-                                             TmNativeDefs.TTMSElix?        elix = null)
-    {
-      var controlEvent = CreateFromTEvent(tEvent, eventAddData, controlStatus.Name, elix);
+      TypeString         = "ТУ";
+      ExplicitTypeString = "ТУ";
 
-      controlEvent.TmAddrString = $"#TC{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
-      controlEvent.TmAddrComplexInteger =
-        (uint) (tEvent.Point + (tEvent.Rtu << 16) + (tEvent.Ch << 24));
-      controlEvent.TmAddrType = TmType.Status;
-
-      controlEvent.TypeString         = "ТУ";
-      controlEvent.ExplicitTypeString = "ТУ";
-
-      controlEvent.Username = EncodingUtil.Cp866BytesToUtf8(controlData.UserName);
-
-      var result = (TmTelecontrolResult) unchecked((sbyte) controlData.Result);
+      var result = (TmTelecontrolResult)dto.Result;
 
       if (result != TmTelecontrolResult.Success)
       {
-        controlEvent.ExplicitStateString = $"{(controlData.Cmd == 1 ? "ВКЛ" : "ОТКЛ")} ОШИБКА {(int) result}";
-        controlEvent.StateString         = result.GetDescription();
+        ExplicitStateString = $"{(dto.Command ? "ВКЛ" : "ОТКЛ")} ОШИБКА {(int)result}";
+        StateString         = result.GetDescription();
       }
       else
       {
-        controlEvent.ExplicitStateString = controlData.Cmd == 1 ? "ВКЛ" : "ОТКЛ";
-        controlEvent.StateString = $"Команда {(controlData.Cmd == 1 ? controlStatus.CaptionOn : controlStatus.CaptionOff)}";
+        ExplicitStateString = dto.Command ? "ВКЛ" : "ОТКЛ";
+        StateString =
+          $"Команда {(dto.Command ? dto.PropsAndClassData.CaptionOn : dto.PropsAndClassData.CaptionOff)}";
       }
-
-      return controlEvent;
     }
 
 
-    public static TmEvent CreateExtendedEvent(TmNativeDefs.TEvent           tEvent,
-                                              TmNativeDefs.TTMSEventAddData eventAddData,
-                                              TmNativeDefs.StrBinData       strBinData,
-                                              TmNativeDefs.TTMSElix?        elix = null)
+    protected override void InitializeExtendedEvent(InitializeExtendedEventDto dto)
     {
-      var extendedEvent = CreateFromTEvent(tEvent, eventAddData, "", elix);
+      InitializeTmEvent(dto);
 
-      var extendedType = (TmNativeDefs.ExtendedEventTypes) tEvent.Ch;
+      TmAddrString         = dto.TmAddrString;
+      TmAddrTma = 0;
+      TmAddrType           = TmType.Unknown;
 
-      extendedEvent.TmAddrString         = null;
-      extendedEvent.TmAddrComplexInteger = 0;
-      extendedEvent.TmAddrType           = TmType.Unknown;
+      TypeString                                   = dto.TypeString;
+      ExplicitTypeString                           = dto.TypeString;
 
-      extendedEvent.TypeString         = GetTypeStringByExtendedTypeString(extendedType);
-      extendedEvent.ExplicitTypeString = GetTypeStringByExtendedTypeString(extendedType);
-      (extendedEvent.Text, extendedEvent.Username) = GetMessageAndUserFromStrBinBytes(strBinData.StrBin);
-
-      switch (extendedType)
-      {
-        case TmNativeDefs.ExtendedEventTypes.Message:
-          if (strBinData.Source < 0x10000)
-          {
-            
-            extendedEvent.Reference    = $"Источник: {strBinData.Source}";
-          }
-          else
-          {
-            extendedEvent.TmAddrString =
-              $"#XX{(strBinData.Source & 0xff00_0000) >> 24}:{(strBinData.Source & 0x00ff_0000) >> 16}:0";
-            extendedEvent.Reference =
-              $"Ист: {strBinData.Source & 0x0000_ffff}, "        +
-              $"К: {(strBinData.Source  & 0xff00_0000) >> 24}, " +
-              $"КП: {(strBinData.Source & 0x00ff_0000) >> 16}";
-          }
-
-          break;
-        case TmNativeDefs.ExtendedEventTypes.Model:
-          extendedEvent.Reference    = $"Источник: {strBinData.Source}";
-          break;
-        default:
-          extendedEvent.Reference    = "???";
-          break;
-      }
-
-      return extendedEvent;
+      Reference = dto.Reference;
     }
-
-
+    
     public static TmEvent CreateStatusChangeEvent(TmNativeDefs.TEvent           tEvent,
                                                   TmNativeDefs.TTMSEventAddData eventAddData,
                                                   TmStatus                      changedStatus,
                                                   TmNativeDefs.StatusData       statusData,
                                                   TmNativeDefs.TTMSElix?        elix = null)
     {
-      var statusChangeEvent = CreateStatusChangeEvent(tEvent,       
-                                                      eventAddData, 
-                                                      changedStatus, 
-                                                      statusData.State, 
-                                                      statusData.Class, 
-                                                      statusData.ExtSig, 
-                                                      statusData.FixUT, 
-                                                      statusData.FixMS, 
-                                                      statusData.S2, 
-                                                      statusData.Flags, 
+      var statusChangeEvent = CreateStatusChangeEvent(tEvent,
+                                                      eventAddData,
+                                                      changedStatus,
+                                                      statusData.State,
+                                                      statusData.Class,
+                                                      statusData.ExtSig,
+                                                      statusData.FixUT,
+                                                      statusData.FixMS,
+                                                      statusData.S2,
+                                                      statusData.Flags,
                                                       elix: elix);
-      
+
       return statusChangeEvent;
     }
 
 
-    public static TmEvent CreateStatusChangeExtendedEvent(TmNativeDefs.TEvent     tEvent,
-                                                    TmNativeDefs.TTMSEventAddData eventAddData,
-                                                    TmStatus                      changedStatus,
-                                                    TmNativeDefs.StatusDataEx     statusDataEx,
-                                                    TmNativeDefs.TTMSElix?        elix = null)
+    public static TmEvent CreateStatusChangeExtendedEvent(TmNativeDefs.TEvent           tEvent,
+                                                          TmNativeDefs.TTMSEventAddData eventAddData,
+                                                          TmStatus                      changedStatus,
+                                                          TmNativeDefs.StatusDataEx     statusDataEx,
+                                                          TmNativeDefs.TTMSElix?        elix = null)
     {
-      var statusChangeExtendedEvent = CreateStatusChangeEvent(tEvent,       
-                                                              eventAddData,      
-                                                              changedStatus, 
-                                                              statusDataEx.State, 
-                                                              statusDataEx.Class, 
-                                                              statusDataEx.ExtSig, 
-                                                              statusDataEx.FixUT, 
-                                                              statusDataEx.FixMS, 
-                                                              statusDataEx.S2, 
-                                                              statusDataEx.Flags, 
-                                                              statusDataEx.OldFlags, 
+      var statusChangeExtendedEvent = CreateStatusChangeEvent(tEvent,
+                                                              eventAddData,
+                                                              changedStatus,
+                                                              statusDataEx.State,
+                                                              statusDataEx.Class,
+                                                              statusDataEx.ExtSig,
+                                                              statusDataEx.FixUT,
+                                                              statusDataEx.FixMS,
+                                                              statusDataEx.S2,
+                                                              statusDataEx.Flags,
+                                                              statusDataEx.OldFlags,
                                                               elix);
 
-      statusChangeExtendedEvent.Username = EncodingUtil.Win1251BytesToUtf8(statusDataEx.UserName);
+      statusChangeExtendedEvent.Username = TmNativeUtil.BytesToString(statusDataEx.UserName);
       return statusChangeExtendedEvent;
     }
 
@@ -515,49 +476,51 @@ namespace Iface.Oik.Tm.Interfaces
                                                    TmStatus                      changedStatus,
                                                    byte                          state,
                                                    byte                          statusClass,
-                                                   UInt32                        extSig, 
-                                                   UInt32                        fixUt, 
+                                                   UInt32                        extSig,
+                                                   UInt32                        fixUt,
                                                    UInt16                        fixMs,
-                                                   UInt16                        s2,     
+                                                   UInt16                        s2,
                                                    UInt32                        flags,
                                                    UInt32?                       oldFlags = null,
                                                    TmNativeDefs.TTMSElix?        elix     = null)
     {
       var statusChangeEvent = CreateFromTEvent(tEvent, eventAddData, changedStatus.Name, elix);
-      
-      var                  isS2Only = false;
-      TmNativeDefs.S2Flags s2Flags       = 0x0000;
 
-      statusChangeEvent.TmAddrString = $"#TC{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
-      statusChangeEvent.TmAddrComplexInteger =
-        (uint) (tEvent.Point + (tEvent.Rtu << 16) + (tEvent.Ch << 24));
-      statusChangeEvent.TmAddrType = TmType.Status;
-      
-      statusChangeEvent.TypeString = changedStatus.ClassName.IsNullOrEmpty() ? $"{(changedStatus.IsAps ? "АПС" : "ТС")}" : changedStatus.ClassName;
+      var                  isS2Only = false;
+      TmNativeDefs.S2Flags s2Flags  = 0x0000;
+
+      statusChangeEvent.TmAddrString = TmAddr.EncodeString(TmType.Status, tEvent.Ch, tEvent.Rtu, tEvent.Point);
+      statusChangeEvent.TmAddrTma    = TmAddr.EncodeTma(tEvent.Ch, tEvent.Rtu, tEvent.Point);
+      statusChangeEvent.TmAddrType   = TmType.Status;
+
+      statusChangeEvent.TypeString = changedStatus.ClassName.IsNullOrEmpty()
+                                       ? $"{(changedStatus.IsAps ? "АПС" : "ТС")}"
+                                       : changedStatus.ClassName;
       statusChangeEvent.ExplicitTypeString = statusClass == 1 ? "АПС" : "ТС";
 
       var hasFixTime = false;
-      var hasTmFlags = false;;
+      var hasTmFlags = false;
+      ;
       var hasSecondary = false;
       var hasNoCurData = false;
-      var hasS2 = false;
+      var hasS2        = false;
       if ((extSig & TmNativeDefs.ExtendedDataSignature) == TmNativeDefs.ExtendedDataSignature)
       {
-        var extSigFlags = (TmNativeDefs.ExtendedDataSignatureFlag) (extSig ^
-                                                                    TmNativeDefs.ExtendedDataSignature);
-        hasFixTime = extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.FixTime);
-        hasTmFlags = extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.TmFlags);
+        var extSigFlags = (TmNativeDefs.ExtendedDataSignatureFlag)(extSig ^
+                                                                   TmNativeDefs.ExtendedDataSignature);
+        hasFixTime   = extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.FixTime);
+        hasTmFlags   = extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.TmFlags);
         hasSecondary = extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.Secondary);
         hasNoCurData = !extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.CurData);
-        hasS2 = extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.S2);
+        hasS2        = extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.S2);
       }
-      
-      
+
+
       if (hasFixTime)
       {
         statusChangeEvent.FixTime = DateUtil.GetDateTimeFromTimestamp(fixUt, fixMs);
       }
-      
+
       if (oldFlags == null)
       {
         statusChangeEvent.Reference = hasTmFlags ? $"F=${flags:X8}" : "";
@@ -566,58 +529,144 @@ namespace Iface.Oik.Tm.Interfaces
       {
         statusChangeEvent.Reference = oldFlags == flags ? $"F=${flags:X8}" : $"F=${oldFlags:X8} -> ${flags:X8}";
       }
-      
+
       if (hasSecondary)
       {
-        statusChangeEvent.Reference = statusChangeEvent.Reference == null ? "(s)" : $"{statusChangeEvent.Reference} (s)";
+        statusChangeEvent.Reference =
+          statusChangeEvent.Reference == null ? "(s)" : $"{statusChangeEvent.Reference} (s)";
         statusChangeEvent.IsFromReserve = true;
       }
 
       if (hasNoCurData)
       {
-        statusChangeEvent.Reference = statusChangeEvent.Reference == null ? "(d)" : $"{statusChangeEvent.Reference} (d)";
+        statusChangeEvent.Reference =
+          statusChangeEvent.Reference == null ? "(d)" : $"{statusChangeEvent.Reference} (d)";
       }
 
       if (hasS2)
       {
-        isS2Only = (s2                        & 0x8000) != 0;
-        s2Flags  = (TmNativeDefs.S2Flags) (s2 & 0x7fff);
+        isS2Only = (s2                       & 0x8000) != 0;
+        s2Flags  = (TmNativeDefs.S2Flags)(s2 & 0x7fff);
       }
 
 
       if (s2Flags == 0)
       {
         statusChangeEvent.StateString = state == 1 ? changedStatus.CaptionOn : changedStatus.CaptionOff;
-        statusChangeEvent.ExplicitStateString = isS2Only ? "ИЗМ. АТРИБУТОВ - НОРМА" 
+        statusChangeEvent.ExplicitStateString = isS2Only
+                                                  ? "ИЗМ. АТРИБУТОВ - НОРМА"
                                                   : $"{(state == 1 ? "ВКЛ" : "ОТКЛ")}";
       }
       else
       {
         statusChangeEvent.StateString = GetS2StatusString(s2Flags, changedStatus);
-        statusChangeEvent.ExplicitStateString = $"{(isS2Only ? "ИЗМ. АТРИБУТОВ" : $"{(state == 1 ? "ВКЛ" : "ОТКЛ")}")} {GetS2StatusString(s2Flags)}";
-
+        statusChangeEvent.ExplicitStateString =
+          $"{(isS2Only ? "ИЗМ. АТРИБУТОВ" : $"{(state == 1 ? "ВКЛ" : "ОТКЛ")}")} {GetS2StatusString(s2Flags)}";
       }
 
       return statusChangeEvent;
     }
 
+    protected override void InitializeStatusChangeEvent(InitializeStatusChangeEventDto dto)
+    {
+      InitializeTmEvent(dto);
 
-    public static TmEvent CreateStatusFlagsChangeEvent(TmNativeDefs.TEvent                tEvent, 
-                                                       TmNativeDefs.TTMSEventAddData      eventAddData, 
-                                                       TmStatus                           sourceStatus, 
-                                                       TmNativeDefs.FlagsChangeDataStatus flagsChangeDataStatus, 
+      var                  isS2Only = false;
+      TmNativeDefs.S2Flags s2Flags  = 0x0000;
+
+      TmAddrString = TmAddr.EncodeString(TmType.Status, dto.Ch, dto.Rtu, dto.Point);
+      TmAddrTma    = TmAddr.EncodeTma(dto.Ch, dto.Rtu, dto.Point);
+      TmAddrType   = TmType.Status;
+
+      TypeString = string.IsNullOrEmpty(dto.PropsAndClassData.ClassName)
+                     ? $"{(dto.StatusClass == 1 ? "АПС" : "ТС")}"
+                     : dto.PropsAndClassData.ClassName;
+      ExplicitTypeString = dto.StatusClass == 1 ? "АПС" : "ТС";
+
+      var hasFixTime = false;
+      var hasTmFlags = false;
+      ;
+      var hasSecondary = false;
+      var hasNoCurData = false;
+      var hasS2        = false;
+      if ((dto.ExtSig & TmNativeDefs.ExtendedDataSignature) == TmNativeDefs.ExtendedDataSignature)
+      {
+        var extSigFlags = (TmNativeDefs.ExtendedDataSignatureFlag)(dto.ExtSig ^
+                                                                   TmNativeDefs.ExtendedDataSignature);
+        hasFixTime   = extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.FixTime);
+        hasTmFlags   = extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.TmFlags);
+        hasSecondary = extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.Secondary);
+        hasNoCurData = !extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.CurData);
+        hasS2        = extSigFlags.HasFlag(TmNativeDefs.ExtendedDataSignatureFlag.S2);
+      }
+
+
+      if (hasFixTime)
+      {
+        FixTime = DateUtil.GetDateTimeFromTimestamp(dto.FixUt, dto.FixMs);
+      }
+
+      if (dto.StatusOldFlags == null)
+      {
+        Reference = hasTmFlags ? $"F=${dto.StatusFlags:X8}" : "";
+      }
+      else
+      {
+        Reference = dto.StatusOldFlags == dto.StatusFlags
+                      ? $"F=${dto.StatusFlags:X8}"
+                      : $"F=${dto.StatusOldFlags:X8} -> ${dto.StatusFlags:X8}";
+      }
+
+      if (hasSecondary)
+      {
+        Reference     = Reference == null ? "(s)" : $"{Reference} (s)";
+        IsFromReserve = true;
+      }
+
+      if (hasNoCurData)
+      {
+        Reference = Reference == null ? "(d)" : $"{Reference} (d)";
+      }
+
+      if (hasS2)
+      {
+        isS2Only = (dto.StatusS2                       & 0x8000) != 0;
+        s2Flags  = (TmNativeDefs.S2Flags)(dto.StatusS2 & 0x7fff);
+      }
+
+
+      if (s2Flags == 0)
+      {
+        StateString = dto.State == 1 ? dto.PropsAndClassData.CaptionOn : dto.PropsAndClassData.CaptionOff;
+        ExplicitStateString = isS2Only
+                                ? "ИЗМ. АТРИБУТОВ - НОРМА"
+                                : $"{(dto.State == 1 ? "ВКЛ" : "ОТКЛ")}";
+      }
+      else
+      {
+        StateString = GetS2StatusString(s2Flags, dto.PropsAndClassData.CaptionBreak, dto.PropsAndClassData.CaptionBreak);
+        ExplicitStateString =
+          $"{(isS2Only ? "ИЗМ. АТРИБУТОВ" : $"{(dto.State == 1 ? "ВКЛ" : "ОТКЛ")}")} {GetS2StatusString(s2Flags)}";
+      }
+    }
+
+    public static TmEvent CreateStatusFlagsChangeEvent(TmNativeDefs.TEvent                tEvent,
+                                                       TmNativeDefs.TTMSEventAddData      eventAddData,
+                                                       TmStatus                           sourceStatus,
+                                                       TmNativeDefs.FlagsChangeDataStatus flagsChangeDataStatus,
                                                        TmNativeDefs.TTMSElix?             elix = null)
     {
-      var flagsChangeEvent = CreateFlagsChangeEvent(tEvent, 
-                                                    eventAddData, 
-                                                    sourceStatus.Name, 
-                                                    TmType.Status, 
-                                                    flagsChangeDataStatus.OldFlags, 
+      var flagsChangeEvent = CreateFlagsChangeEvent(tEvent,
+                                                    eventAddData,
+                                                    sourceStatus.Name,
+                                                    TmType.Status,
+                                                    flagsChangeDataStatus.OldFlags,
                                                     flagsChangeDataStatus.NewFlags,
-                                                    EncodingUtil.Win1251BytesToUtf8(flagsChangeDataStatus.UserName), 
+                                                    TmNativeUtil.BytesToString(flagsChangeDataStatus.UserName),
                                                     elix);
-      
-      flagsChangeEvent.TypeString = $"Изм. флагов {(sourceStatus.ClassName.IsNullOrEmpty() ? $"{(sourceStatus.IsAps ? "АПС" : "ТС")}" : sourceStatus.ClassName)}";
+
+      flagsChangeEvent.TypeString =
+        $"Изм. флагов {(sourceStatus.ClassName.IsNullOrEmpty() ? $"{(sourceStatus.IsAps ? "АПС" : "ТС")}" : sourceStatus.ClassName)}";
 
 
       return flagsChangeEvent;
@@ -630,13 +679,13 @@ namespace Iface.Oik.Tm.Interfaces
                                                        TmNativeDefs.FlagsChangeDataAnalog flagsChangeDataAnalog,
                                                        TmNativeDefs.TTMSElix?             elix = null)
     {
-      var flagsChangeEvent = CreateFlagsChangeEvent(tEvent, 
-                                                    eventAddData, 
-                                                    sourceAnalog.Name, 
-                                                    TmType.Analog, 
-                                                    flagsChangeDataAnalog.OldFlags, 
+      var flagsChangeEvent = CreateFlagsChangeEvent(tEvent,
+                                                    eventAddData,
+                                                    sourceAnalog.Name,
+                                                    TmType.Analog,
+                                                    flagsChangeDataAnalog.OldFlags,
                                                     flagsChangeDataAnalog.NewFlags,
-                                                    EncodingUtil.Win1251BytesToUtf8(flagsChangeDataAnalog.UserName), 
+                                                    TmNativeUtil.BytesToString(flagsChangeDataAnalog.UserName),
                                                     elix);
 
       flagsChangeEvent.TypeString = "Изм. флагов ТИ";
@@ -645,108 +694,170 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public static TmEvent CreateAccumFlagsChangeEvent(TmNativeDefs.TEvent          tEvent,
-                                                     TmNativeDefs.TTMSEventAddData eventAddData,
-                                                     string                        sourceObjectName, 
-                                                     TmNativeDefs.FlagsChangeData  flagsChangeData,
-                                                     TmNativeDefs.TTMSElix?        elix = null)
+    public static TmEvent CreateAccumFlagsChangeEvent(TmNativeDefs.TEvent           tEvent,
+                                                      TmNativeDefs.TTMSEventAddData eventAddData,
+                                                      string                        sourceObjectName,
+                                                      TmNativeDefs.FlagsChangeData  flagsChangeData,
+                                                      TmNativeDefs.TTMSElix?        elix = null)
     {
-      var flagsChangeEvent = CreateFlagsChangeEvent(tEvent, 
-                                                    eventAddData, 
-                                                    sourceObjectName, 
-                                                    TmType.Accum, 
-                                                    flagsChangeData.OldFlags, 
+      var flagsChangeEvent = CreateFlagsChangeEvent(tEvent,
+                                                    eventAddData,
+                                                    sourceObjectName,
+                                                    TmType.Accum,
+                                                    flagsChangeData.OldFlags,
                                                     flagsChangeData.NewFlags,
-                                                    "", 
+                                                    "",
                                                     elix);
-      
+
       flagsChangeEvent.TypeString = "Изм. флагов ТИИ";
 
       return flagsChangeEvent;
     }
-    
 
-    private static TmEvent CreateFlagsChangeEvent(TmNativeDefs.TEvent          tEvent,
-                                                 TmNativeDefs.TTMSEventAddData eventAddData,   
-                                                 string                        sourceObjectName,
-                                                 TmType                        sourceDataType, 
-                                                 uint                          oldFlags,
-                                                 uint                          newFlags, 
-                                                 string                        username,
-                                                 TmNativeDefs.TTMSElix?        elix = null) 
+
+    private static TmEvent CreateFlagsChangeEvent(TmNativeDefs.TEvent           tEvent,
+                                                  TmNativeDefs.TTMSEventAddData eventAddData,
+                                                  string                        sourceObjectName,
+                                                  TmType                        sourceDataType,
+                                                  uint                          oldFlags,
+                                                  uint                          newFlags,
+                                                  string                        username,
+                                                  TmNativeDefs.TTMSElix?        elix = null)
     {
       var flagsChangeEvent = CreateFromTEvent(tEvent, eventAddData, sourceObjectName);
-      
-      flagsChangeEvent.TmAddrComplexInteger =
-        (uint) (tEvent.Point + (tEvent.Rtu << 16) + (tEvent.Ch << 24));
-      flagsChangeEvent.Username = username;
+
+      flagsChangeEvent.TmAddrTma = TmAddr.EncodeTma(tEvent.Ch, tEvent.Rtu, tEvent.Point);
+      flagsChangeEvent.Username  = username;
 
       switch (sourceDataType)
       {
         case TmType.Status:
-          flagsChangeEvent.TmAddrString = $"#TC{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
+          flagsChangeEvent.TmAddrString       = TmAddr.EncodeString(TmType.Status, tEvent.Ch, tEvent.Rtu, tEvent.Point);
           flagsChangeEvent.ExplicitTypeString = "Изм. флагов ТС";
-          flagsChangeEvent.TmAddrType = TmType.Status;
+          flagsChangeEvent.TmAddrType         = TmType.Status;
           break;
         case TmType.Analog:
-          flagsChangeEvent.TmAddrString = $"#TТ{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
+          flagsChangeEvent.TmAddrString       = TmAddr.EncodeString(TmType.Analog, tEvent.Ch, tEvent.Rtu, tEvent.Point);
           flagsChangeEvent.ExplicitTypeString = "Изм. флагов ТИТ";
-          flagsChangeEvent.TmAddrType = TmType.Analog;
+          flagsChangeEvent.TmAddrType         = TmType.Analog;
           break;
         case TmType.Accum:
-          flagsChangeEvent.TmAddrString = $"#TИ{tEvent.Ch}:{tEvent.Rtu}:{tEvent.Point}";
+          flagsChangeEvent.TmAddrString       = TmAddr.EncodeString(TmType.Accum, tEvent.Ch, tEvent.Rtu, tEvent.Point);
           flagsChangeEvent.ExplicitTypeString = "Изм. флагов ТИИ";
-          flagsChangeEvent.TmAddrType = TmType.Accum;
+          flagsChangeEvent.TmAddrType         = TmType.Accum;
           break;
       }
-      
       
       flagsChangeEvent.ExplicitStateString = $"${oldFlags:X8}X -> ${newFlags:X8}X";
       flagsChangeEvent.StateString         = $"${oldFlags:X8}X -> ${newFlags:X8}X";
-      
+
       return flagsChangeEvent;
     }
-    
 
-    public static TmEvent CreateFromTEvent(TmNativeDefs.TEvent       tEvent,
-                                           TmNativeDefs.TTMSEventAddData eventAddData,
-                                           string                        sourceObjectName, 
-                                           TmNativeDefs.TTMSElix? elix = null)
+    protected override void InitializeFlagsChangeEvent(InitializeFlagsChangeEventDto dto)
     {
+      InitializeTmEvent(dto);
+      
+      TmAddrTma = TmAddr.EncodeTma(dto.Ch, dto.Rtu, dto.Point);
+      
+      Username = dto.OperatorName;
 
-      var tmEventType = (TmEventTypes) tEvent.Id;
+      var tmType = dto.TmType.ToTmType();
+      
+      switch (tmType)
+      {
+        case TmType.Status:
+          TmAddrString       = TmAddr.EncodeString(tmType, dto.Ch, dto.Rtu, dto.Point);
+          ExplicitTypeString = "Изм. флагов ТС";
+          TmAddrType         = tmType;
+          break;
+        case TmType.Analog:
+          TmAddrString       = TmAddr.EncodeString(tmType, dto.Ch, dto.Rtu, dto.Point);
+          ExplicitTypeString = "Изм. флагов ТИТ";
+          TmAddrType         = tmType;
+          break;
+        case TmType.Accum:
+          TmAddrString       = TmAddr.EncodeString(tmType, dto.Ch, dto.Rtu, dto.Point);
+          ExplicitTypeString = "Изм. флагов ТИИ";
+          TmAddrType         = tmType;
+          break;
+      }
+
+
+      ExplicitStateString = $"${dto.OldFlags:X8}X -> ${dto.NewFlags:X8}X";
+      StateString         = $"${dto.OldFlags:X8}X -> ${dto.NewFlags:X8}X";
+    }
+
+    public static TmEvent CreateFromTEvent(TmNativeDefs.TEvent           tEvent,
+                                           TmNativeDefs.TTMSEventAddData eventAddData,
+                                           string                        sourceObjectName,
+                                           TmNativeDefs.TTMSElix?        elix = null)
+    {
+      var tmEventType = (TmEventTypes)tEvent.Id;
 
       TmEventElix tmEventElix = null;
-      
-      if (elix is TmNativeDefs.TTMSElix ttmsElix)
+
+      if (elix is { } ttmsElix)
       {
         tmEventElix = new TmEventElix(ttmsElix.R, ttmsElix.M);
       }
-      
-      var hash = tmEventElix is null 
-                   ? (tEvent.Ch, tEvent.Rtu, tEvent.Point, tEvent.Data, tEvent.DateTime).ToTuple().GetHashCode() 
+
+      var hash = tmEventElix is null
+                   ? (tEvent.Ch, tEvent.Rtu, tEvent.Point, tEvent.Data, tEvent.DateTime).ToTuple().GetHashCode()
                    : BitConverter.ToInt32(tmEventElix.ToByteArray(), 8);
-      
+
+      var dtString = TmNativeUtil.BytesToString(tEvent.DateTime);
+      var dt       = DateUtil.GetDateTimeFromExtendedTmString(dtString);
+
       var tmEvent = new TmEvent(hash)
-                    {
-                      Elix = tmEventElix,
-                      Time =
-                        DateUtil.GetDateTime(Encoding.Default.GetString(tEvent.DateTime)),
-                      Type       = tmEventType,
-                      Importance = tEvent.Imp,
-                      Text       = sourceObjectName,
-                    };
+      {
+        Elix       = tmEventElix,
+        Time       = dt,
+        Type       = tmEventType,
+        Importance = tEvent.Imp,
+        Text       = sourceObjectName,
+      };
 
       if (eventAddData.AckSec != 0 && !eventAddData.UserName.IsNullOrEmpty())
       {
         tmEvent.AckTime = DateUtil.GetDateTimeFromTimestamp(eventAddData.AckSec, eventAddData.AckMs);
         // сервер возвращает мусор после первого нуля в имени, нужно обрезать
-        tmEvent.AckUser = EncodingUtil.Win1251ToUtf8(TmNativeUtil.GetStringFromBytesWithAdditionalPart(eventAddData.UserName));
+        tmEvent.AckUser = eventAddData.UserName;
       }
 
       return tmEvent;
     }
 
+    protected override void InitializeTmEvent(InitializeTmEventDto dto)
+    {
+      TmEventElix tmEventElix = null;
+
+      if (dto.Elix is { } elix)
+      {
+        tmEventElix = new TmEventElix(elix.R, elix.M);
+      }
+
+      _hashCode = tmEventElix is null
+                    ? (dto.Ch, dto.Rtu, dto.Point, dto.DateTimeStr, dto.AckSec, dto.AckMs).ToTuple().GetHashCode()
+                    : BitConverter.ToInt32(tmEventElix.ToByteArray(), 8);
+
+      Elix       = tmEventElix;
+      Time       = DateUtil.GetDateTimeFromExtendedTmString(dto.DateTimeStr);
+      Type       = (TmEventTypes)dto.Id;
+      Importance = dto.Imp;
+      Username   = dto.OperatorName;
+
+      Text = dto.PropsAndClassData.Name;
+
+      if (dto.NotAcked)
+      {
+        return;
+      }
+
+      AckTime = DateUtil.GetDateTimeFromTimestamp(dto.AckSec, dto.AckMs);
+      // сервер возвращает мусор после первого нуля в имени, нужно обрезать
+      AckUser = dto.AckUser;
+    }
 
     public override int GetHashCode()
     {
@@ -758,43 +869,33 @@ namespace Iface.Oik.Tm.Interfaces
 
     public static TmEventImportances ImportanceToFlag(int importance)
     {
-      return (TmEventImportances) (1 << importance);
+      return (TmEventImportances)(1 << importance);
     }
 
 
     public static string ImportanceToAlias(int importance)
     {
-      switch (importance)
-      {
-        case 0:
-          return "ОС";
-        case 1:
-          return "ПС2";
-        case 2:
-          return "ПС1";
-        case 3:
-          return "АС";
-        default:
-          return string.Empty;
-      }
+      return importance switch
+             {
+               0 => "ОС",
+               1 => "ПС2",
+               2 => "ПС1",
+               3 => "АС",
+               _ => string.Empty
+             };
     }
 
 
     public static string ImportanceToName(int importance)
     {
-      switch (importance)
-      {
-        case 0:
-          return "Оперативного состояния";
-        case 1:
-          return "Предупредительные 2";
-        case 2:
-          return "Предупредительные 1";
-        case 3:
-          return "Аварийные";
-        default:
-          return string.Empty;
-      }
+      return importance switch
+             {
+               0 => "Оперативного состояния",
+               1 => "Предупредительные 2",
+               2 => "Предупредительные 1",
+               3 => "Аварийные",
+               _ => string.Empty
+             };
     }
 
 
@@ -804,40 +905,31 @@ namespace Iface.Oik.Tm.Interfaces
       {
         return status == null ? $"[{s2Flag:D}] <ОБРЫВ>" : status.CaptionBreak;
       }
+
       if (s2Flag.HasFlag(TmNativeDefs.S2Flags.Malfunction))
       {
-        return  status == null ? $"[{s2Flag:D}] <НЕИСП.>" : status.CaptionMalfunction;
+        return status == null ? $"[{s2Flag:D}] <НЕИСП.>" : status.CaptionMalfunction;
       }
 
       return $"[{s2Flag:D}]";
     }
 
-
-    private static string GetTypeStringByExtendedTypeString(TmNativeDefs.ExtendedEventTypes eventType)
+    private static string GetS2StatusString(TmNativeDefs.S2Flags s2Flag,
+                                            string               captionBreak,
+                                            string               captionMalfunction)
     {
-      switch (eventType)
+      if (s2Flag.HasFlag(TmNativeDefs.S2Flags.Break))
       {
-        case TmNativeDefs.ExtendedEventTypes.Message:
-          return "Сообщение";
-        case TmNativeDefs.ExtendedEventTypes.Model:
-          return "Модель";
-        default:
-          return "???";
+        return string.IsNullOrEmpty(captionBreak) ? $"[{s2Flag:D}] <ОБРЫВ>" : captionBreak;
       }
-    }
-    
-    
-    public static (string, string) GetMessageAndUserFromStrBinBytes(byte[] bytes)
-    {
-      var str = Encoding.GetEncoding(1251)
-                        .GetString(bytes);
-      
-      var regex = new Regex(@"(.*?)\0(.*?)\0");
-      var mc    = regex.Match(str);
-      var text  = mc.Groups[1].Value;
-      var user  = mc.Groups[2].Value;
 
-      return (text, user);
+      if (s2Flag.HasFlag(TmNativeDefs.S2Flags.Malfunction))
+      {
+        return string.IsNullOrEmpty(captionMalfunction) ? $"[{s2Flag:D}] <НЕИСП.>" : captionMalfunction;
+      }
+
+      return $"[{s2Flag:D}]";
     }
+
   }
 }

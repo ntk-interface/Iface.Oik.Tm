@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Iface.Oik.Tm.Dto;
+using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
@@ -327,62 +328,43 @@ namespace Iface.Oik.Tm.Interfaces
     {
       return fakeLoad.ToString(format);
     }
-
-
-    public void FromTmcCommonPoint(TmNativeDefs.TCommonPoint tmcCommonPoint)
+    
+    
+    public override void UpdateValueFromCommonPointDto(TCommonPointDto dto)
     {
-      TmNativeDefs.TAccumPoint tmcAccumPoint;
-      try
+      if (dto.AccumPointDto == null)
       {
-        tmcAccumPoint = TmNativeUtil.GetAccumPointFromCommonPoint(tmcCommonPoint);
+        return;
       }
-      catch (ArgumentException)
+      IsInit = (dto.TmFlags != 0xFFFF) && !dto.AccumPointDto.Value.Value.Equals(InvalidValue);
+      Value  = dto.AccumPointDto.Value.Value;
+      Load   = dto.AccumPointDto.Value.Load;
+      Flags  = (TmFlags) dto.AccumPointDto.Value.Flags;
+      ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(dto.TmLocalUt,
+                                                                   dto.TmLocalMs);
+    }
+    
+    
+    public override void UpdatePropertiesFromCommonPointDto(TCommonPointDto dto)
+    {
+      if (!string.IsNullOrEmpty(dto.Name))
+      {
+        Name = dto.Name;
+      }
+      if (dto.AnalogPointDto == null)
       {
         return;
       }
 
-      IsInit = tmcCommonPoint.TM_Flags != 0xFFFF && !tmcAccumPoint.Value.Equals(InvalidValue);
-      Value  = tmcAccumPoint.Value;
-      Load   = tmcAccumPoint.Load;
-      Flags  = (TmFlags) tmcAccumPoint.Flags;
-      ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(tmcCommonPoint.tm_local_ut,
-                                                                   tmcCommonPoint.tm_local_ms);
-      Width     = (byte) (tmcAccumPoint.Format & 0x0F);
-      Precision = (byte) (tmcAccumPoint.Format >> 4);
+      Unit      = dto.AnalogPointDto.Value.Unit;
+      Width     = (byte) (dto.AnalogPointDto.Value.Format & 0x0F);
+      Precision = (byte) (dto.AnalogPointDto.Value.Format >> 4);
     }
+    
 
-    public static TmAccum CreateFromTmcCommonPointEx(TmNativeDefs.TCommonPoint tmcCommonPoint)
+    protected override void UpdatePropertiesFromTmcObject(string key, string value)
     {
-      var tmAccum = new TmAccum(tmcCommonPoint.Ch, tmcCommonPoint.RTU, tmcCommonPoint.Point);
-
-      TmNativeDefs.TAccumPoint tmcAccumPoint;
-      try
-      {
-        tmcAccumPoint = TmNativeUtil.GetAccumPointFromCommonPoint(tmcCommonPoint);
-      }
-      catch (ArgumentException)
-      {
-        return tmAccum;
-      }
-
-      tmAccum.IsInit = tmcCommonPoint.TM_Flags != 0xFFFF && !tmcAccumPoint.Value.Equals(InvalidValue);
-      tmAccum.Value  = tmcAccumPoint.Value;
-      tmAccum.Load   = tmcAccumPoint.Load;
-      tmAccum.Flags  = (TmFlags) tmcAccumPoint.Flags;
-      tmAccum.ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(tmcCommonPoint.tm_local_ut,
-                                                                           tmcCommonPoint.tm_local_ms);
-      tmAccum.Width    = (byte) (tmcAccumPoint.Format & 0x0F);
-      tmAccum.Precision = (byte) (tmcAccumPoint.Format >> 4);
-      tmAccum.Unit      = EncodingUtil.Cp866BytesToUtf8(tmcAccumPoint.Unit);
-
-      tmAccum.Name = EncodingUtil.Win1251IntPtrToUtf8(tmcCommonPoint.name);
-
-      return tmAccum;
-    }
-
-    protected override void SetTmcObjectProperties(string key, string value)
-    {
-      base.SetTmcObjectProperties(key, value);
+      base.UpdatePropertiesFromTmcObject(key, value);
       
       switch (key)
       {
@@ -418,7 +400,7 @@ namespace Iface.Oik.Tm.Interfaces
       }
     }
     
-    public void FromTAccumPoint(TmNativeDefs.TAccumPoint tmcAccumPoint)
+    public void UpdateValueFromTAccumPoint(TmNativeDefs.TAccumPoint tmcAccumPoint)
     {
       if (tmcAccumPoint.Flags == -1 || tmcAccumPoint.Value.Equals(InvalidValue))
       {
@@ -436,18 +418,28 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void UpdateWithDto(TmAccumDto dto)
+    public void UpdateValueFromRecord(TmAccumRecord record)
+    {
+      IsInit     = (record.Flags != (TmFlags)0xFFFF);
+      Value      = record.Value;
+      Load       = record.Load;
+      Flags      = record.Flags;
+      ChangeTime = record.ChangeTime;
+    }
+
+
+    public void UpdateValueFromDto(TmAccumDto dto)
     {
       if (dto == null) return;
 
-      UpdateWithDto(dto.VVal,
+      UpdateValueFromDto(dto.VVal,
                     dto.VLoad,
                     dto.Flags,
                     dto.ChangeTime);
     }
 
 
-    public void UpdateWithDto(float value, float load, int flags, DateTime? changeTime)
+    public void UpdateValueFromDto(float value, float load, int flags, DateTime? changeTime)
     {
       IsInit     = !value.Equals(InvalidValue);
       Value      = value;
@@ -457,11 +449,11 @@ namespace Iface.Oik.Tm.Interfaces
     }
     
     
-    public void UpdatePropertiesWithDto(TmAccumPropertiesDto dto)
+    public void UpdatePropertiesFromDto(TmAccumPropertiesDto dto)
     {
       if (dto?.Name == null) return;
 
-      UpdatePropertiesWithDto(dto.Name,
+      UpdatePropertiesFromSql(dto.Name,
                               dto.VUnit,
                               dto.VFormat,
                               dto.VCounterFormat,
@@ -469,7 +461,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void UpdatePropertiesWithDto(string name,
+    public void UpdatePropertiesFromSql(string name,
                                         string unit,
                                         string format,
                                         string loadFormat,
@@ -508,19 +500,19 @@ namespace Iface.Oik.Tm.Interfaces
     {
       if (dto?.Name == null) return null;
 
-      var analog = new TmAccum(dto.Ch, dto.Rtu, dto.Point);
-      analog.UpdateWithTmTreeDto(dto);
+      var accum = new TmAccum(TmAddr.CreateFromTma(TmType.Accum, dto.Tma));
+      accum.UpdateFromTmTreeDto(dto);
 
-      return analog;
+      return accum;
     }
 
 
-    public void UpdateWithTmTreeDto(TmAccumTmTreeDto dto)
+    public void UpdateFromTmTreeDto(TmAccumTmTreeDto dto)
     {
       if (dto?.Name == null) return;
 
-      UpdateWithDto(dto.MapToTmAccumDto());
-      UpdatePropertiesWithDto(dto.MapToTmAccumPropertiesDto());
+      UpdateValueFromDto(dto.MapToTmAccumDto());
+      UpdatePropertiesFromDto(dto.MapToTmAccumPropertiesDto());
     }
   }
 }

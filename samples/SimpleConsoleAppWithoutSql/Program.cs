@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Iface.Oik.Tm.Api;
 using Iface.Oik.Tm.Helpers;
-using Iface.Oik.Tm.Native.Api;
 
 const string applicationName = "SimpleConsoleAppWithoutSql";
 
@@ -17,10 +15,8 @@ var password = commandLineArgs.ElementAtOrDefault(4) ?? "";
 
 try
 {
-  Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // требуется для работы с кодировкой Win-1251
-  
   Tms.InitNativeLibrary();
-
+  
   Tms.SetUserCredentials(user, password);
 
   var tmCid = Tms.Connect(host,
@@ -33,8 +29,8 @@ try
     throw new Exception("Нет связи с сервером!");
   }
 
-  var api = new TmsApi(new TmNative());
-  api.SetCidAndUserInfo(tmCid, Tms.GetUserInfo(tmCid, tmServer));
+  var api = new TmsApi();
+  api.SetCid(tmCid);
 
   while (true)
   {

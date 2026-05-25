@@ -1,25 +1,19 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using AspMinimalWebApiTask;
 using AspMinimalWebApiTask.Model;
 using Iface.Oik.Tm.Api;
 using Iface.Oik.Tm.Helpers;
 using Iface.Oik.Tm.Interfaces;
-using Iface.Oik.Tm.Native.Api;
-using Iface.Oik.Tm.Native.Interfaces;
 using Mapster;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // требуется для работы с кодировкой Win-1251
-
 var builder = WebApplication.CreateBuilder(args);
 // регистрация зависимостей ОИК
-builder.Services.AddSingleton<ITmNative, TmNative>();
 builder.Services.AddSingleton<ITmsApi, TmsApi>();
 builder.Services.AddSingleton<IOikSqlApi, OikSqlApi>();
 builder.Services.AddSingleton<IOikDataApi, OikDataApi>();

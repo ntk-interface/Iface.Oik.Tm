@@ -1,6 +1,6 @@
 ﻿using Iface.Oik.Tm.Interfaces;
+using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
-using Iface.Oik.Tm.Native.Utils;
 using Xunit;
 
 namespace Iface.Oik.Tm.Test.Interfaces
@@ -272,55 +272,52 @@ namespace Iface.Oik.Tm.Test.Interfaces
       public void DoesNotInitWithTmFlagsInvalid()
       {
         var tmAnalog = new TmAnalog(0, 1, 1);
-        var tmcCommonPoint = new TmNativeDefs.TCommonPoint
+        var tmcCommonPoint = new TCommonPointDto
         {
-          TM_Flags = 0xFFFF,
-          Data     = new byte[] {0, 0},
+          TmFlags        = 0xFFFF,
+          AnalogPointDto = new TAnalogPointDto(),
         };
 
-        tmAnalog.FromTmcCommonPoint(tmcCommonPoint);
+        tmAnalog.UpdateValueFromCommonPointDto(tmcCommonPoint);
 
         Assert.False(tmAnalog.IsInit);
       }
 
 
       [Fact]
-      public void DoesNotInitWithStatusDataNull()
+      public void DoesNotInitWithAnalogDataNull()
       {
         var tmAnalog       = new TmAnalog(0, 1, 1);
-        var tmcCommonPoint = new TmNativeDefs.TCommonPoint();
+        var tmcCommonPoint = new TCommonPointDto();
 
-        tmAnalog.FromTmcCommonPoint(tmcCommonPoint);
+        tmAnalog.UpdateValueFromCommonPointDto(tmcCommonPoint);
 
         Assert.False(tmAnalog.IsInit);
       }
 
 
       [Theory]
-      [InlineData(1.337,     0,                                                                            7, 1)]
-      [InlineData(0,         (short) TmNativeDefs.Flags.UnreliableHdw,                                     7, 3)]
-      [InlineData(1234.5678, (short) (TmNativeDefs.Flags.UnreliableManu | TmNativeDefs.Flags.ManuallySet), 8, 4)]
-      public void SetsCorrectValues(float value, short flags, byte width, byte precision)
+      [InlineData(1.337,     0)]
+      [InlineData(0,         (short) TmNativeDefs.Flags.UnreliableHdw)]
+      [InlineData(1234.5678, (short) (TmNativeDefs.Flags.UnreliableManu | TmNativeDefs.Flags.ManuallySet))]
+      public void SetsCorrectValues(float value, short flags)
       {
         var tmAnalog = new TmAnalog(0, 1, 1);
-        var tmcCommonPoint = new TmNativeDefs.TCommonPoint
+        var tmcCommonPoint = new TCommonPointDto
         {
-          TM_Flags = 1,
-          Data = TmNativeUtil.GetBytes(new TmNativeDefs.TAnalogPoint
+          TmFlags = 1,
+          AnalogPointDto = new TAnalogPointDto
           {
             AsFloat = value,
-            Flags   = flags,
-            Format  = (byte) ((precision << 4) | (width)),
-          }),
+            Flags = flags,
+          },
         };
 
-        tmAnalog.FromTmcCommonPoint(tmcCommonPoint);
+        tmAnalog.UpdateValueFromCommonPointDto(tmcCommonPoint);
 
         Assert.True(tmAnalog.IsInit);
         Assert.Equal(value,     tmAnalog.Value);
         Assert.Equal(flags,     (short) tmAnalog.Flags);
-        Assert.Equal(width,     tmAnalog.Width);
-        Assert.Equal(precision, tmAnalog.Precision);
       }
     }
   }
@@ -337,7 +334,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
     {
       var tmAnalog = new TmAnalog(0, 1, 1);
 
-      tmAnalog.UpdatePropertiesWithDto(name, unit, format, classId, ""); // todo al test provider!
+      tmAnalog.UpdatePropertiesFromSql(name, unit, format, classId, ""); // todo al test provider!
 
       Assert.Equal(name,              tmAnalog.Name);
       Assert.Equal(unit,              tmAnalog.Unit);
@@ -354,7 +351,7 @@ namespace Iface.Oik.Tm.Test.Interfaces
     {
       var tmAnalog = new TmAnalog(0, 1, 1);
 
-      tmAnalog.UpdatePropertiesWithDto(name, unit, format, classId, ""); // todo al test provider!
+      tmAnalog.UpdatePropertiesFromSql(name, unit, format, classId, ""); // todo al test provider!
 
       Assert.Equal(name,              tmAnalog.Name);
       Assert.Equal(unit,              tmAnalog.Unit);

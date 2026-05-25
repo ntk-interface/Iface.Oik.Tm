@@ -21,6 +21,7 @@ namespace Iface.Oik.Tm.Dto
 
   public class TmStatusDto
   {
+    public int       Tma        { get; set; }
     public short     VCode      { get; set; }
     public int       Flags      { get; set; }
     public short     VS2        { get; set; }
@@ -30,6 +31,7 @@ namespace Iface.Oik.Tm.Dto
 
   public class TmStatusPropertiesDto
   {
+    public int    Tma          { get; set; }
     public string Name         { get; set; }
     public short  VImportance  { get; set; }
     public short  VNormalState { get; set; }
@@ -58,9 +60,7 @@ namespace Iface.Oik.Tm.Dto
 
   public class TmStatusTmTreeDto
   {
-    public short     Ch           { get; set; }
-    public short     Rtu          { get; set; }
-    public short     Point        { get; set; }
+    public int       Tma          { get; set; }
     public string    Name         { get; set; }
     public short     VImportance  { get; set; }
     public short     VNormalState { get; set; }
@@ -91,6 +91,7 @@ namespace Iface.Oik.Tm.Dto
 
   public class TmAnalogDto
   {
+    public int       Tma        { get; set; }
     public float     VVal       { get; set; }
     public int       Flags      { get; set; }
     public DateTime? ChangeTime { get; set; }
@@ -99,6 +100,7 @@ namespace Iface.Oik.Tm.Dto
 
   public class TmAnalogPropertiesDto
   {
+    public int    Tma           { get; set; }
     public string Name          { get; set; }
     public string VUnit         { get; set; }
     public string VFormat       { get; set; }
@@ -118,9 +120,7 @@ namespace Iface.Oik.Tm.Dto
 
   public class TmAnalogTmTreeDto
   {
-    public short     Ch         { get; set; }
-    public short     Rtu        { get; set; }
-    public short     Point      { get; set; }
+    public int       Tma        { get; set; }
     public string    Name       { get; set; }
     public string    VUnit      { get; set; }
     public string    VFormat    { get; set; }
@@ -134,6 +134,7 @@ namespace Iface.Oik.Tm.Dto
 
   public class TmAccumDto
   {
+    public int       Tma        { get; set; }
     public float     VVal       { get; set; }
     public float     VLoad      { get; set; }
     public int       Flags      { get; set; }
@@ -143,6 +144,7 @@ namespace Iface.Oik.Tm.Dto
 
   public class TmAccumPropertiesDto
   {
+    public int    Tma            { get; set; }
     public string Name           { get; set; }
     public string VUnit          { get; set; }
     public string VFormat        { get; set; }
@@ -153,9 +155,7 @@ namespace Iface.Oik.Tm.Dto
 
   public class TmAccumTmTreeDto
   {
-    public short     Ch             { get; set; }
-    public short     Rtu            { get; set; }
-    public short     Point          { get; set; }
+    public int       Tma            { get; set; }
     public string    Name           { get; set; }
     public string    VUnit          { get; set; }
     public string    VFormat        { get; set; }
@@ -259,6 +259,7 @@ namespace Iface.Oik.Tm.Dto
 
   public class TmAnalogMicroSeriesDto
   {
+    public int        Tma      { get; set; }
     public float[]    MsValues { get; set; }
     public DateTime[] MsTimes  { get; set; }
     public short[]    MsSFlags { get; set; }

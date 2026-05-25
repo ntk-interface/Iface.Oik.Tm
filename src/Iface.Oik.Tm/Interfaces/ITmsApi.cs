@@ -7,8 +7,7 @@ namespace Iface.Oik.Tm.Interfaces
 {
   public interface ITmsApi
   {
-    void SetCidAndUserInfo(int  tmCid, TmUserInfo userInfo);
-    void SetUserInfo(TmUserInfo userInfo);
+    void SetCid(int tmCid);
 
     Task<TmServerComputerInfo> GetServerComputerInfo();
 
@@ -72,17 +71,23 @@ namespace Iface.Oik.Tm.Interfaces
                                 uint                   time             = 0,
                                 bool                   getRealTelemetry = false);
 
-    Task UpdateStatuses(IReadOnlyList<TmStatus> statuses);
+    Task UpdateStatuses(IReadOnlyList<TmStatus> tmStatuses);
+
+    Task UpdateStatuses(IReadOnlyDictionary<int, TmStatus> tmStatuses);
 
     Task UpdateStatusesFromRetro(IReadOnlyList<TmStatus> statuses, DateTime time);
 
     Task UpdateStatusesExplicitly(IReadOnlyList<TmStatus> statuses, bool getRealTelemetry = false);
 
-    Task UpdateAnalogs(IReadOnlyList<TmAnalog> analogs);
+    Task UpdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs);
+
+    Task UpdateAnalogs(IReadOnlyDictionary<int, TmAnalog> tmAnalogs);
 
     Task UpdateAnalogsFromRetro(IReadOnlyList<TmAnalog> analogs, DateTime time, int retroNum = 0);
 
-    Task UpdateAccums(IReadOnlyList<TmAccum> accums);
+    Task UpdateAccums(IReadOnlyList<TmAccum> tmAccums);
+
+    Task UpdateAccums(IReadOnlyDictionary<int, TmAccum> tmAccums);
 
     Task UpdateAccumsFromRetro(IReadOnlyList<TmAccum> accums, DateTime time);
 
@@ -95,18 +100,29 @@ namespace Iface.Oik.Tm.Interfaces
 
     Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags);
 
+    Task UpdateStatusesPropertiesAndClassData(IReadOnlyDictionary<int, TmStatus> statuses);
+
+    Task UpdateAnalogsPropertiesAndClassData(IReadOnlyDictionary<int, TmAnalog> analogs);
+
+    Task UpdateAccumsPropertiesAndClassData(IReadOnlyDictionary<int, TmAccum> accums);
+
     Task UpdateTagPropertiesAndClassData(TmTag tag);
 
     Task UpdateTagsClassDataExplicitly(IReadOnlyList<TmTag> tags);
-    Task UpdateTagProperties(TmTag                          tag);
+    
+    Task UpdateTagProperties(TmTag tag);
+    
+    Task CreateTmTagNamedSet(string name, TmType tmType, IReadOnlyCollection<TmTag> tmTags);
+    
+    Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetUpdatedValues(string name);
+    Task<IReadOnlyCollection<TmAnalogRecord>> GetTmAnalogNamedSetUpdatedValues(string name);
+    Task<IReadOnlyCollection<TmAccumRecord>>  GetTmAccumNamedSetUpdatedValues(string name);
+    
+    Task DeleteTmTagNamedSet(string name, TmType tmType);
     
     Task UpdateAnalogsClassDataExplicitly(IReadOnlyList<TmAnalog> tmAnalogs);
 
     Task UpdateStatusesClassDataExplicitly(IReadOnlyList<TmStatus> tmStatus);
-
-    Task UpdateTechObjectsProperties(IReadOnlyList<Tob> techObjects);
-
-    Task<IReadOnlyCollection<Tob>> GetTechObjects(TobFilter filter);
 
     Task<TmEventElix> GetCurrentEventsElix();
     
@@ -283,21 +299,6 @@ namespace Iface.Oik.Tm.Interfaces
     Task InputTelecontrolPassword(string password);
 
     Task<bool> SwitchStatusManually(TmStatus tmStatus, bool alsoBlockManually = false);
-
-    Task SetTechObjectsProperties(IReadOnlyCollection<Tob> tobs);
-
-
-    Task SetTechObjectProperties(int                                 scheme,
-                                 int                                 type,
-                                 int                                 obj,
-                                 IReadOnlyDictionary<string, string> properties);
-
-
-    Task ClearTechObjectProperties(int                 scheme,
-                                   int                 type,
-                                   int                 obj,
-                                   IEnumerable<string> properties);
-
 
     Task SetStatusNormalOn(TmStatus status);
 

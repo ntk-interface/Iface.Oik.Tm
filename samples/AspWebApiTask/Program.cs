@@ -1,5 +1,4 @@
 using System;
-using System.Text;
 using Iface.Oik.Tm.Helpers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,9 +10,9 @@ namespace AspWebApiTask
   {
     public static void Main(string[] args)
     {
-      Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // требуется для работы с кодировкой Win-1251
-      
-      var app = CreateHostBuilder(args).Build();
+      var app = Host.CreateDefaultBuilder(args)
+                    .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>())
+                    .Build();
       using (var scope = app.Services.CreateScope())
       {
         try
@@ -29,10 +28,5 @@ namespace AspWebApiTask
       
       app.Run();
     }
-
-
-    public static IHostBuilder CreateHostBuilder(string[] args) =>
-      Host.CreateDefaultBuilder(args)
-          .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>());
   }
 }

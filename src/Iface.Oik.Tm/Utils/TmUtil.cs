@@ -4,7 +4,7 @@ namespace Iface.Oik.Tm.Utils
 {
   public class TmUtil
   {
-    public static readonly int[] RetrospectivePossibleSteps =
+    private static ReadOnlySpan<int> RetrospectivePossibleSteps => new[]
     {
       5,
       30,
@@ -29,36 +29,44 @@ namespace Iface.Oik.Tm.Utils
     }
 
 
-    public static int GetRetrospectivePreferredStep(long startTime, long endTime) // todo переписать, ничего не понятно
+    public static int GetRetrospectivePreferredStep(long startTime, long endTime)
     {
       if (endTime <= startTime)
       {
         throw new ArgumentException("Дата начала ретроспективы позднее даты конца");
       }
       const int preferredPointsCount = 125;
-      int       preferredStep        = (int) ((endTime - startTime) / preferredPointsCount);
+      
+      var preferredStep = (int)((endTime - startTime) / preferredPointsCount);
 
-      int resultIndex = Array.BinarySearch(RetrospectivePossibleSteps, preferredStep);
+      var resultIndex = RetrospectivePossibleSteps.BinarySearch(preferredStep);
       if (resultIndex >= 0)
       {
         return RetrospectivePossibleSteps[resultIndex];
       }
 
-      resultIndex = ~resultIndex;
-      if (resultIndex == 0)
+      var nextIndex = ~resultIndex;
+      
+      if (nextIndex == 0)
       {
-        return RetrospectivePossibleSteps[resultIndex];
+        return RetrospectivePossibleSteps[0]; // минимальное значение
       }
-      if (resultIndex == RetrospectivePossibleSteps.Length)
+      if (nextIndex >= RetrospectivePossibleSteps.Length)
       {
-        return RetrospectivePossibleSteps[resultIndex - 1];
+        return RetrospectivePossibleSteps[^1]; // максимальное значение
       }
-      int possibleResult1 = RetrospectivePossibleSteps[resultIndex];
-      int possibleResult2 = RetrospectivePossibleSteps[resultIndex - 1];
 
-      return (Math.Abs(preferredStep - possibleResult1) < Math.Abs(preferredStep - possibleResult2))
-        ? possibleResult1
-        : possibleResult2;
+      return ChooseClosestValue(preferredStep,
+                                RetrospectivePossibleSteps[nextIndex],
+                                RetrospectivePossibleSteps[nextIndex - 1]);
+    }
+
+
+    private static int ChooseClosestValue(int preferred, int option1, int option2)
+    {
+      return Math.Abs(preferred - option1) < Math.Abs(preferred - option2)
+               ? option1
+               : option2;
     }
   }
 }

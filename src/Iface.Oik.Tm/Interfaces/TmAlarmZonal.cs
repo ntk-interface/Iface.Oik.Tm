@@ -25,7 +25,7 @@ namespace Iface.Oik.Tm.Interfaces
 
     public static TmAlarmZonal CreateTmAlarmZonalFromDto(TmAlarmDto dto)
     {
-      return CreateTmAlarmZonalFromDto(dto, new TmAnalog(TmAddr.CreateFromSqlTma(TmType.Analog, dto.Tma)));
+      return CreateTmAlarmZonalFromDto(dto, new TmAnalog(TmAddr.CreateFromTma(TmType.Analog, dto.Tma)));
     }
 
 

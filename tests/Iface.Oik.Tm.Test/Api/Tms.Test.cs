@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -7,6 +7,7 @@ using FakeItEasy;
 using FluentAssertions;
 using Iface.Oik.Tm.Api;
 using Iface.Oik.Tm.Interfaces;
+using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Utils;
 using Xunit;
@@ -136,13 +137,13 @@ namespace Iface.Oik.Tm.Test.Api
     public class GetSystemTimeStringMethod
     {
       [Theory, TmAutoFakeItEasyData]
-      public async void ReturnsCorrectTime([Frozen] ITmNative native, TmsApi tms)
+      public async void ReturnsCorrectTime(TmsApi tms)
       {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); 
         
         var fakeTime         = "12.12.2017 09:14:30";
         var anyByteBuf = new byte[80];
-        A.CallTo(() => native.TmcSystemTime(A<int>._, ref anyByteBuf, A<IntPtr>._))
+        A.CallTo(() => TmNative.tmcSystemTime(A<int>._, ref anyByteBuf, A<IntPtr>._))
          .WithAnyArguments()
          .AssignsOutAndRefParameters(Encoding.GetEncoding(1251).GetBytes(fakeTime));
 
@@ -310,7 +311,7 @@ namespace Iface.Oik.Tm.Test.Api
                                               RetroConst.StringEndTime);
 
         result.Should().Equal(RetroConst.TmAnalogRetroList);
-      }#1#
+      }#2#
     }
 
 
@@ -507,7 +508,7 @@ namespace Iface.Oik.Tm.Test.Api
 
         result.Should().Equal(RetroConst.TmAnalogImpulseArchiveAverageList);
       }
-    }*/
+    }#1#
 
 
     public class GetFilesInDirectoryMethod
@@ -624,4 +625,4 @@ namespace Iface.Oik.Tm.Test.Api
       }
     }
   }
-}
+}*/

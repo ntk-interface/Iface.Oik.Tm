@@ -1,9 +1,11 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using GuiApp.AvaloniaUI.ViewModels;
 using GuiApp.AvaloniaUI.Views;
-using GuiApp.Shared;
-using GuiApp.Shared.ViewModels;
+using Iface.Oik.Tm.Api;
+using Iface.Oik.Tm.Helpers;
+using Iface.Oik.Tm.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GuiApp.AvaloniaUI;
@@ -18,8 +20,7 @@ public partial class App : Application
 
   public override void OnFrameworkInitializationCompleted()
   {
-    var serviceProvider = SharedStartup.StartupServices()
-                                       .BuildServiceProvider();
+    var serviceProvider = StartupServices().BuildServiceProvider();
 
     if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
     {
@@ -30,5 +31,22 @@ public partial class App : Application
     }
 
     base.OnFrameworkInitializationCompleted();
+  }
+
+
+  private static IServiceCollection StartupServices()
+  {
+    var services = new ServiceCollection();
+
+    services.AddSingleton<ITmsApi, TmsApi>();
+    services.AddSingleton<IOikSqlApi, OikSqlApi>();
+    services.AddSingleton<IOikDataApi, OikDataApi>();
+
+    services.AddSingleton<ICommonServerService, CommonServerService>();
+    services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
+
+    services.AddSingleton<MainWindowViewModel>();
+
+    return services;
   }
 }

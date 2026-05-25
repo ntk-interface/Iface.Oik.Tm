@@ -1,4 +1,5 @@
 using System;
+using System.Buffers.Binary;
 using Iface.Oik.Tm.Interfaces;
 
 namespace Iface.Oik.Tm.Utils
@@ -19,12 +20,13 @@ namespace Iface.Oik.Tm.Utils
 
     private static Guid Encode(CimGuidScope scope, int value1, int value2, int value3)
     {
-      var bytes = new byte[16];
+      Span<byte> bytes = stackalloc byte[16];
     
       bytes[0] = (byte) scope;
-      Array.Copy(BitConverter.GetBytes(value1), 0, bytes, 1, 4);
-      Array.Copy(BitConverter.GetBytes(value2), 0, bytes, 5, 4);
-      Array.Copy(BitConverter.GetBytes(value3), 0, bytes, 9, 4);
+
+      BinaryPrimitives.WriteInt32LittleEndian(bytes[1..5], value1);
+      BinaryPrimitives.WriteInt32LittleEndian(bytes[5..9], value2);
+      BinaryPrimitives.WriteInt32LittleEndian(bytes[9..13], value3);
 
       return new Guid(bytes);
     }
@@ -46,14 +48,17 @@ namespace Iface.Oik.Tm.Utils
     {
       value1 = value2 = value3 = 0;
 
-      var bytes = id.ToByteArray();
+      Span<byte> bytes = stackalloc byte[16];
+      id.TryWriteBytes(bytes);
+      
       if (bytes[0] != (byte)scope)
       {
         return false;
       }
-      value1 = BitConverter.ToInt32(bytes, 1);
-      value2 = BitConverter.ToInt32(bytes, 5);
-      value3 = BitConverter.ToInt32(bytes, 9);
+      value1 = BinaryPrimitives.ReadInt32LittleEndian(bytes[1..5]);
+      value2 = BinaryPrimitives.ReadInt32LittleEndian(bytes[5..9]);
+      value3 = BinaryPrimitives.ReadInt32LittleEndian(bytes[9..13]);
+      
       return true;
     }
   }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Text;
+using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Utils;
 
@@ -83,43 +82,24 @@ namespace Iface.Oik.Tm.Interfaces
     public bool IsClassDataLoaded => ClassId.HasValue ||
                                      ClassData != null;
 
-    public ushort NativeType
-    {
-      get
-      {
-        switch (Type)
-        {
-          case TmType.Status:
-            return (ushort) TmNativeDefs.TmDataTypes.Status;
-          case TmType.Analog:
-            return (ushort) TmNativeDefs.TmDataTypes.Analog;
-          case TmType.Accum:
-            return (ushort) TmNativeDefs.TmDataTypes.Accum;
-          default:
-            return 0;
-        }
-      }
-    }
+    public ushort NativeType => Type switch
+                                {
+                                  TmType.Status => (ushort)TmNativeDefs.TmDataTypes.Status,
+                                  TmType.Analog => (ushort)TmNativeDefs.TmDataTypes.Analog,
+                                  TmType.Accum  => (ushort)TmNativeDefs.TmDataTypes.Accum,
+                                  _             => 0
+                                };
 
 
-    public string TypeName
-    {
-      get
-      {
-        switch (Type)
-        {
-          case TmType.Status:
-            return "Сигнал";
-          case TmType.Analog:
-            return "Измерение";
-          case TmType.Accum:
-            return "Интегральное измерение";
-          default:
-            return "???";
-        }
-      }
-    }
+    public string TypeName => Type switch
+                              {
+                                TmType.Status => "Сигнал",
+                                TmType.Analog => "Измерение",
+                                TmType.Accum  => "Интегральное измерение",
+                                _             => "???"
+                              };
 
+    
     public object Reference { get; set; } // ссылка на связанный объект, например для схемы - выключатель, прибор и т.п.
 
 
@@ -153,39 +133,35 @@ namespace Iface.Oik.Tm.Interfaces
     {
       if (addr == null) return null;
 
-      switch (addr.Type)
-      {
-        case TmType.Analog:
-          return new TmAnalog(addr);
-        case TmType.Status:
-          return new TmStatus(addr);
-        case TmType.Accum:
-          return new TmAccum(addr);
-        default:
-          return null;
-      }
+      return addr.Type switch
+             {
+               TmType.Analog => new TmAnalog(addr),
+               TmType.Status => new TmStatus(addr),
+               TmType.Accum  => new TmAccum(addr),
+               _             => null
+             };
     }
 
 
-    public static TmTag CreateFromTmcCommonPoint(TmNativeDefs.TCommonPoint commonPoint)
+    public static TmTag CreateFromCommonPointDto(TCommonPointDto dto)
     {
-      switch (((TmNativeDefs.TmDataTypes) commonPoint.Type).ToTmType())
-      {
-        case TmType.Accum:
-          return TmAccum.CreateFromTmcCommonPointEx(commonPoint);
-        
-        case TmType.Analog:
-          return TmAnalog.CreateFromTmcCommonPointEx(commonPoint);;
-        
-        case TmType.Status:
-          return TmStatus.CreateFromTmcCommonPointEx(commonPoint);
-        default:
-          return null;
-      }
+      var tmTag = Create(new TmAddr(((TmNativeDefs.TmDataTypes)dto.Type).ToTmType(),
+                                    dto.Ch,
+                                    dto.Rtu,
+                                    dto.Point));
+      tmTag.Name = dto.Name ?? string.Empty;
+      tmTag.UpdateValueFromCommonPointDto(dto);
+      tmTag.UpdatePropertiesFromCommonPointDto(dto);
+      
+      return tmTag;
     }
 
 
-    public virtual void SetTmcObjectProperties(string tmcObjectPropertiesString)
+    public abstract void UpdateValueFromCommonPointDto(TCommonPointDto dto);
+    public abstract void UpdatePropertiesFromCommonPointDto(TCommonPointDto dto);
+
+
+    public virtual void UpdatePropertiesFromTmcObject(string tmcObjectPropertiesString) // TODO оптимизировать
     {
       Properties     = new Dictionary<string, string>();
       HasTmProvider  = false;
@@ -199,12 +175,12 @@ namespace Iface.Oik.Tm.Interfaces
         {
           continue;
         }
-        SetTmcObjectProperties(kvp[0], kvp[1]);
+        UpdatePropertiesFromTmcObject(kvp[0], kvp[1]);
       }
     }
 
 
-    protected virtual void SetTmcObjectProperties(string key, string value)
+    protected virtual void UpdatePropertiesFromTmcObject(string key, string value)
     {
       Properties.AddWithUniquePostfixIfNeeded(key, value);
 
@@ -223,7 +199,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void SetTmcClassData(string tmcClassData)
+    public void UpdateClassDataFromTmcClassData(string tmcClassData) // TODO оптимизировать
     {
       ClassData = new Dictionary<string, string>();
       var props = tmcClassData.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);

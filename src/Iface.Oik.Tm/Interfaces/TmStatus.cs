@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using Iface.Oik.Tm.Dto;
+using Iface.Oik.Tm.Native.Dto;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
@@ -315,71 +317,30 @@ namespace Iface.Oik.Tm.Interfaces
 
     public string GetClassCaption(ClassCaption type)
     {
-      switch (type)
-      {
-        case ClassCaption.Off:
-          return GetClassDataValue("0Txt", (IsAps) ? "СНЯТ" : "ОТКЛ");
-
-        case ClassCaption.On:
-          return GetClassDataValue("1Txt", (IsAps) ? "ВЗВЕДЕН" : "ВКЛ");
-
-        case ClassCaption.Break:
-          return GetClassDataValue("BTxt", "00-Обрыв");
-
-        case ClassCaption.Malfunction:
-          return GetClassDataValue("MTxt", "11-Неисправность");
-
-        case ClassCaption.Intermediate:
-          return GetClassDataValue("ITxt", "Промежуточное");
-
-        case ClassCaption.Flag1:
-          return GetClassDataValue("F1Name");
-
-        case ClassCaption.Flag2:
-          return GetClassDataValue("F2Name");
-
-        case ClassCaption.Flag3:
-          return GetClassDataValue("F3Name");
-
-        case ClassCaption.Flag4:
-          return GetClassDataValue("F4Name");
-
-        case ClassCaption.Flag1Off:
-          return GetClassDataValue("F10Txt");
-
-        case ClassCaption.Flag1On:
-          return GetClassDataValue("F11Txt");
-
-        case ClassCaption.Flag2Off:
-          return GetClassDataValue("F20Txt");
-
-        case ClassCaption.Flag2On:
-          return GetClassDataValue("F21Txt");
-
-        case ClassCaption.Flag3Off:
-          return GetClassDataValue("F30Txt");
-
-        case ClassCaption.Flag3On:
-          return GetClassDataValue("F31Txt");
-
-        case ClassCaption.Flag4Off:
-          return GetClassDataValue("F40Txt");
-
-        case ClassCaption.Flag4On:
-          return GetClassDataValue("F41Txt");
-        
-        case ClassCaption.ClassName:
-          return GetClassDataValue("ClassName");
-        
-        case ClassCaption.CommandOff:
-          return GetClassDataValue("CtlOffTxt", "Отключить");
-        
-        case ClassCaption.CommandOn:
-          return GetClassDataValue("CtlOnTxt", "Включить");
-
-        default:
-          return "";
-      }
+      return type switch
+             {
+               ClassCaption.Off          => GetClassDataValue("0Txt", (IsAps) ? "СНЯТ" : "ОТКЛ"),
+               ClassCaption.On           => GetClassDataValue("1Txt", (IsAps) ? "ВЗВЕДЕН" : "ВКЛ"),
+               ClassCaption.Break        => GetClassDataValue("BTxt", "00-Обрыв"),
+               ClassCaption.Malfunction  => GetClassDataValue("MTxt", "11-Неисправность"),
+               ClassCaption.Intermediate => GetClassDataValue("ITxt", "Промежуточное"),
+               ClassCaption.Flag1        => GetClassDataValue("F1Name"),
+               ClassCaption.Flag2        => GetClassDataValue("F2Name"),
+               ClassCaption.Flag3        => GetClassDataValue("F3Name"),
+               ClassCaption.Flag4        => GetClassDataValue("F4Name"),
+               ClassCaption.Flag1Off     => GetClassDataValue("F10Txt"),
+               ClassCaption.Flag1On      => GetClassDataValue("F11Txt"),
+               ClassCaption.Flag2Off     => GetClassDataValue("F20Txt"),
+               ClassCaption.Flag2On      => GetClassDataValue("F21Txt"),
+               ClassCaption.Flag3Off     => GetClassDataValue("F30Txt"),
+               ClassCaption.Flag3On      => GetClassDataValue("F31Txt"),
+               ClassCaption.Flag4Off     => GetClassDataValue("F40Txt"),
+               ClassCaption.Flag4On      => GetClassDataValue("F41Txt"),
+               ClassCaption.ClassName    => GetClassDataValue("ClassName"),
+               ClassCaption.CommandOff   => GetClassDataValue("CtlOffTxt", "Отключить"),
+               ClassCaption.CommandOn    => GetClassDataValue("CtlOnTxt",  "Включить"),
+               _                         => ""
+             };
     }
 
 
@@ -395,17 +356,17 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public override void SetTmcObjectProperties(string tmcObjectPropertiesString)
+    public override void UpdatePropertiesFromTmcObject(string tmcObjectPropertiesString)
     {
       NormalStatus = -1;
       
-      base.SetTmcObjectProperties(tmcObjectPropertiesString);
+      base.UpdatePropertiesFromTmcObject(tmcObjectPropertiesString);
     }
 
 
-    protected override void SetTmcObjectProperties(string key, string value)
+    protected override void UpdatePropertiesFromTmcObject(string key, string value)
     {
-      base.SetTmcObjectProperties(key, value);
+      base.UpdatePropertiesFromTmcObject(key, value);
       
       switch (key)
       {
@@ -438,30 +399,33 @@ namespace Iface.Oik.Tm.Interfaces
         }
       }
     }
-
-
-    public void FromTmcCommonPoint(TmNativeDefs.TCommonPoint tmcCommonPoint)
+    
+    
+    public override void UpdateValueFromCommonPointDto(TCommonPointDto dto)
     {
-      TmNativeDefs.TStatusPoint tmcStatusPoint;
-      try
-      {
-        tmcStatusPoint = TmNativeUtil.GetStatusPointFromCommonPoint(tmcCommonPoint);
-      }
-      catch (ArgumentException)
+      if (dto.StatusPointDto == null)
       {
         return;
       }
-
-      IsInit  = (tmcCommonPoint.TM_Flags != 0xFFFF);
-      Status  = tmcStatusPoint.Status;
-      Flags   = (TmFlags) tmcStatusPoint.Flags;
-      S2Flags = (TmS2Flags) tmcCommonPoint.tm_s2;
-      ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(tmcCommonPoint.tm_local_ut,
-                                                                   tmcCommonPoint.tm_local_ms);
+      IsInit  = (dto.TmFlags != 0xFFFF);
+      Status  = dto.StatusPointDto.Value.Status;
+      Flags   = (TmFlags) dto.StatusPointDto.Value.Flags;
+      S2Flags = (TmS2Flags) dto.TmS2;
+      ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(dto.TmLocalUt,
+                                                                   dto.TmLocalMs);
+    }
+    
+    
+    public override void UpdatePropertiesFromCommonPointDto(TCommonPointDto dto)
+    {
+      if (!string.IsNullOrEmpty(dto.Name))
+      {
+        Name = dto.Name;
+      }
     }
 
 
-    public void FromTStatusPoint(TmNativeDefs.TStatusPoint tmcStatusPoint)
+    public void UpdateValueFromTStatusPoint(TmNativeDefs.TStatusPoint tmcStatusPoint)
     {
       if (tmcStatusPoint.Flags == -1)
       {
@@ -477,27 +441,39 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void FromDatagram(byte[] buf)
+    public void UpdateValueFromDatagram(ReadOnlySpan<byte> buf)
     {
       IsInit  = true;
       Status  = (short)(buf[14] & 1);
-      Flags   = (TmFlags)BitConverter.ToInt16(buf,   18);
-      S2Flags = (TmS2Flags)BitConverter.ToUInt16(buf, 16);
+      Flags   = (TmFlags)BinaryPrimitives.ReadUInt16LittleEndian(buf[16..]);
+      S2Flags = (TmS2Flags)BinaryPrimitives.ReadInt16LittleEndian(buf[18..]);
     }
 
 
-    public void UpdateWithDto(TmStatusDto dto)
+    public void UpdateValueFromRecord(TmStatusRecord record)
     {
-      if (dto == null) return;
-
-      UpdateWithDto(dto.VCode,
-                    dto.Flags,
-                    dto.VS2,
-                    dto.ChangeTime);
+      IsInit     = (record.Flags != (TmFlags)0xFFFF);
+      Status     = record.Status;
+      Flags      = record.Flags;
+      S2Flags    = record.S2Flags;
+      ChangeTime = record.ChangeTime;
     }
 
 
-    public void UpdateWithDto(short status, int flags, short s2Flags, DateTime? changeTime)
+    public void UpdateValueFromDto(TmStatusDto dto)
+    {
+      if (dto == null)
+      {
+        return;
+      }
+      UpdateValueFromDto(dto.VCode,
+                         dto.Flags,
+                         dto.VS2,
+                         dto.ChangeTime);
+    }
+
+
+    public void UpdateValueFromDto(short status, int flags, short s2Flags, DateTime? changeTime)
     {
       IsInit     = true;
       Status     = status;
@@ -507,14 +483,14 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void SetSqlPropertiesAndClassData(string name,
-                                             short  importance,
-                                             short  normalStatus,
-                                             short  classId,
-                                             string offCaption,
-                                             string onCaption,
-                                             string breakCaption,
-                                             string malfunctionCaption)
+    public void UpdatePropertiesFromSql(string name,
+                                        short  importance,
+                                        short  normalStatus,
+                                        short  classId,
+                                        string offCaption,
+                                        string onCaption,
+                                        string breakCaption,
+                                        string malfunctionCaption)
     {
       Name         = name;
       Importance   = importance;
@@ -535,11 +511,11 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void UpdatePropertiesWithDto(TmStatusPropertiesDto dto)
+    public void UpdatePropetiesFromDto(TmStatusPropertiesDto dto)
     {
       if (dto?.Name == null) return;
 
-      SetSqlPropertiesAndClassData(dto.Name,
+      UpdatePropertiesFromSql(dto.Name,
                                    dto.VImportance,
                                    dto.VNormalState,
                                    dto.Provider,
@@ -565,29 +541,29 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void SetSqlPropertiesAndClassData(string name,
-                                             short  importance,
-                                             short  normalStatus,
-                                             string provider,
-                                             short  classId,
-                                             string offCaption,
-                                             string onCaption,
-                                             string breakCaption,
-                                             string malfunctionCaption,
-                                             string flag1Name,
-                                             string flag2Name,
-                                             string flag3Name,
-                                             string flag4Name,
-                                             string flag1OffCaption,
-                                             string flag1OnCaption,
-                                             string flag2OffCaption,
-                                             string flag2OnCaption,
-                                             string flag3OffCaption,
-                                             string flag3OnCaption,
-                                             string flag4OffCaption,
-                                             string flag4OnCaption,
-                                             string commandOffCaption,
-                                             string commandOnCaption)
+    public void UpdatePropertiesFromSql(string name,
+                                        short  importance,
+                                        short  normalStatus,
+                                        string provider,
+                                        short  classId,
+                                        string offCaption,
+                                        string onCaption,
+                                        string breakCaption,
+                                        string malfunctionCaption,
+                                        string flag1Name,
+                                        string flag2Name,
+                                        string flag3Name,
+                                        string flag4Name,
+                                        string flag1OffCaption,
+                                        string flag1OnCaption,
+                                        string flag2OffCaption,
+                                        string flag2OnCaption,
+                                        string flag3OffCaption,
+                                        string flag3OnCaption,
+                                        string flag4OffCaption,
+                                        string flag4OnCaption,
+                                        string commandOffCaption,
+                                        string commandOnCaption)
     {
       Name         = name;
       Importance   = importance;
@@ -626,27 +602,27 @@ namespace Iface.Oik.Tm.Interfaces
     
     public string GetCustomFlagName(TmFlags flag)
     {
-      switch (flag)
-      {
-        case TmFlags.LevelA: return Flag1Name;
-        case TmFlags.LevelB: return Flag2Name;
-        case TmFlags.LevelC: return Flag3Name;
-        case TmFlags.LevelD: return Flag4Name;
-        default:             return string.Empty;
-      }
+      return flag switch
+             {
+               TmFlags.LevelA => Flag1Name,
+               TmFlags.LevelB => Flag2Name,
+               TmFlags.LevelC => Flag3Name,
+               TmFlags.LevelD => Flag4Name,
+               _              => string.Empty
+             };
     }
     
     
     public string GetCustomFlagStatus(TmFlags flag)
     {
-      switch (flag)
-      {
-        case TmFlags.LevelA: return Flag1Status;
-        case TmFlags.LevelB: return Flag2Status;
-        case TmFlags.LevelC: return Flag3Status;
-        case TmFlags.LevelD: return Flag4Status;
-        default:             return string.Empty;
-      }
+      return flag switch
+             {
+               TmFlags.LevelA => Flag1Status,
+               TmFlags.LevelB => Flag2Status,
+               TmFlags.LevelC => Flag3Status,
+               TmFlags.LevelD => Flag4Status,
+               _              => string.Empty
+             };
     }
     
 
@@ -654,30 +630,19 @@ namespace Iface.Oik.Tm.Interfaces
     {
       if (dto?.Name == null) return null;
 
-      var status = new TmStatus(dto.Ch, dto.Rtu, dto.Point);
-      status.UpdateWithTmTreeDto(dto);
+      var status = new TmStatus(TmAddr.CreateFromTma(TmType.Status, dto.Tma));
+      status.UpdateFromTmTreeDto(dto);
 
       return status;
     }
 
 
-    public void UpdateWithTmTreeDto(TmStatusTmTreeDto dto)
+    public void UpdateFromTmTreeDto(TmStatusTmTreeDto dto)
     {
       if (dto?.Name == null) return;
 
-      UpdateWithDto(dto.MapToTmStatusDto());
-      UpdatePropertiesWithDto(dto.MapToTmStatusPropertiesDto());
-    }
-
-
-    public static TmStatus CreateFromTmcCommonPointEx(TmNativeDefs.TCommonPoint tmcCommonPoint)
-    {
-      var tmStatus = new TmStatus(tmcCommonPoint.Ch, tmcCommonPoint.RTU, tmcCommonPoint.Point);
-      
-      tmStatus.FromTmcCommonPoint(tmcCommonPoint);
-      tmStatus.Name = EncodingUtil.Win1251IntPtrToUtf8(tmcCommonPoint.name);
-
-      return tmStatus;
+      UpdateValueFromDto(dto.MapToTmStatusDto());
+      UpdatePropetiesFromDto(dto.MapToTmStatusPropertiesDto());
     }
   }
 }
