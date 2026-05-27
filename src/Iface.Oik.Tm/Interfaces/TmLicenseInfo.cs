@@ -34,8 +34,7 @@ public partial class TmLicenseInfo : TmNotifyPropertyChanged
             Value = Enum.TryParse<LicensePlatforms>(value, out var platforms)
                       ? platforms
                       : 0,
-            Code       = item.Key,
-            Deprecated = false
+            Code       = item.Key
           });
           break;
         case "25":
@@ -45,8 +44,7 @@ public partial class TmLicenseInfo : TmNotifyPropertyChanged
             Value = Enum.TryParse<LicenseSecurityLevel>(value, out var level)
                       ? level
                       : LicenseSecurityLevel.Unknown,
-            Code       = item.Key,
-            Deprecated = false
+            Code       = item.Key
           });
           break;
         case "27":
@@ -89,8 +87,7 @@ public partial class TmLicenseInfo : TmNotifyPropertyChanged
                       "да" => true,
                       _    => false
                     },
-            Code       = item.Key,
-            Deprecated = false
+            Code       = item.Key
           });
           break;
         default:
@@ -133,7 +130,7 @@ public class LicenseDataMaxVersionItem : ILicenseDataItem
   public int    Minor      { get; init; }
 
   public string Code       { get; init; }
-  public bool   Deprecated => true;
+  public bool   Deprecated => false;
 
   public string ShortString => $"{Major}.X";
   public string FullString  => $"{Major}.{Minor}";
