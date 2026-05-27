@@ -1,4 +1,5 @@
 ﻿using System;
+using Iface.Oik.Tm.Native.Interfaces;
 
 namespace Iface.Oik.Tm.Native.Utils;
 
@@ -88,5 +89,10 @@ public class NativeDateUtil
         return null;
       }
       return result;
+    }
+    
+    internal static DateTime GetDateTimeFromCustomFileTime(TmNativeDefsUnsafe.FileTime fileTime)
+    {
+      return DateTime.FromFileTime((long)fileTime.dwHighDateTime << 32 | (uint)fileTime.dwLowDateTime);
     }
 }

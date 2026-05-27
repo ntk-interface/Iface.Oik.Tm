@@ -1031,10 +1031,8 @@ namespace Iface.Oik.Tm.Api
     private async Task<IReadOnlyCollection<TmInstallationFileInfo>> GetTmInstallationFilesInfo()
     {
       var tempDispServIni = Path.GetTempFileName();
-      if (!await GetDispServIniFile(tempDispServIni).ConfigureAwait(false))
-      {
-        throw new Exception($"Ошибка получения информации о установленных файлах");
-      }
+      
+      await GetFile(tempDispServIni, "@dispserv.ini").ConfigureAwait(false);
 
       var result = new List<TmInstallationFileInfo>();
       using (var iniManager = new IniManager(tempDispServIni))
@@ -1069,14 +1067,7 @@ namespace Iface.Oik.Tm.Api
 
       return result;
     }
-
-    private async Task<bool> GetDispServIniFile(string localPath)
-    {
-      bool result;
-      (result, _, _) = await GetFile(localPath, "@dispserv.ini").ConfigureAwait(false);
-      return result;
-    }
-
+    
     private async Task<string> GetInstallationInfoString(string key)
     {
       const string path    = "@@";
@@ -1256,44 +1247,11 @@ namespace Iface.Oik.Tm.Api
       return (true, string.Empty);
     }
 
-    public async Task<(bool, string, DateTime)> GetFile(string localFilePath, string remoteFilePath,
-                                                        uint   timeout = 20000)
+    public async Task<DateTime> GetFile(string localFilePath, string remoteFilePath,
+                                        uint   timeout = 20000)
     {
-      if (localFilePath.IsNullOrEmpty())
-      {
-        return (false, "Ошибка: не указан локальный путь до файла", DateTime.MinValue);
-      }
-
-      if (remoteFilePath.IsNullOrEmpty())
-      {
-        return (false, "Ошибка: не указан удалённый путь до файла", DateTime.MinValue);
-      }
-
-      var       fileTime        = new FileTime();
-      const int errStringLength = 1000;
-      var       errString       = new byte[errStringLength];
-      uint      errCode         = 0;
-      if (!await Task.Run(() => TmNative.cfsFileGet(CfId,
-                                                    TmNativeUtil.StringToBytes(remoteFilePath),
-                                                    TmNativeUtil.StringToBytes(localFilePath),
-                                                    timeout | FailIfNoConnect,
-                                                    ref fileTime,
-                                                    out errCode,
-                                                    errString,
-                                                    errStringLength))
-                     .ConfigureAwait(false))
-      {
-        return (false, $"Ошибка при скачивании файла: {errCode} - {TmNativeUtil.BytesToString(errString)}",
-                DateTime.MinValue);
-      }
-
-      if (File.Exists(localFilePath))
-      {
-        return (true, string.Empty, GetDateTimeFromCustomFileTime(fileTime));
-      }
-
-      Console.WriteLine("Ошибка при сохранении файла в файловую систему");
-      return (false, "Ошибка при сохранении файла в файловую систему", DateTime.MinValue);
+      return await Task.Run(() => TmNativeApi.GetFile(CfId, localFilePath, remoteFilePath, timeout))
+                       .ConfigureAwait(false);
     }
 
     public async Task DeleteFile(string remoteFilePath)
@@ -1829,12 +1787,12 @@ namespace Iface.Oik.Tm.Api
 
       return (StrictSessionControlStates)result;
     }
-    
+
     public async Task SecSetStrictSessionControl(StrictSessionControlStates value)
     {
       await Task.Run(() => TmNativeApi.SecSetStrictSessionControl(CfId, (int)value)).ConfigureAwait(false);
     }
-    
+
     public async Task<ComputerInfo> GetComputerInfo()
     {
       var dto = await Task.Run(() => TmNativeApi.GetServerComputerInfo(CfId))
@@ -1849,10 +1807,10 @@ namespace Iface.Oik.Tm.Api
         Architecture      = dto.Win64 ? "x64" : "x86",
         Acp               = dto.Acp,
 
-        ServerTimeGMT   = DateUtil.GetDateTimeFromTimestamp(dto.Current,     dto.CurrentMs),
-        LocalTime    = DateUtil.GetDateTimeFromTimestamp(dto.LocalTimeUt,    dto.LocalTimeMs),
-        InternalTime = DateUtil.GetDateTimeFromTimestamp(dto.InternalTimeUt, dto.InternalTimeMs),
-        Uptime          = (ulong)dto.Uptime,
+        ServerTimeGMT = DateUtil.GetDateTimeFromTimestamp(dto.Current,        dto.CurrentMs),
+        LocalTime     = DateUtil.GetDateTimeFromTimestamp(dto.LocalTimeUt,    dto.LocalTimeMs),
+        InternalTime  = DateUtil.GetDateTimeFromTimestamp(dto.InternalTimeUt, dto.InternalTimeMs),
+        Uptime        = (ulong)dto.Uptime,
 
         Copyright = $"oiktype{dto.Copyright}",
         CfsVer    = $"{dto.CfsVerMaj}.{dto.CfsVerMin}",

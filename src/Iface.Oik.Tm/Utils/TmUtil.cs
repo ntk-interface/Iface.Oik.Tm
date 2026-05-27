@@ -1,4 +1,5 @@
 using System;
+using Iface.Oik.Tm.Native.Api;
 
 namespace Iface.Oik.Tm.Utils
 {
@@ -61,6 +62,10 @@ namespace Iface.Oik.Tm.Utils
                                 RetrospectivePossibleSteps[nextIndex - 1]);
     }
 
+    public static string ReadFile(string filePath)
+    {
+      return TmNativeApi.ReadFile(filePath);
+    }
 
     private static int ChooseClosestValue(int preferred, int option1, int option2)
     {
