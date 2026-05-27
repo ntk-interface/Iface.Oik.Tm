@@ -1254,11 +1254,6 @@ namespace Iface.Oik.Tm.Api
                        .ConfigureAwait(false);
     }
 
-    public string ReadFile(string filePath)
-    {
-      return TmNativeApi.ReadFile(filePath);
-    }
-
     public async Task DeleteFile(string remoteFilePath)
     {
       const int errBufLength = 1000;
