@@ -92,16 +92,29 @@ namespace Iface.Oik.Tm.Native.Api
                                          [In, Out] byte[] errBuf,
                                          UInt32           maxErrs);
 
-
+    
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     public static extern bool cfsFileGet(IntPtr                              cfCid,
                                          byte[]                              remotePath,
                                          byte[]                              localPath,
                                          UInt32                              timeout,
-                                         [In, Out] ref TmNativeDefs.FileTime fileTime,
+                                         [In, Out] ref FileTime fileTime,
                                          out           UInt32                errCode,
                                          [In, Out]     byte[]                errBuf,
                                          UInt32                              maxErrs);
+    
+
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool cfsFileGet(nint                            cfCid,
+                                            string                          remotePath,
+                                            string                          localPath,
+                                            uint                            timeout,
+                                            ref TmNativeDefsUnsafe.FileTime fileTime,
+                                            out uint                        errCode,
+                                            Span<byte>                      errBuf,
+                                            uint                            maxErrs);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
