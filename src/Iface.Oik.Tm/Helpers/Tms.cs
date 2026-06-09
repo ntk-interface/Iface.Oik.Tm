@@ -508,6 +508,12 @@ namespace Iface.Oik.Tm.Helpers
     }
 
 
+    public static void DeleteTmTagNamedSet(int tmCid, TmType type, string name)
+    {
+      TmNative.tmcTmvUserSetDelete(tmCid, (ushort)type, TmNativeUtil.StringToBytes(name));
+    }
+
+
     public static (int tmCid, int rbCid, int rbPort, TmUserInfo userInfo, TmServerFeatures serverFeatures)
       Initialize(TmInitializeOptions options)
     {
