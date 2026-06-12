@@ -357,14 +357,31 @@ public partial class TmsApi
     var result = new List<ITmAnalogRetro>(points.Count / 3);
     for (var i = 0; i < points.Count; i += 3)
     {
-      result.Add(new TmAnalogImpulseArchiveAverage(avg: points[i + 2].Value,
-                                                   min: points[i + 1].Value,
-                                                   max: points[i].Value,
-                                                   points[i + 2].Flags,
-                                                   points[i + 2].UnixTime + (uint)filter.Step, // прошлый период
-                                                   points[i + 2].Milliseconds));
+      var avgIndex = FindIndexByType(i, TmNativeDefs.ImpulseArchiveFlags.Avg);
+      var minIndex = FindIndexByType(i, TmNativeDefs.ImpulseArchiveFlags.Min);
+      var maxIndex = FindIndexByType(i, TmNativeDefs.ImpulseArchiveFlags.Max);
+    
+      result.Add(new TmAnalogImpulseArchiveAverage(points[avgIndex].Value,
+                                                   points[minIndex].Value,
+                                                   points[maxIndex].Value,
+                                                   points[avgIndex].Flags,
+                                                   points[avgIndex].UnixTime + (uint)filter.Step, // прошлый период
+                                                   points[avgIndex].Milliseconds));
     }
 
     return result;
+
+    int FindIndexByType(int i, TmNativeDefs.ImpulseArchiveFlags type)
+    {
+      if (points[i + 1].Type == (byte)type)
+      {
+        return i + 1;
+      }
+      if (points[i + 2].Type == (byte)type)
+      {
+        return i + 2;
+      }
+      return i;
+    }
   }
 }
