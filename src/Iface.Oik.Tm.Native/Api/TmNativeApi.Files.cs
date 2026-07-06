@@ -48,7 +48,7 @@ public static partial class TmNativeApi
         throw new FileNotFoundException(localFilePath);
       }
 
-      return NativeDateUtil.GetDateTimeFromCustomFileTime(fileTime);
+      return TmNativeUtil.GetTimeFromFileTime(fileTime);
     }
     finally
     {
