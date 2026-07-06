@@ -187,6 +187,15 @@ namespace Iface.Oik.Tm.Interfaces
     
     Task CreateTmTagNamedSet(string name, TmType tmType, IReadOnlyCollection<TmTag> tmTags, PreferApi prefer = PreferApi.Auto);
     
+    Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetAllValues(string    name, 
+                                                                           PreferApi prefer = PreferApi.Auto);
+    
+    Task<IReadOnlyCollection<TmAnalogRecord>> GetTmAnalogNamedSetAllValues(string    name, 
+                                                                           PreferApi prefer = PreferApi.Auto);
+    
+    Task<IReadOnlyCollection<TmAccumRecord>> GetTmAccumNamedSetAllValues(string    name, 
+                                                                         PreferApi prefer = PreferApi.Auto);
+    
     Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetUpdatedValues(string name, 
                                                                                PreferApi prefer = PreferApi.Auto);
     

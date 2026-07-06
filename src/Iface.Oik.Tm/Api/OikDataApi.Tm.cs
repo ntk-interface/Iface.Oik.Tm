@@ -299,6 +299,36 @@ public partial class OikDataApi
   }
 
 
+  public async Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetAllValues(string name, PreferApi prefer = PreferApi.Auto)
+  {
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetTmStatusNamedSetAllValues(name),
+                         null)
+            .ConfigureAwait(false);
+  }
+
+
+  public async Task<IReadOnlyCollection<TmAnalogRecord>> GetTmAnalogNamedSetAllValues(string name, PreferApi prefer = PreferApi.Auto)
+  {
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetTmAnalogNamedSetAllValues(name),
+                         null)
+            .ConfigureAwait(false);
+  }
+
+
+  public async Task<IReadOnlyCollection<TmAccumRecord>> GetTmAccumNamedSetAllValues(string name, PreferApi prefer = PreferApi.Auto)
+  {
+    return await Execute(prefer,
+                         PreferApi.Tms,
+                         () => _tms.GetTmAccumNamedSetAllValues(name),
+                         null)
+            .ConfigureAwait(false);
+  }
+
+
   public async Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetUpdatedValues(string name, PreferApi prefer = PreferApi.Auto)
   {
     return await Execute(prefer,

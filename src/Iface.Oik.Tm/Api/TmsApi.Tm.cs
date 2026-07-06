@@ -659,6 +659,39 @@ public partial class TmsApi
   }
 
 
+  public async Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetAllValues(string name)
+  {
+    var commonPoints = await Task.Run(() => TmNativeApi.GetTmTagNamedSetAllValues(
+                                        _cid,
+                                        TmNativeDefs.TmDataTypes.Status,
+                                        TmNativeUtil.StringToBytes(name))).ConfigureAwait(false);
+    return commonPoints.Select(TmStatusRecord.CreateFromCommonPointDto)
+                       .ToList();
+  }
+
+
+  public async Task<IReadOnlyCollection<TmAnalogRecord>> GetTmAnalogNamedSetAllValues(string name)
+  {
+    var commonPoints = await Task.Run(() => TmNativeApi.GetTmTagNamedSetAllValues(
+                                        _cid,
+                                        TmNativeDefs.TmDataTypes.Analog,
+                                        TmNativeUtil.StringToBytes(name))).ConfigureAwait(false);
+    return commonPoints.Select(TmAnalogRecord.CreateFromCommonPointDto)
+                       .ToList();
+  }
+
+
+  public async Task<IReadOnlyCollection<TmAccumRecord>> GetTmAccumNamedSetAllValues(string name)
+  {
+    var commonPoints = await Task.Run(() => TmNativeApi.GetTmTagNamedSetAllValues(
+                                        _cid,
+                                        TmNativeDefs.TmDataTypes.Accum,
+                                        TmNativeUtil.StringToBytes(name))).ConfigureAwait(false);
+    return commonPoints.Select(TmAccumRecord.CreateFromCommonPointDto)
+                       .ToList();
+  }
+
+
   public async Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetUpdatedValues(string name)
   {
     var commonPoints = await Task.Run(() => TmNativeApi.GetTmTagNamedSetUpdatedValues(

@@ -114,6 +114,10 @@ namespace Iface.Oik.Tm.Interfaces
     
     Task CreateTmTagNamedSet(string name, TmType tmType, IReadOnlyCollection<TmTag> tmTags);
     
+    Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetAllValues(string name);
+    Task<IReadOnlyCollection<TmAnalogRecord>> GetTmAnalogNamedSetAllValues(string name);
+    Task<IReadOnlyCollection<TmAccumRecord>>  GetTmAccumNamedSetAllValues(string  name);
+    
     Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetUpdatedValues(string name);
     Task<IReadOnlyCollection<TmAnalogRecord>> GetTmAnalogNamedSetUpdatedValues(string name);
     Task<IReadOnlyCollection<TmAccumRecord>>  GetTmAccumNamedSetUpdatedValues(string name);

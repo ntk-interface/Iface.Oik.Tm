@@ -325,27 +325,38 @@ public static partial class TmNativeApi
   }
 
 
-  public static IReadOnlyList<TCommonPointDto> GetTmTagNamedSetUpdatedValues(int                      cid,
-                                                                             TmNativeDefs.TmDataTypes type,
-                                                                             Span<byte>               name)
+  public static IReadOnlyList<TCommonPointDto> GetTmTagNamedSetAllValues(int                      cid,
+                                                                         TmNativeDefs.TmDataTypes type,
+                                                                         Span<byte>               name)
   {
-    return GetTmTagNamedSetUpdatedValuesUnsafe(cid, type, name)
+    return GetTmTagNamedSetValuesUnsafe(cid, type, name, changesOnly: false)
           .Select(commonPoint => TCommonPointDto.Create(commonPoint, queryUnit: false))
           .ToList();
   }
 
 
-  private static unsafe TmNativeDefsUnsafe.TCommonPoint[] GetTmTagNamedSetUpdatedValuesUnsafe(
+  public static IReadOnlyList<TCommonPointDto> GetTmTagNamedSetUpdatedValues(int                      cid,
+                                                                             TmNativeDefs.TmDataTypes type,
+                                                                             Span<byte>               name)
+  {
+    return GetTmTagNamedSetValuesUnsafe(cid, type, name, changesOnly: true)
+          .Select(commonPoint => TCommonPointDto.Create(commonPoint, queryUnit: false))
+          .ToList();
+  }
+
+
+  private static unsafe TmNativeDefsUnsafe.TCommonPoint[] GetTmTagNamedSetValuesUnsafe(
     int                      cid,
     TmNativeDefs.TmDataTypes type,
-    Span<byte>               name)
+    Span<byte>               name,
+    bool                     changesOnly)
   {
     TmNativeDefsUnsafe.TCommonPoint* ptr = null;
     try
     {
       ptr = TmNative.tmcTmvUserSetGet(cid,
                                       (ushort)type,
-                                      changesOnly: true,
+                                      changesOnly,
                                       name,
                                       out var count);
       if (count == 0 || ptr == null)

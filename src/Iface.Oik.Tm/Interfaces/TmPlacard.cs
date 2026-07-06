@@ -4,18 +4,19 @@ namespace Iface.Oik.Tm.Interfaces
 {
   public class TmPlacard
   {
-    public Guid              Id          { get; }
-    public int               TypeId      { get; set; }
-    public TmPlacardType     Type        { get; set; }
-    public DateTime          CreatedTime { get; set; }
-    public string            Operator    { get; set; }
-    public int?              Index       { get; set; }
-    public string            Comment     { get; set; }
-    public Tob               Tob         { get; set; }
-    public float             Scale       { get; set; } = 1.0f;
-    public TmPlacardPosition Position    { get; set; } = TmPlacardPosition.Center;
-    public int               OffsetX     { get; set; }
-    public int               OffsetY     { get; set; }
+    public Guid              Id            { get; }
+    public int               TypeId        { get; set; }
+    public TmPlacardType     Type          { get; set; }
+    public DateTime          CreatedTime   { get; set; }
+    public string            Operator      { get; set; }
+    public int?              Index         { get; set; }
+    public string            Comment       { get; set; }
+    public Tob               Tob           { get; set; }
+    public float             Scale         { get; set; } = 1.0f;
+    public TmPlacardPosition Position      { get; set; } = TmPlacardPosition.Center;
+    public int               OffsetX       { get; set; }
+    public int               OffsetY       { get; set; }
+    public string            EquipmentName { get; set; }
 
 
     public bool IsPseudoPlacardPermittedGround { get; set; }
