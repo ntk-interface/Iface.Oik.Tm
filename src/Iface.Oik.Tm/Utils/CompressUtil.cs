@@ -7,8 +7,9 @@ namespace Iface.Oik.Tm.Utils
 {
   public static class CompressUtil
   {
-    private static          ReadOnlySpan<byte> GzipHeaderBytes => new byte[] { 0x1f, 0x8b, 0x08 };
-    private static readonly int                EfficientThreshold = 8192;
+    private static readonly byte[] GzipHeaderBytes = { 0x1f, 0x8b, 0x08 };
+
+    private static readonly int EfficientThreshold = 8192;
     
     
     public static byte[] CompressWhenEfficient(string str)
