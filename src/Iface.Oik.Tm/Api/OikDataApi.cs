@@ -255,10 +255,12 @@ namespace Iface.Oik.Tm.Api
       if (api == ApiSelection.Tms && tmsAction != null)
       {
         await tmsAction().ConfigureAwait(false);
+        return;
       }
       if (api == ApiSelection.Sql && sqlAction != null)
       {
         await sqlAction().ConfigureAwait(false);
+        return;
       }
       if (errorAction != null)
       {
