@@ -197,5 +197,66 @@ namespace Iface.Oik.Tm.Test.Utils
         });
       }
     }
+
+
+    public class ValueOrDefaultMethod
+    {
+      [Fact]
+      public void ReturnsValue_WhenKeyExists()
+      {
+        var dict = new Dictionary<string, string> { {"key", "value"} };
+
+        var result = dict.ValueOrDefault("key", "default");
+
+        result.Should().Be("value");
+      }
+
+
+      [Fact]
+      public void ReturnsDefault_WhenKeyMissing()
+      {
+        var dict = new Dictionary<string, int> { {"a", 1} };
+
+        var result = dict.ValueOrDefault("b", 42);
+
+        result.Should().Be(42);
+      }
+
+
+      [Fact]
+      public void ReturnsValueFromProvider_WhenKeyMissing()
+      {
+        var dict = new Dictionary<string, string> { {"a", "x"} };
+
+        var result = dict.ValueOrDefault("b", () => "fallback");
+
+        result.Should().Be("fallback");
+      }
+    }
+
+
+    public class ValueOrFirstMethod
+    {
+      [Fact]
+      public void ReturnsValue_WhenKeyExists()
+      {
+        var dict = new Dictionary<string, string> { {"key", "value"} };
+
+        var result = dict.ValueOrFirst("key");
+
+        result.Should().Be("value");
+      }
+
+
+      [Fact]
+      public void ReturnsFirstValue_WhenKeyMissingAndDictNotEmpty()
+      {
+        var dict = new Dictionary<string, string> { {"a", "first"} };
+
+        var result = dict.ValueOrFirst("missing");
+
+        result.Should().Be("first");
+      }
+    }
   }
 }
