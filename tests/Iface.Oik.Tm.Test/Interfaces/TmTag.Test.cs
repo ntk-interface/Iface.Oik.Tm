@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Text;
 using FakeItEasy;
 using FluentAssertions;
 using Iface.Oik.Tm.Interfaces;
+using Iface.Oik.Tm.Native.Dto;
+using Iface.Oik.Tm.Native.Interfaces;
 using Xunit;
 
 namespace Iface.Oik.Tm.Test.Interfaces
@@ -308,6 +309,70 @@ namespace Iface.Oik.Tm.Test.Interfaces
           {"1Txt", "включен"},
           {"BTxt", "обрыв"},
         });
+      }
+    }
+    
+    
+    public class CreateFromCommonPointDtoMethod
+    {
+      [Fact]
+      public void ReturnsCorrectTmStatus()
+      {
+        var dto = new TCommonPointDto
+        {
+          Type           = (ushort) TmNativeDefs.TmDataTypes.Status,
+          Ch             = 0,
+          Rtu            = 1,
+          Point          = 1,
+          Name           = "Signal",
+          TmFlags        = 1,
+          StatusPointDto = new TStatusPointDto { Status = 1, Flags = 0 },
+        };
+
+        var result = TmTag.CreateFromCommonPointDto(dto);
+
+        result.Should().BeOfType<TmStatus>();
+        result.Name.Should().Be("Signal");
+        ((TmStatus) result).Status.Should().Be(1);
+      }
+
+
+      [Fact]
+      public void ReturnsCorrectTmAnalog()
+      {
+        var dto = new TCommonPointDto
+        {
+          Type           = (ushort) TmNativeDefs.TmDataTypes.Analog,
+          Ch             = 0,
+          Rtu            = 1,
+          Point          = 1,
+          Name           = "Measurement",
+          TmFlags        = 1,
+          AnalogPointDto = new TAnalogPointDto { AsFloat = 1.5f, Flags = 0 },
+        };
+
+        var result = TmTag.CreateFromCommonPointDto(dto);
+
+        result.Should().BeOfType<TmAnalog>();
+        result.Name.Should().Be("Measurement");
+        ((TmAnalog) result).Value.Should().Be(1.5f);
+      }
+
+
+      [Fact]
+      public void ReturnsNullForUnknownType()
+      {
+        var dto = new TCommonPointDto
+        {
+          Type  = 0xFF, // unknown type
+          Ch    = 0,
+          Rtu   = 1,
+          Point = 1,
+        };
+
+        var result = TmTag.CreateFromCommonPointDto(dto);
+
+        result.Should().BeNull();
       }
     }
   }
