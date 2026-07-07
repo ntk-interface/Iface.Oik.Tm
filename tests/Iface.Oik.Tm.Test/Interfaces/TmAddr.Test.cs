@@ -686,5 +686,201 @@ namespace Iface.Oik.Tm.Test.Interfaces
         act.Should().Throw<ArgumentException>();
       }
     }
+    
+    
+    public class TypeProperty
+    {
+      [Fact]
+      public void SetterWorks()
+      {
+        var tmAddr = new TmAddr(TmType.Status, 1, 1, 1);
+
+        tmAddr.Type = TmType.Analog;
+
+        tmAddr.Type.Should().Be(TmType.Analog);
+      }
+    }
+
+
+    public class GetHashCodeMethod
+    {
+      [Theory, TmAutoData]
+      public void ReturnsSameValue_ForEqualObjects(int ch, int rtu, int point)
+      {
+        var tmAddr1 = new TmAddr(TmType.Status, ch, rtu, point);
+        var tmAddr2 = new TmAddr(TmType.Status, ch, rtu, point);
+
+        var hash1 = tmAddr1.GetHashCode();
+        var hash2 = tmAddr2.GetHashCode();
+
+        hash1.Should().Be(hash2);
+      }
+
+
+      [Theory, TmAutoData]
+      public void ReturnsDifferentValue_ForDifferentAddr(int ch, int rtu, int point)
+      {
+        var tmAddr1 = new TmAddr(ch, rtu, point);
+        var tmAddr2 = new TmAddr(ch, rtu, point + 1);
+
+        var hash1 = tmAddr1.GetHashCode();
+        var hash2 = tmAddr2.GetHashCode();
+
+        hash1.Should().NotBe(hash2);
+      }
+    }
+
+
+    public class TryParseTypeMethod
+    {
+      [Theory]
+      [InlineData("#TC16:33:257", TmType.Status)]
+      [InlineData("#TT16:33:257", TmType.Analog)]
+      [InlineData("#TI16:33:257", TmType.Accum)]
+      public void ParsesCorrectly(string s, TmType expected)
+      {
+        var result = TmAddr.TryParseType(s, out var type);
+
+        result.Should().BeTrue();
+        type.Should().Be(expected);
+      }
+
+
+      [Theory]
+      [InlineData("#??16:33:257")]
+      [InlineData("16:33:257")]
+      [InlineData("")]
+      [InlineData(null)]
+      public void ReturnsFalse_ForMissingOrUnknownPrefix(string s)
+      {
+        var result = TmAddr.TryParseType(s, out var type, TmType.Unknown);
+
+        result.Should().BeFalse();
+        type.Should().Be(TmType.Unknown);
+      }
+    }
+
+
+    public class CreateFromTmaMethod
+    {
+      [Theory]
+      [InlineData(TmType.Status,  0x10_21_01_01, 16, 33, 257)]
+      [InlineData(TmType.Analog,  0x00_01_00_01, 0,  1,  1)]
+      public void FromTypeAndTmaCorrectly(TmType type, int tma, ushort expectedCh, ushort expectedRtu, ushort expectedPoint)
+      {
+        var tmAddr = TmAddr.CreateFromTma(type, tma);
+
+        tmAddr.Ch.Should().Be(expectedCh);
+        tmAddr.Rtu.Should().Be(expectedRtu);
+        tmAddr.Point.Should().Be(expectedPoint);
+        tmAddr.Type.Should().Be(type);
+      }
+
+
+      [Fact]
+      public void Roundtrips_ThroughToTma()
+      {
+        var original = new TmAddr(TmType.Status, 16, 33, 257);
+        var tma      = original.ToTma();
+
+        var restored = TmAddr.CreateFromTma(TmType.Status, tma);
+
+        restored.Should().Be(original);
+      }
+
+
+      [Fact]
+      public void FromFullTma_Roundtrips()
+      {
+        var original = new TmAddr(TmType.Analog, 5, 10, 200);
+        var fullTma  = original.ToFullTma();
+
+        var restored = TmAddr.CreateFromFullTma(fullTma);
+
+        restored.Should().Be(original);
+      }
+    }
+
+
+    public class GetTmaTypeMethod
+    {
+      [Theory]
+      [InlineData(TmType.Status,  unchecked((short)0x8000))]
+      [InlineData(TmType.Analog,  unchecked((short)0x8001))]
+      [InlineData(TmType.Accum,   unchecked((short)0x8002))]
+      [InlineData(TmType.Unknown, 0)]
+      public void ReturnsCorrectShort_ForType(TmType type, short expected)
+      {
+        var tmAddr = new TmAddr(type, 1, 1, 1);
+
+        var result = tmAddr.GetTmaType();
+
+        result.Should().Be(expected);
+      }
+    }
+
+
+    public class ToFullTmaMethod
+    {
+      [Fact]
+      public void EncodesTypeInHigh32Bits()
+      {
+        var tmAddr  = new TmAddr(TmType.Analog, 1, 1, 1);
+        var fullTma = tmAddr.ToFullTma();
+
+        var typePart = (fullTma >> 32);
+
+        typePart.Should().Be(0x8001); // TmDataTypes.Analog = 0x8001
+      }
+    }
+
+
+    public class ToTmaStrMethod
+    {
+      [Theory]
+      [InlineData(TmType.Status, "#TC:0:1:1")]
+      [InlineData(TmType.Analog, "#TT:16:33:257")]
+      [InlineData(TmType.Accum,  "#TI:254:255:65535")]
+      public void ReturnsCorrectString(TmType type, string expected)
+      {
+        var ch   = ushort.Parse(expected.Split(':')[1]);
+        var rtu  = ushort.Parse(expected.Split(':')[2]);
+        var point = ushort.Parse(expected.Split(':')[3]);
+
+        var tmAddr = new TmAddr(type, ch, rtu, point);
+
+        var result = tmAddr.ToTmaStr();
+
+        result.Should().Be(expected);
+      }
+    }
+
+
+    public class DecodeTmaMethod
+    {
+      [Fact]
+      public void ReturnsFalse_ForZero()
+      {
+        var result = TmAddr.DecodeTma(0, out var ch, out var rtu, out var point);
+
+        result.Should().BeFalse();
+        ch.Should().Be(0);
+        rtu.Should().Be(0);
+        point.Should().Be(0);
+      }
+
+
+      [Theory]
+      [InlineData(0x10_21_01_01, 16, 33, 257)]
+      public void DecodesCorrectly(int tma, ushort expectedCh, ushort expectedRtu, ushort expectedPoint)
+      {
+        var result = TmAddr.DecodeTma(tma, out var ch, out var rtu, out var point);
+
+        result.Should().BeTrue();
+        ch.Should().Be(expectedCh);
+        rtu.Should().Be(expectedRtu);
+        point.Should().Be(expectedPoint);
+      }
+    }
   }
 }
