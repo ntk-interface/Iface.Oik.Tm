@@ -149,6 +149,10 @@ namespace Iface.Oik.Tm.Interfaces
                                     dto.Ch,
                                     dto.Rtu,
                                     dto.Point));
+      if (tmTag == null)
+      {
+        return null;
+      }
       tmTag.Name = dto.Name ?? string.Empty;
       tmTag.UpdateValueFromCommonPointDto(dto);
       tmTag.UpdatePropertiesFromCommonPointDto(dto);
@@ -223,7 +227,7 @@ namespace Iface.Oik.Tm.Interfaces
       switch (key)
       {
         case "ClassNumber":
-          ClassId = byte.TryParse(value, out var classId) ? classId : (byte?) null;
+          ClassId = byte.TryParse(value, out var classId) ? classId : null;
           break;
       }
     }

@@ -360,7 +360,7 @@ public partial class OikSqlApi
       {
         if (tmStatuses.TryGetValue(dto.Tma, out var tmStatus))
         {
-          tmStatus.UpdatePropetiesFromDto(dto);
+          tmStatus.UpdatePropertiesFromDto(dto);
         }
       }
     }
@@ -483,7 +483,7 @@ public partial class OikSqlApi
                          .QueryFirstAsync<TmStatusPropertiesDto>(commandText, parameters)
                          .ConfigureAwait(false);
 
-      tmStatus.UpdatePropetiesFromDto(dto);
+      tmStatus.UpdatePropertiesFromDto(dto);
     }
     catch (Exception ex)
     {
