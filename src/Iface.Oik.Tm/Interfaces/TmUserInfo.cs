@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Linq;
 using Iface.Oik.Tm.Native.Dto;
+using Iface.Oik.Tm.Native.Utils;
 using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
   public class TmUserInfo
   {
-    private TmSecurityAccessFlags _securityAccessFlags;
-    private DateTime?             _connectionTime;
-
     public int                   Id                         { get; }
     public string                Name                       { get; }
     public string                NtName                     { get; }
@@ -44,6 +42,11 @@ namespace Iface.Oik.Tm.Interfaces
       AdditionalParametersString = infoDto.AdditionalParametersString;
       KeyId                      = infoDto.KeyId;
       GroupId                    = infoDto.GroupId;
+
+      if (TmNativeUtil.TryFindValueByKey(AdditionalParametersString, "UserNameLong", '\n', '=', out var userNameLong))
+      {
+        Name = userNameLong;
+      }
 
       _userPermissions = new bool[infoDto.PermissionBytes.Length];
       infoDto.PermissionBytes.ForEach((b, idx) => _userPermissions[idx] = b > 0);

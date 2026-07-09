@@ -68,10 +68,19 @@ public static partial class TmNativeApi
       throw new TmNativeException("Не удалось получить cfsHandle");
     }
 
-    var extendedInfo = GetTExtendedUserInfo(cfCid, serverName, "tms$");
-    var tUserInfo    = GetTUserInfo(tmCid, 0);
+    try
+    {
+      var extendedInfo = GetTExtendedUserInfo(cfCid, serverName, "tms$");
+      var tUserInfo    = GetTUserInfo(tmCid, 0);
+      
+      return TUserInfoDto.Create(tUserInfo, extendedInfo);
+    }
+    catch (TmNativeException) // если пользователь SYSTEM (внешняя задача), то GetTExtendedUserInfo не отработает
+    {
+      var (tUserInfo, additionalData) = GetUserInfoWithAdditionalData(tmCid, 0);
 
-    return TUserInfoDto.Create(tUserInfo, extendedInfo);
+      return TUserInfoDto.Create(0, tUserInfo, additionalData);
+    }
   }
 
   
