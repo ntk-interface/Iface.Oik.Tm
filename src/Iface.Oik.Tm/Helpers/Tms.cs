@@ -542,7 +542,7 @@ namespace Iface.Oik.Tm.Helpers
     public static (int tmCid, TmUserInfo userInfo, TmServerFeatures serverFeatures)
       InitializeWithoutSql(TmInitializeOptions options)
     {
-      InitNativeLibrary();
+      InitNativeLibrary(ignoreLinuxSignals: options.IgnoreLinuxSignals);
 
       SetUserCredentials(options.User,
                          options.Password);
@@ -590,7 +590,7 @@ namespace Iface.Oik.Tm.Helpers
     public static (int tmCid, TmUserInfo userInfo, TmServerFeatures serverFeatures, IntPtr stopEventHandle)
       InitializeAsTaskWithoutSql(TmOikTaskOptions taskOptions, TmInitializeOptions options)
     {
-      InitNativeLibrary();
+      InitNativeLibrary(ignoreLinuxSignals: options.IgnoreLinuxSignals);
 
       var taskArgs = Environment.GetCommandLineArgs();
       taskArgs[0] = PlatformUtil.GetOikTaskExecutable(taskArgs[0]);
@@ -623,7 +623,7 @@ namespace Iface.Oik.Tm.Helpers
     public static (int tmCid, IntPtr stopEventHandle) InitializeAsTaskSimple(TmOikTaskOptions    taskOptions,
                                                                              TmInitializeOptions options)
     {
-      InitNativeLibrary();
+      InitNativeLibrary(ignoreLinuxSignals: options.IgnoreLinuxSignals);
 
       var taskArgs = Environment.GetCommandLineArgs();
       taskArgs[0] = PlatformUtil.GetOikTaskExecutable(taskArgs[0]);
@@ -888,6 +888,7 @@ namespace Iface.Oik.Tm.Helpers
     public string           ApplicationName      { get; set; }
     public TmNativeCallback TmCallback           { get; set; }
     public IntPtr           TmCallbackParameters { get; set; } = IntPtr.Zero;
+    public bool             IgnoreLinuxSignals   { get; set; } = false;
   }
 
 
