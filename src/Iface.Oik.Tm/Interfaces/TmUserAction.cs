@@ -21,6 +21,10 @@ namespace Iface.Oik.Tm.Interfaces
     public Guid?  ExtraId   { get; private set; }
     public int?   ExtraInt  { get; private set; }
     public string ExtraText { get; private set; }
+    
+    public string    NoteComment { get; private set; } // ручное от пользователя
+    public DateTime? NoteTime    { get; private set; } // ручное от пользователя
+    public Guid?     NoteTagId   { get; private set; } // ручное от пользователя
 
     private int       _num;
     private DateTime? _ackTime;
@@ -90,6 +94,9 @@ namespace Iface.Oik.Tm.Interfaces
         ExtraId     = dto.ExtraId,
         ExtraInt    = dto.ExtraInt,
         ExtraText   = dto.ExtraText,
+        NoteComment = dto.NoteComment,
+        NoteTime    = dto.NoteTime,
+        NoteTagId   = dto.NoteTagId,
       };
       action.PrepareTmAddrValues();
 

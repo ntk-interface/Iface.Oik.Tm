@@ -207,6 +207,9 @@ namespace Iface.Oik.Tm.Dto
     public short?    VS2          { get; set; }
     public int?      Flags        { get; set; }
     public BitArray  TsAddFlags   { get; set; }
+    public string    NoteComment  { get; set; } // ручное от пользователя, хранится отдельно
+    public DateTime? NoteTime     { get; set; } // ручное от пользователя, хранится отдельно
+    public Guid?     NoteTagId    { get; set; } // ручное от пользователя, хранится отдельно
   }
 
 
@@ -282,17 +285,20 @@ namespace Iface.Oik.Tm.Dto
 
   public class TmUserActionDto
   {
-    public Guid                 Id         { get; set; }
-    public MqttKnownTopic       Action     { get; set; }
-    public TmUserActionCategory Category   { get; set; }
-    public DateTime             Time       { get; set; }
-    public string               State      { get; set; }
-    public int                  Importance { get; set; }
-    public string               Text       { get; set; }
-    public string               Username   { get; set; }
-    public long?                Tma        { get; set; }
-    public Guid?                ExtraId    { get; set; }
-    public int?                 ExtraInt   { get; set; }
-    public string               ExtraText  { get; set; }
+    public Guid                 Id          { get; set; }
+    public MqttKnownTopic       Action      { get; set; }
+    public TmUserActionCategory Category    { get; set; }
+    public DateTime             Time        { get; set; }
+    public string               State       { get; set; }
+    public int                  Importance  { get; set; }
+    public string               Text        { get; set; }
+    public string               Username    { get; set; }
+    public long?                Tma         { get; set; }
+    public Guid?                ExtraId     { get; set; }
+    public int?                 ExtraInt    { get; set; }
+    public string               ExtraText   { get; set; }
+    public string               NoteComment { get; set; } // ручное от пользователя
+    public DateTime?            NoteTime    { get; set; } // ручное от пользователя
+    public Guid?                NoteTagId   { get; set; } // ручное от пользователя
   }
 }

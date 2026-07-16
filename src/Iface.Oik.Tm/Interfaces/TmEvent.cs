@@ -31,6 +31,10 @@ namespace Iface.Oik.Tm.Interfaces
     public object       Reference            { get; private set; }
     public DateTime?    FixTime              { get; private set; }
     public bool         IsFromReserve        { get; private set; } // EVL_ST_EXTF_SECONDARY, sql: ts_add_flags[4]
+    
+    public string    NoteComment { get; private set; } // ручное от пользователя, хранится отдельно
+    public DateTime? NoteTime    { get; private set; } // ручное от пользователя, хранится отдельно
+    public Guid?     NoteTagId   { get; private set; } // ручное от пользователя, хранится отдельно
 
     private int       _num;
     private DateTime? _ackTime;
@@ -116,7 +120,10 @@ namespace Iface.Oik.Tm.Interfaces
                            dto.Flags,
                            dto.TsAddFlags,
                            dto.AckTime,
-                           dto.AckUser);
+                           dto.AckUser,
+                           dto.NoteComment,
+                           dto.NoteTime,
+                           dto.NoteTagId);
     }
 
 
@@ -141,7 +148,10 @@ namespace Iface.Oik.Tm.Interfaces
                                         int?      statusFlags,
                                         BitArray  tsExtraFlags,
                                         DateTime? ackTime,
-                                        string    ackUser)
+                                        string    ackUser,
+                                        string    noteComment,
+                                        DateTime? noteTime,
+                                        Guid?     noteTagId)
     {
       var eventType = (TmEventTypes)type;
 
@@ -185,20 +195,23 @@ namespace Iface.Oik.Tm.Interfaces
 
       var tmEvent = new TmEvent(elixBytes != null ? BitConverter.ToInt32(elixBytes, 8) : 0)
       {
-        Time                 = time.NullIfEpoch(),
-        Text                 = eventText,
-        StateString          = eventStateString,
-        Type                 = eventType,
-        TypeString           = eventTypeString,
-        Username             = username,
-        Importance           = importance,
-        TmClassId            = classId ?? -1,
-        TmAddrType           = ((TmNativeDefs.TmDataTypes)(ushort)(tmAddrNativeType ?? 0)).ToTmType(),
-        TmAddrTma            = tma,
-        AckTime              = ackTime.NullIfEpoch(),
-        AckUser              = ackUser,
-        IsFromReserve        = tsExtraFlags != null && tsExtraFlags.Count > 4 && tsExtraFlags[4] == true,
-        Reference            = reference,
+        Time          = time.NullIfEpoch(),
+        Text          = eventText,
+        StateString   = eventStateString,
+        Type          = eventType,
+        TypeString    = eventTypeString,
+        Username      = username,
+        Importance    = importance,
+        TmClassId     = classId ?? -1,
+        TmAddrType    = ((TmNativeDefs.TmDataTypes)(ushort)(tmAddrNativeType ?? 0)).ToTmType(),
+        TmAddrTma     = tma,
+        AckTime       = ackTime.NullIfEpoch(),
+        AckUser       = ackUser,
+        IsFromReserve = tsExtraFlags != null && tsExtraFlags.Count > 4 && tsExtraFlags[4] == true,
+        Reference     = reference,
+        NoteComment   = noteComment,
+        NoteTime      = noteTime,
+        NoteTagId     = noteTagId,
       };
 
       if (elixBytes != null)

@@ -39,11 +39,13 @@ public partial class OikSqlApi
       sql.Label = "ArchEvents";
       await sql.OpenAsync().ConfigureAwait(false);
       
-      var commandText = $@"SELECT elix, update_time, 
+      var commandText = $@"SELECT events.elix, update_time, 
                                   rec_text, name, rec_state_text, rec_type, rec_type_name, user_name, importance, 
                                   tma, tma_str, tm_type_name, tm_type, class_id, v_val, alarm_active, v_code, v_s2, flags, ts_add_flags,
-                                  ack_time, ack_user
-                           FROM oik_event_log
+                                  ack_time, ack_user,
+                                      notes.note_comment, notes.note_time, notes.note_tag_id
+                           FROM oik_event_log AS events
+                             LEFT JOIN oik_event_log_notes AS notes ON events.elix = notes.elix
                            WHERE 1=1 {whereBeg}{whereEnd}{whereEventTypes}{whereEventImportances}{whereEventTmStatusClassIds}{whereEventTmAddr}{whereEventChannelsAndRtus}{whereEventFromReserveExcluded}
                            ORDER BY update_time
                            {limit}";
@@ -253,7 +255,8 @@ public partial class OikSqlApi
       
       var commandText = $@"SELECT id, time, action, category, state, importance, text, user_name,
                                   tma, extra_id, extra_int, extra_text,
-                                  ack_time, ack_user
+                                  ack_time, ack_user,
+                                  note_tag_id, note_comment, note_time
                            FROM oik_user_actions_log
                            WHERE 1=1 {whereBeg}{whereEnd}{whereActionCategories}{whereActionImportances}{whereActionChannelsAndRtus}{whereActionTmAddr}
                            ORDER BY time
