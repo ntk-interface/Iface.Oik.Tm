@@ -22,9 +22,9 @@ namespace Iface.Oik.Tm.Interfaces
     public int?   ExtraInt  { get; private set; }
     public string ExtraText { get; private set; }
     
-    public string    NoteComment { get; private set; } // ручное от пользователя
-    public DateTime? NoteTime    { get; private set; } // ручное от пользователя
-    public Guid?     NoteTagId   { get; private set; } // ручное от пользователя
+    public string    NoteComment { get; set; } // ручное от пользователя
+    public DateTime? NoteTime    { get; set; } // ручное от пользователя
+    public Guid?     NoteTagId   { get; set; } // ручное от пользователя
 
     private int       _num;
     private DateTime? _ackTime;

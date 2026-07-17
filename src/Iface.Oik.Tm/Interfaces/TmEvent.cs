@@ -32,9 +32,9 @@ namespace Iface.Oik.Tm.Interfaces
     public DateTime?    FixTime              { get; private set; }
     public bool         IsFromReserve        { get; private set; } // EVL_ST_EXTF_SECONDARY, sql: ts_add_flags[4]
     
-    public string    NoteComment { get; private set; } // ручное от пользователя, хранится отдельно
-    public DateTime? NoteTime    { get; private set; } // ручное от пользователя, хранится отдельно
-    public Guid?     NoteTagId   { get; private set; } // ручное от пользователя, хранится отдельно
+    public string    NoteComment { get; set; } // ручное от пользователя, хранится отдельно
+    public DateTime? NoteTime    { get; set; } // ручное от пользователя, хранится отдельно
+    public Guid?     NoteTagId   { get; set; } // ручное от пользователя, хранится отдельно
 
     private int       _num;
     private DateTime? _ackTime;
