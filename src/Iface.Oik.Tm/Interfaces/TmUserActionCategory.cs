@@ -13,5 +13,6 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Настройки")]          Settings,
     [Description("Сообщение")]          Message,
     [Description("Телеметрия")]         Tm,
+    [Description("События")]            Events,
   }
 }
