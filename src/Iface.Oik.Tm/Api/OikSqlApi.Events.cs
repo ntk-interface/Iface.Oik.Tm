@@ -54,8 +54,6 @@ public partial class OikSqlApi
                            ORDER BY events.update_time
                            {limitClause}";
 
-      Console.WriteLine(commandText);
-
       var dtos = await sql.DbConnection
                           .QueryAsync<TmEventDto>(commandText, parameters)
                           .ConfigureAwait(false);
@@ -111,7 +109,7 @@ public partial class OikSqlApi
     {
       where.Add($"((events.tm_type != {(int)TmNativeDefs.TmDataTypes.Status}) OR events.class_id IN ({string.Join(",", filter.TmStatusClassIdList)}))");
     }
-    if (filter.TmAddrList?.Count > 0)
+    if (filter.TmAddrList.Count > 0)
     {
       where.Add("events.fulltma = ANY(@FullTmaArray)");
       parameters.Add("@FullTmaArray", filter.TmAddrList.Select(t => t.ToFullTma()).ToArray());
@@ -149,6 +147,11 @@ public partial class OikSqlApi
     if (filter.HasNoteTime)
     {
       where.Add("notes.note_time IS NOT NULL");
+    }
+    if (filter.NoteTagIds.Count > 0)
+    {
+      where.Add("notes.note_tag_id = ANY(@NoteTagIdArray)");
+      parameters.Add("@NoteTagIdArray", filter.NoteTagIds.ToArray());
     }
 
     return (where, parameters);
@@ -191,8 +194,6 @@ public partial class OikSqlApi
                            {whereClause}
                            ORDER BY log.time
                            {limitClause}";
-
-      Console.WriteLine(commandText);
 
       var dtos = await sql.DbConnection
                           .QueryAsync<TmUserActionDto>(commandText, parameters)
@@ -245,7 +246,7 @@ public partial class OikSqlApi
         where.Add($"log.importance IN ({string.Join(",", importances)})");
       }
     }
-    if (filter.TmAddrList?.Count > 0)
+    if (filter.TmAddrList.Count > 0)
     {
       where.Add("log.tma = ANY(@FullTmaArray)");
       parameters.Add("@FullTmaArray", filter.TmAddrList.Select(t => t.ToFullTma()).ToArray());
@@ -281,6 +282,11 @@ public partial class OikSqlApi
     if (filter.HasNoteTime)
     {
       where.Add("notes.note_time IS NOT NULL");
+    }
+    if (filter.NoteTagIds.Count > 0)
+    {
+      where.Add("notes.note_tag_id = ANY(@NoteTagIdArray)");
+      parameters.Add("@NoteTagIdArray", filter.NoteTagIds.ToArray());
     }
 
     return (where, parameters);

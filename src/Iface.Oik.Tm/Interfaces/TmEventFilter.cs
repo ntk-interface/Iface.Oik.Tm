@@ -28,8 +28,9 @@ namespace Iface.Oik.Tm.Interfaces
     
     public List<TmUserActionCategory> Categories { get; } = new();
     
-    public bool HasNoteComment { get; set; }
-    public bool HasNoteTime    { get; set; }
+    public bool       HasNoteComment { get; set; }
+    public bool       HasNoteTime    { get; set; }
+    public List<Guid> NoteTagIds     { get; } = new();
     
     public int OutputLimit { get; set; }
 
@@ -40,10 +41,11 @@ namespace Iface.Oik.Tm.Interfaces
                                (TmStatusClassIdList     == null || TmStatusClassIdList.Count     == 0) &&
                                (ChannelAndRtuCollection == null || ChannelAndRtuCollection.Count == 0) &&
                                !ExcludeFromReserve                                                     &&
-                               Categories.Count == 0                                                   && 
+                               Categories.Count == 0                                                   &&
                                (Source == TmEventSource.Union)                                         &&
                                !HasNoteComment                                                         &&
                                !HasNoteTime                                                            &&
+                               NoteTagIds.Count == 0                                                   &&
                                OutputLimit == 0;
 
 
@@ -114,6 +116,7 @@ namespace Iface.Oik.Tm.Interfaces
       Categories.Clear();
       HasNoteComment = false;
       HasNoteTime    = false;
+      NoteTagIds.Clear();
     }
 
 
@@ -225,6 +228,11 @@ namespace Iface.Oik.Tm.Interfaces
         return false;
       }
 
+      if (NoteTagIds.Count > 0 && !NoteTagIds.Any(id => ev.NoteTagId == id))
+      {
+        return false;
+      }
+
       return true;
     }
 
@@ -278,6 +286,11 @@ namespace Iface.Oik.Tm.Interfaces
       }
 
       if (HasNoteTime && userAction.NoteTime == null)
+      {
+        return false;
+      }
+
+      if (NoteTagIds.Count > 0 && !NoteTagIds.Any(id => userAction.NoteTagId == id))
       {
         return false;
       }
@@ -436,6 +449,10 @@ namespace Iface.Oik.Tm.Interfaces
       if (HasNoteTime)
       {
         filters.Add("Указано польз. время");
+      }
+      if (NoteTagIds.Count > 0)
+      {
+        filters.Add("Указаны конкретные польз. теги");
       }
       if (OutputLimit > 0)
       {
