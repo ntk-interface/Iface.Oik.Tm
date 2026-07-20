@@ -25,9 +25,11 @@ namespace Iface.Oik.Tm.Interfaces
 
     // channelNum -> { null(весь канал) | коллекция rtuNum }
     public Dictionary<int, HashSet<int>> ChannelAndRtuCollection { get; set; }
-
-
+    
     public List<TmUserActionCategory> Categories { get; } = new();
+    
+    public bool HasNoteComment { get; set; }
+    public bool HasNoteTime    { get; set; }
     
     public int OutputLimit { get; set; }
 
@@ -40,6 +42,8 @@ namespace Iface.Oik.Tm.Interfaces
                                !ExcludeFromReserve                                                     &&
                                Categories.Count == 0                                                   && 
                                (Source == TmEventSource.Union)                                         &&
+                               !HasNoteComment                                                         &&
+                               !HasNoteTime                                                            &&
                                OutputLimit == 0;
 
 
@@ -108,6 +112,8 @@ namespace Iface.Oik.Tm.Interfaces
       TmStatusClassIdList?.Clear();
       ExcludeFromReserve = false;
       Categories.Clear();
+      HasNoteComment = false;
+      HasNoteTime    = false;
     }
 
 
@@ -162,26 +168,22 @@ namespace Iface.Oik.Tm.Interfaces
         return false;
       }
 
-      if (Types             != TmEventTypes.None &&
-          (Types & ev.Type) == 0)
+      if (Types != TmEventTypes.None && (Types & ev.Type) == 0)
       {
         return false;
       }
 
-      if (Importances                       != TmEventImportances.None &&
-          (Importances & ev.ImportanceFlag) == 0)
+      if (Importances != TmEventImportances.None && (Importances & ev.ImportanceFlag) == 0)
       {
         return false;
       }
 
-      if (StartTime.HasValue &&
-          ev.Time < StartTime)
+      if (StartTime.HasValue && ev.Time < StartTime)
       {
         return false;
       }
 
-      if (EndTime.HasValue &&
-          ev.Time > EndTime)
+      if (EndTime.HasValue && ev.Time > EndTime)
       {
         return false;
       }
@@ -193,8 +195,7 @@ namespace Iface.Oik.Tm.Interfaces
         return false;
       }
 
-      if (ChannelAndRtuCollection != null &&
-          !IsConformTmAddrTma(ev.TmAddrTma))
+      if (ChannelAndRtuCollection != null && !IsConformTmAddrTma(ev.TmAddrTma))
       {
         return false;
       }
@@ -209,8 +210,17 @@ namespace Iface.Oik.Tm.Interfaces
         }
       }
 
-      if (ExcludeFromReserve &&
-          ev.IsFromReserve)
+      if (ExcludeFromReserve && ev.IsFromReserve)
+      {
+        return false;
+      }
+
+      if (HasNoteComment && string.IsNullOrEmpty(ev.NoteComment))
+      {
+        return false;
+      }
+
+      if (HasNoteTime && ev.NoteTime == null)
       {
         return false;
       }
@@ -260,6 +270,16 @@ namespace Iface.Oik.Tm.Interfaces
         {
           return false;
         }
+      }
+
+      if (HasNoteComment && string.IsNullOrEmpty(userAction.NoteComment))
+      {
+        return false;
+      }
+
+      if (HasNoteTime && userAction.NoteTime == null)
+      {
+        return false;
       }
 
       return true;
@@ -408,6 +428,14 @@ namespace Iface.Oik.Tm.Interfaces
       if (ExcludeFromReserve)
       {
         filters.Add("Исключать события с резервных каналов");
+      }
+      if (HasNoteComment)
+      {
+        filters.Add("Указан польз. комментарий");
+      }
+      if (HasNoteTime)
+      {
+        filters.Add("Указано польз. время");
       }
       if (OutputLimit > 0)
       {
