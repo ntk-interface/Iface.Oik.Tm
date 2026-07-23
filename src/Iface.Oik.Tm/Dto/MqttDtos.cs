@@ -84,6 +84,29 @@ namespace Iface.Oik.Tm.Dto
   }
 
 
+  public class MqttEventNotesDto
+  {
+    public DateTime? EventTime { get; set; }
+    
+    public string    Comment { get; set; }
+    public DateTime? Time    { get; set; }
+    public Guid?     TagId   { get; set; }
+    public string    TagName { get; set; }
+  }
+
+
+  public class MqttTmEventNotesDto : MqttEventNotesDto
+  {
+    public TmEventElix Elix { get; set; }
+  }
+
+
+  public class MqttUserActionNotesDto : MqttEventNotesDto
+  {
+    public Guid Id { get; set; }
+  }
+
+
   public class MqttCustomMessageDto
   {
     public int    Importance { get; set; }
