@@ -1,7 +1,5 @@
-﻿using System;
-using System.Linq;
+﻿using Iface.Oik.Tm.Dto;
 using Iface.Oik.Tm.Interfaces;
-using Iface.Oik.Tm.Native.Interfaces;
 using Xunit;
 
 namespace Iface.Oik.Tm.Test.Interfaces
@@ -299,98 +297,6 @@ namespace Iface.Oik.Tm.Test.Interfaces
     }
 
 
-    /*public class FromCommonPointMethod
-    {
-      [Fact]
-      public void DoesNotInitWithTmFlagsInvalid()
-      {
-        var tmStatus = new TmStatus(0, 1, 1);
-        var tmcCommonPoint = new TmNativeDefs.TCommonPoint
-        {
-          TM_Flags = 0xFFFF,
-          Data     = new byte[] {0},
-        };
-
-        tmStatus.FromTmcCommonPoint(tmcCommonPoint);
-
-        Assert.False(tmStatus.IsInit);
-      }
-
-
-      [Fact]
-      public void DoesNotInitWithStatusDataNull()
-      {
-        var tmStatus       = new TmStatus(0, 1, 1);
-        var tmcCommonPoint = new TmNativeDefs.TCommonPoint();
-
-        tmStatus.FromTmcCommonPoint(tmcCommonPoint);
-
-        Assert.False(tmStatus.IsInit);
-      }
-
-
-      [Theory]
-      [InlineData(1, 0,                                      0)]
-      [InlineData(0, (short) TmNativeDefs.Flags.UnreliableHdw, 0)]
-      [InlineData(0,
-        (short) (TmNativeDefs.Flags.UnreliableManu | TmNativeDefs.Flags.ManuallySet),
-        (short) TmNativeDefs.S2Flags.Break)]
-      public void SetsCorrectValues(short status, short flags, ushort s2Flags)
-      {
-        var tmStatus = new TmStatus(0, 1, 1);
-        var tmcCommonPoint = new TmNativeDefs.TCommonPoint
-        {
-          TM_Flags = 1,
-          tm_s2    = s2Flags,
-          Data     = new short[] {status, flags}.SelectMany(BitConverter.GetBytes).ToArray(),
-        };
-
-        tmStatus.FromTmcCommonPoint(tmcCommonPoint);
-
-        Assert.True(tmStatus.IsInit);
-        Assert.Equal(status,  tmStatus.Status);
-        Assert.Equal(flags,   (short) tmStatus.Flags);
-        Assert.Equal(s2Flags, (ushort) tmStatus.S2Flags);
-      }
-
-
-      [Theory]
-      [InlineData((short) TmNativeDefs.Flags.StatusClassAps)]
-      [InlineData((short) (TmNativeDefs.Flags.UnreliableHdw | TmNativeDefs.Flags.StatusClassAps))]
-      public void SetsApsTrue(short flags)
-      {
-        var tmStatus = new TmStatus(0, 1, 1);
-        var tmcCommonPoint = new TmNativeDefs.TCommonPoint
-        {
-          TM_Flags = 1,
-          Data     = new short[] {0, flags}.SelectMany(BitConverter.GetBytes).ToArray()
-        };
-
-        tmStatus.FromTmcCommonPoint(tmcCommonPoint);
-
-        Assert.True(tmStatus.IsAps);
-      }
-
-
-      [Theory]
-      [InlineData(0)]
-      [InlineData((short) (TmNativeDefs.Flags.UnreliableHdw | TmNativeDefs.Flags.Unacked))]
-      public void SetsApsFalse(short flags)
-      {
-        var tmStatus = new TmStatus(0, 1, 1);
-        var tmcCommonPoint = new TmNativeDefs.TCommonPoint
-        {
-          TM_Flags = 1,
-          Data     = new short[] {0, flags}.SelectMany(BitConverter.GetBytes).ToArray()
-        };
-
-        tmStatus.FromTmcCommonPoint(tmcCommonPoint);
-
-        Assert.False(tmStatus.IsAps);
-      }
-    }*/
-
-
     public class SetSqlPropertiesAndClassData // todo importance, normalStatus
     {
       [Theory]
@@ -437,6 +343,49 @@ namespace Iface.Oik.Tm.Test.Interfaces
       if (status  == 1) return TmStatus.ClassCaption.On;
 
       return 0;
+    }
+
+
+    public class SetPropertiesFromDtoMethod
+    {
+      [Fact]
+      public void DoesNothingWhenDtoIsNull()
+      {
+        var tmStatus = new TmStatus(0, 1, 1);
+
+        tmStatus.UpdatePropertiesFromDto(null);
+
+        Assert.NotNull(tmStatus);
+      }
+
+
+      [Fact]
+      public void SetsCorrectValues()
+      {
+        var tmStatus = new TmStatus(0, 1, 1);
+        var dto      = new TmStatusPropertiesDto
+        {
+          Name         = "Телеметрия",
+          VImportance  = 2,
+          VNormalState = 1,
+          ClassId      = 5,
+          ClText0      = "Выкл",
+          ClText1      = "Вкл",
+          ClBreakText  = "Обрыв",
+          ClMalfunText = "Неиспр",
+          Provider     = "10",
+        };
+
+        tmStatus.UpdatePropertiesFromDto(dto);
+
+        Assert.Equal("Телеметрия", tmStatus.Name);
+        Assert.Equal(2,            tmStatus.Importance);
+        Assert.Equal(1,            tmStatus.NormalStatus);
+        Assert.Equal<byte?>(5, tmStatus.ClassId);
+        Assert.True(tmStatus.HasTmProvider);
+        Assert.Equal("Выкл", tmStatus.GetClassCaption(TmStatus.ClassCaption.Off));
+        Assert.Equal("Вкл",  tmStatus.GetClassCaption(TmStatus.ClassCaption.On));
+      }
     }
   }
 }

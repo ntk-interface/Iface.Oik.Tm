@@ -137,11 +137,11 @@ namespace Iface.Oik.Tm.Interfaces
     public string Flag4Status =>
       IsFlag4 ? GetClassCaption(ClassCaption.Flag4On) : GetClassCaption(ClassCaption.Flag4Off);
 
-    public bool IsDrawoutUnderMaintenance => Flag1Name.ToLower()   == "положение_тележки" &&
-                                             Flag1Status.ToLower() == "ремонтное";
+    public bool IsDrawoutUnderMaintenance => string.Equals(Flag1Name, "положение_тележки", StringComparison.OrdinalIgnoreCase) &&
+                                             string.Equals(Flag1Status, "ремонтное", StringComparison.OrdinalIgnoreCase);
 
-    public bool IsDrawoutUnderCheckup => Flag2Name.ToLower()   == "положение_тележки" &&
-                                         Flag2Status.ToLower() == "контрольное";
+    public bool IsDrawoutUnderCheckup => string.Equals(Flag2Name, "положение_тележки", StringComparison.OrdinalIgnoreCase) &&
+                                         string.Equals(Flag2Status, "контрольное", StringComparison.OrdinalIgnoreCase);
 
 
     public string StatusCaption
@@ -511,7 +511,7 @@ namespace Iface.Oik.Tm.Interfaces
     }
 
 
-    public void UpdatePropetiesFromDto(TmStatusPropertiesDto dto)
+    public void UpdatePropertiesFromDto(TmStatusPropertiesDto dto)
     {
       if (dto?.Name == null) return;
 
@@ -642,7 +642,7 @@ namespace Iface.Oik.Tm.Interfaces
       if (dto?.Name == null) return;
 
       UpdateValueFromDto(dto.MapToTmStatusDto());
-      UpdatePropetiesFromDto(dto.MapToTmStatusPropertiesDto());
+      UpdatePropertiesFromDto(dto.MapToTmStatusPropertiesDto());
     }
   }
 }

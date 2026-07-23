@@ -90,9 +90,4 @@ public class NativeDateUtil
       }
       return result;
     }
-    
-    internal static DateTime GetDateTimeFromCustomFileTime(TmNativeDefsUnsafe.FileTime fileTime)
-    {
-      return DateTime.FromFileTime((long)fileTime.dwHighDateTime << 32 | (uint)fileTime.dwLowDateTime);
-    }
 }

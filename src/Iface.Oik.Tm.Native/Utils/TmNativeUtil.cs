@@ -691,7 +691,7 @@ namespace Iface.Oik.Tm.Native.Utils
 
     public static TmNativeDefs.TTMSEventAddData GetEventAddData(Span<byte> addDataBytes)
     {
-      if (addDataBytes == null)
+      if (addDataBytes == null || addDataBytes.IsEmpty)
       {
         throw new ArgumentException("Массив байтов пуст");
       }

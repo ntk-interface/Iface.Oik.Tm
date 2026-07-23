@@ -26,19 +26,19 @@ namespace Iface.Oik.Tm.Interfaces
     public short Code
     {
       get => _code;
-      set => SetPropertyValue(ref _code, value);
+      set => SetPropertyValueAndRefresh(ref _code, value);
     }
     
     public float Value
     {
       get => _value;
-      set => SetPropertyValue(ref _value, value);
+      set => SetPropertyValueAndRefresh(ref _value, value);
     }
 
     public float Load
     {
       get => _load;
-      set => SetPropertyValue(ref _load, value);
+      set => SetPropertyValueAndRefresh(ref _load, value);
     }
 
     public TmFlags Flags
@@ -351,14 +351,14 @@ namespace Iface.Oik.Tm.Interfaces
       {
         Name = dto.Name;
       }
-      if (dto.AnalogPointDto == null)
+      if (dto.AccumPointDto == null)
       {
         return;
       }
 
-      Unit      = dto.AnalogPointDto.Value.Unit;
-      Width     = (byte) (dto.AnalogPointDto.Value.Format & 0x0F);
-      Precision = (byte) (dto.AnalogPointDto.Value.Format >> 4);
+      Unit      = dto.AccumPointDto.Value.Unit;
+      Width     = (byte) (dto.AccumPointDto.Value.Format & 0x0F);
+      Precision = (byte) (dto.AccumPointDto.Value.Format >> 4);
     }
     
 

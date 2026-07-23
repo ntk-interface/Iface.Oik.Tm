@@ -19,13 +19,13 @@ namespace Iface.Oik.Tm.Interfaces
           throw new ArgumentException("Недопустимый номер канала в TmAddr");
         }
 
-        _addr = (uint) ((_addr & 0x00_FF_FF_FF) | (value << 24));
+        _addr = (_addr & 0x00_FF_FF_FF) | ((uint)value << 24);
       }
     }
 
     public ushort Rtu
     {
-      get => (ushort) (1 + (_addr >> 16) & 0xFF);
+      get => (ushort) (1 + ((_addr >> 16) & 0xFF));
       set
       {
         if (value > 255)
@@ -33,13 +33,13 @@ namespace Iface.Oik.Tm.Interfaces
           throw new ArgumentException("Недопустимый номер КП в TmAddr");
         }
 
-        _addr = (uint) ((_addr & 0xFF_00_FF_FF) | ((value - 1) << 16));
+        _addr = (_addr & 0xFF_00_FF_FF) | ((uint)(value - 1) << 16);
       }
     }
 
     public ushort Point
     {
-      get => (ushort) (1 + _addr & 0xFFFF);
+      get => (ushort) (1 + (_addr & 0xFFFF));
       set
       {
         if (value > 65535)
@@ -47,7 +47,7 @@ namespace Iface.Oik.Tm.Interfaces
           throw new ArgumentException("Недопустимый номер объекта в TmAddr");
         }
 
-        _addr = (uint) ((_addr & 0xFF_FF_00_00) | (value - 1));
+        _addr = (_addr & 0xFF_FF_00_00) | (uint)(value - 1);
       }
     }
 
@@ -251,6 +251,10 @@ namespace Iface.Oik.Tm.Interfaces
 
     public int CompareTo(TmAddr other)
     {
+      if (other == null)
+      {
+        return 1;
+      }
       if (_addr > other._addr)
       {
         return 1;
@@ -336,29 +340,23 @@ namespace Iface.Oik.Tm.Interfaces
         return false;
       }
       s = s.Trim();
-      try
+
+      if (s.StartsWith("#TC"))
       {
-        if (s.StartsWith("#TC"))
-        {
-          type = TmType.Status;
-          return true;
-        }
-        if (s.StartsWith("#TT"))
-        {
-          type = TmType.Analog;
-          return true;
-        }
-        if (s.StartsWith("#TI"))
-        {
-          type = TmType.Accum;
-          return true;
-        }
-        return false;
+        type = TmType.Status;
+        return true;
       }
-      catch (Exception)
+      if (s.StartsWith("#TT"))
       {
-        return false;
+        type = TmType.Analog;
+        return true;
       }
+      if (s.StartsWith("#TI"))
+      {
+        type = TmType.Accum;
+        return true;
+      }
+      return false;
     }
 
 

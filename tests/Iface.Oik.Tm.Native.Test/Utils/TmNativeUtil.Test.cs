@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using FluentAssertions;
@@ -154,8 +155,8 @@ namespace Iface.Oik.Tm.Native.Test.Utils
       [Fact]
       public void GetBytes_ReturnsCorrectBytes()
       {
-        var dummy = new TestDummy { Id = 0xAA, Value = 0x000000BB };
-        var expectedBytes = new byte[] { 0xAA, 0xBB, 0x00, 0x00, 0x00 };
+        var dummy         = new TestDummy { Id = 0xAA, Value = 0x000000BB };
+        var expectedBytes = new byte[] { 0xAA, 0xBB, 0x00, 0x00, 0x00 }; // little-endian
 
         var result = TmNativeUtil.GetBytes(dummy);
 
@@ -280,7 +281,7 @@ namespace Iface.Oik.Tm.Native.Test.Utils
       }
       
       [Fact]
-      public void ReturnsEmptyListForNullChars()
+      public void ReturnsEmptyListForEmptyChars()
       {
         var chars = new char[0];
 
@@ -290,7 +291,7 @@ namespace Iface.Oik.Tm.Native.Test.Utils
       }
       
       [Fact]
-      public void ReturnsEmptyListForEmptyChars()
+      public void ReturnsEmptyListForSingleNullChar()
       {
         char[] chars = {'\0'};
 
@@ -323,6 +324,567 @@ namespace Iface.Oik.Tm.Native.Test.Utils
         var result = TmNativeUtil.GetStringListFromDoubleNullTerminatedChars(chars);
 
         result.Should().Equal("This", "is", "test");
+      }
+    }
+
+
+    public class GetCStringFromIntPtr
+    {
+      [Fact]
+      public void ReturnsEmptyString_WhenPointerIsZero()
+      {
+        var result = TmNativeUtil.GetCStringFromIntPtr(nint.Zero);
+
+        result.Should().BeEmpty();
+      }
+
+      [Fact]
+      public void ReturnsEmptyString_WhenFirstByteIsNull()
+      {
+        var ptr = Marshal.AllocHGlobal(4);
+        Marshal.WriteByte(ptr, 0, 0);
+
+        try
+        {
+          var result = TmNativeUtil.GetCStringFromIntPtr(ptr);
+
+          result.Should().BeEmpty();
+        }
+        finally
+        {
+          Marshal.FreeHGlobal(ptr);
+        }
+      }
+
+      [Fact]
+      public void ReturnsCorrectString_ForValidNullTerminatedPtr()
+      {
+        var bytes = "Hello\0"u8.ToArray();
+        var ptr   = Marshal.AllocHGlobal(bytes.Length);
+        Marshal.Copy(bytes, 0, ptr, bytes.Length);
+
+        try
+        {
+          var result = TmNativeUtil.GetCStringFromIntPtr(ptr);
+
+          result.Should().Be("Hello");
+        }
+        finally
+        {
+          Marshal.FreeHGlobal(ptr);
+        }
+      }
+    }
+
+
+    public class GetUtcTimestampFromDateTime
+    {
+      [Fact]
+      public void ReturnsZero_ForEpoch()
+      {
+        var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        var result = TmNativeUtil.GetUtcTimestampFromDateTime(epoch);
+
+        result.Should().Be(0);
+      }
+
+      [Fact]
+      public void ReturnsCorrectTimestamp_ForKnownDate()
+      {
+        var dt     = new DateTime(2024, 1, 15, 12, 30, 0, DateTimeKind.Utc);
+        var expected = 1705321800L;
+
+        var result = TmNativeUtil.GetUtcTimestampFromDateTime(dt);
+
+        result.Should().Be(expected);
+      }
+    }
+
+
+    public class StringToLpstrBytes
+    {
+      [Fact]
+      public void ReturnsZero_WhenStringIsNull()
+      {
+        var buf = new byte[10];
+
+        var result = TmNativeUtil.StringToLpstrBytes(null, buf);
+
+        result.Should().Be(0u);
+      }
+
+      [Fact]
+      public void ReturnsZero_WhenStringIsEmpty()
+      {
+        var buf = new byte[10];
+
+        var result = TmNativeUtil.StringToLpstrBytes("", buf);
+
+        result.Should().Be(0u);
+      }
+
+      [Fact]
+      public void WritesStringWithNullTerminator()
+      {
+        var buf = new byte[10];
+
+        var written = TmNativeUtil.StringToLpstrBytes("ABC", buf);
+
+        written.Should().Be(4u);
+        buf[0].Should().Be((byte)'A');
+        buf[1].Should().Be((byte)'B');
+        buf[2].Should().Be((byte)'C');
+        buf[3].Should().Be(0);
+      }
+    }
+
+
+    public class StringsToLpstrListBytes
+    {
+      [Fact]
+      public void WritesStringsWithDoubleNullTerminator()
+      {
+        var buf = new byte[20];
+
+        var written = TmNativeUtil.StringsToLpstrListBytes(new[] { "A", "BC" }, buf);
+
+        written.Should().Be(6u);
+        buf[0].Should().Be((byte)'A');
+        buf[1].Should().Be(0);
+        buf[2].Should().Be((byte)'B');
+        buf[3].Should().Be((byte)'C');
+        buf[4].Should().Be(0);
+        buf[5].Should().Be(0);
+      }
+
+      [Fact]
+      public void SkipsNullOrEmptyStrings()
+      {
+        var buf = new byte[20];
+
+        var written = TmNativeUtil.StringsToLpstrListBytes(new[] { "A", null, "", "B" }, buf);
+
+        written.Should().Be(5u);
+        buf[0].Should().Be((byte)'A');
+        buf[1].Should().Be(0);
+        buf[2].Should().Be((byte)'B');
+        buf[3].Should().Be(0);
+        buf[4].Should().Be(0);
+      }
+    }
+
+
+    public class GetDictionaryFromTmBytes
+    {
+      [Fact]
+      public void ReturnsEmpty_ForEmptyBytes()
+      {
+        var result = TmNativeUtil.GetDictionaryFromTmBytes(Span<byte>.Empty);
+
+        result.Should().BeEmpty();
+      }
+
+      [Fact]
+      public void ParsesSingleEntry()
+      {
+        var bytes = new byte[]
+        {
+          (byte)'k', (byte)'e', (byte)'y', (byte)'=', (byte)'v', 0, 0
+        };
+
+        var result = TmNativeUtil.GetDictionaryFromTmBytes(bytes);
+
+        result.Should().ContainSingle().Which.Should().Be(new KeyValuePair<string, string>("key", "v"));
+      }
+
+      [Fact]
+      public void ParsesMultipleEntries()
+      {
+        var bytes = new byte[]
+        {
+          (byte)'a', (byte)'=', (byte)'1', 0,
+          (byte)'b', (byte)'=', (byte)'2', 0, 0
+        };
+
+        var result = TmNativeUtil.GetDictionaryFromTmBytes(bytes);
+
+        result.Should().BeEquivalentTo(new Dictionary<string, string> { ["a"] = "1", ["b"] = "2" });
+      }
+
+      [Fact]
+      public void StopsParsing_WhenLineHasNoEquals()
+      {
+        var bytes = new byte[]
+        {
+          (byte)'a', (byte)'=', (byte)'1', 0,
+          (byte)'n', (byte)'o', (byte)'e', (byte)'q', 0, 0
+        };
+
+        var result = TmNativeUtil.GetDictionaryFromTmBytes(bytes);
+
+        result.Should().ContainSingle().Which.Should().Be(new KeyValuePair<string, string>("a", "1"));
+      }
+    }
+
+
+    public class TryFindValueByKey
+    {
+      [Fact]
+      public void ReturnsFalse_WhenSourceIsNull()
+      {
+        var found = TmNativeUtil.TryFindValueByKey(null, "key", ';', '=', out var value);
+
+        found.Should().BeFalse();
+        value.Should().BeEmpty();
+      }
+
+      [Fact]
+      public void ReturnsFalse_WhenKeyIsNull()
+      {
+        var found = TmNativeUtil.TryFindValueByKey("a=1;b=2", null, ';', '=', out var value);
+
+        found.Should().BeFalse();
+        value.Should().BeEmpty();
+      }
+
+      [Fact]
+      public void ReturnsFalse_WhenKeyNotFound()
+      {
+        var found = TmNativeUtil.TryFindValueByKey("a=1;b=2", "c", ';', '=', out var value);
+
+        found.Should().BeFalse();
+        value.Should().BeEmpty();
+      }
+
+      [Fact]
+      public void ReturnsValue_WhenKeyFound()
+      {
+        var found = TmNativeUtil.TryFindValueByKey("a=1;b=2", "a", ';', '=', out var value);
+
+        found.Should().BeTrue();
+        value.Should().Be("1");
+      }
+
+      [Fact]
+      public void ReturnsValue_ForKeyAtEndWithoutSeparator()
+      {
+        var found = TmNativeUtil.TryFindValueByKey("a=1;b=2", "b", ';', '=', out var value);
+
+        found.Should().BeTrue();
+        value.Should().Be("2");
+      }
+    }
+
+
+    public class GetEventAddData
+    {
+      [Fact]
+      public void Throws_WhenBytesIsEmpty()
+      {
+        Action act = () => TmNativeUtil.GetEventAddData(Span<byte>.Empty);
+
+        act.Should().Throw<ArgumentException>();
+      }
+    }
+
+
+    public class IpAddrToNativeDword
+    {
+      [Fact]
+      public void ReturnsCorrectDword_ForValidIp()
+      {
+        var result = TmNativeUtil.IpAddrToNativeDword("192.168.1.1");
+
+        result.Should().Be(0x0101a8c0u);
+      }
+
+      [Fact]
+      public void ReturnsZero_ForInvalidIp()
+      {
+        var result = TmNativeUtil.IpAddrToNativeDword("not.an.ip");
+
+        result.Should().Be(0u);
+      }
+
+      [Fact]
+      public void ReturnsZero_WhenOctetOutOfRange()
+      {
+        var result = TmNativeUtil.IpAddrToNativeDword(300, 1, 1, 1);
+
+        result.Should().Be(0u);
+      }
+
+      [Fact]
+      public void ReturnsZero_ForZeroIp()
+      {
+        var result = TmNativeUtil.IpAddrToNativeDword(0, 0, 0, 0);
+
+        result.Should().Be(0u);
+      }
+
+      [Fact]
+      public void ReturnsZero_ForBroadcastIp()
+      {
+        var result = TmNativeUtil.IpAddrToNativeDword(255, 255, 255, 255);
+
+        result.Should().Be(0u);
+      }
+    }
+
+
+    public class IntPtrToByteSpan
+    {
+      [Fact]
+      public void ReturnsSpanWithCorrectData()
+      {
+        var source = new byte[] { 1, 2, 3 };
+        var ptr    = Marshal.AllocHGlobal(source.Length);
+        Marshal.Copy(source, 0, ptr, source.Length);
+
+        try
+        {
+          var span = TmNativeUtil.IntPtrToByteSpan(ptr, source.Length);
+
+          span.ToArray().Should().BeEquivalentTo(source, options => options.WithStrictOrdering());
+        }
+        finally
+        {
+          Marshal.FreeHGlobal(ptr);
+        }
+      }
+    }
+
+
+    public class PointerValueIsNull
+    {
+      [Fact]
+      public void Throws_WhenPointerIsZero()
+      {
+        Action act = () => TmNativeUtil.PointerValueIsNull(nint.Zero);
+
+        act.Should().Throw<ArgumentException>();
+      }
+
+      [Fact]
+      public void ReturnsTrue_WhenFirstByteIsNull()
+      {
+        var ptr = Marshal.AllocHGlobal(4);
+        Marshal.WriteByte(ptr, 0, 0);
+
+        try
+        {
+          var result = TmNativeUtil.PointerValueIsNull(ptr);
+
+          result.Should().BeTrue();
+        }
+        finally
+        {
+          Marshal.FreeHGlobal(ptr);
+        }
+      }
+
+      [Fact]
+      public void ReturnsFalse_WhenFirstByteIsNotNull()
+      {
+        var ptr = Marshal.AllocHGlobal(4);
+        Marshal.WriteByte(ptr, 0, 1);
+
+        try
+        {
+          var result = TmNativeUtil.PointerValueIsNull(ptr);
+
+          result.Should().BeFalse();
+        }
+        finally
+        {
+          Marshal.FreeHGlobal(ptr);
+        }
+      }
+    }
+
+
+    public class FreeAllocatedPointer
+    {
+      [Fact]
+      public void DoesNotThrow_WhenPointerIsValid()
+      {
+        var ptr = Marshal.AllocHGlobal(10);
+
+        Action act = () => TmNativeUtil.FreeAllocatedPointer(ptr);
+
+        act.Should().NotThrow();
+      }
+    }
+
+
+    public class GetStringsListFromIntPtr
+    {
+      [Fact]
+      public void ReturnsEmpty_WhenPointerIsZero()
+      {
+        var result = TmNativeUtil.GetStringsListFromIntPtr(nint.Zero);
+
+        result.Should().BeEmpty();
+      }
+
+      [Fact]
+      public void ReturnsStrings_ForValidPointer()
+      {
+        var bytes = new byte[] { (byte)'A', 0, (byte)'B', 0, 0 };
+        var ptr   = Marshal.AllocHGlobal(bytes.Length);
+        Marshal.Copy(bytes, 0, ptr, bytes.Length);
+
+        try
+        {
+          var result = TmNativeUtil.GetStringsListFromIntPtr(ptr);
+
+          result.Should().Equal("A", "B");
+        }
+        finally
+        {
+          Marshal.FreeHGlobal(ptr);
+        }
+      }
+
+      [Fact]
+      public void RespectsLimit()
+      {
+        var bytes = new byte[] { (byte)'A', 0, (byte)'B', 0, (byte)'C', 0, 0 };
+        var ptr   = Marshal.AllocHGlobal(bytes.Length);
+        Marshal.Copy(bytes, 0, ptr, bytes.Length);
+
+        try
+        {
+          var result = TmNativeUtil.GetStringsListFromIntPtr(ptr, limit: 2);
+
+          result.Should().Equal("A", "B");
+        }
+        finally
+        {
+          Marshal.FreeHGlobal(ptr);
+        }
+      }
+    }
+
+
+    public class GetStringsListFromBytes
+    {
+      [Fact]
+      public void ReturnsStrings_ForValidBytes()
+      {
+        var bytes = new byte[] { (byte)'X', 0, (byte)'Y', 0, 0 };
+
+        var result = TmNativeUtil.GetStringsListFromBytes(bytes);
+
+        result.Should().Equal("X", "Y");
+      }
+    }
+
+
+    public class GetStringsListWithOffsetPointer
+    {
+      [Fact]
+      public void ReturnsEmpty_WhenPointerIsZero()
+      {
+        var (strings, next) = TmNativeUtil.GetStringsListWithOffsetPointer(nint.Zero);
+
+        strings.Should().BeEmpty();
+        next.Should().Be(nint.Zero);
+      }
+
+      [Fact]
+      public void ReturnsStringsAndNextPointer_ForValidPointer()
+      {
+        var bytes = new byte[] { (byte)'A', 0, 0, (byte)'X', 0, 0 };
+        var ptr   = Marshal.AllocHGlobal(bytes.Length);
+        Marshal.Copy(bytes, 0, ptr, bytes.Length);
+
+        try
+        {
+          var (strings, next) = TmNativeUtil.GetStringsListWithOffsetPointer(ptr);
+
+          strings.Should().Equal("A");
+          next.Should().NotBe(nint.Zero);
+          next.Should().NotBe(ptr);
+        }
+        finally
+        {
+          Marshal.FreeHGlobal(ptr);
+        }
+      }
+    }
+
+
+    public class ParseMqttMessageDatagram
+    {
+      [Fact]
+      public void ReturnsEmpty_WhenDatagramTooShort()
+      {
+        var bytes = new byte[] { 0 };
+
+        var result = TmNativeUtil.ParseMqttMessageDatagram(bytes);
+
+        result.Headers.Should().BeEmpty();
+        result.Payload.ToArray().Should().BeEmpty();
+      }
+
+      [Fact]
+      public void ReturnsEmpty_WhenDatagramPrefixMismatch()
+      {
+        var bytes = new[] { (byte)'x', (byte)'y' };
+
+        var result = TmNativeUtil.ParseMqttMessageDatagram(bytes);
+
+        result.Headers.Should().BeEmpty();
+        result.Payload.ToArray().Should().BeEmpty();
+      }
+
+      [Fact]
+      public void ReturnsEmpty_WhenNoDoubleNullSeparator()
+      {
+        var bytes = new byte[] { (byte)'p', (byte)'o', (byte)'a', 0, (byte)'b', 0 };
+
+        var result = TmNativeUtil.ParseMqttMessageDatagram(bytes);
+
+        result.Headers.Should().BeEmpty();
+        result.Payload.ToArray().Should().BeEmpty();
+      }
+
+      [Fact]
+      public void ParsesHeaders_WhenDoubleNullSeparatorExists()
+      {
+        var bytes = new byte[]
+        {
+          (byte)'p', (byte)'o',
+          (byte)'k', (byte)'e', (byte)'y', (byte)'=', (byte)'v', 0,
+          0,
+          (byte)'p', (byte)'a', (byte)'y'
+        };
+
+        var result = TmNativeUtil.ParseMqttMessageDatagram(bytes);
+
+        result.Headers.Should().ContainSingle().Which.Should().Be(new KeyValuePair<string, string>("key", "v"));
+        
+        result.Payload.ToArray().Should().BeEquivalentTo(new[] { (byte)'p', (byte)'a', (byte)'y' }, 
+                                                         options => options.WithStrictOrdering());
+      }
+
+      [Fact]
+      public void ParsesHeaders_WithEmptyPayload()
+      {
+        var bytes = new byte[]
+        {
+          (byte)'p', (byte)'o',
+          (byte)'a', (byte)'=', (byte)'1', 0,
+          0
+        };
+
+        var result = TmNativeUtil.ParseMqttMessageDatagram(bytes);
+
+        result.Headers.Should().ContainSingle().Which.Should().Be(new KeyValuePair<string, string>("a", "1"));
+        
+        result.Payload.ToArray().Should().BeEmpty();
       }
     }
   }

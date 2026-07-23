@@ -320,6 +320,44 @@ namespace Iface.Oik.Tm.Test.Interfaces
         Assert.Equal(flags,     (short) tmAnalog.Flags);
       }
     }
+
+
+    public class UpdatePropertiesFromCommonPointDtoMethod
+    {
+      [Fact]
+      public void SetsNameUnitWidthPrecision()
+      {
+        var tmAnalog = new TmAnalog(0, 1, 1);
+        var dto      = new TCommonPointDto
+        {
+          Name          = "Датчик",
+          AnalogPointDto = new TAnalogPointDto
+          {
+            Unit   = "В",
+            Format = 0x23, // width=3, precision=2
+          },
+        };
+
+        tmAnalog.UpdatePropertiesFromCommonPointDto(dto);
+
+        Assert.Equal("Датчик", tmAnalog.Name);
+        Assert.Equal("В",      tmAnalog.Unit);
+        Assert.Equal(3,        tmAnalog.Width);
+        Assert.Equal(2,        tmAnalog.Precision);
+      }
+
+
+      [Fact]
+      public void DoesNotSetUnitWhenAnalogPointNull()
+      {
+        var tmAnalog = new TmAnalog(0, 1, 1) { Unit = "А" };
+        var dto      = new TCommonPointDto { Name = "Датчик" };
+
+        tmAnalog.UpdatePropertiesFromCommonPointDto(dto);
+
+        Assert.Equal("А", tmAnalog.Unit);
+      }
+    }
   }
 
 
