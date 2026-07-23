@@ -25,7 +25,7 @@ public partial class OikSqlApi
     var (where, parameters) = PrepareTmEventsWhereClauseAndParameters(filter);
 
     // если фильтр по пользовательским заметкам, то сначала находим в этих таблицах, потом JOIN по elix, так быстрее
-    var fromClause = filter.HasNoteComment || filter.HasNoteTime
+    var fromClause = filter.HasNoteComment || filter.HasNoteTime || filter.NoteTagIds.Count > 0
                        ? "FROM oik_event_log_notes AS notes INNER JOIN oik_event_log_elix AS events ON notes.elix = events.elix"
                        : "FROM oik_event_log AS events LEFT JOIN oik_event_log_notes AS notes on events.elix = notes.elix";
 
