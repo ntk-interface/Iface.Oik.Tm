@@ -733,5 +733,25 @@ namespace Iface.Oik.Tm.Native.Api
     [LibraryImport(Cfshare)]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static partial bool cfsIsUTF8(ReadOnlySpan<byte> text);
+    
+    
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial nint cfsPkcs11EnumVendors();
+
+
+    [LibraryImport(Cfshare, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool cfsPkcs11SetVendor(string name);
+
+
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool cfsPkcs11EnumCertificates(Span<byte> errs,
+                                                         uint       cbErrs,
+                                                         out nint   nameList,
+                                                         out nint   attrList);
   }
 }
