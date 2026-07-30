@@ -90,18 +90,20 @@ public partial class OikSqlApi
                              ? $"WHERE {string.Join(" AND ", notesWhere)}"
                              : string.Empty;
 
-    var notesCommandText = $"SELECT elix FROM oik_event_log_notes {notesWhereClause}";
-    var elixList = (await sql.DbConnection
-                             .QueryAsync<byte[]>(notesCommandText, notesParameters)
+    var notesCommandText = $@"SELECT elix, note_comment, note_time, note_tag_id 
+                              FROM oik_event_log_notes 
+                              {notesWhereClause}";
+    var noteDtos = (await sql.DbConnection.QueryAsync<TmEventNoteDto>(notesCommandText, notesParameters)
                              .ConfigureAwait(false)).ToList();
-    if (elixList.Count == 0)
+
+    if (noteDtos.Count == 0)
     {
       return Array.Empty<TmEvent>();
     }
 
     var (where, parameters) = BuildTmEventsWithoutNotesWhereClauseAndParameters(filter);
     where.Insert(0, "events.elix = @ElixFlatList");
-    parameters.Add("@ElixFlatList", TmEventElix.FlattenElixList(elixList), DbType.Binary);
+    parameters.Add("@ElixFlatList", TmEventElix.FlattenElixList(noteDtos.Select(d => d.Elix).ToList()), DbType.Binary);
 
     var whereClause = where.Count > 0
                         ? $"WHERE {string.Join(" AND ", where)}"
@@ -114,13 +116,13 @@ public partial class OikSqlApi
     var events = new List<TmEvent>();
     try
     {
+      var noteLookup = noteDtos.ToDictionary(dto => TmEventElix.CreateFromByteArray(dto.Elix));
+
       var commandText = $@"SELECT events.elix, update_time, 
                                   rec_text, name, rec_state_text, rec_type, rec_type_name, user_name, importance, 
                                   tma, tma_str, tm_type_name, tm_type, class_id, v_val, alarm_active, v_code, v_s2, flags, ts_add_flags,
-                                  ack_time, ack_user,
-                                  note_comment, note_time, note_tag_id
+                                  ack_time, ack_user
                            FROM oik_event_log_elix AS events
-                             LEFT JOIN oik_event_log_notes AS notes ON events.elix = notes.elix
                            {whereClause}
                            ORDER BY events.update_time
                            {limitClause}";
@@ -132,6 +134,14 @@ public partial class OikSqlApi
       dtos.ForEach((dto, idx) =>
       {
         var tmEvent = TmEvent.CreateFromDto(dto);
+
+        if (noteLookup.TryGetValue(TmEventElix.CreateFromByteArray(dto.Elix), out var noteDto))
+        {
+          tmEvent.NoteComment = noteDto.NoteComment;
+          tmEvent.NoteTime    = noteDto.NoteTime;
+          tmEvent.NoteTagId   = noteDto.NoteTagId;
+        }
+
         tmEvent.Num = idx + 1;
         events.Add(tmEvent);
       });
@@ -241,6 +251,15 @@ public partial class OikSqlApi
   private static bool HasAnyNoteFilter(TmEventFilter filter)
   {
     return filter.HasNoteComment || filter.HasNoteTime || filter.NoteTagIds.Count > 0;
+  }
+
+
+  private class TmEventNoteDto
+  {
+    public byte[]    Elix        { get; set; }
+    public string    NoteComment { get; set; }
+    public DateTime? NoteTime    { get; set; }
+    public Guid?     NoteTagId   { get; set; }
   }
 
 
