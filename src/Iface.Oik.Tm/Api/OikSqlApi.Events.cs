@@ -22,12 +22,15 @@ public partial class OikSqlApi
       return Array.Empty<TmEvent>();
     }
 
-    var (where, parameters) = PrepareTmEventsWhereClauseAndParameters(filter);
+    return HasAnyNoteFilter(filter)
+             ? await GetEventsArchiveWithNotesFilter(filter).ConfigureAwait(false)
+             : await GetEventsArchiveWithoutNotesFilter(filter).ConfigureAwait(false);
+  }
 
-    // если фильтр по пользовательским заметкам, то сначала находим в этих таблицах, потом JOIN по elix, так быстрее
-    var fromClause = filter.HasNoteComment || filter.HasNoteTime || filter.NoteTagIds.Count > 0
-                       ? "FROM oik_event_log_notes AS notes INNER JOIN oik_event_log_elix AS events ON notes.elix = events.elix"
-                       : "FROM oik_event_log AS events LEFT JOIN oik_event_log_notes AS notes on events.elix = notes.elix";
+
+  private async Task<IReadOnlyCollection<TmEvent>> GetEventsArchiveWithoutNotesFilter(TmEventFilter filter)
+  {
+    var (where, parameters) = BuildTmEventsWithoutNotesWhereClauseAndParameters(filter);
 
     var whereClause = where.Count > 0
                         ? $"WHERE {string.Join(" AND ", where)}"
@@ -49,7 +52,8 @@ public partial class OikSqlApi
                                   tma, tma_str, tm_type_name, tm_type, class_id, v_val, alarm_active, v_code, v_s2, flags, ts_add_flags,
                                   ack_time, ack_user,
                                   note_comment, note_time, note_tag_id
-                           {fromClause}
+                           FROM oik_event_log AS events 
+                               LEFT JOIN oik_event_log_notes AS notes on events.elix = notes.elix
                            {whereClause}
                            ORDER BY events.update_time
                            {limitClause}";
@@ -75,7 +79,74 @@ public partial class OikSqlApi
   }
 
 
-  private static (List<string>, DynamicParameters) PrepareTmEventsWhereClauseAndParameters(TmEventFilter filter)
+  private async Task<IReadOnlyCollection<TmEvent>> GetEventsArchiveWithNotesFilter(TmEventFilter filter)
+  {
+    using var sql = _createOikSqlConnection();
+    sql.Label = "ArchEvents-Notes";
+    await sql.OpenAsync().ConfigureAwait(false);
+
+    var (notesWhere, notesParameters) = BuildTmEventsNotesOnlyWhereClauseAndParameters(filter);
+    var notesWhereClause = notesWhere.Count > 0
+                             ? $"WHERE {string.Join(" AND ", notesWhere)}"
+                             : string.Empty;
+
+    var notesCommandText = $"SELECT elix FROM oik_event_log_notes {notesWhereClause}";
+    var elixList = (await sql.DbConnection
+                             .QueryAsync<byte[]>(notesCommandText, notesParameters)
+                             .ConfigureAwait(false)).ToList();
+    if (elixList.Count == 0)
+    {
+      return Array.Empty<TmEvent>();
+    }
+
+    var (where, parameters) = BuildTmEventsWithoutNotesWhereClauseAndParameters(filter);
+    where.Insert(0, "events.elix = @ElixFlatList");
+    parameters.Add("@ElixFlatList", TmEventElix.FlattenElixList(elixList), DbType.Binary);
+
+    var whereClause = where.Count > 0
+                        ? $"WHERE {string.Join(" AND ", where)}"
+                        : string.Empty;
+
+    var limitClause = filter.OutputLimit > 0
+                        ? $" LIMIT {filter.OutputLimit}"
+                        : string.Empty;
+
+    var events = new List<TmEvent>();
+    try
+    {
+      var commandText = $@"SELECT events.elix, update_time, 
+                                  rec_text, name, rec_state_text, rec_type, rec_type_name, user_name, importance, 
+                                  tma, tma_str, tm_type_name, tm_type, class_id, v_val, alarm_active, v_code, v_s2, flags, ts_add_flags,
+                                  ack_time, ack_user,
+                                  note_comment, note_time, note_tag_id
+                           FROM oik_event_log_elix AS events
+                             LEFT JOIN oik_event_log_notes AS notes ON events.elix = notes.elix
+                           {whereClause}
+                           ORDER BY events.update_time
+                           {limitClause}";
+
+      var dtos = await sql.DbConnection
+                          .QueryAsync<TmEventDto>(commandText, parameters)
+                          .ConfigureAwait(false);
+
+      dtos.ForEach((dto, idx) =>
+      {
+        var tmEvent = TmEvent.CreateFromDto(dto);
+        tmEvent.Num = idx + 1;
+        events.Add(tmEvent);
+      });
+
+      return events;
+    }
+    catch (Exception ex)
+    {
+      HandleException(ex);
+      return null; // TODO throw
+    }
+  }
+
+
+  private static (List<string>, DynamicParameters) BuildTmEventsWithoutNotesWhereClauseAndParameters(TmEventFilter filter)
   {
     var where      = new List<string>();
     var parameters = new DynamicParameters();
@@ -140,21 +211,36 @@ public partial class OikSqlApi
       where.Add("(events.ts_add_flags IS NULL OR get_bit(events.ts_add_flags,4) != 1)");
     }
 
+    return (where, parameters);
+  }
+
+
+  private static (List<string>, DynamicParameters) BuildTmEventsNotesOnlyWhereClauseAndParameters(TmEventFilter filter)
+  {
+    var where      = new List<string>();
+    var parameters = new DynamicParameters();
+
     if (filter.HasNoteComment)
     {
-      where.Add("notes.note_comment <> ''");
+      where.Add("note_comment <> ''");
     }
     if (filter.HasNoteTime)
     {
-      where.Add("notes.note_time IS NOT NULL");
+      where.Add("note_time IS NOT NULL");
     }
     if (filter.NoteTagIds.Count > 0)
     {
-      where.Add("notes.note_tag_id = ANY(@NoteTagIdArray)");
+      where.Add("note_tag_id = ANY(@NoteTagIdArray)");
       parameters.Add("@NoteTagIdArray", filter.NoteTagIds.ToArray());
     }
 
     return (where, parameters);
+  }
+
+
+  private static bool HasAnyNoteFilter(TmEventFilter filter)
+  {
+    return filter.HasNoteComment || filter.HasNoteTime || filter.NoteTagIds.Count > 0;
   }
 
 
