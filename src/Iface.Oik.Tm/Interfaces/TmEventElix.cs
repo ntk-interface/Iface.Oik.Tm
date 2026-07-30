@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Iface.Oik.Tm.Native.Interfaces;
 
 namespace Iface.Oik.Tm.Interfaces
@@ -115,6 +116,17 @@ namespace Iface.Oik.Tm.Interfaces
       }
 
       return CompareTo(tmEventElix);
+    }
+
+
+    public static byte[] FlattenElixList(IReadOnlyList<byte[]> elixList)
+    {
+      var result = new byte[elixList.Count * 16];
+      for (var i = 0; i < elixList.Count; i++)
+      {
+        elixList[i].CopyTo(result, i * 16);
+      }
+      return result;
     }
   }
 }
