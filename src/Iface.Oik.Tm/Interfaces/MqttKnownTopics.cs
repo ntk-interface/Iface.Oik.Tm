@@ -19,6 +19,8 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Model/Topology/TraceResponse")]           TopologyTraceRespond            = 113, // не используется
     [Description("Model/Topology/EquipmentStatusRequest")]  TopologyEquipmentStatusRequest  = 114,
     [Description("Model/Topology/TerminalsStatusRequest")]  TopologyTerminalsStatusRequest  = 115,
+    [Description("Model/Topology/VoltageSourcesRequest")]   TopologyVoltageSourcesRequest   = 116,
+    [Description("Model/Topology/GroundSourcesRequest")]    TopologyGroundSourcesRequest    = 117,
     [Description("Model/Placard/Add")]                      PlacardAdd                      = 120,
     [Description("Model/Placard/Edit")]                     PlacardEdit                     = 121,
     [Description("Model/Placard/Remove")]                   PlacardRemove                   = 122,

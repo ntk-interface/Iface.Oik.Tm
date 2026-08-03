@@ -56,6 +56,26 @@ namespace Iface.Oik.Tm.Dto
   }
   
   
+  public class MqttTopologyVoltageSourcesResponseDto : MqttRpcResponseDto
+  {
+    public List<MqttTopologySourceDto> Sources { get; set; } = new();
+  }
+
+
+  public class MqttTopologyGroundSourcesResponseDto : MqttRpcResponseDto
+  {
+    public List<MqttTopologySourceDto> Sources { get; set; } = new();
+  }
+
+
+  public class MqttTopologySourceDto
+  {
+    public Guid Id               { get; set; }
+    public int  EquipmentCount   { get; set; }
+    public bool IsSourcePortable { get; set; }
+  }
+  
+  
   public class MqttUserCustomMessageDto
   {
     public TmEventImportances Importance { get; set; } = TmEventImportances.Imp0;
