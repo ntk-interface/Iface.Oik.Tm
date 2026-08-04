@@ -79,6 +79,8 @@ namespace Iface.Oik.Tm.Interfaces
     Clamp,
     GroundSwitch,           // [me:], no [cim:] !!!
     FuseSwitchDisconnector, // [me:], no [cim:] !!!
+    PseudoJunction = 198, // [iface:] в БД не сохраняется, используется для объединения узлов модуса в один узел
+    ConductingEquipment = 199, // [iface:], no [cim:] !!! // unclassified
 
     // Auxiliary Equipment
     CurrentTransformer = 200,
@@ -87,6 +89,7 @@ namespace Iface.Oik.Tm.Interfaces
     WaveTrap,
     FaultIndicator,
     PostLineSensor,
+    AuxiliaryEquipment = 299, // [iface:], no [cim:] !!! // unclassified
 
     // Protection Equipment
     ProtectionEquipment = 300, // abstract?
