@@ -70,9 +70,9 @@ namespace Iface.Oik.Tm.Dto
 
   public class MqttTopologySourceDto
   {
-    public Guid Id               { get; set; }
-    public int  EquipmentCount   { get; set; }
-    public bool IsSourcePortable { get; set; }
+    public Guid EquipmentId            { get; set; }
+    public int  AffectedEquipmentCount { get; set; }
+    public bool IsSourcePortable       { get; set; }
   }
   
   
