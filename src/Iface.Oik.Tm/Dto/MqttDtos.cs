@@ -248,4 +248,21 @@ namespace Iface.Oik.Tm.Dto
     public string   ValueToDisplay { get; set; }
     public DateTime Time           { get; set; }
   }
+
+
+  public class MqttOperjRecordDto
+  {
+    public Guid     Id          { get; set; }
+    public Guid?    TemplateId  { get; set; }
+    public DateTime CreatedTime { get; set; }
+    public string   Operator    { get; set; }
+    public string   FinalText   { get; set; }
+  }
+
+
+  public class MqttOperTemplateDto
+  {
+    public Guid   Id   { get; set; }
+    public string Name { get; set; }
+  }
 }

@@ -65,6 +65,12 @@ namespace Iface.Oik.Tm.Interfaces
     [Description("Tm/Tag/BlockEvents")]   TmTagBlockEventsTemporarily = 500,
     [Description("Tm/Tag/UnblockEvents")] TmTagUnblockEvents          = 501,
     [Description("Tm/Tag/SetBackdate")]   TmTagSetBackdate            = 502,
+    
+    [Description("Operj/Record/Commit")]    OperjRecordCommit     = 600,
+    [Description("Operj/Record/Supersede")] OperjRecordSupersede  = 601,
+    [Description("Operj/Template/Add")]     OperTemplateAdd       = 620,
+    [Description("Operj/Template/Edit")]    OperTemplateEdit      = 621,
+    [Description("Operj/Template/Remove")]  OperTemplateRemove    = 622,
 
     [Description("ServerConnection/Problem")]   ServerProblem   = 1001,
     [Description("ServerConnection/Reconnect")] ServerReconnect = 1002,
