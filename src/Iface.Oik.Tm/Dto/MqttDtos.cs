@@ -252,11 +252,12 @@ namespace Iface.Oik.Tm.Dto
 
   public class MqttOperjRecordDto
   {
-    public Guid     Id          { get; set; }
-    public Guid?    TemplateId  { get; set; }
-    public DateTime CreatedTime { get; set; }
-    public string   Operator    { get; set; }
-    public string   FinalText   { get; set; }
+    public Guid     Id             { get; set; }
+    public Guid?    TemplateId     { get; set; }
+    public DateTime CreatedTime    { get; set; }
+    public string   Operator       { get; set; }
+    public string   FinalText      { get; set; }
+    public Guid?    SupersededById { get; set; }
   }
 
 
