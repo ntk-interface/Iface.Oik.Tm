@@ -203,7 +203,7 @@ public static partial class TmNativeApi
         throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
       }
 
-      var data              = MonitoringDataBase.Create<T>(ptr);
+      var data              = MonitoringDataBase.Create<T>(ptr, encoding);
 
       TmNative.cfsFreeMemory(ptr);
 
