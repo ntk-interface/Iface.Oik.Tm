@@ -1012,7 +1012,13 @@ namespace Iface.Oik.Tm.Api
                        .ConfigureAwait(false);
     }
 
-
+    public async Task GetMonitoringData()
+    {
+      await Task.Run(() => TmNativeApi.GetServerMonitoringData<MonitoringData>(CfId))
+                       .ConfigureAwait(false);
+    }
+    
+    
     public async Task<TmInstallationInfo> GetTmInstallationInfo()
     {
       var (isIntact, integrityCheckMessage) =

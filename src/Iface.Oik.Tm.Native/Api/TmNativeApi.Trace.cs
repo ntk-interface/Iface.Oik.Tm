@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Text;
 using Iface.Oik.Tm.Native.Interfaces;
 using Iface.Oik.Tm.Native.Utils;
 
@@ -184,8 +185,36 @@ public static partial class TmNativeApi
     }
   }
 
+  public static T GetServerMonitoringData<T>(nint      cfCid,
+                                          Encoding? encoding = null) 
+    where T : MonitoringDataBase, new()
+  {
+    var pool   = ArrayPool<byte>.Shared;
+    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
 
+    try
+    {
+      var ptr = TmNative.cfsTraceGetPerfData(cfCid,
+                                                out var errCode,
+                                                errBuf,
+                                                TmNativeDefsUnsafe.ErrorBufSize);
+      if (errCode != 0)
+      {
+        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
+      }
 
+      var data              = MonitoringDataBase.Create<T>(ptr);
+
+      TmNative.cfsFreeMemory(ptr);
+
+      return data;
+    }
+    finally
+    {
+      pool.Return(errBuf);
+    }
+  }
+  
   internal static TmNativeDefsUnsafe.IfaceServer GetIfaceServerData(nint   cfCid,
                                                                     string serverId)
   {
@@ -224,7 +253,7 @@ public static partial class TmNativeApi
 
     try
     {
-      var ptr = TmNative.cfsTraceEnumUsers(cfCid,
+      var ptr = TmNative.cfsTraceGetPerfData(cfCid,
                                            out var errCode,
                                            errBuf,
                                            TmNativeDefsUnsafe.ErrorBufSize);

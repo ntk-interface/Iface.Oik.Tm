@@ -272,6 +272,14 @@ namespace Iface.Oik.Tm.Native.Api
                                                   out uint   errCode,
                                                   Span<byte> errBuf,
                                                   uint       maxErrs);
+    
+    
+    [LibraryImport(Cfshare)]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvStdcall) })]
+    public static partial nint cfsTraceGetPerfData(nint       connId,
+                                                   out uint   errCode,
+                                                   Span<byte> errBuf,
+                                                   uint       maxErrs);
 
 
     [DllImport(Cfshare, CallingConvention = CallingConvention.StdCall)]
