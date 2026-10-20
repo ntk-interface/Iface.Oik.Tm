@@ -7,25 +7,23 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AspWebApiTask.Controllers
 {
-  [Route("api/aps")]
-  [ApiController]
-  public class ApsController : Controller
-  {
-    private readonly IOikDataApi _api;
-
-
-    public ApsController(IOikDataApi api)
+    [Route("api/aps")]
+    [ApiController]
+    public class ApsController : Controller
     {
-      _api = api;
+        private readonly IOikDataApi _api;
+
+        public ApsController(IOikDataApi api)
+        {
+            _api = api;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            var statuses = await _api.GetPresentAps();
+
+            return Ok(statuses.Adapt<List<TmStatusDto>>());
+        }
     }
-
-
-    [HttpGet]
-    public async Task<IActionResult> Index()
-    {
-      var statuses = await _api.GetPresentAps();
-
-      return Ok(statuses.Adapt<List<TmStatusDto>>());
-    }
-  }
 }

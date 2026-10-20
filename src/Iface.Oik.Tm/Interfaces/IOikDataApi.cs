@@ -6,604 +6,605 @@ using Iface.Oik.Tm.Native.Interfaces;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public enum PreferApi
-  {
-    Auto = 0,
-    Tms  = 1,
-    Sql  = 2,
-  }
+    public enum PreferApi
+    {
+        Auto = 0,
+        Tms = 1,
+        Sql = 2,
+    }
 
+    public interface IOikDataApi
+    {
+        bool IsTmsAllowed { get; set; }
+        bool IsSqlAllowed { get; set; }
 
-  public interface IOikDataApi
-  {
-    bool IsTmsAllowed { get; set; }
-    bool IsSqlAllowed { get; set; }
+        TmNativeCallback TmsCallbackDelegate { get; }
+        TmNativeCallback EmptyTmsCallbackDelegate { get; }
 
-    TmNativeCallback TmsCallbackDelegate      { get; }
-    TmNativeCallback EmptyTmsCallbackDelegate { get; }
+        event EventHandler TmStatusChanged;
+        event EventHandler UserInfoUpdated;
+        event EventHandler TmEventsAcked;
+        event EventHandler<TobEventArgs> TobChanged;
+        event EventHandler<TmAlertEventArgs> TmAlertsChanged;
+        event EventHandler<MqttMessage> MqttMessageReceived;
 
-    event EventHandler                   TmStatusChanged;
-    event EventHandler                   UserInfoUpdated;
-    event EventHandler                   TmEventsAcked;
-    event EventHandler<TobEventArgs>     TobChanged;
-    event EventHandler<TmAlertEventArgs> TmAlertsChanged;
-    event EventHandler<MqttMessage>      MqttMessageReceived;
+        void SetServerFeatures(TmServerFeatures features);
 
+        Task<TmServerComputerInfo> GetServerComputerInfo(PreferApi prefer = PreferApi.Auto);
 
-    void SetServerFeatures(TmServerFeatures features);
+        Task<int> GetLastTmcError(PreferApi prefer = PreferApi.Auto);
 
+        Task<string> GetLastTmcErrorText(PreferApi prefer = PreferApi.Auto);
 
-    Task<TmServerComputerInfo> GetServerComputerInfo(PreferApi prefer = PreferApi.Auto);
+        Task<DateTime?> GetSystemTime(PreferApi prefer = PreferApi.Auto);
 
+        Task<string> GetSystemTimeString(PreferApi prefer = PreferApi.Auto);
 
-    Task<int> GetLastTmcError(PreferApi prefer = PreferApi.Auto);
+        Task<(string host, string server)> GetCurrentServerName(PreferApi prefer = PreferApi.Auto);
 
+        Task<(string user, string password)> GenerateTokenForExternalApp(
+            PreferApi prefer = PreferApi.Auto
+        );
 
-    Task<string> GetLastTmcErrorText(PreferApi prefer = PreferApi.Auto);
+        Task<int> GetStatus(int ch, int rtu, int point, PreferApi prefer = PreferApi.Auto);
 
+        Task<int> GetStatusFromRetro(
+            int ch,
+            int rtu,
+            int point,
+            DateTime time,
+            PreferApi prefer = PreferApi.Auto
+        );
 
-    Task<DateTime?> GetSystemTime(PreferApi prefer = PreferApi.Auto);
+        Task SetStatus(int ch, int rtu, int point, int status, PreferApi prefer = PreferApi.Auto);
 
+        Task<float> GetAnalog(int ch, int rtu, int point, PreferApi prefer = PreferApi.Auto);
 
-    Task<string> GetSystemTimeString(PreferApi prefer = PreferApi.Auto);
+        Task<ITmAnalogRetro> GetAnalogFromRetro(
+            int ch,
+            int rtu,
+            int point,
+            DateTime time,
+            int retroNum = 0,
+            PreferApi prefer = PreferApi.Auto
+        );
 
+        Task SetAnalog(int ch, int rtu, int point, float value, PreferApi prefer = PreferApi.Auto);
 
-    Task<(string host, string server)> GetCurrentServerName(PreferApi prefer = PreferApi.Auto);
+        Task<float> GetAccum(int ch, int rtu, int point, PreferApi prefer = PreferApi.Auto);
+
+        Task<float> GetAccumLoad(int ch, int rtu, int point, PreferApi prefer = PreferApi.Auto);
 
+        Task<ITmAccumRetro> GetAccumFromRetro(
+            int ch,
+            int rtu,
+            int point,
+            DateTime time,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task UpdateStatus(TmStatus tmStatus, PreferApi prefer = PreferApi.Auto);
+
+        Task UpdateAnalog(TmAnalog tmAnalog, PreferApi prefer = PreferApi.Auto);
+
+        Task UpdateAccum(TmAccum tmAccum, PreferApi prefer = PreferApi.Auto);
+
+        Task UpdateStatuses(IReadOnlyList<TmStatus> tmStatuses, PreferApi prefer = PreferApi.Auto);
 
-    Task<(string user, string password)> GenerateTokenForExternalApp(PreferApi prefer = PreferApi.Auto);
-
-
-    Task<int> GetStatus(int       ch,
-                        int       rtu,
-                        int       point,
-                        PreferApi prefer = PreferApi.Auto);
-
-    
-    Task<int> GetStatusFromRetro(int       ch, 
-                                 int       rtu, 
-                                 int       point, 
-                                 DateTime  time,
-                                 PreferApi prefer = PreferApi.Auto);
-
-
-    Task SetStatus(int       ch,
-                   int       rtu,
-                   int       point,
-                   int       status,
-                   PreferApi prefer = PreferApi.Auto);
-
-
-    Task<float> GetAnalog(int       ch,
-                          int       rtu,
-                          int       point,
-                          PreferApi prefer = PreferApi.Auto);
-
-
-    Task<ITmAnalogRetro> GetAnalogFromRetro(int       ch,
-                                            int       rtu,
-                                            int       point,
-                                            DateTime  time,
-                                            int       retroNum = 0,
-                                            PreferApi prefer   = PreferApi.Auto);
-
-
-    Task SetAnalog(int       ch,
-                   int       rtu,
-                   int       point,
-                   float     value,
-                   PreferApi prefer = PreferApi.Auto);
-
-
-    Task<float> GetAccum(int       ch,
-                         int       rtu,
-                         int       point,
-                         PreferApi prefer = PreferApi.Auto);
-
-
-    Task<float> GetAccumLoad(int       ch,
-                             int       rtu,
-                             int       point,
-                             PreferApi prefer = PreferApi.Auto);
-
-
-    Task<ITmAccumRetro> GetAccumFromRetro(int       ch,
-                                          int       rtu,
-                                          int       point,
-                                          DateTime  time,
-                                          PreferApi prefer = PreferApi.Auto);
-
-
-    Task UpdateStatus(TmStatus  tmStatus,
-                      PreferApi prefer = PreferApi.Auto);
-
-
-    Task UpdateAnalog(TmAnalog  tmAnalog,
-                      PreferApi prefer = PreferApi.Auto);
-
-
-    Task UpdateAccum(TmAccum   tmAccum,
-                     PreferApi prefer = PreferApi.Auto);
-
-
-    Task UpdateStatuses(IReadOnlyList<TmStatus> tmStatuses,
-                        PreferApi               prefer = PreferApi.Auto);
-
-
-    Task UpdateStatuses(IReadOnlyDictionary<int, TmStatus> tmStatuses,
-                        PreferApi                          prefer = PreferApi.Auto);
-
-
-    Task UpdateStatusesFromRetro(IReadOnlyList<TmStatus> statuses,
-                                 DateTime                time,
-                                 PreferApi               prefer = PreferApi.Auto);
-
-
-    Task UpdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs,
-                       PreferApi               prefer = PreferApi.Auto);
-
-
-    Task UpdateAnalogs(IReadOnlyDictionary<int, TmAnalog> tmAnalogs,
-                       PreferApi                          prefer = PreferApi.Auto);
-
-
-    Task UpdateAnalogsFromRetro(IReadOnlyList<TmAnalog> analogs,
-                                DateTime                time,
-                                int                     retroNum = 0,
-                                PreferApi               prefer   = PreferApi.Auto);
-
-
-    Task UpdateAccums(IReadOnlyList<TmAccum> tmAccums,
-                      PreferApi              prefer = PreferApi.Auto);
-
-
-    Task UpdateAccums(IReadOnlyDictionary<int, TmAccum> tmAccums,
-                      PreferApi                         prefer = PreferApi.Auto);
-
-
-    Task UpdateAccumsFromRetro(IReadOnlyList<TmAccum> accums,
-                               DateTime               time,
-                               PreferApi              prefer = PreferApi.Auto);
-
-
-    Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tmTags,
-                                          PreferApi            prefer = PreferApi.Auto);
-
-
-    Task UpdateStatusesPropertiesAndClassData(IReadOnlyDictionary<int, TmStatus> statuses,
-                                              PreferApi                          prefer = PreferApi.Auto);
-
-
-    Task UpdateAnalogsPropertiesAndClassData(IReadOnlyDictionary<int, TmAnalog> analogs,
-                                             PreferApi                          prefer = PreferApi.Auto);
-
-
-    Task UpdateAccumsPropertiesAndClassData(IReadOnlyDictionary<int, TmAccum> accums,
-                                            PreferApi                         prefer = PreferApi.Auto);
-
-
-    Task UpdateTagPropertiesAndClassData(TmTag     tmTag,
-                                         PreferApi prefer = PreferApi.Auto);
-    
-    Task CreateTmTagNamedSet(string name, TmType tmType, IReadOnlyCollection<TmTag> tmTags, PreferApi prefer = PreferApi.Auto);
-    
-    Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetAllValues(string    name, 
-                                                                           PreferApi prefer = PreferApi.Auto);
-    
-    Task<IReadOnlyCollection<TmAnalogRecord>> GetTmAnalogNamedSetAllValues(string    name, 
-                                                                           PreferApi prefer = PreferApi.Auto);
-    
-    Task<IReadOnlyCollection<TmAccumRecord>> GetTmAccumNamedSetAllValues(string    name, 
-                                                                         PreferApi prefer = PreferApi.Auto);
-    
-    Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetUpdatedValues(string name, 
-                                                                               PreferApi prefer = PreferApi.Auto);
-    
-    Task<IReadOnlyCollection<TmAnalogRecord>> GetTmAnalogNamedSetUpdatedValues(string    name, 
-                                                                               PreferApi prefer = PreferApi.Auto);
-    
-    Task<IReadOnlyCollection<TmAccumRecord>> GetTmAccumNamedSetUpdatedValues(string    name, 
-                                                                             PreferApi prefer = PreferApi.Auto);
-    
-    Task DeleteTmTagNamedSet(string name, TmType tmType, PreferApi prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<TmClassStatus>> GetStatusesClasses(PreferApi prefer = PreferApi.Auto);
-
-    Task<IReadOnlyCollection<TmClassAnalog>> GetAnalogsClasses(PreferApi prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<TmUserAction>> GetUserActionsArchive(TmEventFilter filter,
-                                                                PreferApi     prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<TmEvent>> GetEventsArchive(TmEventFilter filter,
-                                                        PreferApi     prefer = PreferApi.Auto);
-
-
-    Task<TmEventElix> GetCurrentEventsElix(PreferApi prefer = PreferApi.Auto);
-
-
-    Task<TmEventElix> GetRecentEventsElix(int          recentCount,
-                                          int          recentHours = 24,
-                                          TmEventTypes eventTypes  = TmEventTypes.Any,
-                                          PreferApi    prefer      = PreferApi.Auto);
-
-
-    Task<(IReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix,
-                                                                       PreferApi   prefer = PreferApi.Auto);
-
-
-    Task<bool> UpdateAckedEventsIfAny(IReadOnlyList<TmEvent> tmEvents,
-                                      PreferApi              prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<TmChannel>> GetTmTreeChannels(PreferApi prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<TmRtu>> GetTmTreeRtus(int       channelId,
-                                                   PreferApi prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<TmStatus>> GetTmTreeStatuses(int       channelId,
-                                                          int       rtuId,
-                                                          PreferApi prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<TmAnalog>> GetTmTreeAnalogs(int       channelId,
-                                                         int       rtuId,
-                                                         PreferApi prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<TmAccum>> GetTmTreeAccums(int       channelId,
-                                                       int       rtuId,
-                                                       PreferApi prefer = PreferApi.Auto);
-
-
-    Task<string> GetChannelName(int       channelId,
-                                PreferApi prefer = PreferApi.Auto);
-
-
-    Task<string> GetRtuName(int       channelId,
-                            int       rtuId,
-                            PreferApi prefer = PreferApi.Auto);
-    
-    
-    Task<IReadOnlyCollection<TmRetroInfo>> GetRetrosInfo(TmType tmType, PreferApi prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAnalog  analog,
-                                                             long      utcStartTime,
-                                                             int       count,
-                                                             int       step,
-                                                             int       retroNum = 0,
-                                                             PreferApi prefer   = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAnalog            analog,
-                                                             TmAnalogRetroFilter filter,
-                                                             int                 retroNum = 0,
-                                                             PreferApi           prefer   = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveInstant(TmAnalog            analog,
-                                                                       TmAnalogRetroFilter filter,
-                                                                       PreferApi           prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(TmAnalog            analog,
-                                                                       TmAnalogRetroFilter filter,
-                                                                       PreferApi           prefer = PreferApi.Auto);
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveSlices(TmAnalog analog,
-                                                                           TmAnalogRetroFilter filter,
-                                                                           PreferApi prefer = PreferApi.Auto);
-
-        
-    Task<IReadOnlyCollection<ITmAnalogRetro[]>> GetAnalogsMicroSeries(IReadOnlyList<TmAnalog> analogs,
-                                                                      PreferApi               prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<TmStatus>> GetPresentAps(PreferApi prefer = PreferApi.Auto);
-
-    Task<IReadOnlyCollection<TmStatus>> GetUnackedAps(PreferApi prefer = PreferApi.Auto);
-
-    Task<IReadOnlyCollection<TmStatus>> GetAbnormalStatuses(PreferApi prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<TmAlert>> GetAlerts(PreferApi prefer = PreferApi.Auto);
-
-    Task<IReadOnlyCollection<TmAlert>> GetAlertsWithAnalogMicroSeries(PreferApi prefer = PreferApi.Auto);
-
-
-    Task<bool> RemoveAlert(TmAlert alert, PreferApi prefer = PreferApi.Auto);
-
-    Task<bool> RemoveAlert(byte[] alertId, PreferApi prefer = PreferApi.Auto);
-
-    Task<bool> RemoveAlerts(IEnumerable<TmAlert> alerts, PreferApi api = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<TmAlarm>> GetPresentAlarms(PreferApi prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<TmAlarm>> GetAnalogAlarms(TmAnalog  analog,
-                                                       PreferApi prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<TmStatus>> LookupStatuses(TmStatusFilter filter,
-                                                       PreferApi      prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<TmAnalog>> LookupAnalogs(TmAnalogFilter filter,
-                                                      PreferApi      prefer = PreferApi.Auto);
-    
-    
-    Task<IReadOnlyCollection<TmTag>> GetTagsByGroup(TmType    tmType,
-                                                    string    groupName,
-                                                    PreferApi prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<TmTag>> GetTagsWithBlockedEvents(PreferApi prefer = PreferApi.Auto);
-
-
-    Task<bool> BlockTagEventsTemporarily(TmTag     tmTag,
-                                         int       minutesToBlock,
-                                         PreferApi prefer = PreferApi.Auto);
-
-
-    Task<bool> BlockTagEventsTemporarily(TmTag     tmTag,
-                                         DateTime  endBlockTime,
-                                         PreferApi prefer = PreferApi.Auto);
-
-
-    Task UnblockTagEvents(TmTag     tmTag,
-                          PreferApi prefer = PreferApi.Auto);
-
-
-    Task<string> GetExpressionResult(string    expression,
-                                     PreferApi prefer = PreferApi.Auto);
-
-
-    string GetExpressionResultSync(string    expression,
-                                   PreferApi prefer = PreferApi.Auto);
-
-
-    Task<bool> HasPresentAps(PreferApi prefer = PreferApi.Auto);
-
-    Task<bool> HasPresentAlarms(PreferApi prefer = PreferApi.Auto);
-
-
-    Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTelecontrolScript(
-      TmStatus  status,
-      PreferApi prefer = PreferApi.Auto);
-
-
-    Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTelecontrolScriptExplicitly(
-      TmStatus  status,
-      int       explicitNewStatus,
-      PreferApi prefer = PreferApi.Auto);
-
-
-    Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTeleregulationScript(
-      TmAnalog tmAnalog, 
-      PreferApi prefer = PreferApi.Auto);
-
-
-    Task OverrideTelecontrolScript(PreferApi prefer = PreferApi.Auto);
-
-
-    Task<TmTelecontrolResult> Telecontrol(TmStatus  status,
-                                          PreferApi prefer = PreferApi.Auto);
-
-
-    Task<TmTelecontrolResult> TelecontrolExplicitly(TmStatus  status,
-                                                    int       explicitNewStatus,
-                                                    PreferApi prefer = PreferApi.Auto);
-
-
-    Task<TmTelecontrolResult> TeleregulateByStepUp(TmAnalog  analog,
-                                                   PreferApi prefer = PreferApi.Auto);
-
-
-    Task<TmTelecontrolResult> TeleregulateByStepDown(TmAnalog  analog,
-                                                     PreferApi prefer = PreferApi.Auto);
-
-
-    Task<TmTelecontrolResult> TeleregulateByCode(TmAnalog  analog,
-                                                 int       code,
-                                                 PreferApi prefer = PreferApi.Auto);
-
-
-    Task<TmTelecontrolResult> TeleregulateByValue(TmAnalog  analog,
-                                                  float     value,
-                                                  PreferApi prefer = PreferApi.Auto);
-
-
-    Task InputTelecontrolPassword(string password,
-                                  PreferApi prefer = PreferApi.Auto);
-
-
-    Task<bool> SwitchStatusManually(TmStatus  status,
-                                    bool      alsoBlockManually = false,
-                                    PreferApi prefer            = PreferApi.Auto);
-
-
-    Task SetStatusNormalOn(TmStatus  status,
-                           PreferApi prefer = PreferApi.Auto);
-
-
-    Task SetStatusNormalOff(TmStatus  status,
-                            PreferApi prefer = PreferApi.Auto);
-
-
-    Task ClearStatusNormal(TmStatus  status,
-                           PreferApi prefer = PreferApi.Auto);
-
-
-    Task<int> GetStatusNormal(TmStatus  status,
-                              PreferApi prefer = PreferApi.Auto);
-
-
-    Task SetTagFlags(TmTag     tag,
-                     TmFlags   flags,
-                     PreferApi prefer = PreferApi.Auto);
-
-
-    Task ClearTagFlags(TmTag     tag,
-                       TmFlags   flags,
-                       PreferApi prefer = PreferApi.Auto);
-
-    
-    Task SetTagFlagsExplicitly(TmTag     tag, 
-                               TmFlags   flags,
-                               PreferApi prefer = PreferApi.Auto);
-    
-
-    Task ClearTagFlagsExplicitly(TmTag     tag, 
-                                 TmFlags   flags,
-                                 PreferApi prefer = PreferApi.Auto);
-
-
-    Task SetTagsFlags(IEnumerable<TmTag> tags,
-                      TmFlags            flags,
-                      PreferApi          prefer = PreferApi.Auto);
-
-
-    Task ClearTagsFlags(IEnumerable<TmTag> tags,
-                        TmFlags            flags,
-                        PreferApi          prefer = PreferApi.Auto);
-
-
-    Task<bool> BackdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs,
-                               IReadOnlyList<float>    values,
-                               DateTime                time,
-                               PreferApi               prefer = PreferApi.Auto);
-
-
-    Task<bool> PostdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs,
-                               IReadOnlyList<float>    values,
-                               DateTime                time,
-                               PreferApi               prefer = PreferApi.Auto);
-
-
-    Task<bool> SetAnalogManually(TmAnalog  analog,
-                                 float     value,
-                                 bool      alsoBlockManually = false,
-                                 PreferApi prefer            = PreferApi.Auto);
-
-
-    Task<bool> SetAnalogBackdateManually(TmAnalog  tmAnalog,
-                                        float     value,
-                                        DateTime  time,
-                                        PreferApi prefer = PreferApi.Auto);
-
-
-    Task<bool> SetStatusBackdateManually(TmStatus  tmStatus,
-                                        int       status,
-                                        DateTime  time,
-                                        PreferApi prefer = PreferApi.Auto);
-
-
-    Task<bool> SetAnalogTechParameters(TmAnalog               analog,
-                                       TmAnalogTechParameters parameters,
-                                       PreferApi              prefer = PreferApi.Auto);
-
-
-    Task<bool> SetAlarmValue(TmAlarm   tmAlarm,
-                             float     value,
-                             PreferApi prefer = PreferApi.Auto);
-
-
-    Task<bool> AckTag(TmAddr    addr,
-                      PreferApi prefer = PreferApi.Auto);
-
-
-    Task AckAllStatuses(PreferApi prefer = PreferApi.Auto);
-
-    Task AckAllAnalogs(PreferApi prefer = PreferApi.Auto);
-
-
-    Task<bool> AckStatus(TmStatus  status,
-                         PreferApi prefer = PreferApi.Auto);
-
-
-    Task<bool> AckAnalog(TmAnalog  analog,
-                         PreferApi prefer = PreferApi.Auto);
-
-
-    Task<bool> AckEvent(TmEvent   tmEvent,
-                        PreferApi prefer = PreferApi.Auto);
-
-
-    Task<bool> AckEvents(IReadOnlyList<TmEvent> tmEvents,
-                         PreferApi              prefer = PreferApi.Auto);
-
-
-    Task AddStringToEventLog(string    str,
-                             TmAddr    tmAddr = null,
-                             DateTime? time   = null,
-                             PreferApi prefer = PreferApi.Auto);
-    
-    Task AddTmaRelatedStringToEventLog(string             message,
-                                       TmAddr             tmAddr,
-                                       TmEventImportances importances = TmEventImportances.Imp0,
-                                       DateTime?          time        = null,
-                                       PreferApi          prefer      = PreferApi.Auto);
-
-    Task AddStringToEventLogEx(DateTime?                 time,
-                               TmEventImportances        importances,
-                               TmEventLogExtendedSources source,
-                               string                    message,
-                               string                    binString = "",
-                               TmAddr                    tmAddr    = null,
-                               PreferApi                 prefer    = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<string>> GetFilesInDirectory(string    path,
-                                                          PreferApi prefer = PreferApi.Auto);
-
-
-    Task<bool> DownloadFile(string    remotePath,
-                            string    localPath,
-                            PreferApi prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<string>> GetComtradeDays(PreferApi prefer = PreferApi.Auto);
-
-
-    Task<IReadOnlyCollection<string>> GetComtradeFilesByDay(string    day,
-                                                            PreferApi prefer = PreferApi.Auto);
-
-
-    Task<bool> DownloadComtradeFile(string    filename,
-                                    string    localPath,
-                                    PreferApi prefer = PreferApi.Auto);
-    
-    Task<bool> MqttSubscribe(MqttSubscriptionTopic topic, PreferApi prefer = PreferApi.Auto);
-    
-    Task<bool> MqttSubscribe(MqttKnownTopic topic, PreferApi prefer = PreferApi.Auto);
-
-    Task<bool> MqttUnsubscribe(MqttSubscriptionTopic topic, PreferApi prefer = PreferApi.Auto);
-
-    Task<bool> MqttUnsubscribe(MqttKnownTopic topic, PreferApi prefer = PreferApi.Auto);
-    
-    Task<bool> MqttPublish(MqttKnownTopic topic, byte[] payload, PreferApi prefer = PreferApi.Auto);
-    
-    Task<bool> MqttPublish(MqttKnownTopic topic, string payload = "", PreferApi prefer = PreferApi.Auto);
-
-    Task<bool> MqttPublish(MqttPublishTopic topic, byte[] payload, PreferApi prefer = PreferApi.Auto);
-    
-    Task<bool> MqttPublish(MqttPublishTopic topic, string payload, PreferApi prefer = PreferApi.Auto);
-
-    Task<bool> MqttPublish(string topic, byte[] payload, PreferApi prefer = PreferApi.Auto);
-    
-    Task<byte[]> MqttInvokeRpc(MqttPublishTopic requestTopic,
-                               byte[]           requestPayload,
-                               int              timeoutSeconds = 5,
-                               PreferApi        prefer         = PreferApi.Auto);
-    
-    Task<byte[]> MqttInvokeRpc(MqttKnownTopic requestTopic,
-                               byte[]         requestPayload,
-                               int            timeoutSeconds = 5,
-                               PreferApi      prefer         = PreferApi.Auto);
-  }
+        Task UpdateStatuses(
+            IReadOnlyDictionary<int, TmStatus> tmStatuses,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task UpdateStatusesFromRetro(
+            IReadOnlyList<TmStatus> statuses,
+            DateTime time,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task UpdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs, PreferApi prefer = PreferApi.Auto);
+
+        Task UpdateAnalogs(
+            IReadOnlyDictionary<int, TmAnalog> tmAnalogs,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task UpdateAnalogsFromRetro(
+            IReadOnlyList<TmAnalog> analogs,
+            DateTime time,
+            int retroNum = 0,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task UpdateAccums(IReadOnlyList<TmAccum> tmAccums, PreferApi prefer = PreferApi.Auto);
+
+        Task UpdateAccums(
+            IReadOnlyDictionary<int, TmAccum> tmAccums,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task UpdateAccumsFromRetro(
+            IReadOnlyList<TmAccum> accums,
+            DateTime time,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task UpdateTagsPropertiesAndClassData(
+            IReadOnlyList<TmTag> tmTags,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task UpdateStatusesPropertiesAndClassData(
+            IReadOnlyDictionary<int, TmStatus> statuses,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task UpdateAnalogsPropertiesAndClassData(
+            IReadOnlyDictionary<int, TmAnalog> analogs,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task UpdateAccumsPropertiesAndClassData(
+            IReadOnlyDictionary<int, TmAccum> accums,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task UpdateTagPropertiesAndClassData(TmTag tmTag, PreferApi prefer = PreferApi.Auto);
+
+        Task CreateTmTagNamedSet(
+            string name,
+            TmType tmType,
+            IReadOnlyCollection<TmTag> tmTags,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetAllValues(
+            string name,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<TmAnalogRecord>> GetTmAnalogNamedSetAllValues(
+            string name,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<TmAccumRecord>> GetTmAccumNamedSetAllValues(
+            string name,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetUpdatedValues(
+            string name,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<TmAnalogRecord>> GetTmAnalogNamedSetUpdatedValues(
+            string name,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<TmAccumRecord>> GetTmAccumNamedSetUpdatedValues(
+            string name,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task DeleteTmTagNamedSet(string name, TmType tmType, PreferApi prefer = PreferApi.Auto);
+
+        Task<IReadOnlyCollection<TmClassStatus>> GetStatusesClasses(
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<TmClassAnalog>> GetAnalogsClasses(
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<TmUserAction>> GetUserActionsArchive(
+            TmEventFilter filter,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<TmEvent>> GetEventsArchive(
+            TmEventFilter filter,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<TmEventElix> GetCurrentEventsElix(PreferApi prefer = PreferApi.Auto);
+
+        Task<TmEventElix> GetRecentEventsElix(
+            int recentCount,
+            int recentHours = 24,
+            TmEventTypes eventTypes = TmEventTypes.Any,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<(IReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(
+            TmEventElix elix,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<bool> UpdateAckedEventsIfAny(
+            IReadOnlyList<TmEvent> tmEvents,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<TmChannel>> GetTmTreeChannels(PreferApi prefer = PreferApi.Auto);
+
+        Task<IReadOnlyCollection<TmRtu>> GetTmTreeRtus(
+            int channelId,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<TmStatus>> GetTmTreeStatuses(
+            int channelId,
+            int rtuId,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<TmAnalog>> GetTmTreeAnalogs(
+            int channelId,
+            int rtuId,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<TmAccum>> GetTmTreeAccums(
+            int channelId,
+            int rtuId,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<string> GetChannelName(int channelId, PreferApi prefer = PreferApi.Auto);
+
+        Task<string> GetRtuName(int channelId, int rtuId, PreferApi prefer = PreferApi.Auto);
+
+        Task<IReadOnlyCollection<TmRetroInfo>> GetRetrosInfo(
+            TmType tmType,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(
+            TmAnalog analog,
+            long utcStartTime,
+            int count,
+            int step,
+            int retroNum = 0,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(
+            TmAnalog analog,
+            TmAnalogRetroFilter filter,
+            int retroNum = 0,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveInstant(
+            TmAnalog analog,
+            TmAnalogRetroFilter filter,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(
+            TmAnalog analog,
+            TmAnalogRetroFilter filter,
+            PreferApi prefer = PreferApi.Auto
+        );
+        Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveSlices(
+            TmAnalog analog,
+            TmAnalogRetroFilter filter,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<ITmAnalogRetro[]>> GetAnalogsMicroSeries(
+            IReadOnlyList<TmAnalog> analogs,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<TmStatus>> GetPresentAps(PreferApi prefer = PreferApi.Auto);
+
+        Task<IReadOnlyCollection<TmStatus>> GetUnackedAps(PreferApi prefer = PreferApi.Auto);
+
+        Task<IReadOnlyCollection<TmStatus>> GetAbnormalStatuses(PreferApi prefer = PreferApi.Auto);
+
+        Task<IReadOnlyCollection<TmAlert>> GetAlerts(PreferApi prefer = PreferApi.Auto);
+
+        Task<IReadOnlyCollection<TmAlert>> GetAlertsWithAnalogMicroSeries(
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<bool> RemoveAlert(TmAlert alert, PreferApi prefer = PreferApi.Auto);
+
+        Task<bool> RemoveAlert(byte[] alertId, PreferApi prefer = PreferApi.Auto);
+
+        Task<bool> RemoveAlerts(IEnumerable<TmAlert> alerts, PreferApi api = PreferApi.Auto);
+
+        Task<IReadOnlyCollection<TmAlarm>> GetPresentAlarms(PreferApi prefer = PreferApi.Auto);
+
+        Task<IReadOnlyCollection<TmAlarm>> GetAnalogAlarms(
+            TmAnalog analog,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<TmStatus>> LookupStatuses(
+            TmStatusFilter filter,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<TmAnalog>> LookupAnalogs(
+            TmAnalogFilter filter,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<TmTag>> GetTagsByGroup(
+            TmType tmType,
+            string groupName,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<TmTag>> GetTagsWithBlockedEvents(
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<bool> BlockTagEventsTemporarily(
+            TmTag tmTag,
+            int minutesToBlock,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<bool> BlockTagEventsTemporarily(
+            TmTag tmTag,
+            DateTime endBlockTime,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task UnblockTagEvents(TmTag tmTag, PreferApi prefer = PreferApi.Auto);
+
+        Task<string> GetExpressionResult(string expression, PreferApi prefer = PreferApi.Auto);
+
+        string GetExpressionResultSync(string expression, PreferApi prefer = PreferApi.Auto);
+
+        Task<bool> HasPresentAps(PreferApi prefer = PreferApi.Auto);
+
+        Task<bool> HasPresentAlarms(PreferApi prefer = PreferApi.Auto);
+
+        Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTelecontrolScript(
+            TmStatus status,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<(
+            bool,
+            IReadOnlyCollection<TmControlScriptCondition>
+        )> CheckTelecontrolScriptExplicitly(
+            TmStatus status,
+            int explicitNewStatus,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTeleregulationScript(
+            TmAnalog tmAnalog,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task OverrideTelecontrolScript(PreferApi prefer = PreferApi.Auto);
+
+        Task<TmTelecontrolResult> Telecontrol(TmStatus status, PreferApi prefer = PreferApi.Auto);
+
+        Task<TmTelecontrolResult> TelecontrolExplicitly(
+            TmStatus status,
+            int explicitNewStatus,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<TmTelecontrolResult> TeleregulateByStepUp(
+            TmAnalog analog,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<TmTelecontrolResult> TeleregulateByStepDown(
+            TmAnalog analog,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<TmTelecontrolResult> TeleregulateByCode(
+            TmAnalog analog,
+            int code,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<TmTelecontrolResult> TeleregulateByValue(
+            TmAnalog analog,
+            float value,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task InputTelecontrolPassword(string password, PreferApi prefer = PreferApi.Auto);
+
+        Task<bool> SwitchStatusManually(
+            TmStatus status,
+            bool alsoBlockManually = false,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task SetStatusNormalOn(TmStatus status, PreferApi prefer = PreferApi.Auto);
+
+        Task SetStatusNormalOff(TmStatus status, PreferApi prefer = PreferApi.Auto);
+
+        Task ClearStatusNormal(TmStatus status, PreferApi prefer = PreferApi.Auto);
+
+        Task<int> GetStatusNormal(TmStatus status, PreferApi prefer = PreferApi.Auto);
+
+        Task SetTagFlags(TmTag tag, TmFlags flags, PreferApi prefer = PreferApi.Auto);
+
+        Task ClearTagFlags(TmTag tag, TmFlags flags, PreferApi prefer = PreferApi.Auto);
+
+        Task SetTagFlagsExplicitly(TmTag tag, TmFlags flags, PreferApi prefer = PreferApi.Auto);
+
+        Task ClearTagFlagsExplicitly(TmTag tag, TmFlags flags, PreferApi prefer = PreferApi.Auto);
+
+        Task SetTagsFlags(
+            IEnumerable<TmTag> tags,
+            TmFlags flags,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task ClearTagsFlags(
+            IEnumerable<TmTag> tags,
+            TmFlags flags,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<bool> BackdateAnalogs(
+            IReadOnlyList<TmAnalog> tmAnalogs,
+            IReadOnlyList<float> values,
+            DateTime time,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<bool> PostdateAnalogs(
+            IReadOnlyList<TmAnalog> tmAnalogs,
+            IReadOnlyList<float> values,
+            DateTime time,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<bool> SetAnalogManually(
+            TmAnalog analog,
+            float value,
+            bool alsoBlockManually = false,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<bool> SetAnalogBackdateManually(
+            TmAnalog tmAnalog,
+            float value,
+            DateTime time,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<bool> SetStatusBackdateManually(
+            TmStatus tmStatus,
+            int status,
+            DateTime time,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<bool> SetAnalogTechParameters(
+            TmAnalog analog,
+            TmAnalogTechParameters parameters,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<bool> SetAlarmValue(TmAlarm tmAlarm, float value, PreferApi prefer = PreferApi.Auto);
+
+        Task<bool> AckTag(TmAddr addr, PreferApi prefer = PreferApi.Auto);
+
+        Task AckAllStatuses(PreferApi prefer = PreferApi.Auto);
+
+        Task AckAllAnalogs(PreferApi prefer = PreferApi.Auto);
+
+        Task<bool> AckStatus(TmStatus status, PreferApi prefer = PreferApi.Auto);
+
+        Task<bool> AckAnalog(TmAnalog analog, PreferApi prefer = PreferApi.Auto);
+
+        Task<bool> AckEvent(TmEvent tmEvent, PreferApi prefer = PreferApi.Auto);
+
+        Task<bool> AckEvents(IReadOnlyList<TmEvent> tmEvents, PreferApi prefer = PreferApi.Auto);
+
+        Task AddStringToEventLog(
+            string str,
+            TmAddr tmAddr = null,
+            DateTime? time = null,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task AddTmaRelatedStringToEventLog(
+            string message,
+            TmAddr tmAddr,
+            TmEventImportances importances = TmEventImportances.Imp0,
+            DateTime? time = null,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task AddStringToEventLogEx(
+            DateTime? time,
+            TmEventImportances importances,
+            TmEventLogExtendedSources source,
+            string message,
+            string binString = "",
+            TmAddr tmAddr = null,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<string>> GetFilesInDirectory(
+            string path,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<bool> DownloadFile(
+            string remotePath,
+            string localPath,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<IReadOnlyCollection<string>> GetComtradeDays(PreferApi prefer = PreferApi.Auto);
+
+        Task<IReadOnlyCollection<string>> GetComtradeFilesByDay(
+            string day,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<bool> DownloadComtradeFile(
+            string filename,
+            string localPath,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<bool> MqttSubscribe(MqttSubscriptionTopic topic, PreferApi prefer = PreferApi.Auto);
+
+        Task<bool> MqttSubscribe(MqttKnownTopic topic, PreferApi prefer = PreferApi.Auto);
+
+        Task<bool> MqttUnsubscribe(MqttSubscriptionTopic topic, PreferApi prefer = PreferApi.Auto);
+
+        Task<bool> MqttUnsubscribe(MqttKnownTopic topic, PreferApi prefer = PreferApi.Auto);
+
+        Task<bool> MqttPublish(
+            MqttKnownTopic topic,
+            byte[] payload,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<bool> MqttPublish(
+            MqttKnownTopic topic,
+            string payload = "",
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<bool> MqttPublish(
+            MqttPublishTopic topic,
+            byte[] payload,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<bool> MqttPublish(
+            MqttPublishTopic topic,
+            string payload,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<bool> MqttPublish(string topic, byte[] payload, PreferApi prefer = PreferApi.Auto);
+
+        Task<byte[]> MqttInvokeRpc(
+            MqttPublishTopic requestTopic,
+            byte[] requestPayload,
+            int timeoutSeconds = 5,
+            PreferApi prefer = PreferApi.Auto
+        );
+
+        Task<byte[]> MqttInvokeRpc(
+            MqttKnownTopic requestTopic,
+            byte[] requestPayload,
+            int timeoutSeconds = 5,
+            PreferApi prefer = PreferApi.Auto
+        );
+    }
 }

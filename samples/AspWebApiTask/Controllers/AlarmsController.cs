@@ -7,25 +7,23 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AspWebApiTask.Controllers
 {
-  [Route("api/alarms")]
-  [ApiController]
-  public class AlarmsController : Controller
-  {
-    private readonly IOikDataApi _api;
-
-
-    public AlarmsController(IOikDataApi api)
+    [Route("api/alarms")]
+    [ApiController]
+    public class AlarmsController : Controller
     {
-      _api = api;
-    }
+        private readonly IOikDataApi _api;
 
+        public AlarmsController(IOikDataApi api)
+        {
+            _api = api;
+        }
 
-    [HttpGet]
-    public async Task<IActionResult> Index()
-    {
-      var alarms = await _api.GetPresentAlarms();
-      
-      return Ok(alarms.Adapt<List<TmAlarmDto>>());
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            var alarms = await _api.GetPresentAlarms();
+
+            return Ok(alarms.Adapt<List<TmAlarmDto>>());
+        }
     }
-  }
 }

@@ -3,11 +3,14 @@ using System.Collections.ObjectModel;
 
 namespace Iface.Oik.Tm.Utils
 {
-  public static class ObservableCollectionExtensions
-  {
-    public static void AddRange<T>(this ObservableCollection<T> collection, IEnumerable<T> items)
+    public static class ObservableCollectionExtensions
     {
-      items.ForEach(collection.Add);
+        public static void AddRange<T>(
+            this ObservableCollection<T> collection,
+            IEnumerable<T> items
+        )
+        {
+            items.ForEach(collection.Add);
+        }
     }
-  }
 }

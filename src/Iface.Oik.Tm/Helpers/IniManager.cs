@@ -7,77 +7,73 @@ using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Helpers
 {
-	public class IniManager : IDisposable
-	{
-		private const    uint     BuffSizeStep = 1024;
-		private const    uint     BufSizeLimit = 0x200000;
-		private          IntPtr   _filePointer;
-		private readonly Encoding _fileEncoding;
+    public class IniManager : IDisposable
+    {
+        private const uint BuffSizeStep = 1024;
+        private const uint BufSizeLimit = 0x200000;
+        private IntPtr _filePointer;
+        private readonly Encoding _fileEncoding;
 
-		public IniManager(string filePath, Encoding encoding = null)
-		{
-			_fileEncoding = encoding ?? Encoding.UTF8;
-			_filePointer  = TmNative.ini_Open(TmNativeUtil.StringToBytes(filePath));
-		}
+        public IniManager(string filePath, Encoding encoding = null)
+        {
+            _fileEncoding = encoding ?? Encoding.UTF8;
+            _filePointer = TmNative.ini_Open(TmNativeUtil.StringToBytes(filePath));
+        }
 
+        public string GetPrivateString(string section, string key, string defaultResponse = "")
+        {
+            uint bufSize = 0;
+            byte[] buf;
+            do
+            {
+                bufSize += BuffSizeStep;
+                buf = new byte[bufSize];
+                TmNative.ini_ReadString(
+                    _filePointer,
+                    TmNativeUtil.StringToBytes(section),
+                    TmNativeUtil.StringToBytes(key),
+                    TmNativeUtil.StringToBytes(defaultResponse),
+                    buf,
+                    bufSize
+                );
+            } while (buf[^2] != 0 && bufSize < BufSizeLimit);
 
-		public string GetPrivateString(string section, string key, string defaultResponse = "")
-		{
-			uint bufSize = 0;
-			byte[] buf;
-			do
-			{
-				bufSize += BuffSizeStep;
-				buf = new byte[bufSize];
-				TmNative.ini_ReadString(_filePointer, 
-				                        TmNativeUtil.StringToBytes(section), 
-				                        TmNativeUtil.StringToBytes(key), 
-				                        TmNativeUtil.StringToBytes(defaultResponse), 
-				                        buf, 
-				                        bufSize);
-			} while (buf[^2] != 0 && bufSize < BufSizeLimit);
+            return TmNativeUtil.BytesToString(buf);
+        }
 
+        public Dictionary<string, string> GetPrivateSection(string section)
+        {
+            return TmNativeApi.GetPrivateSection(_filePointer, section, _fileEncoding);
+        }
 
-			return TmNativeUtil.BytesToString(buf);
-		}
+        public byte[] GetStruct(string section, string key, uint bufSize = 1024)
+        {
+            var buf = new byte[bufSize];
 
+            var returnSize = TmNative.ini_ReadStruct(
+                _filePointer,
+                TmNativeUtil.StringToBytes(section),
+                TmNativeUtil.StringToBytes(key),
+                buf,
+                bufSize
+            );
 
-		public Dictionary<string, string> GetPrivateSection(string section)
-		{
-			return TmNativeApi.GetPrivateSection(_filePointer, section, _fileEncoding);
-		}
+            if (buf.Length < returnSize)
+            {
+                buf = new byte[returnSize];
+                TmNative.ini_ReadSection(_filePointer, section, buf, returnSize);
+            }
 
+            var significantBytes = new byte[returnSize];
+            Array.Copy(buf, significantBytes, returnSize);
 
-		public byte[] GetStruct(string section, string key, uint bufSize = 1024)
-		{
-			var buf = new byte[bufSize];
+            return significantBytes;
+        }
 
-			var returnSize = TmNative.ini_ReadStruct(_filePointer, 
-			                                         TmNativeUtil.StringToBytes(section), 
-			                                         TmNativeUtil.StringToBytes(key), 
-			                                         buf, 
-			                                         bufSize);
-
-			if (buf.Length < returnSize)
-			{
-				buf = new byte[returnSize];
-				TmNative.ini_ReadSection(_filePointer, 
-				                         section, 
-				                         buf, 
-				                         returnSize);
-			}
-
-			var significantBytes = new byte[returnSize];
-			Array.Copy(buf, significantBytes, returnSize);
-
-			return significantBytes;
-		}
-
-
-		public void Dispose()
-		{
-			TmNative.ini_Close(_filePointer);
-			_filePointer = IntPtr.Zero;
-		}
-	}
+        public void Dispose()
+        {
+            TmNative.ini_Close(_filePointer);
+            _filePointer = IntPtr.Zero;
+        }
+    }
 }

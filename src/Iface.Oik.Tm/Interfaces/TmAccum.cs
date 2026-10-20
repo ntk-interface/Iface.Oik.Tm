@@ -8,511 +8,472 @@ using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public class TmAccum : TmTag
-  {
-    public static readonly float  InvalidValue       = float.MaxValue;
-    public static readonly string InvalidValueString = "???";
-
-    private short   _code;
-    private float   _value;
-    private float   _load;
-    private TmFlags _flags = TmFlags.Invalid;
-    private byte    _width;     // todo сейчас вообще не используется, а надо ли?
-    private byte    _loadWidth; // todo сейчас вообще не используется, а надо ли?
-    private byte    _precision     = 3;
-    private byte    _loadPrecision = 3;
-    private string  _unit          = "";
-
-    public short Code
+    public class TmAccum : TmTag
     {
-      get => _code;
-      set => SetPropertyValueAndRefresh(ref _code, value);
-    }
-    
-    public float Value
-    {
-      get => _value;
-      set => SetPropertyValueAndRefresh(ref _value, value);
-    }
+        public static readonly float InvalidValue = float.MaxValue;
+        public static readonly string InvalidValueString = "???";
 
-    public float Load
-    {
-      get => _load;
-      set => SetPropertyValueAndRefresh(ref _load, value);
-    }
+        private short _code;
+        private float _value;
+        private float _load;
+        private TmFlags _flags = TmFlags.Invalid;
+        private byte _width; // todo сейчас вообще не используется, а надо ли?
+        private byte _loadWidth; // todo сейчас вообще не используется, а надо ли?
+        private byte _precision = 3;
+        private byte _loadPrecision = 3;
+        private string _unit = "";
 
-    public TmFlags Flags
-    {
-      get => _flags;
-      set => SetPropertyValueAndRefresh(ref _flags, value);
-    }
-
-    public byte Width
-    {
-      get => _width;
-      set => SetPropertyValueAndRefresh(ref _width, value);
-    }
-
-    public byte LoadWidth
-    {
-      get => _loadWidth;
-      set => SetPropertyValueAndRefresh(ref _loadWidth, value);
-    }
-
-    public byte Precision
-    {
-      get => _precision;
-      set => SetPropertyValueAndRefresh(ref _precision, value);
-    }
-
-    public byte LoadPrecision
-    {
-      get => _loadPrecision;
-      set => SetPropertyValueAndRefresh(ref _loadPrecision, value);
-    }
-
-    public string Unit
-    {
-      get => _unit;
-      set => SetPropertyValueAndRefresh(ref _unit, value);
-    }
-    
-    public bool IsUnreliable      => Flags.HasFlag(TmFlags.Unreliable);
-    public bool IsInvalid         => Flags.HasFlag(TmFlags.Invalid);
-    public bool IsManuallyBlocked => Flags.HasFlag(TmFlags.ManuallyBlocked);
-    public bool IsManuallySet     => Flags.HasFlag(TmFlags.ManuallySet);
-    public bool IsRequested       => Flags.HasFlag(TmFlags.Requested);
-    public bool IsResChannel      => Flags.HasFlag(TmFlags.ResChannel);
-    public bool IsUnacked         => Flags.HasFlag(TmFlags.Unacked);
-    public bool IsTmStreaming     => Flags.HasFlag(TmFlags.TmStreaming);
-
-    public string ValueString => IsInit
-                                  ? Value.ToString("0." + new string('0', Precision))
-                                  : InvalidValueString;
-
-    public string LoadString => IsInit
-                                  ? Load.ToString("0." + new string('0', LoadPrecision))
-                                  : InvalidValueString;
-
-    public string ValueWithUnitString => (IsInit)
-                                           ? ValueString + " " + Unit
-                                           : InvalidValueString;
-
-    public string LoadWithUnitString => (IsInit)
-                                          ? LoadString + " " + Unit
-                                          : InvalidValueString;
-
-    public override string ValueToDisplay => (IsInit)
-                                               ? $"{ValueString} ({LoadString}) {Unit}"
-                                               : InvalidValueString;
-    
-    public string LoadToDisplay  => LoadWithUnitString;
-    
-    public override bool HasProblems => !IsInit || IsUnreliable || IsInvalid;
-
-    public override List<string> FlagsToDisplay
-    {
-      get
-      {
-        var flagsToDisplay = new List<string>();
-
-        if (IsUnreliable)
+        public short Code
         {
-          flagsToDisplay.Add("Неактуальное значение (NT)");
+            get => _code;
+            set => SetPropertyValueAndRefresh(ref _code, value);
         }
 
-        if (IsInvalid)
+        public float Value
         {
-          flagsToDisplay.Add("Недействительное значение (IV)");
+            get => _value;
+            set => SetPropertyValueAndRefresh(ref _value, value);
         }
 
-        if (IsResChannel)
+        public float Load
         {
-          flagsToDisplay.Add("Взят с резерва");
+            get => _load;
+            set => SetPropertyValueAndRefresh(ref _load, value);
         }
 
-        if (IsRequested)
+        public TmFlags Flags
         {
-          flagsToDisplay.Add("Идет опрос");
+            get => _flags;
+            set => SetPropertyValueAndRefresh(ref _flags, value);
         }
 
-        if (IsManuallyBlocked)
+        public byte Width
         {
-          flagsToDisplay.Add("Заблокировано оператором");
+            get => _width;
+            set => SetPropertyValueAndRefresh(ref _width, value);
         }
 
-        if (IsManuallySet)
+        public byte LoadWidth
         {
-          flagsToDisplay.Add("Установлено вручную");
+            get => _loadWidth;
+            set => SetPropertyValueAndRefresh(ref _loadWidth, value);
         }
 
-        return flagsToDisplay;
-      }
-    }
-
-    public TmAccum(int ch, int rtu, int point)
-      : base(TmType.Accum, ch, rtu, point)
-    {
-    }
-
-    public TmAccum(TmAddr addr)
-      : base(addr)
-    {
-    }
-
-    public override int GetHashCode()
-    {
-      return base.GetHashCode();
-    }
-
-
-    public override bool Equals(object obj)
-    {
-      return Equals(obj as TmAccum);
-    }
-
-
-    public bool Equals(TmAccum comparison)
-    {
-      if (ReferenceEquals(comparison, null))
-      {
-        return false;
-      }
-
-      if (ReferenceEquals(this, comparison))
-      {
-        return true;
-      }
-
-      return TmAddr == comparison.TmAddr    &&
-             Value.Equals(comparison.Value) &&
-             Load.Equals(comparison.Load)   &&
-             Flags == comparison.Flags;
-    }
-
-
-    public static bool operator ==(TmAccum left, TmAccum right)
-    {
-      if (ReferenceEquals(left, null))
-      {
-        return ReferenceEquals(right, null);
-      }
-
-      return left.Equals(right);
-    }
-
-
-    public static bool operator !=(TmAccum left, TmAccum right)
-    {
-      return !(left == right);
-    }
-
-
-    public override string ToString()
-    {
-      return $"{Name} = {ValueString} {Unit}";
-    }
-
-
-    public bool HasFlag(TmFlags flags)
-    {
-      return Flags.HasFlag(flags);
-    }
-
-
-    public string ValueStringWithPrecision(int precision)
-    {
-      return (IsInit)
-               ? Value.ToString("0." + new string('0', precision))
-               : InvalidValueString;
-    }
-
-
-    public string ValueStringWithFormat(string format)
-    {
-      return (IsInit)
-               ? Value.ToString(format)
-               : InvalidValueString;
-    }
-
-
-    public string ValueWithUnitStringWithPrecision(int precision)
-    {
-      return (IsInit)
-               ? ValueStringWithPrecision(precision) + " " + Unit
-               : InvalidValueString;
-    }
-
-
-    public string ValueWithUnitStringWithFormat(string format)
-    {
-      return (IsInit)
-               ? Value.ToString(format) + " " + Unit
-               : InvalidValueString;
-    }
-
-
-    public string FakeValueString(float fakeValue, int precision = -1)
-    {
-      if (precision < 0)
-      {
-        precision = Precision;
-      }
-
-      return fakeValue.ToString("0." + new string('0', precision));
-    }
-
-
-    public string FakeValueWithUnitString(float fakeValue, int precision = -1)
-    {
-      return FakeValueString(fakeValue, precision) + " " + Unit;
-    }
-
-
-    public string FakeValueStringWithFormat(float fakeValue, string format)
-    {
-      return fakeValue.ToString(format);
-    }
-
-
-    public string LoadStringWithPrecision(int precision)
-    {
-      return (IsInit)
-               ? Load.ToString("0." + new string('0', precision))
-               : InvalidValueString;
-    }
-
-
-    public string LoadStringWithFormat(string format)
-    {
-      return (IsInit)
-               ? Load.ToString(format)
-               : InvalidValueString;
-    }
-
-
-    public string LoadWithUnitStringWithPrecision(int precision)
-    {
-      return (IsInit)
-               ? LoadStringWithPrecision(precision) + " " + Unit
-               : InvalidValueString;
-    }
-
-
-    public string LoadWithUnitStringWithFormat(string format)
-    {
-      return (IsInit)
-               ? Load.ToString(format) + " " + Unit
-               : InvalidValueString;
-    }
-
-
-    public string FakeLoadString(float fakeLoad, int precision = -1)
-    {
-      if (precision < 0)
-      {
-        precision = Precision;
-      }
-
-      return fakeLoad.ToString("0." + new string('0', precision));
-    }
-
-
-    public string FakeLoadWithUnitString(float fakeLoad, int precision = -1)
-    {
-      return FakeLoadString(fakeLoad, precision) + " " + Unit;
-    }
-
-
-    public string FakeLoadStringWithFormat(float fakeLoad, string format)
-    {
-      return fakeLoad.ToString(format);
-    }
-    
-    
-    public override void UpdateValueFromCommonPointDto(TCommonPointDto dto)
-    {
-      if (dto.AccumPointDto == null)
-      {
-        return;
-      }
-      IsInit = (dto.TmFlags != 0xFFFF) && !dto.AccumPointDto.Value.Value.Equals(InvalidValue);
-      Value  = dto.AccumPointDto.Value.Value;
-      Load   = dto.AccumPointDto.Value.Load;
-      Flags  = (TmFlags) dto.AccumPointDto.Value.Flags;
-      ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(dto.TmLocalUt,
-                                                                   dto.TmLocalMs);
-    }
-    
-    
-    public override void UpdatePropertiesFromCommonPointDto(TCommonPointDto dto)
-    {
-      if (!string.IsNullOrEmpty(dto.Name))
-      {
-        Name = dto.Name;
-      }
-      if (dto.AccumPointDto == null)
-      {
-        return;
-      }
-
-      Unit      = dto.AccumPointDto.Value.Unit;
-      Width     = (byte) (dto.AccumPointDto.Value.Format & 0x0F);
-      Precision = (byte) (dto.AccumPointDto.Value.Format >> 4);
-    }
-    
-
-    protected override void UpdatePropertiesFromTmcObject(string key, string value)
-    {
-      base.UpdatePropertiesFromTmcObject(key, value);
-      
-      switch (key)
-      {
-        case "Units":
-          Unit = value;
-          break;
-        case "Format":
+        public byte Precision
         {
-          var formatParts = value.Split('.');
-          if (formatParts.Length > 1                        &&
-              byte.TryParse(formatParts[0], out byte width) &&
-              byte.TryParse(formatParts[1], out byte precision))
-          {
-            Width     = width;
-            Precision = precision;
-          }
-
-          break;
+            get => _precision;
+            set => SetPropertyValueAndRefresh(ref _precision, value);
         }
-        case "CounterFormat":
+
+        public byte LoadPrecision
         {
-          var formatParts = value.Split('.');
-          if (formatParts.Length > 1                        &&
-              byte.TryParse(formatParts[0], out byte width) &&
-              byte.TryParse(formatParts[1], out byte precision))
-          {
-            LoadWidth     = width;
-            LoadPrecision = precision;
-          }
-
-          break;
+            get => _loadPrecision;
+            set => SetPropertyValueAndRefresh(ref _loadPrecision, value);
         }
-      }
+
+        public string Unit
+        {
+            get => _unit;
+            set => SetPropertyValueAndRefresh(ref _unit, value);
+        }
+
+        public bool IsUnreliable => Flags.HasFlag(TmFlags.Unreliable);
+        public bool IsInvalid => Flags.HasFlag(TmFlags.Invalid);
+        public bool IsManuallyBlocked => Flags.HasFlag(TmFlags.ManuallyBlocked);
+        public bool IsManuallySet => Flags.HasFlag(TmFlags.ManuallySet);
+        public bool IsRequested => Flags.HasFlag(TmFlags.Requested);
+        public bool IsResChannel => Flags.HasFlag(TmFlags.ResChannel);
+        public bool IsUnacked => Flags.HasFlag(TmFlags.Unacked);
+        public bool IsTmStreaming => Flags.HasFlag(TmFlags.TmStreaming);
+
+        public string ValueString =>
+            IsInit ? Value.ToString("0." + new string('0', Precision)) : InvalidValueString;
+
+        public string LoadString =>
+            IsInit ? Load.ToString("0." + new string('0', LoadPrecision)) : InvalidValueString;
+
+        public string ValueWithUnitString =>
+            (IsInit) ? ValueString + " " + Unit : InvalidValueString;
+
+        public string LoadWithUnitString => (IsInit) ? LoadString + " " + Unit : InvalidValueString;
+
+        public override string ValueToDisplay =>
+            (IsInit) ? $"{ValueString} ({LoadString}) {Unit}" : InvalidValueString;
+
+        public string LoadToDisplay => LoadWithUnitString;
+
+        public override bool HasProblems => !IsInit || IsUnreliable || IsInvalid;
+
+        public override List<string> FlagsToDisplay
+        {
+            get
+            {
+                var flagsToDisplay = new List<string>();
+
+                if (IsUnreliable)
+                {
+                    flagsToDisplay.Add("Неактуальное значение (NT)");
+                }
+
+                if (IsInvalid)
+                {
+                    flagsToDisplay.Add("Недействительное значение (IV)");
+                }
+
+                if (IsResChannel)
+                {
+                    flagsToDisplay.Add("Взят с резерва");
+                }
+
+                if (IsRequested)
+                {
+                    flagsToDisplay.Add("Идет опрос");
+                }
+
+                if (IsManuallyBlocked)
+                {
+                    flagsToDisplay.Add("Заблокировано оператором");
+                }
+
+                if (IsManuallySet)
+                {
+                    flagsToDisplay.Add("Установлено вручную");
+                }
+
+                return flagsToDisplay;
+            }
+        }
+
+        public TmAccum(int ch, int rtu, int point)
+            : base(TmType.Accum, ch, rtu, point) { }
+
+        public TmAccum(TmAddr addr)
+            : base(addr) { }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as TmAccum);
+        }
+
+        public bool Equals(TmAccum comparison)
+        {
+            if (ReferenceEquals(comparison, null))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, comparison))
+            {
+                return true;
+            }
+
+            return TmAddr == comparison.TmAddr
+                && Value.Equals(comparison.Value)
+                && Load.Equals(comparison.Load)
+                && Flags == comparison.Flags;
+        }
+
+        public static bool operator ==(TmAccum left, TmAccum right)
+        {
+            if (ReferenceEquals(left, null))
+            {
+                return ReferenceEquals(right, null);
+            }
+
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(TmAccum left, TmAccum right)
+        {
+            return !(left == right);
+        }
+
+        public override string ToString()
+        {
+            return $"{Name} = {ValueString} {Unit}";
+        }
+
+        public bool HasFlag(TmFlags flags)
+        {
+            return Flags.HasFlag(flags);
+        }
+
+        public string ValueStringWithPrecision(int precision)
+        {
+            return (IsInit)
+                ? Value.ToString("0." + new string('0', precision))
+                : InvalidValueString;
+        }
+
+        public string ValueStringWithFormat(string format)
+        {
+            return (IsInit) ? Value.ToString(format) : InvalidValueString;
+        }
+
+        public string ValueWithUnitStringWithPrecision(int precision)
+        {
+            return (IsInit) ? ValueStringWithPrecision(precision) + " " + Unit : InvalidValueString;
+        }
+
+        public string ValueWithUnitStringWithFormat(string format)
+        {
+            return (IsInit) ? Value.ToString(format) + " " + Unit : InvalidValueString;
+        }
+
+        public string FakeValueString(float fakeValue, int precision = -1)
+        {
+            if (precision < 0)
+            {
+                precision = Precision;
+            }
+
+            return fakeValue.ToString("0." + new string('0', precision));
+        }
+
+        public string FakeValueWithUnitString(float fakeValue, int precision = -1)
+        {
+            return FakeValueString(fakeValue, precision) + " " + Unit;
+        }
+
+        public string FakeValueStringWithFormat(float fakeValue, string format)
+        {
+            return fakeValue.ToString(format);
+        }
+
+        public string LoadStringWithPrecision(int precision)
+        {
+            return (IsInit) ? Load.ToString("0." + new string('0', precision)) : InvalidValueString;
+        }
+
+        public string LoadStringWithFormat(string format)
+        {
+            return (IsInit) ? Load.ToString(format) : InvalidValueString;
+        }
+
+        public string LoadWithUnitStringWithPrecision(int precision)
+        {
+            return (IsInit) ? LoadStringWithPrecision(precision) + " " + Unit : InvalidValueString;
+        }
+
+        public string LoadWithUnitStringWithFormat(string format)
+        {
+            return (IsInit) ? Load.ToString(format) + " " + Unit : InvalidValueString;
+        }
+
+        public string FakeLoadString(float fakeLoad, int precision = -1)
+        {
+            if (precision < 0)
+            {
+                precision = Precision;
+            }
+
+            return fakeLoad.ToString("0." + new string('0', precision));
+        }
+
+        public string FakeLoadWithUnitString(float fakeLoad, int precision = -1)
+        {
+            return FakeLoadString(fakeLoad, precision) + " " + Unit;
+        }
+
+        public string FakeLoadStringWithFormat(float fakeLoad, string format)
+        {
+            return fakeLoad.ToString(format);
+        }
+
+        public override void UpdateValueFromCommonPointDto(TCommonPointDto dto)
+        {
+            if (dto.AccumPointDto == null)
+            {
+                return;
+            }
+            IsInit = (dto.TmFlags != 0xFFFF) && !dto.AccumPointDto.Value.Value.Equals(InvalidValue);
+            Value = dto.AccumPointDto.Value.Value;
+            Load = dto.AccumPointDto.Value.Load;
+            Flags = (TmFlags)dto.AccumPointDto.Value.Flags;
+            ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(
+                dto.TmLocalUt,
+                dto.TmLocalMs
+            );
+        }
+
+        public override void UpdatePropertiesFromCommonPointDto(TCommonPointDto dto)
+        {
+            if (!string.IsNullOrEmpty(dto.Name))
+            {
+                Name = dto.Name;
+            }
+            if (dto.AccumPointDto == null)
+            {
+                return;
+            }
+
+            Unit = dto.AccumPointDto.Value.Unit;
+            Width = (byte)(dto.AccumPointDto.Value.Format & 0x0F);
+            Precision = (byte)(dto.AccumPointDto.Value.Format >> 4);
+        }
+
+        protected override void UpdatePropertiesFromTmcObject(string key, string value)
+        {
+            base.UpdatePropertiesFromTmcObject(key, value);
+
+            switch (key)
+            {
+                case "Units":
+                    Unit = value;
+                    break;
+                case "Format":
+                {
+                    var formatParts = value.Split('.');
+                    if (
+                        formatParts.Length > 1
+                        && byte.TryParse(formatParts[0], out byte width)
+                        && byte.TryParse(formatParts[1], out byte precision)
+                    )
+                    {
+                        Width = width;
+                        Precision = precision;
+                    }
+
+                    break;
+                }
+                case "CounterFormat":
+                {
+                    var formatParts = value.Split('.');
+                    if (
+                        formatParts.Length > 1
+                        && byte.TryParse(formatParts[0], out byte width)
+                        && byte.TryParse(formatParts[1], out byte precision)
+                    )
+                    {
+                        LoadWidth = width;
+                        LoadPrecision = precision;
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        public void UpdateValueFromTAccumPoint(TmNativeDefs.TAccumPoint tmcAccumPoint)
+        {
+            if (tmcAccumPoint.Flags == -1 || tmcAccumPoint.Value.Equals(InvalidValue))
+            {
+                Flags |= TmFlags.Invalid;
+                IsInit = false;
+                return;
+            }
+
+            IsInit = true;
+            Value = tmcAccumPoint.Value;
+            Load = tmcAccumPoint.Load;
+            Flags = (TmFlags)tmcAccumPoint.Flags;
+            Width = (byte)(tmcAccumPoint.Format & 0x0F);
+            Precision = (byte)(tmcAccumPoint.Format >> 4);
+        }
+
+        public void UpdateValueFromRecord(TmAccumRecord record)
+        {
+            IsInit = (record.Flags != (TmFlags)0xFFFF);
+            Value = record.Value;
+            Load = record.Load;
+            Flags = record.Flags;
+            ChangeTime = record.ChangeTime;
+        }
+
+        public void UpdateValueFromDto(TmAccumDto dto)
+        {
+            if (dto == null)
+                return;
+
+            UpdateValueFromDto(dto.VVal, dto.VLoad, dto.Flags, dto.ChangeTime);
+        }
+
+        public void UpdateValueFromDto(float value, float load, int flags, DateTime? changeTime)
+        {
+            IsInit = !value.Equals(InvalidValue);
+            Value = value;
+            Load = load;
+            Flags = (TmFlags)(flags & 0x0000_FFFF); // 3 и 4 байты флагов - служебные, не для клиента
+            ChangeTime = changeTime.NullIfEpoch();
+        }
+
+        public void UpdatePropertiesFromDto(TmAccumPropertiesDto dto)
+        {
+            if (dto?.Name == null)
+                return;
+
+            UpdatePropertiesFromSql(
+                dto.Name,
+                dto.VUnit,
+                dto.VFormat,
+                dto.VCounterFormat,
+                dto.Provider
+            );
+        }
+
+        public void UpdatePropertiesFromSql(
+            string name,
+            string unit,
+            string format,
+            string loadFormat,
+            string provider
+        )
+        {
+            Name = name;
+            Unit = unit.TrimEnd();
+
+            var formatParts = string.IsNullOrEmpty(format)
+                ? Array.Empty<string>()
+                : format.Split('.');
+            if (
+                formatParts.Length > 1
+                && byte.TryParse(formatParts[0], out var width)
+                && byte.TryParse(formatParts[1], out var precision)
+            )
+            {
+                Width = width;
+                Precision = precision;
+            }
+
+            var loadFormatParts = string.IsNullOrEmpty(loadFormat)
+                ? Array.Empty<string>()
+                : loadFormat.Split('.');
+            if (
+                loadFormatParts.Length > 1
+                && byte.TryParse(loadFormatParts[0], out var loadWidth)
+                && byte.TryParse(loadFormatParts[1], out var loadPrecision)
+            )
+            {
+                LoadWidth = loadWidth;
+                LoadPrecision = loadPrecision;
+            }
+
+            HasTmProvider = !string.IsNullOrEmpty(provider);
+        }
+
+        public static TmAccum CreateFromTmTreeDto(TmAccumTmTreeDto dto)
+        {
+            if (dto?.Name == null)
+                return null;
+
+            var accum = new TmAccum(TmAddr.CreateFromTma(TmType.Accum, dto.Tma));
+            accum.UpdateFromTmTreeDto(dto);
+
+            return accum;
+        }
+
+        public void UpdateFromTmTreeDto(TmAccumTmTreeDto dto)
+        {
+            if (dto?.Name == null)
+                return;
+
+            UpdateValueFromDto(dto.MapToTmAccumDto());
+            UpdatePropertiesFromDto(dto.MapToTmAccumPropertiesDto());
+        }
     }
-    
-    public void UpdateValueFromTAccumPoint(TmNativeDefs.TAccumPoint tmcAccumPoint)
-    {
-      if (tmcAccumPoint.Flags == -1 || tmcAccumPoint.Value.Equals(InvalidValue))
-      {
-        Flags  |= TmFlags.Invalid;
-        IsInit =  false;
-        return;
-      }
-      
-      IsInit    = true;
-      Value     = tmcAccumPoint.Value;
-      Load      = tmcAccumPoint.Load;
-      Flags     = (TmFlags) tmcAccumPoint.Flags;
-      Width     = (byte) (tmcAccumPoint.Format & 0x0F);
-      Precision = (byte) (tmcAccumPoint.Format >> 4);
-    }
-
-
-    public void UpdateValueFromRecord(TmAccumRecord record)
-    {
-      IsInit     = (record.Flags != (TmFlags)0xFFFF);
-      Value      = record.Value;
-      Load       = record.Load;
-      Flags      = record.Flags;
-      ChangeTime = record.ChangeTime;
-    }
-
-
-    public void UpdateValueFromDto(TmAccumDto dto)
-    {
-      if (dto == null) return;
-
-      UpdateValueFromDto(dto.VVal,
-                    dto.VLoad,
-                    dto.Flags,
-                    dto.ChangeTime);
-    }
-
-
-    public void UpdateValueFromDto(float value, float load, int flags, DateTime? changeTime)
-    {
-      IsInit     = !value.Equals(InvalidValue);
-      Value      = value;
-      Load       = load;
-      Flags      = (TmFlags) (flags & 0x0000_FFFF); // 3 и 4 байты флагов - служебные, не для клиента
-      ChangeTime = changeTime.NullIfEpoch();
-    }
-    
-    
-    public void UpdatePropertiesFromDto(TmAccumPropertiesDto dto)
-    {
-      if (dto?.Name == null) return;
-
-      UpdatePropertiesFromSql(dto.Name,
-                              dto.VUnit,
-                              dto.VFormat,
-                              dto.VCounterFormat,
-                              dto.Provider);
-    }
-
-
-    public void UpdatePropertiesFromSql(string name,
-                                        string unit,
-                                        string format,
-                                        string loadFormat,
-                                        string provider)
-    {
-      Name = name;
-      Unit = unit.TrimEnd();
-
-      var formatParts = string.IsNullOrEmpty(format) 
-                          ? Array.Empty<string>() 
-                          : format.Split('.');
-      if (formatParts.Length > 1                        &&
-          byte.TryParse(formatParts[0], out var width) &&
-          byte.TryParse(formatParts[1], out var precision))
-      {
-        Width     = width;
-        Precision = precision;
-      }
-
-      var loadFormatParts = string.IsNullOrEmpty(loadFormat) 
-                          ? Array.Empty<string>() 
-                          : loadFormat.Split('.');
-      if (loadFormatParts.Length > 1                        &&
-          byte.TryParse(loadFormatParts[0], out var loadWidth) &&
-          byte.TryParse(loadFormatParts[1], out var loadPrecision))
-      {
-        LoadWidth     = loadWidth;
-        LoadPrecision = loadPrecision;
-      }
-
-      HasTmProvider = !string.IsNullOrEmpty(provider);
-    }
-
-
-    public static TmAccum CreateFromTmTreeDto(TmAccumTmTreeDto dto)
-    {
-      if (dto?.Name == null) return null;
-
-      var accum = new TmAccum(TmAddr.CreateFromTma(TmType.Accum, dto.Tma));
-      accum.UpdateFromTmTreeDto(dto);
-
-      return accum;
-    }
-
-
-    public void UpdateFromTmTreeDto(TmAccumTmTreeDto dto)
-    {
-      if (dto?.Name == null) return;
-
-      UpdateValueFromDto(dto.MapToTmAccumDto());
-      UpdatePropertiesFromDto(dto.MapToTmAccumPropertiesDto());
-    }
-  }
 }

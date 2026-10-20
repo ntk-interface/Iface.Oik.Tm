@@ -1,52 +1,52 @@
 namespace Iface.Oik.Tm.Interfaces
 {
-  public class TmLicenseKey
-  {
-    public LicenseKeyType Type { get; }
-    public int            Port { get; set; }
-
-    public TmLicenseKey(int nativeCom)
+    public class TmLicenseKey
     {
-      Type = GetLicenseKeyType(nativeCom / 256);
+        public LicenseKeyType Type { get; }
+        public int Port { get; set; }
 
-      if (Type == LicenseKeyType.DallasCOM)
-      {
-        Port = nativeCom % 256;
-      }
-      else
-      {
-        Port = (nativeCom + 1) % 256;
-      }
-    }
+        public TmLicenseKey(int nativeCom)
+        {
+            Type = GetLicenseKeyType(nativeCom / 256);
 
-    public TmLicenseKey(LicenseKeyType type, int port)
-    {
-      Type = type;
-      Port = port;
-    }
+            if (Type == LicenseKeyType.DallasCOM)
+            {
+                Port = nativeCom % 256;
+            }
+            else
+            {
+                Port = (nativeCom + 1) % 256;
+            }
+        }
 
-    public string NativeCom()
-    {
-      var typeValue = (int) Type;
+        public TmLicenseKey(LicenseKeyType type, int port)
+        {
+            Type = type;
+            Port = port;
+        }
 
-      return $"{typeValue * 256 + (typeValue != 0 && Port != 0 ? Port - 1 : Port)}";
+        public string NativeCom()
+        {
+            var typeValue = (int)Type;
+
+            return $"{typeValue * 256 + (typeValue != 0 && Port != 0 ? Port - 1 : Port)}";
+        }
+
+        private static LicenseKeyType GetLicenseKeyType(int typeValue)
+        {
+            switch (typeValue)
+            {
+                case 4:
+                    return LicenseKeyType.HDDKey;
+                case 5:
+                    return LicenseKeyType.Software;
+                case 6:
+                    return LicenseKeyType.UsbHidSsd;
+                case 7:
+                    return LicenseKeyType.Network;
+                default:
+                    return LicenseKeyType.Unknown;
+            }
+        }
     }
-    
-    private static LicenseKeyType GetLicenseKeyType(int typeValue)
-    {
-      switch (typeValue)
-      {
-        case 4:
-          return LicenseKeyType.HDDKey;
-        case 5:
-          return LicenseKeyType.Software;
-        case 6:
-          return LicenseKeyType.UsbHidSsd;
-        case 7:
-          return LicenseKeyType.Network;
-        default:
-          return LicenseKeyType.Unknown;
-      }
-    }
-  }
 }

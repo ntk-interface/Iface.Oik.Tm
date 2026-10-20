@@ -5,111 +5,104 @@ using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  [Flags]
-  public enum MqttQoS : byte
-  {
-    AtMostOnce    = TmNativeDefs.PublicationQoS.AtMostOnce,
-    AtLeastOnce   = TmNativeDefs.PublicationQoS.AtLeastOnce,
-    ExactlyOnce   = TmNativeDefs.PublicationQoS.ExactlyOnce,
-    NoLocal       = TmNativeDefs.PublicationQoS.NoLocal,
-    RetainAsPub   = TmNativeDefs.PublicationQoS.RetainAsPub,
-    RetainFirst   = TmNativeDefs.PublicationQoS.RetainFirst,
-    RetainNo      = TmNativeDefs.PublicationQoS.RetainNo,
-    RetainDefault = TmNativeDefs.PublicationQoS.RetainDefault
-  }
-
-
-  public class MqttMessage
-  {
-    public string  Topic          { get; set; }
-    public byte[]  Payload        { get; set; }
-    public MqttQoS QoS            { get; set; }
-    public bool    Retain         { get; set; }
-    public int     SubscriptionId { get; set; }
-    public uint    UserId         { get; set; }
-    public string  ResponseTopic  { get; set; }
-  }
-
-
-  public class MqttSubscriptionTopic
-  {
-    public string  Topic          { get; }
-    public MqttQoS QoS            { get; }
-    public int     SubscriptionId { get; }
-
-
-    public MqttSubscriptionTopic(string  topic,
-                                 int     subscriptionId,
-                                 MqttQoS qos = MqttQoS.AtMostOnce)
+    [Flags]
+    public enum MqttQoS : byte
     {
-      if (string.IsNullOrEmpty(topic))
-      {
-        throw new ArgumentException("Топик не может быть пустым");
-      }
-
-      var indexOfHash = topic.IndexOf("#", StringComparison.Ordinal);
-      if (indexOfHash != -1 && indexOfHash != topic.Length - 1)
-      {
-        throw new ArgumentException("Символ '#' может быть только последним в строке");
-      }
-
-      Topic          = topic;
-      SubscriptionId = subscriptionId;
-      QoS            = qos;
+        AtMostOnce = TmNativeDefs.PublicationQoS.AtMostOnce,
+        AtLeastOnce = TmNativeDefs.PublicationQoS.AtLeastOnce,
+        ExactlyOnce = TmNativeDefs.PublicationQoS.ExactlyOnce,
+        NoLocal = TmNativeDefs.PublicationQoS.NoLocal,
+        RetainAsPub = TmNativeDefs.PublicationQoS.RetainAsPub,
+        RetainFirst = TmNativeDefs.PublicationQoS.RetainFirst,
+        RetainNo = TmNativeDefs.PublicationQoS.RetainNo,
+        RetainDefault = TmNativeDefs.PublicationQoS.RetainDefault,
     }
 
-
-    public MqttSubscriptionTopic(MqttKnownTopic knownTopic)
-      : this(knownTopic.GetDescription(), (int)knownTopic)
+    public class MqttMessage
     {
+        public string Topic { get; set; }
+        public byte[] Payload { get; set; }
+        public MqttQoS QoS { get; set; }
+        public bool Retain { get; set; }
+        public int SubscriptionId { get; set; }
+        public uint UserId { get; set; }
+        public string ResponseTopic { get; set; }
     }
-  }
 
-
-  public class MqttPublishTopic
-  {
-    public string                     Topic          { get; }
-    public MqttQoS                    QoS            { get; }
-    public uint                       LifetimeSec    { get; }
-    public Dictionary<string, string> VariableHeader { get; }
-
-    public MqttPublishTopic(string                     topic,
-                            MqttQoS                    qos            = MqttQoS.AtMostOnce,
-                            uint                       lifetimeSec    = 0,
-                            Dictionary<string, string> variableHeader = null)
+    public class MqttSubscriptionTopic
     {
-      if (string.IsNullOrEmpty(topic))
-      {
-        throw new ArgumentException("Топик не может быть пустым");
-      }
+        public string Topic { get; }
+        public MqttQoS QoS { get; }
+        public int SubscriptionId { get; }
 
-      foreach (var @char in topic)
-      {
-        switch (@char)
+        public MqttSubscriptionTopic(
+            string topic,
+            int subscriptionId,
+            MqttQoS qos = MqttQoS.AtMostOnce
+        )
         {
-          case '+':
-            throw new ArgumentException("Символ '+' недопустим в имени топика");
-          case '#':
-            throw new ArgumentException("Символ '#' недопустим в имени топика");
+            if (string.IsNullOrEmpty(topic))
+            {
+                throw new ArgumentException("Топик не может быть пустым");
+            }
+
+            var indexOfHash = topic.IndexOf("#", StringComparison.Ordinal);
+            if (indexOfHash != -1 && indexOfHash != topic.Length - 1)
+            {
+                throw new ArgumentException("Символ '#' может быть только последним в строке");
+            }
+
+            Topic = topic;
+            SubscriptionId = subscriptionId;
+            QoS = qos;
         }
-      }
 
-      Topic          = topic;
-      QoS            = qos;
-      LifetimeSec    = lifetimeSec;
-      VariableHeader = variableHeader ?? new Dictionary<string, string>();
+        public MqttSubscriptionTopic(MqttKnownTopic knownTopic)
+            : this(knownTopic.GetDescription(), (int)knownTopic) { }
     }
 
-
-    public MqttPublishTopic(MqttKnownTopic knownTopic)
-      : this(knownTopic.GetDescription())
+    public class MqttPublishTopic
     {
-    }
+        public string Topic { get; }
+        public MqttQoS QoS { get; }
+        public uint LifetimeSec { get; }
+        public Dictionary<string, string> VariableHeader { get; }
 
+        public MqttPublishTopic(
+            string topic,
+            MqttQoS qos = MqttQoS.AtMostOnce,
+            uint lifetimeSec = 0,
+            Dictionary<string, string> variableHeader = null
+        )
+        {
+            if (string.IsNullOrEmpty(topic))
+            {
+                throw new ArgumentException("Топик не может быть пустым");
+            }
 
-    public void AddResponseTopic(string responseTopic)
-    {
-      VariableHeader["respt"] = responseTopic;
+            foreach (var @char in topic)
+            {
+                switch (@char)
+                {
+                    case '+':
+                        throw new ArgumentException("Символ '+' недопустим в имени топика");
+                    case '#':
+                        throw new ArgumentException("Символ '#' недопустим в имени топика");
+                }
+            }
+
+            Topic = topic;
+            QoS = qos;
+            LifetimeSec = lifetimeSec;
+            VariableHeader = variableHeader ?? new Dictionary<string, string>();
+        }
+
+        public MqttPublishTopic(MqttKnownTopic knownTopic)
+            : this(knownTopic.GetDescription()) { }
+
+        public void AddResponseTopic(string responseTopic)
+        {
+            VariableHeader["respt"] = responseTopic;
+        }
     }
-  }
 }

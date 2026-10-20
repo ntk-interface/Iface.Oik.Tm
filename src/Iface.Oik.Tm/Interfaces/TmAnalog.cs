@@ -10,529 +10,499 @@ using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public class TmAnalog : TmTag
-  {
-    public static readonly float  InvalidValue       = float.MaxValue;
-    public static readonly string InvalidValueString = "???";
-
-    private short                  _code;
-    private float                  _value;
-    private TmFlags                _flags = TmFlags.Invalid;
-    private byte                   _width; // todo сейчас вообще не используется, а надо ли?
-    private byte                   _precision = 3;
-    private string                 _unit      = "";
-    private TmTeleregulation       _teleregulation;
-    private TmAnalogTechParameters _techParameters;
-
-
-    public short Code
+    public class TmAnalog : TmTag
     {
-      get => _code;
-      set => SetPropertyValueAndRefresh(ref _code, value);
-    }
+        public static readonly float InvalidValue = float.MaxValue;
+        public static readonly string InvalidValueString = "???";
 
-    public float Value
-    {
-      get => _value;
-      set => SetPropertyValueAndRefresh(ref _value, value);
-    }
+        private short _code;
+        private float _value;
+        private TmFlags _flags = TmFlags.Invalid;
+        private byte _width; // todo сейчас вообще не используется, а надо ли?
+        private byte _precision = 3;
+        private string _unit = "";
+        private TmTeleregulation _teleregulation;
+        private TmAnalogTechParameters _techParameters;
 
-    public TmFlags Flags
-    {
-      get => _flags;
-      set => SetPropertyValueAndRefresh(ref _flags, value);
-    }
-
-    public byte Width
-    {
-      get => _width;
-      set => SetPropertyValueAndRefresh(ref _width, value);
-    }
-
-    public byte Precision
-    {
-      get => _precision;
-      set => SetPropertyValueAndRefresh(ref _precision, value);
-    }
-
-    public string Unit
-    {
-      get => _unit;
-      set => SetPropertyValueAndRefresh(ref _unit, value);
-    }
-
-    public TmTeleregulation Teleregulation
-    {
-      get => _teleregulation;
-      private set => SetPropertyValueAndRefresh(ref _teleregulation, value);
-    }
-
-    public TmAnalogTechParameters TechParameters
-    {
-      get => _techParameters;
-      private set => SetPropertyValueAndRefresh(ref _techParameters, value);
-    }
-
-    public bool IsUnreliable      => Flags.HasFlag(TmFlags.Unreliable);
-    public bool IsInvalid         => Flags.HasFlag(TmFlags.Invalid);
-    public bool IsManuallyBlocked => Flags.HasFlag(TmFlags.ManuallyBlocked);
-    public bool IsManuallySet     => Flags.HasFlag(TmFlags.ManuallySet);
-    public bool IsRequested       => Flags.HasFlag(TmFlags.Requested);
-    public bool IsResChannel      => Flags.HasFlag(TmFlags.ResChannel);
-    public bool IsAbnormal        => Flags.HasFlag(TmFlags.Abnormal);
-    public bool HasTeleregulation => Flags.HasFlag(TmFlags.HasTeleregulation);
-    public bool IsUnacked         => Flags.HasFlag(TmFlags.Unacked);
-    public bool HasAlarm          => Flags.HasFlag(TmFlags.HasAlarm);
-    public bool IsAlarmLevel1     => Flags.HasFlag(TmFlags.LevelA);
-    public bool IsAlarmLevel2     => Flags.HasFlag(TmFlags.LevelB);
-    public bool IsAlarmLevel3     => Flags.HasFlag(TmFlags.LevelC);
-    public bool IsAlarmLevel4     => Flags.HasFlag(TmFlags.LevelD);
-
-    public bool HasTeleregulationByStep  => Teleregulation == TmTeleregulation.Step;
-    public bool HasTeleregulationByCode  => Teleregulation == TmTeleregulation.Code;
-    public bool HasTeleregulationByValue => Teleregulation == TmTeleregulation.Value;
-
-    public string ValueString => (IsInit)
-      ? Value.ToString("0." + new string('0', Precision))
-      : InvalidValueString;
-
-
-    public string ValueWithUnitString => (IsInit)
-      ? ValueString + " " + Unit
-      : InvalidValueString;
-
-
-
-    public override bool HasProblems => !IsInit || IsUnreliable || IsInvalid;
-
-    public override string ValueToDisplay => ValueWithUnitString;
-    
-    public override List<string> FlagsToDisplay
-    {
-      get
-      {
-        var flagsToDisplay = new List<string>();
-
-        if (IsUnreliable)
+        public short Code
         {
-          flagsToDisplay.Add("Неактуальное значение (NT)");
-        }
-        if (IsInvalid)
-        {
-          flagsToDisplay.Add("Недействительное значение (IV)");
-        }
-        if (IsResChannel)
-        {
-          flagsToDisplay.Add("Взят с резерва");
-        }
-        if (IsRequested)
-        {
-          flagsToDisplay.Add("Идет опрос");
-        }
-        if (IsAbnormal)
-        {
-          flagsToDisplay.Add("Несоответствие нормальному режиму");
-        }
-        if (IsManuallyBlocked)
-        {
-          flagsToDisplay.Add("Заблокировано оператором");
-        }
-        if (IsManuallySet)
-        {
-          flagsToDisplay.Add("Установлено вручную");
-        }
-        if (IsAlarmLevel1)
-        {
-          flagsToDisplay.Add("Уставка оперативного состояния");
-        }
-        if (IsAlarmLevel2)
-        {
-          flagsToDisplay.Add("Уставка предупредительная 2");
-        }
-        if (IsAlarmLevel3)
-        {
-          flagsToDisplay.Add("Уставка предупредительная 1");
-        }
-        if (IsAlarmLevel4)
-        {
-          flagsToDisplay.Add("Уставка аварийная");
+            get => _code;
+            set => SetPropertyValueAndRefresh(ref _code, value);
         }
 
-        return flagsToDisplay;
-      }
-    }
-
-
-    public TmAnalog(int ch, int rtu, int point)
-      : base(TmType.Analog, ch, rtu, point)
-    {
-    }
-
-
-    public TmAnalog(TmAddr addr)
-      : base(addr)
-    {
-    }
-
-
-    public override int GetHashCode()
-    {
-      return base.GetHashCode();
-    }
-
-
-    public override bool Equals(object obj)
-    {
-      return Equals(obj as TmAnalog);
-    }
-
-
-    public bool Equals(TmAnalog comparison)
-    {
-      if (ReferenceEquals(comparison, null))
-      {
-        return false;
-      }
-
-      if (ReferenceEquals(this, comparison))
-      {
-        return true;
-      }
-
-      return TmAddr == comparison.TmAddr    &&
-             Value.Equals(comparison.Value) &&
-             Flags == comparison.Flags;
-    }
-
-
-    public static bool operator ==(TmAnalog left, TmAnalog right)
-    {
-      if (ReferenceEquals(left, null))
-      {
-        return ReferenceEquals(right, null);
-      }
-
-      return left.Equals(right);
-    }
-
-
-    public static bool operator !=(TmAnalog left, TmAnalog right)
-    {
-      return !(left == right);
-    }
-
-
-    public override string ToString()
-    {
-      return $"{Name} = {ValueString} {Unit}";
-    }
-
-
-    public bool HasFlag(TmFlags flags)
-    {
-      return Flags.HasFlag(flags);
-    }
-
-
-    public string ValueStringWithPrecision(int precision)
-    {
-      return (IsInit)
-        ? Value.ToString("0." + new string('0', precision))
-        : InvalidValueString;
-    }
-
-
-    public string ValueStringWithFormat(string format)
-    {
-      return (IsInit)
-        ? Value.ToString(format)
-        : InvalidValueString;
-    }
-
-
-    public string ValueWithUnitStringWithPrecision(int precision)
-    {
-      return (IsInit)
-        ? ValueStringWithPrecision(precision) + " " + Unit
-        : InvalidValueString;
-    }
-
-
-    public string ValueWithUnitStringWithFormat(string format)
-    {
-      return (IsInit)
-        ? Value.ToString(format) + " " + Unit
-        : InvalidValueString;
-    }
-
-
-    public string FakeValueString(float fakeValue, int precision = -1)
-    {
-      if (precision < 0)
-      {
-        precision = Precision;
-      }
-
-      return fakeValue.ToString("0." + new string('0', precision));
-    }
-
-
-    public string FakeValueWithUnitString(float fakeValue, int precision = -1)
-    {
-      return FakeValueString(fakeValue, precision) + " " + Unit;
-    }
-
-
-    public string FakeValueStringWithFormat(float fakeValue, string format)
-    {
-      return fakeValue.ToString(format);
-    }
-
-
-    public static TmTeleregulation GetRegulationFromNativeFlag(string nativeValue)
-    {
-      if (!short.TryParse(nativeValue, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out short flag))
-      {
-        return TmTeleregulation.None;
-      }
-
-      return (TmNativeDefs.AnalogRegulationFlag)flag switch
-             {
-               TmNativeDefs.AnalogRegulationFlag.Step  => TmTeleregulation.Step,
-               TmNativeDefs.AnalogRegulationFlag.Code  => TmTeleregulation.Code,
-               TmNativeDefs.AnalogRegulationFlag.Value => TmTeleregulation.Value,
-               _                                       => TmTeleregulation.None
-             };
-    }
-    
-
-    protected override void UpdatePropertiesFromTmcObject(string key, string value)
-    {
-      base.UpdatePropertiesFromTmcObject(key, value);
-      
-      switch (key)
-      {
-        case "Units":
-          Unit = value;
-          break;
-        case "Format":
+        public float Value
         {
-          var formatParts = value.Split('.');
-          if (formatParts.Length > 1                        &&
-              byte.TryParse(formatParts[0], out byte width) &&
-              byte.TryParse(formatParts[1], out byte precision))
-          {
-            Width     = width;
-            Precision = precision;
-          }
-
-          break;
+            get => _value;
+            set => SetPropertyValueAndRefresh(ref _value, value);
         }
-        case "FBFlagsC":
-          Teleregulation = GetRegulationFromNativeFlag(value);
-          break;
-        case "Class":
+
+        public TmFlags Flags
         {
-          if (byte.TryParse(value, out var classId))
-          {
-            ClassId = classId;
-          }
-
-          break;
+            get => _flags;
+            set => SetPropertyValueAndRefresh(ref _flags, value);
         }
-      }
-    }
-    
-    
-    public override void UpdateValueFromCommonPointDto(TCommonPointDto dto)
-    {
-      if (dto.AnalogPointDto == null)
-      {
-        return;
-      }
-      IsInit  = (dto.TmFlags != 0xFFFF) && !dto.AnalogPointDto.Value.AsFloat.Equals(InvalidValue);
-      Value  = dto.AnalogPointDto.Value.AsFloat;
-      Flags   = (TmFlags) dto.AnalogPointDto.Value.Flags;
-      ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(dto.TmLocalUt,
-                                                                   dto.TmLocalMs);
-    }
-    
-    
-    public override void UpdatePropertiesFromCommonPointDto(TCommonPointDto dto)
-    {
-      if (!string.IsNullOrEmpty(dto.Name))
-      {
-        Name = dto.Name;
-      }
-      if (dto.AnalogPointDto == null)
-      {
-        return;
-      }
 
-      Unit      = dto.AnalogPointDto.Value.Unit;
-      Width     = (byte) (dto.AnalogPointDto.Value.Format & 0x0F);
-      Precision = (byte) (dto.AnalogPointDto.Value.Format >> 4);
-    }
+        public byte Width
+        {
+            get => _width;
+            set => SetPropertyValueAndRefresh(ref _width, value);
+        }
 
+        public byte Precision
+        {
+            get => _precision;
+            set => SetPropertyValueAndRefresh(ref _precision, value);
+        }
 
-    public void UpdateValueFromTAnalogPoint(TmNativeDefs.TAnalogPoint tmcAnalogPoint)
-    {
-      if (tmcAnalogPoint.Flags == -1 || tmcAnalogPoint.AsFloat.Equals(InvalidValue))
-      {
-        Flags  |= TmFlags.Invalid;
-        IsInit =  false;
-        return;
-      }
-      
-      IsInit    = true;
-      Code      = tmcAnalogPoint.AsCode;
-      Value     = tmcAnalogPoint.AsFloat;
-      Flags     = (TmFlags) tmcAnalogPoint.Flags;
-      Width     = (byte) (tmcAnalogPoint.Format & 0x0F);
-      Precision = (byte) (tmcAnalogPoint.Format >> 4);
-    }
+        public string Unit
+        {
+            get => _unit;
+            set => SetPropertyValueAndRefresh(ref _unit, value);
+        }
 
+        public TmTeleregulation Teleregulation
+        {
+            get => _teleregulation;
+            private set => SetPropertyValueAndRefresh(ref _teleregulation, value);
+        }
 
-    public void UpdateValueFromDatagram(ReadOnlySpan<byte> buf)
-    {
-      Value = BinaryPrimitives.ReadSingleLittleEndian(buf[14..]);
-      Flags = (TmFlags)BinaryPrimitives.ReadInt16LittleEndian(buf[18..]);
-      
-      IsInit = !Value.Equals(InvalidValue);
-    }
+        public TmAnalogTechParameters TechParameters
+        {
+            get => _techParameters;
+            private set => SetPropertyValueAndRefresh(ref _techParameters, value);
+        }
 
+        public bool IsUnreliable => Flags.HasFlag(TmFlags.Unreliable);
+        public bool IsInvalid => Flags.HasFlag(TmFlags.Invalid);
+        public bool IsManuallyBlocked => Flags.HasFlag(TmFlags.ManuallyBlocked);
+        public bool IsManuallySet => Flags.HasFlag(TmFlags.ManuallySet);
+        public bool IsRequested => Flags.HasFlag(TmFlags.Requested);
+        public bool IsResChannel => Flags.HasFlag(TmFlags.ResChannel);
+        public bool IsAbnormal => Flags.HasFlag(TmFlags.Abnormal);
+        public bool HasTeleregulation => Flags.HasFlag(TmFlags.HasTeleregulation);
+        public bool IsUnacked => Flags.HasFlag(TmFlags.Unacked);
+        public bool HasAlarm => Flags.HasFlag(TmFlags.HasAlarm);
+        public bool IsAlarmLevel1 => Flags.HasFlag(TmFlags.LevelA);
+        public bool IsAlarmLevel2 => Flags.HasFlag(TmFlags.LevelB);
+        public bool IsAlarmLevel3 => Flags.HasFlag(TmFlags.LevelC);
+        public bool IsAlarmLevel4 => Flags.HasFlag(TmFlags.LevelD);
 
-    public void UpdateValueFromRecord(TmAnalogRecord record)
-    {
-      IsInit     = (record.Flags != (TmFlags)0xFFFF);
-      Value      = record.Value;
-      Flags      = record.Flags;
-      ChangeTime = record.ChangeTime;
-    }
+        public bool HasTeleregulationByStep => Teleregulation == TmTeleregulation.Step;
+        public bool HasTeleregulationByCode => Teleregulation == TmTeleregulation.Code;
+        public bool HasTeleregulationByValue => Teleregulation == TmTeleregulation.Value;
 
+        public string ValueString =>
+            (IsInit) ? Value.ToString("0." + new string('0', Precision)) : InvalidValueString;
 
-    public void UpdateTechParameters(TmNativeDefs.TAnalogTechParms parameters)
-    {
-      TechParameters = new TmAnalogTechParameters(parameters.MinVal,
-                                                  parameters.MaxVal,
-                                                  parameters.Nominal,
-                                                  parameters.ZoneLim[0],
-                                                  parameters.ZoneLim[1],
-                                                  parameters.ZoneLim[2],
-                                                  parameters.ZoneLim[3],
-                                                  parameters.AlrPresent > 0,
-                                                  parameters.AlrInUse   > 0);
-    }
+        public string ValueWithUnitString =>
+            (IsInit) ? ValueString + " " + Unit : InvalidValueString;
 
+        public override bool HasProblems => !IsInit || IsUnreliable || IsInvalid;
 
-    public void UpdateValueFromDto(TmAnalogDto dto)
-    {
-      if (dto == null) return;
+        public override string ValueToDisplay => ValueWithUnitString;
 
-      UpdateValueFromDto(dto.VVal,
-                    dto.Flags,
-                    dto.ChangeTime);
-    }
+        public override List<string> FlagsToDisplay
+        {
+            get
+            {
+                var flagsToDisplay = new List<string>();
 
-
-    public void UpdateValueFromDto(float value, int flags, DateTime? changeTime)
-    {
-      IsInit     = !value.Equals(InvalidValue);
-      Value      = value;
-      Flags      = (TmFlags) (flags & 0x0000_FFFF); // 3 и 4 байты флагов - служебные, не для клиента
-      ChangeTime = changeTime.NullIfEpoch();
-    }
-
-
-    public void UpdatePropertiesFromDto(TmAnalogPropertiesDto dto)
-    {
-      if (dto?.Name == null) return;
-
-      UpdateTechParametersFromDto(dto.MapToTmAnalogTechParametersDto());
-      UpdatePropertiesFromSql(dto.Name,
-                              dto.VUnit,
-                              dto.VFormat,
-                              dto.ClassId,
-                              dto.Provider);
-    }
-
-
-    public void UpdatePropertiesFromSql(string name,
-                                        string unit,
-                                        string format,
-                                        short  classId,
-                                        string provider)
-    {
-      Name = name;
-      Unit = unit.TrimEnd();
-
-      var formatParts = string.IsNullOrEmpty(format) 
-                          ? Array.Empty<string>() 
-                          : format.Split('.');
-      
-      if (formatParts.Length > 1                        &&
-          byte.TryParse(formatParts[0], out byte width) &&
-          byte.TryParse(formatParts[1], out byte precision))
-      {
-        Width     = width;
-        Precision = precision;
-      }
-
-      if (!string.IsNullOrEmpty(provider))
-      {
-        HasTmProvider = true;
-        provider.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries)
-                .ForEach(property =>
+                if (IsUnreliable)
                 {
-                  var kvp = property.Split('=');
-                  if (kvp.Length != 2)
-                  {
-                    return;
-                  }
+                    flagsToDisplay.Add("Неактуальное значение (NT)");
+                }
+                if (IsInvalid)
+                {
+                    flagsToDisplay.Add("Недействительное значение (IV)");
+                }
+                if (IsResChannel)
+                {
+                    flagsToDisplay.Add("Взят с резерва");
+                }
+                if (IsRequested)
+                {
+                    flagsToDisplay.Add("Идет опрос");
+                }
+                if (IsAbnormal)
+                {
+                    flagsToDisplay.Add("Несоответствие нормальному режиму");
+                }
+                if (IsManuallyBlocked)
+                {
+                    flagsToDisplay.Add("Заблокировано оператором");
+                }
+                if (IsManuallySet)
+                {
+                    flagsToDisplay.Add("Установлено вручную");
+                }
+                if (IsAlarmLevel1)
+                {
+                    flagsToDisplay.Add("Уставка оперативного состояния");
+                }
+                if (IsAlarmLevel2)
+                {
+                    flagsToDisplay.Add("Уставка предупредительная 2");
+                }
+                if (IsAlarmLevel3)
+                {
+                    flagsToDisplay.Add("Уставка предупредительная 1");
+                }
+                if (IsAlarmLevel4)
+                {
+                    flagsToDisplay.Add("Уставка аварийная");
+                }
 
-                  if (kvp[0] == "FBFlagsC")
-                  {
-                    Teleregulation = GetRegulationFromNativeFlag(kvp[1]);
-                  }
-                });
-      }
-      else
-      {
-        HasTmProvider = false;
-      }
+                return flagsToDisplay;
+            }
+        }
 
-      if (classId < 0)
-      {
-        return;
-      }
+        public TmAnalog(int ch, int rtu, int point)
+            : base(TmType.Analog, ch, rtu, point) { }
 
-      ClassId = (byte) classId;
+        public TmAnalog(TmAddr addr)
+            : base(addr) { }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as TmAnalog);
+        }
+
+        public bool Equals(TmAnalog comparison)
+        {
+            if (ReferenceEquals(comparison, null))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, comparison))
+            {
+                return true;
+            }
+
+            return TmAddr == comparison.TmAddr
+                && Value.Equals(comparison.Value)
+                && Flags == comparison.Flags;
+        }
+
+        public static bool operator ==(TmAnalog left, TmAnalog right)
+        {
+            if (ReferenceEquals(left, null))
+            {
+                return ReferenceEquals(right, null);
+            }
+
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(TmAnalog left, TmAnalog right)
+        {
+            return !(left == right);
+        }
+
+        public override string ToString()
+        {
+            return $"{Name} = {ValueString} {Unit}";
+        }
+
+        public bool HasFlag(TmFlags flags)
+        {
+            return Flags.HasFlag(flags);
+        }
+
+        public string ValueStringWithPrecision(int precision)
+        {
+            return (IsInit)
+                ? Value.ToString("0." + new string('0', precision))
+                : InvalidValueString;
+        }
+
+        public string ValueStringWithFormat(string format)
+        {
+            return (IsInit) ? Value.ToString(format) : InvalidValueString;
+        }
+
+        public string ValueWithUnitStringWithPrecision(int precision)
+        {
+            return (IsInit) ? ValueStringWithPrecision(precision) + " " + Unit : InvalidValueString;
+        }
+
+        public string ValueWithUnitStringWithFormat(string format)
+        {
+            return (IsInit) ? Value.ToString(format) + " " + Unit : InvalidValueString;
+        }
+
+        public string FakeValueString(float fakeValue, int precision = -1)
+        {
+            if (precision < 0)
+            {
+                precision = Precision;
+            }
+
+            return fakeValue.ToString("0." + new string('0', precision));
+        }
+
+        public string FakeValueWithUnitString(float fakeValue, int precision = -1)
+        {
+            return FakeValueString(fakeValue, precision) + " " + Unit;
+        }
+
+        public string FakeValueStringWithFormat(float fakeValue, string format)
+        {
+            return fakeValue.ToString(format);
+        }
+
+        public static TmTeleregulation GetRegulationFromNativeFlag(string nativeValue)
+        {
+            if (
+                !short.TryParse(
+                    nativeValue,
+                    NumberStyles.HexNumber,
+                    CultureInfo.InvariantCulture,
+                    out short flag
+                )
+            )
+            {
+                return TmTeleregulation.None;
+            }
+
+            return (TmNativeDefs.AnalogRegulationFlag)flag switch
+            {
+                TmNativeDefs.AnalogRegulationFlag.Step => TmTeleregulation.Step,
+                TmNativeDefs.AnalogRegulationFlag.Code => TmTeleregulation.Code,
+                TmNativeDefs.AnalogRegulationFlag.Value => TmTeleregulation.Value,
+                _ => TmTeleregulation.None,
+            };
+        }
+
+        protected override void UpdatePropertiesFromTmcObject(string key, string value)
+        {
+            base.UpdatePropertiesFromTmcObject(key, value);
+
+            switch (key)
+            {
+                case "Units":
+                    Unit = value;
+                    break;
+                case "Format":
+                {
+                    var formatParts = value.Split('.');
+                    if (
+                        formatParts.Length > 1
+                        && byte.TryParse(formatParts[0], out byte width)
+                        && byte.TryParse(formatParts[1], out byte precision)
+                    )
+                    {
+                        Width = width;
+                        Precision = precision;
+                    }
+
+                    break;
+                }
+                case "FBFlagsC":
+                    Teleregulation = GetRegulationFromNativeFlag(value);
+                    break;
+                case "Class":
+                {
+                    if (byte.TryParse(value, out var classId))
+                    {
+                        ClassId = classId;
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        public override void UpdateValueFromCommonPointDto(TCommonPointDto dto)
+        {
+            if (dto.AnalogPointDto == null)
+            {
+                return;
+            }
+            IsInit =
+                (dto.TmFlags != 0xFFFF) && !dto.AnalogPointDto.Value.AsFloat.Equals(InvalidValue);
+            Value = dto.AnalogPointDto.Value.AsFloat;
+            Flags = (TmFlags)dto.AnalogPointDto.Value.Flags;
+            ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(
+                dto.TmLocalUt,
+                dto.TmLocalMs
+            );
+        }
+
+        public override void UpdatePropertiesFromCommonPointDto(TCommonPointDto dto)
+        {
+            if (!string.IsNullOrEmpty(dto.Name))
+            {
+                Name = dto.Name;
+            }
+            if (dto.AnalogPointDto == null)
+            {
+                return;
+            }
+
+            Unit = dto.AnalogPointDto.Value.Unit;
+            Width = (byte)(dto.AnalogPointDto.Value.Format & 0x0F);
+            Precision = (byte)(dto.AnalogPointDto.Value.Format >> 4);
+        }
+
+        public void UpdateValueFromTAnalogPoint(TmNativeDefs.TAnalogPoint tmcAnalogPoint)
+        {
+            if (tmcAnalogPoint.Flags == -1 || tmcAnalogPoint.AsFloat.Equals(InvalidValue))
+            {
+                Flags |= TmFlags.Invalid;
+                IsInit = false;
+                return;
+            }
+
+            IsInit = true;
+            Code = tmcAnalogPoint.AsCode;
+            Value = tmcAnalogPoint.AsFloat;
+            Flags = (TmFlags)tmcAnalogPoint.Flags;
+            Width = (byte)(tmcAnalogPoint.Format & 0x0F);
+            Precision = (byte)(tmcAnalogPoint.Format >> 4);
+        }
+
+        public void UpdateValueFromDatagram(ReadOnlySpan<byte> buf)
+        {
+            Value = BinaryPrimitives.ReadSingleLittleEndian(buf[14..]);
+            Flags = (TmFlags)BinaryPrimitives.ReadInt16LittleEndian(buf[18..]);
+
+            IsInit = !Value.Equals(InvalidValue);
+        }
+
+        public void UpdateValueFromRecord(TmAnalogRecord record)
+        {
+            IsInit = (record.Flags != (TmFlags)0xFFFF);
+            Value = record.Value;
+            Flags = record.Flags;
+            ChangeTime = record.ChangeTime;
+        }
+
+        public void UpdateTechParameters(TmNativeDefs.TAnalogTechParms parameters)
+        {
+            TechParameters = new TmAnalogTechParameters(
+                parameters.MinVal,
+                parameters.MaxVal,
+                parameters.Nominal,
+                parameters.ZoneLim[0],
+                parameters.ZoneLim[1],
+                parameters.ZoneLim[2],
+                parameters.ZoneLim[3],
+                parameters.AlrPresent > 0,
+                parameters.AlrInUse > 0
+            );
+        }
+
+        public void UpdateValueFromDto(TmAnalogDto dto)
+        {
+            if (dto == null)
+                return;
+
+            UpdateValueFromDto(dto.VVal, dto.Flags, dto.ChangeTime);
+        }
+
+        public void UpdateValueFromDto(float value, int flags, DateTime? changeTime)
+        {
+            IsInit = !value.Equals(InvalidValue);
+            Value = value;
+            Flags = (TmFlags)(flags & 0x0000_FFFF); // 3 и 4 байты флагов - служебные, не для клиента
+            ChangeTime = changeTime.NullIfEpoch();
+        }
+
+        public void UpdatePropertiesFromDto(TmAnalogPropertiesDto dto)
+        {
+            if (dto?.Name == null)
+                return;
+
+            UpdateTechParametersFromDto(dto.MapToTmAnalogTechParametersDto());
+            UpdatePropertiesFromSql(dto.Name, dto.VUnit, dto.VFormat, dto.ClassId, dto.Provider);
+        }
+
+        public void UpdatePropertiesFromSql(
+            string name,
+            string unit,
+            string format,
+            short classId,
+            string provider
+        )
+        {
+            Name = name;
+            Unit = unit.TrimEnd();
+
+            var formatParts = string.IsNullOrEmpty(format)
+                ? Array.Empty<string>()
+                : format.Split('.');
+
+            if (
+                formatParts.Length > 1
+                && byte.TryParse(formatParts[0], out byte width)
+                && byte.TryParse(formatParts[1], out byte precision)
+            )
+            {
+                Width = width;
+                Precision = precision;
+            }
+
+            if (!string.IsNullOrEmpty(provider))
+            {
+                HasTmProvider = true;
+                provider
+                    .Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries)
+                    .ForEach(property =>
+                    {
+                        var kvp = property.Split('=');
+                        if (kvp.Length != 2)
+                        {
+                            return;
+                        }
+
+                        if (kvp[0] == "FBFlagsC")
+                        {
+                            Teleregulation = GetRegulationFromNativeFlag(kvp[1]);
+                        }
+                    });
+            }
+            else
+            {
+                HasTmProvider = false;
+            }
+
+            if (classId < 0)
+            {
+                return;
+            }
+
+            ClassId = (byte)classId;
+        }
+
+        public void UpdateTechParametersFromDto(TmAnalogTechParametersDto dto)
+        {
+            TechParameters = TmAnalogTechParameters.CreateFromDto(dto);
+        }
+
+        public static TmAnalog CreateFromTmTreeDto(TmAnalogTmTreeDto dto)
+        {
+            if (dto?.Name == null)
+                return null;
+
+            var analog = new TmAnalog(TmAddr.CreateFromTma(TmType.Analog, dto.Tma));
+            analog.UpdateFromTmTreeDto(dto);
+
+            return analog;
+        }
+
+        public void UpdateFromTmTreeDto(TmAnalogTmTreeDto dto)
+        {
+            if (dto?.Name == null)
+                return;
+
+            UpdateValueFromDto(dto.MapToTmAnalogDto());
+            UpdatePropertiesFromDto(dto.MapToTmAnalogPropertiesDto());
+        }
     }
-
-
-    public void UpdateTechParametersFromDto(TmAnalogTechParametersDto dto)
-    {
-      TechParameters = TmAnalogTechParameters.CreateFromDto(dto);
-    }
-
-
-    public static TmAnalog CreateFromTmTreeDto(TmAnalogTmTreeDto dto)
-    {
-      if (dto?.Name == null) return null;
-
-      var analog = new TmAnalog(TmAddr.CreateFromTma(TmType.Analog, dto.Tma));
-      analog.UpdateFromTmTreeDto(dto);
-
-      return analog;
-    }
-
-
-    public void UpdateFromTmTreeDto(TmAnalogTmTreeDto dto)
-    {
-      if (dto?.Name == null) return;
-
-      UpdateValueFromDto(dto.MapToTmAnalogDto());
-      UpdatePropertiesFromDto(dto.MapToTmAnalogPropertiesDto());
-    }
-  }
 }

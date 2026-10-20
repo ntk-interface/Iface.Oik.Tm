@@ -5,258 +5,240 @@ using Xunit;
 
 namespace Iface.Oik.Tm.Test.Utils
 {
-  public class DictionaryExtensionsTest
-  {
-    public class DictionaryEqualsMethod
+    public class DictionaryExtensionsTest
     {
-      [Fact]
-      public void ReturnsTrue()
-      {
-        var dict1 = new Dictionary<string, string>
+        public class DictionaryEqualsMethod
         {
-          {"k1", "v1"},
-          {"k2", "v2"},
-          {"k3", "v3"},
-        };
-        var dict2 = new Dictionary<string, string>
+            [Fact]
+            public void ReturnsTrue()
+            {
+                var dict1 = new Dictionary<string, string>
+                {
+                    { "k1", "v1" },
+                    { "k2", "v2" },
+                    { "k3", "v3" },
+                };
+                var dict2 = new Dictionary<string, string>
+                {
+                    { "k1", "v1" },
+                    { "k2", "v2" },
+                    { "k3", "v3" },
+                };
+
+                var result = dict1.DictionaryEquals(dict2);
+
+                result.Should().BeTrue();
+            }
+
+            [Fact]
+            public void ReturnsTrueWhenEqualReference()
+            {
+                var dict1 = new Dictionary<string, string>
+                {
+                    { "k1", "v1" },
+                    { "k2", "v2" },
+                    { "k3", "v3" },
+                };
+                var dict2 = dict1;
+
+                var result = dict1.DictionaryEquals(dict2);
+
+                result.Should().BeTrue();
+            }
+
+            [Fact]
+            public void ReturnsTrueWhenOrderDiffers()
+            {
+                var dict2 = new Dictionary<string, string>
+                {
+                    { "k1", "v1" },
+                    { "k2", "v2" },
+                    { "k3", "v3" },
+                };
+                var dict1 = new Dictionary<string, string>
+                {
+                    { "k1", "v1" },
+                    { "k3", "v3" }, // нарушен порядок
+                    { "k2", "v2" },
+                };
+
+                var result = dict1.DictionaryEquals(dict2);
+
+                result.Should().BeTrue();
+            }
+
+            [Fact]
+            public void ReturnsFalseWhenNull()
+            {
+                var dict1 = new Dictionary<string, string>
+                {
+                    { "k1", "v1" },
+                    { "k2", "v2" },
+                    { "k3", "v3" },
+                };
+                Dictionary<string, string> dict2 = null;
+
+                var result = dict1.DictionaryEquals(dict2);
+
+                result.Should().BeFalse();
+            }
+
+            [Fact]
+            public void ReturnsFalseWhenValueDiffers()
+            {
+                var dict1 = new Dictionary<string, string>
+                {
+                    { "k1", "v1" },
+                    { "k2", "v2" },
+                    { "k3", "v3" },
+                };
+                var dict2 = new Dictionary<string, string>
+                {
+                    { "k1", "v1" },
+                    { "k2", "v2" },
+                    { "k3", "v4" }, // другое значение
+                };
+
+                var result = dict1.DictionaryEquals(dict2);
+
+                result.Should().BeFalse();
+            }
+
+            [Fact]
+            public void ReturnsFalseWhenKeyDiffers()
+            {
+                var dict1 = new Dictionary<string, string>
+                {
+                    { "k1", "v1" },
+                    { "k2", "v2" },
+                    { "k3", "v3" },
+                };
+                var dict2 = new Dictionary<string, string>
+                {
+                    { "k1", "v1" },
+                    { "k2", "v2" },
+                    { "k4", "v3" }, // другой ключ
+                };
+
+                var result = dict1.DictionaryEquals(dict2);
+
+                result.Should().BeFalse();
+            }
+
+            [Fact]
+            public void ReturnsFalseWhenFirstIsBigger()
+            {
+                var dict1 = new Dictionary<string, string>
+                {
+                    { "k1", "v1" },
+                    { "k2", "v2" },
+                    { "k3", "v3" },
+                };
+                var dict2 = new Dictionary<string, string> { { "k1", "v1" }, { "k2", "v2" } };
+
+                var result = dict1.DictionaryEquals(dict2);
+
+                result.Should().BeFalse();
+            }
+
+            [Fact]
+            public void ReturnsFalseWhenSecondIsBigger()
+            {
+                var dict1 = new Dictionary<string, string> { { "k1", "v1" }, { "k2", "v2" } };
+                var dict2 = new Dictionary<string, string>
+                {
+                    { "k1", "v1" },
+                    { "k2", "v2" },
+                    { "k3", "v3" },
+                };
+
+                var result = dict1.DictionaryEquals(dict2);
+
+                result.Should().BeFalse();
+            }
+        }
+
+        public class AddWithUniquePostfixIfNeededMethod
         {
-          {"k1", "v1"},
-          {"k2", "v2"},
-          {"k3", "v3"},
-        };
+            [Fact]
+            public void AddsCorrectKeyValuePairs()
+            {
+                var dict = new Dictionary<string, string>();
 
-        var result = dict1.DictionaryEquals(dict2);
+                dict.AddWithUniquePostfixIfNeeded("a", "value1");
+                dict.AddWithUniquePostfixIfNeeded("b", "value2");
+                dict.AddWithUniquePostfixIfNeeded("c", "value3");
+                dict.AddWithUniquePostfixIfNeeded("c", "value4");
+                dict.AddWithUniquePostfixIfNeeded("c", "value5");
 
-        result.Should().BeTrue();
-      }
+                dict.Should()
+                    .Equal(
+                        new Dictionary<string, string>
+                        {
+                            { "a", "value1" },
+                            { "b", "value2" },
+                            { "c", "value3" },
+                            { "c_1", "value4" },
+                            { "c_2", "value5" },
+                        }
+                    );
+            }
+        }
 
-
-      [Fact]
-      public void ReturnsTrueWhenEqualReference()
-      {
-        var dict1 = new Dictionary<string, string>
+        public class ValueOrDefaultMethod
         {
-          {"k1", "v1"},
-          {"k2", "v2"},
-          {"k3", "v3"},
-        };
-        var dict2 = dict1;
+            [Fact]
+            public void ReturnsValue_WhenKeyExists()
+            {
+                var dict = new Dictionary<string, string> { { "key", "value" } };
 
-        var result = dict1.DictionaryEquals(dict2);
+                var result = dict.ValueOrDefault("key", "default");
 
-        result.Should().BeTrue();
-      }
+                result.Should().Be("value");
+            }
 
+            [Fact]
+            public void ReturnsDefault_WhenKeyMissing()
+            {
+                var dict = new Dictionary<string, int> { { "a", 1 } };
 
-      [Fact]
-      public void ReturnsTrueWhenOrderDiffers()
-      {
-        var dict2 = new Dictionary<string, string>
+                var result = dict.ValueOrDefault("b", 42);
+
+                result.Should().Be(42);
+            }
+
+            [Fact]
+            public void ReturnsValueFromProvider_WhenKeyMissing()
+            {
+                var dict = new Dictionary<string, string> { { "a", "x" } };
+
+                var result = dict.ValueOrDefault("b", () => "fallback");
+
+                result.Should().Be("fallback");
+            }
+        }
+
+        public class ValueOrFirstMethod
         {
-          {"k1", "v1"},
-          {"k2", "v2"},
-          {"k3", "v3"},
-        };
-        var dict1 = new Dictionary<string, string>
-        {
-          {"k1", "v1"},
-          {"k3", "v3"}, // нарушен порядок
-          {"k2", "v2"},
-        };
+            [Fact]
+            public void ReturnsValue_WhenKeyExists()
+            {
+                var dict = new Dictionary<string, string> { { "key", "value" } };
 
-        var result = dict1.DictionaryEquals(dict2);
+                var result = dict.ValueOrFirst("key");
 
-        result.Should().BeTrue();
-      }
+                result.Should().Be("value");
+            }
 
+            [Fact]
+            public void ReturnsFirstValue_WhenKeyMissingAndDictNotEmpty()
+            {
+                var dict = new Dictionary<string, string> { { "a", "first" } };
 
-      [Fact]
-      public void ReturnsFalseWhenNull()
-      {
-        var dict1 = new Dictionary<string, string>
-        {
-          {"k1", "v1"},
-          {"k2", "v2"},
-          {"k3", "v3"},
-        };
-        Dictionary<string, string> dict2 = null;
+                var result = dict.ValueOrFirst("missing");
 
-        var result = dict1.DictionaryEquals(dict2);
-
-        result.Should().BeFalse();
-      }
-
-
-      [Fact]
-      public void ReturnsFalseWhenValueDiffers()
-      {
-        var dict1 = new Dictionary<string, string>
-        {
-          {"k1", "v1"},
-          {"k2", "v2"},
-          {"k3", "v3"},
-        };
-        var dict2 = new Dictionary<string, string>
-        {
-          {"k1", "v1"},
-          {"k2", "v2"},
-          {"k3", "v4"}, // другое значение
-        };
-
-        var result = dict1.DictionaryEquals(dict2);
-
-        result.Should().BeFalse();
-      }
-
-
-      [Fact]
-      public void ReturnsFalseWhenKeyDiffers()
-      {
-        var dict1 = new Dictionary<string, string>
-        {
-          {"k1", "v1"},
-          {"k2", "v2"},
-          {"k3", "v3"},
-        };
-        var dict2 = new Dictionary<string, string>
-        {
-          {"k1", "v1"},
-          {"k2", "v2"},
-          {"k4", "v3"}, // другой ключ
-        };
-
-        var result = dict1.DictionaryEquals(dict2);
-
-        result.Should().BeFalse();
-      }
-
-
-      [Fact]
-      public void ReturnsFalseWhenFirstIsBigger()
-      {
-        var dict1 = new Dictionary<string, string>
-        {
-          {"k1", "v1"},
-          {"k2", "v2"},
-          {"k3", "v3"},
-        };
-        var dict2 = new Dictionary<string, string>
-        {
-          {"k1", "v1"},
-          {"k2", "v2"},
-        };
-
-        var result = dict1.DictionaryEquals(dict2);
-
-        result.Should().BeFalse();
-      }
-
-
-      [Fact]
-      public void ReturnsFalseWhenSecondIsBigger()
-      {
-        var dict1 = new Dictionary<string, string>
-        {
-          {"k1", "v1"},
-          {"k2", "v2"},
-        };
-        var dict2 = new Dictionary<string, string>
-        {
-          {"k1", "v1"},
-          {"k2", "v2"},
-          {"k3", "v3"},
-        };
-
-        var result = dict1.DictionaryEquals(dict2);
-
-        result.Should().BeFalse();
-      }
+                result.Should().Be("first");
+            }
+        }
     }
-
-
-    public class AddWithUniquePostfixIfNeededMethod
-    {
-      [Fact]
-      public void AddsCorrectKeyValuePairs()
-      {
-        var dict = new Dictionary<string, string>();
-
-        dict.AddWithUniquePostfixIfNeeded("a", "value1");
-        dict.AddWithUniquePostfixIfNeeded("b", "value2");
-        dict.AddWithUniquePostfixIfNeeded("c", "value3");
-        dict.AddWithUniquePostfixIfNeeded("c", "value4");
-        dict.AddWithUniquePostfixIfNeeded("c", "value5");
-
-        dict.Should().Equal(new Dictionary<string, string>
-        {
-          {"a", "value1"}, 
-          {"b", "value2"},
-          {"c", "value3"},
-          {"c_1", "value4"},
-          {"c_2", "value5"},
-        });
-      }
-    }
-
-
-    public class ValueOrDefaultMethod
-    {
-      [Fact]
-      public void ReturnsValue_WhenKeyExists()
-      {
-        var dict = new Dictionary<string, string> { {"key", "value"} };
-
-        var result = dict.ValueOrDefault("key", "default");
-
-        result.Should().Be("value");
-      }
-
-
-      [Fact]
-      public void ReturnsDefault_WhenKeyMissing()
-      {
-        var dict = new Dictionary<string, int> { {"a", 1} };
-
-        var result = dict.ValueOrDefault("b", 42);
-
-        result.Should().Be(42);
-      }
-
-
-      [Fact]
-      public void ReturnsValueFromProvider_WhenKeyMissing()
-      {
-        var dict = new Dictionary<string, string> { {"a", "x"} };
-
-        var result = dict.ValueOrDefault("b", () => "fallback");
-
-        result.Should().Be("fallback");
-      }
-    }
-
-
-    public class ValueOrFirstMethod
-    {
-      [Fact]
-      public void ReturnsValue_WhenKeyExists()
-      {
-        var dict = new Dictionary<string, string> { {"key", "value"} };
-
-        var result = dict.ValueOrFirst("key");
-
-        result.Should().Be("value");
-      }
-
-
-      [Fact]
-      public void ReturnsFirstValue_WhenKeyMissingAndDictNotEmpty()
-      {
-        var dict = new Dictionary<string, string> { {"a", "first"} };
-
-        var result = dict.ValueOrFirst("missing");
-
-        result.Should().Be("first");
-      }
-    }
-  }
 }

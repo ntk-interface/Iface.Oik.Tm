@@ -9,188 +9,190 @@ namespace Iface.Oik.Tm.Native.Api;
 
 public static partial class TmNativeApi
 {
-  public static (nint, DateTime) OpenConfigurationTree(nint cfCif, string host, string fileName)
-  {
-    var fileTime = new TmNativeDefsUnsafe.FileTime();
-
-    var pool   = ArrayPool<byte>.Shared;
-    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
-
-    try
+    public static (nint, DateTime) OpenConfigurationTree(nint cfCif, string host, string fileName)
     {
-      var cfTreeRoot = TmNative.cfsConfFileOpenCid(cfCif,
-                                                   host,
-                                                   fileName,
-                                                   30000 | TmNativeDefs.FailIfNoConnect,
-                                                   ref fileTime,
-                                                   out var errCode,
-                                                   errBuf,
-                                                   TmNativeDefsUnsafe.ErrorBufSize);
+        var fileTime = new TmNativeDefsUnsafe.FileTime();
 
-      if (cfTreeRoot == nint.Zero)
-      {
-        if (errCode == 2)
+        var pool = ArrayPool<byte>.Shared;
+        var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+
+        try
         {
-          return (nint.Zero, DateTime.MinValue);
+            var cfTreeRoot = TmNative.cfsConfFileOpenCid(
+                cfCif,
+                host,
+                fileName,
+                30000 | TmNativeDefs.FailIfNoConnect,
+                ref fileTime,
+                out var errCode,
+                errBuf,
+                TmNativeDefsUnsafe.ErrorBufSize
+            );
+
+            if (cfTreeRoot == nint.Zero)
+            {
+                if (errCode == 2)
+                {
+                    return (nint.Zero, DateTime.MinValue);
+                }
+
+                throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
+            }
+
+            return (cfTreeRoot, TmNativeUtil.GetTimeFromFileTime(fileTime));
+        }
+        finally
+        {
+            pool.Return(errBuf);
+        }
+    }
+
+    public static bool SaveConfigurationTree(nint treeHandle, string host, string fileName)
+    {
+        var fileTime = new TmNativeDefsUnsafe.FileTime();
+
+        var pool = ArrayPool<byte>.Shared;
+        var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
+
+        try
+        {
+            var result = TmNative.cfsConfFileSaveAs(
+                treeHandle,
+                host,
+                fileName,
+                30000 | TmNativeDefs.FailIfNoConnect,
+                ref fileTime,
+                out var errCode,
+                errBuf,
+                TmNativeDefsUnsafe.ErrorBufSize
+            );
+
+            if (errCode != 0)
+            {
+                throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
+            }
+
+            return result;
+        }
+        finally
+        {
+            pool.Return(errBuf);
+        }
+    }
+
+    public static void FreeTreeHandle(nint nodeHandle)
+    {
+        TmNative.cftNodeFreeTree(nodeHandle);
+    }
+
+    public static nint NodeEnumAll(nint handle, int index)
+    {
+        return TmNative.cftNodeEnumAll(handle, index);
+    }
+
+    public static nint NodeGetNextAll(nint handle)
+    {
+        return TmNative.cftNodeGetNextAll(handle);
+    }
+
+    public static bool NodeIsEnabled(nint handle)
+    {
+        return TmNative.cftNodeIsEnabled(handle);
+    }
+
+    public static string GetNodeName(nint nodeHandle)
+    {
+        Span<byte> nameBuf = stackalloc byte[TmNativeDefsUnsafe.CftNameBufSize];
+        TmNative.cftNodeGetName(nodeHandle, nameBuf, TmNativeDefsUnsafe.CftNameBufSize);
+
+        return TmNativeUtil.BytesToString(nameBuf);
+    }
+
+    public static string GetNodePropertyName(nint nodeHandle, int index)
+    {
+        Span<byte> nameBuf = stackalloc byte[TmNativeDefsUnsafe.CftNameBufSize];
+
+        TmNative.cftNPropEnum(nodeHandle, index, nameBuf, TmNativeDefsUnsafe.CftNameBufSize);
+
+        return TmNativeUtil.BytesToString(nameBuf);
+    }
+
+    public static string GetNodePropertyValue(nint nodeHandle, string propName)
+    {
+        var ptr = TmNative.cftNPropGetText(nodeHandle, propName, Span<byte>.Empty, 0);
+
+        if (ptr == nint.Zero)
+        {
+            return string.Empty;
         }
 
-        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
-      }
+        var value = TmNativeUtil.GetCStringFromIntPtr(ptr);
 
-      return (cfTreeRoot, TmNativeUtil.GetTimeFromFileTime(fileTime));
+        TmNative.cfsFreeMemory(ptr);
+
+        return value;
     }
-    finally
+
+    public static nint CreateNewTree()
     {
-      pool.Return(errBuf);
+        return TmNative.cftNodeNewTree();
     }
-  }
 
-  public static bool SaveConfigurationTree(nint treeHandle, string host, string fileName)
-  {
-    var fileTime = new TmNativeDefsUnsafe.FileTime();
-
-    var pool   = ArrayPool<byte>.Shared;
-    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
-
-    try
+    public static nint CreateChildNode(nint parentHandle, string nodeTag)
     {
-      var result = TmNative.cfsConfFileSaveAs(treeHandle,
-                                              host,
-                                              fileName,
-                                              30000 | TmNativeDefs.FailIfNoConnect,
-                                              ref fileTime,
-                                              out var errCode,
-                                              errBuf,
-                                              TmNativeDefsUnsafe.ErrorBufSize);
+        var childHandle = TmNative.cftNodeInsertDown(parentHandle, nodeTag);
 
-      if (errCode != 0)
-      {
-        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
-      }
-
-      return result;
+        return childHandle;
     }
-    finally
+
+    public static void SetNodeEnabledState(nint nodeHandle, bool isEnabled)
     {
-      pool.Return(errBuf);
+        TmNative.cftNodeEnable(nodeHandle, isEnabled);
     }
-  }
 
-  public static void FreeTreeHandle(nint nodeHandle)
-  {
-    TmNative.cftNodeFreeTree(nodeHandle);
-  }
-
-
-  public static nint NodeEnumAll(nint handle, int index)
-  {
-    return TmNative.cftNodeEnumAll(handle, index);
-  }
-
-  public static nint NodeGetNextAll(nint handle)
-  {
-    return TmNative.cftNodeGetNextAll(handle);
-  }
-
-  public static bool NodeIsEnabled(nint handle)
-  {
-    return TmNative.cftNodeIsEnabled(handle);
-  }
-
-  public static string GetNodeName(nint nodeHandle)
-  {
-    Span<byte> nameBuf = stackalloc byte[TmNativeDefsUnsafe.CftNameBufSize];
-    TmNative.cftNodeGetName(nodeHandle, nameBuf, TmNativeDefsUnsafe.CftNameBufSize);
-
-    return TmNativeUtil.BytesToString(nameBuf);
-  }
-
-  public static string GetNodePropertyName(nint nodeHandle, int index)
-  {
-    Span<byte> nameBuf = stackalloc byte[TmNativeDefsUnsafe.CftNameBufSize];
-
-    TmNative.cftNPropEnum(nodeHandle, index, nameBuf, TmNativeDefsUnsafe.CftNameBufSize);
-
-    return TmNativeUtil.BytesToString(nameBuf);
-  }
-
-  public static string GetNodePropertyValue(nint nodeHandle, string propName)
-  {
-    var ptr = TmNative.cftNPropGetText(nodeHandle, propName, Span<byte>.Empty, 0);
-
-    if (ptr == nint.Zero)
+    public static bool SetNodeProperty(nint nodeHandle, string propertyName, string propertyText)
     {
-      return string.Empty;
+        return TmNative.cftNPropSet(nodeHandle, propertyName, propertyText);
     }
 
-    var value = TmNativeUtil.GetCStringFromIntPtr(ptr);
-
-    TmNative.cfsFreeMemory(ptr);
-
-    return value;
-  }
-
-  public static nint CreateNewTree()
-  {
-    return TmNative.cftNodeNewTree();
-  }
-
-  public static nint CreateChildNode(nint   parentHandle,
-                                     string nodeTag)
-  {
-    var childHandle = TmNative.cftNodeInsertDown(parentHandle, nodeTag);
-
-
-    return childHandle;
-  }
-
-  public static void SetNodeEnabledState(nint nodeHandle,
-                                         bool isEnabled)
-  {
-    TmNative.cftNodeEnable(nodeHandle, isEnabled);
-  }
-
-  public static bool SetNodeProperty(nint   nodeHandle,
-                                     string propertyName,
-                                     string propertyText)
-  {
-    return TmNative.cftNPropSet(nodeHandle, propertyName, propertyText);
-  }
-
-  public static IReadOnlyCollection<string> EditGrab(nint   cfCid,
-                                                     bool   grab,
-                                                     string fileName,
-                                                     string username)
-  {
-    var pool   = ArrayPool<byte>.Shared;
-    var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
-
-    try
+    public static IReadOnlyCollection<string> EditGrab(
+        nint cfCid,
+        bool grab,
+        string fileName,
+        string username
+    )
     {
-      var usersPtr = TmNative.cfsEditGrabCid(cfCid,
-                                             grab,
-                                             fileName,
-                                             username,
-                                             out var errCode,
-                                             errBuf,
-                                             TmNativeDefsUnsafe.ErrorBufSize);
+        var pool = ArrayPool<byte>.Shared;
+        var errBuf = pool.Rent(TmNativeDefsUnsafe.ErrorBufSize);
 
-      if (errCode != 0)
-      {
-        throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
-      }
+        try
+        {
+            var usersPtr = TmNative.cfsEditGrabCid(
+                cfCid,
+                grab,
+                fileName,
+                username,
+                out var errCode,
+                errBuf,
+                TmNativeDefsUnsafe.ErrorBufSize
+            );
 
-      var stringList = TmNativeUtil.GetStringsListFromIntPtr(usersPtr);
+            if (errCode != 0)
+            {
+                throw new TmNativeException(TmNativeUtil.BytesToString(errBuf), errCode);
+            }
 
-      TmNative.cfsFreeMemory(usersPtr);
+            var stringList = TmNativeUtil.GetStringsListFromIntPtr(usersPtr);
 
-      return stringList.Count == 1 && string.IsNullOrEmpty(stringList.First()) 
-               ? Array.Empty<string>() 
-               : stringList;
+            TmNative.cfsFreeMemory(usersPtr);
+
+            return stringList.Count == 1 && string.IsNullOrEmpty(stringList.First())
+                ? Array.Empty<string>()
+                : stringList;
+        }
+        finally
+        {
+            pool.Return(errBuf);
+        }
     }
-    finally
-    {
-      pool.Return(errBuf);
-    }
-  }
 }

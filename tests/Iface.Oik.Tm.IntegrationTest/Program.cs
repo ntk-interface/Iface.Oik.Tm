@@ -11,48 +11,53 @@ namespace Iface.Oik.Tm.IntegrationTest;
 
 public class Program
 {
-  public static void Main(string[] args)
-  {
-    Tms.InitNativeLibrary();
-
-    // Сначала проверяем статические методы
-    TestStaticTms.DoWork();
-
-    // Потом проверяем API, имитируя типовую задачу
-    var app = CreateHostBuilder(args).Build();
-    using (var scope = app.Services.CreateScope())
+    public static void Main(string[] args)
     {
-      try
-      {
-        scope.ServiceProvider.GetRequiredService<TmStartup>().TryConnect();
-      }
-      catch (Exception ex)
-      {
-        Log.Error(ex.Message);
+        Tms.InitNativeLibrary();
+
+        // Сначала проверяем статические методы
+        TestStaticTms.DoWork();
+
+        // Потом проверяем API, имитируя типовую задачу
+        var app = CreateHostBuilder(args).Build();
+        using (var scope = app.Services.CreateScope())
+        {
+            try
+            {
+                scope.ServiceProvider.GetRequiredService<TmStartup>().TryConnect();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+                Log.ExitMessage();
+                Environment.Exit(-1);
+            }
+        }
+
+        app.Run();
         Log.ExitMessage();
-        Environment.Exit(-1);
-      }
     }
 
-    app.Run();
-    Log.ExitMessage();
-  }
+    private static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureServices(services =>
+            {
+                services.AddSingleton<ITmsApi, TmsApi>();
+                services.AddSingleton<IOikSqlApi, OikSqlApi>();
+                services.AddSingleton<IOikDataApi, OikDataApi>();
+                services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
+                services.AddSingleton<ServerService>();
+                services.AddSingleton<ICommonServerService>(provider =>
+                    provider.GetRequiredService<ServerService>()
+                );
+                services.AddSingleton<TmStartup>();
 
-
-  private static IHostBuilder CreateHostBuilder(string[] args) =>
-    Host.CreateDefaultBuilder(args)
-        .ConfigureServices(services =>
-        {
-          services.AddSingleton<ITmsApi, TmsApi>();
-          services.AddSingleton<IOikSqlApi, OikSqlApi>();
-          services.AddSingleton<IOikDataApi, OikDataApi>();
-          services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
-          services.AddSingleton<ServerService>();
-          services.AddSingleton<ICommonServerService>(provider => provider.GetRequiredService<ServerService>());
-          services.AddSingleton<TmStartup>();
-
-          services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<TmStartup>());
-          services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<ServerService>());
-          services.AddHostedService<TestApi>();
-        });
+                services.AddSingleton<IHostedService>(provider =>
+                    provider.GetRequiredService<TmStartup>()
+                );
+                services.AddSingleton<IHostedService>(provider =>
+                    provider.GetRequiredService<ServerService>()
+                );
+                services.AddHostedService<TestApi>();
+            });
 }

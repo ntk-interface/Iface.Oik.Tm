@@ -4,129 +4,116 @@ using Iface.Oik.Tm.Native.Interfaces;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public class TmEventElix : IComparable, IComparable<TmEventElix>
-  {
-    public ulong R { get; } // reserved
-    public ulong M { get; } // main
-
-
-    public TmEventElix(ulong r, ulong m)
+    public class TmEventElix : IComparable, IComparable<TmEventElix>
     {
-      R = r;
-      M = m;
+        public ulong R { get; } // reserved
+        public ulong M { get; } // main
+
+        public TmEventElix(ulong r, ulong m)
+        {
+            R = r;
+            M = m;
+        }
+
+        public static TmEventElix CreateFromByteArray(byte[] bytes)
+        {
+            return new TmEventElix(
+                BitConverter.ToUInt64(bytes, 0),
+                BitConverter.ToUInt64(bytes, 8)
+            );
+        }
+
+        public byte[] ToByteArray()
+        {
+            var bytes = new byte[16];
+            BitConverter.GetBytes(R).CopyTo(bytes, 0);
+            BitConverter.GetBytes(M).CopyTo(bytes, 8);
+            return bytes;
+        }
+
+        public string ToStringByteArray()
+        {
+            return BitConverter.ToString(ToByteArray());
+        }
+
+        public override int GetHashCode()
+        {
+            return (R, M).GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as TmEventElix);
+        }
+
+        public bool Equals(TmEventElix comparison)
+        {
+            if (ReferenceEquals(comparison, null))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, comparison))
+            {
+                return true;
+            }
+
+            return M == comparison.M && R == comparison.R;
+        }
+
+        public static bool operator ==(TmEventElix left, TmEventElix right)
+        {
+            if (ReferenceEquals(left, null))
+            {
+                return ReferenceEquals(right, null);
+            }
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(TmEventElix left, TmEventElix right)
+        {
+            return !(left == right);
+        }
+
+        public int CompareTo(TmEventElix other)
+        {
+            if (M == other.M && R == other.R)
+            {
+                return 0;
+            }
+            if (M > other.M)
+            {
+                return 1;
+            }
+            if (M == other.M && R > other.R)
+            {
+                return 1;
+            }
+            return -1;
+        }
+
+        public override string ToString()
+        {
+            return $"{M}.{R}";
+        }
+
+        public int CompareTo(object obj)
+        {
+            if (!(obj is TmEventElix tmEventElix))
+            {
+                throw new ArgumentException($"Argument must be of {nameof(TmEventElix)} type");
+            }
+
+            return CompareTo(tmEventElix);
+        }
+
+        public static byte[] FlattenElixList(IReadOnlyList<byte[]> elixList)
+        {
+            var result = new byte[elixList.Count * 16];
+            for (var i = 0; i < elixList.Count; i++)
+            {
+                elixList[i].CopyTo(result, i * 16);
+            }
+            return result;
+        }
     }
-
-
-    public static TmEventElix CreateFromByteArray(byte[] bytes)
-    {
-      return new TmEventElix(BitConverter.ToUInt64(bytes, 0),
-                             BitConverter.ToUInt64(bytes, 8));
-    }
-
-
-    public byte[] ToByteArray()
-    {
-      var bytes = new byte[16];
-      BitConverter.GetBytes(R).CopyTo(bytes, 0);
-      BitConverter.GetBytes(M).CopyTo(bytes, 8);
-      return bytes;
-    }
-
-
-    public string ToStringByteArray()
-    {
-      return BitConverter.ToString(ToByteArray());
-    }
-
-
-    public override int GetHashCode()
-    {
-      return (R, M).GetHashCode();
-    }
-
-
-    public override bool Equals(object obj)
-    {
-      return Equals(obj as TmEventElix);
-    }
-
-
-    public bool Equals(TmEventElix comparison)
-    {
-      if (ReferenceEquals(comparison, null))
-      {
-        return false;
-      }
-      if (ReferenceEquals(this, comparison))
-      {
-        return true;
-      }
-
-      return M == comparison.M &&
-             R == comparison.R;
-    }
-
-
-    public static bool operator ==(TmEventElix left, TmEventElix right)
-    {
-      if (ReferenceEquals(left, null))
-      {
-        return ReferenceEquals(right, null);
-      }
-      return left.Equals(right);
-    }
-
-
-    public static bool operator !=(TmEventElix left, TmEventElix right)
-    {
-      return !(left == right);
-    }
-
-
-    public int CompareTo(TmEventElix other)
-    {
-      if (M == other.M &&
-          R == other.R)
-      {
-        return 0;
-      }
-      if (M > other.M)
-      {
-        return 1;
-      }
-      if (M == other.M &&
-          R > other.R)
-      {
-        return 1;
-      }
-      return -1;
-    }
-
-
-    public override string ToString()
-    {
-      return $"{M}.{R}";
-    }
-
-    public int CompareTo(object obj)
-    {
-      if (!(obj is TmEventElix tmEventElix))
-      {
-        throw new ArgumentException($"Argument must be of {nameof(TmEventElix)} type");
-      }
-
-      return CompareTo(tmEventElix);
-    }
-
-
-    public static byte[] FlattenElixList(IReadOnlyList<byte[]> elixList)
-    {
-      var result = new byte[elixList.Count * 16];
-      for (var i = 0; i < elixList.Count; i++)
-      {
-        elixList[i].CopyTo(result, i * 16);
-      }
-      return result;
-    }
-  }
 }

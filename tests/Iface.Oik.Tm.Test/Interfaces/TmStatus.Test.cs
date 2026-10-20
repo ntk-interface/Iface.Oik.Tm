@@ -4,388 +4,405 @@ using Xunit;
 
 namespace Iface.Oik.Tm.Test.Interfaces
 {
-  public class TmStatusTest
-  {
-    public class Constructor
+    public class TmStatusTest
     {
-      [Theory, TmAutoData]
-      public void ConstructsFromChRtuPointCorrectly(int ch, int rtu, int point)
-      {
-        var tmStatus = new TmStatus(ch, rtu, point);
-
-        Assert.Equal(TmType.Status, tmStatus.Type);
-        Assert.Equal(ch,            tmStatus.TmAddr.Ch);
-        Assert.Equal(rtu,           tmStatus.TmAddr.Rtu);
-        Assert.Equal(point,         tmStatus.TmAddr.Point);
-      }
-
-
-      [Theory, TmAutoData]
-      public void ConstructsFromTmAddrCorrectly(int ch, int rtu, int point)
-      {
-        var tmAddr = new TmAddr(TmType.Status, ch, rtu, point);
-
-        var tmStatus = new TmStatus(tmAddr);
-
-        Assert.Equal(TmType.Status, tmStatus.Type);
-        Assert.Equal(ch,            tmStatus.TmAddr.Ch);
-        Assert.Equal(rtu,           tmStatus.TmAddr.Rtu);
-        Assert.Equal(point,         tmStatus.TmAddr.Point);
-      }
-    }
-
-
-    public class StatusCaptionProperty
-    {
-      [Theory]
-      [InlineData(false, false, 0, TmS2Flags.None,         "ОТКЛ")]
-      [InlineData(false, true,  0, TmS2Flags.None,         "СНЯТ")]
-      [InlineData(false, false, 1, TmS2Flags.None,         "ВКЛ")]
-      [InlineData(false, true,  1, TmS2Flags.None,         "ВЗВЕДЕН")]
-      [InlineData(false, false, 0, TmS2Flags.Break,        "00-Обрыв")]
-      [InlineData(false, false, 0, TmS2Flags.Malfunction,  "11-Неисправность")]
-      [InlineData(false, false, 0, TmS2Flags.Intermediate, "Промежуточное")]
-      [InlineData(true,  false, 0, TmS2Flags.None,         "отключен")]
-      [InlineData(true,  false, 1, TmS2Flags.None,         "включен")]
-      [InlineData(true,  false, 0, TmS2Flags.Break,        "обрыв")]
-      [InlineData(true,  false, 0, TmS2Flags.Malfunction,  "неиспр")]
-      [InlineData(true,  false, 0, TmS2Flags.Intermediate, "промеж")]
-      [InlineData(true,  false, 2, TmS2Flags.None,         "???")]
-      public void ReturnsCorrectCaption(bool   useClassData, bool isAps, short status, TmS2Flags s2Flags,
-                                        string expected)
-      {
-        var tmStatus = new TmStatus(0, 1, 1) {Status = status, S2Flags = s2Flags,};
-        if (isAps)
+        public class Constructor
         {
-          tmStatus.Flags = TmFlags.StatusAps;
+            [Theory, TmAutoData]
+            public void ConstructsFromChRtuPointCorrectly(int ch, int rtu, int point)
+            {
+                var tmStatus = new TmStatus(ch, rtu, point);
+
+                Assert.Equal(TmType.Status, tmStatus.Type);
+                Assert.Equal(ch, tmStatus.TmAddr.Ch);
+                Assert.Equal(rtu, tmStatus.TmAddr.Rtu);
+                Assert.Equal(point, tmStatus.TmAddr.Point);
+            }
+
+            [Theory, TmAutoData]
+            public void ConstructsFromTmAddrCorrectly(int ch, int rtu, int point)
+            {
+                var tmAddr = new TmAddr(TmType.Status, ch, rtu, point);
+
+                var tmStatus = new TmStatus(tmAddr);
+
+                Assert.Equal(TmType.Status, tmStatus.Type);
+                Assert.Equal(ch, tmStatus.TmAddr.Ch);
+                Assert.Equal(rtu, tmStatus.TmAddr.Rtu);
+                Assert.Equal(point, tmStatus.TmAddr.Point);
+            }
         }
 
-        if (useClassData)
+        public class StatusCaptionProperty
         {
-          tmStatus.UpdateClassDataFromTmcClassData("0Txt=отключен\r\n1Txt=включен\r\nBTxt=обрыв\r\nMTxt=неиспр\r\nITxt=промеж");
+            [Theory]
+            [InlineData(false, false, 0, TmS2Flags.None, "ОТКЛ")]
+            [InlineData(false, true, 0, TmS2Flags.None, "СНЯТ")]
+            [InlineData(false, false, 1, TmS2Flags.None, "ВКЛ")]
+            [InlineData(false, true, 1, TmS2Flags.None, "ВЗВЕДЕН")]
+            [InlineData(false, false, 0, TmS2Flags.Break, "00-Обрыв")]
+            [InlineData(false, false, 0, TmS2Flags.Malfunction, "11-Неисправность")]
+            [InlineData(false, false, 0, TmS2Flags.Intermediate, "Промежуточное")]
+            [InlineData(true, false, 0, TmS2Flags.None, "отключен")]
+            [InlineData(true, false, 1, TmS2Flags.None, "включен")]
+            [InlineData(true, false, 0, TmS2Flags.Break, "обрыв")]
+            [InlineData(true, false, 0, TmS2Flags.Malfunction, "неиспр")]
+            [InlineData(true, false, 0, TmS2Flags.Intermediate, "промеж")]
+            [InlineData(true, false, 2, TmS2Flags.None, "???")]
+            public void ReturnsCorrectCaption(
+                bool useClassData,
+                bool isAps,
+                short status,
+                TmS2Flags s2Flags,
+                string expected
+            )
+            {
+                var tmStatus = new TmStatus(0, 1, 1) { Status = status, S2Flags = s2Flags };
+                if (isAps)
+                {
+                    tmStatus.Flags = TmFlags.StatusAps;
+                }
+
+                if (useClassData)
+                {
+                    tmStatus.UpdateClassDataFromTmcClassData(
+                        "0Txt=отключен\r\n1Txt=включен\r\nBTxt=обрыв\r\nMTxt=неиспр\r\nITxt=промеж"
+                    );
+                }
+
+                var result = tmStatus.StatusCaption;
+
+                Assert.Equal(expected, result);
+            }
         }
 
-        var result = tmStatus.StatusCaption;
-
-        Assert.Equal(expected, result);
-      }
-    }
-
-
-    public class ToStringMethod
-    {
-      [Theory]
-      [InlineData(0,  1,  1,   1, "#TC0:1:1 = ВКЛ")]
-      [InlineData(16, 33, 257, 0, "#TC16:33:257 = ОТКЛ")]
-      public void ReturnsCorrectString(int ch, int rtu, int point, short status, string expected)
-      {
-        var tmStatus = new TmStatus(ch, rtu, point) {Status = status};
-
-        var result = tmStatus.ToString();
-
-        Assert.Equal(expected, result);
-      }
-    }
-
-
-    public class GetClassCaptionMethod
-    {
-      [Theory]
-      [InlineData(false, false, 0, TmS2Flags.None,         "ОТКЛ")]
-      [InlineData(false, true,  0, TmS2Flags.None,         "СНЯТ")]
-      [InlineData(false, false, 1, TmS2Flags.None,         "ВКЛ")]
-      [InlineData(false, true,  1, TmS2Flags.None,         "ВЗВЕДЕН")]
-      [InlineData(false, false, 0, TmS2Flags.Break,        "00-Обрыв")]
-      [InlineData(false, false, 0, TmS2Flags.Malfunction,  "11-Неисправность")]
-      [InlineData(false, false, 0, TmS2Flags.Intermediate, "Промежуточное")]
-      [InlineData(true,  false, 0, TmS2Flags.None,         "отключен")]
-      [InlineData(true,  false, 1, TmS2Flags.None,         "включен")]
-      [InlineData(true,  false, 0, TmS2Flags.Break,        "обрыв")]
-      [InlineData(true,  false, 0, TmS2Flags.Malfunction,  "неиспр")]
-      [InlineData(true,  false, 0, TmS2Flags.Intermediate, "промеж")]
-      public void ReturnsCorrectCaption(bool   useClassData, bool isAps, short status, TmS2Flags s2Flags,
-                                        string expected)
-      {
-        var tmStatus = new TmStatus(0, 1, 1);
-        if (isAps)
+        public class ToStringMethod
         {
-          tmStatus.Flags = TmFlags.StatusAps;
+            [Theory]
+            [InlineData(0, 1, 1, 1, "#TC0:1:1 = ВКЛ")]
+            [InlineData(16, 33, 257, 0, "#TC16:33:257 = ОТКЛ")]
+            public void ReturnsCorrectString(
+                int ch,
+                int rtu,
+                int point,
+                short status,
+                string expected
+            )
+            {
+                var tmStatus = new TmStatus(ch, rtu, point) { Status = status };
+
+                var result = tmStatus.ToString();
+
+                Assert.Equal(expected, result);
+            }
         }
 
-        if (useClassData)
+        public class GetClassCaptionMethod
         {
-          tmStatus.UpdateClassDataFromTmcClassData("0Txt=отключен\r\n1Txt=включен\r\nBTxt=обрыв\r\nMTxt=неиспр\r\nITxt=промеж");
+            [Theory]
+            [InlineData(false, false, 0, TmS2Flags.None, "ОТКЛ")]
+            [InlineData(false, true, 0, TmS2Flags.None, "СНЯТ")]
+            [InlineData(false, false, 1, TmS2Flags.None, "ВКЛ")]
+            [InlineData(false, true, 1, TmS2Flags.None, "ВЗВЕДЕН")]
+            [InlineData(false, false, 0, TmS2Flags.Break, "00-Обрыв")]
+            [InlineData(false, false, 0, TmS2Flags.Malfunction, "11-Неисправность")]
+            [InlineData(false, false, 0, TmS2Flags.Intermediate, "Промежуточное")]
+            [InlineData(true, false, 0, TmS2Flags.None, "отключен")]
+            [InlineData(true, false, 1, TmS2Flags.None, "включен")]
+            [InlineData(true, false, 0, TmS2Flags.Break, "обрыв")]
+            [InlineData(true, false, 0, TmS2Flags.Malfunction, "неиспр")]
+            [InlineData(true, false, 0, TmS2Flags.Intermediate, "промеж")]
+            public void ReturnsCorrectCaption(
+                bool useClassData,
+                bool isAps,
+                short status,
+                TmS2Flags s2Flags,
+                string expected
+            )
+            {
+                var tmStatus = new TmStatus(0, 1, 1);
+                if (isAps)
+                {
+                    tmStatus.Flags = TmFlags.StatusAps;
+                }
+
+                if (useClassData)
+                {
+                    tmStatus.UpdateClassDataFromTmcClassData(
+                        "0Txt=отключен\r\n1Txt=включен\r\nBTxt=обрыв\r\nMTxt=неиспр\r\nITxt=промеж"
+                    );
+                }
+
+                var classCaptionFor = HelperGetClassCaptionFor(status, s2Flags);
+
+                var result = tmStatus.GetClassCaption(classCaptionFor);
+
+                Assert.Equal(expected, result);
+            }
         }
 
-        var classCaptionFor = HelperGetClassCaptionFor(status, s2Flags);
-
-        var result = tmStatus.GetClassCaption(classCaptionFor);
-
-        Assert.Equal(expected, result);
-      }
-    }
-
-
-    public class EqualsMethod
-    {
-      [Theory, TmAutoData]
-      public void ReturnsFalseForNull(int ch, int rtu, int point)
-      {
-        var tmStatus1 = new TmStatus(ch, rtu, point);
-
-        var result = tmStatus1.Equals(null);
-
-        Assert.False(result);
-      }
-
-
-      [Theory, TmAutoData]
-      public void ReturnsFalseForWrongType(int ch, int rtu, int point)
-      {
-        var tmStatus1 = new TmStatus(ch, rtu, point);
-        var tmAnalog  = new TmAnalog(ch, rtu, point);
-
-        var result = tmStatus1.Equals(tmAnalog);
-
-        Assert.False(result);
-      }
-
-
-      [Theory, TmAutoData]
-      public void ReturnsTrue(int ch, int rtu, int point)
-      {
-        var tmStatus1 = new TmStatus(ch, rtu, point);
-        var tmStatus2 = new TmStatus(ch, rtu, point);
-
-        var result = tmStatus1.Equals(tmStatus2);
-
-        Assert.True(result);
-      }
-
-
-      [Theory, TmAutoData]
-      public void ReturnsFalseForWrongAddr(int ch, int rtu, int point)
-      {
-        var tmStatus1 = new TmStatus(ch, rtu, point);
-        var tmStatus2 = new TmStatus(ch, rtu, point + 1);
-
-        var result = tmStatus1.Equals(tmStatus2);
-
-        Assert.False(result);
-      }
-
-
-      [Theory, TmAutoData]
-      public void ReturnsFalseForWrongStatus(int ch, int rtu, int point)
-      {
-        var tmStatus1 = new TmStatus(ch, rtu, point);
-        var tmStatus2 = new TmStatus(ch, rtu, point) {Status = 1};
-
-        var result = tmStatus1.Equals(tmStatus2);
-
-        Assert.False(result);
-      }
-
-
-      [Theory, TmAutoData]
-      public void ReturnsFalseForWrongFlags(int ch, int rtu, int point)
-      {
-        var tmStatus1 = new TmStatus(ch, rtu, point);
-        var tmStatus2 = new TmStatus(ch, rtu, point) {Flags = TmFlags.Unreliable};
-
-        var result = tmStatus1.Equals(tmStatus2);
-
-        Assert.False(result);
-      }
-
-
-      [Theory, TmAutoData]
-      public void ReturnsFalseForWrongS2Flags(int ch, int rtu, int point)
-      {
-        var tmStatus1 = new TmStatus(ch, rtu, point);
-        var tmStatus2 = new TmStatus(ch, rtu, point) {S2Flags = TmS2Flags.Break};
-
-        var result = tmStatus1.Equals(tmStatus2);
-
-        Assert.False(result);
-      }
-    }
-
-
-    public class EqualityOperator
-    {
-      [Theory, TmAutoData]
-      public void ReturnsFalseForNull(int ch, int rtu, int point)
-      {
-        var tmStatus1 = new TmStatus(ch, rtu, point);
-
-        var result = tmStatus1 == null;
-
-        Assert.False(result);
-      }
-
-
-      [Fact]
-      public void ReturnsTrueForNullWhenNull()
-      {
-        TmStatus tmStatus1 = null;
-
-        var result = tmStatus1 == null;
-
-        Assert.True(result);
-      }
-
-
-      [Theory, TmAutoData]
-      public void ReturnsTrue(int ch, int rtu, int point)
-      {
-        var tmStatus1 = new TmStatus(ch, rtu, point);
-        var tmStatus2 = new TmStatus(ch, rtu, point);
-
-        var result = tmStatus1 == tmStatus2;
-
-        Assert.True(result);
-      }
-
-
-      [Theory, TmAutoData]
-      public void ReturnsFalseForWrongAddr(int ch, int rtu, int point)
-      {
-        var tmStatus1 = new TmStatus(ch, rtu, point);
-        var tmStatus2 = new TmStatus(ch, rtu, point + 1);
-
-        var result = tmStatus1 == tmStatus2;
-
-        Assert.False(result);
-      }
-
-
-      [Theory, TmAutoData]
-      public void ReturnsFalseForWrongStatus(int ch, int rtu, int point)
-      {
-        var tmStatus1 = new TmStatus(ch, rtu, point);
-        var tmStatus2 = new TmStatus(ch, rtu, point) {Status = 1};
-
-        var result = tmStatus1 == tmStatus2;
-
-        Assert.False(result);
-      }
-
-
-      [Theory, TmAutoData]
-      public void ReturnsFalseForWrongFlags(int ch, int rtu, int point)
-      {
-        var tmStatus1 = new TmStatus(ch, rtu, point);
-        var tmStatus2 = new TmStatus(ch, rtu, point) {Flags = TmFlags.Unreliable};
-
-        var result = tmStatus1 == tmStatus2;
-
-        Assert.False(result);
-      }
-
-
-      [Theory, TmAutoData]
-      public void ReturnsFalseForWrongS2Flags(int ch, int rtu, int point)
-      {
-        var tmStatus1 = new TmStatus(ch, rtu, point);
-        var tmStatus2 = new TmStatus(ch, rtu, point) {S2Flags = TmS2Flags.Break};
-
-        var result = tmStatus1 == tmStatus2;
-
-        Assert.False(result);
-      }
-    }
-
-
-    public class SetSqlPropertiesAndClassData // todo importance, normalStatus
-    {
-      [Theory]
-      [InlineData("ТС", 0, "отключен", "включен", "обрыв", "неиспр")]
-      public void SetsCorrectValuesWithClass(string name, short classId, string text0, string text1, string textB,
-                                             string textM)
-      {
-        var tmStatus = new TmStatus(0, 1, 1);
-
-        tmStatus.UpdatePropertiesFromSql(name, 0, -1, classId, text0, text1, textB, textM);
-
-        Assert.Equal(name,           tmStatus.Name);
-        Assert.Equal((byte) classId, tmStatus.ClassId);
-        Assert.Equal(text0,          tmStatus.GetClassCaption(TmStatus.ClassCaption.Off));
-        Assert.Equal(text1,          tmStatus.GetClassCaption(TmStatus.ClassCaption.On));
-        Assert.Equal(textB,          tmStatus.GetClassCaption(TmStatus.ClassCaption.Break));
-        Assert.Equal(textM,          tmStatus.GetClassCaption(TmStatus.ClassCaption.Malfunction));
-      }
-
-
-      [Theory]
-      [InlineData("ТС", -1, "отключен", "включен", "обрыв", "неиспр")]
-      public void SetsCorrectValuesWithNoClass(string name, short classId, string text0, string text1, string textB,
-                                               string textM)
-      {
-        var tmStatus = new TmStatus(0, 1, 1);
-
-        tmStatus.UpdatePropertiesFromSql(name, 0, -1, classId, text0, text1, textB, textM);
-
-        Assert.Equal(name, tmStatus.Name);
-        Assert.Null(tmStatus.ClassId);
-        Assert.Equal("ОТКЛ", tmStatus.GetClassCaption(TmStatus.ClassCaption.Off));
-        Assert.Equal("ВКЛ",  tmStatus.GetClassCaption(TmStatus.ClassCaption.On));
-      }
-    }
-
-
-    private static TmStatus.ClassCaption HelperGetClassCaptionFor(short status, TmS2Flags s2Flags)
-    {
-      if (s2Flags == TmS2Flags.Break) return TmStatus.ClassCaption.Break;
-      if (s2Flags == TmS2Flags.Malfunction) return TmStatus.ClassCaption.Malfunction;
-      if (s2Flags == TmS2Flags.Intermediate) return TmStatus.ClassCaption.Intermediate;
-      if (status  == 0) return TmStatus.ClassCaption.Off;
-      if (status  == 1) return TmStatus.ClassCaption.On;
-
-      return 0;
-    }
-
-
-    public class SetPropertiesFromDtoMethod
-    {
-      [Fact]
-      public void DoesNothingWhenDtoIsNull()
-      {
-        var tmStatus = new TmStatus(0, 1, 1);
-
-        tmStatus.UpdatePropertiesFromDto(null);
-
-        Assert.NotNull(tmStatus);
-      }
-
-
-      [Fact]
-      public void SetsCorrectValues()
-      {
-        var tmStatus = new TmStatus(0, 1, 1);
-        var dto      = new TmStatusPropertiesDto
+        public class EqualsMethod
         {
-          Name         = "Телеметрия",
-          VImportance  = 2,
-          VNormalState = 1,
-          ClassId      = 5,
-          ClText0      = "Выкл",
-          ClText1      = "Вкл",
-          ClBreakText  = "Обрыв",
-          ClMalfunText = "Неиспр",
-          Provider     = "10",
-        };
+            [Theory, TmAutoData]
+            public void ReturnsFalseForNull(int ch, int rtu, int point)
+            {
+                var tmStatus1 = new TmStatus(ch, rtu, point);
 
-        tmStatus.UpdatePropertiesFromDto(dto);
+                var result = tmStatus1.Equals(null);
 
-        Assert.Equal("Телеметрия", tmStatus.Name);
-        Assert.Equal(2,            tmStatus.Importance);
-        Assert.Equal(1,            tmStatus.NormalStatus);
-        Assert.Equal<byte?>(5, tmStatus.ClassId);
-        Assert.True(tmStatus.HasTmProvider);
-        Assert.Equal("Выкл", tmStatus.GetClassCaption(TmStatus.ClassCaption.Off));
-        Assert.Equal("Вкл",  tmStatus.GetClassCaption(TmStatus.ClassCaption.On));
-      }
+                Assert.False(result);
+            }
+
+            [Theory, TmAutoData]
+            public void ReturnsFalseForWrongType(int ch, int rtu, int point)
+            {
+                var tmStatus1 = new TmStatus(ch, rtu, point);
+                var tmAnalog = new TmAnalog(ch, rtu, point);
+
+                var result = tmStatus1.Equals(tmAnalog);
+
+                Assert.False(result);
+            }
+
+            [Theory, TmAutoData]
+            public void ReturnsTrue(int ch, int rtu, int point)
+            {
+                var tmStatus1 = new TmStatus(ch, rtu, point);
+                var tmStatus2 = new TmStatus(ch, rtu, point);
+
+                var result = tmStatus1.Equals(tmStatus2);
+
+                Assert.True(result);
+            }
+
+            [Theory, TmAutoData]
+            public void ReturnsFalseForWrongAddr(int ch, int rtu, int point)
+            {
+                var tmStatus1 = new TmStatus(ch, rtu, point);
+                var tmStatus2 = new TmStatus(ch, rtu, point + 1);
+
+                var result = tmStatus1.Equals(tmStatus2);
+
+                Assert.False(result);
+            }
+
+            [Theory, TmAutoData]
+            public void ReturnsFalseForWrongStatus(int ch, int rtu, int point)
+            {
+                var tmStatus1 = new TmStatus(ch, rtu, point);
+                var tmStatus2 = new TmStatus(ch, rtu, point) { Status = 1 };
+
+                var result = tmStatus1.Equals(tmStatus2);
+
+                Assert.False(result);
+            }
+
+            [Theory, TmAutoData]
+            public void ReturnsFalseForWrongFlags(int ch, int rtu, int point)
+            {
+                var tmStatus1 = new TmStatus(ch, rtu, point);
+                var tmStatus2 = new TmStatus(ch, rtu, point) { Flags = TmFlags.Unreliable };
+
+                var result = tmStatus1.Equals(tmStatus2);
+
+                Assert.False(result);
+            }
+
+            [Theory, TmAutoData]
+            public void ReturnsFalseForWrongS2Flags(int ch, int rtu, int point)
+            {
+                var tmStatus1 = new TmStatus(ch, rtu, point);
+                var tmStatus2 = new TmStatus(ch, rtu, point) { S2Flags = TmS2Flags.Break };
+
+                var result = tmStatus1.Equals(tmStatus2);
+
+                Assert.False(result);
+            }
+        }
+
+        public class EqualityOperator
+        {
+            [Theory, TmAutoData]
+            public void ReturnsFalseForNull(int ch, int rtu, int point)
+            {
+                var tmStatus1 = new TmStatus(ch, rtu, point);
+
+                var result = tmStatus1 == null;
+
+                Assert.False(result);
+            }
+
+            [Fact]
+            public void ReturnsTrueForNullWhenNull()
+            {
+                TmStatus tmStatus1 = null;
+
+                var result = tmStatus1 == null;
+
+                Assert.True(result);
+            }
+
+            [Theory, TmAutoData]
+            public void ReturnsTrue(int ch, int rtu, int point)
+            {
+                var tmStatus1 = new TmStatus(ch, rtu, point);
+                var tmStatus2 = new TmStatus(ch, rtu, point);
+
+                var result = tmStatus1 == tmStatus2;
+
+                Assert.True(result);
+            }
+
+            [Theory, TmAutoData]
+            public void ReturnsFalseForWrongAddr(int ch, int rtu, int point)
+            {
+                var tmStatus1 = new TmStatus(ch, rtu, point);
+                var tmStatus2 = new TmStatus(ch, rtu, point + 1);
+
+                var result = tmStatus1 == tmStatus2;
+
+                Assert.False(result);
+            }
+
+            [Theory, TmAutoData]
+            public void ReturnsFalseForWrongStatus(int ch, int rtu, int point)
+            {
+                var tmStatus1 = new TmStatus(ch, rtu, point);
+                var tmStatus2 = new TmStatus(ch, rtu, point) { Status = 1 };
+
+                var result = tmStatus1 == tmStatus2;
+
+                Assert.False(result);
+            }
+
+            [Theory, TmAutoData]
+            public void ReturnsFalseForWrongFlags(int ch, int rtu, int point)
+            {
+                var tmStatus1 = new TmStatus(ch, rtu, point);
+                var tmStatus2 = new TmStatus(ch, rtu, point) { Flags = TmFlags.Unreliable };
+
+                var result = tmStatus1 == tmStatus2;
+
+                Assert.False(result);
+            }
+
+            [Theory, TmAutoData]
+            public void ReturnsFalseForWrongS2Flags(int ch, int rtu, int point)
+            {
+                var tmStatus1 = new TmStatus(ch, rtu, point);
+                var tmStatus2 = new TmStatus(ch, rtu, point) { S2Flags = TmS2Flags.Break };
+
+                var result = tmStatus1 == tmStatus2;
+
+                Assert.False(result);
+            }
+        }
+
+        public class SetSqlPropertiesAndClassData // todo importance, normalStatus
+        {
+            [Theory]
+            [InlineData("ТС", 0, "отключен", "включен", "обрыв", "неиспр")]
+            public void SetsCorrectValuesWithClass(
+                string name,
+                short classId,
+                string text0,
+                string text1,
+                string textB,
+                string textM
+            )
+            {
+                var tmStatus = new TmStatus(0, 1, 1);
+
+                tmStatus.UpdatePropertiesFromSql(name, 0, -1, classId, text0, text1, textB, textM);
+
+                Assert.Equal(name, tmStatus.Name);
+                Assert.Equal((byte)classId, tmStatus.ClassId);
+                Assert.Equal(text0, tmStatus.GetClassCaption(TmStatus.ClassCaption.Off));
+                Assert.Equal(text1, tmStatus.GetClassCaption(TmStatus.ClassCaption.On));
+                Assert.Equal(textB, tmStatus.GetClassCaption(TmStatus.ClassCaption.Break));
+                Assert.Equal(textM, tmStatus.GetClassCaption(TmStatus.ClassCaption.Malfunction));
+            }
+
+            [Theory]
+            [InlineData("ТС", -1, "отключен", "включен", "обрыв", "неиспр")]
+            public void SetsCorrectValuesWithNoClass(
+                string name,
+                short classId,
+                string text0,
+                string text1,
+                string textB,
+                string textM
+            )
+            {
+                var tmStatus = new TmStatus(0, 1, 1);
+
+                tmStatus.UpdatePropertiesFromSql(name, 0, -1, classId, text0, text1, textB, textM);
+
+                Assert.Equal(name, tmStatus.Name);
+                Assert.Null(tmStatus.ClassId);
+                Assert.Equal("ОТКЛ", tmStatus.GetClassCaption(TmStatus.ClassCaption.Off));
+                Assert.Equal("ВКЛ", tmStatus.GetClassCaption(TmStatus.ClassCaption.On));
+            }
+        }
+
+        private static TmStatus.ClassCaption HelperGetClassCaptionFor(
+            short status,
+            TmS2Flags s2Flags
+        )
+        {
+            if (s2Flags == TmS2Flags.Break)
+                return TmStatus.ClassCaption.Break;
+            if (s2Flags == TmS2Flags.Malfunction)
+                return TmStatus.ClassCaption.Malfunction;
+            if (s2Flags == TmS2Flags.Intermediate)
+                return TmStatus.ClassCaption.Intermediate;
+            if (status == 0)
+                return TmStatus.ClassCaption.Off;
+            if (status == 1)
+                return TmStatus.ClassCaption.On;
+
+            return 0;
+        }
+
+        public class SetPropertiesFromDtoMethod
+        {
+            [Fact]
+            public void DoesNothingWhenDtoIsNull()
+            {
+                var tmStatus = new TmStatus(0, 1, 1);
+
+                tmStatus.UpdatePropertiesFromDto(null);
+
+                Assert.NotNull(tmStatus);
+            }
+
+            [Fact]
+            public void SetsCorrectValues()
+            {
+                var tmStatus = new TmStatus(0, 1, 1);
+                var dto = new TmStatusPropertiesDto
+                {
+                    Name = "Телеметрия",
+                    VImportance = 2,
+                    VNormalState = 1,
+                    ClassId = 5,
+                    ClText0 = "Выкл",
+                    ClText1 = "Вкл",
+                    ClBreakText = "Обрыв",
+                    ClMalfunText = "Неиспр",
+                    Provider = "10",
+                };
+
+                tmStatus.UpdatePropertiesFromDto(dto);
+
+                Assert.Equal("Телеметрия", tmStatus.Name);
+                Assert.Equal(2, tmStatus.Importance);
+                Assert.Equal(1, tmStatus.NormalStatus);
+                Assert.Equal<byte?>(5, tmStatus.ClassId);
+                Assert.True(tmStatus.HasTmProvider);
+                Assert.Equal("Выкл", tmStatus.GetClassCaption(TmStatus.ClassCaption.Off));
+                Assert.Equal("Вкл", tmStatus.GetClassCaption(TmStatus.ClassCaption.On));
+            }
+        }
     }
-  }
 }

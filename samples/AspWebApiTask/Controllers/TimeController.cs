@@ -5,28 +5,26 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AspWebApiTask.Controllers
 {
-  [Route("api/time")]
-  [ApiController]
-  public class TimeController : Controller
-  {
-    private readonly IOikDataApi _api;
-
-
-    public TimeController(IOikDataApi api)
+    [Route("api/time")]
+    [ApiController]
+    public class TimeController : Controller
     {
-      _api = api;
+        private readonly IOikDataApi _api;
+
+        public TimeController(IOikDataApi api)
+        {
+            _api = api;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            var time = await _api.GetSystemTimeString();
+            if (string.IsNullOrEmpty(time))
+            {
+                return StatusCode(StatusCodes.Status503ServiceUnavailable);
+            }
+            return Ok(time);
+        }
     }
-
-
-    [HttpGet]
-    public async Task<IActionResult> Index()
-    {
-      var time = await _api.GetSystemTimeString();
-      if (string.IsNullOrEmpty(time))
-      {
-        return StatusCode(StatusCodes.Status503ServiceUnavailable);
-      }
-      return Ok(time);
-    } 
-  }
 }

@@ -5,30 +5,29 @@ namespace Iface.Oik.Tm.Native.Api;
 
 public static partial class TmNativeApi
 {
-  public static int GetLastTmcError()
-  {
-    return (int)TmNative.tmcGetLastError();
-  }
-  
-  public static unsafe string GetLastTmcErrorText(int tmCid)
-  {
+    public static int GetLastTmcError()
+    {
+        return (int)TmNative.tmcGetLastError();
+    }
 
-    byte* bufPtr;
-    TmNative.tmcGetLastErrorText(tmCid, &bufPtr);
+    public static unsafe string GetLastTmcErrorText(int tmCid)
+    {
+        byte* bufPtr;
+        TmNative.tmcGetLastErrorText(tmCid, &bufPtr);
 
-    var str = TmNativeUtil.GetCStringFromBytePtr(bufPtr);
-    TmNative.tmcFreeMemory((nint)bufPtr);
+        var str = TmNativeUtil.GetCStringFromBytePtr(bufPtr);
+        TmNative.tmcFreeMemory((nint)bufPtr);
 
-    return str;
-  }
-  
-  public static string GetTmcConnectionErrorText(int tmCid)
-  {
-    const uint bufSize = 256;
-    Span<byte> buf     = stackalloc byte[(int)bufSize];
+        return str;
+    }
 
-    var result = TmNative.tmcGetConnectErrorText(tmCid, buf, bufSize);
+    public static string GetTmcConnectionErrorText(int tmCid)
+    {
+        const uint bufSize = 256;
+        Span<byte> buf = stackalloc byte[(int)bufSize];
 
-    return result ? TmNativeUtil.BytesToString(buf) : "Неизвестная ошибка";
-  }
+        var result = TmNative.tmcGetConnectErrorText(tmCid, buf, bufSize);
+
+        return result ? TmNativeUtil.BytesToString(buf) : "Неизвестная ошибка";
+    }
 }
