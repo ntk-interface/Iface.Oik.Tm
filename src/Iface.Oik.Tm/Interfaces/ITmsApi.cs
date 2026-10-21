@@ -5,399 +5,434 @@ using Iface.Oik.Tm.Dto;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public interface ITmsApi
-  {
-    void SetCid(int tmCid);
+    public interface ITmsApi
+    {
+        void SetCid(int tmCid);
 
-    Task<TmServerComputerInfo> GetServerComputerInfo();
+        Task<TmServerComputerInfo> GetServerComputerInfo();
 
-    Task<int> GetLastTmcError();
+        Task<int> GetLastTmcError();
 
-    Task<string> GetLastTmcErrorText();
+        Task<string> GetLastTmcErrorText();
 
-    string GetConnectionErrorText();
+        string GetConnectionErrorText();
 
-    Task<DateTime?> GetSystemTime();
+        Task<DateTime?> GetSystemTime();
 
-    Task<string> GetSystemTimeString();
+        Task<string> GetSystemTimeString();
 
-    Task<(string host, string server)> GetCurrentServerName();
+        Task<(string host, string server)> GetCurrentServerName();
 
-    Task<(string user, string password)> GenerateTokenForExternalApp();
+        Task<(string user, string password)> GenerateTokenForExternalApp();
 
-    Task<IntPtr> GetCfCid();
+        Task<IntPtr> GetCfCid();
 
-    Task<int> GetStatus(int ch, int rtu, int point);
+        Task<int> GetStatus(int ch, int rtu, int point);
 
-    Task<int> GetStatusFromRetro(int ch, int rtu, int point, DateTime time);
+        Task<int> GetStatusFromRetro(int ch, int rtu, int point, DateTime time);
 
-    Task SetStatus(int ch, int rtu, int point, int status);
+        Task SetStatus(int ch, int rtu, int point, int status);
 
-    Task<float> GetAnalog(int ch, int rtu, int point);
+        Task<float> GetAnalog(int ch, int rtu, int point);
 
-    Task<ITmAnalogRetro> GetAnalogFromRetro(int ch, int rtu, int point, DateTime time, int retroNum = 0);
+        Task<ITmAnalogRetro> GetAnalogFromRetro(
+            int ch,
+            int rtu,
+            int point,
+            DateTime time,
+            int retroNum = 0
+        );
 
-    Task SetAnalog(int ch, int rtu, int point, float value);
+        Task SetAnalog(int ch, int rtu, int point, float value);
 
-    Task SetAnalogByCode(int ch, int rtu, int point, int code);
+        Task SetAnalogByCode(int ch, int rtu, int point, int code);
 
-    Task<float> GetAccum(int ch, int rtu, int point);
+        Task<float> GetAccum(int ch, int rtu, int point);
 
-    Task<float> GetAccumLoad(int ch, int rtu, int point);
+        Task<float> GetAccumLoad(int ch, int rtu, int point);
 
-    Task<ITmAccumRetro> GetAccumFromRetro(int ch, int rtu, int point, DateTime time);
+        Task<ITmAccumRetro> GetAccumFromRetro(int ch, int rtu, int point, DateTime time);
 
-    Task UpdateTag(TmTag tag);
+        Task UpdateTag(TmTag tag);
 
-    Task UpdateStatus(TmStatus status);
+        Task UpdateStatus(TmStatus status);
 
-    Task UpdateStatusExplicitly(TmStatus status, bool getRealTelemetry = false);
+        Task UpdateStatusExplicitly(TmStatus status, bool getRealTelemetry = false);
 
-    Task UpdateAnalog(TmAnalog analog);
+        Task UpdateAnalog(TmAnalog analog);
 
-    Task UpdateAnalogExplicitly(TmAnalog analog,
-                                uint     time             = 0,
-                                ushort   retroNum         = 0,
-                                bool     getRealTelemetry = false);
+        Task UpdateAnalogExplicitly(
+            TmAnalog analog,
+            uint time = 0,
+            ushort retroNum = 0,
+            bool getRealTelemetry = false
+        );
 
-    Task UpdateAccum(TmAccum accum);
+        Task UpdateAccum(TmAccum accum);
 
-    
-    Task UpdateAccumExplicitly(TmAccum accum,
-                               uint    time             = 0,
-                               bool    getRealTelemetry = false);
+        Task UpdateAccumExplicitly(TmAccum accum, uint time = 0, bool getRealTelemetry = false);
 
-    Task UpdateAccumsExplicitly(IReadOnlyList<TmAccum> accums,
-                                uint                   time             = 0,
-                                bool                   getRealTelemetry = false);
+        Task UpdateAccumsExplicitly(
+            IReadOnlyList<TmAccum> accums,
+            uint time = 0,
+            bool getRealTelemetry = false
+        );
 
-    Task UpdateStatuses(IReadOnlyList<TmStatus> tmStatuses);
+        Task UpdateStatuses(IReadOnlyList<TmStatus> tmStatuses);
 
-    Task UpdateStatuses(IReadOnlyDictionary<int, TmStatus> tmStatuses);
+        Task UpdateStatuses(IReadOnlyDictionary<int, TmStatus> tmStatuses);
 
-    Task UpdateStatusesFromRetro(IReadOnlyList<TmStatus> statuses, DateTime time);
+        Task UpdateStatusesFromRetro(IReadOnlyList<TmStatus> statuses, DateTime time);
 
-    Task UpdateStatusesExplicitly(IReadOnlyList<TmStatus> statuses, bool getRealTelemetry = false);
+        Task UpdateStatusesExplicitly(
+            IReadOnlyList<TmStatus> statuses,
+            bool getRealTelemetry = false
+        );
 
-    Task UpdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs);
+        Task UpdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs);
 
-    Task UpdateAnalogs(IReadOnlyDictionary<int, TmAnalog> tmAnalogs);
+        Task UpdateAnalogs(IReadOnlyDictionary<int, TmAnalog> tmAnalogs);
 
-    Task UpdateAnalogsFromRetro(IReadOnlyList<TmAnalog> analogs, DateTime time, int retroNum = 0);
+        Task UpdateAnalogsFromRetro(
+            IReadOnlyList<TmAnalog> analogs,
+            DateTime time,
+            int retroNum = 0
+        );
 
-    Task UpdateAccums(IReadOnlyList<TmAccum> tmAccums);
+        Task UpdateAccums(IReadOnlyList<TmAccum> tmAccums);
 
-    Task UpdateAccums(IReadOnlyDictionary<int, TmAccum> tmAccums);
+        Task UpdateAccums(IReadOnlyDictionary<int, TmAccum> tmAccums);
 
-    Task UpdateAccumsFromRetro(IReadOnlyList<TmAccum> accums, DateTime time);
+        Task UpdateAccumsFromRetro(IReadOnlyList<TmAccum> accums, DateTime time);
 
+        Task UpdateAnalogsExplicitly(
+            IReadOnlyList<TmAnalog> analogs,
+            uint time = 0,
+            ushort retroNum = 0,
+            bool getRealTelemetry = false
+        );
 
-    Task UpdateAnalogsExplicitly(IReadOnlyList<TmAnalog> analogs,
-                                 uint                    time             = 0,
-                                 ushort                  retroNum         = 0,
-                                 bool                    getRealTelemetry = false);
+        Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags);
 
+        Task UpdateStatusesPropertiesAndClassData(IReadOnlyDictionary<int, TmStatus> statuses);
 
-    Task UpdateTagsPropertiesAndClassData(IReadOnlyList<TmTag> tags);
+        Task UpdateAnalogsPropertiesAndClassData(IReadOnlyDictionary<int, TmAnalog> analogs);
 
-    Task UpdateStatusesPropertiesAndClassData(IReadOnlyDictionary<int, TmStatus> statuses);
+        Task UpdateAccumsPropertiesAndClassData(IReadOnlyDictionary<int, TmAccum> accums);
 
-    Task UpdateAnalogsPropertiesAndClassData(IReadOnlyDictionary<int, TmAnalog> analogs);
+        Task UpdateTagPropertiesAndClassData(TmTag tag);
 
-    Task UpdateAccumsPropertiesAndClassData(IReadOnlyDictionary<int, TmAccum> accums);
+        Task UpdateTagsClassDataExplicitly(IReadOnlyList<TmTag> tags);
 
-    Task UpdateTagPropertiesAndClassData(TmTag tag);
+        Task UpdateTagProperties(TmTag tag);
 
-    Task UpdateTagsClassDataExplicitly(IReadOnlyList<TmTag> tags);
-    
-    Task UpdateTagProperties(TmTag tag);
-    
-    Task CreateTmTagNamedSet(string name, TmType tmType, IReadOnlyCollection<TmTag> tmTags);
-    
-    Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetAllValues(string name);
-    Task<IReadOnlyCollection<TmAnalogRecord>> GetTmAnalogNamedSetAllValues(string name);
-    Task<IReadOnlyCollection<TmAccumRecord>>  GetTmAccumNamedSetAllValues(string  name);
-    
-    Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetUpdatedValues(string name);
-    Task<IReadOnlyCollection<TmAnalogRecord>> GetTmAnalogNamedSetUpdatedValues(string name);
-    Task<IReadOnlyCollection<TmAccumRecord>>  GetTmAccumNamedSetUpdatedValues(string name);
-    
-    Task DeleteTmTagNamedSet(string name, TmType tmType);
-    
-    Task UpdateAnalogsClassDataExplicitly(IReadOnlyList<TmAnalog> tmAnalogs);
+        Task CreateTmTagNamedSet(string name, TmType tmType, IReadOnlyCollection<TmTag> tmTags);
 
-    Task UpdateStatusesClassDataExplicitly(IReadOnlyList<TmStatus> tmStatus);
+        Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetAllValues(string name);
+        Task<IReadOnlyCollection<TmAnalogRecord>> GetTmAnalogNamedSetAllValues(string name);
+        Task<IReadOnlyCollection<TmAccumRecord>> GetTmAccumNamedSetAllValues(string name);
 
-    Task<TmEventElix> GetCurrentEventsElix();
-    
-    Task<TmEventElix> GetRecentEventsElix(int          recentCount,
-                                          int          recentHours = 24,
-                                          TmEventTypes eventTypes  = TmEventTypes.Any);
+        Task<IReadOnlyCollection<TmStatusRecord>> GetTmStatusNamedSetUpdatedValues(string name);
+        Task<IReadOnlyCollection<TmAnalogRecord>> GetTmAnalogNamedSetUpdatedValues(string name);
+        Task<IReadOnlyCollection<TmAccumRecord>> GetTmAccumNamedSetUpdatedValues(string name);
 
-    Task<string> GetExpressionResult(string expression);
+        Task DeleteTmTagNamedSet(string name, TmType tmType);
 
-    string GetExpressionResultSync(string expression);
+        Task UpdateAnalogsClassDataExplicitly(IReadOnlyList<TmAnalog> tmAnalogs);
 
-    Task<IReadOnlyCollection<TmChannel>> GetTmTreeChannels();
+        Task UpdateStatusesClassDataExplicitly(IReadOnlyList<TmStatus> tmStatus);
 
-    Task<IReadOnlyCollection<TmRtu>> GetTmTreeRtus(int channelId);
+        Task<TmEventElix> GetCurrentEventsElix();
 
-    Task<IReadOnlyCollection<TmStatus>> GetTmTreeStatuses(int channelId, int rtuId);
+        Task<TmEventElix> GetRecentEventsElix(
+            int recentCount,
+            int recentHours = 24,
+            TmEventTypes eventTypes = TmEventTypes.Any
+        );
 
-    Task<IReadOnlyCollection<TmAnalog>> GetTmTreeAnalogs(int channelId, int rtuId);
-    
-    Task<IReadOnlyCollection<TmAccum>> GetTmTreeAccums(int channelId, int rtuId);
+        Task<string> GetExpressionResult(string expression);
 
-    Task<string> GetChannelName(int channelId);
+        string GetExpressionResultSync(string expression);
 
-    Task<string> GetRtuName(int channelId, int rtuId);
+        Task<IReadOnlyCollection<TmChannel>> GetTmTreeChannels();
 
-    Task<IReadOnlyCollection<TmClassStatus>> GetStatusesClasses();
+        Task<IReadOnlyCollection<TmRtu>> GetTmTreeRtus(int channelId);
 
-    Task<IReadOnlyCollection<TmClassAnalog>> GetAnalogsClasses();
+        Task<IReadOnlyCollection<TmStatus>> GetTmTreeStatuses(int channelId, int rtuId);
 
-    Task<IReadOnlyCollection<TmStatusRetro>> GetStatusRetroEx(TmStatus            status,
-                                                              TmStatusRetroFilter filter,
-                                                              bool                getRealTelemetry = false);
-    
-    Task<IReadOnlyCollection<ITmAnalogRetro[]>> GetAnalogsMicroSeries(IReadOnlyList<TmAnalog> analogs);
+        Task<IReadOnlyCollection<TmAnalog>> GetTmTreeAnalogs(int channelId, int rtuId);
 
+        Task<IReadOnlyCollection<TmAccum>> GetTmTreeAccums(int channelId, int rtuId);
 
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAnalog analog,
-                                                             long     utcStartTime,
-                                                             int      count,
-                                                             int      step,
-                                                             int      retroNum = 0);
+        Task<string> GetChannelName(int channelId);
 
+        Task<string> GetRtuName(int channelId, int rtuId);
 
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(TmAnalog            analog,
-                                                             TmAnalogRetroFilter filter,
-                                                             int                 retroNum = 0);
+        Task<IReadOnlyCollection<TmClassStatus>> GetStatusesClasses();
 
+        Task<IReadOnlyCollection<TmClassAnalog>> GetAnalogsClasses();
 
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetroEx(TmAnalog            analog,
-                                                               TmAnalogRetroFilter filter,
-                                                               int                 retroNum         = 0,
-                                                               bool                getRealTelemetry = false);
+        Task<IReadOnlyCollection<TmStatusRetro>> GetStatusRetroEx(
+            TmStatus status,
+            TmStatusRetroFilter filter,
+            bool getRealTelemetry = false
+        );
 
+        Task<IReadOnlyCollection<ITmAnalogRetro[]>> GetAnalogsMicroSeries(
+            IReadOnlyList<TmAnalog> analogs
+        );
 
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveInstant(TmAnalog            analog,
-                                                                       TmAnalogRetroFilter filter);
+        Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(
+            TmAnalog analog,
+            long utcStartTime,
+            int count,
+            int step,
+            int retroNum = 0
+        );
 
+        Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetro(
+            TmAnalog analog,
+            TmAnalogRetroFilter filter,
+            int retroNum = 0
+        );
 
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(TmAnalog            analog,
-                                                                       TmAnalogRetroFilter filter);
+        Task<IReadOnlyCollection<ITmAnalogRetro>> GetAnalogRetroEx(
+            TmAnalog analog,
+            TmAnalogRetroFilter filter,
+            int retroNum = 0,
+            bool getRealTelemetry = false
+        );
 
-    Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveSlices(TmAnalog analog,
-                                                                              TmAnalogRetroFilter filter);
-    Task<bool> RemoveAlert(TmAlert alert);
+        Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveInstant(
+            TmAnalog analog,
+            TmAnalogRetroFilter filter
+        );
 
-    Task<bool> RemoveAlert(byte[] alertId);
+        Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveAverage(
+            TmAnalog analog,
+            TmAnalogRetroFilter filter
+        );
 
-    Task<bool> RemoveAlerts(IEnumerable<TmAlert> alerts);
+        Task<IReadOnlyCollection<ITmAnalogRetro>> GetImpulseArchiveSlices(
+            TmAnalog analog,
+            TmAnalogRetroFilter filter
+        );
+        Task<bool> RemoveAlert(TmAlert alert);
 
-    Task<IReadOnlyCollection<TmEvent>> GetEventsArchive(TmEventFilter filter);
-    
-    Task<IReadOnlyCollection<TmEvent>> GetEventsArchiveByElix(TmEventFilter filter);
+        Task<bool> RemoveAlert(byte[] alertId);
 
-    Task<(IReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix);
+        Task<bool> RemoveAlerts(IEnumerable<TmAlert> alerts);
 
-    Task<bool> AckTag(TmAddr addr);
+        Task<IReadOnlyCollection<TmEvent>> GetEventsArchive(TmEventFilter filter);
 
-    Task AckAllStatuses();
+        Task<IReadOnlyCollection<TmEvent>> GetEventsArchiveByElix(TmEventFilter filter);
 
-    Task AckAllAnalogs();
+        Task<(IReadOnlyCollection<TmEvent>, TmEventElix)> GetCurrentEvents(TmEventElix elix);
 
-    Task<bool> AckStatus(TmStatus status);
+        Task<bool> AckTag(TmAddr addr);
 
-    Task<bool> AckAnalog(TmAnalog analog);
+        Task AckAllStatuses();
 
-    Task<bool> AckEvent(TmEvent tmEvent);
+        Task AckAllAnalogs();
 
-    Task<bool> AckEvents(IReadOnlyList<TmEvent> tmEvents);
+        Task<bool> AckStatus(TmStatus status);
 
+        Task<bool> AckAnalog(TmAnalog analog);
 
-    Task AddStringToEventLog(string    str,
-                             TmAddr    tmAddr = null,
-                             DateTime? time   = null);
+        Task<bool> AckEvent(TmEvent tmEvent);
 
+        Task<bool> AckEvents(IReadOnlyList<TmEvent> tmEvents);
 
-    Task AddTmaRelatedStringToEventLog(string             message,
-                                       TmAddr             tmAddr,
-                                       TmEventImportances importances = TmEventImportances.Imp0,
-                                       DateTime?          time        = null);
+        Task AddStringToEventLog(string str, TmAddr tmAddr = null, DateTime? time = null);
 
+        Task AddTmaRelatedStringToEventLog(
+            string message,
+            TmAddr tmAddr,
+            TmEventImportances importances = TmEventImportances.Imp0,
+            DateTime? time = null
+        );
 
-    Task AddStringToEventLogEx(DateTime?                 time,
-                               TmEventImportances        importances,
-                               TmEventLogExtendedSources source,
-                               string                    message,
-                               string                    binaryString = "",
-                               TmAddr                    tmAddr       = null);
+        Task AddStringToEventLogEx(
+            DateTime? time,
+            TmEventImportances importances,
+            TmEventLogExtendedSources source,
+            string message,
+            string binaryString = "",
+            TmAddr tmAddr = null
+        );
 
+        Task AddStrBinToEventLog(
+            DateTime? time,
+            TmEventImportances importances,
+            TmEventLogExtendedSources source,
+            string message,
+            byte[] binary = null,
+            TmAddr tmAddr = null
+        );
 
-    Task AddStrBinToEventLog(DateTime?                 time,
-                             TmEventImportances        importances,
-                             TmEventLogExtendedSources source,
-                             string                    message,
-                             byte[]                    binary = null,
-                             TmAddr                    tmAddr = null);
+        Task SetTagFlags(TmTag tag, TmFlags flags);
 
+        Task ClearTagFlags(TmTag tag, TmFlags flags);
 
-    Task SetTagFlags(TmTag tag, TmFlags flags);
+        Task SetTagsFlags(IEnumerable<TmTag> tmTags, TmFlags flags);
 
-    Task ClearTagFlags(TmTag tag, TmFlags flags);
+        Task ClearTagsFlags(IEnumerable<TmTag> tmTags, TmFlags flags);
 
-    Task SetTagsFlags(IEnumerable<TmTag> tmTags, TmFlags flags);
+        Task<bool> BackdateAnalogs(
+            IReadOnlyList<TmAnalog> tmAnalogs,
+            IReadOnlyList<float> values,
+            DateTime time
+        );
 
-    Task ClearTagsFlags(IEnumerable<TmTag> tmTags, TmFlags flags);
-    
-    
-    Task<bool> BackdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs,
-                               IReadOnlyList<float>    values,
-                               DateTime                time);
+        Task<bool> PostdateAnalogs(
+            IReadOnlyList<TmAnalog> tmAnalogs,
+            IReadOnlyList<float> values,
+            DateTime time
+        );
 
-    
-    Task<bool> PostdateAnalogs(IReadOnlyList<TmAnalog> tmAnalogs,
-                               IReadOnlyList<float>    values,
-                               DateTime                time);
+        Task<bool> SetAnalogManually(
+            TmAnalog tmAnalog,
+            float value,
+            bool alsoBlockManually = false
+        );
 
-    Task<bool> SetAnalogManually(TmAnalog tmAnalog, float value, bool alsoBlockManually = false);
+        Task<bool> SetAnalogTechParameters(TmAnalog analog, TmAnalogTechParameters parameters);
 
-    Task<bool> SetAnalogTechParameters(TmAnalog analog, TmAnalogTechParameters parameters);
+        Task<bool> SetAlarmValue(TmAlarm tmAlarm, float value);
 
-    Task<bool> SetAlarmValue(TmAlarm tmAlarm, float value);
+        Task<bool> SetAnalogBackdateManually(TmAnalog tmAnalog, float value, DateTime time);
 
-    Task<bool> SetAnalogBackdateManually(TmAnalog tmAnalog, float value, DateTime time);
+        Task<bool> SetStatusBackdateManually(TmStatus tmStatus, int status, DateTime time);
 
-    Task<bool> SetStatusBackdateManually(TmStatus tmStatus, int status, DateTime time);
+        Task SetAccum(int ch, int rtu, int point, float value);
 
+        Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTelecontrolScript(
+            TmStatus tmStatus
+        );
 
-    Task SetAccum(int ch, int rtu, int point, float value);
-    
+        Task<(
+            bool,
+            IReadOnlyCollection<TmControlScriptCondition>
+        )> CheckTelecontrolScriptExplicitly(TmStatus tmStatus, int explicitNewStatus);
 
-    Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTelecontrolScript(TmStatus tmStatus);
+        Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTeleregulationScript(
+            TmAnalog tmAnalog
+        );
 
+        Task OverrideTelecontrolScript();
 
-    Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTelecontrolScriptExplicitly(TmStatus tmStatus,
-                                                                                                 int
-                                                                                                   explicitNewStatus);
-    
-    Task<(bool, IReadOnlyCollection<TmControlScriptCondition>)> CheckTeleregulationScript(TmAnalog tmAnalog);
+        Task<TmTelecontrolResult> Telecontrol(TmStatus tmStatus);
 
+        Task<TmTelecontrolResult> TelecontrolExplicitly(TmStatus tmStatus, int explicitNewStatus);
 
-    Task OverrideTelecontrolScript();
+        Task<TmTelecontrolResult> TeleregulateByStepUp(TmAnalog analog);
 
-    Task<TmTelecontrolResult> Telecontrol(TmStatus tmStatus);
+        Task<TmTelecontrolResult> TeleregulateByStepDown(TmAnalog analog);
 
-    Task<TmTelecontrolResult> TelecontrolExplicitly(TmStatus tmStatus, int explicitNewStatus);
+        Task<TmTelecontrolResult> TeleregulateByCode(TmAnalog analog, int code);
 
-    Task<TmTelecontrolResult> TeleregulateByStepUp(TmAnalog analog);
+        Task<TmTelecontrolResult> TeleregulateByValue(TmAnalog analog, float value);
 
-    Task<TmTelecontrolResult> TeleregulateByStepDown(TmAnalog analog);
+        Task InputTelecontrolPassword(string password);
 
-    Task<TmTelecontrolResult> TeleregulateByCode(TmAnalog analog, int code);
+        Task<bool> SwitchStatusManually(TmStatus tmStatus, bool alsoBlockManually = false);
 
-    Task<TmTelecontrolResult> TeleregulateByValue(TmAnalog analog, float value);
+        Task SetStatusNormalOn(TmStatus status);
 
-    Task InputTelecontrolPassword(string password);
+        Task SetStatusNormalOff(TmStatus status);
 
-    Task<bool> SwitchStatusManually(TmStatus tmStatus, bool alsoBlockManually = false);
+        Task ClearStatusNormal(TmStatus status);
 
-    Task SetStatusNormalOn(TmStatus status);
+        Task<int> GetStatusNormal(TmStatus status);
 
-    Task SetStatusNormalOff(TmStatus status);
+        Task<IReadOnlyCollection<string>> GetFilesInDirectory(string path);
 
-    Task ClearStatusNormal(TmStatus status);
+        Task<bool> DownloadFile(string remotePath, string localPath);
 
-    Task<int> GetStatusNormal(TmStatus status);
+        Task<IReadOnlyCollection<string>> GetComtradeDays();
 
-    Task<IReadOnlyCollection<string>> GetFilesInDirectory(string path);
+        Task<IReadOnlyCollection<string>> GetComtradeFilesByDay(string day);
 
-    Task<bool> DownloadFile(string remotePath, string localPath);
+        Task<bool> DownloadComtradeFile(string filename, string localPath);
 
-    Task<IReadOnlyCollection<string>> GetComtradeDays();
+        Task SetTagFlagsExplicitly(TmTag tag, TmFlags flags);
 
-    Task<IReadOnlyCollection<string>> GetComtradeFilesByDay(string day);
+        Task ClearTagFlagsExplicitly(TmTag tag, TmFlags flags);
 
-    Task<bool> DownloadComtradeFile(string filename, string localPath);
+        Task StartTmAddrTracer(
+            int channel,
+            int rtu,
+            int point,
+            TmType tmType,
+            TmTraceTypes filterTypes
+        );
 
-    Task SetTagFlagsExplicitly(TmTag tag, TmFlags flags);
+        Task StopTmAddrTracer(int channel, int rtu, int point, TmType tmType);
 
-    Task ClearTagFlagsExplicitly(TmTag tag, TmFlags flags);
+        Task<TmServerInfo> GetServerInfo();
 
-    Task StartTmAddrTracer(int channel, int rtu, int point, TmType tmType, TmTraceTypes filterTypes);
+        Task<IReadOnlyCollection<TmServerThread>> GetServerThreads();
 
-    Task StopTmAddrTracer(int channel, int rtu, int point, TmType tmType);
+        Task<TmAccessRights> GetAccessRights();
 
+        Task<IReadOnlyCollection<TmUserInfo>> GetUsersInfo();
 
-    Task<TmServerInfo> GetServerInfo();
+        Task<TmUserInfo> GetUserInfo(uint userId);
 
-    Task<IReadOnlyCollection<TmServerThread>> GetServerThreads();
+        Task<TmUserInfo> GetExtendedUserInfo(int userId);
 
-    Task<TmAccessRights> GetAccessRights();
+        Task<IReadOnlyCollection<TmStatus>> GetPresentAps();
 
+        Task<IReadOnlyCollection<TmTag>> GetTagsByGroup(TmType tmType, string groupName);
 
-    Task<IReadOnlyCollection<TmUserInfo>> GetUsersInfo();
+        Task<bool> UpdateAckedEventsIfAny(IReadOnlyList<TmEvent> tmEvents);
 
-    Task<TmUserInfo> GetUserInfo(uint userId);
+        Task<bool> BlockTagEventsTemporarily(TmTag tmTag, int minutesToBlock);
 
-    Task<TmUserInfo> GetExtendedUserInfo(int userId);
+        Task<bool> BlockTagEventsTemporarily(TmTag tmTag, DateTime endBlockTime);
 
+        Task UnblockTagEvents(TmTag tmTag);
 
-    Task<IReadOnlyCollection<TmStatus>> GetPresentAps();
+        Task<IReadOnlyCollection<TmTag>> GetTagsByFlags(
+            TmType tmType,
+            TmFlags tmFlags,
+            TmCommonPointFlags filterFlags
+        );
 
+        Task<IReadOnlyCollection<TmTag>> GetTagsByNamePattern(TmType tmType, string pattern);
 
-    Task<IReadOnlyCollection<TmTag>> GetTagsByGroup(TmType tmType,
-                                                    string groupName);
+        Task<IReadOnlyCollection<TmRetroInfo>> GetRetrosInfo(TmType tmType);
 
-    Task<bool> UpdateAckedEventsIfAny(IReadOnlyList<TmEvent> tmEvents);
+        Task<bool> MqttSubscribe(MqttSubscriptionTopic topic);
 
+        Task<bool> MqttSubscribe(MqttKnownTopic topic);
 
-    Task<bool> BlockTagEventsTemporarily(TmTag tmTag,
-                                         int   minutesToBlock);
+        Task<bool> MqttUnsubscribe(MqttSubscriptionTopic topic);
 
+        Task<bool> MqttUnsubscribe(MqttKnownTopic topic);
 
-    Task<bool> BlockTagEventsTemporarily(TmTag    tmTag,
-                                         DateTime endBlockTime);
+        Task<bool> MqttPublish(MqttKnownTopic topic, byte[] payload);
 
+        Task<bool> MqttPublish(MqttKnownTopic topic, string payload = "");
 
-    Task UnblockTagEvents(TmTag tmTag);
+        Task<bool> MqttPublish(MqttPublishTopic topic, byte[] payload);
 
+        Task<bool> MqttPublish(MqttPublishTopic topic, string payload);
 
-    Task<IReadOnlyCollection<TmTag>> GetTagsByFlags(TmType             tmType,
-                                                    TmFlags            tmFlags,
-                                                    TmCommonPointFlags filterFlags);
+        Task<bool> MqttPublish(string topic, byte[] payload);
 
+        Task<byte[]> MqttInvokeRpc(
+            MqttPublishTopic requestTopic,
+            byte[] requestPayload,
+            int timeoutSeconds = 5
+        );
 
-    Task<IReadOnlyCollection<TmTag>> GetTagsByNamePattern(TmType tmType,
-                                                          string pattern);
+        Task<byte[]> MqttInvokeRpc(
+            MqttKnownTopic requestTopic,
+            byte[] requestPayload,
+            int timeoutSeconds = 5
+        );
 
-
-    Task<IReadOnlyCollection<TmRetroInfo>> GetRetrosInfo(TmType tmType);
-
-    Task<bool> MqttSubscribe(MqttSubscriptionTopic topic);
-    
-    Task<bool> MqttSubscribe(MqttKnownTopic topic);
-
-    Task<bool> MqttUnsubscribe(MqttSubscriptionTopic topic);
-
-    Task<bool> MqttUnsubscribe(MqttKnownTopic topic);
-
-    Task<bool> MqttPublish(MqttKnownTopic topic, byte[] payload);
-
-    Task<bool> MqttPublish(MqttKnownTopic topic, string payload = "");
-
-    Task<bool> MqttPublish(MqttPublishTopic topic, byte[] payload);
-
-    Task<bool> MqttPublish(MqttPublishTopic topic, string payload);
-
-    Task<bool> MqttPublish(string topic, byte[] payload);
-
-    Task<byte[]> MqttInvokeRpc(MqttPublishTopic requestTopic, byte[] requestPayload, int timeoutSeconds = 5);
-    
-    Task<byte[]> MqttInvokeRpc(MqttKnownTopic requestTopic, byte[] requestPayload, int timeoutSeconds = 5);
-
-    void NotifyOfMqttMessage(MqttMessage message);
-  }
+        void NotifyOfMqttMessage(MqttMessage message);
+    }
 }

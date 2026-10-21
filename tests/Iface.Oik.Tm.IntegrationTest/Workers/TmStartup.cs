@@ -7,57 +7,52 @@ using Microsoft.Extensions.Hosting;
 
 namespace Iface.Oik.Tm.IntegrationTest.Workers;
 
-public class ServerService : CommonServerService, IHostedService
-{
-}
-
+public class ServerService : CommonServerService, IHostedService { }
 
 public class TmStartup : IHostedService
 {
-  private int              _tmCid;
-  private int              _rbCid;
-  private int              _rbPort;
-  private TmUserInfo?      _userInfo;
-  private TmServerFeatures _serverFeatures;
+    private int _tmCid;
+    private int _rbCid;
+    private int _rbPort;
+    private TmUserInfo? _userInfo;
+    private TmServerFeatures _serverFeatures;
 
-  private readonly ICommonInfrastructure _infr;
+    private readonly ICommonInfrastructure _infr;
 
-
-  public TmStartup(ICommonInfrastructure infr)
-  {
-    _infr = infr;
-  }
-
-
-  public void TryConnect()
-  {
-    var (host, tmServer, rbServer, username, password) = CommonUtil.ParseCommandLineArgs();
-
-    (_tmCid, _rbCid, _rbPort, _userInfo, _serverFeatures) = Tms.Initialize(new TmInitializeOptions
+    public TmStartup(ICommonInfrastructure infr)
     {
-      ApplicationName = CommonUtil.TaskName,
-      Host            = host,
-      TmServer        = tmServer,
-      RbServer        = rbServer,
-      User            = username,
-      Password        = password,
-    });
-  }
+        _infr = infr;
+    }
 
+    public void TryConnect()
+    {
+        var (host, tmServer, rbServer, username, password) = CommonUtil.ParseCommandLineArgs();
 
-  public Task StartAsync(CancellationToken cancellationToken)
-  {
-    _infr.InitializeTm(_tmCid, _rbCid, _rbPort, _userInfo, _serverFeatures);
+        (_tmCid, _rbCid, _rbPort, _userInfo, _serverFeatures) = Tms.Initialize(
+            new TmInitializeOptions
+            {
+                ApplicationName = CommonUtil.TaskName,
+                Host = host,
+                TmServer = tmServer,
+                RbServer = rbServer,
+                User = username,
+                Password = password,
+            }
+        );
+    }
 
-    return Task.CompletedTask;
-  }
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        _infr.InitializeTm(_tmCid, _rbCid, _rbPort, _userInfo, _serverFeatures);
 
+        return Task.CompletedTask;
+    }
 
-  public Task StopAsync(CancellationToken cancellationToken)
-  {
-    Tms.Terminate(_tmCid, _rbCid);
-    _infr.TerminateTm();
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        Tms.Terminate(_tmCid, _rbCid);
+        _infr.TerminateTm();
 
-    return Task.CompletedTask;
-  }
+        return Task.CompletedTask;
+    }
 }

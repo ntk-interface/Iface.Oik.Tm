@@ -10,60 +10,67 @@ namespace Iface.Oik.Tm.Helpers;
 
 public static class Pkcs11
 {
-  public static IReadOnlyCollection<string> GetAvailableVendors()
-  {
-    var ptr = TmNative.cfsPkcs11EnumVendors();
-    if (ptr == nint.Zero)
+    public static IReadOnlyCollection<string> GetAvailableVendors()
     {
-      return new List<string>();
+        var ptr = TmNative.cfsPkcs11EnumVendors();
+        if (ptr == nint.Zero)
+        {
+            return new List<string>();
+        }
+
+        try
+        {
+            return TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(ptr, 1024);
+        }
+        finally
+        {
+            TmNative.cfsFreeMemory(ptr);
+        }
     }
 
-    try
+    public static void SetVendor(string vendor)
     {
-      return TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(ptr, 1024);
-    }
-    finally
-    {
-      TmNative.cfsFreeMemory(ptr);
-    }
-  }
-
-
-  public static void SetVendor(string vendor)
-  {
-    if (!TmNative.cfsPkcs11SetVendor(vendor))
-    {
-      throw new TmNativeException("Ошибка установки поставщика смарт-карты");
-    }
-  }
-
-
-  public static IReadOnlyCollection<Pkcs11Certificate> GetAvailableCertificates()
-  {
-    const int  errBufSize = 1024;
-    Span<byte> errBuf     = stackalloc byte[errBufSize];
-
-    if (!TmNative.cfsPkcs11EnumCertificates(errBuf, errBufSize, out var ptrNames, out var ptrAttrs))
-    {
-      throw new TmNativeException(TmNativeUtil.BytesToString(errBuf));
+        if (!TmNative.cfsPkcs11SetVendor(vendor))
+        {
+            throw new TmNativeException("Ошибка установки поставщика смарт-карты");
+        }
     }
 
-    var names = TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(ptrNames, 8192);
-    var attrs = TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(ptrAttrs, 8192);
-
-    TmNative.cfsFreeMemory(ptrNames);
-    TmNative.cfsFreeMemory(ptrAttrs);
-    
-    if (names.Count != attrs.Count)
+    public static IReadOnlyCollection<Pkcs11Certificate> GetAvailableCertificates()
     {
-      throw new TmNativeException("Не совпадает количество сертификатов и атрибутов смарт-карты");
-    }
+        const int errBufSize = 1024;
+        Span<byte> errBuf = stackalloc byte[errBufSize];
 
-    var result = new List<Pkcs11Certificate>();
-    for (var i = 0; i < names.Count; i++)
-    {
-      result.Add(new Pkcs11Certificate(names.ElementAt(i), attrs.ElementAt(i)));
+        if (
+            !TmNative.cfsPkcs11EnumCertificates(
+                errBuf,
+                errBufSize,
+                out var ptrNames,
+                out var ptrAttrs
+            )
+        )
+        {
+            throw new TmNativeException(TmNativeUtil.BytesToString(errBuf));
+        }
+
+        var names = TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(ptrNames, 8192);
+        var attrs = TmNativeUtil.GetStringListFromDoubleNullTerminatedPointer(ptrAttrs, 8192);
+
+        TmNative.cfsFreeMemory(ptrNames);
+        TmNative.cfsFreeMemory(ptrAttrs);
+
+        if (names.Count != attrs.Count)
+        {
+            throw new TmNativeException(
+                "Не совпадает количество сертификатов и атрибутов смарт-карты"
+            );
+        }
+
+        var result = new List<Pkcs11Certificate>();
+        for (var i = 0; i < names.Count; i++)
+        {
+            result.Add(new Pkcs11Certificate(names.ElementAt(i), attrs.ElementAt(i)));
+        }
+        return result;
     }
-    return result;
-  }
 }

@@ -1,233 +1,217 @@
-using Iface.Oik.Tm.Native.Api;
-using Iface.Oik.Tm.Native.Interfaces;
-using Iface.Oik.Tm.Utils;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Iface.Oik.Tm.Native.Api;
 using Iface.Oik.Tm.Native.Dto;
+using Iface.Oik.Tm.Native.Interfaces;
+using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public interface ICfsApi
-  {
-    void                     SetCfIdAndHost(IntPtr                           cfId,    string host);
-    string                   MakeInprocCrd(string                            machine, string user, string pwd);
-    Task<(IntPtr, DateTime)> OpenConfigurationTree(string                    fileName);
-    IntPtr                   CreateConfigurationTree(IEnumerable<CfTreeNode> tree);
-    Task<(IntPtr, DateTime)> OpenMasterServiceConfiguration();
+    public interface ICfsApi
+    {
+        void SetCfIdAndHost(IntPtr cfId, string host);
+        string MakeInprocCrd(string machine, string user, string pwd);
+        Task<(IntPtr, DateTime)> OpenConfigurationTree(string fileName);
+        IntPtr CreateConfigurationTree(IEnumerable<CfTreeNode> tree);
+        Task<(IntPtr, DateTime)> OpenMasterServiceConfiguration();
 
-    Task<IReadOnlyCollection<CfTreeNode>> GetReserveConfiguration();
+        Task<IReadOnlyCollection<CfTreeNode>> GetReserveConfiguration();
 
-    Task<ReserveServerState> ReserveServerTypeIsWorking(CfTreeNode reserveConfNode);
+        Task<ReserveServerState> ReserveServerTypeIsWorking(CfTreeNode reserveConfNode);
 
-    Task OverrideReservePipe(string pipeName, BroadcastServerSignature signature);
+        Task OverrideReservePipe(string pipeName, BroadcastServerSignature signature);
 
+        Task<(MSTreeNode, DateTime)> LoadFullMSTree();
+        Task SaveConfigurationTree(IntPtr treeHandle, string filename);
+        Task SaveMasterServiceConfiguration(IntPtr treeHandle);
+        Task SaveFullMSTree(MSTreeNode msRoot);
+        Task<List<CfTreeNode>> GetCfTree(IntPtr rootHandle, CfTreeNode parent = null);
+        void FreeConfigurationTreeHandle(IntPtr handle);
 
-    Task<(MSTreeNode, DateTime)> LoadFullMSTree();
-    Task                         SaveConfigurationTree(IntPtr          treeHandle, string filename);
-    Task                         SaveMasterServiceConfiguration(IntPtr treeHandle);
-    Task                         SaveFullMSTree(MSTreeNode             msRoot);
-    Task<List<CfTreeNode>>       GetCfTree(IntPtr                      rootHandle, CfTreeNode parent = null);
-    void                         FreeConfigurationTreeHandle(IntPtr    handle);
+        Task<CfsDefs.SoftwareTypes> GetSoftwareType();
 
+        Task<CfsDefs.MasterServiceStatus> MasterServiceStatus();
 
-    Task<CfsDefs.SoftwareTypes> GetSoftwareType();
+        Task StartMasterService();
 
+        Task StopMasterService();
 
-    Task<CfsDefs.MasterServiceStatus> MasterServiceStatus();
+        Task<bool> IsConnected();
 
+        Task<string> GetBasePath();
 
-    Task StartMasterService();
+        Task<IReadOnlyCollection<string>> GetTimezones();
 
+        Task<IReadOnlyCollection<TmServer>> GetTmServersTree();
 
-    Task StopMasterService();
+        Task<IReadOnlyCollection<TmServerLogRecord>> GetTmServersLog(
+            int maxRecords,
+            DateTime? startTime,
+            DateTime? endTime
+        );
 
+        Task<IReadOnlyCollection<TmServerThread>> GetTmServersThreads();
 
-    Task<bool> IsConnected();
+        Task RegisterTmServerTracer(ITmServerTraceable traceTarget, bool debug, int pause);
 
-    Task<string> GetBasePath();
+        Task StopTmServerTrace();
 
-    Task<IReadOnlyCollection<string>> GetTimezones();
+        Task<IReadOnlyCollection<TmServerLogRecord>> TraceTmServerLogRecords();
 
-    Task<IReadOnlyCollection<TmServer>> GetTmServersTree();
+        Task<TmInstallationInfo> GetTmInstallationInfo();
 
+        Task<TmLicenseInfo> GetLicenseInfo();
 
-    Task<IReadOnlyCollection<TmServerLogRecord>>
-      GetTmServersLog(int maxRecords, DateTime? startTime, DateTime? endTime);
+        Task<IReadOnlyCollection<LicenseKeyType>> GetAvailableLicenseKeyTypes();
 
+        Task SetLicenseKeyCom(TmLicenseKey newLicenseKey);
 
-    Task<IReadOnlyCollection<TmServerThread>> GetTmServersThreads();
+        Task<IReadOnlyCollection<string>> GetFilesInDirectory(string path);
 
+        Task<(bool, string)> PutFile(string localFilePath, string remoteFilePath, uint timeout);
 
-    Task RegisterTmServerTracer(ITmServerTraceable traceTarget, bool debug, int pause);
+        Task DeleteFile(string remoteFilePath);
 
+        Task<IReadOnlyCollection<string>> GetInstalledLicenseKeyFiles();
 
-    Task StopTmServerTrace();
+        Task PutLicenseKeyFile(string filePath);
 
+        Task DeleteLicenseKeyFile(string fileName);
 
-    Task<IReadOnlyCollection<TmServerLogRecord>> TraceTmServerLogRecords();
+        Task<IReadOnlyCollection<SLogRecord>> GetSecurityLogFull(
+            SLogReadDirection readDirection = SLogReadDirection.FromEnd
+        );
 
+        Task<IReadOnlyCollection<SLogRecord>> GetAdministratorLogFull(
+            SLogReadDirection readDirection = SLogReadDirection.FromEnd
+        );
 
-    Task<TmInstallationInfo> GetTmInstallationInfo();
+        Task<IReadOnlyCollection<SLogRecord>> GetSecurityLog(
+            int maxRecords,
+            SLogReadDirection readDirection = SLogReadDirection.FromEnd,
+            uint startIndex = SLogIndex.Last,
+            DateTime? startTime = null,
+            DateTime? endTime = null
+        );
 
+        Task<IReadOnlyCollection<SLogRecord>> GetAdministratorLog(
+            int maxRecords,
+            SLogReadDirection readDirection = SLogReadDirection.FromEnd,
+            uint startIndex = SLogIndex.Last,
+            DateTime? startTime = null,
+            DateTime? endTime = null
+        );
 
-    Task<TmLicenseInfo> GetLicenseInfo();
+        Task<int> GetRedirectorPort(string pipeName, int portIndex);
 
+        Task<PasswordDigestState> GetBackupPasswordDigestState();
 
-    Task<IReadOnlyCollection<LicenseKeyType>> GetAvailableLicenseKeyTypes();
+        Task<byte[]> GetBin(string uName, string oName, string binName);
 
+        Task<(byte[], uint, string)> SecGetBin(string uName, string oName, string binName);
 
-    Task SetLicenseKeyCom(TmLicenseKey newLicenseKey);
+        Task SetRedirectorPort(string pipeName, int portIndex, int port);
 
+        AccessMasksDescriptor SecGetAccessDescriptor(string sSetupPath, string progName);
 
-    Task<IReadOnlyCollection<string>> GetFilesInDirectory(string path);
+        ExtendedRightsDescriptor SecGetExtendedRightsDescriptor(string sSetupPath);
 
+        Task<IReadOnlyCollection<string>> GetOikUsersStrings();
 
-    Task<(bool, string)> PutFile(string localFilePath,
-                                 string remoteFilePath,
-                                 uint   timeout);
+        Task<(IReadOnlyCollection<string>, uint, string)> SecEnumOSUsers();
 
-    Task DeleteFile(string remoteFilePath);
+        Task<(uint, string)> SecChangeUserPassword(string username, string password);
 
+        Task<(uint, string)> SecDeleteUser(string username);
 
-    Task<IReadOnlyCollection<string>> GetInstalledLicenseKeyFiles();
+        Task<uint> SecGetAccessMask(string uName, string oName);
 
+        Task SecSetAccessMask(string uName, string oName, uint accessMask);
 
-    Task PutLicenseKeyFile(string filePath);
+        Task<ExtendedUserData> SecGetExtendedUserData(
+            string serverType,
+            string serverName,
+            string username
+        );
 
+        Task SecSetExtendedUserData(
+            string serverType,
+            string serverName,
+            string username,
+            ExtendedUserData extendedUserData
+        );
 
-    Task DeleteLicenseKeyFile(string fileName);
+        Task<UserPolicy> SecGetUserPolicy(string username);
 
+        Task SecSetUserPolicy(string username, UserPolicy userPolicy);
 
-    Task<IReadOnlyCollection<SLogRecord>> GetSecurityLogFull(
-      SLogReadDirection readDirection = SLogReadDirection.FromEnd);
+        Task<PasswordPolicy> SecGetPasswordPolicy();
 
+        Task SecSetPasswordPolicy(PasswordPolicy passwordPolicy);
 
-    Task<IReadOnlyCollection<SLogRecord>> GetAdministratorLogFull(
-      SLogReadDirection readDirection = SLogReadDirection.FromEnd);
+        Task<(IReadOnlyCollection<string>, uint, string)> DirEnum(string path);
 
+        Task<(bool, string)> SaveMachineConfig(string directory, bool full);
 
-    Task<IReadOnlyCollection<SLogRecord>> GetSecurityLog(int               maxRecords,
-                                                         SLogReadDirection readDirection = SLogReadDirection.FromEnd,
-                                                         uint              startIndex    = SLogIndex.Last,
-                                                         DateTime?         startTime     = null,
-                                                         DateTime?         endTime       = null);
+        Task<(bool, string)> SaveMachineConfigEx(
+            string directory,
+            uint scope,
+            TmNativeCallback callback = null,
+            IntPtr callbackParameter = default
+        );
 
+        Task<(bool, string)> RestoreMachineConfig(string filename);
 
-    Task<IReadOnlyCollection<SLogRecord>> GetAdministratorLog(int maxRecords,
-                                                              SLogReadDirection readDirection =
-                                                                SLogReadDirection.FromEnd,
-                                                              uint      startIndex = SLogIndex.Last,
-                                                              DateTime? startTime  = null,
-                                                              DateTime? endTime    = null);
+        Task<bool> CreateBackup(
+            string progName,
+            string pipeName,
+            string directory,
+            bool withRetro,
+            TmNativeCallback callback = null,
+            IntPtr callbackParameter = default
+        );
 
+        Task<RestoreBackupResult> RestoreBackup(
+            string progName,
+            string pipeName,
+            string filename,
+            bool withRetro,
+            TmNativeCallback callback = null,
+            IntPtr callbackParameter = default
+        );
 
-    Task<int> GetRedirectorPort(string pipeName, int portIndex);
+        Task BackupSecurity(string directory, string pwd = "");
 
+        Task RestoreSecurity(string filename, string pwd);
 
-    Task<PasswordDigestState> GetBackupPasswordDigestState();
+        Task<(IReadOnlyCollection<string>, string)> EnumPackedFiles(string pkfName);
 
+        Task<(IReadOnlyCollection<string>, string)> UnPack(string pkfName, string dirname);
 
-    Task<byte[]> GetBin(string uName,
-                        string oName,
-                        string binName);
+        Task<(bool, string)> ExtractFile(string pkfName, string filename, string dirname);
 
-    Task<(byte[], uint, string)> SecGetBin(string uName,
-                                           string oName,
-                                           string binName);
+        Task<(uint, string, UInt64, UInt32)> StartTestTmcalc(
+            string tmsName,
+            string clcName,
+            UInt32 testWay,
+            UInt32 testFlags
+        );
 
-    Task SetRedirectorPort(string pipeName, int portIndex, int port);
+        Task<(uint, string)> StopTestTmcalc(UInt64 handle, UInt32 pid);
 
+        Task<(bool, string)> PmonCheckProcess(string processNameArgs);
 
-    AccessMasksDescriptor SecGetAccessDescriptor(string sSetupPath, string progName);
+        Task<(bool, string)> PmonStopProcess(string processNameArgs);
 
-    ExtendedRightsDescriptor SecGetExtendedRightsDescriptor(string sSetupPath);
+        Task<(bool, string)> PmonRestartProcess(string processNameArgs);
 
-    Task<IReadOnlyCollection<string>> GetOikUsersStrings();
+        Task<(bool, string)> SwapFnSrvRole(string encodedCredentials, string fnsName, bool dryRun);
 
-    Task<(IReadOnlyCollection<string>, uint, string)> SecEnumOSUsers();
+        Task<(bool, string)> ReserveRoleSwapIsAvailable(string encodedCredentials, string pipeName);
 
-    Task<(uint, string)> SecChangeUserPassword(string username, string password);
+        Task<(bool, string)> SwapReserveRole(string encodedCredentials, string pipeName);
 
-    Task<(uint, string)> SecDeleteUser(string username);
-
-    Task<uint> SecGetAccessMask(string uName, string oName);
-
-    Task SecSetAccessMask(string uName, string oName, uint accessMask);
-
-    Task<ExtendedUserData> SecGetExtendedUserData(string serverType, string serverName, string username);
-
-    Task SecSetExtendedUserData(string           serverType,
-                                string           serverName,
-                                string           username,
-                                ExtendedUserData extendedUserData);
-
-    Task<UserPolicy> SecGetUserPolicy(string username);
-
-    Task SecSetUserPolicy(string username, UserPolicy userPolicy);
-
-    Task<PasswordPolicy> SecGetPasswordPolicy();
-
-    Task SecSetPasswordPolicy(PasswordPolicy passwordPolicy);
-
-    Task<(IReadOnlyCollection<string>, uint, string)> DirEnum(string path);
-
-    Task<(bool, string)> SaveMachineConfig(string directory, bool full);
-
-    Task<(bool, string)> SaveMachineConfigEx(string           directory,
-                                             uint             scope,
-                                             TmNativeCallback callback          = null,
-                                             IntPtr           callbackParameter = default);
-
-    Task<(bool, string)> RestoreMachineConfig(string filename);
-
-    Task<bool> CreateBackup(string           progName,
-                            string           pipeName,
-                            string           directory,
-                            bool             withRetro,
-                            TmNativeCallback callback          = null,
-                            IntPtr           callbackParameter = default);
-
-    Task<RestoreBackupResult> RestoreBackup(string           progName,
-                                            string           pipeName,
-                                            string           filename,
-                                            bool             withRetro,
-                                            TmNativeCallback callback          = null,
-                                            IntPtr           callbackParameter = default);
-
-    Task BackupSecurity(string directory, string pwd = "");
-
-    Task RestoreSecurity(string filename, string pwd);
-
-    Task<(IReadOnlyCollection<string>, string)> EnumPackedFiles(string pkfName);
-
-    Task<(IReadOnlyCollection<string>, string)> UnPack(string pkfName,
-                                                       string dirname);
-
-    Task<(bool, string)> ExtractFile(string pkfName,
-                                     string filename,
-                                     string dirname);
-
-    Task<(uint, string, UInt64, UInt32)> StartTestTmcalc(string tmsName,
-                                                         string clcName,
-                                                         UInt32 testWay,
-                                                         UInt32 testFlags);
-
-    Task<(uint, string)> StopTestTmcalc(UInt64 handle,
-                                        UInt32 pid);
-
-    Task<(bool, string)> PmonCheckProcess(string processNameArgs);
-
-    Task<(bool, string)> PmonStopProcess(string processNameArgs);
-
-    Task<(bool, string)> PmonRestartProcess(string processNameArgs);
-
-    Task<(bool, string)> SwapFnSrvRole(string encodedCredentials, string fnsName, bool dryRun);
-
-    Task<(bool, string)> ReserveRoleSwapIsAvailable(string encodedCredentials, string pipeName);
-
-    Task<(bool, string)> SwapReserveRole(string encodedCredentials, string pipeName);
-
-    Task<(bool, int, string)> AddPasswordToAutoBackupDigest(string password);
-  }
+        Task<(bool, int, string)> AddPasswordToAutoBackupDigest(string password);
+    }
 }

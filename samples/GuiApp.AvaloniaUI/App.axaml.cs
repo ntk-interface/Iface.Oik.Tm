@@ -12,41 +12,39 @@ namespace GuiApp.AvaloniaUI;
 
 public partial class App : Application
 {
-  public override void Initialize()
-  {
-    AvaloniaXamlLoader.Load(this);
-  }
-
-
-  public override void OnFrameworkInitializationCompleted()
-  {
-    var serviceProvider = StartupServices().BuildServiceProvider();
-
-    if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+    public override void Initialize()
     {
-      desktop.MainWindow = new MainWindowView
-      {
-        DataContext = serviceProvider.GetService<MainWindowViewModel>()
-      };
+        AvaloniaXamlLoader.Load(this);
     }
 
-    base.OnFrameworkInitializationCompleted();
-  }
+    public override void OnFrameworkInitializationCompleted()
+    {
+        var serviceProvider = StartupServices().BuildServiceProvider();
 
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            desktop.MainWindow = new MainWindowView
+            {
+                DataContext = serviceProvider.GetService<MainWindowViewModel>(),
+            };
+        }
 
-  private static IServiceCollection StartupServices()
-  {
-    var services = new ServiceCollection();
+        base.OnFrameworkInitializationCompleted();
+    }
 
-    services.AddSingleton<ITmsApi, TmsApi>();
-    services.AddSingleton<IOikSqlApi, OikSqlApi>();
-    services.AddSingleton<IOikDataApi, OikDataApi>();
+    private static IServiceCollection StartupServices()
+    {
+        var services = new ServiceCollection();
 
-    services.AddSingleton<ICommonServerService, CommonServerService>();
-    services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
+        services.AddSingleton<ITmsApi, TmsApi>();
+        services.AddSingleton<IOikSqlApi, OikSqlApi>();
+        services.AddSingleton<IOikDataApi, OikDataApi>();
 
-    services.AddSingleton<MainWindowViewModel>();
+        services.AddSingleton<ICommonServerService, CommonServerService>();
+        services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
 
-    return services;
-  }
+        services.AddSingleton<MainWindowViewModel>();
+
+        return services;
+    }
 }

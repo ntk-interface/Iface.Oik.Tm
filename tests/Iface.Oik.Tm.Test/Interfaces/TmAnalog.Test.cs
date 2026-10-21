@@ -5,397 +5,408 @@ using Xunit;
 
 namespace Iface.Oik.Tm.Test.Interfaces
 {
-  public class TmAnalogTest
-  {
-    public class Constructor
+    public class TmAnalogTest
     {
-      [Theory, TmAutoData]
-      public void ConstructsFromChRtuPointCorrectly(int ch, int rtu, int point)
-      {
-        var tmAnalog = new TmAnalog(ch, rtu, point);
-
-        Assert.Equal(TmType.Analog, tmAnalog.Type);
-        Assert.Equal(ch,            tmAnalog.TmAddr.Ch);
-        Assert.Equal(rtu,           tmAnalog.TmAddr.Rtu);
-        Assert.Equal(point,         tmAnalog.TmAddr.Point);
-      }
-
-
-      [Theory, TmAutoData]
-      public void ConstructsFromTmAddrCorrectly(int ch, int rtu, int point)
-      {
-        var tmAddr = new TmAddr(TmType.Analog, ch, rtu, point);
-
-        var tmAnalog = new TmAnalog(tmAddr);
-
-        Assert.Equal(TmType.Analog, tmAnalog.Type);
-        Assert.Equal(ch,            tmAnalog.TmAddr.Ch);
-        Assert.Equal(rtu,           tmAnalog.TmAddr.Rtu);
-        Assert.Equal(point,         tmAnalog.TmAddr.Point);
-      }
-    }
-
-
-    public class ToStringMethod
-    {
-      [Theory]
-      [UseCulture("ru-RU")]
-      [InlineData(0,  1,  1,   1.337, 1, "Вт", "#TT0:1:1 = 1,3 Вт")]
-      [InlineData(16, 33, 257, 0,     3, "В",  "#TT16:33:257 = 0,000 В")]
-      public void ReturnsCorrectString(int    ch, int rtu, int point, float value, byte precision, string unit,
-                                       string expected)
-      {
-        var tmAnalog = new TmAnalog(ch, rtu, point) {IsInit = true, Value = value, Precision = precision, Unit = unit};
-
-        var result = tmAnalog.ToString();
-
-        Assert.Equal(expected, result);
-      }
-    }
-
-
-    public class ValueStringProperty
-    {
-      [Theory]
-      [UseCulture("ru-RU")]
-      [InlineData(1.337, 1, "1,3")]
-      [InlineData(0,     4, "0,0000")]
-      public void ReturnsCorrectString(float  value, byte precision,
-                                       string expected)
-      {
-        var tmAnalog = new TmAnalog(0, 1, 1) {IsInit = true, Value = value, Precision = precision};
-
-        var result = tmAnalog.ValueString;
-
-        Assert.Equal(expected, result);
-      }
-
-
-      [Fact]
-      public void ReturnsQuestionsFromNonInitAnalog()
-      {
-        var tmAnalog = new TmAnalog(0, 1, 1);
-
-        var result = tmAnalog.ValueString;
-
-        Assert.Equal("???", result);
-      }
-    }
-
-
-    public class ValueStringWithPrecisionMethod
-    {
-      [Theory]
-      [UseCulture("ru-RU")]
-      [InlineData(1.337, 1, "1,3")]
-      [InlineData(0,     4, "0,0000")]
-      public void ReturnsCorrectString(float  value, byte precision,
-                                       string expected)
-      {
-        var tmAnalog = new TmAnalog(0, 1, 1) {IsInit = true, Value = value};
-
-        var result = tmAnalog.ValueStringWithPrecision(precision);
-
-        Assert.Equal(expected, result);
-      }
-    }
-
-
-    public class ValueWithUnitStringWithPrecisionMethod
-    {
-      [Theory]
-      [UseCulture("ru-RU")]
-      [InlineData(1.337, 1, "МВт", "1,3 МВт")]
-      [InlineData(0,     4, "кВ",  "0,0000 кВ")]
-      public void ReturnsCorrectString(float  value, byte precision, string unit,
-                                       string expected)
-      {
-        var tmAnalog = new TmAnalog(0, 1, 1) {IsInit = true, Value = value, Unit = unit};
-
-        var result = tmAnalog.ValueWithUnitStringWithPrecision(precision);
-
-        Assert.Equal(expected, result);
-      }
-    }
-
-
-    public class EqualsMethod
-    {
-      [Theory, TmAutoData]
-      public void ReturnsFalseForNull(int ch, int rtu, int point)
-      {
-        var tmAnalog1 = new TmAnalog(ch, rtu, point);
-
-        var result = tmAnalog1.Equals(null);
-
-        Assert.False(result);
-      }
-
-
-      [Theory, TmAutoData]
-      public void ReturnsFalseForWrongType(int ch, int rtu, int point)
-      {
-        var tmAnalog1 = new TmAnalog(ch, rtu, point);
-        var tmStatus  = new TmStatus(ch, rtu, point);
-
-        var result = tmAnalog1.Equals(tmStatus);
-
-        Assert.False(result);
-      }
-
-
-      [Theory, TmAutoData]
-      public void ReturnsFalseForWrongAddr(int ch, int rtu, int point)
-      {
-        var tmAnalog1 = new TmAnalog(ch, rtu, point);
-        var tmAnalog2 = new TmAnalog(ch, rtu, point + 1);
-
-        var result = tmAnalog1.Equals(tmAnalog2);
-
-        Assert.False(result);
-      }
-
-
-      [Theory, TmAutoData]
-      public void ReturnsTrue(int ch, int rtu, int point)
-      {
-        var tmAnalog1 = new TmAnalog(ch, rtu, point);
-        var tmAnalog2 = new TmAnalog(ch, rtu, point);
-
-        var result = tmAnalog1.Equals(tmAnalog2);
-
-        Assert.True(result);
-      }
-
-
-      [Theory, TmAutoData]
-      public void ReturnsFalseForWrongValue(int ch, int rtu, int point)
-      {
-        var tmAnalog1 = new TmAnalog(ch, rtu, point);
-        var tmAnalog2 = new TmAnalog(ch, rtu, point) {Value = 1};
-
-        var result = tmAnalog1.Equals(tmAnalog2);
-
-        Assert.False(result);
-      }
-
-
-      [Theory, TmAutoData]
-      public void ReturnsFalseForWrongFlags(int ch, int rtu, int point)
-      {
-        var tmAnalog1 = new TmAnalog(ch, rtu, point);
-        var tmAnalog2 = new TmAnalog(ch, rtu, point) {Flags = TmFlags.Unreliable};
-
-        var result = tmAnalog1.Equals(tmAnalog2);
-
-        Assert.False(result);
-      }
-    }
-
-
-    public class EqualityOperator
-    {
-      [Theory, TmAutoData]
-      public void ReturnsFalseForNull(int ch, int rtu, int point)
-      {
-        var tmAnalog1 = new TmAnalog(ch, rtu, point);
-
-        var result = tmAnalog1 == null;
-
-        Assert.False(result);
-      }
-
-
-      [Fact]
-      public void ReturnsTrueForNullWhenNull()
-      {
-        TmAnalog tmAnalog1 = null;
-
-        var result = tmAnalog1 == null;
-
-        Assert.True(result);
-      }
-
-
-      [Theory, TmAutoData]
-      public void ReturnsTrue(int ch, int rtu, int point)
-      {
-        var tmAnalog1 = new TmAnalog(ch, rtu, point);
-        var tmAnalog2 = new TmAnalog(ch, rtu, point);
-
-        var result = tmAnalog1 == tmAnalog2;
-
-        Assert.True(result);
-      }
-
-
-      [Theory, TmAutoData]
-      public void ReturnsFalseForWrongAddr(int ch, int rtu, int point)
-      {
-        var tmAnalog1 = new TmAnalog(ch, rtu, point);
-        var tmAnalog2 = new TmAnalog(ch, rtu, point + 1);
-
-        var result = tmAnalog1 == tmAnalog2;
-
-        Assert.False(result);
-      }
-
-
-      [Theory, TmAutoData]
-      public void ReturnsFalseForWrongValue(int ch, int rtu, int point)
-      {
-        var tmAnalog1 = new TmAnalog(ch, rtu, point);
-        var tmAnalog2 = new TmAnalog(ch, rtu, point) {Value = 1};
-
-        var result = tmAnalog1 == tmAnalog2;
-
-        Assert.False(result);
-      }
-
-
-      [Theory, TmAutoData]
-      public void ReturnsFalseForWrongFlags(int ch, int rtu, int point)
-      {
-        var tmAnalog1 = new TmAnalog(ch, rtu, point);
-        var tmAnalog2 = new TmAnalog(ch, rtu, point) {Flags = TmFlags.Unreliable};
-
-        var result = tmAnalog1 == tmAnalog2;
-
-        Assert.False(result);
-      }
-    }
-
-
-    public class FromCommonPointMethod
-    {
-      [Fact]
-      public void DoesNotInitWithTmFlagsInvalid()
-      {
-        var tmAnalog = new TmAnalog(0, 1, 1);
-        var tmcCommonPoint = new TCommonPointDto
+        public class Constructor
         {
-          TmFlags        = 0xFFFF,
-          AnalogPointDto = new TAnalogPointDto(),
-        };
+            [Theory, TmAutoData]
+            public void ConstructsFromChRtuPointCorrectly(int ch, int rtu, int point)
+            {
+                var tmAnalog = new TmAnalog(ch, rtu, point);
 
-        tmAnalog.UpdateValueFromCommonPointDto(tmcCommonPoint);
+                Assert.Equal(TmType.Analog, tmAnalog.Type);
+                Assert.Equal(ch, tmAnalog.TmAddr.Ch);
+                Assert.Equal(rtu, tmAnalog.TmAddr.Rtu);
+                Assert.Equal(point, tmAnalog.TmAddr.Point);
+            }
 
-        Assert.False(tmAnalog.IsInit);
-      }
+            [Theory, TmAutoData]
+            public void ConstructsFromTmAddrCorrectly(int ch, int rtu, int point)
+            {
+                var tmAddr = new TmAddr(TmType.Analog, ch, rtu, point);
 
+                var tmAnalog = new TmAnalog(tmAddr);
 
-      [Fact]
-      public void DoesNotInitWithAnalogDataNull()
-      {
-        var tmAnalog       = new TmAnalog(0, 1, 1);
-        var tmcCommonPoint = new TCommonPointDto();
+                Assert.Equal(TmType.Analog, tmAnalog.Type);
+                Assert.Equal(ch, tmAnalog.TmAddr.Ch);
+                Assert.Equal(rtu, tmAnalog.TmAddr.Rtu);
+                Assert.Equal(point, tmAnalog.TmAddr.Point);
+            }
+        }
 
-        tmAnalog.UpdateValueFromCommonPointDto(tmcCommonPoint);
-
-        Assert.False(tmAnalog.IsInit);
-      }
-
-
-      [Theory]
-      [InlineData(1.337,     0)]
-      [InlineData(0,         (short) TmNativeDefs.Flags.UnreliableHdw)]
-      [InlineData(1234.5678, (short) (TmNativeDefs.Flags.UnreliableManu | TmNativeDefs.Flags.ManuallySet))]
-      public void SetsCorrectValues(float value, short flags)
-      {
-        var tmAnalog = new TmAnalog(0, 1, 1);
-        var tmcCommonPoint = new TCommonPointDto
+        public class ToStringMethod
         {
-          TmFlags = 1,
-          AnalogPointDto = new TAnalogPointDto
-          {
-            AsFloat = value,
-            Flags = flags,
-          },
-        };
+            [Theory]
+            [UseCulture("ru-RU")]
+            [InlineData(0, 1, 1, 1.337, 1, "Вт", "#TT0:1:1 = 1,3 Вт")]
+            [InlineData(16, 33, 257, 0, 3, "В", "#TT16:33:257 = 0,000 В")]
+            public void ReturnsCorrectString(
+                int ch,
+                int rtu,
+                int point,
+                float value,
+                byte precision,
+                string unit,
+                string expected
+            )
+            {
+                var tmAnalog = new TmAnalog(ch, rtu, point)
+                {
+                    IsInit = true,
+                    Value = value,
+                    Precision = precision,
+                    Unit = unit,
+                };
 
-        tmAnalog.UpdateValueFromCommonPointDto(tmcCommonPoint);
+                var result = tmAnalog.ToString();
 
-        Assert.True(tmAnalog.IsInit);
-        Assert.Equal(value,     tmAnalog.Value);
-        Assert.Equal(flags,     (short) tmAnalog.Flags);
-      }
-    }
+                Assert.Equal(expected, result);
+            }
+        }
 
-
-    public class UpdatePropertiesFromCommonPointDtoMethod
-    {
-      [Fact]
-      public void SetsNameUnitWidthPrecision()
-      {
-        var tmAnalog = new TmAnalog(0, 1, 1);
-        var dto      = new TCommonPointDto
+        public class ValueStringProperty
         {
-          Name          = "Датчик",
-          AnalogPointDto = new TAnalogPointDto
-          {
-            Unit   = "В",
-            Format = 0x23, // width=3, precision=2
-          },
-        };
+            [Theory]
+            [UseCulture("ru-RU")]
+            [InlineData(1.337, 1, "1,3")]
+            [InlineData(0, 4, "0,0000")]
+            public void ReturnsCorrectString(float value, byte precision, string expected)
+            {
+                var tmAnalog = new TmAnalog(0, 1, 1)
+                {
+                    IsInit = true,
+                    Value = value,
+                    Precision = precision,
+                };
 
-        tmAnalog.UpdatePropertiesFromCommonPointDto(dto);
+                var result = tmAnalog.ValueString;
 
-        Assert.Equal("Датчик", tmAnalog.Name);
-        Assert.Equal("В",      tmAnalog.Unit);
-        Assert.Equal(3,        tmAnalog.Width);
-        Assert.Equal(2,        tmAnalog.Precision);
-      }
+                Assert.Equal(expected, result);
+            }
 
+            [Fact]
+            public void ReturnsQuestionsFromNonInitAnalog()
+            {
+                var tmAnalog = new TmAnalog(0, 1, 1);
 
-      [Fact]
-      public void DoesNotSetUnitWhenAnalogPointNull()
-      {
-        var tmAnalog = new TmAnalog(0, 1, 1) { Unit = "А" };
-        var dto      = new TCommonPointDto { Name = "Датчик" };
+                var result = tmAnalog.ValueString;
 
-        tmAnalog.UpdatePropertiesFromCommonPointDto(dto);
+                Assert.Equal("???", result);
+            }
+        }
 
-        Assert.Equal("А", tmAnalog.Unit);
-      }
+        public class ValueStringWithPrecisionMethod
+        {
+            [Theory]
+            [UseCulture("ru-RU")]
+            [InlineData(1.337, 1, "1,3")]
+            [InlineData(0, 4, "0,0000")]
+            public void ReturnsCorrectString(float value, byte precision, string expected)
+            {
+                var tmAnalog = new TmAnalog(0, 1, 1) { IsInit = true, Value = value };
+
+                var result = tmAnalog.ValueStringWithPrecision(precision);
+
+                Assert.Equal(expected, result);
+            }
+        }
+
+        public class ValueWithUnitStringWithPrecisionMethod
+        {
+            [Theory]
+            [UseCulture("ru-RU")]
+            [InlineData(1.337, 1, "МВт", "1,3 МВт")]
+            [InlineData(0, 4, "кВ", "0,0000 кВ")]
+            public void ReturnsCorrectString(
+                float value,
+                byte precision,
+                string unit,
+                string expected
+            )
+            {
+                var tmAnalog = new TmAnalog(0, 1, 1)
+                {
+                    IsInit = true,
+                    Value = value,
+                    Unit = unit,
+                };
+
+                var result = tmAnalog.ValueWithUnitStringWithPrecision(precision);
+
+                Assert.Equal(expected, result);
+            }
+        }
+
+        public class EqualsMethod
+        {
+            [Theory, TmAutoData]
+            public void ReturnsFalseForNull(int ch, int rtu, int point)
+            {
+                var tmAnalog1 = new TmAnalog(ch, rtu, point);
+
+                var result = tmAnalog1.Equals(null);
+
+                Assert.False(result);
+            }
+
+            [Theory, TmAutoData]
+            public void ReturnsFalseForWrongType(int ch, int rtu, int point)
+            {
+                var tmAnalog1 = new TmAnalog(ch, rtu, point);
+                var tmStatus = new TmStatus(ch, rtu, point);
+
+                var result = tmAnalog1.Equals(tmStatus);
+
+                Assert.False(result);
+            }
+
+            [Theory, TmAutoData]
+            public void ReturnsFalseForWrongAddr(int ch, int rtu, int point)
+            {
+                var tmAnalog1 = new TmAnalog(ch, rtu, point);
+                var tmAnalog2 = new TmAnalog(ch, rtu, point + 1);
+
+                var result = tmAnalog1.Equals(tmAnalog2);
+
+                Assert.False(result);
+            }
+
+            [Theory, TmAutoData]
+            public void ReturnsTrue(int ch, int rtu, int point)
+            {
+                var tmAnalog1 = new TmAnalog(ch, rtu, point);
+                var tmAnalog2 = new TmAnalog(ch, rtu, point);
+
+                var result = tmAnalog1.Equals(tmAnalog2);
+
+                Assert.True(result);
+            }
+
+            [Theory, TmAutoData]
+            public void ReturnsFalseForWrongValue(int ch, int rtu, int point)
+            {
+                var tmAnalog1 = new TmAnalog(ch, rtu, point);
+                var tmAnalog2 = new TmAnalog(ch, rtu, point) { Value = 1 };
+
+                var result = tmAnalog1.Equals(tmAnalog2);
+
+                Assert.False(result);
+            }
+
+            [Theory, TmAutoData]
+            public void ReturnsFalseForWrongFlags(int ch, int rtu, int point)
+            {
+                var tmAnalog1 = new TmAnalog(ch, rtu, point);
+                var tmAnalog2 = new TmAnalog(ch, rtu, point) { Flags = TmFlags.Unreliable };
+
+                var result = tmAnalog1.Equals(tmAnalog2);
+
+                Assert.False(result);
+            }
+        }
+
+        public class EqualityOperator
+        {
+            [Theory, TmAutoData]
+            public void ReturnsFalseForNull(int ch, int rtu, int point)
+            {
+                var tmAnalog1 = new TmAnalog(ch, rtu, point);
+
+                var result = tmAnalog1 == null;
+
+                Assert.False(result);
+            }
+
+            [Fact]
+            public void ReturnsTrueForNullWhenNull()
+            {
+                TmAnalog tmAnalog1 = null;
+
+                var result = tmAnalog1 == null;
+
+                Assert.True(result);
+            }
+
+            [Theory, TmAutoData]
+            public void ReturnsTrue(int ch, int rtu, int point)
+            {
+                var tmAnalog1 = new TmAnalog(ch, rtu, point);
+                var tmAnalog2 = new TmAnalog(ch, rtu, point);
+
+                var result = tmAnalog1 == tmAnalog2;
+
+                Assert.True(result);
+            }
+
+            [Theory, TmAutoData]
+            public void ReturnsFalseForWrongAddr(int ch, int rtu, int point)
+            {
+                var tmAnalog1 = new TmAnalog(ch, rtu, point);
+                var tmAnalog2 = new TmAnalog(ch, rtu, point + 1);
+
+                var result = tmAnalog1 == tmAnalog2;
+
+                Assert.False(result);
+            }
+
+            [Theory, TmAutoData]
+            public void ReturnsFalseForWrongValue(int ch, int rtu, int point)
+            {
+                var tmAnalog1 = new TmAnalog(ch, rtu, point);
+                var tmAnalog2 = new TmAnalog(ch, rtu, point) { Value = 1 };
+
+                var result = tmAnalog1 == tmAnalog2;
+
+                Assert.False(result);
+            }
+
+            [Theory, TmAutoData]
+            public void ReturnsFalseForWrongFlags(int ch, int rtu, int point)
+            {
+                var tmAnalog1 = new TmAnalog(ch, rtu, point);
+                var tmAnalog2 = new TmAnalog(ch, rtu, point) { Flags = TmFlags.Unreliable };
+
+                var result = tmAnalog1 == tmAnalog2;
+
+                Assert.False(result);
+            }
+        }
+
+        public class FromCommonPointMethod
+        {
+            [Fact]
+            public void DoesNotInitWithTmFlagsInvalid()
+            {
+                var tmAnalog = new TmAnalog(0, 1, 1);
+                var tmcCommonPoint = new TCommonPointDto
+                {
+                    TmFlags = 0xFFFF,
+                    AnalogPointDto = new TAnalogPointDto(),
+                };
+
+                tmAnalog.UpdateValueFromCommonPointDto(tmcCommonPoint);
+
+                Assert.False(tmAnalog.IsInit);
+            }
+
+            [Fact]
+            public void DoesNotInitWithAnalogDataNull()
+            {
+                var tmAnalog = new TmAnalog(0, 1, 1);
+                var tmcCommonPoint = new TCommonPointDto();
+
+                tmAnalog.UpdateValueFromCommonPointDto(tmcCommonPoint);
+
+                Assert.False(tmAnalog.IsInit);
+            }
+
+            [Theory]
+            [InlineData(1.337, 0)]
+            [InlineData(0, (short)TmNativeDefs.Flags.UnreliableHdw)]
+            [InlineData(
+                1234.5678,
+                (short)(TmNativeDefs.Flags.UnreliableManu | TmNativeDefs.Flags.ManuallySet)
+            )]
+            public void SetsCorrectValues(float value, short flags)
+            {
+                var tmAnalog = new TmAnalog(0, 1, 1);
+                var tmcCommonPoint = new TCommonPointDto
+                {
+                    TmFlags = 1,
+                    AnalogPointDto = new TAnalogPointDto { AsFloat = value, Flags = flags },
+                };
+
+                tmAnalog.UpdateValueFromCommonPointDto(tmcCommonPoint);
+
+                Assert.True(tmAnalog.IsInit);
+                Assert.Equal(value, tmAnalog.Value);
+                Assert.Equal(flags, (short)tmAnalog.Flags);
+            }
+        }
+
+        public class UpdatePropertiesFromCommonPointDtoMethod
+        {
+            [Fact]
+            public void SetsNameUnitWidthPrecision()
+            {
+                var tmAnalog = new TmAnalog(0, 1, 1);
+                var dto = new TCommonPointDto
+                {
+                    Name = "Датчик",
+                    AnalogPointDto = new TAnalogPointDto
+                    {
+                        Unit = "В",
+                        Format = 0x23, // width=3, precision=2
+                    },
+                };
+
+                tmAnalog.UpdatePropertiesFromCommonPointDto(dto);
+
+                Assert.Equal("Датчик", tmAnalog.Name);
+                Assert.Equal("В", tmAnalog.Unit);
+                Assert.Equal(3, tmAnalog.Width);
+                Assert.Equal(2, tmAnalog.Precision);
+            }
+
+            [Fact]
+            public void DoesNotSetUnitWhenAnalogPointNull()
+            {
+                var tmAnalog = new TmAnalog(0, 1, 1) { Unit = "А" };
+                var dto = new TCommonPointDto { Name = "Датчик" };
+
+                tmAnalog.UpdatePropertiesFromCommonPointDto(dto);
+
+                Assert.Equal("А", tmAnalog.Unit);
+            }
+        }
     }
-  }
 
-
-  public class UpdatePropertiesWithDtoMethod
-  {
-    [Theory]
-    [InlineData("ТИТ1", "В",   "5.0", 1, 5, 0)]
-    [InlineData("ТИТ2", "кВт", "7.1", 2, 7, 1)]
-    [InlineData("ТИТ3", "А",   "7.3", 3, 7, 3)]
-    public void SetsCorrectValuesWithClass(string name,          string unit, string format, short classId,
-                                           byte   expectedWidth, byte   expectedPrecision)
+    public class UpdatePropertiesWithDtoMethod
     {
-      var tmAnalog = new TmAnalog(0, 1, 1);
+        [Theory]
+        [InlineData("ТИТ1", "В", "5.0", 1, 5, 0)]
+        [InlineData("ТИТ2", "кВт", "7.1", 2, 7, 1)]
+        [InlineData("ТИТ3", "А", "7.3", 3, 7, 3)]
+        public void SetsCorrectValuesWithClass(
+            string name,
+            string unit,
+            string format,
+            short classId,
+            byte expectedWidth,
+            byte expectedPrecision
+        )
+        {
+            var tmAnalog = new TmAnalog(0, 1, 1);
 
-      tmAnalog.UpdatePropertiesFromSql(name, unit, format, classId, ""); // todo al test provider!
+            tmAnalog.UpdatePropertiesFromSql(name, unit, format, classId, ""); // todo al test provider!
 
-      Assert.Equal(name,              tmAnalog.Name);
-      Assert.Equal(unit,              tmAnalog.Unit);
-      Assert.Equal(expectedWidth,     tmAnalog.Width);
-      Assert.Equal(expectedPrecision, tmAnalog.Precision);
-      Assert.Equal((byte) classId,    tmAnalog.ClassId);
+            Assert.Equal(name, tmAnalog.Name);
+            Assert.Equal(unit, tmAnalog.Unit);
+            Assert.Equal(expectedWidth, tmAnalog.Width);
+            Assert.Equal(expectedPrecision, tmAnalog.Precision);
+            Assert.Equal((byte)classId, tmAnalog.ClassId);
+        }
+
+        [Theory]
+        [InlineData("ТИТ1", "В", "5.0", -1, 5, 0)]
+        public void SetsCorrectValuesWithNoClass(
+            string name,
+            string unit,
+            string format,
+            short classId,
+            byte expectedWidth,
+            byte expectedPrecision
+        )
+        {
+            var tmAnalog = new TmAnalog(0, 1, 1);
+
+            tmAnalog.UpdatePropertiesFromSql(name, unit, format, classId, ""); // todo al test provider!
+
+            Assert.Equal(name, tmAnalog.Name);
+            Assert.Equal(unit, tmAnalog.Unit);
+            Assert.Equal(expectedWidth, tmAnalog.Width);
+            Assert.Equal(expectedPrecision, tmAnalog.Precision);
+            Assert.Null(tmAnalog.ClassId);
+        }
     }
-
-
-    [Theory]
-    [InlineData("ТИТ1", "В", "5.0", -1, 5, 0)]
-    public void SetsCorrectValuesWithNoClass(string name,          string unit, string format, short classId,
-                                             byte   expectedWidth, byte   expectedPrecision)
-    {
-      var tmAnalog = new TmAnalog(0, 1, 1);
-
-      tmAnalog.UpdatePropertiesFromSql(name, unit, format, classId, ""); // todo al test provider!
-
-      Assert.Equal(name,              tmAnalog.Name);
-      Assert.Equal(unit,              tmAnalog.Unit);
-      Assert.Equal(expectedWidth,     tmAnalog.Width);
-      Assert.Equal(expectedPrecision, tmAnalog.Precision);
-      Assert.Null(tmAnalog.ClassId);
-    }
-  }
 }

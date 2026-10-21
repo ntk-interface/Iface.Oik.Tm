@@ -3,44 +3,39 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AspWebApiTask.Controllers
 {
-  [Route("api/user")]
-  [ApiController]
-  public class UserController : Controller
-  {
-    private readonly ICommonInfrastructure _infr;
-
-
-    public UserController(ICommonInfrastructure infr)
+    [Route("api/user")]
+    [ApiController]
+    public class UserController : Controller
     {
-      _infr = infr;
+        private readonly ICommonInfrastructure _infr;
+
+        public UserController(ICommonInfrastructure infr)
+        {
+            _infr = infr;
+        }
+
+        [HttpGet]
+        public IActionResult Index()
+        {
+            return Ok(_infr.TmUserInfo);
+        }
+
+        [HttpGet("name")]
+        public IActionResult ShowName()
+        {
+            return Ok(_infr.TmUserInfo?.Name);
+        }
+
+        [HttpGet("id")]
+        public IActionResult ShowId()
+        {
+            return Ok(_infr.TmUserInfo?.Id);
+        }
+
+        [HttpGet("group")]
+        public IActionResult ShowGroup()
+        {
+            return Ok(_infr.TmUserInfo?.GroupId);
+        }
     }
-
-
-    [HttpGet]
-    public IActionResult Index()
-    {
-      return Ok(_infr.TmUserInfo);
-    }
-
-
-    [HttpGet("name")]
-    public IActionResult ShowName()
-    {
-      return Ok(_infr.TmUserInfo?.Name);
-    }
-
-
-    [HttpGet("id")]
-    public IActionResult ShowId()
-    {
-      return Ok(_infr.TmUserInfo?.Id);
-    }
-
-
-    [HttpGet("group")]
-    public IActionResult ShowGroup()
-    {
-      return Ok(_infr.TmUserInfo?.GroupId);
-    }
-  }
 }

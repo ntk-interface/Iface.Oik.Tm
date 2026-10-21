@@ -1,136 +1,104 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="clr-namespace:GuiApp.AvaloniaUI.ViewModels"
-        x:Class="GuiApp.AvaloniaUI.Views.MainWindowView"
-        Title="Avalonia UI пример"
-        Width="1000"
-        Height="800"
-        x:DataType="vm:MainWindowViewModel">
-    
-    <Design.DataContext>
-        <vm:MainWindowViewModel/>
-    </Design.DataContext>
-    
-    <Grid ColumnDefinitions="Auto,*">
-        <Grid Grid.Row="0"
-              Grid.Column="0"
-              RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto"
-              ColumnDefinitions="120,120"
-              Margin="8">
-            <TextBlock Grid.Row="0"
-                       Grid.Column="0"
-                       Text="Хост:"
-                       HorizontalAlignment="Right" />
-            <TextBox Grid.Row="0"
-                     Grid.Column="1"
-                     Text="{Binding Host}"
-                     Margin="8,0,0,8" />
+<Window
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:vm="clr-namespace:GuiApp.AvaloniaUI.ViewModels"
+  x:Class="GuiApp.AvaloniaUI.Views.MainWindowView"
+  Title="Avalonia UI пример"
+  Width="1000"
+  Height="800"
+  x:DataType="vm:MainWindowViewModel"
+>
+  <Design.DataContext>
+    <vm:MainWindowViewModel />
+  </Design.DataContext>
 
-            <TextBlock Grid.Row="1"
-                       Grid.Column="0"
-                       Text="TM-сервер:"
-                       HorizontalAlignment="Right" />
-            <TextBox Grid.Row="1"
-                     Grid.Column="1"
-                     Text="{Binding TmServer}"
-                     Margin="8,0,0,8" />
+  <Grid ColumnDefinitions="Auto,*">
+    <Grid
+      Grid.Row="0"
+      Grid.Column="0"
+      RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+      ColumnDefinitions="120,120"
+      Margin="8"
+    >
+      <TextBlock Grid.Row="0" Grid.Column="0" Text="Хост:" HorizontalAlignment="Right" />
+      <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Host}" Margin="8,0,0,8" />
 
-            <TextBlock Grid.Row="2"
-                       Grid.Column="0"
-                       Text="RB-сервер:"
-                       HorizontalAlignment="Right" />
-            <TextBox Grid.Row="2"
-                     Grid.Column="1"
-                     Text="{Binding RbServer}"
-                     Margin="8,0,0,8" />
+      <TextBlock Grid.Row="1" Grid.Column="0" Text="TM-сервер:" HorizontalAlignment="Right" />
+      <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding TmServer}" Margin="8,0,0,8" />
 
-            <TextBlock Grid.Row="3"
-                       Grid.Column="0"
-                       Text="Пользователь:"
-                       HorizontalAlignment="Right" />
-            <TextBox Grid.Row="3"
-                     Grid.Column="1"
-                     Text="{Binding User}"
-                     Margin="8,0,0,8" />
+      <TextBlock Grid.Row="2" Grid.Column="0" Text="RB-сервер:" HorizontalAlignment="Right" />
+      <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding RbServer}" Margin="8,0,0,8" />
 
-            <TextBlock Grid.Row="4"
-                       Grid.Column="0"
-                       Text="Пароль:"
-                       HorizontalAlignment="Right" />
-            <TextBox Grid.Row="4"
-                     Grid.Column="1"
-                     Text="{Binding Password}"
-                     Margin="8,0,0,8" />
+      <TextBlock Grid.Row="3" Grid.Column="0" Text="Пользователь:" HorizontalAlignment="Right" />
+      <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding User}" Margin="8,0,0,8" />
 
-            <Button Grid.Row="5"
-                    Grid.Column="0"
-                    Grid.ColumnSpan="2"
-                    Content="Соединиться"
-                    Command="{Binding Connect}"
-                    IsVisible="{Binding !IsConnected}"
-                    Margin="8" />
+      <TextBlock Grid.Row="4" Grid.Column="0" Text="Пароль:" HorizontalAlignment="Right" />
+      <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Password}" Margin="8,0,0,8" />
 
-            <StackPanel Grid.Row="6"
-                        Grid.Column="0"
-                        Grid.ColumnSpan="2"
-                        Margin="8"
-                        IsVisible="{Binding IsConnected}">
-                <Button Content="Отсоединиться"
-                        Command="{Binding DisconnectCommand}" />
+      <Button
+        Grid.Row="5"
+        Grid.Column="0"
+        Grid.ColumnSpan="2"
+        Content="Соединиться"
+        Command="{Binding Connect}"
+        IsVisible="{Binding !IsConnected}"
+        Margin="8"
+      />
 
-                <Button Content="Время на сервере"
-                        Command="{Binding GetServerTimeCommand}"
-                        Margin="0,16,0,0" />
+      <StackPanel
+        Grid.Row="6"
+        Grid.Column="0"
+        Grid.ColumnSpan="2"
+        Margin="8"
+        IsVisible="{Binding IsConnected}"
+      >
+        <Button Content="Отсоединиться" Command="{Binding DisconnectCommand}" />
 
-                <Button Content="Активные АПС"
-                        Command="{Binding GetPresentApsCommand}"
-                        Margin="0,8,0,0" />
+        <Button
+          Content="Время на сервере"
+          Command="{Binding GetServerTimeCommand}"
+          Margin="0,16,0,0"
+        />
 
-                <Button Content="Активные уставки"
-                        Command="{Binding GetPresentAlarmsCommand}"
-                        Margin="0,8,0,0" />
+        <Button Content="Активные АПС" Command="{Binding GetPresentApsCommand}" Margin="0,8,0,0" />
 
-                <StackPanel Orientation="Horizontal"
-                            Margin="0,16,0,0">
-                    <TextBox Text="{Binding Channel}"
-                             Width="40"
-                             Margin="8,0,8,0" />
-                    <TextBox Text="{Binding Rtu}"
-                             Width="40"
-                             Margin="8,0,8,0" />
-                    <TextBox Text="{Binding Point}"
-                             Width="40"
-                             Margin="8,0,8,0" />
-                </StackPanel>
+        <Button
+          Content="Активные уставки"
+          Command="{Binding GetPresentAlarmsCommand}"
+          Margin="0,8,0,0"
+        />
 
-                <Button Content="Состояние сигнала"
-                        Command="{Binding GetStatusCommand}"
-                        Margin="0,8,0,0" />
+        <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+          <TextBox Text="{Binding Channel}" Width="40" Margin="8,0,8,0" />
+          <TextBox Text="{Binding Rtu}" Width="40" Margin="8,0,8,0" />
+          <TextBox Text="{Binding Point}" Width="40" Margin="8,0,8,0" />
+        </StackPanel>
 
-                <Button Content="Значение измерения"
-                        Command="{Binding GetAnalogCommand}"
-                        Margin="0,8,0,0" />
+        <Button Content="Состояние сигнала" Command="{Binding GetStatusCommand}" Margin="0,8,0,0" />
 
-                <Button Content="Очистить лог"
-                        Command="{Binding ClearLogCommand}"
-                        Margin="0,16,0,0" />
-            </StackPanel>
-        </Grid>
+        <Button
+          Content="Значение измерения"
+          Command="{Binding GetAnalogCommand}"
+          Margin="0,8,0,0"
+        />
 
-        <ListBox Grid.Row="0"
-                 Grid.Column="1"
-                 ItemsSource="{Binding Log}"
-                 Margin="8">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Time, StringFormat=\{0:hh:mm:ss\}}"
-                                   Margin="0,0,8,0"
-                                   Opacity=".38" />
-                        <TextBlock Text="{Binding Message}" />
-                    </StackPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <Button Content="Очистить лог" Command="{Binding ClearLogCommand}" Margin="0,16,0,0" />
+      </StackPanel>
     </Grid>
+
+    <ListBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding Log}" Margin="8">
+      <ListBox.ItemTemplate>
+        <DataTemplate>
+          <StackPanel Orientation="Horizontal">
+            <TextBlock
+              Text="{Binding Time, StringFormat=\{0:hh:mm:ss\}}"
+              Margin="0,0,8,0"
+              Opacity=".38"
+            />
+            <TextBlock Text="{Binding Message}" />
+          </StackPanel>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </Grid>
 </Window>

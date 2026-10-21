@@ -139,7 +139,7 @@ namespace Iface.Oik.Tm.Test.Api
       [Theory, TmAutoFakeItEasyData]
       public async void ReturnsCorrectTime(TmsApi tms)
       {
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); 
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         
         var fakeTime         = "12.12.2017 09:14:30";
         var anyByteBuf = new byte[80];
@@ -159,7 +159,7 @@ namespace Iface.Oik.Tm.Test.Api
       [Theory, TmAutoFakeItEasyData]
       public async void ReturnsCorrectTime([Frozen] ITmNative native, TmsApi tms)
       {
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); 
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         
         var fakeTime   = "12.12.2017 09:14:30";
         var anyByteBuf = new byte[80];

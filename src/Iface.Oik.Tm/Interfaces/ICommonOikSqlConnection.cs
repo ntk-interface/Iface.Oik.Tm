@@ -5,19 +5,19 @@ using Npgsql;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public interface ICommonOikSqlConnection : IDisposable
-  {
-    string           Label        { get; set; }
-    bool             IsDebugMode  { get; set; }
-    NpgsqlConnection DbConnection { get; }
-    bool             IsOpen       { get; }
+    public interface ICommonOikSqlConnection : IDisposable
+    {
+        string Label { get; set; }
+        bool IsDebugMode { get; set; }
+        NpgsqlConnection DbConnection { get; }
+        bool IsOpen { get; }
 
-    void Open(); // throws Exception
-    Task OpenAsync();
-    Task OpenAsync(CancellationToken cancellationToken);
+        void Open(); // throws Exception
+        Task OpenAsync();
+        Task OpenAsync(CancellationToken cancellationToken);
 
-    NpgsqlCommand CreateCommand();
+        NpgsqlCommand CreateCommand();
 
-    void Close();
-  }
+        void Close();
+    }
 }

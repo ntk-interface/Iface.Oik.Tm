@@ -2,7 +2,7 @@
 
 public enum RestoreBackupResult
 {
-  Error,
-  Success,
-  NothingToRestore
+    Error,
+    Success,
+    NothingToRestore,
 }

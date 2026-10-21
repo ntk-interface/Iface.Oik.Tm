@@ -6,24 +6,24 @@ namespace Iface.Oik.Tm.Native.Dto;
 
 public record TDomainInfoDto
 {
-  public uint   PrimaryDomainError { get; init; }
-  public string PrimaryDomainName  { get; init; } = string.Empty;
-  public byte[] PrimaryDomainSid   { get; init; } = Array.Empty<byte>();
+    public uint PrimaryDomainError { get; init; }
+    public string PrimaryDomainName { get; init; } = string.Empty;
+    public byte[] PrimaryDomainSid { get; init; } = Array.Empty<byte>();
 
-  public uint   AccountDomainError { get; init; }
-  public string AccountDomainName  { get; init; } = string.Empty;
-  public byte[] AccountDomainSid   { get; init; } = Array.Empty<byte>();
+    public uint AccountDomainError { get; init; }
+    public string AccountDomainName { get; init; } = string.Empty;
+    public byte[] AccountDomainSid { get; init; } = Array.Empty<byte>();
 
-  internal static unsafe TDomainInfoDto Create(TmNativeDefsUnsafe.DomainInfoS domInfo)
-  {
-    return new TDomainInfoDto
+    internal static unsafe TDomainInfoDto Create(TmNativeDefsUnsafe.DomainInfoS domInfo)
     {
-      PrimaryDomainError = domInfo.PrimaryDomainError,
-      PrimaryDomainName  = new string(domInfo.PrimaryDomainName),
-      PrimaryDomainSid   = TmNativeUtil.PtrToArray(domInfo.PrimaryDomainSid, 100),
-      AccountDomainError = domInfo.AccountDomainError,
-      AccountDomainName  = new string(domInfo.AccountDomainName),
-      AccountDomainSid   = TmNativeUtil.PtrToArray(domInfo.AccountDomainSid, 100)
-    };
-  }
+        return new TDomainInfoDto
+        {
+            PrimaryDomainError = domInfo.PrimaryDomainError,
+            PrimaryDomainName = new string(domInfo.PrimaryDomainName),
+            PrimaryDomainSid = TmNativeUtil.PtrToArray(domInfo.PrimaryDomainSid, 100),
+            AccountDomainError = domInfo.AccountDomainError,
+            AccountDomainName = new string(domInfo.AccountDomainName),
+            AccountDomainSid = TmNativeUtil.PtrToArray(domInfo.AccountDomainSid, 100),
+        };
+    }
 }

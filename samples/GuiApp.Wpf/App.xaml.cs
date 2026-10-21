@@ -10,33 +10,30 @@ namespace GuiApp.Wpf;
 
 public partial class App
 {
-  protected override void OnStartup(StartupEventArgs e)
-  {
-    base.OnStartup(e);
-    
-    var services = StartupServices();
+    protected override void OnStartup(StartupEventArgs e)
+    {
+        base.OnStartup(e);
 
-    services.AddSingleton<MainWindowView>();
+        var services = StartupServices();
 
-    services.BuildServiceProvider()
-            .GetService<MainWindowView>()
-            .Show();
-  }
+        services.AddSingleton<MainWindowView>();
 
+        services.BuildServiceProvider().GetService<MainWindowView>().Show();
+    }
 
-  private static IServiceCollection StartupServices()
-  {
-    var services = new ServiceCollection();
+    private static IServiceCollection StartupServices()
+    {
+        var services = new ServiceCollection();
 
-    services.AddSingleton<ITmsApi, TmsApi>();
-    services.AddSingleton<IOikSqlApi, OikSqlApi>();
-    services.AddSingleton<IOikDataApi, OikDataApi>();
+        services.AddSingleton<ITmsApi, TmsApi>();
+        services.AddSingleton<IOikSqlApi, OikSqlApi>();
+        services.AddSingleton<IOikDataApi, OikDataApi>();
 
-    services.AddSingleton<ICommonServerService, CommonServerService>();
-    services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
+        services.AddSingleton<ICommonServerService, CommonServerService>();
+        services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
 
-    services.AddSingleton<MainWindowViewModel>();
+        services.AddSingleton<MainWindowViewModel>();
 
-    return services;
-  }
+        return services;
+    }
 }

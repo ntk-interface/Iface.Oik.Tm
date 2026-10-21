@@ -6,207 +6,198 @@ using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Dto
 {
-  public static class TmDtosExtensions
-  {
-    public static TmChannel MapToTmChannel(this TmChannelDto dto)
+    public static class TmDtosExtensions
     {
-      return new TmChannel(dto.ChannelId, dto.Name);
-    }
+        public static TmChannel MapToTmChannel(this TmChannelDto dto)
+        {
+            return new TmChannel(dto.ChannelId, dto.Name);
+        }
 
+        public static TmRtu MapToTmRtu(this TmRtuDto dto)
+        {
+            return new TmRtu(dto.ChannelId, dto.RtuId, dto.Name);
+        }
 
-    public static TmRtu MapToTmRtu(this TmRtuDto dto)
-    {
-      return new TmRtu(dto.ChannelId, dto.RtuId, dto.Name);
-    }
+        public static TmStatusDto MapToTmStatusDto(this TmStatusTmTreeDto dto)
+        {
+            return new TmStatusDto
+            {
+                Tma = dto.Tma,
+                VCode = dto.VCode,
+                Flags = dto.Flags,
+                VS2 = dto.VS2,
+                ChangeTime = dto.ChangeTime,
+            };
+        }
 
+        public static TmStatusPropertiesDto MapToTmStatusPropertiesDto(this TmStatusTmTreeDto dto)
+        {
+            return new TmStatusPropertiesDto
+            {
+                Tma = dto.Tma,
+                Name = dto.Name,
+                VImportance = dto.VImportance,
+                VNormalState = dto.VNormalState,
+                Provider = dto.Provider,
+                ClassId = dto.ClassId,
+                ClText0 = dto.ClText0,
+                ClText1 = dto.ClText1,
+                ClBreakText = dto.ClBreakText,
+                ClMalfunText = dto.ClMalfunText,
+                ClFlAName = dto.ClFlAName,
+                ClFlBName = dto.ClFlBName,
+                ClFlCName = dto.ClFlCName,
+                ClFlDName = dto.ClFlDName,
+                ClFlAText0 = dto.ClFlAText0,
+                ClFlAText1 = dto.ClFlAText1,
+                ClFlBText0 = dto.ClFlBText0,
+                ClFlBText1 = dto.ClFlBText1,
+                ClFlCText0 = dto.ClFlCText0,
+                ClFlCText1 = dto.ClFlCText1,
+                ClFlDText0 = dto.ClFlDText0,
+                ClFlDText1 = dto.ClFlDText1,
+            };
+        }
 
-    public static TmStatusDto MapToTmStatusDto(this TmStatusTmTreeDto dto)
-    {
-      return new TmStatusDto
-      {
-        Tma        = dto.Tma,
-        VCode      = dto.VCode,
-        Flags      = dto.Flags,
-        VS2        = dto.VS2,
-        ChangeTime = dto.ChangeTime,
-      };
-    }
+        public static TmAnalogDto MapToTmAnalogDto(this TmAnalogTmTreeDto dto)
+        {
+            return new TmAnalogDto
+            {
+                Tma = dto.Tma,
+                VVal = dto.VVal,
+                Flags = dto.Flags,
+                ChangeTime = dto.ChangeTime,
+            };
+        }
 
+        public static TmAnalogPropertiesDto MapToTmAnalogPropertiesDto(this TmAnalogTmTreeDto dto)
+        {
+            return new TmAnalogPropertiesDto
+            {
+                Tma = dto.Tma,
+                Name = dto.Name,
+                VUnit = dto.VUnit,
+                VFormat = dto.VFormat,
+                ClassId = dto.ClassId,
+                Provider = dto.Provider,
+            };
+        }
 
-    public static TmStatusPropertiesDto MapToTmStatusPropertiesDto(this TmStatusTmTreeDto dto)
-    {
-      return new TmStatusPropertiesDto
-      {
-        Tma          = dto.Tma,
-        Name         = dto.Name,
-        VImportance  = dto.VImportance,
-        VNormalState = dto.VNormalState,
-        Provider     = dto.Provider,
-        ClassId      = dto.ClassId,
-        ClText0      = dto.ClText0,
-        ClText1      = dto.ClText1,
-        ClBreakText  = dto.ClBreakText,
-        ClMalfunText = dto.ClMalfunText,
-        ClFlAName    = dto.ClFlAName,
-        ClFlBName    = dto.ClFlBName,
-        ClFlCName    = dto.ClFlCName,
-        ClFlDName    = dto.ClFlDName,
-        ClFlAText0   = dto.ClFlAText0,
-        ClFlAText1   = dto.ClFlAText1,
-        ClFlBText0   = dto.ClFlBText0,
-        ClFlBText1   = dto.ClFlBText1,
-        ClFlCText0   = dto.ClFlCText0,
-        ClFlCText1   = dto.ClFlCText1,
-        ClFlDText0   = dto.ClFlDText0,
-        ClFlDText1   = dto.ClFlDText1,
-      };
-    }
+        public static TmAccumDto MapToTmAccumDto(this TmAccumTmTreeDto dto)
+        {
+            return new TmAccumDto
+            {
+                Tma = dto.Tma,
+                VVal = dto.VVal,
+                VLoad = dto.VLoad,
+                Flags = dto.Flags,
+                ChangeTime = dto.ChangeTime,
+            };
+        }
 
+        public static TmAccumPropertiesDto MapToTmAccumPropertiesDto(this TmAccumTmTreeDto dto)
+        {
+            return new TmAccumPropertiesDto
+            {
+                Tma = dto.Tma,
+                Name = dto.Name,
+                VUnit = dto.VUnit,
+                VFormat = dto.VFormat,
+                VCounterFormat = dto.VCounterFormat,
+                Provider = dto.Provider,
+            };
+        }
 
-    public static TmAnalogDto MapToTmAnalogDto(this TmAnalogTmTreeDto dto)
-    {
-      return new TmAnalogDto
-      {
-        Tma        = dto.Tma,
-        VVal       = dto.VVal,
-        Flags      = dto.Flags,
-        ChangeTime = dto.ChangeTime,
-      };
-    }
+        public static TmAnalogMicroSeriesDto MapToTmAnalogMicroSeriesDto(this TmAlertDto dto)
+        {
+            return new TmAnalogMicroSeriesDto
+            {
+                MsValues = dto.MsValues,
+                MsSFlags = dto.MsSFlags,
+                MsTimes = dto.MsTimes,
+            };
+        }
 
+        public static TmAnalogTechParametersDto MapToTmAnalogTechParametersDto(
+            this TmAnalogPropertiesDto dto
+        )
+        {
+            return new TmAnalogTechParametersDto
+            {
+                TprMinVal = dto.TprMinVal,
+                TprMaxVal = dto.TprMaxVal,
+                TprNominal = dto.TprNominal,
+                TprZoneDLow = dto.TprZoneDLow,
+                TprZoneCLow = dto.TprZoneCLow,
+                TprZoneCHigh = dto.TprZoneCHigh,
+                TprZoneDHigh = dto.TprZoneDHigh,
+                TprAlrPresent = dto.TprAlrPresent,
+                TprAlrInUse = dto.TprAlrInUse,
+            };
+        }
 
-    public static TmAnalogPropertiesDto MapToTmAnalogPropertiesDto(this TmAnalogTmTreeDto dto)
-    {
-      return new TmAnalogPropertiesDto
-      {
-        Tma      = dto.Tma,
-        Name     = dto.Name,
-        VUnit    = dto.VUnit,
-        VFormat  = dto.VFormat,
-        ClassId  = dto.ClassId,
-        Provider = dto.Provider,
-      };
-    }
+        public static TmAnalogTechParametersDto MapToTmAnalogTechParametersDto(this TmAlertDto dto)
+        {
+            return new TmAnalogTechParametersDto
+            {
+                TprMinVal = dto.TprMinVal,
+                TprMaxVal = dto.TprMaxVal,
+                TprNominal = dto.TprNominal,
+                TprZoneDLow = dto.TprZoneDLow,
+                TprZoneCLow = dto.TprZoneCLow,
+                TprZoneCHigh = dto.TprZoneCHigh,
+                TprZoneDHigh = dto.TprZoneDHigh,
+                TprAlrPresent = dto.TprAlrPresent,
+                TprAlrInUse = dto.TprAlrInUse,
+            };
+        }
 
-
-    public static TmAccumDto MapToTmAccumDto(this TmAccumTmTreeDto dto)
-    {
-      return new TmAccumDto
-      {
-        Tma        = dto.Tma,
-        VVal       = dto.VVal,
-        VLoad      = dto.VLoad,
-        Flags      = dto.Flags,
-        ChangeTime = dto.ChangeTime,
-      };
-    }
-
-
-    public static TmAccumPropertiesDto MapToTmAccumPropertiesDto(this TmAccumTmTreeDto dto)
-    {
-      return new TmAccumPropertiesDto
-      {
-        Tma            = dto.Tma,
-        Name           = dto.Name,
-        VUnit          = dto.VUnit,
-        VFormat        = dto.VFormat,
-        VCounterFormat = dto.VCounterFormat,
-        Provider       = dto.Provider,
-      };
-    }
-
-
-    public static TmAnalogMicroSeriesDto MapToTmAnalogMicroSeriesDto(this TmAlertDto dto)
-    {
-      return new TmAnalogMicroSeriesDto
-      {
-        MsValues = dto.MsValues,
-        MsSFlags = dto.MsSFlags,
-        MsTimes  = dto.MsTimes,
-      };
-    }
-
-
-    public static TmAnalogTechParametersDto MapToTmAnalogTechParametersDto(this TmAnalogPropertiesDto dto)
-    {
-      return new TmAnalogTechParametersDto
-      {
-        TprMinVal     = dto.TprMinVal,
-        TprMaxVal     = dto.TprMaxVal,
-        TprNominal    = dto.TprNominal,
-        TprZoneDLow   = dto.TprZoneDLow,
-        TprZoneCLow   = dto.TprZoneCLow,
-        TprZoneCHigh  = dto.TprZoneCHigh,
-        TprZoneDHigh  = dto.TprZoneDHigh,
-        TprAlrPresent = dto.TprAlrPresent,
-        TprAlrInUse   = dto.TprAlrInUse,
-      };
-    }
-
-
-    public static TmAnalogTechParametersDto MapToTmAnalogTechParametersDto(this TmAlertDto dto)
-    {
-      return new TmAnalogTechParametersDto
-      {
-        TprMinVal     = dto.TprMinVal,
-        TprMaxVal     = dto.TprMaxVal,
-        TprNominal    = dto.TprNominal,
-        TprZoneDLow   = dto.TprZoneDLow,
-        TprZoneCLow   = dto.TprZoneCLow,
-        TprZoneCHigh  = dto.TprZoneCHigh,
-        TprZoneDHigh  = dto.TprZoneDHigh,
-        TprAlrPresent = dto.TprAlrPresent,
-        TprAlrInUse   = dto.TprAlrInUse,
-      };
-    }
-
-
-    public static ITmAnalogRetro[] MapToITmAnalogRetroArray(this TmAnalogMicroSeriesDto dto)
-    {
-      if (dto.MsValues.IsNullOrEmpty())
-      {
-        return Array.Empty<ITmAnalogRetro>();
-      }
-      return dto.MsValues
-                .Select((value, idx) => new TmAnalogMicroSeries(value, dto.MsSFlags[idx], dto.MsTimes[idx]))
+        public static ITmAnalogRetro[] MapToITmAnalogRetroArray(this TmAnalogMicroSeriesDto dto)
+        {
+            if (dto.MsValues.IsNullOrEmpty())
+            {
+                return Array.Empty<ITmAnalogRetro>();
+            }
+            return dto
+                .MsValues.Select(
+                    (value, idx) =>
+                        new TmAnalogMicroSeries(value, dto.MsSFlags[idx], dto.MsTimes[idx])
+                )
                 .Cast<ITmAnalogRetro>()
                 .ToArray();
+        }
+
+        public static TmTag MapToTmTag(this TmTagWithBlockedEventsDto dto)
+        {
+            switch ((TmNativeDefs.TmDataTypes)(ushort)dto.TmType)
+            {
+                case TmNativeDefs.TmDataTypes.Status:
+                    var tmStatus = new TmStatus(dto.Ch, dto.Rtu, dto.Point);
+                    tmStatus.SetBlockedEventsData(dto.Name, dto.UnblkTime);
+                    return tmStatus;
+
+                default:
+                    var tmAnalog = new TmAnalog(dto.Ch, dto.Rtu, dto.Point);
+                    tmAnalog.SetBlockedEventsData(dto.Name, dto.UnblkTime);
+                    return tmAnalog;
+            }
+        }
+
+        public static MqttUserActionLogDto MapToMqttDto(this TmUserActionDto dto)
+        {
+            return new MqttUserActionLogDto
+            {
+                Id = dto.Id,
+                Time = dto.Time,
+                Action = dto.Action,
+                Category = dto.Category,
+                State = dto.State,
+                Importance = dto.Importance,
+                Text = dto.Text,
+                Username = dto.Username,
+                Tma = dto.Tma,
+                ExtraId = dto.ExtraId,
+            };
+        }
     }
-
-
-    public static TmTag MapToTmTag(this TmTagWithBlockedEventsDto dto)
-    {
-      switch ((TmNativeDefs.TmDataTypes) (ushort) dto.TmType)
-      {
-        case TmNativeDefs.TmDataTypes.Status:
-          var tmStatus = new TmStatus(dto.Ch, dto.Rtu, dto.Point);
-          tmStatus.SetBlockedEventsData(dto.Name, dto.UnblkTime);
-          return tmStatus;
-        
-        default:
-          var tmAnalog = new TmAnalog(dto.Ch, dto.Rtu, dto.Point);
-          tmAnalog.SetBlockedEventsData(dto.Name, dto.UnblkTime);
-          return tmAnalog;
-        
-      }
-    }
-
-
-    public static MqttUserActionLogDto MapToMqttDto(this TmUserActionDto dto)
-    {
-      return new MqttUserActionLogDto
-      {
-        Id         = dto.Id,
-        Time       = dto.Time,
-        Action     = dto.Action,
-        Category   = dto.Category,
-        State      = dto.State,
-        Importance = dto.Importance,
-        Text       = dto.Text,
-        Username   = dto.Username,
-        Tma        = dto.Tma,
-        ExtraId    = dto.ExtraId,
-      };
-    }
-  }
 }

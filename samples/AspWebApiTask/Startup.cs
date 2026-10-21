@@ -8,36 +8,41 @@ using Microsoft.Extensions.Hosting;
 
 namespace AspWebApiTask
 {
-  public class Startup
-  {
-    public void ConfigureServices(IServiceCollection services)
+    public class Startup
     {
-      services.AddControllers();
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddControllers();
 
-      // регистрация зависимостей ОИК
-      services.AddSingleton<ITmsApi, TmsApi>();
-      services.AddSingleton<IOikSqlApi, OikSqlApi>();
-      services.AddSingleton<IOikDataApi, OikDataApi>();
-      services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
-      services.AddSingleton<ServerService>();
-      services.AddSingleton<ICommonServerService>(provider => provider.GetRequiredService<ServerService>());
-      services.AddSingleton<TmStartup>();
-      
-      // регистрация фоновых служб
-      services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<TmStartup>());
-      services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<ServerService>());
+            // регистрация зависимостей ОИК
+            services.AddSingleton<ITmsApi, TmsApi>();
+            services.AddSingleton<IOikSqlApi, OikSqlApi>();
+            services.AddSingleton<IOikDataApi, OikDataApi>();
+            services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
+            services.AddSingleton<ServerService>();
+            services.AddSingleton<ICommonServerService>(provider =>
+                provider.GetRequiredService<ServerService>()
+            );
+            services.AddSingleton<TmStartup>();
+
+            // регистрация фоновых служб
+            services.AddSingleton<IHostedService>(provider =>
+                provider.GetRequiredService<TmStartup>()
+            );
+            services.AddSingleton<IHostedService>(provider =>
+                provider.GetRequiredService<ServerService>()
+            );
+        }
+
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            app.UseStatusCodePages();
+            app.UseRouting();
+            app.UseEndpoints(endpoints => endpoints.MapControllers());
+        }
     }
-
-
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-    {
-      if (env.IsDevelopment())
-      {
-        app.UseDeveloperExceptionPage();
-      }
-      app.UseStatusCodePages();
-      app.UseRouting();
-      app.UseEndpoints(endpoints => endpoints.MapControllers());
-    }
-  }
 }

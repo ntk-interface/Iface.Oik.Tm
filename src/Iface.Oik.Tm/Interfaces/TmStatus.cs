@@ -9,640 +9,625 @@ using Iface.Oik.Tm.Utils;
 
 namespace Iface.Oik.Tm.Interfaces
 {
-  public class TmStatus : TmTag
-  {
-    public static readonly string InvalidStatusCaption = "???";
-
-
-    public enum ClassCaption
+    public class TmStatus : TmTag
     {
-      Off,
-      On,
-      Break,
-      Malfunction,
-      Intermediate,
-      Flag1,
-      Flag1Off,
-      Flag1On,
-      Flag2,
-      Flag2Off,
-      Flag2On,
-      Flag3,
-      Flag3Off,
-      Flag3On,
-      Flag4,
-      Flag4Off,
-      Flag4On,
-      ClassName,
-      CommandOff,
-      CommandOn,
-    }
+        public static readonly string InvalidStatusCaption = "???";
 
-
-    private short     _status;
-    private TmFlags   _flags = TmFlags.Invalid;
-    private TmS2Flags _s2Flags;
-    private short     _normalStatus = -1;
-    private short     _importance;
-
-    public short Status
-    {
-      get => _status;
-      set => SetPropertyValueAndRefresh(ref _status, value);
-    }
-
-    public TmFlags Flags
-    {
-      get => _flags;
-      set => SetPropertyValueAndRefresh(ref _flags, value);
-    }
-
-    public TmS2Flags S2Flags
-    {
-      get => _s2Flags;
-      set => SetPropertyValueAndRefresh(ref _s2Flags, value);
-    }
-
-    public short NormalStatus
-    {
-      get => _normalStatus;
-      set => SetPropertyValueAndRefresh(ref _normalStatus, value);
-    }
-
-    public short Importance
-    {
-      get => _importance;
-      set => SetPropertyValueAndRefresh(ref _importance, value);
-    }
-
-    public bool IsNormalStatusOn      => NormalStatus == 1;
-    public bool IsNormalStatusOff     => NormalStatus == 0;
-    public bool IsNormalStatusUnknown => NormalStatus == -1;
-
-    public bool IsAps             => Flags.HasFlag(TmFlags.StatusAps);
-    public bool IsOn              => Status > 0;
-    public bool IsOff             => Status == 0;
-    public bool IsUnreliable      => Flags.HasFlag(TmFlags.Unreliable);
-    public bool IsInvalid         => Flags.HasFlag(TmFlags.Invalid);
-    public bool IsManuallyBlocked => Flags.HasFlag(TmFlags.ManuallyBlocked);
-    public bool IsManuallySet     => Flags.HasFlag(TmFlags.ManuallySet);
-    public bool IsIntermediate    => S2Flags.HasFlag(TmS2Flags.Intermediate);
-    public bool IsBreak           => S2Flags.HasFlag(TmS2Flags.Break) && !IsIntermediate;
-    public bool IsMalfunction     => S2Flags.HasFlag(TmS2Flags.Malfunction);
-    public bool IsS2Failure       => IsBreak || IsMalfunction || IsIntermediate;
-    public bool IsUnacked         => Flags.HasFlag(TmFlags.Unacked);
-    public bool HasTelecontrol    => Flags.HasFlag(TmFlags.TmCtrlPresent);
-    public bool IsRequested       => Flags.HasFlag(TmFlags.Requested);
-    public bool IsResChannel      => Flags.HasFlag(TmFlags.ResChannel);
-    public bool IsAbnormal        => Flags.HasFlag(TmFlags.Abnormal);
-    public bool IsInverted        => Flags.HasFlag(TmFlags.Inverted);
-    public bool IsFlag1           => Flags.HasFlag(TmFlags.LevelA);
-    public bool IsFlag2           => Flags.HasFlag(TmFlags.LevelB);
-    public bool IsFlag3           => Flags.HasFlag(TmFlags.LevelC);
-    public bool IsFlag4           => Flags.HasFlag(TmFlags.LevelD);
-    
-    public string ClassName => GetClassCaption(ClassCaption.ClassName);
-
-    public string CaptionOn          => GetClassCaption(ClassCaption.On);
-    public string CaptionOff         => GetClassCaption(ClassCaption.Off);
-    public string CaptionBreak       => GetClassCaption(ClassCaption.Break);
-    public string CaptionMalfunction => GetClassCaption(ClassCaption.Malfunction);
-
-    public string CaptionCommandOn  => GetClassCaption(ClassCaption.CommandOn);
-    public string CaptionCommandOff => GetClassCaption(ClassCaption.CommandOff);
-
-    public string Flag1Name => GetClassCaption(ClassCaption.Flag1);
-    public string Flag2Name => GetClassCaption(ClassCaption.Flag2);
-    public string Flag3Name => GetClassCaption(ClassCaption.Flag3);
-    public string Flag4Name => GetClassCaption(ClassCaption.Flag4);
-
-    public string CaptionFlag1On => GetClassCaption(ClassCaption.Flag1On);
-    public string CaptionFlag1Off => GetClassCaption(ClassCaption.Flag1Off);
-    public string CaptionFlag2On  => GetClassCaption(ClassCaption.Flag2On);
-    public string CaptionFlag2Off => GetClassCaption(ClassCaption.Flag2Off);
-    public string CaptionFlag3On  => GetClassCaption(ClassCaption.Flag3On);
-    public string CaptionFlag3Off => GetClassCaption(ClassCaption.Flag3Off);
-    public string CaptionFlag4On  => GetClassCaption(ClassCaption.Flag4On);
-    public string CaptionFlag4Off => GetClassCaption(ClassCaption.Flag4Off);
-
-    public string Flag1Status =>
-      IsFlag1 ? GetClassCaption(ClassCaption.Flag1On) : GetClassCaption(ClassCaption.Flag1Off);
-
-    public string Flag2Status =>
-      IsFlag2 ? GetClassCaption(ClassCaption.Flag2On) : GetClassCaption(ClassCaption.Flag2Off);
-
-    public string Flag3Status =>
-      IsFlag3 ? GetClassCaption(ClassCaption.Flag3On) : GetClassCaption(ClassCaption.Flag3Off);
-
-    public string Flag4Status =>
-      IsFlag4 ? GetClassCaption(ClassCaption.Flag4On) : GetClassCaption(ClassCaption.Flag4Off);
-
-    public bool IsDrawoutUnderMaintenance => string.Equals(Flag1Name, "положение_тележки", StringComparison.OrdinalIgnoreCase) &&
-                                             string.Equals(Flag1Status, "ремонтное", StringComparison.OrdinalIgnoreCase);
-
-    public bool IsDrawoutUnderCheckup => string.Equals(Flag2Name, "положение_тележки", StringComparison.OrdinalIgnoreCase) &&
-                                         string.Equals(Flag2Status, "контрольное", StringComparison.OrdinalIgnoreCase);
-
-
-    public string StatusCaption
-    {
-      get
-      {
-        if (S2Flags.HasFlag(TmS2Flags.Intermediate))
+        public enum ClassCaption
         {
-          return GetClassCaption(ClassCaption.Intermediate);
-        }
-        if (S2Flags.HasFlag(TmS2Flags.Break))
-        {
-          return GetClassCaption(ClassCaption.Break);
-        }
-        if (S2Flags.HasFlag(TmS2Flags.Malfunction))
-        {
-          return GetClassCaption(ClassCaption.Malfunction);
-        }
-        if (Status == 1)
-        {
-          return GetClassCaption(ClassCaption.On);
-        }
-        if (Status == 0)
-        {
-          return GetClassCaption(ClassCaption.Off);
-        }
-        return InvalidStatusCaption;
-      }
-    }
-
-
-    public override bool HasProblems => !IsInit || IsUnreliable || IsInvalid;
-
-    public override string ValueToDisplay => StatusCaption;
-
-    public override List<string> FlagsToDisplay
-    {
-      get
-      {
-        var flagsToDisplay = new List<string>();
-
-        if (IsUnreliable)
-        {
-          flagsToDisplay.Add("Неактуальное значение (NT)");
-        }
-        if (IsInvalid)
-        {
-          flagsToDisplay.Add("Недействительное значение (IV)");
-        }
-        if (IsResChannel)
-        {
-          flagsToDisplay.Add("Взят с резерва");
-        }
-        if (IsRequested)
-        {
-          flagsToDisplay.Add("Идет опрос");
-        }
-        if (IsAbnormal)
-        {
-          flagsToDisplay.Add("Несоответствие нормальному режиму");
-        }
-        if (IsManuallyBlocked)
-        {
-          flagsToDisplay.Add("Заблокировано оператором");
-        }
-        if (IsManuallySet)
-        {
-          flagsToDisplay.Add("Установлено вручную");
-        }
-        if (IsFlag1)
-        {
-          flagsToDisplay.Add($"{Flag1Name}   {Flag1Status}");
-        }
-        if (IsFlag2)
-        {
-          flagsToDisplay.Add($"{Flag2Name}   {Flag2Status}");
-        }
-        if (IsFlag3)
-        {
-          flagsToDisplay.Add($"{Flag3Name}   {Flag3Status}");
-        }
-        if (IsFlag4)
-        {
-          flagsToDisplay.Add($"{Flag4Name}   {Flag4Status}");
+            Off,
+            On,
+            Break,
+            Malfunction,
+            Intermediate,
+            Flag1,
+            Flag1Off,
+            Flag1On,
+            Flag2,
+            Flag2Off,
+            Flag2On,
+            Flag3,
+            Flag3Off,
+            Flag3On,
+            Flag4,
+            Flag4Off,
+            Flag4On,
+            ClassName,
+            CommandOff,
+            CommandOn,
         }
 
-        return flagsToDisplay;
-      }
-    }
+        private short _status;
+        private TmFlags _flags = TmFlags.Invalid;
+        private TmS2Flags _s2Flags;
+        private short _normalStatus = -1;
+        private short _importance;
 
-
-    public string FakeStateString(short fakeState)
-    {
-      return FakeStateString((int) fakeState);
-    }
-
-
-    public string FakeStateString(int fakeState)
-    {
-      return GetClassCaption(fakeState == 0 ? ClassCaption.Off : ClassCaption.On);
-    }
-
-
-    public TmStatus(int ch, int rtu, int point)
-      : base(TmType.Status, ch, rtu, point)
-    {
-    }
-
-
-    public TmStatus(TmAddr addr)
-      : base(addr)
-    {
-    }
-
-
-    public override int GetHashCode()
-    {
-      return base.GetHashCode();
-    }
-
-
-    public override bool Equals(object obj)
-    {
-      return Equals(obj as TmStatus);
-    }
-
-
-    public bool Equals(TmStatus comparison)
-    {
-      if (ReferenceEquals(comparison, null))
-      {
-        return false;
-      }
-      if (ReferenceEquals(this, comparison))
-      {
-        return true;
-      }
-
-      return TmAddr  == comparison.TmAddr &&
-             Status  == comparison.Status &&
-             Flags   == comparison.Flags  &&
-             S2Flags == comparison.S2Flags;
-    }
-
-
-    public static bool operator ==(TmStatus left, TmStatus right)
-    {
-      if (ReferenceEquals(left, null))
-      {
-        return ReferenceEquals(right, null);
-      }
-      return left.Equals(right);
-    }
-
-
-    public static bool operator !=(TmStatus left, TmStatus right)
-    {
-      return !(left == right);
-    }
-
-
-    public override string ToString()
-    {
-      return $"{Name} = {StatusCaption}";
-    }
-
-
-    public bool HasFlag(TmFlags flags)
-    {
-      return Flags.HasFlag(flags);
-    }
-
-
-    public string GetClassCaption(ClassCaption type)
-    {
-      return type switch
-             {
-               ClassCaption.Off          => GetClassDataValue("0Txt", (IsAps) ? "СНЯТ" : "ОТКЛ"),
-               ClassCaption.On           => GetClassDataValue("1Txt", (IsAps) ? "ВЗВЕДЕН" : "ВКЛ"),
-               ClassCaption.Break        => GetClassDataValue("BTxt", "00-Обрыв"),
-               ClassCaption.Malfunction  => GetClassDataValue("MTxt", "11-Неисправность"),
-               ClassCaption.Intermediate => GetClassDataValue("ITxt", "Промежуточное"),
-               ClassCaption.Flag1        => GetClassDataValue("F1Name"),
-               ClassCaption.Flag2        => GetClassDataValue("F2Name"),
-               ClassCaption.Flag3        => GetClassDataValue("F3Name"),
-               ClassCaption.Flag4        => GetClassDataValue("F4Name"),
-               ClassCaption.Flag1Off     => GetClassDataValue("F10Txt"),
-               ClassCaption.Flag1On      => GetClassDataValue("F11Txt"),
-               ClassCaption.Flag2Off     => GetClassDataValue("F20Txt"),
-               ClassCaption.Flag2On      => GetClassDataValue("F21Txt"),
-               ClassCaption.Flag3Off     => GetClassDataValue("F30Txt"),
-               ClassCaption.Flag3On      => GetClassDataValue("F31Txt"),
-               ClassCaption.Flag4Off     => GetClassDataValue("F40Txt"),
-               ClassCaption.Flag4On      => GetClassDataValue("F41Txt"),
-               ClassCaption.ClassName    => GetClassDataValue("ClassName"),
-               ClassCaption.CommandOff   => GetClassDataValue("CtlOffTxt", "Отключить"),
-               ClassCaption.CommandOn    => GetClassDataValue("CtlOnTxt",  "Включить"),
-               _                         => ""
-             };
-    }
-
-
-    private string GetClassDataValue(string key, string defaultValue = "")
-    {
-      if (ClassData != null && 
-          ClassData.TryGetValue(key, out var caption) &&
-          !string.IsNullOrEmpty(caption))
-      {
-        return caption;
-      }
-      return defaultValue;
-    }
-
-
-    public override void UpdatePropertiesFromTmcObject(string tmcObjectPropertiesString)
-    {
-      NormalStatus = -1;
-      
-      base.UpdatePropertiesFromTmcObject(tmcObjectPropertiesString);
-    }
-
-
-    protected override void UpdatePropertiesFromTmcObject(string key, string value)
-    {
-      base.UpdatePropertiesFromTmcObject(key, value);
-      
-      switch (key)
-      {
-        case "Normal":
+        public short Status
         {
-          if (int.TryParse(value, out var normalStatus))
-          {
-            NormalStatus = (short) ((normalStatus == 0 || normalStatus == 1) ? normalStatus : -1);
-          }
-
-          break;
+            get => _status;
+            set => SetPropertyValueAndRefresh(ref _status, value);
         }
-        case "Importance":
+
+        public TmFlags Flags
         {
-          if (int.TryParse(value, out var importance))
-          {
-            Importance = (short) importance;
-          }
-
-          break;
+            get => _flags;
+            set => SetPropertyValueAndRefresh(ref _flags, value);
         }
-        case "Class":
+
+        public TmS2Flags S2Flags
         {
-          if (byte.TryParse(value, out var classId))
-          {
-            ClassId = classId;
-          }
-
-          break;
+            get => _s2Flags;
+            set => SetPropertyValueAndRefresh(ref _s2Flags, value);
         }
-      }
+
+        public short NormalStatus
+        {
+            get => _normalStatus;
+            set => SetPropertyValueAndRefresh(ref _normalStatus, value);
+        }
+
+        public short Importance
+        {
+            get => _importance;
+            set => SetPropertyValueAndRefresh(ref _importance, value);
+        }
+
+        public bool IsNormalStatusOn => NormalStatus == 1;
+        public bool IsNormalStatusOff => NormalStatus == 0;
+        public bool IsNormalStatusUnknown => NormalStatus == -1;
+
+        public bool IsAps => Flags.HasFlag(TmFlags.StatusAps);
+        public bool IsOn => Status > 0;
+        public bool IsOff => Status == 0;
+        public bool IsUnreliable => Flags.HasFlag(TmFlags.Unreliable);
+        public bool IsInvalid => Flags.HasFlag(TmFlags.Invalid);
+        public bool IsManuallyBlocked => Flags.HasFlag(TmFlags.ManuallyBlocked);
+        public bool IsManuallySet => Flags.HasFlag(TmFlags.ManuallySet);
+        public bool IsIntermediate => S2Flags.HasFlag(TmS2Flags.Intermediate);
+        public bool IsBreak => S2Flags.HasFlag(TmS2Flags.Break) && !IsIntermediate;
+        public bool IsMalfunction => S2Flags.HasFlag(TmS2Flags.Malfunction);
+        public bool IsS2Failure => IsBreak || IsMalfunction || IsIntermediate;
+        public bool IsUnacked => Flags.HasFlag(TmFlags.Unacked);
+        public bool HasTelecontrol => Flags.HasFlag(TmFlags.TmCtrlPresent);
+        public bool IsRequested => Flags.HasFlag(TmFlags.Requested);
+        public bool IsResChannel => Flags.HasFlag(TmFlags.ResChannel);
+        public bool IsAbnormal => Flags.HasFlag(TmFlags.Abnormal);
+        public bool IsInverted => Flags.HasFlag(TmFlags.Inverted);
+        public bool IsFlag1 => Flags.HasFlag(TmFlags.LevelA);
+        public bool IsFlag2 => Flags.HasFlag(TmFlags.LevelB);
+        public bool IsFlag3 => Flags.HasFlag(TmFlags.LevelC);
+        public bool IsFlag4 => Flags.HasFlag(TmFlags.LevelD);
+
+        public string ClassName => GetClassCaption(ClassCaption.ClassName);
+
+        public string CaptionOn => GetClassCaption(ClassCaption.On);
+        public string CaptionOff => GetClassCaption(ClassCaption.Off);
+        public string CaptionBreak => GetClassCaption(ClassCaption.Break);
+        public string CaptionMalfunction => GetClassCaption(ClassCaption.Malfunction);
+
+        public string CaptionCommandOn => GetClassCaption(ClassCaption.CommandOn);
+        public string CaptionCommandOff => GetClassCaption(ClassCaption.CommandOff);
+
+        public string Flag1Name => GetClassCaption(ClassCaption.Flag1);
+        public string Flag2Name => GetClassCaption(ClassCaption.Flag2);
+        public string Flag3Name => GetClassCaption(ClassCaption.Flag3);
+        public string Flag4Name => GetClassCaption(ClassCaption.Flag4);
+
+        public string CaptionFlag1On => GetClassCaption(ClassCaption.Flag1On);
+        public string CaptionFlag1Off => GetClassCaption(ClassCaption.Flag1Off);
+        public string CaptionFlag2On => GetClassCaption(ClassCaption.Flag2On);
+        public string CaptionFlag2Off => GetClassCaption(ClassCaption.Flag2Off);
+        public string CaptionFlag3On => GetClassCaption(ClassCaption.Flag3On);
+        public string CaptionFlag3Off => GetClassCaption(ClassCaption.Flag3Off);
+        public string CaptionFlag4On => GetClassCaption(ClassCaption.Flag4On);
+        public string CaptionFlag4Off => GetClassCaption(ClassCaption.Flag4Off);
+
+        public string Flag1Status =>
+            IsFlag1
+                ? GetClassCaption(ClassCaption.Flag1On)
+                : GetClassCaption(ClassCaption.Flag1Off);
+
+        public string Flag2Status =>
+            IsFlag2
+                ? GetClassCaption(ClassCaption.Flag2On)
+                : GetClassCaption(ClassCaption.Flag2Off);
+
+        public string Flag3Status =>
+            IsFlag3
+                ? GetClassCaption(ClassCaption.Flag3On)
+                : GetClassCaption(ClassCaption.Flag3Off);
+
+        public string Flag4Status =>
+            IsFlag4
+                ? GetClassCaption(ClassCaption.Flag4On)
+                : GetClassCaption(ClassCaption.Flag4Off);
+
+        public bool IsDrawoutUnderMaintenance =>
+            string.Equals(Flag1Name, "положение_тележки", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(Flag1Status, "ремонтное", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsDrawoutUnderCheckup =>
+            string.Equals(Flag2Name, "положение_тележки", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(Flag2Status, "контрольное", StringComparison.OrdinalIgnoreCase);
+
+        public string StatusCaption
+        {
+            get
+            {
+                if (S2Flags.HasFlag(TmS2Flags.Intermediate))
+                {
+                    return GetClassCaption(ClassCaption.Intermediate);
+                }
+                if (S2Flags.HasFlag(TmS2Flags.Break))
+                {
+                    return GetClassCaption(ClassCaption.Break);
+                }
+                if (S2Flags.HasFlag(TmS2Flags.Malfunction))
+                {
+                    return GetClassCaption(ClassCaption.Malfunction);
+                }
+                if (Status == 1)
+                {
+                    return GetClassCaption(ClassCaption.On);
+                }
+                if (Status == 0)
+                {
+                    return GetClassCaption(ClassCaption.Off);
+                }
+                return InvalidStatusCaption;
+            }
+        }
+
+        public override bool HasProblems => !IsInit || IsUnreliable || IsInvalid;
+
+        public override string ValueToDisplay => StatusCaption;
+
+        public override List<string> FlagsToDisplay
+        {
+            get
+            {
+                var flagsToDisplay = new List<string>();
+
+                if (IsUnreliable)
+                {
+                    flagsToDisplay.Add("Неактуальное значение (NT)");
+                }
+                if (IsInvalid)
+                {
+                    flagsToDisplay.Add("Недействительное значение (IV)");
+                }
+                if (IsResChannel)
+                {
+                    flagsToDisplay.Add("Взят с резерва");
+                }
+                if (IsRequested)
+                {
+                    flagsToDisplay.Add("Идет опрос");
+                }
+                if (IsAbnormal)
+                {
+                    flagsToDisplay.Add("Несоответствие нормальному режиму");
+                }
+                if (IsManuallyBlocked)
+                {
+                    flagsToDisplay.Add("Заблокировано оператором");
+                }
+                if (IsManuallySet)
+                {
+                    flagsToDisplay.Add("Установлено вручную");
+                }
+                if (IsFlag1)
+                {
+                    flagsToDisplay.Add($"{Flag1Name}   {Flag1Status}");
+                }
+                if (IsFlag2)
+                {
+                    flagsToDisplay.Add($"{Flag2Name}   {Flag2Status}");
+                }
+                if (IsFlag3)
+                {
+                    flagsToDisplay.Add($"{Flag3Name}   {Flag3Status}");
+                }
+                if (IsFlag4)
+                {
+                    flagsToDisplay.Add($"{Flag4Name}   {Flag4Status}");
+                }
+
+                return flagsToDisplay;
+            }
+        }
+
+        public string FakeStateString(short fakeState)
+        {
+            return FakeStateString((int)fakeState);
+        }
+
+        public string FakeStateString(int fakeState)
+        {
+            return GetClassCaption(fakeState == 0 ? ClassCaption.Off : ClassCaption.On);
+        }
+
+        public TmStatus(int ch, int rtu, int point)
+            : base(TmType.Status, ch, rtu, point) { }
+
+        public TmStatus(TmAddr addr)
+            : base(addr) { }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as TmStatus);
+        }
+
+        public bool Equals(TmStatus comparison)
+        {
+            if (ReferenceEquals(comparison, null))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, comparison))
+            {
+                return true;
+            }
+
+            return TmAddr == comparison.TmAddr
+                && Status == comparison.Status
+                && Flags == comparison.Flags
+                && S2Flags == comparison.S2Flags;
+        }
+
+        public static bool operator ==(TmStatus left, TmStatus right)
+        {
+            if (ReferenceEquals(left, null))
+            {
+                return ReferenceEquals(right, null);
+            }
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(TmStatus left, TmStatus right)
+        {
+            return !(left == right);
+        }
+
+        public override string ToString()
+        {
+            return $"{Name} = {StatusCaption}";
+        }
+
+        public bool HasFlag(TmFlags flags)
+        {
+            return Flags.HasFlag(flags);
+        }
+
+        public string GetClassCaption(ClassCaption type)
+        {
+            return type switch
+            {
+                ClassCaption.Off => GetClassDataValue("0Txt", (IsAps) ? "СНЯТ" : "ОТКЛ"),
+                ClassCaption.On => GetClassDataValue("1Txt", (IsAps) ? "ВЗВЕДЕН" : "ВКЛ"),
+                ClassCaption.Break => GetClassDataValue("BTxt", "00-Обрыв"),
+                ClassCaption.Malfunction => GetClassDataValue("MTxt", "11-Неисправность"),
+                ClassCaption.Intermediate => GetClassDataValue("ITxt", "Промежуточное"),
+                ClassCaption.Flag1 => GetClassDataValue("F1Name"),
+                ClassCaption.Flag2 => GetClassDataValue("F2Name"),
+                ClassCaption.Flag3 => GetClassDataValue("F3Name"),
+                ClassCaption.Flag4 => GetClassDataValue("F4Name"),
+                ClassCaption.Flag1Off => GetClassDataValue("F10Txt"),
+                ClassCaption.Flag1On => GetClassDataValue("F11Txt"),
+                ClassCaption.Flag2Off => GetClassDataValue("F20Txt"),
+                ClassCaption.Flag2On => GetClassDataValue("F21Txt"),
+                ClassCaption.Flag3Off => GetClassDataValue("F30Txt"),
+                ClassCaption.Flag3On => GetClassDataValue("F31Txt"),
+                ClassCaption.Flag4Off => GetClassDataValue("F40Txt"),
+                ClassCaption.Flag4On => GetClassDataValue("F41Txt"),
+                ClassCaption.ClassName => GetClassDataValue("ClassName"),
+                ClassCaption.CommandOff => GetClassDataValue("CtlOffTxt", "Отключить"),
+                ClassCaption.CommandOn => GetClassDataValue("CtlOnTxt", "Включить"),
+                _ => "",
+            };
+        }
+
+        private string GetClassDataValue(string key, string defaultValue = "")
+        {
+            if (
+                ClassData != null
+                && ClassData.TryGetValue(key, out var caption)
+                && !string.IsNullOrEmpty(caption)
+            )
+            {
+                return caption;
+            }
+            return defaultValue;
+        }
+
+        public override void UpdatePropertiesFromTmcObject(string tmcObjectPropertiesString)
+        {
+            NormalStatus = -1;
+
+            base.UpdatePropertiesFromTmcObject(tmcObjectPropertiesString);
+        }
+
+        protected override void UpdatePropertiesFromTmcObject(string key, string value)
+        {
+            base.UpdatePropertiesFromTmcObject(key, value);
+
+            switch (key)
+            {
+                case "Normal":
+                {
+                    if (int.TryParse(value, out var normalStatus))
+                    {
+                        NormalStatus = (short)(
+                            (normalStatus == 0 || normalStatus == 1) ? normalStatus : -1
+                        );
+                    }
+
+                    break;
+                }
+                case "Importance":
+                {
+                    if (int.TryParse(value, out var importance))
+                    {
+                        Importance = (short)importance;
+                    }
+
+                    break;
+                }
+                case "Class":
+                {
+                    if (byte.TryParse(value, out var classId))
+                    {
+                        ClassId = classId;
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        public override void UpdateValueFromCommonPointDto(TCommonPointDto dto)
+        {
+            if (dto.StatusPointDto == null)
+            {
+                return;
+            }
+            IsInit = (dto.TmFlags != 0xFFFF);
+            Status = dto.StatusPointDto.Value.Status;
+            Flags = (TmFlags)dto.StatusPointDto.Value.Flags;
+            S2Flags = (TmS2Flags)dto.TmS2;
+            ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(
+                dto.TmLocalUt,
+                dto.TmLocalMs
+            );
+        }
+
+        public override void UpdatePropertiesFromCommonPointDto(TCommonPointDto dto)
+        {
+            if (!string.IsNullOrEmpty(dto.Name))
+            {
+                Name = dto.Name;
+            }
+        }
+
+        public void UpdateValueFromTStatusPoint(TmNativeDefs.TStatusPoint tmcStatusPoint)
+        {
+            if (tmcStatusPoint.Flags == -1)
+            {
+                Flags |= TmFlags.Invalid;
+                IsInit = false;
+                return;
+            }
+
+            IsInit = true;
+            Status = (short)(tmcStatusPoint.Status & 0x0001); // на случай, если задана датаграмма ExtsShowS2
+            S2Flags = (TmS2Flags)(tmcStatusPoint.Status >> 1); // на случай, если задана датаграмма ExtsShowS2
+            Flags = (TmFlags)tmcStatusPoint.Flags;
+        }
+
+        public void UpdateValueFromDatagram(ReadOnlySpan<byte> buf)
+        {
+            IsInit = true;
+            Status = (short)(buf[14] & 1);
+            Flags = (TmFlags)BinaryPrimitives.ReadUInt16LittleEndian(buf[16..]);
+            S2Flags = (TmS2Flags)BinaryPrimitives.ReadInt16LittleEndian(buf[18..]);
+        }
+
+        public void UpdateValueFromRecord(TmStatusRecord record)
+        {
+            IsInit = (record.Flags != (TmFlags)0xFFFF);
+            Status = record.Status;
+            Flags = record.Flags;
+            S2Flags = record.S2Flags;
+            ChangeTime = record.ChangeTime;
+        }
+
+        public void UpdateValueFromDto(TmStatusDto dto)
+        {
+            if (dto == null)
+            {
+                return;
+            }
+            UpdateValueFromDto(dto.VCode, dto.Flags, dto.VS2, dto.ChangeTime);
+        }
+
+        public void UpdateValueFromDto(short status, int flags, short s2Flags, DateTime? changeTime)
+        {
+            IsInit = true;
+            Status = status;
+            Flags = (TmFlags)(flags & 0x0000_FFFF); // 3 и 4 байты флагов - служебные, не для клиента
+            S2Flags = (TmS2Flags)s2Flags;
+            ChangeTime = changeTime.NullIfEpoch();
+        }
+
+        public void UpdatePropertiesFromSql(
+            string name,
+            short importance,
+            short normalStatus,
+            short classId,
+            string offCaption,
+            string onCaption,
+            string breakCaption,
+            string malfunctionCaption
+        )
+        {
+            Name = name;
+            Importance = importance;
+            NormalStatus = (short)((normalStatus == 0 || normalStatus == 1) ? normalStatus : -1);
+
+            if (classId < 0)
+            {
+                return;
+            }
+            ClassId = (byte)classId;
+            ClassData = new Dictionary<string, string>
+            {
+                { "0Txt", offCaption },
+                { "1Txt", onCaption },
+                { "BTxt", breakCaption },
+                { "MTxt", malfunctionCaption },
+            };
+        }
+
+        public void UpdatePropertiesFromDto(TmStatusPropertiesDto dto)
+        {
+            if (dto?.Name == null)
+                return;
+
+            UpdatePropertiesFromSql(
+                dto.Name,
+                dto.VImportance,
+                dto.VNormalState,
+                dto.Provider,
+                dto.ClassId,
+                dto.ClText0,
+                dto.ClText1,
+                dto.ClBreakText,
+                dto.ClMalfunText,
+                dto.ClFlAName,
+                dto.ClFlBName,
+                dto.ClFlCName,
+                dto.ClFlDName,
+                dto.ClFlAText0,
+                dto.ClFlAText1,
+                dto.ClFlBText0,
+                dto.ClFlBText1,
+                dto.ClFlCText0,
+                dto.ClFlCText1,
+                dto.ClFlDText0,
+                dto.ClFlDText1,
+                dto.ClCtlTextOff,
+                dto.ClCtlTextOn
+            );
+        }
+
+        public void UpdatePropertiesFromSql(
+            string name,
+            short importance,
+            short normalStatus,
+            string provider,
+            short classId,
+            string offCaption,
+            string onCaption,
+            string breakCaption,
+            string malfunctionCaption,
+            string flag1Name,
+            string flag2Name,
+            string flag3Name,
+            string flag4Name,
+            string flag1OffCaption,
+            string flag1OnCaption,
+            string flag2OffCaption,
+            string flag2OnCaption,
+            string flag3OffCaption,
+            string flag3OnCaption,
+            string flag4OffCaption,
+            string flag4OnCaption,
+            string commandOffCaption,
+            string commandOnCaption
+        )
+        {
+            Name = name;
+            Importance = importance;
+            NormalStatus = (short)((normalStatus == 0 || normalStatus == 1) ? normalStatus : -1);
+
+            HasTmProvider = !string.IsNullOrEmpty(provider);
+
+            if (classId < 0)
+            {
+                return;
+            }
+            ClassId = (byte)classId;
+            ClassData = new Dictionary<string, string>
+            {
+                { "0Txt", offCaption },
+                { "1Txt", onCaption },
+                { "BTxt", breakCaption },
+                { "MTxt", malfunctionCaption },
+                { "F1Name", flag1Name },
+                { "F2Name", flag2Name },
+                { "F3Name", flag3Name },
+                { "F4Name", flag4Name },
+                { "F10Txt", flag1OffCaption },
+                { "F11Txt", flag1OnCaption },
+                { "F20Txt", flag2OffCaption },
+                { "F21Txt", flag2OnCaption },
+                { "F30Txt", flag3OffCaption },
+                { "F31Txt", flag3OnCaption },
+                { "F40Txt", flag4OffCaption },
+                { "F41Txt", flag4OnCaption },
+                { "CtlOffTxt", commandOffCaption },
+                { "CtlOnTxt", commandOnCaption },
+            };
+        }
+
+        public string GetCustomFlagName(TmFlags flag)
+        {
+            return flag switch
+            {
+                TmFlags.LevelA => Flag1Name,
+                TmFlags.LevelB => Flag2Name,
+                TmFlags.LevelC => Flag3Name,
+                TmFlags.LevelD => Flag4Name,
+                _ => string.Empty,
+            };
+        }
+
+        public string GetCustomFlagStatus(TmFlags flag)
+        {
+            return flag switch
+            {
+                TmFlags.LevelA => Flag1Status,
+                TmFlags.LevelB => Flag2Status,
+                TmFlags.LevelC => Flag3Status,
+                TmFlags.LevelD => Flag4Status,
+                _ => string.Empty,
+            };
+        }
+
+        public static TmStatus CreateFromTmTreeDto(TmStatusTmTreeDto dto)
+        {
+            if (dto?.Name == null)
+                return null;
+
+            var status = new TmStatus(TmAddr.CreateFromTma(TmType.Status, dto.Tma));
+            status.UpdateFromTmTreeDto(dto);
+
+            return status;
+        }
+
+        public void UpdateFromTmTreeDto(TmStatusTmTreeDto dto)
+        {
+            if (dto?.Name == null)
+                return;
+
+            UpdateValueFromDto(dto.MapToTmStatusDto());
+            UpdatePropertiesFromDto(dto.MapToTmStatusPropertiesDto());
+        }
     }
-    
-    
-    public override void UpdateValueFromCommonPointDto(TCommonPointDto dto)
-    {
-      if (dto.StatusPointDto == null)
-      {
-        return;
-      }
-      IsInit  = (dto.TmFlags != 0xFFFF);
-      Status  = dto.StatusPointDto.Value.Status;
-      Flags   = (TmFlags) dto.StatusPointDto.Value.Flags;
-      S2Flags = (TmS2Flags) dto.TmS2;
-      ChangeTime = DateUtil.GetDateTimeFromTimestampWithEpochCheck(dto.TmLocalUt,
-                                                                   dto.TmLocalMs);
-    }
-    
-    
-    public override void UpdatePropertiesFromCommonPointDto(TCommonPointDto dto)
-    {
-      if (!string.IsNullOrEmpty(dto.Name))
-      {
-        Name = dto.Name;
-      }
-    }
-
-
-    public void UpdateValueFromTStatusPoint(TmNativeDefs.TStatusPoint tmcStatusPoint)
-    {
-      if (tmcStatusPoint.Flags == -1)
-      {
-        Flags  |= TmFlags.Invalid;
-        IsInit =  false;
-        return;
-      }
-      
-      IsInit  = true;
-      Status  = (short) (tmcStatusPoint.Status & 0x0001); // на случай, если задана датаграмма ExtsShowS2
-      S2Flags = (TmS2Flags) (tmcStatusPoint.Status >> 1); // на случай, если задана датаграмма ExtsShowS2
-      Flags   = (TmFlags) tmcStatusPoint.Flags;
-    }
-
-
-    public void UpdateValueFromDatagram(ReadOnlySpan<byte> buf)
-    {
-      IsInit  = true;
-      Status  = (short)(buf[14] & 1);
-      Flags   = (TmFlags)BinaryPrimitives.ReadUInt16LittleEndian(buf[16..]);
-      S2Flags = (TmS2Flags)BinaryPrimitives.ReadInt16LittleEndian(buf[18..]);
-    }
-
-
-    public void UpdateValueFromRecord(TmStatusRecord record)
-    {
-      IsInit     = (record.Flags != (TmFlags)0xFFFF);
-      Status     = record.Status;
-      Flags      = record.Flags;
-      S2Flags    = record.S2Flags;
-      ChangeTime = record.ChangeTime;
-    }
-
-
-    public void UpdateValueFromDto(TmStatusDto dto)
-    {
-      if (dto == null)
-      {
-        return;
-      }
-      UpdateValueFromDto(dto.VCode,
-                         dto.Flags,
-                         dto.VS2,
-                         dto.ChangeTime);
-    }
-
-
-    public void UpdateValueFromDto(short status, int flags, short s2Flags, DateTime? changeTime)
-    {
-      IsInit     = true;
-      Status     = status;
-      Flags      = (TmFlags) (flags & 0x0000_FFFF); // 3 и 4 байты флагов - служебные, не для клиента
-      S2Flags    = (TmS2Flags) s2Flags;
-      ChangeTime = changeTime.NullIfEpoch();
-    }
-
-
-    public void UpdatePropertiesFromSql(string name,
-                                        short  importance,
-                                        short  normalStatus,
-                                        short  classId,
-                                        string offCaption,
-                                        string onCaption,
-                                        string breakCaption,
-                                        string malfunctionCaption)
-    {
-      Name         = name;
-      Importance   = importance;
-      NormalStatus = (short) ((normalStatus == 0 || normalStatus == 1) ? normalStatus : -1);
-
-      if (classId < 0)
-      {
-        return;
-      }
-      ClassId = (byte) classId;
-      ClassData = new Dictionary<string, string>
-      {
-        {"0Txt", offCaption},
-        {"1Txt", onCaption},
-        {"BTxt", breakCaption},
-        {"MTxt", malfunctionCaption},
-      };
-    }
-
-
-    public void UpdatePropertiesFromDto(TmStatusPropertiesDto dto)
-    {
-      if (dto?.Name == null) return;
-
-      UpdatePropertiesFromSql(dto.Name,
-                                   dto.VImportance,
-                                   dto.VNormalState,
-                                   dto.Provider,
-                                   dto.ClassId,
-                                   dto.ClText0,
-                                   dto.ClText1,
-                                   dto.ClBreakText,
-                                   dto.ClMalfunText,
-                                   dto.ClFlAName,
-                                   dto.ClFlBName,
-                                   dto.ClFlCName,
-                                   dto.ClFlDName,
-                                   dto.ClFlAText0,
-                                   dto.ClFlAText1,
-                                   dto.ClFlBText0,
-                                   dto.ClFlBText1,
-                                   dto.ClFlCText0,
-                                   dto.ClFlCText1,
-                                   dto.ClFlDText0,
-                                   dto.ClFlDText1,
-                                   dto.ClCtlTextOff,
-                                   dto.ClCtlTextOn);
-    }
-
-
-    public void UpdatePropertiesFromSql(string name,
-                                        short  importance,
-                                        short  normalStatus,
-                                        string provider,
-                                        short  classId,
-                                        string offCaption,
-                                        string onCaption,
-                                        string breakCaption,
-                                        string malfunctionCaption,
-                                        string flag1Name,
-                                        string flag2Name,
-                                        string flag3Name,
-                                        string flag4Name,
-                                        string flag1OffCaption,
-                                        string flag1OnCaption,
-                                        string flag2OffCaption,
-                                        string flag2OnCaption,
-                                        string flag3OffCaption,
-                                        string flag3OnCaption,
-                                        string flag4OffCaption,
-                                        string flag4OnCaption,
-                                        string commandOffCaption,
-                                        string commandOnCaption)
-    {
-      Name         = name;
-      Importance   = importance;
-      NormalStatus = (short) ((normalStatus == 0 || normalStatus == 1) ? normalStatus : -1);
-
-      HasTmProvider = !string.IsNullOrEmpty(provider);
-
-      if (classId < 0)
-      {
-        return;
-      }
-      ClassId = (byte) classId;
-      ClassData = new Dictionary<string, string>
-      {
-        {"0Txt", offCaption},
-        {"1Txt", onCaption},
-        {"BTxt", breakCaption},
-        {"MTxt", malfunctionCaption},
-        {"F1Name", flag1Name},
-        {"F2Name", flag2Name},
-        {"F3Name", flag3Name},
-        {"F4Name", flag4Name},
-        {"F10Txt", flag1OffCaption},
-        {"F11Txt", flag1OnCaption},
-        {"F20Txt", flag2OffCaption},
-        {"F21Txt", flag2OnCaption},
-        {"F30Txt", flag3OffCaption},
-        {"F31Txt", flag3OnCaption},
-        {"F40Txt", flag4OffCaption},
-        {"F41Txt", flag4OnCaption},
-        {"CtlOffTxt", commandOffCaption},
-        {"CtlOnTxt", commandOnCaption},
-      };
-    }
-
-    
-    public string GetCustomFlagName(TmFlags flag)
-    {
-      return flag switch
-             {
-               TmFlags.LevelA => Flag1Name,
-               TmFlags.LevelB => Flag2Name,
-               TmFlags.LevelC => Flag3Name,
-               TmFlags.LevelD => Flag4Name,
-               _              => string.Empty
-             };
-    }
-    
-    
-    public string GetCustomFlagStatus(TmFlags flag)
-    {
-      return flag switch
-             {
-               TmFlags.LevelA => Flag1Status,
-               TmFlags.LevelB => Flag2Status,
-               TmFlags.LevelC => Flag3Status,
-               TmFlags.LevelD => Flag4Status,
-               _              => string.Empty
-             };
-    }
-    
-
-    public static TmStatus CreateFromTmTreeDto(TmStatusTmTreeDto dto)
-    {
-      if (dto?.Name == null) return null;
-
-      var status = new TmStatus(TmAddr.CreateFromTma(TmType.Status, dto.Tma));
-      status.UpdateFromTmTreeDto(dto);
-
-      return status;
-    }
-
-
-    public void UpdateFromTmTreeDto(TmStatusTmTreeDto dto)
-    {
-      if (dto?.Name == null) return;
-
-      UpdateValueFromDto(dto.MapToTmStatusDto());
-      UpdatePropertiesFromDto(dto.MapToTmStatusPropertiesDto());
-    }
-  }
 }
