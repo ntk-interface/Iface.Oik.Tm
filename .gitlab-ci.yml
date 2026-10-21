@@ -29,13 +29,7 @@ verify:
   tags:
     - windows
   script:
-    - 'dotnet tool restore'
-    - 'dotnet csharpier check .'
-    - 'dotnet restore Iface.Oik.Tm.sln'
-    - 'dotnet restore Iface.Oik.Tm.Samples.sln'
-    - 'dotnet build Iface.Oik.Tm.sln -c Release --no-restore'
-    - 'dotnet build Iface.Oik.Tm.Samples.sln -c Release --no-restore'
-    - 'dotnet test Iface.Oik.Tm.sln -c Release --no-build --no-restore'
+    - 'just verify'
 
 build:
   stage: build
@@ -44,9 +38,9 @@ build:
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
   script:
-    - 'dotnet restore src/Iface.Oik.Tm/Iface.Oik.Tm.csproj -p:Version=${FULL_BUILD_VERSION}'
-    - 'dotnet build src/Iface.Oik.Tm/Iface.Oik.Tm.csproj -c Release -p:Platform=AnyCPU -p:Version=${FULL_BUILD_VERSION} --no-restore -o ${BINARY_PATH_X64}'
-    - 'dotnet build src/Iface.Oik.Tm/Iface.Oik.Tm.csproj -c Release -p:Platform=x86 -p:Version=${FULL_BUILD_VERSION} --no-restore -o ${BINARY_PATH_X86}'
+    - 'just restore'
+    - 'just build'
+    - 'just build_x86'
   artifacts:
     name: '${RELEASE_NAME}'
     paths:
