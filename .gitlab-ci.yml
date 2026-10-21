@@ -1,0 +1,73 @@
+stages:
+  - verify
+  - build
+  - deploy
+
+variables:
+  MAJOR_VERSION: 2
+  MINOR_VERSION: 1
+  FULL_BUILD_VERSION: '${MAJOR_VERSION}.${MINOR_VERSION}.${CI_PIPELINE_IID}'
+
+  APP_NAME: 'Iface.Oik.Tm'
+  BINARY_PATH: 'bin'
+  BINARY_PATH_X64: '${BINARY_PATH}/x64'
+  BINARY_PATH_X86: '${BINARY_PATH}/x86'
+
+  DEPLOY_PATH: 'C:/Artifacts/Iface.Oik.Tm'
+  DEPLOY_PATH_X86: '${DEPLOY_PATH}/x86'
+
+  RELEASE_NAME: '${APP_NAME}.${FULL_BUILD_VERSION}'
+  RELEASE_NAME_X64: '${RELEASE_NAME}.zip'
+  RELEASE_NAME_X86: '${APP_NAME}.x86.${FULL_BUILD_VERSION}.zip'
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+verify:
+  stage: verify
+  tags:
+    - windows
+  script:
+    - 'dotnet tool restore'
+    - 'dotnet csharpier check .'
+    - 'dotnet restore Iface.Oik.Tm.sln'
+    - 'dotnet restore Iface.Oik.Tm.Samples.sln'
+    - 'dotnet build Iface.Oik.Tm.sln -c Release --no-restore'
+    - 'dotnet build Iface.Oik.Tm.Samples.sln -c Release --no-restore'
+    - 'dotnet test Iface.Oik.Tm.sln -c Release --no-build --no-restore'
+
+build:
+  stage: build
+  tags:
+    - windows
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  script:
+    - 'dotnet restore src/Iface.Oik.Tm/Iface.Oik.Tm.csproj -p:Version=${FULL_BUILD_VERSION}'
+    - 'dotnet build src/Iface.Oik.Tm/Iface.Oik.Tm.csproj -c Release -p:Platform=AnyCPU -p:Version=${FULL_BUILD_VERSION} --no-restore -o ${BINARY_PATH_X64}'
+    - 'dotnet build src/Iface.Oik.Tm/Iface.Oik.Tm.csproj -c Release -p:Platform=x86 -p:Version=${FULL_BUILD_VERSION} --no-restore -o ${BINARY_PATH_X86}'
+  artifacts:
+    name: '${RELEASE_NAME}'
+    paths:
+      - '${BINARY_PATH}/**/*'
+
+deploy:
+  stage: deploy
+  tags:
+    - windows
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - 'New-Item -ItemType Directory -Force -Path ${DEPLOY_PATH_X86} | Out-Null'
+    - 'Remove-Item -Force -ErrorAction SilentlyContinue ${DEPLOY_PATH}/*.dll,${DEPLOY_PATH}/*.so,${DEPLOY_PATH}/*.zip,${DEPLOY_PATH_X86}/*.dll,${DEPLOY_PATH_X86}/*.zip'
+    - 'Push-Location ${BINARY_PATH_X64}'
+    - '7z a -tzip ${DEPLOY_PATH}/${RELEASE_NAME_X64} *.dll *.so'
+    - 'Pop-Location'
+    - 'Push-Location ${BINARY_PATH_X86}'
+    - '7z a -tzip ${DEPLOY_PATH_X86}/${RELEASE_NAME_X86} *.dll'
+    - 'Pop-Location'
+    - 'Copy-Item -Force ${BINARY_PATH_X64}/*.dll,${BINARY_PATH_X64}/*.so ${DEPLOY_PATH}'
+    - 'Copy-Item -Force ${BINARY_PATH_X86}/*.dll ${DEPLOY_PATH_X86}'
