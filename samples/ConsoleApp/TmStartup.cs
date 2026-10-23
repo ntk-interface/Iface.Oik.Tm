@@ -17,7 +17,7 @@ namespace ConsoleApp
         private static int _tmCid;
         private static int _rbCid;
         private static int _rbPort;
-        private static TmUserInfo _userInfo;
+        private static TmUserInfo? _userInfo;
         private static TmServerFeatures _serverFeatures;
 
         private readonly ICommonInfrastructure _infr;
