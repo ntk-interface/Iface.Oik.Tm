@@ -1,8 +1,5 @@
 set shell := ["pwsh", "-NoProfile", "-Command"]
 
-version := env_var_or_default("VERSION", env_var_or_default("FULL_BUILD_VERSION", ""))
-version_flag := if version != "" { "-p:Version=" + version } else { "" }
-
 # Показать список команд
 default:
     @just --list
@@ -31,9 +28,11 @@ test: restore
 verify: restore check_format test
 
 # Собрать библиотеку (x64)
-build out="":
-    dotnet build src/Iface.Oik.Tm/Iface.Oik.Tm.csproj -c Release {{ version_flag }} --no-restore -o {{ if out == "" { "bin/x64" } else { out } }}
+build out="bin/x64" version="": (_build "" out version)
 
 # Собрать библиотеку (x86)
-build_x86 out="":
-    dotnet build src/Iface.Oik.Tm/Iface.Oik.Tm.csproj -c Release -p:Platform=x86 {{ version_flag }} --no-restore -o {{ if out == "" { "bin/x86" } else { out } }}
+build_x86 out="bin/x86" version="": (_build "x86" out version)
+
+# Собрать библиотеку под указанную платформу и версию (аргументы: out, version)
+_build platform out version:
+    dotnet build src/Iface.Oik.Tm/Iface.Oik.Tm.csproj -c Release{{ if platform != "" { " -p:Platform=" + platform } else { "" } }}{{ if version != "" { " -p:Version=" + version } else { "" } }} --no-restore -o {{ out }}

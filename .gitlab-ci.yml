@@ -6,7 +6,7 @@ stages:
 variables:
   MAJOR_VERSION: 2
   MINOR_VERSION: 1
-  FULL_BUILD_VERSION: '${MAJOR_VERSION}.${MINOR_VERSION}.${CI_PIPELINE_IID}'
+  BUILD_VERSION: '${MAJOR_VERSION}.${MINOR_VERSION}.${CI_PIPELINE_IID}'
 
   APP_NAME: 'Iface.Oik.Tm'
   BINARY_PATH: 'bin'
@@ -16,9 +16,9 @@ variables:
   DEPLOY_PATH: 'C:/Artifacts/Iface.Oik.Tm'
   DEPLOY_PATH_X86: '${DEPLOY_PATH}/x86'
 
-  RELEASE_NAME: '${APP_NAME}.${FULL_BUILD_VERSION}'
+  RELEASE_NAME: '${APP_NAME}.${BUILD_VERSION}'
   RELEASE_NAME_X64: '${RELEASE_NAME}.zip'
-  RELEASE_NAME_X86: '${APP_NAME}.x86.${FULL_BUILD_VERSION}.zip'
+  RELEASE_NAME_X86: '${APP_NAME}.x86.${BUILD_VERSION}.zip'
 
 workflow:
   rules:
@@ -39,8 +39,8 @@ build:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
   script:
     - 'just restore'
-    - 'just build'
-    - 'just build_x86'
+    - 'just build ${BINARY_PATH_X64} ${BUILD_VERSION}'
+    - 'just build_x86 ${BINARY_PATH_X86} ${BUILD_VERSION}'
   artifacts:
     name: '${RELEASE_NAME}'
     paths:
