@@ -1,0 +1,4 @@
+[*.cs]
+
+# CA2007: проверка, что у каждого await есть ConfigureAwait (замена ConfigureAwaitChecker)
+dotnet_diagnostic.CA2007.severity = warning
