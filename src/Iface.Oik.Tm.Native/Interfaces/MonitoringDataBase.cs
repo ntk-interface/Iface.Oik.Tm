@@ -145,6 +145,16 @@ public abstract class MonitoringDataBase
                     dto.TeleparamsPerSecond = val;
                     break;
                 }
+                case "TMS_TPMax" when int.TryParse(value, out var val):
+                {
+                    dto.TmsTeleparamsMax = val;
+                    break;
+                }
+                case "TMS_TPLeft" when int.TryParse(value, out var val):
+                {
+                    dto.TmsTeleparamsLeft = val;
+                    break;
+                }
             }
 
             length++;
@@ -220,5 +230,7 @@ public abstract class MonitoringDataBase
         public decimal? StatusPerSecond { get; set; }
         public decimal? AnalogPerSecond { get; set; }
         public decimal? TeleparamsPerSecond { get; set; }
+        public int? TmsTeleparamsLeft { get; set; }
+        public int? TmsTeleparamsMax { get; set; }
     }
 }
