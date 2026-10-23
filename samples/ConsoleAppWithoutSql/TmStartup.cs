@@ -15,7 +15,7 @@ namespace ConsoleAppWithoutSql
         private const string ApplicationName = "Test-Core";
 
         private static int _tmCid;
-        private static TmUserInfo _userInfo;
+        private static TmUserInfo? _userInfo;
         private static TmServerFeatures _serverFeatures;
 
         private readonly ICommonInfrastructure _infr;

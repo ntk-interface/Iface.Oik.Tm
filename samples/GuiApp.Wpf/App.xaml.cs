@@ -18,7 +18,7 @@ public partial class App
 
         services.AddSingleton<MainWindowView>();
 
-        services.BuildServiceProvider().GetService<MainWindowView>().Show();
+        services.BuildServiceProvider().GetRequiredService<MainWindowView>().Show();
     }
 
     private static IServiceCollection StartupServices()

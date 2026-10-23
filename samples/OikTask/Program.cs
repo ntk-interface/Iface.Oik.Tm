@@ -22,16 +22,16 @@ namespace OikTask
                         services.AddSingleton<ICommonInfrastructure, CommonInfrastructure>();
                         services.AddSingleton<ServerService>();
                         services.AddSingleton<ICommonServerService>(provider =>
-                            provider.GetService<ServerService>()
+                            provider.GetRequiredService<ServerService>()
                         );
                         services.AddSingleton<TmStartup>();
 
                         // регистрация фоновых служб
                         services.AddSingleton<IHostedService>(provider =>
-                            provider.GetService<TmStartup>()
+                            provider.GetRequiredService<TmStartup>()
                         );
                         services.AddSingleton<IHostedService>(provider =>
-                            provider.GetService<ServerService>()
+                            provider.GetRequiredService<ServerService>()
                         );
                         services.AddHostedService<Worker>();
                     }

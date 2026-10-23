@@ -17,7 +17,7 @@ namespace OikTask
         private const string TraceComment = "<OikTaskComment>";
 
         private int _tmCid;
-        private TmUserInfo _userInfo;
+        private TmUserInfo? _userInfo;
         private TmServerFeatures _serverFeatures;
         private IntPtr _stopEventHandle;
 
