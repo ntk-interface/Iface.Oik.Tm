@@ -38,7 +38,8 @@ namespace Iface.Oik.Tm.Services
             }
             finally
             {
-                await Task.WhenAny(_executingTask, Task.Delay(Timeout.Infinite, cancellationToken));
+                await Task.WhenAny(_executingTask, Task.Delay(Timeout.Infinite, cancellationToken))
+                    .ConfigureAwait(false);
                 _stoppingCts.Dispose();
                 _executingTask.Dispose();
             }
@@ -51,7 +52,7 @@ namespace Iface.Oik.Tm.Services
 
         public virtual async Task StopAsync()
         {
-            await StopAsync(CancellationToken.None);
+            await StopAsync(CancellationToken.None).ConfigureAwait(false);
         }
 
         public virtual void Dispose()
