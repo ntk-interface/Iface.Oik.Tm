@@ -31,6 +31,8 @@ public class MonitoringData : MonitoringDataBase
     public decimal? StatusPerSecond { get; private set; }
     public decimal? AnalogPerSecond { get; private set; }
     public decimal? TeleparamsPerSecond { get; private set; }
+    public int? TmsTeleparamsLeft { get; set; }
+    public int? TmsTeleparamsMax { get; set; }
 
     protected override void Initialize(InitializeDto dto)
     {
@@ -57,5 +59,7 @@ public class MonitoringData : MonitoringDataBase
         StatusPerSecond = dto.StatusPerSecond;
         AnalogPerSecond = dto.AnalogPerSecond;
         TeleparamsPerSecond = dto.TeleparamsPerSecond;
+        TmsTeleparamsLeft = dto.TmsTeleparamsLeft;
+        TmsTeleparamsMax = dto.TmsTeleparamsMax;
     }
 }
