@@ -169,7 +169,7 @@ namespace Iface.Oik.Tm.Dto
     public class MqttBindingDto
     {
         public Guid Id { get; set; }
-        public TobBindingType BindingType { get; set; }
+        public int BindingType { get; set; }
         public Guid EquipmentId { get; set; }
         public string Name { get; set; }
         public string Value { get; set; }
@@ -178,7 +178,7 @@ namespace Iface.Oik.Tm.Dto
 
     public class MqttBindingWithNewTypeDto : MqttBindingDto
     {
-        public TobBindingType NewBindingType { get; set; }
+        public int NewBindingType { get; set; }
     }
 
     public class MqttBindingWithNewTmAddrDto : MqttBindingDto
