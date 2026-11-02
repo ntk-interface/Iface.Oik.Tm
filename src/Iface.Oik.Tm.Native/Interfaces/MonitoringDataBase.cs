@@ -155,6 +155,11 @@ public abstract class MonitoringDataBase
                     dto.TmsTeleparamsLeft = val;
                     break;
                 }
+                case "DeltaLoad0" when TryParseDecimal(value, out var val):
+                {
+                    dto.DeltaLoad0 = val;
+                    break;
+                }
             }
 
             length++;
