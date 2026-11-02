@@ -33,7 +33,7 @@ public class MonitoringData : MonitoringDataBase
     public decimal? TeleparamsPerSecond { get; private set; }
     public int? TmsTeleparamsLeft { get; set; }
     public int? TmsTeleparamsMax { get; set; }
-    public int? DeltaLoad0Percents { get; set; }
+    public decimal? DeltaLoad0Percents { get; set; }
 
     protected override void Initialize(InitializeDto dto)
     {
