@@ -232,5 +232,7 @@ public abstract class MonitoringDataBase
         public decimal? TeleparamsPerSecond { get; set; }
         public int? TmsTeleparamsLeft { get; set; }
         public int? TmsTeleparamsMax { get; set; }
+
+        public int? DeltaLoad0 { get; set; }
     }
 }
