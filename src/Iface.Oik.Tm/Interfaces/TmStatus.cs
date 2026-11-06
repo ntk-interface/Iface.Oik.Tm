@@ -434,8 +434,8 @@ namespace Iface.Oik.Tm.Interfaces
         {
             IsInit = true;
             Status = (short)(buf[14] & 1);
-            Flags = (TmFlags)BinaryPrimitives.ReadUInt16LittleEndian(buf[16..]);
-            S2Flags = (TmS2Flags)BinaryPrimitives.ReadInt16LittleEndian(buf[18..]);
+            S2Flags = (TmS2Flags)BinaryPrimitives.ReadUInt16LittleEndian(buf[16..]);
+            Flags = (TmFlags)BinaryPrimitives.ReadUInt16LittleEndian(buf[18..]);
         }
 
         public void UpdateValueFromRecord(TmStatusRecord record)
