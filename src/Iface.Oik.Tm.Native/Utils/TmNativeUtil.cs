@@ -703,22 +703,40 @@ namespace Iface.Oik.Tm.Native.Utils
                 throw new ArgumentException("Массив байтов пуст");
             }
 
+            var headerSize = TmNativeDefsUnsafe.TEventAddDataHeaderSize;
+            if (addDataBytes.Length < headerSize)
+            {
+                throw new ArgumentException(
+                    "Массив байтов короче заголовка дополнительных данных события"
+                );
+            }
+
             unsafe
             {
                 fixed (byte* basePtr = addDataBytes)
                 {
                     var native = *(TmNativeDefsUnsafe.TTMSEventAddData*)basePtr;
-                    var strPtr = basePtr + sizeof(TmNativeDefsUnsafe.TTMSEventAddData);
 
                     return new TmNativeDefs.TTMSEventAddData
                     {
                         Elix = new TmNativeDefs.TTMSElix { M = native.Elix.M, R = native.Elix.R },
                         AckMs = native.AckMs,
                         AckSec = native.AckSec,
-                        UserName = GetCStringFromBytePtr(strPtr),
+                        UserName = GetCStringFromBytesAutoEncoding(addDataBytes[headerSize..]),
                     };
                 }
             }
+        }
+
+        internal static string GetCStringFromBytesAutoEncoding(ReadOnlySpan<byte> bytes)
+        {
+            var length = bytes.IndexOf((byte)0);
+            if (length >= 0)
+            {
+                bytes = bytes[..length];
+            }
+
+            return bytes.IsEmpty ? string.Empty : DetectEncoding(bytes).GetString(bytes);
         }
     }
 }

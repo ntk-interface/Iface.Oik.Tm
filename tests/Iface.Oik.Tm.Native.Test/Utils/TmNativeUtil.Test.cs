@@ -666,12 +666,147 @@ namespace Iface.Oik.Tm.Native.Test.Utils
 
         public class GetEventAddData
         {
+            private const int HeaderSize = 22;
+
             [Fact]
             public void Throws_WhenBytesIsEmpty()
             {
                 Action act = () => TmNativeUtil.GetEventAddData(Span<byte>.Empty);
 
                 act.Should().Throw<ArgumentException>();
+            }
+
+            [Fact]
+            public void Throws_WhenBytesIsShorterThanHeader()
+            {
+                Action act = () => TmNativeUtil.GetEventAddData(new byte[HeaderSize - 1]);
+
+                act.Should().Throw<ArgumentException>();
+            }
+
+            [Fact]
+            public void ReturnsHeaderFieldsAndUtf8UserName()
+            {
+                var userName = "Пользователь";
+                var bytes = CreateEventAddData(
+                    0x1122334455667788,
+                    0x8877665544332211,
+                    1_700_000_000,
+                    500,
+                    AddNullTerminator(Encoding.UTF8.GetBytes(userName))
+                );
+
+                var result = TmNativeUtil.GetEventAddData(bytes);
+
+                result.Elix.R.Should().Be(0x1122334455667788);
+                result.Elix.M.Should().Be(0x8877665544332211);
+                result.AckSec.Should().Be(1_700_000_000);
+                result.AckMs.Should().Be(500);
+                result.UserName.Should().Be(userName);
+            }
+
+            [Fact]
+            public void ReadsUserNameFromHeaderEnd_WithoutCuttingBeginning()
+            {
+                var userName = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                var bytes = CreateEventAddData(
+                    0,
+                    0,
+                    0,
+                    0,
+                    AddNullTerminator(Encoding.ASCII.GetBytes(userName))
+                );
+
+                var result = TmNativeUtil.GetEventAddData(bytes);
+
+                result.UserName.Should().Be(userName);
+            }
+
+            [Fact]
+            public void ReturnsLongUserName_WhenLongerThanOld16ByteLimit()
+            {
+                var userName = "Очень длинное имя пользователя";
+                var bytes = CreateEventAddData(
+                    0,
+                    0,
+                    0,
+                    0,
+                    AddNullTerminator(Encoding.UTF8.GetBytes(userName))
+                );
+
+                var result = TmNativeUtil.GetEventAddData(bytes);
+
+                result.UserName.Should().Be(userName);
+            }
+
+            [Fact]
+            public void DetectsWin1251UserName_ForOldServerFormat()
+            {
+                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+                var userName = "Иванов Иван";
+                var userNameBytes = new byte[16];
+                Encoding.GetEncoding(1251).GetBytes(userName).CopyTo(userNameBytes, 0);
+
+                var bytes = CreateEventAddData(
+                    0,
+                    0,
+                    0,
+                    0,
+                    userNameBytes,
+                    HeaderSize + userNameBytes.Length
+                );
+
+                var result = TmNativeUtil.GetEventAddData(bytes);
+
+                result.UserName.Should().Be(userName);
+            }
+
+            [Fact]
+            public void ReturnsFull16ByteUserName_WhenThereIsNoNullTerminator()
+            {
+                var userName = "1234567890ABCDEF";
+                var userNameBytes = Encoding.ASCII.GetBytes(userName);
+
+                var bytes = CreateEventAddData(
+                    0,
+                    0,
+                    0,
+                    0,
+                    userNameBytes,
+                    HeaderSize + userNameBytes.Length
+                );
+
+                var result = TmNativeUtil.GetEventAddData(bytes);
+
+                result.UserName.Should().Be(userName);
+            }
+
+            private static byte[] AddNullTerminator(byte[] bytes)
+            {
+                var result = new byte[bytes.Length + 1];
+                bytes.CopyTo(result, 0);
+
+                return result;
+            }
+
+            private static byte[] CreateEventAddData(
+                ulong r,
+                ulong m,
+                uint ackSec,
+                ushort ackMs,
+                byte[] userNameBytes,
+                int? totalLength = null
+            )
+            {
+                var buffer = new byte[totalLength ?? HeaderSize + userNameBytes.Length];
+
+                BitConverter.GetBytes(r).CopyTo(buffer, 0);
+                BitConverter.GetBytes(m).CopyTo(buffer, 8);
+                BitConverter.GetBytes(ackSec).CopyTo(buffer, 16);
+                BitConverter.GetBytes(ackMs).CopyTo(buffer, 20);
+                userNameBytes.CopyTo(buffer, HeaderSize);
+
+                return buffer;
             }
         }
 
