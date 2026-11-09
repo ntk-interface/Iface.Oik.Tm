@@ -8,6 +8,9 @@ internal static partial class TmNativeDefsUnsafe
     public const int TEventDateTimeSize = 24;
     public const int TEventUserNameSize = 16;
 
+    // Размер заголовка до имени пользователя: Elix + AckSec + AckMs.
+    public const int TEventAddDataHeaderSize = 22;
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct TEventHeader
     {
@@ -83,6 +86,7 @@ internal static partial class TmNativeDefsUnsafe
         public UInt32 AckSec;
         public UInt16 AckMs;
 
+        // Старое фиксированное поле; в новых версиях UserName читается с TEventAddDataHeaderSize.
         public fixed byte UserName[TEventUserNameSize];
     }
 

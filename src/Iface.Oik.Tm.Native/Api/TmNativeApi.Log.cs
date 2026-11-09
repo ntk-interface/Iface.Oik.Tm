@@ -517,13 +517,17 @@ public static partial class TmNativeApi
         fixed (byte* basePtr = buf)
         {
             var native = *(TmNativeDefsUnsafe.TTMSEventAddData*)basePtr;
+            var userNameBytes = new ReadOnlySpan<byte>(
+                basePtr + TmNativeDefsUnsafe.TEventAddDataHeaderSize,
+                bufSize - TmNativeDefsUnsafe.TEventAddDataHeaderSize
+            );
 
             return new TmNativeDefs.TTMSEventAddData
             {
                 Elix = new TmNativeDefs.TTMSElix { M = native.Elix.M, R = native.Elix.R },
                 AckMs = native.AckMs,
                 AckSec = native.AckSec,
-                UserName = TmNativeUtil.GetCStringFromBytePtr(native.UserName),
+                UserName = TmNativeUtil.GetCStringFromBytesAutoEncoding(userNameBytes),
             };
         }
     }
