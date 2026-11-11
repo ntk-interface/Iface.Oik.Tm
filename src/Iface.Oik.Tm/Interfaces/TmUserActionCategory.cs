@@ -34,5 +34,8 @@ namespace Iface.Oik.Tm.Interfaces
 
         [Description("Оперативные журналы")]
         Operj,
+
+        [Description("Карта")]
+        Map,
     }
 }

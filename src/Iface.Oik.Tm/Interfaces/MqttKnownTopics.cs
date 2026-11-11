@@ -22,6 +22,24 @@ namespace Iface.Oik.Tm.Interfaces
         [Description("Settings/UserEventMonitoring/Edit")]
         SettingsUserEventMonitoringEdit = 52,
 
+        [Description("Settings/PlacardTypes/Edit")]
+        SettingsPlacardTypesEdit = 53,
+
+        [Description("Settings/SchemeCustomizations/Edit")]
+        SettingsSchemeCustomizationsEdit = 54,
+
+        [Description("Settings/Sounds/Edit")]
+        SettingsSoundsEdit = 55,
+
+        [Description("Settings/GraphicPlans/Edit")]
+        SettingsGraphicPlansEdit = 56,
+
+        [Description("Settings/EventTags/Edit")]
+        SettingsEventTagsEdit = 57,
+
+        [Description("Settings/EventsArchiveTemplates/Edit")]
+        SettingsEventsArchiveTemplatesEdit = 58,
+
         [Description("Model/Change/All")]
         ModelChangeAll = 100,
 
@@ -162,6 +180,33 @@ namespace Iface.Oik.Tm.Interfaces
 
         [Description("Document/DeleteCalcScript")]
         DocumentDeleteCalcScript = 315,
+
+        [Description("Map/Placemark/Add")]
+        MapPlacemarkAdd = 400,
+
+        [Description("Map/Placemark/Import")]
+        MapPlacemarkImport = 401,
+
+        [Description("Map/Placemark/Edit")]
+        MapPlacemarkEdit = 402,
+
+        [Description("Map/Placemark/Remove")]
+        MapPlacemarkRemove = 403,
+
+        [Description("Map/Placemark/RemoveAll")]
+        MapPlacemarkRemoveAll = 404,
+
+        [Description("Map/Placemark/Binding/Add")]
+        MapPlacemarkBindingAdd = 405,
+
+        [Description("Map/Placemark/Binding/Edit")]
+        MapPlacemarkBindingEdit = 406,
+
+        [Description("Map/Placemark/Binding/Remove")]
+        MapPlacemarkBindingRemove = 407,
+
+        [Description("Map/Placemark/Binding/RemoveAll")]
+        MapPlacemarkBindingRemoveAll = 408,
 
         [Description("Tm/Tag/BlockEvents")]
         TmTagBlockEventsTemporarily = 500,
