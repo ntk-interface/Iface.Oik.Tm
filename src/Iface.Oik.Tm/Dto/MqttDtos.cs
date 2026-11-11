@@ -8,6 +8,14 @@ namespace Iface.Oik.Tm.Dto
 
     public class MqttRpcResponseDto { }
 
+    public enum MqttDtoEditAction
+    {
+        Unknown = 0,
+        Add = 1,
+        Edit = 2,
+        Remove = 3,
+    }
+
     public class MqttTopologyEquipmentStatusRequestDto : MqttRpcRequestDto
     {
         public List<Guid> EquipmentIds { get; set; }
@@ -115,8 +123,8 @@ namespace Iface.Oik.Tm.Dto
     public class MqttDocumentDto
     {
         public Guid Id { get; set; }
-        public int DocType { get; set; }
-        public int Ownership { get; set; }
+        public int DocType { get; set; } // DocumentType
+        public int Ownership { get; set; } // DocumentOwnership
         public string Name { get; set; }
     }
 
@@ -169,7 +177,7 @@ namespace Iface.Oik.Tm.Dto
     public class MqttBindingDto
     {
         public Guid Id { get; set; }
-        public int BindingType { get; set; }
+        public int BindingType { get; set; } // TobBindingType
         public Guid EquipmentId { get; set; }
         public string Name { get; set; }
         public string Value { get; set; }
@@ -227,5 +235,62 @@ namespace Iface.Oik.Tm.Dto
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
+    }
+
+    public class MqttReferenceDataDto
+    {
+        public MqttDtoEditAction Action { get; set; }
+        public string Name { get; set; }
+        public string OldName { get; set; }
+    }
+
+    public class MqttReferenceDataWithGuidIdDto : MqttReferenceDataDto
+    {
+        public Guid Id { get; set; }
+    }
+
+    public class MqttReferenceDataWithIntIdDto : MqttReferenceDataDto
+    {
+        public int Id { get; set; }
+        public int? OldId { get; set; }
+    }
+
+    public class MqttMapPlacemarkDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public string LayerName { get; set; }
+    }
+
+    public class MqttMapPlacemarksImportedDto
+    {
+        public int Count { get; set; }
+    }
+
+    public class MqttMapPlacemarksRemovedAllDto
+    {
+        public int Count { get; set; }
+    }
+
+    public class MqttMapPlacemarkEditedDto : MqttMapPlacemarkDto
+    {
+        public string OldName { get; set; }
+        public string OldLayerName { get; set; }
+        public bool IsReplaced { get; set; } // полная замена метки
+    }
+
+    public class MqttMapPlacemarkBindingDto
+    {
+        public Guid PlacemarkId { get; set; }
+        public string PlacemarkName { get; set; }
+        public int BindingType { get; set; } // MapPlacemarkBindingType
+        public string Name { get; set; }
+        public string Value { get; set; }
+    }
+
+    public class MqttMapPlacemarkBindingEditedDto : MqttMapPlacemarkBindingDto
+    {
+        public string OldName { get; set; }
+        public string OldValue { get; set; }
     }
 }
