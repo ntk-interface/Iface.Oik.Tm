@@ -362,6 +362,14 @@ public partial class OikSqlApi
             where.Add("log.category = ANY(@CategoriesArray)");
             parameters.Add("@CategoriesArray", filter.Categories.Cast<int>().ToArray());
         }
+        if (filter.PlacardTypeIds.Count > 0)
+        {
+            where.Add(
+                "(log.category <> @PlacardsCategory OR log.extra_int = ANY(@PlacardTypeIdArray))"
+            );
+            parameters.Add("@PlacardsCategory", (int)TmUserActionCategory.Placards);
+            parameters.Add("@PlacardTypeIdArray", filter.PlacardTypeIds.ToArray());
+        }
         if (
             filter.Importances != TmEventImportances.None
             && filter.Importances != TmEventImportances.Any

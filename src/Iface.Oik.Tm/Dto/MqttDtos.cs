@@ -92,6 +92,7 @@ namespace Iface.Oik.Tm.Dto
         public string Username { get; set; }
         public long? Tma { get; set; }
         public Guid? ExtraId { get; set; }
+        public int? ExtraInt { get; set; }
     }
 
     public class MqttEventNotesDto

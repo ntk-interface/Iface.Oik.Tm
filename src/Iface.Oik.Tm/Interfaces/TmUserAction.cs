@@ -115,6 +115,7 @@ namespace Iface.Oik.Tm.Interfaces
                 Username = dto.Username,
                 FullTma = dto.Tma,
                 ExtraId = dto.ExtraId,
+                ExtraInt = dto.ExtraInt,
             };
             action.PrepareTmAddrValues();
 

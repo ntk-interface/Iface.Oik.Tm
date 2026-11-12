@@ -197,6 +197,7 @@ namespace Iface.Oik.Tm.Dto
                 Username = dto.Username,
                 Tma = dto.Tma,
                 ExtraId = dto.ExtraId,
+                ExtraInt = dto.ExtraInt,
             };
         }
     }
