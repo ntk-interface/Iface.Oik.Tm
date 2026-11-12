@@ -28,6 +28,10 @@ namespace Iface.Oik.Tm.Interfaces
 
         public List<TmUserActionCategory> Categories { get; } = new();
 
+        // id типов плакатов из БД клиента; сужает только плакатные действия,
+        // записи без типа (ExtraInt == null) не проходят отбор
+        public List<int> PlacardTypeIds { get; } = new();
+
         public bool HasNoteComment { get; set; }
         public bool HasNoteTime { get; set; }
         public List<Guid> NoteTagIds { get; } = new();
@@ -42,6 +46,7 @@ namespace Iface.Oik.Tm.Interfaces
             && (ChannelAndRtuCollection == null || ChannelAndRtuCollection.Count == 0)
             && !ExcludeFromReserve
             && Categories.Count == 0
+            && PlacardTypeIds.Count == 0
             && (Source == TmEventSource.Union)
             && !HasNoteComment
             && !HasNoteTime
@@ -115,6 +120,7 @@ namespace Iface.Oik.Tm.Interfaces
             TmStatusClassIdList?.Clear();
             ExcludeFromReserve = false;
             Categories.Clear();
+            PlacardTypeIds.Clear();
             HasNoteComment = false;
             HasNoteTime = false;
             NoteTagIds.Clear();
@@ -251,6 +257,18 @@ namespace Iface.Oik.Tm.Interfaces
                 return false;
             }
 
+            if (
+                PlacardTypeIds.Count > 0
+                && userAction.Category == TmUserActionCategory.Placards
+                && (
+                    userAction.ExtraInt == null
+                    || !PlacardTypeIds.Contains(userAction.ExtraInt.Value)
+                )
+            )
+            {
+                return false;
+            }
+
             if (StartTime.HasValue && userAction.Time < StartTime)
             {
                 return false;
@@ -343,6 +361,11 @@ namespace Iface.Oik.Tm.Interfaces
             return Categories.Count == 0 || Categories.Contains(category);
         }
 
+        public bool IsConformPlacardTypeId(int id)
+        {
+            return PlacardTypeIds.Count == 0 || PlacardTypeIds.Contains(id);
+        }
+
         public override string ToString()
         {
             if (!StartTime.HasValue || !EndTime.HasValue)
@@ -385,6 +408,10 @@ namespace Iface.Oik.Tm.Interfaces
                     .Where(cat => Categories.Contains(cat))
                     .Select(cat => $"= \"{cat.GetDescription()}\"");
                 filters.Add($"(Категории {string.Join(" ИЛИ ", selectedCategories)})");
+            }
+            if (PlacardTypeIds.Count > 0)
+            {
+                filters.Add($"(Типы плакатов содержатся в [{string.Join(",", PlacardTypeIds)}])");
             }
             if (Importances != 0 && Importances != TmEventImportances.Any)
             {
