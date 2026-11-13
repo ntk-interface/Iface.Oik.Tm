@@ -289,9 +289,9 @@ public partial class OikSqlApi
         if (filter == null)
             return null; // TODO throw
 
-        if (filter.AreUserActionsForbidden || !filter.TmStatusClassIdList.IsNullOrEmpty())
+        if (filter.AreUserActionsForbidden)
         {
-            return Array.Empty<TmUserAction>(); // TODO временно обнуляем при задании ТМ-адресов или классов
+            return Array.Empty<TmUserAction>();
         }
 
         var (where, parameters) = PrepareUserActionsWhereClauseAndParameters(filter);
