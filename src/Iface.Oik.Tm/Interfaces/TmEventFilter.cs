@@ -20,7 +20,10 @@ namespace Iface.Oik.Tm.Interfaces
         public TmEventTypes Types { get; set; }
         public TmEventImportances Importances { get; set; }
         public List<TmAddr> TmAddrList { get; } = new();
+
+        // Класс ТС относится только к событиям, для действий пользователей игнорируется
         public List<int> TmStatusClassIdList { get; set; }
+
         public bool ExcludeFromReserve { get; set; }
 
         // channelNum -> { null(весь канал) | коллекция rtuNum }
@@ -251,6 +254,8 @@ namespace Iface.Oik.Tm.Interfaces
             {
                 return false;
             }
+
+            // TmStatusClassIdList сознательно не проверяется для действий пользователей
 
             if (Categories.Count > 0 && !Categories.Contains(userAction.Category))
             {
