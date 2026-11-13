@@ -210,7 +210,7 @@ public partial class OikSqlApi
         if (filter.TmStatusClassIdList?.Count > 0)
         {
             where.Add(
-                $"((events.tm_type != {(int)TmNativeDefs.TmDataTypes.Status}) OR events.class_id IN ({string.Join(",", filter.TmStatusClassIdList)}))"
+                $"(events.tm_type = {(int)TmNativeDefs.TmDataTypes.Status} AND events.class_id IN ({string.Join(",", filter.TmStatusClassIdList)}))"
             );
         }
         if (filter.TmAddrList.Count > 0)
